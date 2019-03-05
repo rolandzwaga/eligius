@@ -7,6 +7,29 @@
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "ajv": "^6.10.0",
+    "d3": "^5.9.1",
+    "es6-shim": "^0.35.4",
+    "font-awesome": "^4.7.0",
+    "jquery": "^3.3.1",
+    "lottie-web": "^5.4.4",
     "webpack": "^4.29.6"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.4.10",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.0.5",
+    "child_process": "^1.0.2",
+    "chokidar": "^2.1.2",
+    "css-loader": "^2.1.0",
+    "file-loader": "^3.0.1",
+    "html-loader": "^0.5.5",
+    "node-sass": "^4.11.0",
+    "postcss": "^7.0.14",
+    "postcss-loader": "^3.0.0",
+    "pug": "^2.0.3",
+    "pug-loader": "^2.4.0",
+    "sass-loader": "^7.1.0",
+    "style-loader": "^0.23.1"
   }
 }
