@@ -1,0 +1,12 @@
+{
+  "name": "chrono-trigger",
+  "version": "1.0.0",
+  "description": "An engine that allows arbitrary functionality to be triggered according to a given timeline",
+  "main": "index.js",
+  "repository": "https://github.com/rolandzwaga/chrono-trigger.git",
+  "author": "Roland Zwaga <rbzwaga@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "webpack": "^4.29.6"
+  }
+}
