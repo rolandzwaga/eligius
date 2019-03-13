@@ -1,0 +1,8 @@
+{
+  "name": "RQFExample",
+  "version": "1.0.0",
+  "description": "Chrono-Trigger-JS RequestAnimationFrame timeline example",
+  "main": "index.js",
+  "author": "Roland Zwaga <rbzwaga@gmail.com>",
+  "license": "MIT"
+}

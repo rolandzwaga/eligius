@@ -1,14 +1,15 @@
 {
-  "name": "chrono-trigger",
+  "name": "chrono-trigger-js",
   "version": "1.0.0",
-  "description": "An engine that allows arbitrary functionality to be triggered according to a given timeline",
+  "description": "An engine that allows arbitrary functionality, defined by a JSON configuration, to be triggered according to a given timeline",
   "main": "index.js",
   "repository": "https://github.com/rolandzwaga/chrono-trigger.git",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "es6-shim": "^0.35.4",
-    "jquery": "^3.3.1"
+    "jquery": "^3.3.1",
+    "mediaelement": "^4.2.9"
   },
   "devDependencies": {
     "ajv": "^6.10.0",

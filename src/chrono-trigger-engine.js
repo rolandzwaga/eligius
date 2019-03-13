@@ -1,7 +1,7 @@
 import LanguageManager from './languagemanager';
 import $ from 'jquery';
 
-class IvpEngine {
+class ChronoTriggerEngine {
 
     constructor(configuration, eventbus, timelineProvider) {
         this.configuration = configuration;
@@ -283,4 +283,4 @@ class IvpEngine {
     }
 }
 
-export default IvpEngine;
+export default ChronoTriggerEngine;
