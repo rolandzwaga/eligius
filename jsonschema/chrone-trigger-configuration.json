@@ -23,10 +23,10 @@
         ],
         "pattern": "^(.*)$"
       },
-      "playerSettings": {
+      "timelineProviderSettings": {
         "$id": "#/properties/playerSettings",
         "type": "object",
-        "title": "The Playersettings Schema",
+        "title": "The TimelineProviderSettings Schema",
         "required": [
           "vendor",
           "selector",

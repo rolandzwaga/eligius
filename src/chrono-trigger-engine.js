@@ -1,4 +1,4 @@
-import LanguageManager from './languagemanager';
+import LanguageManager from './language-manager';
 import $ from 'jquery';
 
 class ChronoTriggerEngine {

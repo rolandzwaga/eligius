@@ -1,11 +1,12 @@
 import Eventbus from './eventbus/eventbus';
 import ActionRegistryEventbusListener from './eventbus/actionregistryeventbuslistener';
 import RequestVideoUrlInterceptor from './eventbus/requestvideouriInterceptor';
-import TimelineAction from "./action/timelineaction";
-import EndableAction from "./action/endableaction";
-import Action from "./action/action";
+import TimelineAction from './action/timelineaction';
+import EndableAction from './action/endableaction';
+import Action from './action/action';
 import $ from 'jquery';
 import getNestedValue from './operation/helper/getNestedValue';
+import TimelineEventNames from './eventnames';
 
 class EngineFactory {
     
@@ -20,9 +21,9 @@ class EngineFactory {
         this.importer = importer;
 
         this.eventBus = new Eventbus();
-        this.eventBus.on("request-instance", this.requestInstanceHandler.bind(this));
-        this.eventBus.on("request-action", this.requestActionHandler.bind(this));
-        this.eventBus.on("request-function", this.requestFunctionHandler.bind(this));
+        this.eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this.requestInstanceHandler.bind(this));
+        this.eventBus.on(TimelineEventNames.REQUEST_ACTION, this.requestActionHandler.bind(this));
+        this.eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this.requestFunctionHandler.bind(this));
         
         $(window).resize(this.resizeHandler.bind(this));
     }
@@ -37,7 +38,7 @@ class EngineFactory {
             clearTimeout(this.resizeTimeout);
         }
         this.resizeTimeout = setTimeout(() => {
-            this.eventBus.broadcast('resize');
+            this.eventBus.broadcast(TimelineEventNames.RESIZE);
         }, 200);
     }
 
@@ -76,14 +77,13 @@ class EngineFactory {
             this.eventBus.registerEventlistener(actionReg);
         }
 
-        this.eventBus.registerInterceptor("request-video-url", new RequestVideoUrlInterceptor(this.eventBus));
-
-
-        const facadeCtor = this.importSystemEntry(config.playerSettings.systemName);
+        this.eventBus.registerInterceptor(TimelineEventNames.REQUEST_VIDEO_URL, new RequestVideoUrlInterceptor(this.eventBus));
 
         this.processConfiguration(config, config);
 
-        const player = new facadeCtor(this.eventBus, config);
+        const providerCtor = this.importSystemEntry(config.timelineProviderSettings.systemName);
+
+        const timelineProvider = new providerCtor(this.eventBus, config);
 
         this.resolveOperations(config);
 
@@ -95,9 +95,8 @@ class EngineFactory {
 
         this.initializeEventActions(actionReg, config);
 
-        const engine = new engineCtor(config, this.eventBus, player);
-        return engine;
-
+        const chronoTriggerEngine = new engineCtor(config, this.eventBus, timelineProvider);
+        return chronoTriggerEngine;
     }
 
     initializeEventActions(actionReg, config) {
@@ -130,13 +129,13 @@ class EngineFactory {
     }
 
     initializeTimelineActions(config) {
-        if (config.videourls) {
-            config.videourls.forEach(this.initializeTimelineAction.bind(this));
+        if (config.timelines) {
+            config.timelines.forEach(this.initializeTimelineAction.bind(this));
         }
     }
 
-    initializeTimelineAction(videoUrl) {
-        videoUrl.timelineActions = videoUrl.timelineActions.map((actionData) => {
+    initializeTimelineAction(timelineConfig) {
+        timelineConfig.timelineActions = timelineConfig.timelineActions.map((actionData) => {
             const timelineAction = new TimelineAction(actionData, this.eventBus);
             if (!timelineAction.endOperations) {
                 timelineAction.endOperations = [];
@@ -147,14 +146,14 @@ class EngineFactory {
 
     resolveOperations(config) {
         const timelineOperations = [];
-        config.videourls.forEach((urlInfo) => {
-            timelineOperations.push(...this.gatherOperationSystemNames(urlInfo.timelineActions));
+        config.timelines.forEach((urlInfo) => {
+            timelineOperations.push(...this.gatherOperations(urlInfo.timelineActions));
         });
 
-        const systemNameHolders = (this.gatherOperationSystemNames(config.initActions))
+        const systemNameHolders = this.gatherOperations(config.initActions)
                                     .concat(timelineOperations)
-                                    .concat(this.gatherOperationSystemNames(config.actions))
-                                    .concat(this.gatherOperationSystemNames(config.eventActions));
+                                    .concat(this.gatherOperations(config.actions))
+                                    .concat(this.gatherOperations(config.eventActions));
 
         systemNameHolders.forEach((holder)=> {
             holder.instance = this.importSystemEntry(holder.systemName);
@@ -175,32 +174,34 @@ class EngineFactory {
                 this.processConfiguration(config[i], parentConfig);
             }
         } else {
-            for (let p in config) {
-                if (config.hasOwnProperty(p)) {
-                    const value = config[p];
-                    if (typeof value === "string") {
-                        if ((value.substr(0, 7) === "config:")) {
-                            const configProperty = value.substr(7, value.length);
-                            config[p] = this._getNestedPropertyValue(configProperty, parentConfig);
-                        }
-                        else if ((value.substr(0, 9) === "template:")) {
-                            config[p] = this.importSystemEntry(value);
-                        }
-                        else if ((value.substr(0, 5) === "json:")) {
-                            config[p] = JSON.parse(this.importSystemEntry(value));
-                        }
-                        else if ((value.substr(0, 4) === "css:")) {
-                            console.error(`We need to load this css: ${value}`);
-                        }
-                    } else if (typeof value === "object") {
-                        this.processConfiguration(config[p], parentConfig);
-                    }
-                }
-            }
+            Object.keys(config).forEach((key) => {
+                this.processConfigProperty(key, config);
+            });
         }
     }
 
-    gatherOperationSystemNames(actions) {
+    processConfigProperty(key, config) {
+        const value = config[key];
+        if (typeof value === 'string') {
+            if ((value.substr(0, 7) === 'config:')) {
+                const configProperty = value.substr(7, value.length);
+                config[p] = this._getNestedPropertyValue(configProperty, parentConfig);
+            }
+            else if ((value.substr(0, 9) === 'template:')) {
+                config[p] = this.importSystemEntry(value);
+            }
+            else if ((value.substr(0, 5) === 'json:')) {
+                config[p] = JSON.parse(this.importSystemEntry(value));
+            }
+            else if ((value.substr(0, 4) === 'css:')) {
+                console.error(`We need to load this css: ${value}`);
+            }
+        } else if (typeof value === 'object') {
+            this.processConfiguration(config[p], parentConfig);
+        }
+    }
+
+    gatherOperations(actions) {
         if (!actions) {
             return [];
         }

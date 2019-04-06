@@ -6,5 +6,5 @@ import WebpackResourceImporter from "./importer/webpackresourceimporter";
 const factory = new EngineFactory(new WebpackResourceImporter());
 const engine = factory.createEngine(engineConfig, ChronoTriggerEngine);
 engine.init().then(()=> {
-    console.log('ivp engine ready for business');
+    console.log('chrono trigger engine ready for business');
 });
