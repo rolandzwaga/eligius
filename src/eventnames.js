@@ -18,12 +18,20 @@ class TimelineEventNames {
     static PAUSE = 'timeline-pause';
     static SEEK = 'timeline-seek';
     static RESIZE = 'timeline-resize';
+    static POSITION_UPDATE = 'timeline-position-update';
+    static TIME_UPDATE = 'timeline-time-update';
 
-    // factory events
+    // factory and engine events
     static REQUEST_INSTANCE = 'request-instance';
     static REQUEST_ACTION = 'request-action';
     static REQUEST_FUNCTION = 'request-function';
     static REQUEST_VIDEO_URL = 'request-video-url';
+    static REQUEST_ENGINE_ROOT = 'request-engine-root';
+    static REQUEST_CURRENT_TIMELINE_POSITION = 'request-current-timeline-position';
+    static REQUEST_TIMELINE_CLEANUP = 'request-timeline-cleanup';
+    static EXECUTE_TIMELINEACTION = 'execute-timelineaction';
+    static RESIZE_TIMELINEACTION = 'resize-timelineaction';
+
 }
 
 export default TimelineEventNames;

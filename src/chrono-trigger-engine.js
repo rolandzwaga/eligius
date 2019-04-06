@@ -1,5 +1,6 @@
 import LanguageManager from './language-manager';
 import $ from 'jquery';
+import TimelineEventNames from './eventnames';
 
 class ChronoTriggerEngine {
 
@@ -18,14 +19,14 @@ class ChronoTriggerEngine {
 
         this.languageManager = new LanguageManager(this.configuration.language, this.configuration.labels, this.eventbus);
 
-        this._currentVideoUrl = (this.configuration.videourls.length) ? this.configuration.videourls[0].url : null;
+        this._currentVideoUrl = (this.configuration.timelines.length) ? this.configuration.timelines[0].url : null;
 
         return this.initializeTimelineProvider();
     }
 
     createLayoutTemplate() {
         const container = $(this.configuration.containerSelector);
-        if (!container.length) {
+        if (!container || !container.length) {
             throw new Error(`Container selector not found: ${this.configuration.containerSelector}`);
         }
         const { layoutTemplate } = this.configuration; 
@@ -36,13 +37,13 @@ class ChronoTriggerEngine {
 
     initializeTimelineProvider() {
         this.createTimelineLookup();
-        const playerContainer = $(`#${this.configuration.playerSettings.selector}`);
+        const playerContainer = $(`#${this.configuration.timelineProviderSettings.selector}`);
         if (playerContainer.length) {
             return new Promise((resolve) => {
                 this.timelineProvider.init().then(() => {
                     this.executeActions((this.configuration.initActions), "start").then(() => {
-                        this.timelineProvider.on("time", this.onTimeHandler.bind(this, Math.floor));
-                        this.timelineProvider.on("seek", this.onSeekHandler.bind(this, Math.floor));
+                        this.timelineProvider.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this, Math.floor));
+                        this.timelineProvider.on(TimelineEventNames.SEEK, this.onSeekHandler.bind(this, Math.floor));
                         resolve(this.timelineProvider);
                     });
                 });
@@ -65,12 +66,12 @@ class ChronoTriggerEngine {
     }
 
     addInitialisationListeners() {
-        this._eventbusListeners.push(this.eventbus.on("request-engine-root", this.handleRequestEngineRoot.bind(this, this.configuration.containerSelector)));
-        this._eventbusListeners.push(this.eventbus.on("request-video-url", this.handleRequestVideoUrl.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on("request-current-video-position", this.handleRequestVideoPosition.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on("request-video-cleanup", this.handleVideoComplete.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on("execute-timelineaction", this.handleExecuteTimelineAction.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on("resize-timelineaction", this.resizeTimelineAction.bind(this)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_ENGINE_ROOT, this.handleRequestEngineRoot.bind(this, this.configuration.containerSelector)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_VIDEO_URL, this.handleRequestVideoUrl.bind(this)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION, this.handleRequestTimelinePosition.bind(this)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this.handleTimelineComplete.bind(this)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.EXECUTE_TIMELINEACTION, this.handleExecuteTimelineAction.bind(this)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_TIMELINEACTION, this.resizeTimelineAction.bind(this)));
     }
 
     createTimelineLookup() {
@@ -139,7 +140,7 @@ class ChronoTriggerEngine {
             if ((!this.timelineProvider.loop) && (position > 0)) {
                 this.timelineProvider.once("firstFrame", () => {
                     this.timelineProvider.pause();
-                    this.eventbus.broadcastForTopic("videoplayer-duration", this.timelineProvider.playerid, [this.getDuration()]);
+                    this.eventbus.broadcastForTopic(TimelineEventNames.DURATION, this.timelineProvider.playerid, [this.getDuration()]);
                     this.executeStartActions().then(() => {
                         this.timelineProvider.seek(position);
                         this.onSeekHandler(Math.floor, { offset: position });
@@ -186,11 +187,11 @@ class ChronoTriggerEngine {
         return this.executeActions(currentActions, executionType, idx);
     }
 
-    handleRequestVideoPosition(resultCallback) {
+    handleRequestTimelinePosition(resultCallback) {
         resultCallback(Math.floor(this.timelineProvider.getPosition()));
     }
 
-    handleVideoComplete() {
+    handleTimelineComplete() {
         this.cleanUpVideoTimeline();
     }
 
@@ -235,9 +236,9 @@ class ChronoTriggerEngine {
             const pos = floor(event.position);
             if (this._lastPosition !== pos) {
                 this.executeActionsForPosition(pos);
-                this.eventbus.broadcastForTopic("videoplayer-seconds-update", this.timelineProvider.playerid, [pos, this.timelineProvider.getDuration()]);
+                this.eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this.timelineProvider.playerid, [pos, this.timelineProvider.getDuration()]);
             }
-            this.eventbus.broadcastForTopic("videoplayer-position-update", this.timelineProvider.playerid, [event.position, this.timelineProvider.getDuration()]);
+            this.eventbus.broadcastForTopic(TimelineEventNames.TIME_UPDATE, this.timelineProvider.playerid, [event.position, this.timelineProvider.getDuration()]);
         }
     }
 

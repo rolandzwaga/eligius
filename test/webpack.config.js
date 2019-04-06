@@ -9,7 +9,8 @@ module.exports = {
         plugins: [
           ["@babel/plugin-transform-modules-commonjs", {
             "allowTopLevelThis": true
-          }]
+          }],
+          "@babel/plugin-proposal-class-properties"
         ]
         },
     }]
