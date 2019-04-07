@@ -1,6 +1,6 @@
 import LanguageManager from './language-manager';
 import $ from 'jquery';
-import TimelineEventNames from './eventnames';
+import TimelineEventNames from './timeline-event-names';
 
 class ChronoTriggerEngine {
 
@@ -22,6 +22,8 @@ class ChronoTriggerEngine {
         const { timelines } = this.configuration;
         this._currentVideoUrl = (timelines && timelines.length) ? timelines[0].url : null;
 
+        this.createTimelineLookup();
+
         return this.initializeTimelineProvider();
     }
 
@@ -37,7 +39,6 @@ class ChronoTriggerEngine {
     }
 
     initializeTimelineProvider() {
-        this.createTimelineLookup();
         if (!this.configuration.timelineProviderSettings) {
             return;
         }
@@ -85,36 +86,36 @@ class ChronoTriggerEngine {
         if (!this.configuration.timelines) {
             return;
         }
-        this.configuration.timelines.forEach((urlInfo) => {
-            urlInfo.timelineActions.forEach(this.addTimelineAction.bind(this, urlInfo.url));
+        this.configuration.timelines.forEach((timelineInfo) => {
+            timelineInfo.timelineActions.forEach(this.addTimelineAction.bind(this, timelineInfo.uri));
         });
     }
 
-    addTimelineAction(url, timeLineAction) {
+    addTimelineAction(uri, timeLineAction) {
         const start = timeLineAction.duration.start;
-        const videoStartPositions = this.initializeVideoPosition(this.initializeUrlLookup(this._timeLineActionsLookup, url), start);
+        const timelineStartPositions = this.initializeTimelinePosition(this.initializeUrlLookup(this._timeLineActionsLookup, uri), start);
         const startMethod = timeLineAction.start.bind(timeLineAction);
-        videoStartPositions.push(startMethod);
+        timelineStartPositions.push(startMethod);
 
         let end = timeLineAction.duration.end;
         if ((!end) || (isNaN(end))) {
             end = timeLineAction.duration.end = Infinity;
         }
         if (isFinite(end)) {
-            const videoEndPositions = this.initializeVideoPosition(this._timeLineActionsLookup[url], end);
+            const timelineEndPositions = this.initializeTimelinePosition(this._timeLineActionsLookup[uri], end);
             const endMethod = timeLineAction.end.bind(timeLineAction);
-            videoEndPositions.push(endMethod);
+            timelineEndPositions.push(endMethod);
         }
     }
 
-    initializeUrlLookup(lookup, url) {
-        if (!lookup[url]) {
-            lookup[url] = {};
+    initializeUrlLookup(lookup, uri) {
+        if (!lookup[uri]) {
+            lookup[uri] = {};
         }
-        return lookup[url];
+        return lookup[uri];
     }
 
-    initializeVideoPosition(lookup, position) {
+    initializeTimelinePosition(lookup, position) {
         if (!lookup[position]) {
             lookup[position] = [];
         }

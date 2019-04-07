@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import TimelineEventNames from './eventnames';
+import TimelineEventNames from '../timeline-event-names';
 
-class JwPlayerProvider {
+class JwPlayerTimelineProvider {
 
    constructor(eventbus, config) {
         this.eventbus = eventbus;
@@ -211,4 +211,4 @@ class JwPlayerProvider {
     }
 }
 
-export default JwPlayerFacade;
+export default JwPlayerTimelineProvider;

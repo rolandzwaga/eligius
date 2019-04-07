@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import TimelineEventNames from './eventnames';
+import TimelineEventNames from '../timeline-event-names';
 
-class RequestAnimationFrameProvider {
+class RequestAnimationFrameTimelineProvider {
 
     constructor(eventbus, config) {
         this.eventbus = eventbus;
@@ -107,4 +107,4 @@ class RequestAnimationFrameProvider {
     }
 }
 
-export default RequestAnimationFrameProvider;
+export default RequestAnimationFrameTimelineProvider;

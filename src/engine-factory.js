@@ -6,7 +6,7 @@ import EndableAction from './action/endableaction';
 import Action from './action/action';
 import $ from 'jquery';
 import getNestedValue from './operation/helper/getNestedValue';
-import TimelineEventNames from './eventnames';
+import TimelineEventNames from './timeline-event-names';
 
 class EngineFactory {
     

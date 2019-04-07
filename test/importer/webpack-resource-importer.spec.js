@@ -16,13 +16,23 @@ describe('WebpackResourceImporter', () => {
             const imported = importer.import(op);
             expect(imported).to.not.equal(null);
             expect(imported[op]).to.not.equal(null);
-        })
+        });
     });
 
     it('should return all known controllers', () => {
         const controllers = ['EventListenerController', 'LabelController', 'LottieController', 'NavigationController', 'ProgressbarController', 'RoutingController', 'SubtitlesController'];
 
         controllers.forEach(op => {
+            const imported = importer.import(op);
+            expect(imported).to.not.equal(null);
+            expect(imported[op]).to.not.equal(null);
+        });
+    });
+    
+    it('should return all known timeline providers', () => {
+        const providers = ['JwPlayerTimelineProvider', /*'MediaElementTimelineProvider',*/ 'RequestAnimationFrameTimelineProvider'];
+
+        providers.forEach(op => {
             const imported = importer.import(op);
             expect(imported).to.not.equal(null);
             expect(imported[op]).to.not.equal(null);

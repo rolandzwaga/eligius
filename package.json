@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "d3": "5.9.2",
-    "es6-shim": "0.35.4",
+    "es6-shim": "0.35.5",
     "jquery": "3.3.1",
     "lottie-web": "5.5.0",
     "mediaelement": "4.2.9"
@@ -24,12 +24,12 @@
     "@babel/plugin-transform-modules-commonjs": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
     "ajv": "6.10.0",
-    "autoprefixer": "9.4.10",
+    "autoprefixer": "9.5.0",
     "babel-loader": "^8.0.5",
     "chai": "4.2.0",
     "child_process": "1.0.2",
-    "chokidar": "2.1.2",
-    "css-loader": "2.1.0",
+    "chokidar": "2.1.5",
+    "css-loader": "2.1.1",
     "file-loader": "3.0.1",
     "html-loader": "0.5.5",
     "inject-loader": "^4.0.1",
@@ -45,6 +45,6 @@
     "sass-loader": "7.1.0",
     "sinon": "^7.3.1",
     "style-loader": "0.23.1",
-    "webpack": "4.28.4"
+    "webpack": "4.29.6"
   }
 }

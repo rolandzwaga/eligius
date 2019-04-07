@@ -32,6 +32,11 @@ class TimelineEventNames {
     static EXECUTE_TIMELINEACTION = 'execute-timelineaction';
     static RESIZE_TIMELINEACTION = 'resize-timelineaction';
 
+    //language manager events
+    static REQUEST_LABEL_COLLECTION = 'request-label-collection';
+    static REQUEST_LABEL_COLLECTIONS = 'request-label-collections';
+    static REQUEST_CURRENT_LANGUAGE = 'request-current-language';
+    static LANGUAGE_CHANGE = 'language-change';
 }
 
 export default TimelineEventNames;

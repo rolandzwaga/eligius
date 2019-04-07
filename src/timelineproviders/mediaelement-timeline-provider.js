@@ -1,8 +1,7 @@
-import $ from 'jquery';
-import TimelineEventNames from './eventnames';
+import TimelineEventNames from '../timeline-event-names';
 import MediaElementPlayer from 'mediaelement';
 
-class MediaElementProvider {
+class MediaElementTimelineProvider {
 
     constructor(eventbus, config) {
         this.eventbus = eventbus;
@@ -68,4 +67,4 @@ class MediaElementProvider {
     }
 }
 
-export default MediaElementProvider;
+export default MediaElementTimelineProvider;
