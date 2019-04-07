@@ -16,7 +16,7 @@ class JwPlayerTimelineProvider {
 
     _extractUrls(configuration) {
         const urls = configuration.timelines.filter(timeline => timeline.type === "video").map(timeline => {
-            return timeline.url;
+            return timeline.uri;
         });
         return urls;
     }
@@ -76,9 +76,9 @@ class JwPlayerTimelineProvider {
             this.eventbus.broadcastForTopic(TimelineEventNames.DURATION, this.player.playerid, [this.getDuration()]);
             resolve(this);
         });
-        this.player.on("time", this._loopHandler.bind(this, Math.floor));
-        this.player.on("seeked", this._seekedHandler.bind(this));
-        this.player.on("complete", this._handlePlayerComplete.bind(this));
+        this.player.on(TimelineEventNames.TIME, this._loopHandler.bind(this, Math.floor));
+        this.player.on(TimelineEventNames.SEEKED, this._seekedHandler.bind(this));
+        this.player.on(TimelineEventNames.COMPLETE, this._handlePlayerComplete.bind(this));
         setTimeout(()=> {
             this.player.play();
         },10);

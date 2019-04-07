@@ -25,7 +25,8 @@ class TimelineEventNames {
     static REQUEST_INSTANCE = 'request-instance';
     static REQUEST_ACTION = 'request-action';
     static REQUEST_FUNCTION = 'request-function';
-    static REQUEST_VIDEO_URL = 'request-video-url';
+    static REQUEST_TIMELINE_URI = 'request-timeline-uri';
+    static BEFORE_REQUEST_TIMELINE_URI = 'before-request-timeline-uri';
     static REQUEST_ENGINE_ROOT = 'request-engine-root';
     static REQUEST_CURRENT_TIMELINE_POSITION = 'request-current-timeline-position';
     static REQUEST_TIMELINE_CLEANUP = 'request-timeline-cleanup';

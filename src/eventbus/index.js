@@ -1,3 +1,3 @@
 export { default as Eventbus } from './eventbus';
-export { default as ActionRegistryEventbusListener } from './actionregistryeventbuslistener';
-export { default as RequestVideoUrlInterceptor } from './requestvideouriInterceptor';
+export { default as ActionRegistryEventbusListener } from './actionregistry-eventbus-listener';
+export { default as RequestVideoUrlInterceptor } from './request-video-uri-interceptor';

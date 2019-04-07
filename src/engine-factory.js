@@ -1,26 +1,22 @@
-import Eventbus from './eventbus/eventbus';
-import ActionRegistryEventbusListener from './eventbus/actionregistryeventbuslistener';
-import RequestVideoUrlInterceptor from './eventbus/requestvideouriInterceptor';
-import TimelineAction from './action/timelineaction';
-import EndableAction from './action/endableaction';
-import Action from './action/action';
+import { Eventbus, ActionRegistryEventbusListener, RequestVideoUriInterceptor } from './eventbus';
+import { TimelineAction, EndableAction, Action } from './action';
 import $ from 'jquery';
 import getNestedValue from './operation/helper/getNestedValue';
 import TimelineEventNames from './timeline-event-names';
 
 class EngineFactory {
     
-    constructor(importer) {
-        this.init(importer);
+    constructor(importer, eventbus) {
+        this.init(importer, eventbus);
     }
 
-    init(importer) {
+    init(importer, eventbus) {
         this.resizeTimeout = -1;
         this.actionsLookup = {};
 
         this.importer = importer;
 
-        this.eventBus = new Eventbus();
+        this.eventBus = eventbus || new Eventbus();
         this.eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this.requestInstanceHandler.bind(this));
         this.eventBus.on(TimelineEventNames.REQUEST_ACTION, this.requestActionHandler.bind(this));
         this.eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this.requestFunctionHandler.bind(this));
@@ -69,43 +65,43 @@ class EngineFactory {
         }
     }
 
-    createEngine(config, engineCtor) {
+    createEngine(configuration, engineClass) {
         this.actionsLookup = {};
-        let actionReg = null;
-        if ((config.eventActions) && (config.eventActions.length)) {
-            actionReg = new ActionRegistryEventbusListener();
-            this.eventBus.registerEventlistener(actionReg);
+        let actionRegistryListener = null;
+        if ((configuration.eventActions) && (configuration.eventActions.length)) {
+            actionRegistryListener = new ActionRegistryEventbusListener();
+            this.eventBus.registerEventlistener(actionRegistryListener);
         }
 
-        this.eventBus.registerInterceptor(TimelineEventNames.REQUEST_VIDEO_URL, new RequestVideoUrlInterceptor(this.eventBus));
+        this.eventBus.registerInterceptor(TimelineEventNames.REQUEST_TIMELINE_URI, new RequestVideoUriInterceptor(this.eventBus));
 
-        this.processConfiguration(config, config);
+        this.processConfiguration(configuration, configuration);
 
-        const providerCtor = this.importSystemEntry(config.timelineProviderSettings.systemName);
+        const providerClass = this.importSystemEntry(configuration.timelineProviderSettings.systemName);
 
-        const timelineProvider = new providerCtor(this.eventBus, config);
+        const timelineProvider = new providerClass(this.eventBus, configuration);
 
-        this.resolveOperations(config);
+        this.resolveOperations(configuration);
 
-        this.initializeTimelineActions(config);
+        this.initializeTimelineActions(configuration);
 
-        this.initializeInitActions(config);
+        this.initializeInitActions(configuration);
 
-        this.initializeActions(config);
+        this.initializeActions(configuration);
 
-        this.initializeEventActions(actionReg, config);
+        this.initializeEventActions(actionRegistryListener, configuration);
 
-        const chronoTriggerEngine = new engineCtor(config, this.eventBus, timelineProvider);
+        const chronoTriggerEngine = new engineClass(configuration, this.eventBus, timelineProvider);
         return chronoTriggerEngine;
     }
 
-    initializeEventActions(actionReg, config) {
-        if ((actionReg) && (config.eventActions)) {
+    initializeEventActions(actionRegistryListener, config) {
+        if ((actionRegistryListener) && (config.eventActions)) {
             config.eventActions.forEach((actionData) => {
                 const eventAction = new Action(actionData, this.eventBus);
-                actionReg.registerAction(eventAction, actionData.eventName, actionData.eventTopic);
+                actionRegistryListener.registerAction(eventAction, actionData.eventName, actionData.eventTopic);
             });
-            config.eventActions = null;
+            delete config.eventActions;
         }
     }
 
@@ -146,8 +142,8 @@ class EngineFactory {
 
     resolveOperations(config) {
         const timelineOperations = [];
-        config.timelines.forEach((urlInfo) => {
-            timelineOperations.push(...this.gatherOperations(urlInfo.timelineActions));
+        config.timelines.forEach((timelineInfo) => {
+            timelineOperations.push(...this.gatherOperations(timelineInfo.timelineActions));
         });
 
         const systemNameHolders = this.gatherOperations(config.initActions)

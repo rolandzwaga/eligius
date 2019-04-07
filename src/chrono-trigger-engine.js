@@ -20,7 +20,7 @@ class ChronoTriggerEngine {
         this.languageManager = new LanguageManager(this.configuration.language, this.configuration.labels, this.eventbus);
 
         const { timelines } = this.configuration;
-        this._currentVideoUrl = (timelines && timelines.length) ? timelines[0].url : null;
+        this._currentVideoUri = (timelines && timelines.length) ? timelines[0].uri : null;
 
         this.createTimelineLookup();
 
@@ -75,7 +75,7 @@ class ChronoTriggerEngine {
 
     addInitialisationListeners() {
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_ENGINE_ROOT, this.handleRequestEngineRoot.bind(this, this.configuration.containerSelector)));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_VIDEO_URL, this.handleRequestVideoUrl.bind(this)));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_URI, this.handleRequestTimelineUri.bind(this)));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION, this.handleRequestTimelinePosition.bind(this)));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this.handleTimelineComplete.bind(this)));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.EXECUTE_TIMELINEACTION, this.handleExecuteTimelineAction.bind(this)));
@@ -93,7 +93,7 @@ class ChronoTriggerEngine {
 
     addTimelineAction(uri, timeLineAction) {
         const start = timeLineAction.duration.start;
-        const timelineStartPositions = this.initializeTimelinePosition(this.initializeUrlLookup(this._timeLineActionsLookup, uri), start);
+        const timelineStartPositions = this.initializeTimelinePosition(this.initializeUriLookup(this._timeLineActionsLookup, uri), start);
         const startMethod = timeLineAction.start.bind(timeLineAction);
         timelineStartPositions.push(startMethod);
 
@@ -108,7 +108,7 @@ class ChronoTriggerEngine {
         }
     }
 
-    initializeUrlLookup(lookup, uri) {
+    initializeUriLookup(lookup, uri) {
         if (!lookup[uri]) {
             lookup[uri] = {};
         }
@@ -140,13 +140,13 @@ class ChronoTriggerEngine {
         resultCallback($(engineRootSelector));
     }
 
-    handleRequestVideoUrl(index, position, previousVideoPosition) {
-        position = (position) ? position : 0;
-        previousVideoPosition = (previousVideoPosition) ? previousVideoPosition : 0;
+    handleRequestTimelineUri(index, position, previousVideoPosition) {
+        position = position || 0;
+        previousVideoPosition = previousVideoPosition || 0;
         this.timelineProvider.stop();
-        this.cleanUpVideoTimeline().then(() => {
-            const vidConfig = this.configuration.videourls[index];
-            this._currentVideoUrl = vidConfig.url;
+        this.cleanUpTimeline().then(() => {
+            const vidConfig = this.configuration.timelines[index];
+            this._currentVideoUri = vidConfig.uri;
             this.timelineProvider.loop = vidConfig.loop;
             if ((!this.timelineProvider.loop) && (position > 0)) {
                 this.timelineProvider.once("firstFrame", () => {
@@ -162,21 +162,21 @@ class ChronoTriggerEngine {
         });
     }
 
-    cleanUpVideoTimeline() {
-        return this.executeRelevantActions(this.getActiveActionsForCleanup, "end");
+    cleanUpTimeline() {
+        return this.executeRelevantActions(this.getActiveActions, "end");
     }
 
     executeStartActions() {
-        return this.executeRelevantActions(this.getNewActions.bind(this, 0), "start");
+        return this.executeRelevantActions(this.getActionsForPosition.bind(this, 0), "start");
     }
 
-    getNewActions(position, allActions) {
+    getActionsForPosition(position, allActions) {
         return allActions.filter((action) => {
             return (!action.active) && ((action.duration.start <= position) && (action.duration.end >= position));
         });
     }
 
-    getActiveActionsForCleanup(allActions) {
+    getActiveActions(allActions) {
         const actions = allActions.filter((action) => {
             return action.active;
         });
@@ -194,8 +194,7 @@ class ChronoTriggerEngine {
     executeRelevantActions(filter, executionType) {
         const timelineActions = this.getRelevantTimelineActions();
         const currentActions = filter.apply(this, [timelineActions]);
-        const idx = 0;
-        return this.executeActions(currentActions, executionType, idx);
+        return this.executeActions(currentActions, executionType, 0);
     }
 
     handleRequestTimelinePosition(resultCallback) {
@@ -203,11 +202,11 @@ class ChronoTriggerEngine {
     }
 
     handleTimelineComplete() {
-        this.cleanUpVideoTimeline();
+        this.cleanUpTimeline();
     }
 
-    handleExecuteTimelineAction(url, index, start) {
-        const actions = this.getTimelineActionsForUrl(url);
+    handleExecuteTimelineAction(uri, index, start) {
+        const actions = this.getTimelineActionsForUri(uri);
         const action = (actions) ? actions[index] : null;
         if (action) {
             if (start) {
@@ -218,8 +217,8 @@ class ChronoTriggerEngine {
         }
     }
 
-    resizeTimelineAction(url, index) {
-        const actions = this.getTimelineActionsForUrl(url);
+    resizeTimelineAction(uri, index) {
+        const actions = this.getTimelineActionsForUri(uri);
         const action = (actions) ? actions[index] : null;
         if (action) {
             action.resize();
@@ -227,14 +226,14 @@ class ChronoTriggerEngine {
     }
 
     getRelevantTimelineActions() {
-        return this.getTimelineActionsForUrl(this._currentVideoUrl);
+        return this.getTimelineActionsForUri(this._currentVideoUri);
     }
 
-    getTimelineActionsForUrl(url) {
+    getTimelineActionsForUri(uri) {
         let timelineActions;
-        this.configuration.videourls.some((urlInfo) => {
-            if (urlInfo.url === url) {
-                timelineActions = urlInfo.timelineActions;
+        this.configuration.timelines.some((timelineInfo) => {
+            if (timelineInfo.uri === uri) {
+                timelineActions = timelineInfo.timelineActions;
                 return true;
             }
             return false;
@@ -265,7 +264,7 @@ class ChronoTriggerEngine {
 
     executeActionsForPosition(position) {
         this._lastPosition = position;
-        const actions = this._timeLineActionsLookup[this._currentVideoUrl];
+        const actions = this._timeLineActionsLookup[this._currentVideoUri];
         if (actions) {
             const executions = actions[position];
             if (executions) {
@@ -278,16 +277,14 @@ class ChronoTriggerEngine {
 
     executeSeekActions(pos) {
         const timelineActions = this.getRelevantTimelineActions();
-        const currentActions = this.getActiveActionsForCleanup(timelineActions);
+        const currentActions = this.getActiveActions(timelineActions);
+        const newActions = this.getActionsForPosition(pos, timelineActions);
 
-        const newActions = this.getNewActions(pos, timelineActions);
+        const promise = this.executeActions(currentActions, "end", 0);
 
-        const idx = 0;
-        const promise = this.executeActions(currentActions, "end", idx);
         return new Promise((resolve) => {
             promise.then(() => {
-                let idx = 0;
-                this.executeActions(newActions, "start", idx).then(() => {
+                this.executeActions(newActions, "start", 0).then(() => {
                     resolve();
                 });
             });
