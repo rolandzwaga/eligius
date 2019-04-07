@@ -33,6 +33,8 @@ class LanguageManager {
     handleLanguageChange(language) {
         if (language) {
             this._currentLanguage = language;
+        } else {
+            console.error('Language cannot be changed to null');
         }
     }
 

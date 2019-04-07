@@ -19,7 +19,8 @@ class ChronoTriggerEngine {
 
         this.languageManager = new LanguageManager(this.configuration.language, this.configuration.labels, this.eventbus);
 
-        this._currentVideoUrl = (this.configuration.timelines.length) ? this.configuration.timelines[0].url : null;
+        const { timelines } = this.configuration;
+        this._currentVideoUrl = (timelines && timelines.length) ? timelines[0].url : null;
 
         return this.initializeTimelineProvider();
     }
@@ -37,7 +38,12 @@ class ChronoTriggerEngine {
 
     initializeTimelineProvider() {
         this.createTimelineLookup();
+        if (!this.configuration.timelineProviderSettings) {
+            return;
+        }
+
         const playerContainer = $(`#${this.configuration.timelineProviderSettings.selector}`);
+
         if (playerContainer.length) {
             return new Promise((resolve) => {
                 this.timelineProvider.init().then(() => {
@@ -49,6 +55,7 @@ class ChronoTriggerEngine {
                 });
             });
         }
+
         return new Promise((resolve)=> {
             resolve();
         });
@@ -75,7 +82,10 @@ class ChronoTriggerEngine {
     }
 
     createTimelineLookup() {
-        this.configuration.videourls.forEach((urlInfo) => {
+        if (!this.configuration.timelines) {
+            return;
+        }
+        this.configuration.timelines.forEach((urlInfo) => {
             urlInfo.timelineActions.forEach(this.addTimelineAction.bind(this, urlInfo.url));
         });
     }

@@ -7,7 +7,7 @@
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js"
+    "test": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js --watch"
   },
   "dependencies": {
     "d3": "5.9.2",

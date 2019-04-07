@@ -1,6 +1,14 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 
+class LanguageManagerStub {
+  constructor(language, labels, eventbus) {
+    this.language = language;
+    this.labels = labels;
+    this.eventbus = eventbus;
+  }
+}
+
 describe('ChronoTriggerEngine', () => {
 
     let ChronoTriggerEngine;
@@ -19,7 +27,8 @@ describe('ChronoTriggerEngine', () => {
       const inject = require('inject-loader!../src/chrono-trigger-engine');
 
         ChronoTriggerEngine = inject({
-            'jquery': jQueryStub
+            'jquery': jQueryStub,
+            './language-manager': LanguageManagerStub
           }).default;
     });
 
@@ -99,6 +108,8 @@ describe('ChronoTriggerEngine', () => {
       // given
       setupLayoutInit();
       setupEventbus();
+      configuration.language = {};
+      configuration.labels = {};
 
       const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
 
@@ -106,5 +117,9 @@ describe('ChronoTriggerEngine', () => {
       engine.init();
 
       // expect
+      expect(engine.languageManager).to.not.equal(null);
+      expect(engine.languageManager.eventbus).to.equal(eventbus);
+      expect(engine.languageManager.language).to.equal(configuration.language);
+      expect(engine.languageManager.labels).to.equal(configuration.labels);
     });
 });
