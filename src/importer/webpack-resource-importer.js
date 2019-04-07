@@ -1,6 +1,7 @@
 ﻿import * as controllers from '../controllers';
 import * as operations from '../operation';
 import * as providers from '../timelineproviders';
+import * as main from '../';
 
 class WebpackResourceImporter {
 
@@ -16,6 +17,10 @@ class WebpackResourceImporter {
         } else if (providers[name]) {
             return {
                 [name]: providers[name]
+            };
+        } else if (main[name]) {
+            return {
+                [name]: main[name]
             };
         }
         return null;

@@ -1,7 +1,7 @@
 function modifyDimensions(dimensions, modifier) {
     let extraModifier = null;
-    if (modifier.indexOf("|") > -1) {
-        [modifier, extraModifier] = modifier.split("|");
+    if (modifier.indexOf('|') > -1) {
+        [modifier, extraModifier] = modifier.split('|');
     }
 
     let endIdx = 1;
@@ -72,11 +72,11 @@ function modifyDimensions(dimensions, modifier) {
     //h[ar=8-1]
     if (extraModifier) {
         let prefix = extraModifier.substr(0, 1);
-        let ratio = extraModifier.substr(extraModifier.indexOf("[") + 1, extraModifier.indexOf("]") - extraModifier.indexOf("[") - 1);
-        let ratios = ratio.split("=")[1].split("-");
-        if (prefix === "h") {
+        let ratio = extraModifier.substr(extraModifier.indexOf('[') + 1, extraModifier.indexOf(']') - extraModifier.indexOf('[') - 1);
+        let ratios = ratio.split('=')[1].split('-');
+        if (prefix === 'h') {
             dimensions.height = (dimensions.width / +ratios[0]) * +ratios[1];
-        } else if (prefix === "w") {
+        } else if (prefix === 'w') {
             dimensions.width = (dimensions.height / +ratios[1]) * +ratios[0];
         }
     }

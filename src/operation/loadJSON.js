@@ -7,7 +7,7 @@ function loadJSON(jsonCache, operationData, eventBus) {
     }
 
     let { propertyName } = operationData;
-    propertyName = (propertyName) ? propertyName : "json";
+    propertyName = propertyName || "json";
 
     return new Promise((resolve, reject)=> {
         fetch(url)

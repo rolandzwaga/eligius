@@ -19,13 +19,12 @@ class Action {
 	}
 
 	executeOperation(operations, idx, resolve, reject, previousOperationData) {
-		if (!previousOperationData) {
-			previousOperationData = {};
-		}
+		previousOperationData = previousOperationData || {};
+
 		if (idx < operations.length) {
 			const operationInfo = operations[idx];
-			const copy = ((operationInfo.operationData)) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
-			const mergedOperationData = $.extend(previousOperationData, copy);
+			const copy = (operationInfo.operationData) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
+			const mergedOperationData = Object.assign(previousOperationData, copy);
 			
 			const result = operationInfo.instance(mergedOperationData, this.eventbus);
 			
@@ -52,13 +51,12 @@ class Action {
 	}
 
 	executeResizeOperation(operations, idx, resolve, reject, previousOperationData) {
-		if (!previousOperationData) {
-			previousOperationData = {};
-		}
+		previousOperationData = previousOperationData || {};
+		
 		if (idx < operations.length) {
 			const operationInfo = operations[idx];
 			const copy = ((operationInfo.operationData)) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
-			const mergedOperationData = $.extend(previousOperationData, copy);
+			const mergedOperationData = Object.assign(previousOperationData, copy);
 			
 			if ((operationInfo.resizeInstance)) {
 				const result = operationInfo.resizeInstance(mergedOperationData);

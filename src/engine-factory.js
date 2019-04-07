@@ -6,11 +6,11 @@ import TimelineEventNames from './timeline-event-names';
 
 class EngineFactory {
     
-    constructor(importer, eventbus) {
-        this.init(importer, eventbus);
+    constructor(importer, windowRef, eventbus) {
+        this.init(importer, windowRef, eventbus);
     }
 
-    init(importer, eventbus) {
+    init(importer, windowRef, eventbus) {
         this.resizeTimeout = -1;
         this.actionsLookup = {};
 
@@ -21,7 +21,7 @@ class EngineFactory {
         this.eventBus.on(TimelineEventNames.REQUEST_ACTION, this.requestActionHandler.bind(this));
         this.eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this.requestFunctionHandler.bind(this));
         
-        $(window).resize(this.resizeHandler.bind(this));
+        $(windowRef).resize(this.resizeHandler.bind(this));
     }
 
     destroy() {
@@ -60,12 +60,15 @@ class EngineFactory {
         if (action) {
             resultCallback(action);
         } else {
-            console.error(`Unknown action name: ${systemName}`);
+            console.error(`Unknown action: ${systemName}`);
             resultCallback(null);
         }
     }
 
-    createEngine(configuration, engineClass) {
+    createEngine(configuration) {
+        const { systemName } = configuration.engine;
+        const engineClass = this.importSystemEntry(systemName);
+
         this.actionsLookup = {};
         let actionRegistryListener = null;
         if ((configuration.eventActions) && (configuration.eventActions.length)) {
@@ -179,17 +182,18 @@ class EngineFactory {
     processConfigProperty(key, config) {
         const value = config[key];
         if (typeof value === 'string') {
-            if ((value.substr(0, 7) === 'config:')) {
+            
+            if ((value.startsWith('config:'))) {
                 const configProperty = value.substr(7, value.length);
                 config[p] = this._getNestedPropertyValue(configProperty, parentConfig);
             }
-            else if ((value.substr(0, 9) === 'template:')) {
+            else if ((value.startsWith('template:'))) {
                 config[p] = this.importSystemEntry(value);
             }
-            else if ((value.substr(0, 5) === 'json:')) {
+            else if ((value.startsWith('json:'))) {
                 config[p] = JSON.parse(this.importSystemEntry(value));
             }
-            else if ((value.substr(0, 4) === 'css:')) {
+            else if ((value.startsWith('css:'))) {
                 console.error(`We need to load this css: ${value}`);
             }
         } else if (typeof value === 'object') {
