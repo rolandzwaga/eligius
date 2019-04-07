@@ -55,10 +55,10 @@ class Action {
 		
 		if (idx < operations.length) {
 			const operationInfo = operations[idx];
-			const copy = ((operationInfo.operationData)) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
-			const mergedOperationData = Object.assign(previousOperationData, copy);
-			
 			if ((operationInfo.resizeInstance)) {
+				const copy = ((operationInfo.operationData)) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
+				const mergedOperationData = Object.assign(previousOperationData, copy);
+
 				const result = operationInfo.resizeInstance(mergedOperationData);
 				if (result.then){
 					result.then((resultOperationData) => {
@@ -70,7 +70,7 @@ class Action {
 					this.executeResizeOperation(operations, ++idx, resolve, reject, result);
 				}
 			} else {
-				this.executeResizeOperation(operations, ++idx, resolve, reject, mergedOperationData);
+				this.executeResizeOperation(operations, ++idx, resolve, reject, previousOperationData);
 			}
 		} else {
 			resolve(previousOperationData);

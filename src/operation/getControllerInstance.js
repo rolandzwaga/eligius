@@ -1,12 +1,14 @@
+import TimelineEventNames from '../timeline-event-names';
+
 function getControllerInstance(operationData, eventBus) {
     const {systemName} = operationData;
     let {propertyName} = operationData;
     
-    propertyName = (propertyName) ? propertyName : "controllerInstance";
+    propertyName = propertyName || "controllerInstance";
     const resultCallback = (instance)=> {
         operationData[propertyName] = instance;
     }
-    eventBus.broadcast("request-instance", [systemName, resultCallback]);
+    eventBus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [systemName, resultCallback]);
     return operationData;
 }
 
