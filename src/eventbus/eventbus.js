@@ -37,6 +37,14 @@ class Eventbus {
 		}
 	}
 
+	once(eventName, eventHandler, eventTopic) {
+		const eventHandlerDecorator = () => {
+			eventHandler.call(...arguments);
+			this.off(eventName, eventHandler, eventTopic);
+		};
+		on(eventName, eventHandlerDecorator, eventTopic);
+	}
+
 	off(eventName, eventHandler, eventTopic) {
 		const handlers = this.getEventHandlers(eventName, eventTopic);
 		if (handlers) {

@@ -145,11 +145,11 @@ class ChronoTriggerEngine {
         previousVideoPosition = previousVideoPosition || 0;
         this.timelineProvider.stop();
         this.cleanUpTimeline().then(() => {
-            const vidConfig = this.configuration.timelines[index];
-            this._currentVideoUri = vidConfig.uri;
-            this.timelineProvider.loop = vidConfig.loop;
+            const timelineConfig = this.configuration.timelines[index];
+            this._currentVideoUri = timelineConfig.uri;
+            this.timelineProvider.loop = timelineConfig.loop;
             if ((!this.timelineProvider.loop) && (position > 0)) {
-                this.timelineProvider.once("firstFrame", () => {
+                this.timelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
                     this.timelineProvider.pause();
                     this.eventbus.broadcastForTopic(TimelineEventNames.DURATION, this.timelineProvider.playerid, [this.getDuration()]);
                     this.executeStartActions().then(() => {
