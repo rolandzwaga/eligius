@@ -21,12 +21,18 @@ class MockEngine {
 
 class MockEventbus {
     registerInterceptor(name, instance) {
-
+        return {};
     }
 }
 
 class MockTimelineProvider {
 
+}
+
+class ConfigurationResolverStub {
+    process(actionRegistryListener, configuration) {
+
+    }
 }
 
 describe('EngineFactory', () => {
@@ -41,7 +47,8 @@ describe('EngineFactory', () => {
         const inject = require('inject-loader!../src/engine-factory');
 
         EngineFactory = inject({
-            'jquery': jQueryStub
+            'jquery': jQueryStub,
+            './configuration/configuration-resolver': ConfigurationResolverStub
         }).default;
     });
 
