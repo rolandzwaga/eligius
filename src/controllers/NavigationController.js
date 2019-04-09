@@ -3,7 +3,7 @@ import $ from 'jquery';
 class NavigationController {
 
 	constructor() {
-		this.name = "NavigationController";
+		this.name = 'NavigationController';
 		this.playerId = null;
 		this.navigation = null;
 		this.navLookup = {};
@@ -25,10 +25,10 @@ class NavigationController {
 	attach(eventbus) {
 		this.eventhandlers = [];
 		this.labelControllers = [];
-		this.eventhandlers.push(eventbus.on("navigate-to-video-url", this.handleNavigateVideoUrl.bind(this)));
-		this.eventhandlers.push(eventbus.on("highlight-navigation", this.highlightMenu.bind(this)));
-		this.eventhandlers.push(eventbus.on("request-current-navigation", this.handleRequestCurrentNavigation.bind(this)));
-		this.eventhandlers.push(eventbus.on("video-complete", this.handleVideoComplete.bind(this), this.playerId));
+		this.eventhandlers.push(eventbus.on('navigate-to-video-url', this.handleNavigateVideoUrl.bind(this)));
+		this.eventhandlers.push(eventbus.on('highlight-navigation', this.highlightMenu.bind(this)));
+		this.eventhandlers.push(eventbus.on('request-current-navigation', this.handleRequestCurrentNavigation.bind(this)));
+		this.eventhandlers.push(eventbus.on('video-complete', this.handleVideoComplete.bind(this), this.playerId));
 		this.eventbus = eventbus;
 
         this.buildHtml(this.container, this.navigation);
@@ -48,11 +48,11 @@ class NavigationController {
 
 	getQueryVariable(variableIdx) {
 		const href = window.location.href;
-		const hashIndex = href.indexOf("#");
+		const hashIndex = href.indexOf('#');
 		if (hashIndex > -1) {
 			const query = href.substring(hashIndex + 2);
 			if (query) {
-				const vars = query.split("/");
+				const vars = query.split('/');
 				return vars[variableIdx];
 			}
 		}
@@ -90,24 +90,24 @@ class NavigationController {
 		if (position > -1) {
 			state.position = position;
 		}
-		this.eventbus.broadcast("push-history-state",[state]);
+		this.eventbus.broadcast('push-history-state',[state]);
 	}
 
 	buildHtml(parentElm, data) {
-		const ul = $("<ul/>");
+		const ul = $('<ul/>');
 		data.forEach(this.addNavElement.bind(this, ul));
 		parentElm.append(ul);
 	}
 
 	addNavElement(parentElm, data) {
 		if (data.visible) {
-			const li = $("<li/>");
-			const a = $(`<a href="javascript:;" id="nav_${data.videoUrlIndex}"/>`);
+			const li = $('<li/>');
+			const a = $(`<a href='javascript:;' id='nav_${data.videoUrlIndex}'/>`);
 			li.append(a);
 			this.addLabel(a, data.labelId);
 			this.addClickHandler(a, data.videoUrlIndex);
 			if (data.children) {
-				const ul = $("<ul/>");
+				const ul = $('<ul/>');
 				data.children.forEach(this.addNavElement.bind(this, ul));
 				li.append(ul);
 			}
@@ -122,7 +122,7 @@ class NavigationController {
 	menuMouseupHandler(videoIndex) {
 		const navdata = this.navVidIdLookup[videoIndex];
 		if (navdata) {
-			this.eventbus.broadcast("request-video-url", [navdata.videoUrlIndex]);
+			this.eventbus.broadcast('request-video-url', [navdata.videoUrlIndex]);
 			this.handleNavigateVideoUrl(navdata.videoUrlIndex);
 		}
 	}
@@ -130,7 +130,7 @@ class NavigationController {
 	handleNavigateVideoUrl(index, requestedVideoPosition) {
         requestedVideoPosition = (requestedVideoPosition) ? requestedVideoPosition : 0;
 		this.highlightMenu(index);
-		this.eventbus.broadcast("request-video-url", [index, requestedVideoPosition]);
+		this.eventbus.broadcast('request-video-url', [index, requestedVideoPosition]);
 		this.activeNavigationPoint = this.navVidIdLookup[index];
 		this.pushCurrentState(requestedVideoPosition);
 	}
@@ -138,20 +138,20 @@ class NavigationController {
 	highlightMenu(index) {
 		const navElm = $(`#nav_${index}`);
 		if (navElm.length) {
-			$(".current-menu-item").removeClass("current-menu-item");
-			navElm.addClass("current-menu-item");
+			$('.current-menu-item').removeClass('current-menu-item');
+			navElm.addClass('current-menu-item');
 		}
 	}
 
 	handleVideoComplete(index) {
-		console.log("Navigation controller received video complete");
+		console.log('Navigation controller received video complete');
 		const navData = this.navVidIdLookup[index];
 		if (navData.autoNext) {
-			console.log("NavigationController.handleVideoComplete - request-video-url: " + navData.next.videoUrlIndex);
-			this.eventbus.broadcast("request-video-url", [navData.next.videoUrlIndex]);
+			console.log('NavigationController.handleVideoComplete - request-video-url: ' + navData.next.videoUrlIndex);
+			this.eventbus.broadcast('request-video-url', [navData.next.videoUrlIndex]);
 		} else {
-			console.log("handleVideoComplete - request-video-cleanup");
-			this.eventbus.broadcast("request-video-cleanup");
+			console.log('handleVideoComplete - request-video-cleanup');
+			this.eventbus.broadcast('request-video-cleanup');
 		}
 	}
 
@@ -166,7 +166,7 @@ class NavigationController {
             this.labelControllers.push(instance);
             this.ctrlLookup[labelId] = instance;
 		};
-		this.eventbus.broadcast("request-instance", ["LabelController", resultCallback]);
+		this.eventbus.broadcast('request-instance', ['LabelController', resultCallback]);
 	}
 
 	buildNavigationData(data) {

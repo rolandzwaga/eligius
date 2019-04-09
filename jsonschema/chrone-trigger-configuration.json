@@ -6,6 +6,7 @@
   "title": "The Chrono Trigger Configuration Schema",
   "required": [
     "id",
+    "engine",
     "containerSelector",
     "timelineProviderSettings",
     "language",
@@ -23,6 +24,9 @@
         "6291bf4c-07fb-49c6-9005-2dca98d1b3af"
       ],
       "pattern": "^(.*)$"
+    },
+    "engine": {
+      "$ref": "file:engine-config.json"
     },
     "timelineProviderSettings": {
       "$ref": "file:timeline-provider-settings.json"

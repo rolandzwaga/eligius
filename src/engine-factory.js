@@ -118,13 +118,14 @@ class EngineFactory {
     }
 
     initializeInitActions(config) {
-        if (config.initActions) {
-            config.initActions = config.initActions.map((actionData) => {
-                const initAction = new EndableAction(actionData, this.eventBus);
-                this.actionsLookup[actionData.name] = initAction;
-                return initAction;
-            });
+        if (!config.initActions) {
+            return;
         }
+        config.initActions = config.initActions.map((actionData) => {
+            const initAction = new EndableAction(actionData, this.eventBus);
+            this.actionsLookup[actionData.name] = initAction;
+            return initAction;
+        });
     }
 
     initializeTimelineActions(config) {
@@ -134,6 +135,9 @@ class EngineFactory {
     }
 
     initializeTimelineAction(timelineConfig) {
+        if (!timelineConfig.timelineActions) {
+            return;
+        }
         timelineConfig.timelineActions = timelineConfig.timelineActions.map((actionData) => {
             const timelineAction = new TimelineAction(actionData, this.eventBus);
             if (!timelineAction.endOperations) {
@@ -145,9 +149,11 @@ class EngineFactory {
 
     resolveOperations(config) {
         const timelineOperations = [];
-        config.timelines.forEach((timelineInfo) => {
-            timelineOperations.push(...this.gatherOperations(timelineInfo.timelineActions));
-        });
+        if (config.timelines) {
+            config.timelines.forEach((timelineInfo) => {
+                timelineOperations.push(...this.gatherOperations(timelineInfo.timelineActions));
+            });
+        }
 
         const systemNameHolders = this.gatherOperations(config.initActions)
                                     .concat(timelineOperations)
@@ -174,38 +180,37 @@ class EngineFactory {
             }
         } else {
             Object.keys(config).forEach((key) => {
-                this.processConfigProperty(key, config);
+                this.processConfigProperty(key, config, parentConfig);
             });
         }
     }
 
-    processConfigProperty(key, config) {
+    processConfigProperty(key, config, parentConfig) {
         const value = config[key];
-        if (typeof value === 'string') {
-            
+        if (typeof value === 'string') {           
             if ((value.startsWith('config:'))) {
                 const configProperty = value.substr(7, value.length);
-                config[p] = this._getNestedPropertyValue(configProperty, parentConfig);
+                config[key] = this._getNestedPropertyValue(configProperty, parentConfig);
             }
             else if ((value.startsWith('template:'))) {
-                config[p] = this.importSystemEntry(value);
+                config[key] = this.importSystemEntry(value);
             }
             else if ((value.startsWith('json:'))) {
-                config[p] = JSON.parse(this.importSystemEntry(value));
+                config[key] = JSON.parse(this.importSystemEntry(value));
             }
             else if ((value.startsWith('css:'))) {
                 console.error(`We need to load this css: ${value}`);
             }
         } else if (typeof value === 'object') {
-            this.processConfiguration(config[p], parentConfig);
+            this.processConfiguration(config[key], parentConfig);
         }
     }
 
     gatherOperations(actions) {
-        if (!actions) {
-            return [];
-        }
         let result = [];
+        if (!actions) {
+            return result;
+        }
         actions.forEach((action) => {
             if (action.endOperations) {
                 result = result.concat(action.startOperations.concat(action.endOperations));

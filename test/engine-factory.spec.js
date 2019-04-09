@@ -2,8 +2,31 @@ import { expect } from 'chai';
 
 class MockImporter {
     import(name) {
+        if (name === 'ChronoTriggerEngine') {
+            return { 'ChronoTriggerEngine': MockEngine };
+        } else if (name === 'MockTimelineProvider') {
+            return { 'MockTimelineProvider': MockTimelineProvider };
+        }
         return { [name]: {} };
     }
+}
+
+class MockEngine {
+    constructor(config, eventbus, provider) {
+        this.config  = config;
+        this.eventbus = eventbus;
+        this.provider = provider;
+    }
+}
+
+class MockEventbus {
+    registerInterceptor(name, instance) {
+
+    }
+}
+
+class MockTimelineProvider {
+
 }
 
 describe('EngineFactory', () => {
@@ -38,5 +61,23 @@ describe('EngineFactory', () => {
 
         // test
         const factory = new EngineFactory(importer, windowRef);
+    });
+
+    it('should create the engine', () => {
+        // given
+        const importer = new MockImporter();
+        const factory = new EngineFactory(importer, windowRef);
+
+        const config = {
+            engine: {
+                systemName: 'ChronoTriggerEngine'
+            },
+            timelineProviderSettings: {
+                systemName: 'MockTimelineProvider'
+            }
+        };
+
+        // test
+        factory.createEngine(config);
     });
 });

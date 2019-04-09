@@ -1,4 +1,10 @@
 function getNestedValue(properties, sourceObject) {
+    if (!properties) {
+        throw Error('properties arg cannot be null');
+    }
+    if (!sourceObject) {
+        throw Error('sourceObject arg cannot be null');
+    }
     let currentInstance = sourceObject;
     let suffix = null;
     properties.forEach((prop, index) => {
