@@ -89,11 +89,6 @@ class ConfigurationResolver {
         });
     }
 
-    _getNestedPropertyValue(propertyChain, sourceObject) {
-        const properties = propertyChain.split('.');
-        return getNestedValue(properties, sourceObject);
-    }
-
     processConfiguration(config, parentConfig) {
         if (config == null) {
             return;
@@ -104,12 +99,12 @@ class ConfigurationResolver {
             }
         } else {
             Object.keys(config).forEach((key) => {
-                this.processConfigProperty(key, config, parentConfig);
+                this._processConfigProperty(key, config, parentConfig);
             });
         }
     }
 
-    processConfigProperty(key, config, parentConfig) {
+    _processConfigProperty(key, config, parentConfig) {
         const value = config[key];
         if (typeof value === 'string') {           
             if ((value.startsWith('config:'))) {
@@ -117,10 +112,13 @@ class ConfigurationResolver {
                 config[key] = this._getNestedPropertyValue(configProperty, parentConfig);
             }
             else if ((value.startsWith('template:'))) {
-                config[key] = this.importSystemEntry(value);
+                const templateKey = value.substr(9, value.length);
+                config[key] = this.importSystemEntry(templateKey);
             }
             else if ((value.startsWith('json:'))) {
-                config[key] = JSON.parse(this.importSystemEntry(value));
+                const jsonKey = value.substr(5, value.length);
+                const json = this.importSystemEntry(jsonKey);
+                config[key] = JSON.parse(json);
             }
             else if ((value.startsWith('css:'))) {
                 console.error(`We need to load this css: ${value}`);
@@ -130,7 +128,12 @@ class ConfigurationResolver {
         }
     }
 
-    gatherOperations(actions) {
+    _getNestedPropertyValue(propertyChain, sourceObject) {
+        const properties = propertyChain.split('.');
+        return getNestedValue(properties, sourceObject);
+    }
+
+    _gatherOperations(actions) {
         let result = [];
         if (!actions) {
             return result;

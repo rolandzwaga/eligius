@@ -79,8 +79,8 @@ class EngineFactory {
         const resolver = new ConfigurationResolver(this.importer);
         this.actionsLookup = resolver.process(actionRegistryListener, configuration)
 
-        const providerClass = this.importSystemEntry(configuration.timelineProviderSettings.systemName);
-        const timelineProvider = new providerClass(this.eventBus, configuration);
+        const timelineProviderClass = this.importSystemEntry(configuration.timelineProviderSettings.systemName);
+        const timelineProvider = new timelineProviderClass(this.eventBus, configuration);
 
         const chronoTriggerEngine = new engineClass(configuration, this.eventBus, timelineProvider);
         return chronoTriggerEngine;
