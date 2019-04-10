@@ -38,11 +38,12 @@ class Eventbus {
 	}
 
 	once(eventName, eventHandler, eventTopic) {
-		const eventHandlerDecorator = () => {
-			eventHandler.call(...arguments);
-			this.off(eventName, eventHandler, eventTopic);
+		const _this = this;
+		const eventHandlerDecorator = function() {
+			eventHandler(...arguments)
+			_this.off(eventName, eventHandlerDecorator, eventTopic);
 		};
-		on(eventName, eventHandlerDecorator, eventTopic);
+		this.on(eventName, eventHandlerDecorator, eventTopic);
 	}
 
 	off(eventName, eventHandler, eventTopic) {
@@ -83,33 +84,7 @@ class Eventbus {
 		const handlers = this.getEventHandlers(eventName, eventTopic);
 		if (handlers) {
 			for (let i = 0, l = handlers.length; i < l; i++) {
-				const h = handlers[i];
-				const len = args.length;
-				switch (len) {
-					case 0:
-						h();
-						break;
-					case 1:
-						h(args[0]);
-						break;
-					case 2:
-						h(args[0], args[1]);
-						break;
-					case 3:
-						h(args[0], args[1], args[2]);
-						break;
-					case 4:
-						h(args[0], args[1], args[2], args[3]);
-						break;
-					case 5:
-						h(args[0], args[1], args[2], args[3], args[4]);
-						break;
-					case 6:
-						h(args[0], args[1], args[2], args[3], args[4], args[5]);
-						break;
-					default:
-						return;
-				}
+				handlers[i](...args);
 			}
 		}
 	}
