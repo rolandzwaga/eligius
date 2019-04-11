@@ -18,7 +18,8 @@ function generateImporter(config, basePath) {
 
 function _generateSourceCode(importPaths) {
     const result = importPaths.map((imp)=> {
-        return `import ${imp.systemName} from '${imp.path}';`
+        const p = imp.path.split("\\").join("\/");
+        return `import ${imp.systemName} from '${p}';`;
     });
     result.push('class WebpackResourceImporter {');
     result.push('import(name) {');
