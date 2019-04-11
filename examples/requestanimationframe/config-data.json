@@ -1,0 +1,292 @@
+{
+    "id": "6291bf4c-07fb-49c6-9005-2dca98d1b3af",
+    "playerSettings": {
+        "vendor": "jwplayer",
+        "selector": "jwplayer",
+        "systemName": "JwPlayerFacade",
+        "playerApiKey": "QRa1gzd9/l8kw5567O0lneCUr7L3woHSc/=="
+    },
+    "containerSelector": "#ivr-container",
+    "language": "en-US",
+    "layoutTemplate": "template:layoutTemplate",
+    "availableLanguages": [
+        {
+            "code": "en-US",
+            "label": "English"
+        },
+        {
+            "code": "nl-NL",
+            "label": "Nederlands"
+        }
+    ],
+    "initActions": [
+        {
+            "name": "ProgressbarSetup",
+            "startOperations": [
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#progress"
+                    }
+                },
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#progress-text",
+                        "propertyName": "textElement"
+                    }
+                },
+                {
+                    "systemName": "getControllerInstance",
+                    "operationData": {
+                        "systemName": "ProgressbarController"
+                    }
+                },
+                {
+                    "systemName": "addControllerToElement",
+                    "operationData": {
+                        "playerId": "config:playerSettings.selector"
+                    }
+                }
+            ],
+            "endOperations":[
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#progress"
+                    }
+                },
+                {
+                    "systemName": "removeControllerFromElement",
+                    "operationData": {
+                        "systemName": "ProgressbarController"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "LanguageSelection",
+            "startOperations": [
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#langsel"
+                    }
+                },
+                {
+                    "systemName": "addOptionList",
+                    "operationData": {
+                        "optionData": "config:availableLanguages",
+                        "labelProperty": "label",
+                        "valueProperty": "code",
+                        "defaultValue": "nl_NL"
+                    }
+                },
+                {
+                    "systemName": "getControllerInstance",
+                    "operationData": {
+                        "systemName": "EventListenerController"
+                    }
+                },
+                {
+                    "systemName": "addControllerToElement",
+                    "operationData": {
+                        "eventName": "change",
+                        "actions": ["BroadcastLanguageChange"]
+                    }
+                }
+            ],
+            "endOperations":[
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#langsel"
+                    }
+                },
+                {
+                    "systemName": "removeControllerFromElement",
+                    "operationData": {
+                        "systemName": "EventListenerController"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "SubtitleDisplay",
+            "startOperations": [
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#subtitles"
+                    }
+                },
+                {
+                    "systemName": "getControllerInstance",
+                    "operationData": {
+                        "systemName": "SubtitlesController"
+                    }
+                },
+                {
+                    "systemName": "addControllerToElement",
+                    "operationData": {
+                        "language": "config:language",
+                        "subtitleData": "json:testSubtitles"
+                    }
+                }
+            ],
+            "endOperations":[
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#subtitles"
+                    }
+                },
+                {
+                    "systemName": "removeControllerFromElement",
+                    "operationData": {
+                        "systemName": "SubtitlesController"
+                    }
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "name": "BroadcastLanguageChange",
+            "startOperations": [
+                {
+                    "systemName": "broadcastEvent",
+                    "operationData": {
+                        "eventName": "language-change"
+                    }
+                }
+            ]
+        }
+    ],
+    "timelines": [
+        {
+            "type": "video",
+            "uri": "Q4FY_2013_EN [CROPPED 341x389]_1.mp4",
+            "loop": false,
+            "timelineActions": [
+                {
+                    "name": "ShowChartHistoryItem",
+                    "duration": {
+                        "start": 7
+                    },
+                    "startOperations": [
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "selector": ".view-history-container"
+                            }
+                        },
+                        {
+                            "systemName": "setElementContent",
+                            "operationData": {
+                                "template": "<div class=\"view-history-item-borders view-history-item\" id=\"view-history-item-1\"><span class=\"huge\">1</span></div>",
+                                "append": true
+                            }
+                        },
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "useExistingAsRoot": true,
+                                "selector": "#view-history-item-1"
+                            }
+                        },
+                        {
+                            "systemName": "addClass",
+                            "operationData": {
+                                "className": "view-history-item-full"
+                            }
+                        }
+                    ],
+                    "endOperations": [
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "selector": "#view-history-item-1"
+                            }
+                        },
+                        {
+                            "systemName": "removeElement"
+                        }
+                    ]
+                },
+                {
+                    "name": "ShowGoogleMaps",
+                    "duration": {
+                        "start": 22,
+                        "end": 40
+                    },
+                    "startOperations": [
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "selector": ".main-view-container"
+                            }
+                        },
+                        {
+                            "systemName": "setElementContent",
+                            "operationData": {
+                                "template": "<iframe src=\"//www.google.com/maps/embed/v1/place?q=Harrods,Brompton%20Rd,%20UK&zoom=17&key=AIzaSyDsviN6zWckY8-lbIt9K6fw0eEJ43a274k\" class=\"google-maps-container\"/>"
+                            }
+                        }
+                    ],
+                    "endOperations": [
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "selector": ".main-view-container"
+                            }
+                        },
+                        {
+                            "systemName": "clearElement"
+                        }
+                    ]
+                },
+                {
+                    "name": "ShowGoogleMapsHistoryItem",
+                    "duration": {
+                        "start": 24
+                    },
+                    "startOperations": [
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "selector": ".view-history-container"
+                            }
+                        },
+                        {
+                            "systemName": "setElementContent",
+                            "operationData": {
+                                "template": "<div class=\"view-history-item\" id=\"view-history-item-2\"><span class=\"huge\">2</span></div>",
+                                "append": true
+                            }
+                        }
+                    ],
+                    "endOperations": [
+                        {
+                            "systemName": "selectElement",
+                            "operationData": {
+                                "selector": "#view-history-item-2"
+                            }
+                        },
+                        {
+                            "systemName": "removeElement"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "animation",
+            "uri": "animation-01",
+            "duration": 10,
+            "loop": true
+        }
+    ],
+    "eventActions":[],
+    "labels": []
+}
