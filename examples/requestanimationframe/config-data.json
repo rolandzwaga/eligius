@@ -1,5 +1,8 @@
 {
     "id": "6291bf4c-07fb-49c6-9005-2dca98d1b3af",
+    "engine": {
+        "systemName": "ChronoTriggerEngine"
+    },
     "playerSettings": {
         "vendor": "jwplayer",
         "selector": "jwplayer",
