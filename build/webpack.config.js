@@ -7,9 +7,6 @@ module.exports = (env) => {
     const entryParam = env.entryPath;
     const outputPath = path.dirname(entryParam);
 
-    console.log(entryParam);
-    console.log(path.resolve('../'+outputPath, 'dist'));
-
     return {
         entry: path.resolve(__dirname, '../'+entryParam),
         output: {

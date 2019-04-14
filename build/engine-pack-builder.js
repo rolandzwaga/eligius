@@ -1,5 +1,5 @@
-const generateImporterSourceCode = require('./importer-generator');
-const generateBootSourceCode = require('./boot-generator');
+const generateImporterSourceCode = require('./helper/importer-generator');
+const generateBootSourceCode = require('./helper/boot-generator');
 const path = require('path');
 const fs = require('fs');
 
@@ -29,18 +29,37 @@ function createRelativeImportPath(configPath) {
 function createDestinationDirectory(configPath) {
     const basePath = path.dirname(configPath);
     const destinationPath = path.join(basePath, 'build');
+    if (fs.existsSync(destinationPath)) {
+        wipeDirectoryContents(destinationPath);
+    }
     if (!fs.existsSync(destinationPath)) {
         fs.mkdirSync(destinationPath);
     }
     return destinationPath;
 }
 
+function wipeDirectoryContents(dir) {
+    const entries = fs.readdirSync(dir);
+    for (const entry of entries) {
+        const fullEntry = path.join(dir, entry);
+        var isDir = fs.statSync(fullEntry).isDirectory();
+        if (!isDir) {
+            fs.unlinkSync(fullEntry);
+        } else {
+            wipeDirectoryContents(fullEntry);
+            fs.rmdirSync(fullEntry);
+        }
+    }
+}
+
 function loadConfiguration() {
-    const rawdata = fs.readFileSync(configPath, 'utf8').replace(/^\uFEFF/, '');  
-    const config = JSON.parse(rawdata);  
+    const rawdata = fs.readFileSync(configPath, 'utf8').replace(/^\uFEFF/, '');
+    const config = JSON.parse(rawdata);
     return config;
 }
 
 function saveSource(sourceContent, destinationPath) {
-    fs.writeFileSync(destinationPath, sourceContent, { encoding: 'utf8' });
+    fs.writeFileSync(destinationPath, sourceContent, {
+        encoding: 'utf8'
+    });
 }
