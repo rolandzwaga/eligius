@@ -1,54 +1,64 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 const path = require('path');
 
-const entryParam = process.argv[4];
-const outputPath = path.dirname(entryParam);
+module.exports = (env) => {
 
-console.log(entryParam);
-console.log(path.resolve(outputPath, 'dist'));
+    const entryParam = env.entryPath;
+    const outputPath = path.dirname(entryParam);
 
-module.exports = {
-    entry: entryParam,
-    output: {
-        path: path.resolve(outputPath, 'dist'),
-        filename: 'chrono-trigger-bundle.js'
-    },
-    modules: {
-        rules: [
-            {
-                test: /\.js$/,
-                exclude: /(node_modules)/,
-                loader: 'babel-loader',
-                query: {
-                    presets: ['@babel/preset-env'],
-                    plugins: [
-                        ["@babel/plugin-transform-modules-commonjs", {
-                            "allowTopLevelThis": true
-                        }],
-                        "@babel/plugin-proposal-class-properties"
-                    ]
+    console.log(entryParam);
+    console.log(path.resolve('../'+outputPath, 'dist'));
+
+    return {
+        entry: path.resolve(__dirname, '../'+entryParam),
+        output: {
+            path: path.resolve(outputPath, 'dist'),
+            filename: 'chrono-trigger-bundle.js'
+        },
+        module: {
+            rules: [{
+                    test: /\.js$/,
+                    exclude: /(node_modules)/,
+                    use: [{
+                        loader: 'babel-loader',
+                        options: {
+                            presets: ['@babel/preset-env'],
+                            plugins: [
+                                ["@babel/plugin-transform-modules-commonjs", {
+                                    "allowTopLevelThis": true
+                                }],
+                                ["@babel/plugin-proposal-class-properties", {
+                                    "loose": true
+                                }],
+                                "@babel/plugin-proposal-object-rest-spread"
+                            ]
+                        }
+                    }]
+                },
+                {
+                    test: /\.html$/,
+                    exclude: /(node_modules)/,
+                    use: ['html-loader']
+                },
+                {
+                    test: /\.(jpg|png)$/,
+                    exclude: /(node_modules)/,
+                    use: [{
+                        loader: 'file-loader',
+                        options: {
+                            name: '[name].[ext]',
+                            outputPath: 'img/',
+                            publicPath: 'img/'
+                        }
+                    }]
                 }
-            },
-            {
-                test: /\.html$/,
-                use: ['html-loader']
-            },
-            {
-                test: /\.(jpg|png)$/,
-                use: [{
-                    loader: 'file-loader',
-                    options: {
-                        name: '[name].[ext]',
-                        outputPath: 'img/',
-                        publicPath: 'img/'
-                    }
-                }]
-            }
+            ]
+        },
+        plugins: [
+            new webpack.ProgressPlugin(),
+            new HtmlWebpackPlugin()/*,
+            new CleanWebpackPlugin(['dist'])*/
         ]
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: 'src/index.html'
-        }),
-        new CleanWebpackPlugin(['dist'])
-    ]
+    }
 }
