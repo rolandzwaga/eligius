@@ -9,7 +9,7 @@
         "systemName": "JwPlayerFacade",
         "playerApiKey": "QRa1gzd9/l8kw5567O0lneCUr7L3woHSc/=="
     },
-    "containerSelector": "#ivr-container",
+    "containerSelector": "#ct-container",
     "language": "en-US",
     "layoutTemplate": "template:layoutTemplate",
     "availableLanguages": [

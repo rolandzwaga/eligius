@@ -54,8 +54,9 @@ module.exports = (env) => {
         },
         plugins: [
             new webpack.ProgressPlugin(),
-            new HtmlWebpackPlugin()/*,
-            new CleanWebpackPlugin(['dist'])*/
+            new HtmlWebpackPlugin({
+                template: 'build/template-index.html'
+            })
         ]
     }
 }
