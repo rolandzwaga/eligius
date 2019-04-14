@@ -13,7 +13,7 @@ function generateBootSourceCode(config, basePath, configPath) {
     return formattedCode;
 }
 
-function _generateBootSource(config, basePath, configFileName) {
+function _generateBootSource(config, basePath, configFileName, cssPath) {
     const engineFactoryPath = path.join(basePath, 'engine-factory').split('\\').join('\/');
     configFileName = '../' + configFileName;
     const lines = [];
@@ -26,10 +26,6 @@ function _generateBootSource(config, basePath, configFileName) {
     lines.push('engine.init().then(()=> {console.log(\'chrono trigger engine ready for business\');});');
     
     return lines.join('');
-}
-
-function camelCaseToDash( myStr ) {
-    return myStr.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase();
 }
 
 module.exports = generateBootSourceCode;

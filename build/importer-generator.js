@@ -57,7 +57,7 @@ function _gatherProviders(config, basePath) {
         return [
             {
                 systemName: systemName,
-                path: path.join(basePath, systemName)
+                path: path.join(basePath, camelCaseToDash(systemName))
             }
         ];
     }
@@ -70,7 +70,7 @@ function _gatherEngines(config, basePath) {
         return [
             {
                 systemName: systemName,
-                path: path.join(basePath, systemName)
+                path: path.join(basePath, camelCaseToDash(systemName))
             }
         ];
     }
@@ -154,6 +154,10 @@ function _gatherOperationImportPaths(operationConfigs, basePath) {
             path: path.join(basePath, systemName)
         };
     });
+}
+
+function camelCaseToDash( myStr ) {
+    return myStr.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase();
 }
 
 module.exports = generateImporterSourceCode;

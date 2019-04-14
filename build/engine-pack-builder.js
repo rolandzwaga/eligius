@@ -18,6 +18,7 @@ function buildEnginePack(configPath) {
 
     const bootSource = generateBootSourceCode(config, relativeImportPath, configPath);
     saveSource(bootSource, path.join(destinationPath, 'boot.js'));
+
 }
 
 function createRelativeImportPath(configPath) {
@@ -28,7 +29,7 @@ function createRelativeImportPath(configPath) {
 function createDestinationDirectory(configPath) {
     const basePath = path.dirname(configPath);
     const destinationPath = path.join(basePath, 'build');
-    if (!fs.existsSync(destinationPath)){
+    if (!fs.existsSync(destinationPath)) {
         fs.mkdirSync(destinationPath);
     }
     return destinationPath;
