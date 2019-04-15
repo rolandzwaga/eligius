@@ -4,14 +4,13 @@
         "systemName": "ChronoTriggerEngine"
     },
     "playerSettings": {
-        "vendor": "jwplayer",
-        "selector": "jwplayer",
-        "systemName": "JwPlayerFacade",
-        "playerApiKey": "QRa1gzd9/l8kw5567O0lneCUr7L3woHSc/=="
+        "vendor": "chronotrigger",
+        "selector": "main",
+        "systemName": "RequestAnimationFrameTimelineProvider"
     },
     "containerSelector": "#ct-container",
     "language": "en-US",
-    "layoutTemplate": "template:layoutTemplate",
+    "layoutTemplate": "template:layout-template",
     "availableLanguages": [
         {
             "code": "en-US",
@@ -168,9 +167,10 @@
     ],
     "timelines": [
         {
-            "type": "video",
-            "uri": "Q4FY_2013_EN [CROPPED 341x389]_1.mp4",
-            "loop": false,
+            "type": "animation",
+            "uri": "animation-01",
+            "duration": 10,
+            "loop": true,
             "timelineActions": [
                 {
                     "name": "ShowChartHistoryItem",
@@ -282,12 +282,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "type": "animation",
-            "uri": "animation-01",
-            "duration": 10,
-            "loop": true
         }
     ],
     "eventActions":[],

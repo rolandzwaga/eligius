@@ -1,6 +1,7 @@
 const path = require('path');
 const { Parser } = require("acorn");
 const { generate } = require('astring');
+const camelCaseToDash = require('./camelCaseToDash');
 
 function generateImporterSourceCode(config, basePath) {
 
@@ -154,10 +155,6 @@ function _gatherOperationImportPaths(operationConfigs, basePath) {
             path: path.join(basePath, systemName)
         };
     });
-}
-
-function camelCaseToDash( myStr ) {
-    return myStr.replace( /([a-z])([A-Z])/g, '$1-$2' ).toLowerCase();
 }
 
 module.exports = generateImporterSourceCode;
