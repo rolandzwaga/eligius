@@ -49,6 +49,10 @@ module.exports = (env) => {
                             publicPath: 'img/'
                         }
                     }]
+                },
+                {
+                    test: /\.css$/,
+                    use: ['css-loader']
                 }
             ]
         },
