@@ -1,3 +1,9 @@
 div {
     display: block
 }
+
+#ct-container {
+    border: 1px black solid;
+    height: 100px;
+    width: 100px;
+}
