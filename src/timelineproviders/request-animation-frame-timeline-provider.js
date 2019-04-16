@@ -41,9 +41,9 @@ class RequestAnimationFrameTimelineProvider {
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this), this.playerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this), this.playerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this), this.playerid));
     }
 
     _update(now) {
@@ -84,6 +84,14 @@ class RequestAnimationFrameTimelineProvider {
         this.current = 0;
     }
 
+    _resize() {
+        console.error('Not implemented yet');
+    }
+
+    _container(callBack) {
+        callBack(this.container);
+    }
+
     _cancelAnimationFrame() {
         if (this.requestID) {
             cancelAnimationFrame(this.requestID);
@@ -91,8 +99,8 @@ class RequestAnimationFrameTimelineProvider {
         }
     }
 
-    init(selector) {
-        this.container = $(`#${selector}`);
+    init() {
+        this.container = $(this.selector);
         this.playlist = this._extractDurations(this.config);
         this.duration = this.playlist[0];
         if (!this.container.length) {
@@ -135,6 +143,10 @@ class RequestAnimationFrameTimelineProvider {
         this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.playerid);
         this.current = position;
         this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.playerid);
+    }
+
+    requestDurationHandler(callBack) {
+        callBack(this.duration);
     }
 
     on(eventName, handler) {

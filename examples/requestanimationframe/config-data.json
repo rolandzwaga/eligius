@@ -47,7 +47,7 @@
                 {
                     "systemName": "addControllerToElement",
                     "operationData": {
-                        "playerId": "config:playerSettings.selector"
+                        "playerId": "config:timelineProviderSettings.selector"
                     }
                 }
             ],
@@ -171,6 +171,7 @@
             "uri": "animation-01",
             "duration": 10,
             "loop": true,
+            "selector": ".timeline-div",
             "timelineActions": [
                 {
                     "name": "ShowChartHistoryItem",
