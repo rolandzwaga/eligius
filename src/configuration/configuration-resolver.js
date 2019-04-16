@@ -75,14 +75,14 @@ class ConfigurationResolver {
         const timelineOperations = [];
         if (config.timelines) {
             config.timelines.forEach((timelineInfo) => {
-                timelineOperations.push(...this.gatherOperations(timelineInfo.timelineActions));
+                timelineOperations.push(...this._gatherOperations(timelineInfo.timelineActions));
             });
         }
 
-        const systemNameHolders = this.gatherOperations(config.initActions)
+        const systemNameHolders = this._gatherOperations(config.initActions)
                                     .concat(timelineOperations)
-                                    .concat(this.gatherOperations(config.actions))
-                                    .concat(this.gatherOperations(config.eventActions));
+                                    .concat(this._gatherOperations(config.actions))
+                                    .concat(this._gatherOperations(config.eventActions));
 
         systemNameHolders.forEach((holder)=> {
             holder.instance = this.importSystemEntry(holder.systemName);
@@ -118,10 +118,7 @@ class ConfigurationResolver {
             else if ((value.startsWith('json:'))) {
                 const jsonKey = value.substr(5, value.length);
                 const json = this.importSystemEntry(jsonKey);
-                config[key] = JSON.parse(json);
-            }
-            else if ((value.startsWith('css:'))) {
-                console.error(`We need to load this css: ${value}`);
+                config[key] = json;
             }
         } else if (typeof value === 'object') {
             this.processConfiguration(config[key], parentConfig);

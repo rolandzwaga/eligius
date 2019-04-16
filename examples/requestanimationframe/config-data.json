@@ -3,7 +3,7 @@
     "engine": {
         "systemName": "ChronoTriggerEngine"
     },
-    "playerSettings": {
+    "timelineProviderSettings": {
         "vendor": "chronotrigger",
         "selector": "main",
         "systemName": "RequestAnimationFrameTimelineProvider"

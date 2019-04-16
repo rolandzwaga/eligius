@@ -37,20 +37,21 @@ function _generateSourceCode(importPaths) {
 function _gatherImportPaths(config, basePath, configPath) {
     const importPaths = [];
     importPaths.push(..._gatherOperations(config, basePath));
-    importPaths.push(..._gatherTemplates(path.join(configPath, 'template')));
+    importPaths.push(..._gatherAssets(configPath, 'template', '.html'));
+    importPaths.push(..._gatherAssets(configPath, 'json', '.json'));
     importPaths.push(..._gatherControllers(config, basePath));
     importPaths.push(..._gatherProviders(config, basePath));
     importPaths.push(..._gatherEngines(config, basePath));
     return importPaths;
 }
 
-function _gatherTemplates(templatePath) {
-    const entries = fs.readdirSync(templatePath);
+function _gatherAssets(assetPath, subdir, extension) {
+    const entries = fs.readdirSync(path.join(assetPath, subdir));
     return entries.map(file => {
-        const importName = `${dashToCamelCase(path.basename(file, '.html'))}`;
+        const importName = `${dashToCamelCase(path.basename(file, extension))}`;
         return {
             systemName: importName,
-            path: `../template/${file}`
+            path: `../${subdir}/${file}`
         };
     });
 }
@@ -96,7 +97,11 @@ function _gatherOperations(config, basePath) {
     let importPaths = [];
     importPaths.push(..._gatherOperationImportPathsFromActions(config.initActions, basePath));
     importPaths.push(..._gatherOperationImportPathsFromActions(config.actions, basePath));
-    importPaths.push(..._gatherOperationImportPathsFromActions(config.timelineActions, basePath));
+    if (config.timelines) {
+        config.timelines.forEach(timeline => {
+            importPaths.push(..._gatherOperationImportPathsFromActions(timeline.timelineActions, basePath));
+        });
+    }
     importPaths.push(..._gatherOperationImportPathsFromActions(config.eventActions, basePath));
     importPaths = dedupe(importPaths);
     return importPaths;
