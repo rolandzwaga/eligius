@@ -12,6 +12,7 @@
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js"
   },
   "dependencies": {
+    "@babel/plugin-transform-arrow-functions": "^7.2.0",
     "d3": "5.9.2",
     "es6-shim": "0.35.5",
     "jquery": "3.4.0",

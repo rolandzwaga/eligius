@@ -3,8 +3,9 @@ import getNestedValue from '../operation/helper/getNestedValue';
 
 class ConfigurationResolver {
 
-    constructor(importer) {
+    constructor(importer, eventbus) {
         this.importer = importer;
+        this.eventbus = eventbus;
     }
 
     importSystemEntry(systemName) {
@@ -25,7 +26,7 @@ class ConfigurationResolver {
     initializeEventActions(actionRegistryListener, config) {
         if ((actionRegistryListener) && (config.eventActions)) {
             config.eventActions.forEach((actionData) => {
-                const eventAction = new Action(actionData, this.eventBus);
+                const eventAction = new Action(actionData, this.eventbus);
                 actionRegistryListener.registerAction(eventAction, actionData.eventName, actionData.eventTopic);
             });
             delete config.eventActions;
@@ -35,7 +36,7 @@ class ConfigurationResolver {
     initializeActions(config, actionsLookup) {
         if (config.actions) {
             config.actions.forEach((actionData) => {
-                const action = new EndableAction(actionData, this.eventBus);
+                const action = new EndableAction(actionData, this.eventbus);
                 actionsLookup[actionData.name] = action;
             });
         }
@@ -46,7 +47,7 @@ class ConfigurationResolver {
             return;
         }
         config.initActions = config.initActions.map((actionData) => {
-            const initAction = new EndableAction(actionData, this.eventBus);
+            const initAction = new EndableAction(actionData, this.eventbus);
             actionsLookup[actionData.name] = initAction;
             return initAction;
         });
@@ -63,7 +64,7 @@ class ConfigurationResolver {
             return;
         }
         timelineConfig.timelineActions = timelineConfig.timelineActions.map((actionData) => {
-            const timelineAction = new TimelineAction(actionData, this.eventBus);
+            const timelineAction = new TimelineAction(actionData, this.eventbus);
             if (!timelineAction.endOperations) {
                 timelineAction.endOperations = [];
             }

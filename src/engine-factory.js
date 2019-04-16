@@ -76,7 +76,7 @@ class EngineFactory {
 
         this.eventBus.registerInterceptor(TimelineEventNames.REQUEST_TIMELINE_URI, new RequestVideoUriInterceptor(this.eventBus));
 
-        const resolver = new ConfigurationResolver(this.importer);
+        const resolver = new ConfigurationResolver(this.importer, this.eventBus);
         this.actionsLookup = resolver.process(actionRegistryListener, configuration)
 
         const timelineProviderClass = this.importSystemEntry(configuration.timelineProviderSettings.systemName);

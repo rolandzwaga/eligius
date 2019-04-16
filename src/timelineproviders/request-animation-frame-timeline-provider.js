@@ -15,23 +15,23 @@ class RequestAnimationFrameTimelineProvider {
         this.playerid = `provider${Math.random()*1000}`;
         this._addEventListeners();
         this.playlist = [];
-        this.duration = 0;
+        this.currentPlaylistItem = null;
         this.firstFrame = true;
         this.paused = true;
     }
 
-    _extractDurations(configuration) {
-        const durations = configuration.timelines.filter(timeline => timeline.type === "animation").map(timeline => {
-            return timeline.duration;
+    _extractPlaylist(configuration) {
+        const playlist = configuration.timelines.filter(timeline => timeline.type === "animation").map(timeline => {
+            return timeline;
         });
-        return durations;
+        return playlist;
     }
 
     playlistItem(index) {
-        if (index < 0 || index > this.durations.length) {
+        if (index < 0 || index > this.playlist.length) {
             return;
         }
-        this.duration = this.playlist[index];
+        this.currentPlaylistItem = this.playlist[index];
         this.firstFrame = true;
         this.reset();
     }
@@ -57,7 +57,7 @@ class RequestAnimationFrameTimelineProvider {
             }
             this.last = now;
             this.current++;
-            if (this.current > this.duration) {
+            if (this.current > this.currentPlaylistItem.duration) {
                 if (this.loop) {
                     this._reset();
                 } else {
@@ -100,9 +100,9 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     init() {
-        this.container = $(this.selector);
-        this.playlist = this._extractDurations(this.config);
-        this.duration = this.playlist[0];
+        this.playlist = this._extractPlaylist(this.config);
+        this.currentPlaylistItem = this.playlist[0];
+        this.container = $(this.currentPlaylistItem.selector);
         if (!this.container.length) {
             throw new Error(`timeline selector '${selector}' not found`);
         }
@@ -137,7 +137,7 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     seek(position) {
-        if (position < 0 || position > this.duration) {
+        if (position < 0 || position > this.currentPlaylistItem.duration) {
             return;
         }
         this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.playerid);
@@ -146,7 +146,7 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     requestDurationHandler(callBack) {
-        callBack(this.duration);
+        callBack(this.currentPlaylistItem.duration);
     }
 
     on(eventName, handler) {
