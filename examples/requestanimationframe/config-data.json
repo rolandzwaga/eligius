@@ -10,7 +10,7 @@
     },
     "containerSelector": "#ct-container",
     "language": "en-US",
-    "layoutTemplate": "template:layout-template",
+    "layoutTemplate": "template:layoutTemplate",
     "availableLanguages": [
         {
             "code": "en-US",

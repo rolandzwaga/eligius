@@ -13,7 +13,7 @@ function buildEnginePack(configPath) {
     const destinationPath = createDestinationDirectory(configPath);
     const config = loadConfiguration(configPath);
 
-    const importerSource = generateImporterSourceCode(config, relativeImportPath);
+    const importerSource = generateImporterSourceCode(config, relativeImportPath, path.dirname(configPath));
     saveSource(importerSource, path.join(destinationPath, 'webpack-resource-importer.js'));
 
     const bootSource = generateBootSourceCode(config, relativeImportPath, configPath);

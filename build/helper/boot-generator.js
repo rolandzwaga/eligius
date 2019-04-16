@@ -10,8 +10,6 @@ function generateBootSourceCode(config, basePath, configPath) {
 
     const bootSourceCode = _generateBootSource(config, basePath, configFileName, dirName);
 
-    console.log(bootSourceCode);
-
     const ast = Parser.parse(bootSourceCode, { ecmaVersion: 6, sourceType: 'module' });
     const formattedCode = generate(ast);
 
@@ -24,7 +22,7 @@ function _generateBootSource(config, basePath, configFileName, dirName) {
     const cssPath = path.join(dirName, 'css');
     const templatePath = path.join(dirName, 'template');
 
-    const lines = _generateCssImports(cssPath).concat(_generateTemplateImports(templatePath));
+    const lines = _generateCssImports(cssPath);
 
     lines.push(`const engineConfig = require('${configFileName}');`);
     lines.push(`import EngineFactory from '${engineFactoryPath}';`);
@@ -41,14 +39,6 @@ function _generateCssImports(cssPath) {
     return entries.map(file => {
         const importName = `css_${dashToCamelCase(path.basename(file, '.css'))}`;
         return `import ${importName} from '../css/${file}';`;
-    });
-}
-
-function _generateTemplateImports(templatePath) {
-    const entries = fs.readdirSync(templatePath);
-    return entries.map(file => {
-        const importName = `template_${dashToCamelCase(path.basename(file, '.html'))}`;
-        return `import ${importName} from '../template/${file}';`;
     });
 }
 

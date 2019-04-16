@@ -1,11 +1,13 @@
 const path = require('path');
+const fs = require('fs');
 const { Parser } = require("acorn");
 const { generate } = require('astring');
 const camelCaseToDash = require('./camelCaseToDash');
+const dashToCamelCase = require('./dashToCamelCase');
 
-function generateImporterSourceCode(config, basePath) {
+function generateImporterSourceCode(config, basePath, configPath) {
 
-    const importPaths = _gatherImportPaths(config, basePath);
+    const importPaths = _gatherImportPaths(config, basePath, configPath);
 
     const importerSourceCode = _generateSourceCode(importPaths);
 
@@ -32,13 +34,25 @@ function _generateSourceCode(importPaths) {
     return result.join('');
 }
 
-function _gatherImportPaths(config, basePath) {
+function _gatherImportPaths(config, basePath, configPath) {
     const importPaths = [];
     importPaths.push(..._gatherOperations(config, basePath));
+    importPaths.push(..._gatherTemplates(path.join(configPath, 'template')));
     importPaths.push(..._gatherControllers(config, basePath));
     importPaths.push(..._gatherProviders(config, basePath));
     importPaths.push(..._gatherEngines(config, basePath));
     return importPaths;
+}
+
+function _gatherTemplates(templatePath) {
+    const entries = fs.readdirSync(templatePath);
+    return entries.map(file => {
+        const importName = `${dashToCamelCase(path.basename(file, '.html'))}`;
+        return {
+            systemName: importName,
+            path: `../template/${file}`
+        };
+    });
 }
 
 function _gatherControllers(config, basePath) {
