@@ -39,6 +39,7 @@ class ConfigurationResolver {
                 const action = new EndableAction(actionData, this.eventbus);
                 actionsLookup[actionData.name] = action;
             });
+            delete config.actions;
         }
     }
 

@@ -16,22 +16,128 @@ class MockImporter {
     }
 }
 
+class MockEventbus {
+    constructor(){
+    }
+}
 
-describe('ConfigurationResolver', () => {
+class MockActionRegistryListener {
+    registerAction(eventAction, eventName, eventTopic) {}
+}
+
+describe.only('ConfigurationResolver', () => {
 
     let importer =  null;
+    let eventbus = null;
 
     beforeEach(() => {
         importer = new MockImporter();
+        eventbus = new MockEventbus();
     });
 
     it('should create', () => {
         // given
         // test
-        const resolver = new ConfigurationResolver(importer);
+        const resolver = new ConfigurationResolver(importer, eventbus);
 
         // expect
         expect(resolver.importer).to.equal(importer);
+        expect(resolver.eventbus).to.equal(eventbus);
+    });
+
+    it('should initialize initActions', ()=> {
+        // give
+        const config = {
+            initActions:[
+                {
+                    name: "TestAction",
+                    startOperations: [
+                        {
+                            systemName: "selectElement",
+                            operationData: {
+                                selector: "#progress"
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+        const resolver = new ConfigurationResolver(importer, eventbus);
+        const actionsLookup = {};
+
+        // test
+        resolver.initializeInitActions(config, actionsLookup);
+
+        // expect
+        const resolvedAction = config.initActions[0];
+        expect(actionsLookup["TestAction"]).to.not.null;
+        expect(resolvedAction.eventbus).to.equal(resolver.eventbus);
+    });
+
+    it('should initialize actions', () => {
+        // give
+        const config = {
+            actions:[
+                {
+                    name: "TestAction",
+                    startOperations: [
+                        {
+                            systemName: "selectElement",
+                            operationData: {
+                                selector: "#progress"
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+        const resolver = new ConfigurationResolver(importer, eventbus);
+        const actionsLookup = {};
+
+        // test
+        resolver.initializeActions(config, actionsLookup);
+
+        // expect
+        const resolvedAction = actionsLookup["TestAction"];
+        expect(resolvedAction).to.not.null;
+        expect(resolvedAction.eventbus).to.equal(resolver.eventbus);
+    });
+
+    it('should initialize timeline actions', () => {
+        // give
+        const config = {
+            timelines: [
+                {
+                    timelineActions:[
+                        {
+                            name: "TestAction",
+                            duration: {
+                                start: 10,
+                                end: 15
+                            },
+                            startOperations: [
+                                {
+                                    systemName: "selectElement",
+                                    operationData: {
+                                        selector: "#progress"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+        
+                }
+            ]
+        };
+        const resolver = new ConfigurationResolver(importer, eventbus);
+
+        // test
+        resolver.initializeTimelineActions(config);
+
+        // expect
+        const resolvedAction = config.timelines[0].timelineActions[0];
+        expect(resolvedAction).to.not.null;
+        expect(resolvedAction.eventbus).to.equal(resolver.eventbus);
     });
 
     it('should resolve config: properties', () => {
