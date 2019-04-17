@@ -1,3 +1,5 @@
+import TimelineEventNames from "../timeline-event-names";
+
 class ProgressbarController {
 
 	constructor() {
@@ -14,7 +16,7 @@ class ProgressbarController {
 	}
 
 	attach(eventbus) {
-		this.detachers.push(eventbus.on("videoplayer-position-update", this.positionUpdateHandler.bind(this), this.playerId));
+		this.detachers.push(eventbus.on(TimelineEventNames.POSITION_UPDATE, this.positionUpdateHandler.bind(this), this.playerId));
 		const clickHandler = this.clickHandler.bind(this);
 		this.selectedElement.on("click", clickHandler);
 		this.detachers.push(()=> this.selectedElement.off("click"), clickHandler);

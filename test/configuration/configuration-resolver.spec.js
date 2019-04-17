@@ -57,7 +57,7 @@ describe('ConfigurationResolver', () => {
             resolvedProperty: 'json:test'
         };
         const resolver = new ConfigurationResolver(importer);
-        importer.addEntry('test', '{ "test": "testValue" }');
+        importer.addEntry('test', { test: "testValue" });
 
         // test
         resolver.processConfiguration(config, config);
