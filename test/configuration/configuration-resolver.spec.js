@@ -25,7 +25,7 @@ class MockActionRegistryListener {
     registerAction(eventAction, eventName, eventTopic) {}
 }
 
-describe.only('ConfigurationResolver', () => {
+describe('ConfigurationResolver', () => {
 
     let importer =  null;
     let eventbus = null;
