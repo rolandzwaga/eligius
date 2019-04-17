@@ -22,7 +22,11 @@ class MockEventbus {
 }
 
 class MockActionRegistryListener {
-    registerAction(eventAction, eventName, eventTopic) {}
+    registerAction(eventAction, eventName, eventTopic) {
+        this.eventAction = eventAction;
+        this.eventName = eventName;
+        this.eventTopic = eventTopic;
+    }
 }
 
 describe('ConfigurationResolver', () => {
@@ -43,6 +47,38 @@ describe('ConfigurationResolver', () => {
         // expect
         expect(resolver.importer).to.equal(importer);
         expect(resolver.eventbus).to.equal(eventbus);
+    });
+
+    it('should initialize event actions', () => {
+        // give
+        const config = {
+            eventActions:[
+                {
+                    name: "TestAction",
+                    eventName: "testEvent",
+                    eventTopic: "testTopic",
+                    startOperations: [
+                        {
+                            systemName: "selectElement",
+                            operationData: {
+                                selector: "#progress"
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+        const resolver = new ConfigurationResolver(importer, eventbus);
+        const registry = new MockActionRegistryListener();
+
+        // test
+        resolver.initializeEventActions(registry, config);
+
+        // expect
+        expect(config.eventActions).to.undefined;
+        expect(registry.eventAction).to.not.undefined;
+        expect(registry.eventName).to.equal("testEvent");
+        expect(registry.eventTopic).to.equal("testTopic");
     });
 
     it('should initialize initActions', ()=> {
@@ -100,6 +136,7 @@ describe('ConfigurationResolver', () => {
         // expect
         const resolvedAction = actionsLookup["TestAction"];
         expect(resolvedAction).to.not.null;
+        expect(config.actions).to.undefined;
         expect(resolvedAction.eventbus).to.equal(resolver.eventbus);
     });
 

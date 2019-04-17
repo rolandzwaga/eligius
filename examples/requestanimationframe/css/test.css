@@ -1,9 +1,10 @@
-div {
-    display: block
+body {
+    height: 100%;
+    width: 100%;
 }
 
 #ct-container {
     border: 1px black solid;
-    height: 100px;
-    width: 100px;
+    height: 100%;
+    width: 100%;
 }
