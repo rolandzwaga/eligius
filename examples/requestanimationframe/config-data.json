@@ -23,6 +23,43 @@
     ],
     "initActions": [
         {
+            "name": "MainTitleLabel",
+            "startOperations": [
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#main-title"
+                    }
+                },
+                {
+                    "systemName": "getControllerInstance",
+                    "operationData": {
+                        "systemName": "LabelController"
+                    }
+                },
+                {
+                    "systemName": "addControllerToElement",
+                    "operationData": {
+                        "labelId": "mainTitle"
+                    }
+                }
+            ],
+            "endOperations":[
+                {
+                    "systemName": "selectElement",
+                    "operationData": {
+                        "selector": "#main-title"
+                    }
+                },
+                {
+                    "systemName": "removeControllerFromElement",
+                    "operationData": {
+                        "systemName": "LabelController"
+                    }
+                }
+            ]
+        },
+        {
             "name": "ProgressbarSetup",
             "startOperations": [
                 {
@@ -286,5 +323,19 @@
         }
     ],
     "eventActions":[],
-    "labels": []
+    "labels": [
+        {
+            "id": "mainTitle",
+            "labels": [
+                {
+                    "code": "en-US",
+                    "label": "This is the main title"
+                },
+                {
+                    "code": "nl-NL",
+                    "label": "Dit is de hoofdtitel"
+                }
+            ]
+        }
+    ]
 }

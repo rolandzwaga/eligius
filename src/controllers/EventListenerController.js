@@ -1,4 +1,6 @@
 import $ from 'jquery';
+import TimelineEventNames from "../timeline-event-names";
+
 class EventListenerController {
 
 	constructor() {
@@ -23,11 +25,12 @@ class EventListenerController {
 				const [doStart, name] = this.isStartAction(actionName);
                 const resultCallback = (actionInstance)=> {
                     this.actions.push({ start:doStart, action: actionInstance});
-                };
-                eventbus.broadcast("request-action", [name, resultCallback]);
+				};
+				
+                eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback]);
 			});
 		}
-		if (this.operationData.selectedElement.prop("tagName") === "select") {
+		if (this.operationData.selectedElement[0].tagName.toUpperCase() === "SELECT") {
 			this.operationData.selectedElement.on(this.operationData.eventName, this.selectEventHandler.bind(this));
 		} else {
 			this.operationData.selectedElement.on(this.operationData.eventName, this.eventHandler.bind(this));

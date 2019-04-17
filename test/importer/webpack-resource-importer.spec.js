@@ -34,8 +34,8 @@ describe('WebpackResourceImporter', () => {
 
         providers.forEach(op => {
             const imported = importer.import(op);
-            expect(imported).to.not.equal(null);
-            expect(imported[op]).to.not.equal(null);
+            expect(imported).to.not.be.null;
+            expect(imported[op]).to.not.be.null;
         })
     });
 

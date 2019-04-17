@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import TimelineEventNames from "../timeline-event-names";
 
 class LabelController {
 
@@ -14,14 +15,14 @@ class LabelController {
 	}
 
 	attach(eventbus) {
-		eventbus.broadcast('request-current-language', [(language)=> {
+		eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [(language)=> {
 			this.currentLanguage = language;
 		}]);
-		eventbus.broadcast('request-label-collection', [this.operationData.labelId, (labelCollection)=> {
+		eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTION, [this.operationData.labelId, (labelCollection)=> {
 			this.createTextDataLookup(labelCollection);
 		}]);
 		this.setLabel();
-		this.listeners.push(eventbus.on('language-change', this.handleLanguageChange.bind(this)));
+		this.listeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.handleLanguageChange.bind(this)));
 	}
 
 	setLabel() {

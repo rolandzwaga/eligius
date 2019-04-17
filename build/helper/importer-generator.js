@@ -149,7 +149,7 @@ function _gatherControllerImportPaths(operationConfigs, basePath) {
         return [];
     }
     return operationConfigs.filter((operationConfig) => {
-            if(operationConfig.operationData.hasOwnProperty('systemName')) {
+            if(operationConfig.operationData && operationConfig.operationData.hasOwnProperty('systemName')) {
                 return operationConfig.operationData.systemName.endsWith('Controller');
             }
             return false;
