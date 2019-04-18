@@ -11,6 +11,7 @@ function getElementDimensions(operationData, eventBus) {
     if (modifier) {
         modifyDimensions(dimensions, modifier);
     }
+    operationData.dimensions = dimensions;
     return operationData;
 }
 

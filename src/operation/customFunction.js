@@ -3,7 +3,7 @@ import TimelineEventNames from '../timeline-event-names';
 
 function customFunction(operationData, eventBus) {
     const {systemName} = operationData;
-    return new Promise((resolve, reject)=> {
+    return new Promise((resolve, reject) => {
         const resultCallback = (func)=> {
             const promise = func(operationData, eventBus);
             if (promise) {

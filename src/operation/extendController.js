@@ -1,7 +1,8 @@
-import $ from 'jquery';
-
 function extendController(operationData, eventBus) {
-    operationData.controllerInstance = $.extend(operationData.controllerInstance, operationData.controllerExtension, true);
+    const { controllerInstance, controllerExtension } = operationData;
+    
+    operationData.controllerInstance = Object.assign(controllerInstance, controllerExtension);
+    
     return operationData;
 }
 
