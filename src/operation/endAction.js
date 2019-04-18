@@ -3,9 +3,10 @@ import internalResolve from './helper/internalResolve';
 
 function endAction(operationData, eventBus) {
     const {actionInstance, actionOperationData} = operationData;
+    delete operationData.actionOperationData;
     return new Promise((resolve, reject)=> {
-        operationData = mergeOperationData(operationData, actionOperationData);
-        actionInstance.end(operationData).then(() => {
+        const mergedData = mergeOperationData(operationData, actionOperationData);
+        actionInstance.end(mergedData).then(() => {
             internalResolve(resolve, operationData);
         }, reject);
     });

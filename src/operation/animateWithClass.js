@@ -1,13 +1,16 @@
 import internalResolve from './helper/internalResolve';
 
 function animateWithClass(operationData, eventBus) {
-    const {selectedElement, className} = operationData;
+    let {selectedElement, className, removeClass } = operationData;
+    removeClass = (removeClass !== undefined) ? removeClass : true;
 
     const promise = new Promise((resolve, reject)=> {
         try{
             selectedElement.one("webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd",
             () => {
-                selectedElement.removeClass(className);
+                if (removeClass) {
+                    selectedElement.removeClass(className);
+                }
                 internalResolve(resolve, {}, operationData);
             });
         } catch(e){

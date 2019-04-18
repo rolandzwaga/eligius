@@ -13,7 +13,6 @@ function broadcastEvent(operationData, eventBus) {
     }
 
     removeEventDataFromOperationData(operationData);
-
 }
 
 export default broadcastEvent;
