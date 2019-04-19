@@ -82,6 +82,8 @@ describe('modifyDimensions', () => {
         expect(dimensions.height).to.be.equal(200);
     });
 
+    // DIVIDING
+
     it('should modify the height and width by dividing by 100', () => {
         // test
         modifyDimensions(dimensions, '/100');
@@ -91,6 +93,53 @@ describe('modifyDimensions', () => {
         expect(dimensions.height).to.be.equal(3);
     });
 
+    it('should modify the height by dividing by 100', () => {
+        // test
+        modifyDimensions(dimensions, '/100h');
+
+        // expect
+        expect(dimensions.width).to.be.equal(200);
+        expect(dimensions.height).to.be.equal(3);
+    });
+
+    it('should modify the width by dividing by 100', () => {
+        // test
+        modifyDimensions(dimensions, '/100w');
+
+        // expect
+        expect(dimensions.width).to.be.equal(2);
+        expect(dimensions.height).to.be.equal(300);
+    });
+
+    it('should modify the height and width by dividing by 50%', () => {
+        // test
+        modifyDimensions(dimensions, '/50%');
+
+        // expect
+        expect(dimensions.width).to.be.equal(2);
+        expect(dimensions.height).to.be.equal(2);
+    });
+
+    it('should modify the height by dividing by 50%', () => {
+        // test
+        modifyDimensions(dimensions, '/50h%');
+
+        // expect
+        expect(dimensions.width).to.be.equal(200);
+        expect(dimensions.height).to.be.equal(2);
+    });
+
+    it('should modify the width by dividing by 50%', () => {
+        // test
+        modifyDimensions(dimensions, '/50w%');
+
+        // expect
+        expect(dimensions.width).to.be.equal(2);
+        expect(dimensions.height).to.be.equal(300);
+    });
+
+    // MULTIPLYING
+
     it('should modify the height and width by multiplying by 100', () => {
         // test
         modifyDimensions(dimensions, '*100');
@@ -98,7 +147,71 @@ describe('modifyDimensions', () => {
         // expect
         expect(dimensions.width).to.be.equal(20000);
         expect(dimensions.height).to.be.equal(30000);
+    });
 
+    it('should modify the height by multiplying by 100', () => {
+        // test
+        modifyDimensions(dimensions, '*100h');
+
+        // expect
+        expect(dimensions.width).to.be.equal(200);
+        expect(dimensions.height).to.be.equal(30000);
+    });
+
+    it('should modify the width by multiplying by 100', () => {
+        // test
+        modifyDimensions(dimensions, '*100w');
+
+        // expect
+        expect(dimensions.width).to.be.equal(20000);
+        expect(dimensions.height).to.be.equal(300);
+    });
+
+    it('should modify the width and height by multiplying by 100%', () => {
+        // test
+        modifyDimensions(dimensions, '*100%');
+
+        // expect
+        expect(dimensions.width).to.be.equal(40000);
+        expect(dimensions.height).to.be.equal(90000);
+    });
+
+    it('should modify the width by multiplying by 100%', () => {
+        // test
+        modifyDimensions(dimensions, '*100w%');
+
+        // expect
+        expect(dimensions.width).to.be.equal(40000);
+        expect(dimensions.height).to.be.equal(300);
+    });
+
+    it('should modify the height by multiplying by 100%', () => {
+        // test
+        modifyDimensions(dimensions, '*100h%');
+
+        // expect
+        expect(dimensions.width).to.be.equal(200);
+        expect(dimensions.height).to.be.equal(90000);
+    });
+
+    // RATIOS
+
+    it('should modify the height by a ratio of 8-1 to the width', () => {
+        // test
+        modifyDimensions(dimensions, '+0|h[ar=8-1]');
+
+        // expect
+        expect(dimensions.width).to.be.equal(200);
+        expect(dimensions.height).to.be.equal(25);
+    });
+
+    it('should modify the width by a ratio of 8-1 to the height', () => {
+        // test
+        modifyDimensions(dimensions, '+0|w[ar=8-1]');
+
+        // expect
+        expect(dimensions.width).to.be.equal(2400);
+        expect(dimensions.height).to.be.equal(300);
     });
 
 });

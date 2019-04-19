@@ -1,18 +1,19 @@
 function loadJSON(jsonCache, operationData, eventBus) {
     const {url, cache} = operationData;
 
+    let { propertyName } = operationData;
+    propertyName = propertyName || "json";
+
     if (cache && jsonCache[url]) {
-        operationData.json = jsonCache[url];
+        operationData[propertyName] = jsonCache[url];
         return operationData;
     }
 
-    let { propertyName } = operationData;
-    propertyName = propertyName || "json";
 
     return new Promise((resolve, reject)=> {
         fetch(url)
         .then((response)=> {
-            operationData[propertyName] = response.body;
+            jsonCache[url] = operationData[propertyName] = response.body;
             resolve(operationData);
         })
         .catch(reject);

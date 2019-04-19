@@ -79,4 +79,23 @@ describe('getElementDimensions', () => {
         expect(newData.dimensions.height).to.equal(100);
     });
 
+    it('should get the given element\'s dimensions and use the given modifier', () => {
+        // given
+
+        const mockElement = new MockElement(100, 0);
+
+        const operationData = {
+            selectedElement: mockElement,
+            dimensions: null,
+            modifier: '+100'
+        };
+
+        // test
+        const newData = getElementDimensions(operationData);
+
+        // expect
+        expect(newData.dimensions.width).to.equal(200);
+        expect(newData.dimensions.height).to.equal(200);
+    });
+
 });
