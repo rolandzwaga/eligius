@@ -10,8 +10,8 @@
     "test": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js --watch",
     "test-ci": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js",
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
-    "build": "webpack",
-    "dev": "webpack --dev"
+    "build": "webpack --mode production --display-modules",
+    "dev": "webpack --mode development --progress --colors --watch  --display-modules"
   },
   "dependencies": {
     "d3": "5.9.2",
@@ -59,6 +59,7 @@
     "sass-loader": "7.1.0",
     "sinon": "^7.3.2",
     "style-loader": "0.23.1",
+    "uglifyjs-webpack-plugin": "^2.1.2",
     "webpack": "4.30.0",
     "webpack-cli": "3.3.0"
   }
