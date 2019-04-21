@@ -27,8 +27,8 @@ module.exports = function (env, args) {
       umdNamedDefine: true
     },
     externals: {
-      jquery: '$',
-      'lottie-web': 'lottie'
+      jquery: { amd: 'jquery', global: 'jQuery', commonjs: 'jquery', commonjs2: 'jquery' },
+      'lottie-web': { amd: 'lottie', global: 'lottie', commonjs: 'lottie', commonjs2: 'lottie' }
     },
     module: {
       rules: [{
