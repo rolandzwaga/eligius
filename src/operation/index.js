@@ -16,6 +16,7 @@ export { default as loadJSON } from './loadJSON';
 export { default as removeClass } from './removeClass';
 export { default as removeControllerFromElement } from './removeControllerFromElement';
 export { default as removeElement } from './removeElement';
+export { default as removePropertiesFromOperationData } from './removePropertiesFromOperationData';
 export { default as reparentElement } from './reparentElement';
 export { default as requestAction } from './requestAction';
 export { default as resizeAction } from './resizeAction';

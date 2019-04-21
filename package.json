@@ -9,7 +9,9 @@
   "scripts": {
     "test": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js --watch",
     "test-ci": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js",
-    "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js"
+    "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
+    "build": "webpack",
+    "dev": "webpack --dev"
   },
   "dependencies": {
     "d3": "5.9.2",
@@ -26,6 +28,7 @@
     "@babel/plugin-proposal-object-rest-spread": "7.4.3",
     "@babel/plugin-transform-arrow-functions": "7.2.0",
     "@babel/plugin-transform-modules-commonjs": "7.4.3",
+    "@babel/plugin-transform-object-assign": "^7.2.0",
     "@babel/preset-env": "7.4.3",
     "@types/node": "11.13.6",
     "acorn": "6.1.1",
@@ -36,7 +39,7 @@
     "chai": "4.2.0",
     "child_process": "1.0.2",
     "chokidar": "2.1.5",
-    "clean-webpack-plugin": "^2.0.1",
+    "clean-webpack-plugin": "2.0.1",
     "css-loader": "2.1.1",
     "file-loader": "3.0.1",
     "html-loader": "0.5.5",
