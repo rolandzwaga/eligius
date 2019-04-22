@@ -6,9 +6,9 @@ declare namespace ChronoTrigger {
 
     interface Eventbus {
         clear(): void;
-        on(eventName: string, eventHandler: Function, eventTopic: string = undefined): ()=>void;
-        off(eventName: string, eventHandler: Function, eventTopic: string = undefined): void;
-        once(eventName: string, eventHandler: Function, eventTopic: string = undefined): void;
+        on(eventName: string, eventHandler: Function, eventTopic?: string): ()=>void;
+        off(eventName: string, eventHandler: Function, eventTopic?: string): void;
+        once(eventName: string, eventHandler: Function, eventTopic?: string): void;
         broadcast(eventName: string, args: any[]): void;
         broadcastForTopic(eventName: string, eventTopic: string, args: any[]): void;
         registerEventlistener(eventbusListener: EventbusListener): void;
@@ -53,11 +53,10 @@ declare namespace ChronoTrigger {
         getDuration(): number;
     }
 
-    type EngineFactory = {
-        new (importer: ResourceImporter, windowRef: Window, eventbus: Eventbus): EngineFactory;
+    class EngineFactory {
+        constructor(importer: ResourceImporter, windowRef: Window, eventbus: Eventbus);
         createEngine(configuration: Configuration): ChronoTriggerEngine;
         destroy():void;
-    };
-    
+    }
 
 }
