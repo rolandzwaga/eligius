@@ -25,6 +25,8 @@ declare namespace ChronoTrigger {
 
     interface ResourceImporter {
         import(name: string): any;
+        getOperationNames(): string[];
+        getControllerNames(): string[];
     }
 
     interface Configuration {
@@ -58,5 +60,8 @@ declare namespace ChronoTrigger {
         createEngine(configuration: Configuration): ChronoTriggerEngine;
         destroy():void;
     }
+
+    interface WebpackResourceImporter extends ResourceImporter {}
+    class WebpackResourceImporter{}
 
 }
