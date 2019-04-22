@@ -5,6 +5,14 @@ import * as main from '../';
 
 class WebpackResourceImporter {
 
+    getOperationNames() {
+        return Object.keys(operations);
+    }
+
+    getControllerNames() {
+        return Object.keys(controllers);
+    }
+
     import(name) {
         if (operations[name]) {
             return {

@@ -4,13 +4,32 @@ import { expect } from 'chai';
 describe('WebpackResourceImporter', () => {
 
     let importer = null;
+    const operations = ['addClass', 'addControllerToElement', 'addOptionList', 'animate', 'animateWithClass', 'broadcastEvent', 'clearElement', 'clearOperationData', 'customFunction', 'endAction', 'extendController', 'getControllerFromElement', 'getControllerInstance', 'getElementDimensions', 'loadJSON', 'removeClass', 'removeControllerFromElement', 'removeElement', 'removePropertiesFromOperationData', 'reparentElement', 'requestAction', 'resizeAction', 'selectElement', 'setElementAttributes', 'setElementContent', 'setOperationData', 'setStyle', 'startAction', 'toggleClass', 'toggleElement', 'wait'];
+    const controllers = ['EventListenerController', 'LabelController', 'LottieController', 'NavigationController', 'ProgressbarController', 'RoutingController', 'SubtitlesController'];
 
     beforeEach(() => {
         importer = new WebpackResourceImporter();
     });
 
+    it('should return all the operation names', () => {
+        var operationNames = importer.getOperationNames();
+        expect(operationNames).to.not.be.null;
+        expect(operationNames.length).to.not.equal(0);
+        operationNames.forEach(name => {
+            expect(operations).to.contain(name);
+        });
+    });
+
+    it('should return all the controller names', () => {
+        var controllerNames = importer.getControllerNames();
+        expect(controllerNames).to.not.be.null;
+        expect(controllerNames.length).to.not.equal(0);
+        controllerNames.forEach(name => {
+            expect(controllers).to.contain(name);
+        });
+    });
+
     it('should return all known operations', () => {
-        const operations = ['addClass', 'addControllerToElement', 'addOptionList', 'animate', 'animateWithClass', 'broadcastEvent', 'clearElement', 'clearOperationData', 'customFunction', 'endAction', 'extendController', 'getControllerFromElement', 'getControllerInstance', 'getElementDimensions', 'loadJSON', 'removeClass', 'removeControllerFromElement', 'removeElement', 'reparentElement', 'requestAction', 'resizeAction', 'selectElement', 'setElementAttributes', 'setElementContent', 'setOperationData', 'setStyle', 'startAction', 'toggleClass', 'toggleElement', 'wait'];
 
         operations.forEach(op => {
             const imported = importer.import(op);
@@ -20,7 +39,6 @@ describe('WebpackResourceImporter', () => {
     });
 
     it('should return all known controllers', () => {
-        const controllers = ['EventListenerController', 'LabelController', 'LottieController', 'NavigationController', 'ProgressbarController', 'RoutingController', 'SubtitlesController'];
 
         controllers.forEach(op => {
             const imported = importer.import(op);
