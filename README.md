@@ -6,5 +6,9 @@ All of this powered by a json based configuration file.
 
 * To install first get Yarn: https://yarnpkg.com
 * Then open up a command prompt in the project root and run 'yarn install'
-* Use 'npm run test' to run the unit tests
+* Use 'npm run test' to run the unit tests (tests use Mocha, Chai and Sinon)
 * Use 'npm run build-example-1' to build the example project
+* Use 'npm run build' to create a production library bundle (written as library.min.js to ./lib directory)
+* Use 'npm run dev-build' to create a development library bundle (written as library.js to ./lib directory)
+* Use 'npm run full-build' to create production and development bundle
+* Use 'npm run dev' to create a watcher that creates a dev build after each save
