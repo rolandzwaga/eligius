@@ -6,21 +6,21 @@ import ConfigurationResolver from './configuration/configuration-resolver';
 class EngineFactory {
     
     constructor(importer, windowRef, eventbus) {
-        this.init(importer, windowRef, eventbus);
+        this._init(importer, windowRef, eventbus);
     }
 
-    init(importer, windowRef, eventbus) {
+    _init(importer, windowRef, eventbus) {
         this.resizeTimeout = -1;
         this.actionsLookup = null;
 
         this.importer = importer;
 
         this.eventBus = eventbus || new Eventbus();
-        this.eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this.requestInstanceHandler.bind(this));
-        this.eventBus.on(TimelineEventNames.REQUEST_ACTION, this.requestActionHandler.bind(this));
-        this.eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this.requestFunctionHandler.bind(this));
+        this.eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
+        this.eventBus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
+        this.eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
         
-        $(windowRef).resize(this.resizeHandler.bind(this));
+        $(windowRef).resize(this._resizeHandler.bind(this));
     }
 
     destroy() {
@@ -28,7 +28,7 @@ class EngineFactory {
         this.eventBus = null;
     }
 
-    resizeHandler() {
+    _resizeHandler() {
         if (this.resizeTimeout > -1) {
             clearTimeout(this.resizeTimeout);
         }
@@ -37,24 +37,24 @@ class EngineFactory {
         }, 200);
     }
 
-    importSystemEntryWithEventbusDependency(systemName) {
-        const ctor = this.importSystemEntry(systemName);
+    _importSystemEntryWithEventbusDependency(systemName) {
+        const ctor = this._importSystemEntry(systemName);
         return new ctor(this.eventBus);
     }
 
-    importSystemEntry(systemName) {
+    _importSystemEntry(systemName) {
         return this.importer.import(systemName)[systemName];
     }
 
-    requestInstanceHandler(systemName, resultCallback) {
-        resultCallback(this.importSystemEntryWithEventbusDependency(systemName));
+    _requestInstanceHandler(systemName, resultCallback) {
+        resultCallback(this._importSystemEntryWithEventbusDependency(systemName));
     }
 
-    requestFunctionHandler(systemName, resultCallback) {
-        resultCallback(this.importSystemEntry(systemName));
+    _requestFunctionHandler(systemName, resultCallback) {
+        resultCallback(this._importSystemEntry(systemName));
     }
 
-    requestActionHandler(systemName, resultCallback) {
+    _requestActionHandler(systemName, resultCallback) {
         const action = this.actionsLookup[systemName];
         if (action) {
             resultCallback(action);
@@ -66,7 +66,7 @@ class EngineFactory {
 
     createEngine(configuration) {
         const { systemName } = configuration.engine;
-        const engineClass = this.importSystemEntry(systemName);
+        const engineClass = this._importSystemEntry(systemName);
 
         let actionRegistryListener = null;
         if ((configuration.eventActions) && (configuration.eventActions.length)) {
@@ -79,7 +79,7 @@ class EngineFactory {
         const resolver = new ConfigurationResolver(this.importer, this.eventBus);
         this.actionsLookup = resolver.process(actionRegistryListener, configuration)
 
-        const timelineProviderClass = this.importSystemEntry(configuration.timelineProviderSettings.systemName);
+        const timelineProviderClass = this._importSystemEntry(configuration.timelineProviderSettings.systemName);
         const timelineProvider = new timelineProviderClass(this.eventBus, configuration);
 
         const chronoTriggerEngine = new engineClass(configuration, this.eventBus, timelineProvider);

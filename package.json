@@ -2,7 +2,8 @@
   "name": "chrono-trigger-js",
   "version": "1.0.0",
   "description": "An engine that allows arbitrary functionality, defined by a JSON configuration, to be triggered according to a given timeline provider",
-  "main": "index.js",
+  "main": "./lib/library.min.js",
+  "types": "./lib/library.d.ts",
   "repository": "https://github.com/rolandzwaga/chrono-trigger.git",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
@@ -10,7 +11,9 @@
     "test": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js --watch",
     "test-ci": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js",
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
+    "full-build": "npm run build && npm run dev-build",
     "build": "webpack --mode production --display-modules",
+    "dev-build": "webpack --mode development --progress --colors --display-modules",
     "dev": "webpack --mode development --progress --colors --watch  --display-modules"
   },
   "dependencies": {

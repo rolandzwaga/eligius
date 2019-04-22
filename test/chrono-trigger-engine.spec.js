@@ -70,7 +70,7 @@ describe('ChronoTriggerEngine', () => {
     const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
 
     // test
-    engine.createLayoutTemplate();
+    engine._createLayoutTemplate();
   });
 
   it('should throw an error when container selector cannot be resolved', () => {
@@ -81,7 +81,7 @@ describe('ChronoTriggerEngine', () => {
 
     // test
     try {
-      engine.createLayoutTemplate();
+      engine._createLayoutTemplate();
     } catch (e) {
       error = e;
     }
@@ -98,7 +98,7 @@ describe('ChronoTriggerEngine', () => {
     const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
 
     // test
-    engine.addInitialisationListeners();
+    engine._addInitialisationListeners();
 
     // expect
     expect(engine._eventbusListeners.length).to.equal(6);

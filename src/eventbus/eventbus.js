@@ -10,7 +10,7 @@ class Eventbus {
 		this.eventInterceptors = {};
 	}
 
-	getEventInterceptors(eventName, eventTopic) {
+	_getEventInterceptors(eventName, eventTopic) {
 		if ((eventTopic) && (eventTopic.length)) {
 			eventName = `${eventName}:${eventTopic}`;
 		}
@@ -20,7 +20,7 @@ class Eventbus {
 		return this.eventInterceptors[eventName];
 	}
 
-	getEventHandlers(eventName, eventTopic) {
+	_getEventHandlers(eventName, eventTopic) {
 		if ((eventTopic) && (eventTopic.length)) {
 			eventName = `${eventName}:${eventTopic}`;
 		}
@@ -31,7 +31,7 @@ class Eventbus {
 	}
 
 	on(eventName, eventHandler, eventTopic) {
-		this.getEventHandlers(eventName, eventTopic).push(eventHandler);
+		this._getEventHandlers(eventName, eventTopic).push(eventHandler);
 		return () => {
 			this.off(eventName, eventHandler, eventTopic);
 		}
@@ -47,7 +47,7 @@ class Eventbus {
 	}
 
 	off(eventName, eventHandler, eventTopic) {
-		const handlers = this.getEventHandlers(eventName, eventTopic);
+		const handlers = this._getEventHandlers(eventName, eventTopic);
 		if (handlers) {
 			const idx = handlers.indexOf(eventHandler);
 			if (idx > -1) {
@@ -57,11 +57,11 @@ class Eventbus {
 	}
 
 	broadcast(eventName, args) {
-		this.callHandlers(eventName, null, args);
+		this._callHandlers(eventName, null, args);
 	}
 
 	broadcastForTopic(eventName, eventTopic, args) {
-		this.callHandlers(eventName, eventTopic, args);
+		this._callHandlers(eventName, eventTopic, args);
 	}
 
 	registerEventlistener(eventbusListener) {
@@ -69,19 +69,19 @@ class Eventbus {
 	}
 
 	registerInterceptor(eventName, interceptor, eventTopic) {
-		const interceptors = this.getEventInterceptors(eventName, eventTopic);
+		const interceptors = this._getEventInterceptors(eventName, eventTopic);
 		interceptors.push(interceptor);
 	}
 
-	callHandlers(eventName, eventTopic, args=[]) {
-		const interceptors = this.getEventInterceptors(eventName, eventTopic);
+	_callHandlers(eventName, eventTopic, args=[]) {
+		const interceptors = this._getEventInterceptors(eventName, eventTopic);
 		interceptors.forEach((interceptor) => {
 			args = interceptor.intercept(args);
 		});
 		this.eventListeners.forEach((listener) => {
 			listener.handleEvent(eventName, eventTopic, args);
 		});
-		const handlers = this.getEventHandlers(eventName, eventTopic);
+		const handlers = this._getEventHandlers(eventName, eventTopic);
 		if (handlers) {
 			for (let i = 0, l = handlers.length; i < l; i++) {
 				handlers[i](...args);
