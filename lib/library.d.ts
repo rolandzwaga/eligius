@@ -4,7 +4,8 @@ export as namespace ChronoTrigger;
 
 declare namespace ChronoTrigger {
 
-    interface Eventbus {
+    class Eventbus {
+        constructor();
         clear(): void;
         on(eventName: string, eventHandler: Function, eventTopic?: string): ()=>void;
         off(eventName: string, eventHandler: Function, eventTopic?: string): void;
