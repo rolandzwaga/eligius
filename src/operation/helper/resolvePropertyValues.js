@@ -1,7 +1,8 @@
 import extractOperationDataArgumentValues from './extractOperationDataArgumentValues';
+import deepcopy from './deepcopy';
 
 function resolvePropertyValues(operationData, properties) {
-    const copy = Object.assign({}, properties);
+    const copy = deepcopy(properties);
     const extract = extractOperationDataArgumentValues.bind(null, operationData);
     for(let propertyName in properties) {
         const propertyValue = properties[propertyName];

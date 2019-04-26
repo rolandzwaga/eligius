@@ -1,7 +1,7 @@
 import getNestedValue from './getNestedValue';
 
 function extractOperationDataArgumentValues(sourceObject, argumentValue) {
-    if ((argumentValue) && (argumentValue.substr) && (argumentValue.toLowerCase().startsWith('operationdata.'))) {
+    if ((argumentValue) && (argumentValue.toLowerCase) && (argumentValue.toLowerCase().startsWith('operationdata.'))) {
         let propNames = argumentValue.split('.');
         propNames.shift();
         return getNestedValue(propNames, sourceObject);

@@ -14,7 +14,10 @@
     "full-build": "npm run build && npm run dev-build",
     "build": "webpack --mode production --display-modules",
     "dev-build": "webpack --mode development --progress --colors --display-modules",
-    "dev": "webpack --mode development --progress --colors --watch  --display-modules"
+    "dev": "webpack --mode development --progress --colors --display-modules --watch",
+    "publish-patch": "npm run full-build && npm version patch",
+    "publish-minor": "npm run full-build && npm version minor",
+    "postversion": "git push && git push --tags"
   },
   "dependencies": {
     "d3": "5.9.2",
