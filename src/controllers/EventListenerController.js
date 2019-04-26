@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import TimelineEventNames from "../timeline-event-names";
+import deepcopy from '../operation/helper/deepcopy';
 
 class EventListenerController {
 
 	constructor() {
 		this.operationData = null;
-		this.actions = null;
+		this.actionInstanceInfos = null;
 		this.name = "EventListenerController";
 	}
 
@@ -14,27 +15,33 @@ class EventListenerController {
 			selectedElement: operationData.selectedElement,
 			eventName: operationData.eventName,
 			actions: operationData.actions.slice(),
-			actionOperationData: operationData.actionOperationDatab ? JSON.parse(JSON.stringify(operationData.actionOperationData)) : undefined
+			actionOperationData: operationData.actionOperationData ? deepcopy(operationData.actionOperationData) : undefined
 		}
 	}
 
 	attach(eventbus) {
-		if (!this.actions) {
-            this.actions = [];
-			this.operationData.actions.forEach((actionName) => {
-				const [doStart, name] = this.isStartAction(actionName);
+		const { selectedElement, actions, eventName } = this.operationData;
+		if (!this.actionInstanceInfos) {
+            this.actionInstanceInfos = [];
+			actions.forEach((actionName) => {
+				const [isStart, name] = this.isStartAction(actionName);
                 const resultCallback = (actionInstance)=> {
-                    this.actions.push({ start:doStart, action: actionInstance});
+                    this.actionInstanceInfos.push({ start:isStart, action: actionInstance});
 				};
 				
                 eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback]);
 			});
 		}
-		if (this.operationData.selectedElement[0].tagName.toUpperCase() === "SELECT") {
-			this.operationData.selectedElement.on(this.operationData.eventName, this.selectEventHandler.bind(this));
+		if (this.getElementTagName(selectedElement) === "SELECT") {
+			selectedElement.on(eventName, this.selectEventHandler.bind(this));
 		} else {
-			this.operationData.selectedElement.on(this.operationData.eventName, this.eventHandler.bind(this));
+			selectedElement.on(eventName, this.eventHandler.bind(this));
 		}
+	}
+
+	getElementTagName(element) {
+		const tagName = (element.length) ? element[0].tagName : element.tagName;
+		return tagName.toUpperCase();
 	}
 
 	isStartAction(actionName) {
@@ -47,25 +54,23 @@ class EventListenerController {
 	}
 
 	eventHandler(event) {
-		const copy = (this.operationData.actionOperationData) ? JSON.parse(JSON.stringify(this.operationData.actionOperationData)) : {};
+		const copy = (this.operationData.actionOperationData) ? deepcopy(this.operationData.actionOperationData) : {};
 		if (event.target) {
 			copy.targetValue = event.target.value;
 		}
-		this.executeAction(this.actions, copy, 0);
+		this.executeAction(this.actionInstanceInfos, copy, 0);
 	}
 
 	executeAction(actions, operationData, idx) {
 		if (idx < actions.length) {
-			const act = actions[idx];
-			const action = act.action;
-			if (act.start) {
-				//console.debug("Start action: " + action.name);
+			const actionInfo = actions[idx];
+			const action = actionInfo.action;
+			if (actionInfo.start) {
 				action.start(operationData)
 					.then((resultOperationData) => {
 						return this.executeAction(actions, $.extend(operationData, resultOperationData), ++idx);
 					});
 			} else {
-				//console.debug("End action: " + action.name);
 				action.end()
 					.then((resultOperationData) => {
 						return this.executeAction(actions, $.extend(operationData, resultOperationData), ++idx);
@@ -79,8 +84,8 @@ class EventListenerController {
 		for (let i = 0, l = options.length; i < l; i++) {
 			const opt = options[i];
 			if (opt.selected) {
-				const copy = (this.operationData.actionOperationData) ? JSON.parse(JSON.stringify(this.operationData.actionOperationData)) : {};
-				this.executeAction(this.actions, $.extend({ eventArgs: [opt.value] }, copy), 0);
+				const copy = (this.operationData.actionOperationData) ? deepcopy(this.operationData.actionOperationData) : {};
+				this.executeAction(this.actionInstanceInfos, $.extend({ eventArgs: [opt.value] }, copy), 0);
 				break;
 			}
 		}
