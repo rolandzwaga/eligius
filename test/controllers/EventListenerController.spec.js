@@ -6,13 +6,16 @@ class MockAction {
         this.actionName = actionName;
     }
 
-    start() {
-
+    start(operationData) {
+        this.startOperationData = operationData;
+        return new Promise(resolve => resolve(operationData));
     }
 
-    end() {
-
+    end(operationData) {
+        this.endOperationData = operationData;
+        return new Promise(resolve => resolve(operationData));
     }
+
 }
 
 class MockEventbus {
@@ -46,7 +49,7 @@ describe('EventListenerController', () => {
     let selectedElement = null;
     let operationData = null;
 
-    beforeEach(()=> {
+    beforeEach(() => {
         controller = new EventListenerController();
         eventbus = new MockEventbus();
         selectedElement = new MockElement();
@@ -81,7 +84,7 @@ describe('EventListenerController', () => {
     it('should attach properly', () => {
         // given
         controller.init(operationData);
-        
+
         // test
         controller.attach(eventbus);
 
@@ -104,4 +107,31 @@ describe('EventListenerController', () => {
         // expect
         expect(operationData.selectedElement.eventName).to.equal('test');
     });
+
+    it('should call the select event handler', (done) => {
+        // given
+        const options = [{
+            selected: false
+        }, {
+            selected: true,
+            value: 'test'
+        }];
+        const event = {
+            target: options
+        };
+        controller.init(operationData);
+        controller.attach(eventbus);
+
+        // test
+        operationData.selectedElement.eventHandler(event);
+
+        // expect
+        const expectedOperatonData = Object.assign({ eventArgs: ["test"] }, controller.operationData.actionOperationData);
+        setTimeout(() => {
+            expect(controller.actionInstanceInfos[0].action.startOperationData).to.eql(expectedOperatonData);
+            expect(controller.actionInstanceInfos[1].action.startOperationData).to.eql(expectedOperatonData);
+            done();
+        }, 100);
+    });
+
 });
