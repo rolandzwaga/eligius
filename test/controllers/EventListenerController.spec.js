@@ -134,4 +134,27 @@ describe('EventListenerController', () => {
         }, 100);
     });
 
+    it('should call the textinput event handler', (done) => {
+        // given
+        const event = {
+            target: {
+                value: 'testTextInput'
+            }
+        };
+        operationData.selectedElement.tagName = 'input';
+        controller.init(operationData);
+        controller.attach(eventbus);
+
+        // test
+        operationData.selectedElement.eventHandler(event);
+
+        // expect
+        const expectedOperatonData = Object.assign({ targetValue: 'testTextInput' }, controller.operationData.actionOperationData);
+        setTimeout(() => {
+            expect(controller.actionInstanceInfos[0].action.startOperationData).to.eql(expectedOperatonData);
+            expect(controller.actionInstanceInfos[1].action.startOperationData).to.eql(expectedOperatonData);
+            done();
+        }, 100);
+    });
+
 });
