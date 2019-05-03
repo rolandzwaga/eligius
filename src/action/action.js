@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import deepcopy from '../operation/helper/deepcopy';
 
 class Action {
 
@@ -23,7 +23,7 @@ class Action {
 
 		if (idx < operations.length) {
 			const operationInfo = operations[idx];
-			const copy = (operationInfo.operationData) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
+			const copy = (operationInfo.operationData) ? deepcopy(operationInfo.operationData) : {};
 			const mergedOperationData = Object.assign(previousOperationData, copy);
 			
 			const result = operationInfo.instance(mergedOperationData, this.eventbus);
@@ -56,7 +56,7 @@ class Action {
 		if (idx < operations.length) {
 			const operationInfo = operations[idx];
 			if ((operationInfo.resizeInstance)) {
-				const copy = ((operationInfo.operationData)) ? JSON.parse(JSON.stringify(operationInfo.operationData)) : {};
+				const copy = ((operationInfo.operationData)) ? deepcopy(operationInfo.operationData) : {};
 				const mergedOperationData = Object.assign(previousOperationData, copy);
 
 				const result = operationInfo.resizeInstance(mergedOperationData);

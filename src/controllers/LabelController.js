@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import TimelineEventNames from "../timeline-event-names";
 
 class LabelController {
@@ -6,12 +5,13 @@ class LabelController {
 	constructor() {
 		this.listeners = [];
 		this.currentLanguage = null;
+		this.operationData = null;
 		this.labelData = {};
 		this.name = "LabelController";
 	}
 
 	init(operationData) {
-		this.operationData = $.extend({},operationData, true);
+		this.operationData = Object.assign({},operationData);
 	}
 
 	attach(eventbus) {

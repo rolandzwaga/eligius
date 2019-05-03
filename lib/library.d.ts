@@ -35,8 +35,8 @@ declare namespace ChronoTrigger {
         [name: string]: any;
     }
 
-    interface ChronoTriggerEngine {
-        new (configuration: Configuration, eventbus: Eventbus, timelineProvider: TimelineProvider): ChronoTriggerEngine;
+    class ChronoTriggerEngine {
+        constructor(configuration: Configuration, eventbus: Eventbus, timelineProvider: TimelineProvider);
         init(): Promise<TimelineProvider>;
         destroy() :void;
     }

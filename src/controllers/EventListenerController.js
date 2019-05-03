@@ -1,11 +1,12 @@
 import $ from 'jquery';
 import TimelineEventNames from "../timeline-event-names";
+import deepcopy from '../operation/helper/deepcopy';
 
 class EventListenerController {
 
 	constructor() {
 		this.operationData = null;
-		this.actions = null;
+		this.actionInstanceInfos = null;
 		this.name = "EventListenerController";
 	}
 
@@ -14,30 +15,36 @@ class EventListenerController {
 			selectedElement: operationData.selectedElement,
 			eventName: operationData.eventName,
 			actions: operationData.actions.slice(),
-			actionOperationData: operationData.actionOperationDatab ? JSON.parse(JSON.stringify(operationData.actionOperationData)) : undefined
+			actionOperationData: operationData.actionOperationData ? deepcopy(operationData.actionOperationData) : undefined
 		}
 	}
 
 	attach(eventbus) {
-		if (!this.actions) {
-            this.actions = [];
-			this.operationData.actions.forEach((actionName) => {
-				const [doStart, name] = this.isStartAction(actionName);
-                const resultCallback = (actionInstance)=> {
-                    this.actions.push({ start:doStart, action: actionInstance});
+		const { selectedElement, actions, eventName } = this.operationData;
+		if (!this.actionInstanceInfos) {
+			this.actionInstanceInfos = [];
+			actions.forEach((actionName) => {
+				const [isStart, name] = this._isStartAction(actionName);
+				const resultCallback = (actionInstance) => {
+					this.actionInstanceInfos.push({ start: isStart, action: actionInstance });
 				};
-				
-                eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback]);
+
+				eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback]);
 			});
-		}
-		if (this.operationData.selectedElement[0].tagName.toUpperCase() === "SELECT") {
-			this.operationData.selectedElement.on(this.operationData.eventName, this.selectEventHandler.bind(this));
-		} else {
-			this.operationData.selectedElement.on(this.operationData.eventName, this.eventHandler.bind(this));
+			if (this._getElementTagName(selectedElement) === "SELECT") {
+				selectedElement.on(eventName, this._selectEventHandler.bind(this));
+			} else {
+				selectedElement.on(eventName, this._eventHandler.bind(this));
+			}
 		}
 	}
 
-	isStartAction(actionName) {
+	_getElementTagName(element) {
+		const tagName = (element.length) ? element[0].tagName : element.tagName;
+		return tagName.toUpperCase();
+	}
+
+	_isStartAction(actionName) {
 		const prefix = actionName.substr(0, "end:".length);
 		if (prefix === "end:") {
 			return [false, actionName.substr("end:".length)];
@@ -46,41 +53,33 @@ class EventListenerController {
 		}
 	}
 
-	eventHandler(event) {
-		const copy = (this.operationData.actionOperationData) ? JSON.parse(JSON.stringify(this.operationData.actionOperationData)) : {};
+	_eventHandler(event) {
+		const copy = (this.operationData.actionOperationData) ? deepcopy(this.operationData.actionOperationData) : {};
 		if (event.target) {
 			copy.targetValue = event.target.value;
 		}
-		this.executeAction(this.actions, copy, 0);
+		this._executeAction(this.actionInstanceInfos, copy, 0);
 	}
 
-	executeAction(actions, operationData, idx) {
+	_executeAction(actions, operationData, idx) {
 		if (idx < actions.length) {
-			const act = actions[idx];
-			const action = act.action;
-			if (act.start) {
-				//console.debug("Start action: " + action.name);
-				action.start(operationData)
-					.then((resultOperationData) => {
-						return this.executeAction(actions, $.extend(operationData, resultOperationData), ++idx);
-					});
-			} else {
-				//console.debug("End action: " + action.name);
-				action.end()
-					.then((resultOperationData) => {
-						return this.executeAction(actions, $.extend(operationData, resultOperationData), ++idx);
-					});
-			}
+			const actionInfo = actions[idx];
+			const { action } = actionInfo;
+			const method = (actionInfo.start) ? action.start.bind(action) : action.end.bind(action);
+			method(operationData)
+				.then((resultOperationData) => {
+					return this._executeAction(actions, Object.assign(operationData, resultOperationData), ++idx);
+				});
 		}
 	}
 
-	selectEventHandler(event) {
+	_selectEventHandler(event) {
 		const options = event.target;
 		for (let i = 0, l = options.length; i < l; i++) {
 			const opt = options[i];
 			if (opt.selected) {
-				const copy = (this.operationData.actionOperationData) ? JSON.parse(JSON.stringify(this.operationData.actionOperationData)) : {};
-				this.executeAction(this.actions, $.extend({ eventArgs: [opt.value] }, copy), 0);
+				const copy = (this.operationData.actionOperationData) ? deepcopy(this.operationData.actionOperationData) : {};
+				this._executeAction(this.actionInstanceInfos, Object.assign({ eventArgs: [opt.value] }, copy), 0);
 				break;
 			}
 		}
