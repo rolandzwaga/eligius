@@ -28,6 +28,7 @@ declare namespace ChronoTrigger {
         import(name: string): any;
         getOperationNames(): string[];
         getControllerNames(): string[];
+        getProviderNames(): string[];
     }
 
     interface Configuration {

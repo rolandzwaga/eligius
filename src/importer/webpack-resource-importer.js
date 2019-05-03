@@ -13,6 +13,10 @@ class WebpackResourceImporter {
         return Object.keys(controllers);
     }
 
+    getProviderNames() {
+        return Object.keys(providers);
+    }
+
     import(name) {
         if (operations[name]) {
             return {
