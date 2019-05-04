@@ -20,7 +20,7 @@ class ChronoTriggerEngine {
         this.languageManager = new LanguageManager(this.configuration.language, this.configuration.labels, this.eventbus);
 
         const { timelines } = this.configuration;
-        this._currentVideoUri = (timelines && timelines.length) ? timelines[0].uri : null;
+        this._currentTimelineUri = (timelines && timelines.length) ? timelines[0].uri : null;
 
         this._createTimelineLookup();
 
@@ -146,7 +146,7 @@ class ChronoTriggerEngine {
         this.timelineProvider.stop();
         this._cleanUpTimeline().then(() => {
             const timelineConfig = this.configuration.timelines[index];
-            this._currentVideoUri = timelineConfig.uri;
+            this._currentTimelineUri = timelineConfig.uri;
             this.timelineProvider.loop = timelineConfig.loop;
             if ((!this.timelineProvider.loop) && (position > 0)) {
                 this.timelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
@@ -226,7 +226,7 @@ class ChronoTriggerEngine {
     }
 
     _getRelevantTimelineActions() {
-        return this._getTimelineActionsForUri(this._currentVideoUri);
+        return this._getTimelineActionsForUri(this._currentTimelineUri);
     }
 
     _getTimelineActionsForUri(uri) {
@@ -264,7 +264,7 @@ class ChronoTriggerEngine {
 
     _executeActionsForPosition(position) {
         this._lastPosition = position;
-        const actions = this._timeLineActionsLookup[this._currentVideoUri];
+        const actions = this._timeLineActionsLookup[this._currentTimelineUri];
         if (actions) {
             const executions = actions[position];
             if (executions) {

@@ -16,22 +16,22 @@ declare namespace ChronoTrigger {
         registerInterceptor(eventName: string, interceptor: EventInterceptor, eventTopic: string): void;
     }
 
-    interface EventInterceptor {
+    interface IEventInterceptor {
         intercept(eventArgs: any[]): any[];
     }
 
-    interface EventbusListener {
+    interface IEventbusListener {
         handleEvent(eventName: string, eventTopic: string, args: any[]): void;
     }
 
-    interface ResourceImporter {
+    interface IResourceImporter {
         import(name: string): any;
         getOperationNames(): string[];
         getControllerNames(): string[];
         getProviderNames(): string[];
     }
 
-    interface Configuration {
+    interface IConfiguration {
         [name: string]: any;
     }
 
@@ -41,7 +41,7 @@ declare namespace ChronoTrigger {
         destroy() :void;
     }
 
-    interface TimelineProvider {
+    interface ITimelineProvider {
         loop: boolean;
         playerid: string;
         stop(): void;
@@ -57,13 +57,17 @@ declare namespace ChronoTrigger {
         getDuration(): number;
     }
 
+    interface IConfigurationResolver {
+        process(actionRegistryListener: EventbusListener, configuration: IConfiguration);
+    }
+
     class EngineFactory {
         constructor(importer: ResourceImporter, windowRef: Window, eventbus: Eventbus);
-        createEngine(configuration: Configuration): ChronoTriggerEngine;
+        createEngine(configuration: Configuration, resolver: ConfigurationResolver=null): ChronoTriggerEngine;
         destroy():void;
     }
 
-    interface WebpackResourceImporter extends ResourceImporter {}
+    interface WebpackResourceImporter extends IResourceImporter {}
     class WebpackResourceImporter{}
 
 }

@@ -64,7 +64,7 @@ class EngineFactory {
         }
     }
 
-    createEngine(configuration) {
+    createEngine(configuration, resolver) {
         const { systemName } = configuration.engine;
         const engineClass = this._importSystemEntry(systemName);
 
@@ -76,8 +76,8 @@ class EngineFactory {
 
         this.eventBus.registerInterceptor(TimelineEventNames.REQUEST_TIMELINE_URI, new RequestVideoUriInterceptor(this.eventBus));
 
-        const resolver = new ConfigurationResolver(this.importer, this.eventBus);
-        this.actionsLookup = resolver.process(actionRegistryListener, configuration)
+        resolver = resolver || new ConfigurationResolver(this.importer, this.eventBus);
+        this.actionsLookup = resolver.process(actionRegistryListener, configuration);
 
         const timelineProviderClass = this._importSystemEntry(configuration.timelineProviderSettings.systemName);
         const timelineProvider = new timelineProviderClass(this.eventBus, configuration);
