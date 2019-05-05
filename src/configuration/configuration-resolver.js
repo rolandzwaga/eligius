@@ -1,5 +1,4 @@
 import { TimelineAction, EndableAction, Action } from '../action';
-import getNestedValue from '../operation/helper/getNestedValue';
 import getNestedPropertyValue from '../operation/helper/getNestedPropertyValue';
 
 class ConfigurationResolver {
@@ -7,7 +6,6 @@ class ConfigurationResolver {
     constructor(importer, eventbus) {
         this.importer = importer;
         this.eventbus = eventbus;
-        // comment
     }
 
     importSystemEntry(systemName) {
