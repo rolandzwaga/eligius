@@ -1,5 +1,6 @@
 import { TimelineAction, EndableAction, Action } from '../action';
 import getNestedValue from '../operation/helper/getNestedValue';
+import getNestedPropertyValue from '../operation/helper/getNestedPropertyValue';
 
 class ConfigurationResolver {
 
@@ -101,17 +102,17 @@ class ConfigurationResolver {
             }
         } else {
             Object.keys(config).forEach((key) => {
-                this._processConfigProperty(key, config, parentConfig);
+                this.processConfigProperty(key, config, parentConfig);
             });
         }
     }
 
-    _processConfigProperty(key, config, parentConfig) {
+    processConfigProperty(key, config, parentConfig) {
         const value = config[key];
         if (typeof value === 'string') {           
             if ((value.startsWith('config:'))) {
                 const configProperty = value.substr(7, value.length);
-                config[key] = this._getNestedPropertyValue(configProperty, parentConfig);
+                config[key] = getNestedPropertyValue(configProperty, parentConfig);
             }
             else if ((value.startsWith('template:'))) {
                 const templateKey = value.substr(9, value.length);
@@ -125,11 +126,6 @@ class ConfigurationResolver {
         } else if (typeof value === 'object') {
             this.processConfiguration(config[key], parentConfig);
         }
-    }
-
-    _getNestedPropertyValue(propertyChain, sourceObject) {
-        const properties = propertyChain.split('.');
-        return getNestedValue(properties, sourceObject);
     }
 
     _gatherOperations(actions) {

@@ -63,7 +63,16 @@ declare namespace ChronoTrigger {
     }
 
     interface IConfigurationResolver {
-        process(actionRegistryListener: EventbusListener, configuration: IConfiguration);
+        process(actionRegistryListener: EventbusListener, configuration: IConfiguration): void;
+        importSystemEntry(systemName: string): any;
+        initializeEventActions(actionRegistryListener: IEventbusListener, config: IConfiguration): void;
+        initializeActions(config: IConfiguration, actionsLookup: any): void;
+        initializeInitActions(config: IConfiguration, actionsLookup: any): void;
+        initializeTimelineActions(config: IConfiguration): void;
+        initializeTimelineAction(timelineConfig: any): void;
+        resolveOperations(config: IConfiguration): void;
+        processConfiguration(config: IConfiguration, parentConfig: IConfiguration): void;
+        processConfigProperty(key: string, config: IConfiguration, parentConfig: IConfiguration): void;
     }
 
     interface ConfigurationResolver extends IConfigurationResolver {}
