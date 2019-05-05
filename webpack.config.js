@@ -3,22 +3,20 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 module.exports = function (env, args) {
 
   let libraryName = 'library';
-  let minimizers = [], outputFile, devtool;
+  let minimizers = [], outputFile;
 
   if (args.mode === 'production') {
     minimizers.push(new UglifyJsPlugin({
       parallel: true
     }));
     outputFile = libraryName + '.min.js';
-    devtool = false;
   } else {
     outputFile = libraryName + '.js';
-    devtool = 'source-map';
   }
 
   const config = {
     entry: __dirname + '/src/index.js',
-    devtool: devtool,
+    devtool: 'source-map',
     output: {
       path: __dirname + '/lib',
       filename: outputFile,

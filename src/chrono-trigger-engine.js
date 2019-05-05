@@ -32,9 +32,11 @@ class ChronoTriggerEngine {
         if (!container || !container.length) {
             throw new Error(`Container selector not found: ${this.configuration.containerSelector}`);
         }
-        const { layoutTemplate } = this.configuration; 
+        const { layoutTemplate } = this.configuration;
         if (layoutTemplate && layoutTemplate.length) {
             container.html(layoutTemplate);
+        } else {
+            console.warning('layoutTemplate is empty, unable to create layout');
         }
     }
 
