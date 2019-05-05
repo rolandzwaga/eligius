@@ -12,8 +12,8 @@ declare namespace ChronoTrigger {
         once(eventName: string, eventHandler: Function, eventTopic?: string): void;
         broadcast(eventName: string, args: any[]): void;
         broadcastForTopic(eventName: string, eventTopic: string, args: any[]): void;
-        registerEventlistener(eventbusListener: EventbusListener): void;
-        registerInterceptor(eventName: string, interceptor: EventInterceptor, eventTopic: string): void;
+        registerEventlistener(eventbusListener: IEventbusListener): void;
+        registerInterceptor(eventName: string, interceptor: IEventInterceptor, eventTopic: string): void;
     }
 
     interface IEventInterceptor {
@@ -36,13 +36,13 @@ declare namespace ChronoTrigger {
     }
 
     interface IChronoTriggerEngine {
-        init(): Promise<TimelineProvider>;
+        init(): Promise<ITimelineProvider>;
         destroy() :void;
     }
 
     class ChronoTriggerEngine implements IChronoTriggerEngine {
-        constructor(configuration: Configuration, eventbus: Eventbus, timelineProvider: TimelineProvider);
-        init(): Promise<TimelineProvider>;
+        constructor(configuration: IConfiguration, eventbus: Eventbus, timelineProvider: ITimelineProvider);
+        init(): Promise<ITimelineProvider>;
         destroy() :void;
     }
 
@@ -75,12 +75,14 @@ declare namespace ChronoTrigger {
         processConfigProperty(key: string, config: IConfiguration, parentConfig: IConfiguration): void;
     }
 
-    interface ConfigurationResolver extends IConfigurationResolver {}
+    interface ConfigurationResolver extends IConfigurationResolver {
+        new(importer: IResourceImporter, eventbus: Eventbus): ConfigurationResolver;
+    }
     class ConfigurationResolver{}
 
     class EngineFactory {
         constructor(importer: IResourceImporter, windowRef: Window, eventbus: Eventbus);
-        createEngine(configuration: IConfiguration, resolver: IConfigurationResolver=null): IChronoTriggerEngine;
+        createEngine(configuration: IConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine;
         destroy():void;
     }
 
