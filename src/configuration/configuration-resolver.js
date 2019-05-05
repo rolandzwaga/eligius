@@ -7,6 +7,7 @@ class ConfigurationResolver {
     constructor(importer, eventbus) {
         this.importer = importer;
         this.eventbus = eventbus;
+        // comment
     }
 
     importSystemEntry(systemName) {
