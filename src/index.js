@@ -1,4 +1,5 @@
 import * as actions from './action';
+export { default as ConfigurationResolver } from './configuration/configuration-resolver';
 export { default as ChronoTriggerEngine } from './chrono-trigger-engine';
 export { default as EngineFactory } from './engine-factory';
 export { default as TimelineEventNames } from './timeline-event-names';
