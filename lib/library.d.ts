@@ -35,7 +35,12 @@ declare namespace ChronoTrigger {
         [name: string]: any;
     }
 
-    class ChronoTriggerEngine {
+    interface IChronoTriggerEngine {
+        init(): Promise<TimelineProvider>;
+        destroy() :void;
+    }
+
+    class ChronoTriggerEngine implements IChronoTriggerEngine {
         constructor(configuration: Configuration, eventbus: Eventbus, timelineProvider: TimelineProvider);
         init(): Promise<TimelineProvider>;
         destroy() :void;
@@ -61,9 +66,12 @@ declare namespace ChronoTrigger {
         process(actionRegistryListener: EventbusListener, configuration: IConfiguration);
     }
 
+    interface ConfigurationResolver extends IConfigurationResolver {}
+    class ConfigurationResolver{}
+
     class EngineFactory {
         constructor(importer: ResourceImporter, windowRef: Window, eventbus: Eventbus);
-        createEngine(configuration: Configuration, resolver: ConfigurationResolver=null): ChronoTriggerEngine;
+        createEngine(configuration: Configuration, resolver: IConfigurationResolver=null): ChronoTriggerEngine;
         destroy():void;
     }
 

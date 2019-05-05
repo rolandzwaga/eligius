@@ -67,7 +67,7 @@ class ChronoTriggerEngine {
         this.eventbus = null;
         this.timelineProvider = null;
         this._timeLineActionsLookup = null;
-        this._eventbusListeners.forEach(func => func());
+        this._eventbusListeners.forEach(remover => remover());
         if (this.timelineProvider) {
             this.timelineProvider.destroy();
         }
