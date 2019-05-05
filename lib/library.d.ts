@@ -87,4 +87,5 @@ declare namespace ChronoTrigger {
     interface WebpackResourceImporter extends IResourceImporter {}
     class WebpackResourceImporter{}
 
+    
 }
