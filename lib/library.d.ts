@@ -79,8 +79,8 @@ declare namespace ChronoTrigger {
     class ConfigurationResolver{}
 
     class EngineFactory {
-        constructor(importer: ResourceImporter, windowRef: Window, eventbus: Eventbus);
-        createEngine(configuration: Configuration, resolver: IConfigurationResolver=null): ChronoTriggerEngine;
+        constructor(importer: IResourceImporter, windowRef: Window, eventbus: Eventbus);
+        createEngine(configuration: IConfiguration, resolver: IConfigurationResolver=null): IChronoTriggerEngine;
         destroy():void;
     }
 
