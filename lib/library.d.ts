@@ -91,7 +91,7 @@ declare namespace ChronoTrigger {
 
     interface ITimelineProvider {
         loop: boolean;
-        playerid: string;
+        providerid: string;
         stop(): void;
         start() : void;
         pause(): void;
