@@ -6,7 +6,7 @@ class JwPlayerTimelineProvider {
    constructor(eventbus, config) {
         this.eventbus = eventbus;
         this.config = config;
-        this.playerid = config.playerSettings.selector;
+        this.providerid = config.playerSettings.selector;
         this.loop = false;
         this.player = null;
         this.currentLoopHandler = null;
@@ -87,12 +87,12 @@ class JwPlayerTimelineProvider {
     _handlePlayerComplete() {
         if (!this.loop) {
             this.stop();
-            this.eventbus.broadcastForTopic(TimelineEventNames.COMPLETE, this.playerid, [this.player.getPlaylistIndex()]);
+            this.eventbus.broadcastForTopic(TimelineEventNames.COMPLETE, this.providerid, [this.player.getPlaylistIndex()]);
         }
     }
 
     _seekedHandler() {
-        this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.playerid, [this.getPosition(), this.getDuration()]);
+        this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.providerid, [this.getPosition(), this.getDuration()]);
     }
 
     destroy() {
@@ -114,14 +114,14 @@ class JwPlayerTimelineProvider {
     }
 
     _addEventListeners() {
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this), this.playerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this), this.providerid));
     }
 
     _container(resultCallback) {
@@ -129,7 +129,7 @@ class JwPlayerTimelineProvider {
         if (this.player.getProvider().name !== "html5") {
             suffix = "_wrapper";
         }
-        const container = $(`#${this.playerid}${suffix}`);
+        const container = $(`#${this.providerid}${suffix}`);
         resultCallback(container);
     }
 
@@ -144,30 +144,30 @@ class JwPlayerTimelineProvider {
     play() {
         this.paused = false;
         this.player.play();
-        this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.providerid);
     }
 
     stop() {
         this.paused = false;
         this.player.stop();
-        this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.providerid);
     }
 
     pause() {
         this.paused = true;
         this.player.pause();
-        this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.providerid);
     }
 
     seek(position) {
         const currentPosition = this.player.getPosition();
         this.player.seek(position);
-        this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.playerid, [position, currentPosition, this.player.getDuration()]);
+        this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.providerid, [position, currentPosition, this.player.getDuration()]);
     }
 
     resize(width, height) {
         this.player.resize(width, height);
-        this.eventbus.broadcastForTopic(TimelineEventNames.RESIZE, this.playerid, [width, height]);
+        this.eventbus.broadcastForTopic(TimelineEventNames.RESIZE, this.providerid, [width, height]);
     }
 
     duration(resultCallback) {

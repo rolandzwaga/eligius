@@ -12,7 +12,7 @@ class RequestAnimationFrameTimelineProvider {
         this._updateBound = this._update.bind(this);
         this.loop = false;
         this._eventbusListeners = [];
-        this.playerid = `provider${Math.random()*1000}`;
+        this.providerid = `provider${Math.random()*1000}`;
         this._addEventListeners();
         this.playlist = [];
         this.currentPlaylistItem = null;
@@ -37,14 +37,14 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     _addEventListeners() {
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.playerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this), this.playerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this), this.providerid));
     }
 
     _update(now) {
@@ -54,7 +54,7 @@ class RequestAnimationFrameTimelineProvider {
         if(!this.last || now - this.last >= 1000) {
             if (!this.last && this.firstFrame) {
                 this.firstFrame = false;
-                this.eventbus.broadcastForTopic(TimelineEventNames.FIRSTFRAME, this.playerid);
+                this.eventbus.broadcastForTopic(TimelineEventNames.FIRSTFRAME, this.providerid);
             }
             this.last = now;
             this.current++;
@@ -63,11 +63,11 @@ class RequestAnimationFrameTimelineProvider {
                     this._reset();
                 } else {
                     this.stop();
-                    this.eventbus.broadcastForTopic(TimelineEventNames.COMPLETE, this.playerid);
+                    this.eventbus.broadcastForTopic(TimelineEventNames.COMPLETE, this.providerid);
                     return;
                 }
             }
-            this.eventbus.broadcastForTopic(TimelineEventNames.TIME, this.playerid, this.current);
+            this.eventbus.broadcastForTopic(TimelineEventNames.TIME, this.providerid, this.current);
         }
         this.requestID = requestAnimationFrame(this._updateBound);
     }
@@ -132,27 +132,27 @@ class RequestAnimationFrameTimelineProvider {
     play(){
         this.paused = false;
         this._start();
-        this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.providerid);
     }
 
     stop() {
         this.paused = false;
         this._cancelAnimationFrame();
-        this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.providerid);
     }
 
     pause() {
         this.paused = true;
-        this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.providerid);
     }
 
     seek(position) {
         if (position < 0 || position > this.currentPlaylistItem.duration) {
             return;
         }
-        this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.providerid);
         this.current = position;
-        this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.playerid);
+        this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.providerid);
     }
 
     requestDurationHandler(callBack) {
@@ -160,11 +160,11 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     on(eventName, handler) {
-        return this.eventbus.on(eventName, handler, this.playerid);
+        return this.eventbus.on(eventName, handler, this.providerid);
     }
 
     once(eventName, handler) {
-        return this.eventbus.once(eventName, handler, this.playerid);
+        return this.eventbus.once(eventName, handler, this.providerid);
     }
 }
 
