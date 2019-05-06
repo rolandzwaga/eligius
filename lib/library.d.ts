@@ -4,6 +4,49 @@ export as namespace ChronoTrigger;
 
 declare namespace ChronoTrigger {
 
+    class TimelineEventNames {
+        // timeline requests
+        static PLAY_TOGGLE_REQUEST: string;
+        static PLAY_REQUEST: string;
+        static STOP_REQUEST: string;
+        static PAUSE_REQUEST: string;
+        static SEEK_REQUEST: string;
+        static RESIZE_REQUEST: string;
+        static CONTAINER_REQUEST: string;
+        static DURATION_REQUEST: string;
+    
+        // timeline announcements
+        static DURATION: string;
+        static TIME: string;
+        static SEEKED: string;
+        static COMPLETE: string;
+        static PLAY: string;
+        static STOP: string;
+        static PAUSE: string;
+        static SEEK: string;
+        static RESIZE: string;
+        static POSITION_UPDATE: string;
+        static TIME_UPDATE: string;
+    
+        // factory and engine events
+        static REQUEST_INSTANCE: string;
+        static REQUEST_ACTION: string;
+        static REQUEST_FUNCTION: string;
+        static REQUEST_TIMELINE_URI: string;
+        static BEFORE_REQUEST_TIMELINE_URI: string;
+        static REQUEST_ENGINE_ROOT: string;
+        static REQUEST_CURRENT_TIMELINE_POSITION: string;
+        static REQUEST_TIMELINE_CLEANUP: string;
+        static EXECUTE_TIMELINEACTION: string;
+        static RESIZE_TIMELINEACTION: string;
+    
+        //language manager events
+        static REQUEST_LABEL_COLLECTION: string;
+        static REQUEST_LABEL_COLLECTIONS: string;
+        static REQUEST_CURRENT_LANGUAGE: string;
+        static LANGUAGE_CHANGE: string;
+    }
+    
     class Eventbus {
         constructor();
         clear(): void;
