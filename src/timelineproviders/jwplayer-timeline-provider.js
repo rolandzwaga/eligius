@@ -114,6 +114,7 @@ class JwPlayerTimelineProvider {
     }
 
     _addEventListeners() {
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.playerid));
@@ -132,17 +133,28 @@ class JwPlayerTimelineProvider {
         resultCallback(container);
     }
 
+    toggleplay() {
+        if (this.paused) {
+            this.play()
+        } else {
+            this.pause();
+        }
+    }
+
     play() {
+        this.paused = false;
         this.player.play();
         this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.playerid);
     }
 
     stop() {
+        this.paused = false;
         this.player.stop();
         this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.playerid);
     }
 
     pause() {
+        this.paused = true;
         this.player.pause();
         this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.playerid);
     }

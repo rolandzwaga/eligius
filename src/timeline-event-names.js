@@ -1,5 +1,6 @@
 class TimelineEventNames {
     // timeline requests
+    static PLAY_TOGGLE_REQUEST = 'timeline-play-toggle-request';
     static PLAY_REQUEST = 'timeline-play-request';
     static STOP_REQUEST = 'timeline-stop-request';
     static PAUSE_REQUEST = 'timeline-pause-request';

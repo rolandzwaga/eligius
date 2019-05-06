@@ -37,6 +37,7 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     _addEventListeners() {
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.playerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.playerid));
@@ -120,13 +121,22 @@ class RequestAnimationFrameTimelineProvider {
         });
     }
 
+    toggleplay() {
+        if (this.paused) {
+            this.play();
+        } else {
+            this.pause();
+        }
+    }
+
     play(){
         this.paused = false;
         this._start();
         this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.playerid);
     }
 
-    stop(){
+    stop() {
+        this.paused = false;
         this._cancelAnimationFrame();
         this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.playerid);
     }
