@@ -14,34 +14,34 @@ class LanguageManager {
         }
         this._labelLookup = {};
         this._currentLanguage = language;
-        this.eventbusListeners = [];
-        this.createLabelLookup(labels);
-        this.addEventbusListeners(eventbus);
+        this._eventbusListeners = [];
+        this._createLabelLookup(labels);
+        this._addEventbusListeners(eventbus);
     }
 
-    addEventbusListeners(eventbus) {
-        this.eventbusListeners.push(eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, this.handleRequestLabelCollection.bind(this)));
-        this.eventbusListeners.push(eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, this.handleRequestLabelCollections.bind(this)));
-        this.eventbusListeners.push(eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, this.handleRequestCurrentLanguage.bind(this)));
-        this.eventbusListeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.handleLanguageChange.bind(this)));
+    _addEventbusListeners(eventbus) {
+        this._eventbusListeners.push(eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, this._handleRequestLabelCollection.bind(this)));
+        this._eventbusListeners.push(eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, this._handleRequestLabelCollections.bind(this)));
+        this._eventbusListeners.push(eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, this._handleRequestCurrentLanguage.bind(this)));
+        this._eventbusListeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this._handleLanguageChange.bind(this)));
     }
 
-    handleRequestCurrentLanguage(resultCallback) {
+    _handleRequestCurrentLanguage(resultCallback) {
         resultCallback(this._currentLanguage);
     }
 
-    handleRequestLabelCollection(labelId, resultCallback) {
+    _handleRequestLabelCollection(labelId, resultCallback) {
         resultCallback(this._labelLookup[labelId]);
     }
 
-    handleRequestLabelCollections(labelIds, resultCallback) {
+    _handleRequestLabelCollections(labelIds, resultCallback) {
         const labelCollections = labelIds.map((labelId) => {
             return this._labelLookup[labelId];
         });
         resultCallback(labelCollections);
     }
 
-    handleLanguageChange(language) {
+    _handleLanguageChange(language) {
         if (language && language.length) {
             this._currentLanguage = language;
         } else {
@@ -49,7 +49,7 @@ class LanguageManager {
         }
     }
 
-    createLabelLookup(labels) {
+    _createLabelLookup(labels) {
         labels.forEach((label) => {
             this._labelLookup[label.id] = label.labels;
         });

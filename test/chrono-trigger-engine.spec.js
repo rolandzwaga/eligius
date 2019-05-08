@@ -58,9 +58,9 @@ describe('ChronoTriggerEngine', () => {
 
     // expect
     expect(engine).to.not.equal(null);
-    expect(engine.configuration).to.equal(configuration);
-    expect(engine.eventbus).to.equal(eventbus);
-    expect(engine.timelineProvider).to.equal(provider);
+    expect(engine._configuration).to.equal(configuration);
+    expect(engine._eventbus).to.equal(eventbus);
+    expect(engine._timelineProvider).to.equal(provider);
   });
 
   it('should create the layout template', () => {
@@ -117,10 +117,8 @@ describe('ChronoTriggerEngine', () => {
     engine.init();
 
     // expect
-    expect(engine.languageManager).to.not.equal(null);
-    expect(engine.languageManager.eventbus).to.equal(eventbus);
-    expect(engine.languageManager.language).to.equal(configuration.language);
-    expect(engine.languageManager.labels).to.equal(configuration.labels);
+    expect(engine._languageManager).to.not.equal(null);
+    // expect(engine._languageManager._currentLanguage).to.equal(configuration.language);
   });
 
   it('should initialize the timeline lookup', () => {

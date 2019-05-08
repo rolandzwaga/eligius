@@ -9,7 +9,14 @@ module.exports = function (env, args) {
   if (args.mode === 'production') {
     minimizers.push(new UglifyJsPlugin({
       parallel: true,
-      sourceMap: true
+      sourceMap: true,
+      uglifyOptions: {
+        mangle: {
+          properties: {
+            regex: /^_/
+          }
+        }
+      }
     }));
     outputFile = libraryName + '.min.js';
   } else {

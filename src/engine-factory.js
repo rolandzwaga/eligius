@@ -10,40 +10,40 @@ class EngineFactory {
     }
 
     _init(importer, windowRef, eventbus) {
-        this.resizeTimeout = -1;
-        this.actionsLookup = null;
+        this._resizeTimeout = -1;
+        this._actionsLookup = null;
 
-        this.importer = importer;
+        this._importer = importer;
 
-        this.eventBus = eventbus || new Eventbus();
-        this.eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
-        this.eventBus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
-        this.eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
+        this._eventBus = eventbus || new Eventbus();
+        this._eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
+        this._eventBus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
+        this._eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
         
         $(windowRef).resize(this._resizeHandler.bind(this));
     }
 
     destroy() {
-        this.eventBus.clear();
-        this.eventBus = null;
+        this._eventBus.clear();
+        this._eventBus = null;
     }
 
     _resizeHandler() {
-        if (this.resizeTimeout > -1) {
-            clearTimeout(this.resizeTimeout);
+        if (this._resizeTimeout > -1) {
+            clearTimeout(this._resizeTimeout);
         }
-        this.resizeTimeout = setTimeout(() => {
-            this.eventBus.broadcast(TimelineEventNames.RESIZE);
+        this._resizeTimeout = setTimeout(() => {
+            this._eventBus.broadcast(TimelineEventNames.RESIZE);
         }, 200);
     }
 
     _importSystemEntryWithEventbusDependency(systemName) {
         const ctor = this._importSystemEntry(systemName);
-        return new ctor(this.eventBus);
+        return new ctor(this._eventBus);
     }
 
     _importSystemEntry(systemName) {
-        return this.importer.import(systemName)[systemName];
+        return this._importer.import(systemName)[systemName];
     }
 
     _requestInstanceHandler(systemName, resultCallback) {
@@ -55,7 +55,7 @@ class EngineFactory {
     }
 
     _requestActionHandler(systemName, resultCallback) {
-        const action = this.actionsLookup[systemName];
+        const action = this._actionsLookup[systemName];
         if (action) {
             resultCallback(action);
         } else {
@@ -71,18 +71,18 @@ class EngineFactory {
         let actionRegistryListener = null;
         if ((configuration.eventActions) && (configuration.eventActions.length)) {
             actionRegistryListener = new ActionRegistryEventbusListener();
-            this.eventBus.registerEventlistener(actionRegistryListener);
+            this._eventBus.registerEventlistener(actionRegistryListener);
         }
 
-        this.eventBus.registerInterceptor(TimelineEventNames.REQUEST_TIMELINE_URI, new RequestVideoUriInterceptor(this.eventBus));
+        this._eventBus.registerInterceptor(TimelineEventNames.REQUEST_TIMELINE_URI, new RequestVideoUriInterceptor(this._eventBus));
 
-        resolver = resolver || new ConfigurationResolver(this.importer, this.eventBus);
-        this.actionsLookup = resolver.process(actionRegistryListener, configuration);
+        resolver = resolver || new ConfigurationResolver(this._importer, this._eventBus);
+        this._actionsLookup = resolver.process(actionRegistryListener, configuration);
 
         const timelineProviderClass = this._importSystemEntry(configuration.timelineProviderSettings.systemName);
-        const timelineProvider = new timelineProviderClass(this.eventBus, configuration);
+        const timelineProvider = new timelineProviderClass(this._eventBus, configuration);
 
-        const chronoTriggerEngine = new engineClass(configuration, this.eventBus, timelineProvider);
+        const chronoTriggerEngine = new engineClass(configuration, this._eventBus, timelineProvider);
         return chronoTriggerEngine;
     }
 

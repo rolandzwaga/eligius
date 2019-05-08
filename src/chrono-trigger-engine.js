@@ -5,9 +5,9 @@ import TimelineEventNames from './timeline-event-names';
 class ChronoTriggerEngine {
 
     constructor(configuration, eventbus, timelineProvider) {
-        this.configuration = configuration;
-        this.eventbus = eventbus;
-        this.timelineProvider = timelineProvider;
+        this._configuration = configuration;
+        this._eventbus = eventbus;
+        this._timelineProvider = timelineProvider;
         this._timeLineActionsLookup = {};
         this._eventbusListeners = [];
     }
@@ -17,9 +17,11 @@ class ChronoTriggerEngine {
 
         this._addInitialisationListeners();
 
-        this.languageManager = new LanguageManager(this.configuration.language, this.configuration.labels, this.eventbus);
+        const { language, labels, timelines} = this._configuration;
+        const { _eventbus } = this;
 
-        const { timelines } = this.configuration;
+        this._languageManager = new LanguageManager(language, labels, _eventbus);
+
         this._currentTimelineUri = (timelines && timelines.length) ? timelines[0].uri : null;
 
         this._createTimelineLookup();
@@ -28,11 +30,12 @@ class ChronoTriggerEngine {
     }
 
     _createLayoutTemplate() {
-        const container = $(this.configuration.containerSelector);
+        const { containerSelector } = this._configuration;
+        const container = $(containerSelector);
         if (!container || !container.length) {
-            throw new Error(`Container selector not found: ${this.configuration.containerSelector}`);
+            throw new Error(`Container selector not found: ${containerSelector}`);
         }
-        const { layoutTemplate } = this.configuration;
+        const { layoutTemplate } = this._configuration;
         if (layoutTemplate && layoutTemplate.length) {
             container.html(layoutTemplate);
         } else {
@@ -41,19 +44,20 @@ class ChronoTriggerEngine {
     }
 
     _initializeTimelineProvider() {
-        if (!this.configuration.timelineProviderSettings) {
+        const { timelineProviderSettings } = this._configuration;
+        if (!timelineProviderSettings) {
             return;
         }
 
-        const playerContainer = $(`#${this.configuration.timelineProviderSettings.selector}`);
+        const playerContainer = $(`#${timelineProviderSettings.selector}`);
 
         if (playerContainer.length) {
             return new Promise((resolve) => {
-                this.timelineProvider.init().then(() => {
-                    this._executeActions((this.configuration.initActions), "start").then(() => {
-                        this.timelineProvider.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor));
-                        this.timelineProvider.on(TimelineEventNames.SEEK, this._onSeekHandler.bind(this, Math.floor));
-                        resolve(this.timelineProvider);
+                this._timelineProvider.init().then(() => {
+                    this._executeActions((this._configuration.initActions), "start").then(() => {
+                        this._timelineProvider.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor));
+                        this._timelineProvider.on(TimelineEventNames.SEEK, this._onSeekHandler.bind(this, Math.floor));
+                        resolve(this._timelineProvider);
                     });
                 });
             });
@@ -65,30 +69,30 @@ class ChronoTriggerEngine {
     }
 
     destroy() {
-        this.configuration = null;
-        this.eventbus = null;
-        this.timelineProvider = null;
+        this._configuration = null;
+        this._eventbus = null;
+        this._timelineProvider = null;
         this._timeLineActionsLookup = null;
         this._eventbusListeners.forEach(remover => remover());
-        if (this.timelineProvider) {
-            this.timelineProvider.destroy();
+        if (this._timelineProvider) {
+            this._timelineProvider.destroy();
         }
     }
 
     _addInitialisationListeners() {
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_ENGINE_ROOT, this._handleRequestEngineRoot.bind(this, this.configuration.containerSelector)));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_URI, this._handleRequestTimelineUri.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION, this._handleRequestTimelinePosition.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this._handleTimelineComplete.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.EXECUTE_TIMELINEACTION, this._handleExecuteTimelineAction.bind(this)));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_TIMELINEACTION, this._resizeTimelineAction.bind(this)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_ENGINE_ROOT, this._handleRequestEngineRoot.bind(this, this._configuration.containerSelector)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_TIMELINE_URI, this._handleRequestTimelineUri.bind(this)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION, this._handleRequestTimelinePosition.bind(this)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this._handleTimelineComplete.bind(this)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.EXECUTE_TIMELINEACTION, this._handleExecuteTimelineAction.bind(this)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.RESIZE_TIMELINEACTION, this._resizeTimelineAction.bind(this)));
     }
 
     _createTimelineLookup() {
-        if (!this.configuration.timelines) {
+        if (!this._configuration.timelines) {
             return;
         }
-        this.configuration.timelines.forEach((timelineInfo) => {
+        this._configuration.timelines.forEach((timelineInfo) => {
             timelineInfo.timelineActions.forEach(this._addTimelineAction.bind(this, timelineInfo.uri));
         });
     }
@@ -145,22 +149,22 @@ class ChronoTriggerEngine {
     _handleRequestTimelineUri(index, position, previousVideoPosition) {
         position = position || 0;
         previousVideoPosition = previousVideoPosition || 0;
-        this.timelineProvider.stop();
+        this._timelineProvider.stop();
         this._cleanUpTimeline().then(() => {
-            const timelineConfig = this.configuration.timelines[index];
+            const timelineConfig = this._configuration.timelines[index];
             this._currentTimelineUri = timelineConfig.uri;
-            this.timelineProvider.loop = timelineConfig.loop;
-            if ((!this.timelineProvider.loop) && (position > 0)) {
-                this.timelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
-                    this.timelineProvider.pause();
-                    this.eventbus.broadcastForTopic(TimelineEventNames.DURATION, this.timelineProvider.playerid, [this.getDuration()]);
+            this._timelineProvider.loop = timelineConfig.loop;
+            if ((!this._timelineProvider.loop) && (position > 0)) {
+                this._timelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
+                    this._timelineProvider.pause();
+                    this._eventbus.broadcastForTopic(TimelineEventNames.DURATION, this._timelineProvider.playerid, [this.getDuration()]);
                     this._executeStartActions().then(() => {
-                        this.timelineProvider.seek(position);
+                        this._timelineProvider.seek(position);
                         this._onSeekHandler(Math.floor, { offset: position });
                     });
                 });
             }
-            this.timelineProvider.playlistItem(index);
+            this._timelineProvider.playlistItem(index);
         });
     }
 
@@ -200,7 +204,7 @@ class ChronoTriggerEngine {
     }
 
     _handleRequestTimelinePosition(resultCallback) {
-        resultCallback(Math.floor(this.timelineProvider.getPosition()));
+        resultCallback(Math.floor(this._timelineProvider.getPosition()));
     }
 
     _handleTimelineComplete() {
@@ -233,7 +237,7 @@ class ChronoTriggerEngine {
 
     _getTimelineActionsForUri(uri) {
         let timelineActions;
-        this.configuration.timelines.some((timelineInfo) => {
+        this._configuration.timelines.some((timelineInfo) => {
             if (timelineInfo.uri === uri) {
                 timelineActions = timelineInfo.timelineActions;
                 return true;
@@ -248,9 +252,9 @@ class ChronoTriggerEngine {
             const pos = floor(event.position);
             if (this._lastPosition !== pos) {
                 this._executeActionsForPosition(pos);
-                this.eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this.timelineProvider.playerid, [pos, this.timelineProvider.getDuration()]);
+                this._eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this._timelineProvider.playerid, [pos, this._timelineProvider.getDuration()]);
             }
-            this.eventbus.broadcastForTopic(TimelineEventNames.TIME_UPDATE, this.timelineProvider.playerid, [event.position, this.timelineProvider.getDuration()]);
+            this._eventbus.broadcastForTopic(TimelineEventNames.TIME_UPDATE, this._timelineProvider.playerid, [event.position, this._timelineProvider.getDuration()]);
         }
     }
 
@@ -260,7 +264,7 @@ class ChronoTriggerEngine {
             return;
         }
         this._executeSeekActions(pos).then(() => {
-            this.timelineProvider.play();
+            this._timelineProvider.play();
         });
     }
 

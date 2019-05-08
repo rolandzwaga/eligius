@@ -20,13 +20,13 @@ describe('LanguageManager', () => {
     it('should create an instance and set correct init properties', () => {
         const languageManager = new LanguageManager(language, labels, eventbus);
         expect(languageManager._currentLanguage).to.equal(language);
-        expect(languageManager.eventbusListeners).to.not.equal(null);
-        expect(languageManager.eventbusListeners.length).to.equal(4);
+        expect(languageManager._eventbusListeners).to.not.equal(null);
+        expect(languageManager._eventbusListeners.length).to.equal(4);
     });
 
     it('should return the current language', () => {
         const languageManager = new LanguageManager(language, labels, eventbus);
-        languageManager.handleRequestCurrentLanguage((current)=> {
+        languageManager._handleRequestCurrentLanguage((current)=> {
             expect(current).to.equal(language);
         });
     });
@@ -40,7 +40,7 @@ describe('LanguageManager', () => {
             }
         ];
         const languageManager = new LanguageManager(language, labels, eventbus);
-        languageManager.handleRequestLabelCollection(labelId, (labelCollection) => {
+        languageManager._handleRequestLabelCollection(labelId, (labelCollection) => {
             expect(labelCollection).to.equal(labels[0].labels);
         });
     });
@@ -59,7 +59,7 @@ describe('LanguageManager', () => {
             }
         ];
         const languageManager = new LanguageManager(language, labels, eventbus);
-        languageManager.handleRequestLabelCollections([labelId1, labelId2], (labelCollections) => {
+        languageManager._handleRequestLabelCollections([labelId1, labelId2], (labelCollections) => {
             expect(labelCollections[0]).to.equal(labels[0].labels);
             expect(labelCollections[1]).to.equal(labels[1].labels);
         });
@@ -71,7 +71,7 @@ describe('LanguageManager', () => {
         const newLanguage = 'en';
 
         // test
-        languageManager.handleLanguageChange(newLanguage);
+        languageManager._handleLanguageChange(newLanguage);
 
         // expect
         expect(languageManager._currentLanguage).to.equal(newLanguage);
