@@ -15,7 +15,7 @@
     "build": "webpack --mode production --display-modules",
     "dev-build": "webpack --mode development --progress --colors --display-modules",
     "dev": "webpack --mode development --progress --colors --display-modules --watch",
-    "stage-build": "git add lib/library.js lib/library.js.map lib/library.min.js lib/library.d.ts",
+    "stage-build": "git add lib/library.js lib/library.js.map lib/library.min.js lib/library.min.js.map lib/library.d.ts",
     "publish-patch": "npm run full-build && npm run stage-build && git commit -m\"Add new patch build\" && npm version patch",
     "publish-minor": "npm run full-build && npm run stage-build && git commit -m\"Add new minor build\"  && npm version minor",
     "postversion": "git push && git push --tags"

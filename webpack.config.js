@@ -8,7 +8,8 @@ module.exports = function (env, args) {
 
   if (args.mode === 'production') {
     minimizers.push(new UglifyJsPlugin({
-      parallel: true
+      parallel: true,
+      sourceMap: true
     }));
     outputFile = libraryName + '.min.js';
   } else {
