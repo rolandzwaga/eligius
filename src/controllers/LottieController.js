@@ -1,4 +1,5 @@
 import lottie from 'lottie-web';
+import TimelineEventNames from '../timeline-event-names';
 
 class LottieController {
 
@@ -52,12 +53,14 @@ class LottieController {
 	}
 
 	attach(eventbus) {
-		if ((this.operationData.labelIds) && (this.operationData.labelIds.length)) {
+		const { labelIds } = this.operationData; 
+		if ((labelIds) && (labelIds.length)) {
 			const resultHolder = {};
-			eventbus.broadcast('request-current-language', [resultHolder]);
+			
+			eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [resultHolder]);
 			this.currentLanguage = resultHolder.language;
-			this.listeners.push(eventbus.on('language-change', this.handleLanguageChange.bind(this)));
-			eventbus.broadcast('request-label-collections', [this.operationData.labelIds, resultHolder]);
+			this.listeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.handleLanguageChange.bind(this)));
+			eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [this.operationData.labelIds, resultHolder]);
 			this.createTextDataLookup(resultHolder.labelCollections);
 		}
 		this.createAnimation();
@@ -75,7 +78,7 @@ class LottieController {
 				this.anim.destroy();
 			}
 		}
-    }
+  }
     
 	destroy() {
 		if (this.anim) {
@@ -90,8 +93,8 @@ class LottieController {
 		}
 		let serialized = (this.isIE()) ? this.serializedIEData : this.serializedData;
 
-		const labelIds = this.operationData.labelIds;
-		if ((labelIds) && (labelIds.length)) {
+		const { labelIds } = this.operationData;
+		if (labelIds && labelIds.length) {
 			labelIds.forEach((id) => {
 				serialized = serialized.split(`!!${id}!!`).join(this.labelData[id][this.currentLanguage]);
 			});

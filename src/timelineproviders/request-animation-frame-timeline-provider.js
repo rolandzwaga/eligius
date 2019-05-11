@@ -116,9 +116,7 @@ class RequestAnimationFrameTimelineProvider {
 
     destroy() {
         this.stop();
-        this._eventbusListeners.forEach(func => {
-            func();
-        });
+        this._eventbusListeners.forEach(func => func());
     }
 
     toggleplay() {

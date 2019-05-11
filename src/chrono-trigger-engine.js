@@ -68,7 +68,13 @@ class ChronoTriggerEngine {
         });
     }
 
-    destroy() {
+    async _cleanUp() {
+        await this._cleanUpTimeline();
+        await this._executeActions((this._configuration.initActions), 'end');
+    }
+
+    async destroy() {
+        await this._cleanUp();
         this._configuration = null;
         this._eventbus = null;
         this._timelineProvider = null;
