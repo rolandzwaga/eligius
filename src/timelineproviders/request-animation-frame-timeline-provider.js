@@ -153,6 +153,14 @@ class RequestAnimationFrameTimelineProvider {
         this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.providerid);
     }
 
+    getPosition() {
+        return this.current;
+    }
+
+    getDuration() {
+        return this.currentPlaylistItem.duration;
+    }
+
     requestDurationHandler(callBack) {
         callBack(this.currentPlaylistItem.duration);
     }

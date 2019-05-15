@@ -42,7 +42,7 @@ module.exports = (env) => {
                     use: ['html-loader']
                 },
                 {
-                    test: /\.(jpg|png)$/,
+                    test: /\.(jpg|png|gif)$/,
                     exclude: /(node_modules)/,
                     use: [{
                         loader: 'file-loader',
