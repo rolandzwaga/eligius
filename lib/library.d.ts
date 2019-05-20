@@ -53,8 +53,8 @@ declare namespace ChronoTrigger {
         on(eventName: string, eventHandler: Function, eventTopic?: string): ()=>void;
         off(eventName: string, eventHandler: Function, eventTopic?: string): void;
         once(eventName: string, eventHandler: Function, eventTopic?: string): void;
-        broadcast(eventName: string, args: any[]): void;
-        broadcastForTopic(eventName: string, eventTopic: string, args: any[]): void;
+        broadcast(eventName: string, args?: any[]): void;
+        broadcastForTopic(eventName: string, eventTopic: string, args?: any[]): void;
         registerEventlistener(eventbusListener: IEventbusListener): void;
         registerInterceptor(eventName: string, interceptor: IEventInterceptor, eventTopic: string): void;
     }
