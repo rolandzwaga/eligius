@@ -8,7 +8,7 @@ module.exports = (env) => {
     const outputPath = path.dirname(entryParam);
 
     return {
-        entry: path.resolve(__dirname, '../'+entryParam),
+        entry: ["@babel/polyfill", path.resolve(__dirname, '../'+entryParam)],
         output: {
             path: path.resolve(outputPath, 'dist'),
             filename: 'chrono-trigger-bundle.js'
@@ -31,7 +31,8 @@ module.exports = (env) => {
                                 }],
                                 "@babel/plugin-proposal-object-rest-spread",
                                 "@babel/plugin-transform-arrow-functions",
-                                "@babel/plugin-transform-object-assign"
+                                "@babel/plugin-transform-object-assign",
+                                "@babel/plugin-transform-regenerator"
                             ]
                         }
                     }]

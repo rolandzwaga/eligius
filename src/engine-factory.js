@@ -1,10 +1,15 @@
-import { Eventbus, ActionRegistryEventbusListener, RequestVideoUriInterceptor } from './eventbus';
+import {
+    Eventbus,
+    ActionRegistryEventbusListener,
+    RequestVideoUriInterceptor
+} from './eventbus';
 import $ from 'jquery';
 import TimelineEventNames from './timeline-event-names';
 import ConfigurationResolver from './configuration/configuration-resolver';
+import Mousetrap from 'mousetrap';
 
 class EngineFactory {
-    
+
     constructor(importer, windowRef, eventbus) {
         this._init(importer, windowRef, eventbus);
     }
@@ -19,7 +24,7 @@ class EngineFactory {
         this._eventBus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
         this._eventBus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
         this._eventBus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
-        
+
         $(windowRef).resize(this._resizeHandler.bind(this));
     }
 
@@ -65,7 +70,9 @@ class EngineFactory {
     }
 
     createEngine(configuration, resolver) {
-        const { systemName } = configuration.engine;
+        const {
+            systemName
+        } = configuration.engine;
         const engineClass = this._importSystemEntry(systemName);
 
         let actionRegistryListener = null;
@@ -81,6 +88,12 @@ class EngineFactory {
 
         const timelineProviderClass = this._importSystemEntry(configuration.timelineProviderSettings.systemName);
         const timelineProvider = new timelineProviderClass(this._eventBus, configuration);
+
+        Mousetrap.bind('space', event => {
+            event.preventDefault();
+            this._eventbus.broadcastForTopic(TimelineEventNames.PLAY_TOGGLE_REQUEST, timelineProvider.providerid);
+            return false;
+        });
 
         const chronoTriggerEngine = new engineClass(configuration, this._eventBus, timelineProvider);
         return chronoTriggerEngine;
