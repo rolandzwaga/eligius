@@ -45,10 +45,11 @@ class RequestAnimationFrameTimelineProvider {
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this), this.providerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.providerid));
         this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this), this.providerid));
+        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PROVIDERID_REQUEST, this.requestProviderIdHandler.bind(this)));
     }
 
     _update(now) {
-        if (!this.paused) {
+        if (this.paused) {
             return;
         }
         if(!this.last || now - this.last >= 1000) {
@@ -67,7 +68,8 @@ class RequestAnimationFrameTimelineProvider {
                     return;
                 }
             }
-            this.eventbus.broadcastForTopic(TimelineEventNames.TIME, this.providerid, this.current);
+            this.eventbus.broadcastForTopic(TimelineEventNames.TIME, this.providerid, [{position: this.current}]);
+            this.eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this.providerid, [{position: this.current, duration: this.currentPlaylistItem.duration}]);
         }
         this.requestID = requestAnimationFrame(this._updateBound);
     }
@@ -163,6 +165,10 @@ class RequestAnimationFrameTimelineProvider {
 
     requestDurationHandler(callBack) {
         callBack(this.currentPlaylistItem.duration);
+    }
+
+    requestProviderIdHandler(callBack) {
+        callBack(this.providerid);
     }
 
     on(eventName, handler) {

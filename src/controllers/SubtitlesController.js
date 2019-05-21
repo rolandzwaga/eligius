@@ -1,3 +1,5 @@
+import TimelineEventNames from '../timeline-event-names';
+
 class SubtitlesController {
 
 	constructor() {
@@ -8,9 +10,12 @@ class SubtitlesController {
 	}
 
 	attach(eventbus) {
-		const detachTime = eventbus.on("time", this.onTimeHandler.bind(this));
-		const detachLangChange = eventbus.on("language-change", this.languageChangeHandler.bind(this));
-		this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange]);
+		const callBack = (providerId) => {
+			const detachTime = eventbus.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this), providerId);
+			const detachLangChange = eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler.bind(this));
+			this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange]);
+		}
+		eventbus.broadcast(TimelineEventNames.PROVIDERID_REQUEST, [callBack]);
 	}
 
 	detach(eventbus) {
@@ -37,7 +42,7 @@ class SubtitlesController {
 		this.lastFunc = null;
 	}
 
-	onTimeHandler(position) {
+	onTimeHandler({ position }) {
 		const func = this.actionLookup[position];
 		if (func) {
 			func();

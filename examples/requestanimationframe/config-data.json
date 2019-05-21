@@ -206,7 +206,7 @@
         {
             "type": "animation",
             "uri": "animation-01",
-            "duration": 10,
+            "duration": 45,
             "loop": true,
             "selector": ".timeline-div",
             "timelineActions": [

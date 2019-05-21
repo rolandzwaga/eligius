@@ -11,12 +11,15 @@ class ProgressbarController {
 
 	init(operationData) {
 		this.selectedElement = operationData.selectedElement;
-		this.playerId = operationData.playerId;
 		this.textElement = operationData.textElement;
 	}
 
 	attach(eventbus) {
-		this.detachers.push(eventbus.on(TimelineEventNames.POSITION_UPDATE, this.positionUpdateHandler.bind(this), this.playerId));
+		const callBack = (providerId) => {
+			this.detachers.push(eventbus.on(TimelineEventNames.POSITION_UPDATE, this.positionUpdateHandler.bind(this), providerId));
+		}
+		eventbus.broadcast(TimelineEventNames.PROVIDERID_REQUEST, [callBack]);
+
 		const clickHandler = this.clickHandler.bind(this);
 		this.selectedElement.on("click", clickHandler);
 		this.detachers.push(()=> this.selectedElement.off("click"), clickHandler);
@@ -28,7 +31,7 @@ class ProgressbarController {
 		});
 	}
 
-	positionUpdateHandler(position, duration) {
+	positionUpdateHandler({position, duration}) {
 		let perc = (100 / duration) * position;
 		if (this.selectedElement) {
 			this.selectedElement.css("width", `${perc}%`);

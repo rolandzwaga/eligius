@@ -84,7 +84,11 @@ class Eventbus {
 		const handlers = this._getEventHandlers(eventName, eventTopic);
 		if (handlers) {
 			for (let i = 0, l = handlers.length; i < l; i++) {
-				handlers[i](...args);
+				if (args.length) {
+					handlers[i](...args);
+				} else {
+					handlers[i]();
+				}
 			}
 		}
 	}
