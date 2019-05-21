@@ -17,7 +17,8 @@ class RequestAnimationFrameTimelineProvider {
         this.playlist = [];
         this.currentPlaylistItem = null;
         this.firstFrame = true;
-        this.paused = true;
+        this.playing = false;
+        this.paused = false;
     }
 
     _extractPlaylist(configuration) {
@@ -49,7 +50,7 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     _update(now) {
-        if (this.paused) {
+        if (!this.playing) {
             return;
         }
         if(!this.last || now - this.last >= 1000) {
@@ -75,7 +76,7 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     _start() {
-        if (this.requestID) {
+        if (this.requestID && this.playing) {
             return;
         }
         this.requestID = requestAnimationFrame(this._updateBound)
@@ -99,6 +100,8 @@ class RequestAnimationFrameTimelineProvider {
         if (this.requestID) {
             cancelAnimationFrame(this.requestID);
             this.requestID =  null;
+            this.last = 0;
+            this.current = 0;
         }
     }
 
@@ -122,7 +125,7 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     toggleplay() {
-        if (this.paused) {
+        if (!this.playing) {
             this.play();
         } else {
             this.pause();
@@ -130,18 +133,21 @@ class RequestAnimationFrameTimelineProvider {
     }
 
     play(){
-        this.paused = false;
         this._start();
+        this.playing = true;
+        this.paused = false;
         this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.providerid);
     }
 
     stop() {
-        this.paused = false;
         this._cancelAnimationFrame();
+        this.playing = false;
+        this.paused = false;
         this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.providerid);
     }
 
     pause() {
+        this.playing = false;
         this.paused = true;
         this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.providerid);
     }
