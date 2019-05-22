@@ -48,7 +48,10 @@ describe('EngineFactory', () => {
 
         EngineFactory = inject({
             'jquery': jQueryStub,
-            './configuration/configuration-resolver': ConfigurationResolverStub
+            './configuration/configuration-resolver': ConfigurationResolverStub,
+            'mousetrap': {
+                bind: () => {}
+            }
         }).default;
     });
 

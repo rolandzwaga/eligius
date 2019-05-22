@@ -17,7 +17,7 @@ module.exports = function (env, args) {
   }
 
   const config = {
-    entry: path.join(__dirname, 'src/index.js'),
+    entry: ["@babel/polyfill", path.join(__dirname, 'src/index.js')],
     devtool: 'source-map',
     output: {
       path: path.join(__dirname, 'lib'),
@@ -46,8 +46,10 @@ module.exports = function (env, args) {
                 "loose": true
               }],
               "@babel/plugin-proposal-object-rest-spread",
+              ["@babel/plugin-transform-spread", { "loose": true }],
               "@babel/plugin-transform-arrow-functions",
-              "@babel/plugin-transform-object-assign"
+              "@babel/plugin-transform-object-assign",
+              "@babel/plugin-transform-regenerator"
             ]
           }
         }]

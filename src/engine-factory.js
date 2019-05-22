@@ -70,9 +70,7 @@ class EngineFactory {
     }
 
     createEngine(configuration, resolver) {
-        const {
-            systemName
-        } = configuration.engine;
+        const { systemName } = configuration.engine;
         const engineClass = this._importSystemEntry(systemName);
 
         let actionRegistryListener = null;
