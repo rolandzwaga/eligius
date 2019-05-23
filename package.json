@@ -28,7 +28,8 @@
     "jquery": "3.4.1",
     "lottie-web": "5.5.3",
     "mediaelement": "4.2.9",
-    "mousetrap": "1.6.3"
+    "mousetrap": "1.6.3",
+    "uuid": "3.3.2"
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",

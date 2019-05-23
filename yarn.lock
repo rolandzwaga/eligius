@@ -28,7 +28,7 @@
 
 "@babel/core@7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/core/-/core-7.4.5.tgz#081f97e8ffca65a9b4b0fdc7e274e703f000c06a"
+  resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.4.5.tgz#081f97e8ffca65a9b4b0fdc7e274e703f000c06a"
   integrity sha1-CB+X6P/KZam0sP3H4nTnA/AAwGo=
   dependencies:
     "@babel/code-frame" "^7.0.0"
@@ -291,7 +291,7 @@
 
 "@babel/node@7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/node/-/node-7.4.5.tgz#bce71bb44d902bfdd4da0b9c839a8a90fc084056"
+  resolved "https://registry.yarnpkg.com/@babel/node/-/node-7.4.5.tgz#bce71bb44d902bfdd4da0b9c839a8a90fc084056"
   integrity sha1-vOcbtE2QK/3U2gucg5qKkPwIQFY=
   dependencies:
     "@babel/polyfill" "^7.0.0"
@@ -313,7 +313,7 @@
 
 "@babel/parser@^7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/parser/-/parser-7.4.5.tgz#04af8d5d5a2b044a2a1bffacc1e5e6673544e872"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.4.5.tgz#04af8d5d5a2b044a2a1bffacc1e5e6673544e872"
   integrity sha1-BK+NXVorBEoqG/+sweXmZzVE6HI=
 
 "@babel/plugin-proposal-async-generator-functions@^7.2.0":
@@ -548,7 +548,7 @@
 
 "@babel/plugin-transform-named-capturing-groups-regex@^7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/plugin-transform-named-capturing-groups-regex/-/plugin-transform-named-capturing-groups-regex-7.4.5.tgz#9d269fd28a370258199b4294736813a60bbdd106"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-named-capturing-groups-regex/-/plugin-transform-named-capturing-groups-regex-7.4.5.tgz#9d269fd28a370258199b4294736813a60bbdd106"
   integrity sha1-nSaf0oo3AlgZm0KUc2gTpgu90QY=
   dependencies:
     regexp-tree "^0.1.6"
@@ -679,7 +679,7 @@
 
 "@babel/preset-env@7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/preset-env/-/preset-env-7.4.5.tgz#2fad7f62983d5af563b5f3139242755884998a58"
+  resolved "https://registry.yarnpkg.com/@babel/preset-env/-/preset-env-7.4.5.tgz#2fad7f62983d5af563b5f3139242755884998a58"
   integrity sha1-L61/Ypg9WvVjtfMTkkJ1WISZilg=
   dependencies:
     "@babel/helper-module-imports" "^7.0.0"
@@ -745,7 +745,7 @@
 
 "@babel/runtime@^7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/runtime/-/runtime-7.4.5.tgz#582bb531f5f9dc67d2fcb682979894f75e253f12"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.4.5.tgz#582bb531f5f9dc67d2fcb682979894f75e253f12"
   integrity sha1-WCu1MfX53GfS/LaCl5iU914lPxI=
   dependencies:
     regenerator-runtime "^0.13.2"
@@ -800,7 +800,7 @@
 
 "@babel/traverse@^7.4.5":
   version "7.4.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@babel/traverse/-/traverse-7.4.5.tgz#4e92d1728fd2f1897dafdd321efbff92156c3216"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.4.5.tgz#4e92d1728fd2f1897dafdd321efbff92156c3216"
   integrity sha1-TpLRco/S8Yl9r90yHvv/khVsMhY=
   dependencies:
     "@babel/code-frame" "^7.0.0"
@@ -1453,7 +1453,7 @@ babylon@^6.18.0:
 
 babylon@^7.0.0-beta.44:
   version "7.0.0-beta.47"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/babylon/-/babylon-7.0.0-beta.47.tgz#6d1fa44f0abec41ab7c780481e62fd9aafbdea80"
+  resolved "https://registry.yarnpkg.com/babylon/-/babylon-7.0.0-beta.47.tgz#6d1fa44f0abec41ab7c780481e62fd9aafbdea80"
   integrity sha1-bR+kTwq+xBq3x4BIHmL9mq+96oA=
 
 balanced-match@^1.0.0:
@@ -1652,7 +1652,7 @@ browserslist@^4.5.4:
 
 browserslist@^4.6.0:
   version "4.6.0"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/browserslist/-/browserslist-4.6.0.tgz#5274028c26f4d933d5b1323307c1d1da5084c9ff"
+  resolved "https://registry.yarnpkg.com/browserslist/-/browserslist-4.6.0.tgz#5274028c26f4d933d5b1323307c1d1da5084c9ff"
   integrity sha1-UnQCjCb02TPVsTIzB8HR2lCEyf8=
   dependencies:
     caniuse-lite "^1.0.30000967"
@@ -1766,7 +1766,7 @@ caniuse-lite@^1.0.30000955, caniuse-lite@^1.0.30000957:
 
 caniuse-lite@^1.0.30000967:
   version "1.0.30000971"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/caniuse-lite/-/caniuse-lite-1.0.30000971.tgz#d1000e4546486a6977756547352bc96a4cfd2b13"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000971.tgz#d1000e4546486a6977756547352bc96a4cfd2b13"
   integrity sha1-0QAORUZIaml3dWVHNSvJakz9KxM=
 
 capture-stack-trace@^1.0.0:
@@ -2130,7 +2130,7 @@ copy-descriptor@^0.1.0:
 
 core-js-compat@^3.1.1:
   version "3.1.2"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/core-js-compat/-/core-js-compat-3.1.2.tgz#c29ab9722517094b98622175e2218c3b7398176d"
+  resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.1.2.tgz#c29ab9722517094b98622175e2218c3b7398176d"
   integrity sha1-wpq5ciUXCUuYYiF14iGMO3OYF20=
   dependencies:
     browserslist "^4.6.0"
@@ -2139,7 +2139,7 @@ core-js-compat@^3.1.1:
 
 core-js-pure@3.1.2:
   version "3.1.2"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/core-js-pure/-/core-js-pure-3.1.2.tgz#62fc435f35b7374b9b782013cdcb2f97e9f6dffa"
+  resolved "https://registry.yarnpkg.com/core-js-pure/-/core-js-pure-3.1.2.tgz#62fc435f35b7374b9b782013cdcb2f97e9f6dffa"
   integrity sha1-YvxDXzW3N0ubeCATzcsvl+n23/o=
 
 core-js@^2.4.0, core-js@^2.5.0, core-js@^2.6.5:
@@ -2809,7 +2809,7 @@ electron-to-chromium@^1.3.122:
 
 electron-to-chromium@^1.3.133:
   version "1.3.136"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/electron-to-chromium/-/electron-to-chromium-1.3.136.tgz#758a156109077536780cfa8207b1aeaa99843e33"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.136.tgz#758a156109077536780cfa8207b1aeaa99843e33"
   integrity sha1-dYoVYQkHdTZ4DPqCB7GuqpmEPjM=
 
 elliptic@^6.0.0:
@@ -3049,7 +3049,7 @@ extsprintf@^1.2.0:
 
 fast-async@7:
   version "7.0.6"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/fast-async/-/fast-async-7.0.6.tgz#a9bcc0b4aa6c7a5b25f0cec1a9b7324d13cb169b"
+  resolved "https://registry.yarnpkg.com/fast-async/-/fast-async-7.0.6.tgz#a9bcc0b4aa6c7a5b25f0cec1a9b7324d13cb169b"
   integrity sha1-qbzAtKpselsl8M7BqbcyTRPLFps=
   dependencies:
     "@babel/generator" "^7.0.0-beta.44"
@@ -4738,7 +4738,7 @@ mochapack@1.1.1:
 
 mousetrap@1.6.3:
   version "1.6.3"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/mousetrap/-/mousetrap-1.6.3.tgz#80fee49665fd478bccf072c9d46bdf1bfed3558a"
+  resolved "https://registry.yarnpkg.com/mousetrap/-/mousetrap-1.6.3.tgz#80fee49665fd478bccf072c9d46bdf1bfed3558a"
   integrity sha1-gP7klmX9R4vM8HLJ1GvfG/7TVYo=
 
 move-concurrently@^1.0.1:
@@ -4829,7 +4829,7 @@ no-case@^2.2.0:
 
 node-environment-flags@1.0.5, node-environment-flags@^1.0.5:
   version "1.0.5"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/node-environment-flags/-/node-environment-flags-1.0.5.tgz#fa930275f5bf5dae188d6192b24b4c8bbac3d76a"
+  resolved "https://registry.yarnpkg.com/node-environment-flags/-/node-environment-flags-1.0.5.tgz#fa930275f5bf5dae188d6192b24b4c8bbac3d76a"
   integrity sha1-+pMCdfW/Xa4YjWGSsktMi7rD12o=
   dependencies:
     object.getownpropertydescriptors "^2.0.3"
@@ -4912,7 +4912,7 @@ node-releases@^1.1.13:
 
 node-releases@^1.1.19:
   version "1.1.20"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/node-releases/-/node-releases-1.1.20.tgz#f77f9f9a4fcb22e74ba88fe15732a3a8b037146d"
+  resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-1.1.20.tgz#f77f9f9a4fcb22e74ba88fe15732a3a8b037146d"
   integrity sha1-93+fmk/LIudLqI/hVzKjqLA3FG0=
   dependencies:
     semver "^5.3.0"
@@ -4963,7 +4963,7 @@ nodent-runtime@^3.0.3, nodent-runtime@^3.2.1:
 
 nodent-transform@^3.2.4:
   version "3.2.9"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/nodent-transform/-/nodent-transform-3.2.9.tgz#ec11a6116b5476e60bc212371cf6b8e4c74f40b6"
+  resolved "https://registry.yarnpkg.com/nodent-transform/-/nodent-transform-3.2.9.tgz#ec11a6116b5476e60bc212371cf6b8e4c74f40b6"
   integrity sha1-7BGmEWtUduYLwhI3HPa45MdPQLY=
 
 "nopt@2 || 3":
@@ -5934,7 +5934,7 @@ regex-not@^1.0.0, regex-not@^1.0.2:
 
 regexp-tree@^0.1.6:
   version "0.1.10"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/regexp-tree/-/regexp-tree-0.1.10.tgz#d837816a039c7af8a8d64d7a7c3cf6a1d93450bc"
+  resolved "https://registry.yarnpkg.com/regexp-tree/-/regexp-tree-0.1.10.tgz#d837816a039c7af8a8d64d7a7c3cf6a1d93450bc"
   integrity sha1-2DeBagOcevio1k16fDz2odk0ULw=
 
 regexpu-core@^4.5.4:
@@ -6218,7 +6218,7 @@ semver@^5.0.3, semver@^5.1.0, semver@^5.4.1, semver@^5.5.1, semver@^5.6.0, semve
 
 semver@^6.0.0:
   version "6.0.0"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/semver/-/semver-6.0.0.tgz#05e359ee571e5ad7ed641a6eec1e547ba52dea65"
+  resolved "https://registry.yarnpkg.com/semver/-/semver-6.0.0.tgz#05e359ee571e5ad7ed641a6eec1e547ba52dea65"
   integrity sha1-BeNZ7lceWtftZBpu7B5Ue6Ut6mU=
 
 semver@~5.3.0:
@@ -6881,7 +6881,7 @@ uglify-to-browserify@~1.0.0:
 
 uglifyjs-webpack-plugin@2.1.3:
   version "2.1.3"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/uglifyjs-webpack-plugin/-/uglifyjs-webpack-plugin-2.1.3.tgz#b00a18d1acda271deb755c99ba0d93568156eb76"
+  resolved "https://registry.yarnpkg.com/uglifyjs-webpack-plugin/-/uglifyjs-webpack-plugin-2.1.3.tgz#b00a18d1acda271deb755c99ba0d93568156eb76"
   integrity sha1-sAoY0azaJx3rdVyZug2TVoFW63Y=
   dependencies:
     cacache "^11.3.2"
@@ -7068,7 +7068,7 @@ utila@^0.4.0, utila@~0.4:
   resolved "https://registry.yarnpkg.com/utila/-/utila-0.4.0.tgz#8a16a05d445657a3aea5eecc5b12a4fa5379772c"
   integrity sha1-ihagXURWV6Oupe7MWxKk+lN5dyw=
 
-uuid@^3.3.2:
+uuid@3.3.2, uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
@@ -7150,7 +7150,7 @@ webpack-sources@^1.1.0, webpack-sources@^1.3.0:
 
 webpack@4.32.1:
   version "4.32.1"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/webpack/-/webpack-4.32.1.tgz#afe0cc7dd2b196e5a58f8d1d385311cfbb5d68c0"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-4.32.1.tgz#afe0cc7dd2b196e5a58f8d1d385311cfbb5d68c0"
   integrity sha1-r+DMfdKxluWlj40dOFMRz7tdaMA=
   dependencies:
     "@webassemblyjs/ast" "1.8.5"
