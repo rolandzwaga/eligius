@@ -1,12 +1,15 @@
 import uuid from 'uuid';
 import * as timelineProvider from '../../timelineproviders';
+import ActionCreatorFactory from './action-creator-factory';
 
-class ConfigFactory {
+class ConfigurationFactory {
 
+    actionConfigfactory = null;
     configuration = null;
 
     constructor(config=null) {
         this.configuration = config;
+        this.actionConfigfactory = new ActionCreatorFactory(this);
     }
 
     init(defaultLanguage) {
@@ -62,17 +65,14 @@ class ConfigFactory {
 
     addAction(action) {
         this._internalAddAction('actions', action)
-        return this;
     }
 
-    addInitAction(initAction) {
-        this._internalAddAction('initActions', initAction)
-        return this;
+    addInitAction(action) {
+        this._internalAddAction('initActions', action)
     }
 
-    addEventAction(eventAction) {
-        this._internalAddAction('eventActions', eventAction)
-        return this;
+    addEventAction(action) {
+        this._internalAddAction('eventActions', action)
     }
 
     addTimelineAction(uri, action) {
@@ -83,6 +83,22 @@ class ConfigFactory {
         } else {
             throw Error(`No timeline found for uri '${uri}'`);
         }
+    }
+
+    createAction(name) {
+        return this.actionConfigfactory.createAction(name);
+    }
+
+    createInitAction(name) {
+        return this.actionConfigfactory.createInitAction(name);
+    }
+
+    createEventAction(name) {
+        return this.actionConfigfactory.createEventAction(name);
+    }
+
+    createTimelineAction(uri, name) {
+        return this.actionConfigfactory.createTimelineAction(uri, name);
     }
 
     addTimeline(type, duration, uri, loop, selector) {
@@ -148,4 +164,4 @@ class ConfigFactory {
     }
 }
 
-export default ConfigFactory;
+export default ConfigurationFactory;

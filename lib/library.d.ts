@@ -4,6 +4,46 @@ export as namespace ChronoTrigger;
 
 declare namespace ChronoTrigger {
 
+    class ActionCreator {
+        addStartOperation(systemName: string, operationData: IOperationData): ActionCreator;
+        next(): ActionCreatorFactory;
+    }
+
+    class EndableActionCreator extends ActionCreator {
+        addEndOperation(systemName: string, operationData: IOperationData): ActionCreator;
+    }
+
+    class TimelineActionCreator extends EndableActionCreator {
+        addDuration(start: number, end?: number): TimelineActionCreator;
+    }
+
+    class ActionCreatorFactory {
+        createAction(name: string): ActionCreator;
+        createInitAction(name: string): EndableActionCreator;
+        createEventAction(name: string): ActionCreator;
+        createTimelineAction(uri: string, name: string): TimelineActionCreator;
+        end(): ConfigurationFactory;
+    }
+
+    class ConfigurationFactory {
+        constructor(configuration?: IConfiguration);
+        init(defaultLanguage: string): ConfigurationFactory;
+        addTimelineSettings(selector: string, systemName: string): ConfigurationFactory;
+        addLanguage(code: string, languageLabel: string): ConfigurationFactory;
+        addTimeline(type: TimelineType, duration: number, uri: string, loop: boolean, selector: string): ConfigurationFactory;
+        createAction(name: string): ActionCreator;
+        createInitAction(name: string): EndableActionCreator;
+        createEventAction(name: string): ActionCreator;
+        createTimelineAction(uri: string, name: string): TimelineActionCreator;
+        removeTimeline(uri: string): ConfigurationFactory;
+        addLabel(id: string, code: string, translation: string): ConfigurationFactory;
+    }
+
+    enum TimelineType {
+        animation = 'animation',
+        video = 'video'
+    }
+
     class TimelineEventNames {
         // timeline requests
         static PLAY_TOGGLE_REQUEST: string;
@@ -75,6 +115,10 @@ declare namespace ChronoTrigger {
     }
 
     interface IConfiguration {
+        [name: string]: any;
+    }
+
+    interface IOperationData {
         [name: string]: any;
     }
 

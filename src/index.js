@@ -6,4 +6,5 @@ export { default as TimelineEventNames } from './timeline-event-names';
 export { default as LanguageManager } from './language-manager';
 export { default as WebpackResourceImporter } from './importer/webpack-resource-importer';
 export { default as Eventbus } from './eventbus/eventbus';
+export { default as ConfigurationFactory } from './configuration/api/configuration-factory';
 export default actions;
