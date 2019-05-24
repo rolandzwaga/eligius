@@ -2,8 +2,7 @@ import uuid from 'uuid';
 import * as timelineProvider from '../../timelineproviders';
 import ActionCreatorFactory from './action-creator-factory';
 import ActionEditor from './action-editor';
-import EndableActionEditor from './action-editor';
-import TimelineActionEditor from './action-editor';
+import { TimelineActionEditor, EndableActionEditor } from './action-editor';
 
 class ConfigurationFactory {
 
@@ -19,9 +18,9 @@ class ConfigurationFactory {
         this.configuration = {
             id: uuid(),
             engine: {
-                systemName: "ChronoTriggerEngine"
+                systemName: 'ChronoTriggerEngine'
             },
-            containerSelector: "#ct-container",
+            containerSelector: '#ct-container',
             timelineProviderSettings: {
                 vendor: null,
                 selector: null,

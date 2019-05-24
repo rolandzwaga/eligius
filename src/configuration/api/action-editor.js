@@ -1,6 +1,6 @@
 import * as operations from '../../operation';
 
-class ActionEditor {
+export class ActionEditor {
     
     actionConfig = null;
     configurationFactory = null;
@@ -37,7 +37,7 @@ class ActionEditor {
     }
 }
 
-class EndableActionEditor extends ActionEditor {
+export class EndableActionEditor extends ActionEditor {
     
     editEndOperation(id) {
         const operationConfig = this.actionConfig.endOperations.find(o => o.id === id);
@@ -57,7 +57,7 @@ class EndableActionEditor extends ActionEditor {
     }
 }
 
-class TimelineActionEditor extends EndableActionEditor {
+export class TimelineActionEditor extends EndableActionEditor {
     setDuration(start, end) {
         this.actionConfig.duration = {
             start: start
@@ -69,7 +69,7 @@ class TimelineActionEditor extends EndableActionEditor {
     }
 }
 
-class OperationEditor {
+export class OperationEditor {
 
     operationConfig = null;
     actionEditor = null;
@@ -96,7 +96,3 @@ class OperationEditor {
         return this.actionEditor;
     }
 }
-
-export default TimelineActionEditor;
-export default EndableActionEditor;
-export default ActionEditor;
