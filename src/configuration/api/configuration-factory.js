@@ -1,6 +1,9 @@
 import uuid from 'uuid';
 import * as timelineProvider from '../../timelineproviders';
 import ActionCreatorFactory from './action-creator-factory';
+import ActionEditor from './action-editor';
+import EndableActionEditor from './action-editor';
+import TimelineActionEditor from './action-editor';
 
 class ConfigurationFactory {
 
@@ -162,6 +165,43 @@ class ConfigurationFactory {
         labelTranslation.label = translation;
         return this;
     }
+
+    editAction(id) {
+        const actionConfig = this.configuration.actions.find(a => a.id === id);
+        if (actionConfig) {
+            return new ActionEditor(this, actionConfig);
+        }
+        throw new Error(`Action not found for id ${id}`);
+    }
+
+    editEventAction(id) {
+        const actionConfig = this.configuration.eventActions.find(a => a.id === id);
+        if (actionConfig) {
+            return new ActionEditor(this, actionConfig);
+        }
+        throw new Error(`Event action not found for id ${id}`);
+    }
+
+    editInitAction(id) {
+        const actionConfig = this.configuration.initActions.find(a => a.id === id);
+        if (actionConfig) {
+            return new EndableActionEditor(this, actionConfig);
+        }
+        throw new Error(`Init action not found for id ${id}`);
+    }
+
+    editTimelineAction(uri, id) {
+        const timeline = this.getTimeline(uri);
+        if (!timeline) {
+            throw new Error(`Timeline not found for id ${id}`);
+        }
+        const actionConfig = timeline.timelineActions.find(a => a.id === id);
+        if (actionConfig) {
+            return new TimelineActionEditor(this, actionConfig);
+        }
+        throw new Error(`Timeline action not found for id ${id}`);
+    }
+
 }
 
 export default ConfigurationFactory;

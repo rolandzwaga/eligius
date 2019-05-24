@@ -4,18 +4,21 @@ export as namespace ChronoTrigger;
 
 declare namespace ChronoTrigger {
 
-    class ActionCreator {
-        addStartOperation(systemName: string, operationData: IOperationData): ActionCreator;
+    class BaseActionCreator<T> {
+        addStartOperation(systemName: string, operationData: IOperationData): T;
         next(): ActionCreatorFactory;
     }
-
-    class EndableActionCreator extends ActionCreator {
-        addEndOperation(systemName: string, operationData: IOperationData): ActionCreator;
+    class BaseEndableActionCreator<T> extends BaseActionCreator<T> {
+        addEndOperation(systemName: string, operationData: IOperationData): T;
     }
 
-    class TimelineActionCreator extends EndableActionCreator {
-        addDuration(start: number, end?: number): TimelineActionCreator;
+    class BaseTimelineActionCreator<T> extends BaseEndableActionCreator<T> {
+        addDuration(start: number, end?: number): T;
     }
+
+    class ActionCreator extends BaseActionCreator<ActionCreator> { }
+    class EndableActionCreator extends BaseEndableActionCreator<EndableActionCreator> {}
+    class TimelineActionCreator extends BaseTimelineActionCreator<TimelineActionCreator> {}
 
     class ActionCreatorFactory {
         createAction(name: string): ActionCreator;
@@ -37,7 +40,35 @@ declare namespace ChronoTrigger {
         createTimelineAction(uri: string, name: string): TimelineActionCreator;
         removeTimeline(uri: string): ConfigurationFactory;
         addLabel(id: string, code: string, translation: string): ConfigurationFactory;
+        editAction(id: string): ActionEditor;
+        editEventAction(id: string): ActionEditor;
+        editInitAction(id: string): EndableActionEditor;
+        editTimelineAction(uri: string, id: string): TimelineActionEditor;
     }
+
+    class OperationEditor<T> {
+        setSystemName(systemName: string): OperationEditor;
+        setOperationData(operationData: IOperationData): OperationEditor;
+        next(): T;
+    }
+
+    class BaseActionEditor<T> {
+        setName(name: string): T;
+        editStartOperation(id: string): OperationEditor<T>;
+        removeStartOperation(id: string): T;
+    }
+    class BaseEndableActionEditor<T> extends BaseActionEditor<T> {
+        editEndOperation(id: string): OperationEditor<T>;
+        removeEndOperation(id: string): T;
+    }
+
+    class BaseTimelineActionEditor<T> extends BaseEndableActionEditor<T> {
+        setDuration(start: number, end?: number): T;
+    }
+
+    class ActionEditor extends BaseActionEditor<ActionEditor>{}
+    class EndableActionEditor extends BaseEndableActionEditor<EndableActionEditor>{}
+    class TimelineActionEditor extends BaseTimelineActionEditor<TimelineActionEditor>{}
 
     enum TimelineType {
         animation = 'animation',

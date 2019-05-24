@@ -61,6 +61,7 @@ class ActionCreator {
 
         const { startOperations } = this.actionConfig;
         startOperations.push({
+            id: uuid(),
             systemName: systemName,
             operationData: operationData
         });
@@ -88,6 +89,7 @@ class EndableActionCreator extends ActionCreator {
             endOperations = this.actionConfig.endOperations = [];
         }
         endOperations.push({
+            id: uuid(),
             systemName: systemName,
             operationData: operationData
         });
