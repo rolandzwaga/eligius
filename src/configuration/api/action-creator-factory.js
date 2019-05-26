@@ -1,7 +1,7 @@
 import uuid from 'uuid';
 import * as operations from '../../operation';
 
-class ActionCreatorFactory {
+export class ActionCreatorFactory {
 
     configfactory = null;
 
@@ -38,7 +38,7 @@ class ActionCreatorFactory {
     }
 }
 
-class ActionCreator {
+export class ActionCreator {
 
     actionConfig = null;
     factory = null;
@@ -73,7 +73,7 @@ class ActionCreator {
     }
 }
 
-class EndableActionCreator extends ActionCreator {
+export class EndableActionCreator extends ActionCreator {
 
     constructor(factory, name) {
         super(factory, name);
@@ -97,7 +97,7 @@ class EndableActionCreator extends ActionCreator {
     }
 }
 
-class TimelineActionCreator extends EndableActionCreator {
+export class TimelineActionCreator extends EndableActionCreator {
 
     addDuration(start, end) {
         this.actionConfig.duration = {
@@ -109,5 +109,3 @@ class TimelineActionCreator extends EndableActionCreator {
         return this;
     }
 }
-
-export default ActionCreatorFactory;

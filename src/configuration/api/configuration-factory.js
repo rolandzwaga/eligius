@@ -1,17 +1,17 @@
 import uuid from 'uuid';
 import * as timelineProvider from '../../timelineproviders';
-import ActionCreatorFactory from './action-creator-factory';
-import ActionEditor from './action-editor';
+import { ActionCreatorFactory } from './action-creator-factory';
+import { ActionEditor } from './action-editor';
 import { TimelineActionEditor, EndableActionEditor } from './action-editor';
 
 class ConfigurationFactory {
 
-    actionConfigfactory = null;
+    actionCreatorFactory = null;
     configuration = null;
 
     constructor(config=null) {
         this.configuration = config;
-        this.actionConfigfactory = new ActionCreatorFactory(this);
+        this.actionCreatorFactory = new ActionCreatorFactory(this);
     }
 
     init(defaultLanguage) {
@@ -88,23 +88,27 @@ class ConfigurationFactory {
     }
 
     createAction(name) {
-        return this.actionConfigfactory.createAction(name);
+        return this.actionCreatorFactory.createAction(name);
     }
 
     createInitAction(name) {
-        return this.actionConfigfactory.createInitAction(name);
+        return this.actionCreatorFactory.createInitAction(name);
     }
 
     createEventAction(name) {
-        return this.actionConfigfactory.createEventAction(name);
+        return this.actionCreatorFactory.createEventAction(name);
     }
 
     createTimelineAction(uri, name) {
-        return this.actionConfigfactory.createTimelineAction(uri, name);
+        return this.actionCreatorFactory.createTimelineAction(uri, name);
     }
 
-    addTimeline(type, duration, uri, loop, selector) {
+    addTimeline(uri, type, duration, loop, selector) {
         const timelines = this._initializeCollection(this.configuration, 'timelines');
+        const timeline = this.getTimeline(uri);
+        if (timeline) {
+            throw Error(`timeline for uri ${uri} already exists`);
+        }
         const timelineConfig = {
             type: type,
             uri: uri,
@@ -136,12 +140,13 @@ class ConfigurationFactory {
     }
 
     _initializeLabel(id, labels) {
-        const label = labels.find(l => l.id === id);
+        let label = labels.find(l => l.id === id);
         if (!label) {
             labels.push({
                 id: id,
                 labels: []
             });
+            label = labels[labels.length-1];
         }
         return label;
     }
