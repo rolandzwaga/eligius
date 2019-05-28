@@ -10,6 +10,14 @@ export class ActionEditor {
         this.configurationFactory = configurationFactory;
     }
 
+    getConfiguration(callBack) {
+        const newConfig = callBack.call(null, this.actionConfig);
+        if (newConfig) {
+            this.actionConfig = newConfig;
+        }
+        return this;
+    }
+
     setName(name) {
         this.actionConfig.name = name;
         return this;
@@ -59,11 +67,16 @@ export class EndableActionEditor extends ActionEditor {
 
 export class TimelineActionEditor extends EndableActionEditor {
     setDuration(start, end) {
+        if (end != undefined && start > end) {
+            throw Error('start position cannot be higher than end position');
+        }
         this.actionConfig.duration = {
             start: start
         };
         if (end) {
             this.actionConfig.duration.end = end;
+        } else {
+            delete this.actionConfig.duration.end;
         }
         return this;
     }

@@ -27,7 +27,7 @@
     "es6-shim": "0.35.5",
     "jquery": "3.4.1",
     "lottie-web": "5.5.3",
-    "mediaelement": "4.2.9",
+    "mediaelement": "4.2.10",
     "mousetrap": "1.6.3",
     "uuid": "3.3.2"
   },

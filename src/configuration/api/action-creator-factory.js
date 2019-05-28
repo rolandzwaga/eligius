@@ -54,6 +54,14 @@ export class ActionCreator {
         }
     }
 
+    getConfiguration(callBack) {
+        const newConfig = callBack.call(null, this.actionConfig);
+        if (newConfig) {
+            this.actionConfig = newConfig;
+        }
+        return this;
+    }
+
     addStartOperation(systemName, operationData) {
         if (!operations[systemName]) {
             throw Error(`Unknown operation: ${systemName}`);

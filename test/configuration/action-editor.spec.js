@@ -79,12 +79,37 @@ describe('ActionEditor', () => {
         expect(actionConfig.startOperations.length).to.equal(0);
     });
 
-    it('should return the confiration editor', () => {
+    it('should return the configuration editor', () => {
         // test
         const result = actionEditor.next();
 
         // expect
         expect(result).to.equal(configurationFactory);
+    });
+
+    it('should pass the configuration to the getConfiguration callback', () => {
+        // given
+        let config = null;
+
+        // test
+        actionEditor.getConfiguration(c => config = c);
+
+        // expect
+        expect(config).to.equal(actionEditor.actionConfig);
+    });
+
+    it('should substitute the actionConfig with the instance returned from the getConfiguration callback', () => {
+        // given
+        let config = {
+            'id': '888-777-666'
+        };
+
+        // test
+        actionEditor.getConfiguration(c => config);
+
+        // expect
+        expect(config).to.equal(actionEditor.actionConfig);
+
     });
 
 });
