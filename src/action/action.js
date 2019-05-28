@@ -2,9 +2,9 @@ import deepcopy from '../operation/helper/deepcopy';
 
 class Action {
 
-	constructor(actionData, eventBus) {
-		this.name = actionData.name;
-		this.startOperations = actionData.startOperations;
+	constructor(actionConfiguration, eventBus) {
+		this.name = actionConfiguration.name;
+		this.startOperations = actionConfiguration.startOperations;
 		this.eventbus = eventBus; 
 	}
 

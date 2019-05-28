@@ -2,9 +2,9 @@ import Action from './action';
 
 class EndableAction extends Action {
 
-	constructor(actionData, eventBus) {
-		super(actionData, eventBus);
-		this.endOperations = actionData.endOperations;
+	constructor(actionConfigration, eventBus) {
+		super(actionConfigration, eventBus);
+		this.endOperations = actionConfigration.endOperations;
 	}
 
 	end(initOperationData) {

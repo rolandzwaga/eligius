@@ -10,10 +10,10 @@ class TimelineAction extends EndableAction {
 		this.duration.end = +this.duration.end;
 	}
 
-	start() {
+	start(initOperationData) {
 		if ((!this.active) || (this.duration.end < 0)) {
 			this.active = (this.duration.end > -1);
-			return super.start();
+			return super.start(initOperationData);
 		}
 		return new Promise((resolve) => {
 			resolve();

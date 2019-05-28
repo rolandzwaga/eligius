@@ -5,7 +5,7 @@ export as namespace ChronoTrigger;
 declare namespace ChronoTrigger {
 
     class BaseActionCreator<T> {
-        getConfiguration(callBack: (configuration: IConfiguration) => IConfiguration): T;
+        getConfiguration(callBack: (configuration: IActionConfiguration) => IConfiguration): T;
         addStartOperation(systemName: string, operationData: IOperationData): T;
         next(): ActionCreatorFactory;
     }
@@ -54,7 +54,7 @@ declare namespace ChronoTrigger {
     }
 
     class BaseActionEditor<T> {
-        getConfiguration(callBack: (configuration: IConfiguration) => IConfiguration): T;
+        getConfiguration(callBack: (configuration: IActionConfiguration) => IConfiguration): T;
         setName(name: string): T;
         editStartOperation(id: string): OperationEditor<T>;
         removeStartOperation(id: string): T;
@@ -151,6 +151,29 @@ declare namespace ChronoTrigger {
         [name: string]: any;
     }
 
+    interface IActionConfiguration {
+        name: string;
+        startOperations: IOperationConfiguration[];
+    }
+
+    interface IEndableActionConfiguration extends IActionConfiguration {
+        endOperations: IOperationConfiguration[];
+    }
+
+    interface ITimelineActionConfiguration extends IEndableActionConfiguration {
+        duration: IDuration;
+    }
+
+    interface IDuration {
+        start: number;
+        end?: number;
+    }
+
+    interface IOperationConfiguration {
+        systemName: string;
+        operationData: IOperationData;
+    }
+
     interface IOperationData {
         [name: string]: any;
     }
@@ -208,4 +231,22 @@ declare namespace ChronoTrigger {
 
     interface WebpackResourceImporter extends IResourceImporter {}
     class WebpackResourceImporter{}
+
+    class Action {
+        constructor(actionConfiguration: IActionConfiguration, eventbus: Eventbus);
+        name: string;
+        id?: string;
+        start(initOperationData?: IOperationData): Promise<IOperationData>;
+    }
+
+    class EndableAction extends Action {
+        constructor(actionConfiguration: IEndableActionConfiguration, eventbus: Eventbus);
+        end(initOperationData?: IOperationData): Promise<IOperationData>;
+    }
+
+    class TimelineAction extends EndableAction {
+        constructor(actionConfiguration: ITimelineActionConfiguration, eventbus: Eventbus);
+        duration: IDuration;
+    }
+
 }

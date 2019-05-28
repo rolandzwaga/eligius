@@ -17,8 +17,14 @@ class ChronoTriggerEngine {
 
         this._addInitialisationListeners();
 
-        const { language, labels, timelines} = this._configuration;
-        const { _eventbus } = this;
+        const {
+            language,
+            labels,
+            timelines
+        } = this._configuration;
+        const {
+            _eventbus
+        } = this;
 
         this._languageManager = new LanguageManager(language, labels, _eventbus);
 
@@ -30,12 +36,16 @@ class ChronoTriggerEngine {
     }
 
     _createLayoutTemplate() {
-        const { containerSelector } = this._configuration;
+        const {
+            containerSelector
+        } = this._configuration;
         const container = $(containerSelector);
         if (!container || !container.length) {
             throw new Error(`Container selector not found: ${containerSelector}`);
         }
-        const { layoutTemplate } = this._configuration;
+        const {
+            layoutTemplate
+        } = this._configuration;
         if (layoutTemplate && layoutTemplate.length) {
             container.html(layoutTemplate);
         } else {
@@ -44,7 +54,9 @@ class ChronoTriggerEngine {
     }
 
     _initializeTimelineProvider() {
-        const { timelineProviderSettings } = this._configuration;
+        const {
+            timelineProviderSettings
+        } = this._configuration;
         if (!timelineProviderSettings) {
             return;
         }
@@ -63,7 +75,7 @@ class ChronoTriggerEngine {
             });
         }
 
-        return new Promise((resolve)=> {
+        return new Promise((resolve) => {
             resolve();
         });
     }
@@ -88,7 +100,7 @@ class ChronoTriggerEngine {
     _addInitialisationListeners() {
         this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_ENGINE_ROOT, this._handleRequestEngineRoot.bind(this, this._configuration.containerSelector)));
         this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_TIMELINE_URI, this._handleRequestTimelineUri.bind(this)));
-        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION, this._handleRequestTimelinePosition.bind(this)));
+        this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION, this._handleRequestTimelinePosition.bind(this, Math.floor)));
         this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this._handleTimelineComplete.bind(this)));
         this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.EXECUTE_TIMELINEACTION, this._handleExecuteTimelineAction.bind(this)));
         this._eventbusListeners.push(this._eventbus.on(TimelineEventNames.RESIZE_TIMELINEACTION, this._resizeTimelineAction.bind(this)));
@@ -107,6 +119,10 @@ class ChronoTriggerEngine {
         const start = timeLineAction.duration.start;
         const timelineStartPositions = this._initializeTimelinePosition(this._initializeUriLookup(this._timeLineActionsLookup, uri), start);
         const startMethod = timeLineAction.start.bind(timeLineAction);
+        if (timeLineAction.id) {
+            startMethod.id = timeLineAction.id;
+            startMethod.isStart = true;
+        }
         timelineStartPositions.push(startMethod);
 
         let end = timeLineAction.duration.end;
@@ -116,6 +132,9 @@ class ChronoTriggerEngine {
         if (isFinite(end)) {
             const timelineEndPositions = this._initializeTimelinePosition(this._timeLineActionsLookup[uri], end);
             const endMethod = timeLineAction.end.bind(timeLineAction);
+            if (timeLineAction.id) {
+                endMethod.id = endMethod.id;
+            }
             timelineEndPositions.push(endMethod);
         }
     }
@@ -134,7 +153,7 @@ class ChronoTriggerEngine {
         return lookup[position];
     }
 
-    _executeActions(actions, methodName, idx=0) {
+    _executeActions(actions, methodName, idx = 0) {
         if (idx < actions.length) {
             const action = actions[idx];
 
@@ -166,7 +185,9 @@ class ChronoTriggerEngine {
                     this._eventbus.broadcastForTopic(TimelineEventNames.DURATION, this._timelineProvider.playerid, [this.getDuration()]);
                     this._executeStartActions().then(() => {
                         this._timelineProvider.seek(position);
-                        this._onSeekHandler(Math.floor, { offset: position });
+                        this._onSeekHandler(Math.floor, {
+                            offset: position
+                        });
                     });
                 });
             }
@@ -209,8 +230,8 @@ class ChronoTriggerEngine {
         return this._executeActions(currentActions, executionType, 0);
     }
 
-    _handleRequestTimelinePosition(resultCallback) {
-        resultCallback(Math.floor(this._timelineProvider.getPosition()));
+    _handleRequestTimelinePosition(floor, resultCallback) {
+        resultCallback(floor(this._timelineProvider.getPosition()));
     }
 
     _handleTimelineComplete() {
