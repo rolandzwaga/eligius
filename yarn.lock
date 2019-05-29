@@ -872,10 +872,10 @@
   dependencies:
     "@types/babel-types" "*"
 
-"@types/node@12.0.2":
-  version "12.0.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.2.tgz#3452a24edf9fea138b48fad4a0a028a683da1e40"
-  integrity sha512-5tabW/i+9mhrfEOUcLDu2xBPsHJ+X5Orqy9FKpale3SjDA17j5AEpYq5vfy3oAeAHGcvANRCO3NV3d2D6q3NiA==
+"@types/node@12.0.3":
+  version "12.0.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.3.tgz#5d8d24e0033fc6393efadc85cb59c1f638095c9a"
+  integrity sha512-zkOxCS/fA+3SsdA+9Yun0iANxzhQRiNwTvJSr6N95JhuJ/x27z9G2URx1Jpt3zYFfCGUXZGL5UDxt5eyLE7wgw==
 
 "@webassemblyjs/ast@1.8.5":
   version "1.8.5"
@@ -4409,10 +4409,10 @@ loose-envify@^1.0.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-lottie-web@5.5.3:
-  version "5.5.3"
-  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.5.3.tgz#988d054ea3a8445f27ede5938c3ad00ec8959082"
-  integrity sha512-Y8J15chNDjhqKX59Y8X1NxZ5TsqN9K8Pd/bTdnoRhLGsGOPHzon49EDpjco0+JEyi4sJvyNEHaOf69C8cd4WoQ==
+lottie-web@5.5.4:
+  version "5.5.4"
+  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.5.4.tgz#d4b9480a68e55c7088b6ebac1481f9f2c698ebe5"
+  integrity sha512-kbgs0c6S6EfNp0g6CaVSldEEF7nrdqvMrVIa3bkvNMjGDZkrQkHQUBe8qc9abKir2ScnNxMvXaQ1HG7QeNbhUg==
 
 loud-rejection@^1.0.0:
   version "1.6.0"
