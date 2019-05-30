@@ -28,7 +28,10 @@ module.exports = function (env, args) {
     },
     externals: {
       'jquery': { amd: 'jquery', global: 'jQuery', commonjs: 'jquery', commonjs2: 'jquery' },
-      'lottie-web': { amd: 'lottie-web', global: 'lottie', commonjs: 'lottie-web', commonjs2: 'lottie-web' }
+      'lottie-web': { amd: 'lottie-web', global: 'lottie', commonjs: 'lottie-web', commonjs2: 'lottie-web' },
+      'mousetrap': { amd: 'mousetrap', global: 'Mousetrap', commonjs: 'mousetrap', commonjs2: 'mousetrap' },
+      'd3': { amd: 'd3', global: 'd3', commonjs: 'd3', commonjs2: 'd3' },
+      'uuid': { amd: 'uuid', global: 'uuid', commonjs: 'uuid', commonjs2: 'uuid' }
     },
     module: {
       rules: [{
