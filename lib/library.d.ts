@@ -8,11 +8,11 @@ declare namespace ChronoTrigger {
         constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
         setName(name: string): T;
         getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
-        addStartOperation(systemName: string, operationData: IOperationData): T;
+        addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
         next(): ActionCreatorFactory;
     }
     class BaseEndableActionCreator<T> extends BaseActionCreator<T> {
-        addEndOperation(systemName: string, operationData: IOperationData): T;
+        addEndOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
     }
 
     class BaseTimelineActionCreator<T> extends BaseEndableActionCreator<T> {
@@ -51,6 +51,7 @@ declare namespace ChronoTrigger {
     }
 
     class OperationEditor<T> {
+        constructor(operationConfig: any, actionEditor?: T);
         setSystemName(systemName: string): OperationEditor<T>;
         setOperationData(operationData: IOperationData): OperationEditor<T>;
         next(): T;
@@ -60,10 +61,12 @@ declare namespace ChronoTrigger {
         constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
         getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
         setName(name: string): T;
+        addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
         editStartOperation(id: string): OperationEditor<T>;
         removeStartOperation(id: string): T;
     }
     class BaseEndableActionEditor<T> extends BaseActionEditor<T> {
+        addEndOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
         editEndOperation(id: string): OperationEditor<T>;
         removeEndOperation(id: string): T;
     }

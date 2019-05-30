@@ -25,10 +25,25 @@ export class ActionEditor {
         return this;
     }
 
+    addStartOperation(systemName, operationData) {
+        if (!operations[systemName]) {
+            throw Error(`Unknown operation: ${systemName}`);
+        }
+
+        const { startOperations } = this.actionConfig;
+        const newConfig = {
+            id: uuid(),
+            systemName: systemName,
+            operationData: operationData
+        };
+        startOperations.push(newConfig);
+        return new OperationEditor(newConfig, this);
+    }
+
     editStartOperation(id) {
         const operation = this.actionConfig.startOperations.find(o => o.id === id);
         if (operation) {
-            return new OperationEditor(this, operation);
+            return new OperationEditor(operation, this);
         }
         throw new Error(`operation not found for id ${id}`);
     }
@@ -48,11 +63,29 @@ export class ActionEditor {
 }
 
 export class EndableActionEditor extends ActionEditor {
-    
+
+    addEndOperation(systemName, operationData) {
+        if (!operations[systemName]) {
+            throw Error(`Unknown operation: ${systemName}`);
+        }
+
+        let { endOperations } = this.actionConfig;
+        if (endOperations) {
+            endOperations = this.actionConfig.endOperations = [];
+        }
+        const newConfig = {
+            id: uuid(),
+            systemName: systemName,
+            operationData: operationData
+        };
+        endOperations.push(newConfig);
+        return new OperationEditor(newConfig, this);
+    }
+
     editEndOperation(id) {
         const operationConfig = this.actionConfig.endOperations.find(o => o.id === id);
         if (operationConfig) {
-            return new OperationEditor(operationConfig);
+            return new OperationEditor(operationConfig, this);
         }
         throw new Error(`operation not found for id ${id}`);
     }
@@ -89,7 +122,7 @@ export class OperationEditor {
     operationConfig = null;
     actionEditor = null;
 
-    constructor(actionEditor, operationConfig) {
+    constructor(operationConfig, actionEditor) {
         this.actionEditor = actionEditor;
         this.operationConfig = operationConfig;
     }
