@@ -5,6 +5,8 @@ export as namespace ChronoTrigger;
 declare namespace ChronoTrigger {
 
     class BaseActionCreator<T> {
+        constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
+        setName(name: string): T;
         getConfiguration(callBack: (configuration: IActionConfiguration) => IConfiguration): T;
         addStartOperation(systemName: string, operationData: IOperationData): T;
         next(): ActionCreatorFactory;
@@ -54,6 +56,7 @@ declare namespace ChronoTrigger {
     }
 
     class BaseActionEditor<T> {
+        constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
         getConfiguration(callBack: (configuration: IActionConfiguration) => IConfiguration): T;
         setName(name: string): T;
         editStartOperation(id: string): OperationEditor<T>;

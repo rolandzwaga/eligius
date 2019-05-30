@@ -10,25 +10,25 @@ export class ActionCreatorFactory {
     }
 
     createAction(name) {
-        const creator = new ActionCreator(this, name);
+        const creator = new ActionCreator(name, this);
         this.configfactory.addAction(creator.actionConfig);
         return creator;
     }
 
     createInitAction(name) {
-        const creator = new EndableActionCreator(this, name);
+        const creator = new EndableActionCreator(name, this);
         this.configfactory.addInitAction(creator.actionConfig);
         return creator;
     }
 
     createEventAction(name) {
-        const creator = new ActionCreator(this, name);
+        const creator = new ActionCreator(name, this);
         this.configfactory.addEventAction(creator.actionConfig);
         return creator;
     }
 
     createTimelineAction(uri, name) {
-        const creator = new TimelineActionCreator(this, name);
+        const creator = new TimelineActionCreator(name, this);
         this.configfactory.addTimelineAction(uri, creator.actionConfig);
         return creator;
     }
@@ -43,7 +43,7 @@ export class ActionCreator {
     actionConfig = null;
     factory = null;
 
-    constructor(factory, name) {
+    constructor(name, factory) {
         this.factory = factory;
         this.actionConfig = {
             id: uuid(),
@@ -52,6 +52,11 @@ export class ActionCreator {
         if (name) {
             this.actionConfig.name = name;
         }
+    }
+
+    setName(name) {
+        this.actionConfig.name = name;
+        return this;
     }
 
     getConfiguration(callBack) {
@@ -82,10 +87,6 @@ export class ActionCreator {
 }
 
 export class EndableActionCreator extends ActionCreator {
-
-    constructor(factory, name) {
-        super(factory, name);
-    }
 
     addEndOperation(systemName, operationData) {
         if (!operations[systemName]) {

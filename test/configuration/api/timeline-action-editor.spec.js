@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TimelineActionEditor } from '../../src/configuration/api/action-editor';
+import { TimelineActionEditor } from '../../../src/configuration/api/action-editor';
 
 describe('TimelineActionEditor.', () => {
 
@@ -18,7 +18,7 @@ describe('TimelineActionEditor.', () => {
                 operationData: {}
             }]
         };
-        timelineActionEditor = new TimelineActionEditor(configurationFactory, actionConfig);
+        timelineActionEditor = new TimelineActionEditor(actionConfig, configurationFactory);
     });
 
     it('should set the duration start and end', () => {

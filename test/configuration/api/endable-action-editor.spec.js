@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EndableActionEditor, OperationEditor } from '../../src/configuration/api/action-editor';
+import { EndableActionEditor, OperationEditor } from '../../../src/configuration/api/action-editor';
 
 describe('EndableActionEditor', () => {
 
@@ -18,7 +18,7 @@ describe('EndableActionEditor', () => {
                 operationData: {}
             }]
         };
-        endableActionEditor = new EndableActionEditor(configurationFactory, actionConfig);
+        endableActionEditor = new EndableActionEditor(actionConfig, configurationFactory);
     });
 
     it('should return an operation editor', () => {

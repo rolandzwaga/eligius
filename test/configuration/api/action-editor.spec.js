@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActionEditor, OperationEditor } from "../../src/configuration/api/action-editor";
+import { ActionEditor, OperationEditor } from "../../../src/configuration/api/action-editor";
 
 describe('ActionEditor', () => {
 
@@ -14,7 +14,7 @@ describe('ActionEditor', () => {
             name: 'name',
             startOperations: []
         };
-        actionEditor = new ActionEditor(configurationFactory, actionConfig);
+        actionEditor = new ActionEditor(actionConfig, configurationFactory);
     });
 
     it('should initialize properly', () => {

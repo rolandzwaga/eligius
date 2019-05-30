@@ -5,7 +5,7 @@ export class ActionEditor {
     actionConfig = null;
     configurationFactory = null;
 
-    constructor(configurationFactory, actionConfig) {
+    constructor(actionConfig, configurationFactory) {
         this.actionConfig = actionConfig;
         this.configurationFactory = configurationFactory;
     }

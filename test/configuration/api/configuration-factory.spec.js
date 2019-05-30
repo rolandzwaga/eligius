@@ -1,6 +1,6 @@
-import ConfigurationFactory from '../../src/configuration/api/configuration-factory';
+import ConfigurationFactory from '../../../src/configuration/api/configuration-factory';
 import { expect } from 'chai';
-import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '../../src/configuration/api/action-editor';
+import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '../../../src/configuration/api/action-editor';
 
 describe('ConfigurationFactory', () => {
 
