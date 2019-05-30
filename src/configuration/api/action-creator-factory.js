@@ -60,7 +60,8 @@ export class ActionCreator {
     }
 
     getConfiguration(callBack) {
-        const newConfig = callBack.call(null, this.actionConfig);
+        const copy = deepcopy(this.actionConfig);
+        const newConfig = callBack.call(this, copy);
         if (newConfig) {
             this.actionConfig = newConfig;
         }

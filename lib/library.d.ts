@@ -7,7 +7,7 @@ declare namespace ChronoTrigger {
     class BaseActionCreator<T> {
         constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
         setName(name: string): T;
-        getConfiguration(callBack: (configuration: IActionConfiguration) => IConfiguration): T;
+        getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
         addStartOperation(systemName: string, operationData: IOperationData): T;
         next(): ActionCreatorFactory;
     }
@@ -41,6 +41,7 @@ declare namespace ChronoTrigger {
         createInitAction(name: string): EndableActionCreator;
         createEventAction(name: string): ActionCreator;
         createTimelineAction(uri: string, name: string): TimelineActionCreator;
+        getConfiguration(callBack: (configuration: IConfiguration) => IConfiguration | void): ConfigurationFactory;
         removeTimeline(uri: string): ConfigurationFactory;
         addLabel(id: string, code: string, translation: string): ConfigurationFactory;
         editAction(id: string): ActionEditor;
@@ -50,14 +51,14 @@ declare namespace ChronoTrigger {
     }
 
     class OperationEditor<T> {
-        setSystemName(systemName: string): OperationEditor;
-        setOperationData(operationData: IOperationData): OperationEditor;
+        setSystemName(systemName: string): OperationEditor<T>;
+        setOperationData(operationData: IOperationData): OperationEditor<T>;
         next(): T;
     }
 
     class BaseActionEditor<T> {
         constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
-        getConfiguration(callBack: (configuration: IActionConfiguration) => IConfiguration): T;
+        getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
         setName(name: string): T;
         editStartOperation(id: string): OperationEditor<T>;
         removeStartOperation(id: string): T;
@@ -160,7 +161,7 @@ declare namespace ChronoTrigger {
     }
 
     interface IEndableActionConfiguration extends IActionConfiguration {
-        endOperations: IOperationConfiguration[];
+        endOperations?: IOperationConfiguration[];
     }
 
     interface ITimelineActionConfiguration extends IEndableActionConfiguration {

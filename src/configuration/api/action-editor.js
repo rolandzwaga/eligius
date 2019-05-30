@@ -1,4 +1,5 @@
 import * as operations from '../../operation';
+import deepcopy from '../../operation/helper/deepcopy';
 
 export class ActionEditor {
     
@@ -11,7 +12,8 @@ export class ActionEditor {
     }
 
     getConfiguration(callBack) {
-        const newConfig = callBack.call(null, this.actionConfig);
+        const copy = deepcopy(this.actionConfig);
+        const newConfig = callBack.call(this, copy);
         if (newConfig) {
             this.actionConfig = newConfig;
         }

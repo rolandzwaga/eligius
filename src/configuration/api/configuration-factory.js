@@ -32,6 +32,15 @@ class ConfigurationFactory {
         return this;
     }
 
+    getConfiguration(callBack) {
+        const copy = deepcopy(this.configuration);
+        const newConfig = callBack.call(this, copy);
+        if (newConfig) {
+            this.configuration = newConfig;
+        }
+        return this;
+    }
+
     addTimelineSettings(selector, systemName) {
         if (!this.configuration.timelineProviderSettings) {
             this.configuration.timelineProviderSettings = {};
