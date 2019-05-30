@@ -3,6 +3,7 @@ import * as timelineProvider from '../../timelineproviders';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor } from './action-editor';
 import { TimelineActionEditor, EndableActionEditor } from './action-editor';
+import deepcopy from '../../operation/helper/deepcopy';
 
 class ConfigurationFactory {
 

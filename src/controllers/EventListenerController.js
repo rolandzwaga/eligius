@@ -1,4 +1,3 @@
-import $ from 'jquery';
 import TimelineEventNames from "../timeline-event-names";
 import deepcopy from '../operation/helper/deepcopy';
 
