@@ -10,6 +10,10 @@ class ConfigurationFactory {
     actionCreatorFactory = null;
     configuration = null;
 
+    _test() {
+        
+    }
+
     constructor(config=null) {
         this.configuration = config;
         this.actionCreatorFactory = new ActionCreatorFactory(this);
@@ -30,6 +34,7 @@ class ConfigurationFactory {
             language: defaultLanguage,
             availableLanguages: []
         };
+
         return this;
     }
 
