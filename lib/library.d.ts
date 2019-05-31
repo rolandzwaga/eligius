@@ -4,6 +4,13 @@ export as namespace ChronoTrigger;
 
 declare namespace ChronoTrigger {
 
+    class OperationNamesProvider {
+        getOperationNames(): string[];
+    }
+    
+    class ControllerNamesProvider {
+        getControllerNames(): string[];
+    }    
     class BaseActionCreator<T> {
         constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
         setName(name: string): T;
@@ -55,7 +62,7 @@ declare namespace ChronoTrigger {
         getSystemName(): string | null;
         setSystemName(systemName: string): OperationEditor<T>;
         setOperationData(operationData: IOperationData): OperationEditor<T>;
-        setOperationDataItem(key: value, value: string): OperationEditor<T>;
+        setOperationDataItem(key: string, value: string): OperationEditor<T>;
         getOperationDataKeys(): string[];
         getOperationDataValue(key: string): string;
         next(): T;

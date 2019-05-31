@@ -9,5 +9,6 @@ export { default as Eventbus } from './eventbus/eventbus';
 export { default as ConfigurationFactory } from './configuration/api/configuration-factory';
 export { ActionEditor, EndableActionEditor, TimelineActionEditor, OperationEditor } from './configuration/api/action-editor';
 export { ActionCreatorFactory, ActionCreator, EndableActionCreator, TimelineActionCreator } from './configuration/api/action-creator-factory';
+export { OperationNamesProvider, ControllerNamesProvider } from './configuration/api/name-providers';
 
 export default actions;
