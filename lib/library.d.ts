@@ -52,8 +52,12 @@ declare namespace ChronoTrigger {
 
     class OperationEditor<T> {
         constructor(operationConfig: any, actionEditor?: T);
+        getSystemName(): string | null;
         setSystemName(systemName: string): OperationEditor<T>;
         setOperationData(operationData: IOperationData): OperationEditor<T>;
+        setOperationDataItem(key: value, value: string): OperationEditor<T>;
+        getOperationDataKeys(): string[];
+        getOperationDataValue(key: string): string;
         next(): T;
     }
 
@@ -61,6 +65,7 @@ declare namespace ChronoTrigger {
         constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
         getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
         setName(name: string): T;
+        getName(): string;
         addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
         editStartOperation(id: string): OperationEditor<T>;
         removeStartOperation(id: string): T;

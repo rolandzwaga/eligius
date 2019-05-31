@@ -25,6 +25,10 @@ export class ActionEditor {
         return this;
     }
 
+    getName() {
+        return this.actionConfig.name;
+    }
+
     addStartOperation(systemName, operationData) {
         if (!operations[systemName]) {
             throw Error(`Unknown operation: ${systemName}`);
@@ -127,6 +131,19 @@ export class OperationEditor {
         this.operationConfig = operationConfig;
     }
 
+    getConfiguration(callBack) {
+        const copy = deepcopy(this.operationConfig);
+        const newConfig = callBack.call(this, copy);
+        if (newConfig) {
+            this.operationConfig = newConfig;
+        }
+        return this;
+    }
+
+    getSystemName() {
+        return this.operationConfig.systemName;
+    }
+
     setSystemName(systemName) {
         if (!operations[systemName]) {
             throw Error(`Unknown operation: ${systemName}`);
@@ -138,6 +155,25 @@ export class OperationEditor {
     setOperationData(operationData) {
         this.operationConfig.operationData = operationData;
         return this;
+    }
+
+    setOperationDataItem(key, value) {
+        const { operationData } = this.operationConfig;
+        if (!operationData) {
+            operationData = this.operationConfig.operationData = {};
+        }
+        operationData[key] = value;
+        return this;
+    }
+
+    getOperationDataKeys() {
+        const { operationData } = this.operationConfig;
+        return operationData ? Object.keys(operationData) : [];
+    }
+
+    getOperationDataValue(key) {
+        const { operationData } = this.operationConfig;
+        return operationData ? operationData[key] : null;
     }
 
     next() {
