@@ -54,6 +54,6 @@ describe('TimelineActionEditor.', () => {
 
         // expect
         expect(errorMessage).to.equal('start position cannot be higher than end position');
-    })
+    });
 
 });

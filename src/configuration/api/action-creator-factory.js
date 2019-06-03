@@ -55,6 +55,10 @@ export class ActionCreator {
         }
     }
 
+    getId() {
+        return this.actionConfig.id;
+    }
+
     setName(name) {
         this.actionConfig.name = name;
         return this;

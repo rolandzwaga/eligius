@@ -13,6 +13,7 @@ declare namespace ChronoTrigger {
     }    
     class BaseActionCreator<T> {
         constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
+        getId(): string;
         setName(name: string): T;
         getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
         addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
@@ -55,6 +56,22 @@ declare namespace ChronoTrigger {
         editEventAction(id: string): ActionEditor;
         editInitAction(id: string): EndableActionEditor;
         editTimelineAction(uri: string, id: string): TimelineActionEditor;
+        setContainerSelector(selector: string): ConfigurationFactory;
+        editTimelineProviderSettings(): TimelineProviderSettingsEditor;
+    }
+
+    interface ITimelineProviderSettingsConfiguration {
+        vendor: string;
+        selector: string;
+        systemName: string;
+    }
+
+    class TimelineProviderSettingsEditor {
+        constructor(providerSettings: ITimelineProviderSettingsConfiguration, configurationFactory: ConfigurationFactory);
+        setVendor(vendor: string): TimelineProviderSettingsEditor;
+        setSelector(selector: string): TimelineProviderSettingsEditor;
+        setSystemname(systemName: string): TimelineProviderSettingsEditor;
+        next(): ConfigurationFactory;
     }
 
     class OperationEditor<T> {

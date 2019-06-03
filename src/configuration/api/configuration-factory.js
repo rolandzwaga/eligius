@@ -1,8 +1,8 @@
 import uuid from 'uuid';
-import * as timelineProvider from '../../timelineproviders';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor } from './action-editor';
 import { TimelineActionEditor, EndableActionEditor } from './action-editor';
+import TimelineProviderSettingsEditor from './timeline-provider-settings-editor';
 import deepcopy from '../../operation/helper/deepcopy';
 
 class ConfigurationFactory {
@@ -10,12 +10,8 @@ class ConfigurationFactory {
     actionCreatorFactory = null;
     configuration = null;
 
-    _test() {
-        
-    }
-
-    constructor(config=null) {
-        this.configuration = config;
+    constructor(config = null) {
+        this.configuration = config || {};
         this.actionCreatorFactory = new ActionCreatorFactory(this);
     }
 
@@ -38,24 +34,26 @@ class ConfigurationFactory {
         return this;
     }
 
+    setDefaultLanguage(defaultLanguage) {
+        this.configuration.language = defaultLanguage;
+        return this;
+    }
+
+    setContainerSelector(selector) {
+        this.configuration.containerSelector = selector;
+        return this;
+    }
+
+    editTimelineProviderSettings() {
+        return new TimelineProviderSettingsEditor(this.configuration.timelineProviderSettings, this);
+    }
+
     getConfiguration(callBack) {
         const copy = deepcopy(this.configuration);
         const newConfig = callBack.call(this, copy);
         if (newConfig) {
             this.configuration = newConfig;
         }
-        return this;
-    }
-
-    addTimelineSettings(selector, systemName) {
-        if (!this.configuration.timelineProviderSettings) {
-            this.configuration.timelineProviderSettings = {};
-        }
-        this.configuration.timelineProviderSettings.selector = selector;
-        if (!timelineProvider[systemName]) {
-            throw new Error(`Unknown timelineprovider system name: ${systemName}`);
-        }
-        this.configuration.timelineProviderSettings.systemName = systemName;
         return this;
     }
 
@@ -220,7 +218,6 @@ class ConfigurationFactory {
         }
         throw new Error(`Timeline action not found for id ${id}`);
     }
-
 }
 
 export default ConfigurationFactory;

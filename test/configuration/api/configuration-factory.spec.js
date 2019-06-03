@@ -1,6 +1,7 @@
 import ConfigurationFactory from '../../../src/configuration/api/configuration-factory';
 import { expect } from 'chai';
 import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '../../../src/configuration/api/action-editor';
+import TimelineProviderSettingsEditor from '../../../src/configuration/api/timeline-provider-settings-editor';
 
 describe('ConfigurationFactory', () => {
 
@@ -24,33 +25,41 @@ describe('ConfigurationFactory', () => {
         expect(configuration.availableLanguages.length).to.equal(0);
     });
 
-    it('should add the given timelinesettings', () => {
+    it('should set the container selector', () => {
         // given
         configurationFactory.init('nl-NL');
+        const selector = 'selector';
 
         // test
-        configurationFactory.addTimelineSettings('selector', 'RequestAnimationFrameTimelineProvider');
+        configurationFactory.setContainerSelector(selector);
 
         // expect
         const { configuration } = configurationFactory;
-        expect(configuration.timelineProviderSettings.selector).to.equal('selector');
-        expect(configuration.timelineProviderSettings.systemName).to.equal('RequestAnimationFrameTimelineProvider');
+        expect(configuration.containerSelector).to.equal(selector);
     });
 
-    it('should throw an error when timelineprovider systemname does not exist', () => {
+    it('should set the default language', () => {
         // given
         configurationFactory.init('nl-NL');
-        let error = null;
+        const language = 'en-US';
+
         // test
-        try {
-            configurationFactory.addTimelineSettings('selector', 'Unknown');
-        } catch(e) {
-            error = e;
-        }
+        configurationFactory.setDefaultLanguage(language);
 
         // expect
-        expect(error).not.to.be.null;
-        expect(error.message).to.equal('Unknown timelineprovider system name: Unknown');
+        const { configuration } = configurationFactory;
+        expect(configuration.language).to.equal(language);
+    });
+
+    it('should return a timeline provider editor', () => {
+        // given
+        configurationFactory.init('nl-NL');
+
+        // test
+        const editor = configurationFactory.editTimelineProviderSettings();
+
+        // expect
+        expect(editor).to.be.an.instanceOf(TimelineProviderSettingsEditor);
     });
 
     it('should add the given language', () => {
@@ -280,11 +289,10 @@ describe('ConfigurationFactory', () => {
     it('editAction should return an actioneditor instance', () => {
         // given
         configurationFactory.init('nl-NL');
-        const creator = configurationFactory.createAction('TestAction');
-        const { actionConfig } = creator;
+        const id = configurationFactory.createAction('TestAction').getId();
         
         // test
-        const editor = configurationFactory.editAction(actionConfig.id);
+        const editor = configurationFactory.editAction(id);
 
         // expect
         expect(editor).to.be.an.instanceOf(ActionEditor);
@@ -324,8 +332,6 @@ describe('ConfigurationFactory', () => {
         const creator = configurationFactory.createTimelineAction('test', 'TestTimelineAction');
         const { actionConfig } = creator;
 
-        console.dir(actionConfig);
-        
         // test
         const editor = configurationFactory.editTimelineAction('test', actionConfig.id);
 
