@@ -13,12 +13,12 @@ class RequestAnimationFrameTimelineProvider {
         this.loop = false;
         this._eventbusListeners = [];
         this.providerid = `provider${Math.random()*1000}`;
-        this._addEventListeners();
         this.playlist = [];
         this.currentPlaylistItem = null;
         this.firstFrame = true;
         this.playing = false;
         this.paused = false;
+        this._addEventListeners();
     }
 
     _extractPlaylist(configuration) {
