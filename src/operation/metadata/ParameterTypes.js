@@ -15,4 +15,6 @@ export default class ParameterTypes {
     static DIMENSIONS_MODIFIER = 'dimensionsModifier';
     static URL = 'url';
     static HTML_CONTENT = 'htmlContent';
+    static EVENT_NAME = 'eventName';
+    static LABEL_ID = 'labelId';
 }

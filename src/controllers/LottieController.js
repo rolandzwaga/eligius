@@ -106,7 +106,7 @@ class LottieController {
 			container: this.operationData.selectedElement[0],
 			loop: this.operationData.loop,
 			renderer: this.operationData.renderer,
-			animationData:animData
+			animationData: animData
 		}
 
 		this.anim = lottie.loadAnimation(animationData);
