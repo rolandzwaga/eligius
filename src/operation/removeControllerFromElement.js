@@ -15,9 +15,7 @@ function removeControllerFromElement(operationData, eventBus) {
         });
         if (controller) {
             const idx = controllers.indexOf(controller);
-            if (idx > -1) {
-                controllers.splice(idx, 1);
-            }
+            controllers.splice(idx, 1);
             controller.detach(eventBus);
         }
     }

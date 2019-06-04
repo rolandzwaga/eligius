@@ -4,7 +4,7 @@ import { expect } from 'chai';
 describe('WebpackResourceImporter', () => {
 
     let importer = null;
-    const operations = ['addClass', 'addControllerToElement', 'addOptionList', 'animate', 'animateWithClass', 'broadcastEvent', 'clearElement', 'clearOperationData', 'customFunction', 'endAction', 'extendController', 'getControllerFromElement', 'getControllerInstance', 'getElementDimensions', 'loadJSON', 'removeClass', 'removeControllerFromElement', 'removeElement', 'removePropertiesFromOperationData', 'reparentElement', 'requestAction', 'resizeAction', 'selectElement', 'setElementAttributes', 'setElementContent', 'setOperationData', 'setStyle', 'startAction', 'toggleClass', 'toggleElement', 'wait'];
+    const operations = ['addClass', 'addControllerToElement', 'addOptionList', 'animate', 'animateWithClass', 'broadcastEvent', 'clearElement', 'clearOperationData', 'customFunction', 'endAction', 'extendController', 'getControllerFromElement', 'getControllerInstance', 'getElementDimensions', 'getImport', 'loadJSON', 'removeClass', 'removeControllerFromElement', 'removeElement', 'removePropertiesFromOperationData', 'reparentElement', 'requestAction', 'resizeAction', 'selectElement', 'setElementAttributes', 'setElementContent', 'setOperationData', 'setStyle', 'startAction', 'toggleClass', 'toggleElement', 'wait'];
     const controllers = ['EventListenerController', 'LabelController', 'LottieController', 'NavigationController', 'ProgressbarController', 'RoutingController', 'SubtitlesController'];
 
     beforeEach(() => {

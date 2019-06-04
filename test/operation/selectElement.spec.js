@@ -53,7 +53,7 @@ describe('selectElement', () => {
         const mockElement = new MockElement(selectedElement);
         const operationData = {
             selector: '.testClass',
-            useExistingAsRoot: true,
+            useSelectedElementAsRoot: true,
             selectedElement: mockElement
         };
 
@@ -72,7 +72,7 @@ describe('selectElement', () => {
         const mockElement = new MockElement(selectedElement);
         const operationData = {
             selector: '.testClass',
-            useExistingAsRoot: true,
+            useSelectedElementAsRoot: true,
             otherProperty: mockElement,
             propertyName: 'otherProperty'
         };

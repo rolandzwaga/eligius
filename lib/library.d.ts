@@ -10,7 +10,16 @@ declare namespace ChronoTrigger {
     
     class ControllerNamesProvider {
         getControllerNames(): string[];
-    }    
+    }
+
+    class OperationMetadataProvider {
+        getOperationMetadata(operationName: string): IOperationMetadata;
+    }
+
+    interface IOperationMetadata {
+        [name: string]: ParameterTypes[keyof ParameterTypes];
+    }
+
     class BaseActionCreator<T> {
         constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
         getId(): string;
@@ -111,6 +120,25 @@ declare namespace ChronoTrigger {
     enum TimelineType {
         animation = 'animation',
         video = 'video'
+    }
+
+    class ParameterTypes {
+        static CLASS_NAME: string;
+        static SELECTOR: string;
+        static STRING: string;
+        static INTEGER: string;
+        static OBJECT: string;
+        static BOOLEAN: string;
+        static ARRAY: string;
+        static EVENT_TOPIC: string;
+        static EVENT_NAME: string;
+        static SYSTEM_NAME: string;
+        static ACTION_NAME: string;
+        static CONTROLLER_NAME: string;
+        static DIMENSIONS: string;
+        static DIMENSIONS_MODIFIER: string;
+        static URL: string;
+        static HTML_CONTENT: string;
     }
 
     class TimelineEventNames {

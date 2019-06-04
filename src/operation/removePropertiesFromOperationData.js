@@ -1,7 +1,5 @@
 function removePropertiesFromOperationData(operationData, eventBus) {
-    const {
-        propertyNames
-    } = operationData;
+    const { propertyNames } = operationData;
 
     propertyNames.forEach(name => {
         delete operationData[name];

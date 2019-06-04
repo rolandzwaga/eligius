@@ -12,14 +12,14 @@ function findElementBySelector(root, selector, operationData, propertyName) {
 }
 
 function selectElement(operationData, eventBus) {
-    let {selector, propertyName, useExistingAsRoot} = operationData;
+    let {selector, propertyName, useSelectedElementAsRoot} = operationData;
 
     if (!selector) {
         throw new Error("selector is undefined!");
     }
     propertyName = (propertyName) ? propertyName : "selectedElement";
 
-    if (useExistingAsRoot && operationData[propertyName]) {
+    if (useSelectedElementAsRoot && operationData[propertyName]) {
         const currentRoot = operationData[propertyName];
         findElementBySelector(currentRoot, selector, operationData, propertyName);
         return operationData;
