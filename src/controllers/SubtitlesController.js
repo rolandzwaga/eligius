@@ -54,8 +54,8 @@ class SubtitlesController {
 		container.text(titleLanguageLookup[this.currentLanguage]);
 	}
 
-	createActionLookup(controllerData, container) {
-		const subtitleData = controllerData.subtitleData;
+	createActionLookup(operationData, container) {
+		const subtitleData = operationData.subtitleData;
 		const titles = subtitleData[0].titles;
 		const subtitleTimeLookup = {};
 		for (let i = 0, ii = titles.length; i < ii; i++) {
@@ -70,11 +70,11 @@ class SubtitlesController {
 		return subtitleTimeLookup;
 	}
 
-	init(controllerData) {
-		const container = controllerData.selectedElement;
+	init(operationData) {
+		const container = operationData.selectedElement;
 		this.removeTitle = this.removeTitle.bind(this, container);
-		this.currentLanguage = controllerData.language;
-		this.actionLookup = this.createActionLookup(controllerData, container);
+		this.currentLanguage = operationData.language;
+		this.actionLookup = this.createActionLookup(operationData, container);
 	}
 }
 
