@@ -23,7 +23,7 @@
   "dependencies": {
     "@babel/plugin-transform-regenerator": "7.4.5",
     "@babel/runtime": "^7.4.5",
-    "d3": "5.9.2",
+    "d3": "5.9.4",
     "es6-shim": "0.35.5",
     "jquery": "3.4.1",
     "lottie-web": "5.5.5",
