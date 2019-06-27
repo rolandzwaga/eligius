@@ -1,4 +1,5 @@
 import TimelineEventNames from "./timeline-event-names";
+import $ from 'jquery';
 
 class LanguageManager {
 
@@ -12,8 +13,10 @@ class LanguageManager {
         if (!eventbus) {
             throw new Error('eventbus ctor arg cannot be null');
         }
+        this.eventbus = eventbus;
         this._labelLookup = {};
         this._currentLanguage = language;
+        this._setRootElementLang(language);
         this._eventbusListeners = [];
         this._createLabelLookup(labels);
         this._addEventbusListeners(eventbus);
@@ -44,9 +47,25 @@ class LanguageManager {
     _handleLanguageChange(language) {
         if (language && language.length) {
             this._currentLanguage = language;
+            this._setRootElementLang(this._currentLanguage);
         } else {
             console.error('Language cannot be changed to null or empty string');
         }
+    }
+
+    _setRootElementLang(language) {
+        const callBack = (rootSelector) => {
+            const lang = this._extractLanguageFromCulture(language);
+            $(rootSelector).attr('lang', lang);
+        };
+        this.eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [callBack]);
+    }
+
+    _extractLanguageFromCulture(culture) {
+        if (culture.indexOf('-') > -1) {
+            return culture.split('-').shift();
+        }
+        return culture;
     }
 
     _createLabelLookup(labels) {

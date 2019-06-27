@@ -4,12 +4,13 @@ import { expect } from 'chai';
 describe('LanguageManager', () => {
 
     let eventbus = null;
-    let language = "nl";
+    let language = "nl-NL";
     let labels = [];
 
     function createEventbusStub() {
         return {
-            on: (name, handler)=> {}
+            on: (name, handler)=> {},
+            broadcast: (name, args)=> {}
         };
     }
 
