@@ -8,7 +8,7 @@
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js --watch",
+    "test": "mochapack --debug-brk --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js --watch",
     "test-ci": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js",
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
     "full-build": "npm run build && npm run dev-build",
@@ -76,7 +76,7 @@
     "sinon": "7.3.2",
     "style-loader": "0.23.1",
     "uglifyjs-webpack-plugin": "2.1.3",
-    "webpack": "4.36.1",
+    "webpack": "4.38.0",
     "webpack-cli": "3.3.6"
   }
 }
