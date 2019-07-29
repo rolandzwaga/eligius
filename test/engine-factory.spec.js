@@ -12,10 +12,11 @@ class MockImporter {
 }
 
 class MockEngine {
-    constructor(config, eventbus, provider) {
+    constructor(config, eventbus, provider, languageManager) {
         this.config  = config;
         this.eventbus = eventbus;
         this.provider = provider;
+        this.languageManager = languageManager;
     }
 }
 
@@ -71,6 +72,9 @@ describe('EngineFactory', () => {
 
         // test
         const factory = new EngineFactory(importer, windowRef);
+
+        // expect
+        expect(factory).not.to.be.null;
     });
 
     it('should create the engine', () => {
@@ -84,7 +88,24 @@ describe('EngineFactory', () => {
             },
             timelineProviderSettings: {
                 systemName: 'MockTimelineProvider'
-            }
+            },
+            language: 'en-US',
+            labels: [
+                {
+                    id: 'mainTitle',
+                    labels: [
+                        {
+                            'code': 'en-US',
+                            'label': 'test 1'
+                        },
+                        {
+                            'code': 'nl-NL',
+                            'label': 'tezt 1'
+                        }
+                    ]
+                }
+            ]
+        
         };
 
         // test

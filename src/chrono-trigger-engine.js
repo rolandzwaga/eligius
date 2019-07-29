@@ -4,12 +4,13 @@ import TimelineEventNames from './timeline-event-names';
 
 class ChronoTriggerEngine {
 
-    constructor(configuration, eventbus, timelineProvider) {
+    constructor(configuration, eventbus, timelineProvider, languageManager) {
         this._configuration = configuration;
         this._eventbus = eventbus;
         this._timelineProvider = timelineProvider;
         this._timeLineActionsLookup = {};
         this._eventbusListeners = [];
+        this._languageManager = languageManager;
     }
 
     init() {
@@ -17,16 +18,7 @@ class ChronoTriggerEngine {
 
         this._addInitialisationListeners();
 
-        const {
-            language,
-            labels,
-            timelines
-        } = this._configuration;
-        const {
-            _eventbus
-        } = this;
-
-        this._languageManager = new LanguageManager(language, labels, _eventbus);
+        const { timelines } = this._configuration;
 
         this._currentTimelineUri = (timelines && timelines.length) ? timelines[0].uri : null;
 
