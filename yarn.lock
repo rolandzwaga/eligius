@@ -861,6 +861,27 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
+"@nodelib/fs.scandir@2.1.2":
+  version "2.1.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@nodelib/fs.scandir/-/fs.scandir-2.1.2.tgz#1f981cd5b83e85cfdeb386fc693d4baab392fa54"
+  integrity sha1-H5gc1bg+hc/es4b8aT1LqrOS+lQ=
+  dependencies:
+    "@nodelib/fs.stat" "2.0.2"
+    run-parallel "^1.1.9"
+
+"@nodelib/fs.stat@2.0.2", "@nodelib/fs.stat@^2.0.1":
+  version "2.0.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@nodelib/fs.stat/-/fs.stat-2.0.2.tgz#2762aea8fe78ea256860182dcb52d61ee4b8fda6"
+  integrity sha1-J2KuqP546iVoYBgty1LWHuS4/aY=
+
+"@nodelib/fs.walk@^1.2.1":
+  version "1.2.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@nodelib/fs.walk/-/fs.walk-1.2.3.tgz#a555dc256acaf00c62b0db29529028dd4d4cb141"
+  integrity sha1-pVXcJWrK8AxisNspUpAo3U1MsUE=
+  dependencies:
+    "@nodelib/fs.scandir" "2.1.2"
+    fastq "^1.6.0"
+
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.0.2", "@sinonjs/commons@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.4.0.tgz#7b3ec2d96af481d7a0321252e7b1c94724ec5a78"
@@ -868,7 +889,14 @@
   dependencies:
     type-detect "4.0.8"
 
-"@sinonjs/formatio@^3.1.0", "@sinonjs/formatio@^3.2.1":
+"@sinonjs/commons@^1.3.0":
+  version "1.6.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@sinonjs/commons/-/commons-1.6.0.tgz#ec7670432ae9c8eb710400d112c201a362d83393"
+  integrity sha1-7HZwQyrpyOtxBADREsIBo2LYM5M=
+  dependencies:
+    type-detect "4.0.8"
+
+"@sinonjs/formatio@^3.2.1":
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/formatio/-/formatio-3.2.1.tgz#52310f2f9bcbc67bdac18c94ad4901b95fde267e"
   integrity sha512-tsHvOB24rvyvV2+zKMmPkZ7dXX6LSLKZ7aOtXY6Edklp0uRcgGpOsQTTGTcWViFyx4uhWc6GV8QdnALbIbIdeQ==
@@ -876,7 +904,7 @@
     "@sinonjs/commons" "^1"
     "@sinonjs/samsam" "^3.1.0"
 
-"@sinonjs/samsam@^3.1.0", "@sinonjs/samsam@^3.3.1":
+"@sinonjs/samsam@^3.1.0":
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/@sinonjs/samsam/-/samsam-3.3.1.tgz#e88c53fbd9d91ad9f0f2b0140c16c7c107fe0d07"
   integrity sha512-wRSfmyd81swH0hA1bxJZJ57xr22kC07a1N4zuIL47yTS04bDk6AoCkczcqHEjcRPmJ+FruGJ9WBQiJwMtIElFw==
@@ -884,6 +912,15 @@
     "@sinonjs/commons" "^1.0.2"
     array-from "^2.1.1"
     lodash "^4.17.11"
+
+"@sinonjs/samsam@^3.3.3":
+  version "3.3.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@sinonjs/samsam/-/samsam-3.3.3.tgz#46682efd9967b259b81136b9f120fd54585feb4a"
+  integrity sha1-Rmgu/Zlnslm4ETa58SD9VFhf60o=
+  dependencies:
+    "@sinonjs/commons" "^1.3.0"
+    array-from "^2.1.1"
+    lodash "^4.17.15"
 
 "@sinonjs/text-encoding@^0.7.1":
   version "0.7.1"
@@ -919,10 +956,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.4.tgz#46832183115c904410c275e34cf9403992999c32"
   integrity sha1-RoMhgxFckEQQwnXjTPlAOZKZnDI=
 
-"@types/node@12.6.8":
-  version "12.6.8"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@types/node/-/node-12.6.8.tgz#e469b4bf9d1c9832aee4907ba8a051494357c12c"
-  integrity sha1-5Gm0v50cmDKu5JB7qKBRSUNXwSw=
+"@types/node@12.7.4":
+  version "12.7.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/@types/node/-/node-12.7.4.tgz#64db61e0359eb5a8d99b55e05c729f130a678b04"
+  integrity sha1-ZNth4DWetajZm1XgXHKfEwpniwQ=
 
 "@types/tapable@*":
   version "1.0.4"
@@ -1113,20 +1150,20 @@ acorn-es7-plugin@^1.1.7:
   resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/acorn-es7-plugin/-/acorn-es7-plugin-1.1.7.tgz#f2ee1f3228a90eead1245f9ab1922eb2e71d336b"
   integrity sha1-8u4fMiipDurRJF+asZIusucdM2s=
 
-acorn@6.2.1:
-  version "6.2.1"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/acorn/-/acorn-6.2.1.tgz#3ed8422d6dec09e6121cc7a843ca86a330a86b51"
-  integrity sha1-PthCLW3sCeYSHMeoQ8qGozCoa1E=
+acorn@7.0.0:
+  version "7.0.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/acorn/-/acorn-7.0.0.tgz#26b8d1cd9a9b700350b71c0905546f64d1284e7a"
+  integrity sha1-JrjRzZqbcANQtxwJBVRvZNEoTno=
 
 "acorn@>= 2.5.2 <= 5.7.3":
   version "5.7.3"
   resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
   integrity sha1-Z6ojG/iBKXS4UjWpZ3Hra9B+onk=
 
-acorn@^6.2.0:
-  version "6.2.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.2.0.tgz#67f0da2fc339d6cfb5d6fb244fd449f33cd8bbe3"
-  integrity sha1-Z/DaL8M51s+11vskT9RJ8zzYu+M=
+acorn@^6.2.1:
+  version "6.3.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/acorn/-/acorn-6.3.0.tgz#0087509119ffa4fc0a0041d1e93a417e68cb856e"
+  integrity sha1-AIdQkRn/pPwKAEHR6TpBfmjLhW4=
 
 ajv-errors@^1.0.0:
   version "1.0.1"
@@ -1138,7 +1175,12 @@ ajv-keywords@^3.1.0:
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.4.0.tgz#4b831e7b531415a7cc518cd404e73f6193c6349d"
   integrity sha512-aUjdRFISbuFOl0EIZc+9e4FfZp0bDZgAdOOf30bJmw8VM9v84SHyVyxDfbWxpGYbdZD/9XoKxfHVNmxPkhwyGw==
 
-ajv@6.10.2:
+ajv-keywords@^3.4.1:
+  version "3.4.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/ajv-keywords/-/ajv-keywords-3.4.1.tgz#ef916e271c64ac12171fd8384eaae6b2345854da"
+  integrity sha1-75FuJxxkrBIXH9g4TqrmsjRYVNo=
+
+ajv@6.10.2, ajv@^6.10.2:
   version "6.10.2"
   resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/ajv/-/ajv-6.10.2.tgz#d3cea04d6b017b2894ad69040fec8b623eb4bd52"
   integrity sha1-086gTWsBeyiUrWkED+yLYj60vVI=
@@ -1269,6 +1311,11 @@ array-union@^1.0.1:
   integrity sha1-mjRBDk9OPaI96jdb5b5w8kd47Dk=
   dependencies:
     array-uniq "^1.0.1"
+
+array-union@^2.1.0:
+  version "2.1.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/array-union/-/array-union-2.1.0.tgz#b798420adbeb1de828d84acd8a2e23d3efe85e8d"
+  integrity sha1-t5hCCtvrHego2ErNii4j0+/oXo0=
 
 array-uniq@^1.0.1:
   version "1.0.3"
@@ -1464,7 +1511,7 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.26.0:
+babel-runtime@^6.22.0, babel-runtime@^6.26.0:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   integrity sha1-llxwWGaOgrVde/4E/yM3vItWR/4=
@@ -1570,10 +1617,10 @@ block-stream@*:
   dependencies:
     inherits "~2.0.0"
 
-bluebird@^3.5.3:
-  version "3.5.3"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
-  integrity sha512-/qKPUQlaW1OyR51WeCPBvRnAlnZFUJkCSG5HzGnuIqhgyJtF+T94lFnn33eiazjRm2LAHVy2guNnaq48X9SJuw==
+bluebird@^3.5.5:
+  version "3.5.5"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/bluebird/-/bluebird-3.5.5.tgz#a8d0afd73251effbbd5fe384a77d73003c17a71f"
+  integrity sha1-qNCv1zJR7/u9X+OEp31zADwXpx8=
 
 bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.1.1, bn.js@^4.4.0:
   version "4.11.8"
@@ -1622,7 +1669,7 @@ braces@^2.3.1, braces@^2.3.2:
     split-string "^3.0.2"
     to-regex "^3.0.1"
 
-braces@^3.0.2:
+braces@^3.0.1, braces@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/braces/-/braces-3.0.2.tgz#3454e1a462ee8d599e236df336cd9ea4f8afe107"
   integrity sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==
@@ -1740,22 +1787,23 @@ builtin-status-codes@^3.0.0:
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
   integrity sha1-hZgoeOIbmOHGZCXgPQF0eI9Wnug=
 
-cacache@^11.0.2, cacache@^11.3.2:
-  version "11.3.2"
-  resolved "https://registry.yarnpkg.com/cacache/-/cacache-11.3.2.tgz#2d81e308e3d258ca38125b676b98b2ac9ce69bfa"
-  integrity sha512-E0zP4EPGDOaT2chM08Als91eYnf8Z+eH1awwwVsngUmgppfM5jjJ8l3z5vO5p5w/I3LsiXawb1sW0VY65pQABg==
+cacache@^12.0.2:
+  version "12.0.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/cacache/-/cacache-12.0.3.tgz#be99abba4e1bf5df461cd5a2c1071fc432573390"
+  integrity sha1-vpmruk4b9d9GHNWiwQcfxDJXM5A=
   dependencies:
-    bluebird "^3.5.3"
+    bluebird "^3.5.5"
     chownr "^1.1.1"
     figgy-pudding "^3.5.1"
-    glob "^7.1.3"
+    glob "^7.1.4"
     graceful-fs "^4.1.15"
+    infer-owner "^1.0.3"
     lru-cache "^5.1.1"
     mississippi "^3.0.0"
     mkdirp "^0.5.1"
     move-concurrently "^1.0.1"
     promise-inflight "^1.0.1"
-    rimraf "^2.6.2"
+    rimraf "^2.6.3"
     ssri "^6.0.1"
     unique-filename "^1.1.1"
     y18n "^4.0.0"
@@ -1843,7 +1891,7 @@ chai@4.2.0:
     pathval "^1.1.0"
     type-detect "^4.0.5"
 
-chalk@2.4.2, chalk@^2.0.0, chalk@^2.0.1, chalk@^2.3.0, chalk@^2.4.2:
+chalk@2.4.2, chalk@^2.0.0, chalk@^2.0.1, chalk@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
   integrity sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==
@@ -1873,7 +1921,7 @@ child_process@1.0.2:
   resolved "https://registry.yarnpkg.com/child_process/-/child_process-1.0.2.tgz#b1f7e7fc73d25e7fd1d455adc94e143830182b5a"
   integrity sha1-sffn/HPSXn/R1FWtyU4UODAYK1o=
 
-chokidar@3.0.2:
+chokidar@3.0.2, chokidar@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/chokidar/-/chokidar-3.0.2.tgz#0d1cd6d04eb2df0327446188cd13736a3367d681"
   integrity sha1-DRzW0E6y3wMnRGGIzRNzajNn1oE=
@@ -1931,10 +1979,10 @@ chownr@^1.1.1:
   resolved "https://registry.yarnpkg.com/chownr/-/chownr-1.1.1.tgz#54726b8b8fff4df053c42187e801fb4412df1494"
   integrity sha512-j38EvO5+LHX84jlo6h4UzmOwi0UgW61WRyPtJz4qaadK5eY3BTS5TY/S1Stc3Uk2lIM6TPevAlULiEJwie860g==
 
-chrome-trace-event@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/chrome-trace-event/-/chrome-trace-event-1.0.0.tgz#45a91bd2c20c9411f0963b5aaeb9a1b95e09cc48"
-  integrity sha512-xDbVgyfDTT2piup/h8dK/y4QZfJRSa73bw1WZ8b4XM1o7fsFubUVGYcE+1ANtOzJJELGpYoG2961z0Z6OAld9A==
+chrome-trace-event@^1.0.2:
+  version "1.0.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/chrome-trace-event/-/chrome-trace-event-1.0.2.tgz#234090ee97c7d4ad1a2c4beae27505deffc608a4"
+  integrity sha1-I0CQ7pfH1K0aLEvq4nUF3v/GCKQ=
   dependencies:
     tslib "^1.9.0"
 
@@ -2008,15 +2056,14 @@ cliui@^5.0.0:
     strip-ansi "^5.2.0"
     wrap-ansi "^5.1.0"
 
-clone-deep@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/clone-deep/-/clone-deep-2.0.2.tgz#00db3a1e173656730d1188c3d6aced6d7ea97713"
-  integrity sha512-SZegPTKjCgpQH63E+eN6mVEEPdQBOUzjyJm5Pora4lrwWRFS8I0QAxV/KD6vV/i0WuijHZWQC1fMsPEdxfdVCQ==
+clone-deep@^4.0.1:
+  version "4.0.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/clone-deep/-/clone-deep-4.0.1.tgz#c19fd9bdbbf85942b4fd979c84dcf7d5f07c2387"
+  integrity sha1-wZ/Zvbv4WUK0/ZechNz31fB8I4c=
   dependencies:
-    for-own "^1.0.0"
     is-plain-object "^2.0.4"
-    kind-of "^6.0.0"
-    shallow-clone "^1.0.0"
+    kind-of "^6.0.2"
+    shallow-clone "^3.0.0"
 
 code-point-at@^1.0.0:
   version "1.1.0"
@@ -2050,7 +2097,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2, commander@^2.19.0, commander@^2.8.1, commander@~2.20.0:
+commander@2, commander@^2.19.0, commander@^2.20.0, commander@^2.8.1, commander@~2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"
   integrity sha512-7j2y+40w61zy6YC2iRNpUe/NwhNyoXrYpHMrSunaMG64nRnaf96zO/KMQR4OyN/UnE5KLyEBnKHd4aG3rskjpQ==
@@ -2282,10 +2329,10 @@ crypto-random-string@^1.0.0:
   resolved "https://registry.yarnpkg.com/crypto-random-string/-/crypto-random-string-1.0.0.tgz#a230f64f568310e1498009940790ec99545bca7e"
   integrity sha1-ojD2T1aDEOFJgAmUB5DsmVRbyn4=
 
-css-loader@3.1.0:
-  version "3.1.0"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/css-loader/-/css-loader-3.1.0.tgz#6f008b993b8ce812e6bab57f3cbfdc7a7cf28685"
-  integrity sha1-bwCLmTuM6BLmurV/PL/cenzyhoU=
+css-loader@3.2.0:
+  version "3.2.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/css-loader/-/css-loader-3.2.0.tgz#bb570d89c194f763627fcf1f80059c6832d009b2"
+  integrity sha1-u1cNicGU92Nif88fgAWcaDLQCbI=
   dependencies:
     camelcase "^5.3.1"
     cssesc "^3.0.0"
@@ -2543,10 +2590,10 @@ d3-zoom@1:
     d3-selection "1"
     d3-transition "1"
 
-d3@5.9.7:
-  version "5.9.7"
-  resolved "https://registry.yarnpkg.com/d3/-/d3-5.9.7.tgz#f3835648a172b438e89ed57eb6c525bdabdcd7dc"
-  integrity sha1-84NWSKFytDjontV+tsUlvavc19w=
+d3@5.11.0:
+  version "5.11.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/d3/-/d3-5.11.0.tgz#d5ffc84f930eeb895d88699195d2d852778ab158"
+  integrity sha1-1f/IT5MO64ldiGmRldLYUneKsVg=
   dependencies:
     d3-array "1"
     d3-axis "1"
@@ -2726,12 +2773,12 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-dir-glob@^2.0.0:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/dir-glob/-/dir-glob-2.2.2.tgz#fa09f0694153c8918b18ba0deafae94769fc50c4"
-  integrity sha512-f9LBi5QWzIW3I6e//uxZoLBlUt9kcp66qo0sSCxL6YZKc75R1c4MFCoe/LaZiBGmgujvQdxc5Bn3QhfyvK5Hsw==
+dir-glob@^3.0.1:
+  version "3.0.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/dir-glob/-/dir-glob-3.0.1.tgz#56dbf73d992a4a93ba1584f4534063fd2e41717f"
+  integrity sha1-Vtv3PZkqSpO6FYT0U0Bj/S5BcX8=
   dependencies:
-    path-type "^3.0.0"
+    path-type "^4.0.0"
 
 dom-converter@^0.2:
   version "0.2.0"
@@ -2933,10 +2980,10 @@ escape-string-regexp@1.0.5, escape-string-regexp@^1.0.2, escape-string-regexp@^1
   resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
 
-eslint-scope@^4.0.0:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/eslint-scope/-/eslint-scope-4.0.2.tgz#5f10cd6cabb1965bf479fa65745673439e21cb0e"
-  integrity sha512-5q1+B/ogmHl8+paxtOKx38Z8LtWkVGuNt3+GQNErqwLl6ViNp/gdJGMCjZNxZ8j/VYjDNZ2Fo+eQc1TAVPIzbg==
+eslint-scope@^4.0.3:
+  version "4.0.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/eslint-scope/-/eslint-scope-4.0.3.tgz#ca03833310f6889a3264781aa82e63eb9cfe7848"
+  integrity sha1-ygODMxD2iJoyZHgaqC5j65z+eEg=
   dependencies:
     esrecurse "^4.1.0"
     estraverse "^4.1.1"
@@ -3084,6 +3131,18 @@ fast-deep-equal@^2.0.1:
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz#7b05218ddf9667bf7f370bf7fdb2cb15fdd0aa49"
   integrity sha1-ewUhjd+WZ79/Nwv3/bLLFf3Qqkk=
 
+fast-glob@^3.0.3:
+  version "3.0.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/fast-glob/-/fast-glob-3.0.4.tgz#d484a41005cb6faeb399b951fd1bd70ddaebb602"
+  integrity sha1-1ISkEAXLb66zmblR/RvXDdrrtgI=
+  dependencies:
+    "@nodelib/fs.stat" "^2.0.1"
+    "@nodelib/fs.walk" "^1.2.1"
+    glob-parent "^5.0.0"
+    is-glob "^4.0.1"
+    merge2 "^1.2.3"
+    micromatch "^4.0.2"
+
 fast-json-stable-stringify@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.0.0.tgz#d5142c0caee6b1189f87d3a76111064f86c8bbf2"
@@ -3094,15 +3153,22 @@ fastparse@^1.1.1:
   resolved "https://registry.yarnpkg.com/fastparse/-/fastparse-1.1.2.tgz#91728c5a5942eced8531283c79441ee4122c35a9"
   integrity sha512-483XLLxTVIwWK3QTrMGRqUfUpoOs/0hbQrl2oz4J0pAcm3A3bu84wxTFqGqkJzewCLdME38xJLJAxBABfQT8sQ==
 
+fastq@^1.6.0:
+  version "1.6.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/fastq/-/fastq-1.6.0.tgz#4ec8a38f4ac25f21492673adb7eae9cfef47d1c2"
+  integrity sha1-Tsijj0rCXyFJJnOtt+rpz+9H0cI=
+  dependencies:
+    reusify "^1.0.0"
+
 figgy-pudding@^3.5.1:
   version "3.5.1"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.1.tgz#862470112901c727a0e495a80744bd5baa1d6790"
   integrity sha512-vNKxJHTEKNThjfrdJwHc7brvM6eVevuO5nTj6ez8ZQ1qbXTvGthucRF7S4vf2cr71QVnT70V34v0S1DyQsti0w==
 
-file-loader@4.1.0:
-  version "4.1.0"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/file-loader/-/file-loader-4.1.0.tgz#3a763391bc9502da7c59612fe348e38fc1980336"
-  integrity sha1-OnYzkbyVAtp8WWEv40jjj8GYAzY=
+file-loader@4.2.0:
+  version "4.2.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/file-loader/-/file-loader-4.2.0.tgz#5fb124d2369d7075d70a9a5abecd12e60a95215e"
+  integrity sha1-X7Ek0jadcHXXCppavs0S5gqVIV4=
   dependencies:
     loader-utils "^1.2.3"
     schema-utils "^2.0.0"
@@ -3182,22 +3248,10 @@ flush-write-stream@^1.0.0:
     inherits "^2.0.3"
     readable-stream "^2.3.6"
 
-for-in@^0.1.3:
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/for-in/-/for-in-0.1.8.tgz#d8773908e31256109952b1fdb9b3fa867d2775e1"
-  integrity sha1-2Hc5COMSVhCZUrH9ubP6hn0ndeE=
-
-for-in@^1.0.1, for-in@^1.0.2:
+for-in@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
   integrity sha1-gQaNKVqBQuwKxybG4iAMMPttXoA=
-
-for-own@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/for-own/-/for-own-1.0.0.tgz#c63332f415cedc4b04dbfe70cf836494c53cb44b"
-  integrity sha1-xjMy9BXO3EsE2/5wz4NklMU8tEs=
-  dependencies:
-    for-in "^1.0.1"
 
 forever-agent@~0.6.1:
   version "0.6.1"
@@ -3385,6 +3439,18 @@ glob@7.1.3, glob@^7.0.0, glob@^7.0.3, glob@^7.1.2, glob@^7.1.3, glob@~7.1.1:
     once "^1.3.0"
     path-is-absolute "^1.0.0"
 
+glob@^7.1.4:
+  version "7.1.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/glob/-/glob-7.1.4.tgz#aa608a2f6c577ad357e1ae5a5c26d9a8d1969255"
+  integrity sha1-qmCKL2xXetNX4a5aXCbZqNGWklU=
+  dependencies:
+    fs.realpath "^1.0.0"
+    inflight "^1.0.4"
+    inherits "2"
+    minimatch "^3.0.4"
+    once "^1.3.0"
+    path-is-absolute "^1.0.0"
+
 global-dirs@^0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/global-dirs/-/global-dirs-0.1.1.tgz#b319c0dd4607f353f3be9cca4c72fc148c49f445"
@@ -3446,6 +3512,20 @@ globals@^9.18.0:
   resolved "https://registry.yarnpkg.com/globals/-/globals-9.18.0.tgz#aa3896b3e69b487f17e31ed2143d69a8e30c2d8a"
   integrity sha512-S0nG3CLEQiY/ILxqtztTWH/3iRRdyBLw6KMDxnKMchrtbj2OFmehVh0WUCfW3DUrIgx/qFrJPICrq4Z4sTR9UQ==
 
+globby@^10.0.1:
+  version "10.0.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/globby/-/globby-10.0.1.tgz#4782c34cb75dd683351335c5829cc3420e606b22"
+  integrity sha1-R4LDTLdd1oM1EzXFgpzDQg5gayI=
+  dependencies:
+    "@types/glob" "^7.1.1"
+    array-union "^2.1.0"
+    dir-glob "^3.0.1"
+    fast-glob "^3.0.3"
+    glob "^7.1.3"
+    ignore "^5.1.1"
+    merge2 "^1.2.3"
+    slash "^3.0.0"
+
 globby@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/globby/-/globby-6.1.0.tgz#f5a6d70e8395e21c858fb0489d64df02424d506c"
@@ -3456,18 +3536,6 @@ globby@^6.1.0:
     object-assign "^4.0.1"
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
-
-globby@^7.1.1:
-  version "7.1.1"
-  resolved "https://registry.yarnpkg.com/globby/-/globby-7.1.1.tgz#fb2ccff9401f8600945dfada97440cca972b8680"
-  integrity sha1-+yzP+UAfhgCUXfral0QMypcrhoA=
-  dependencies:
-    array-union "^1.0.1"
-    dir-glob "^2.0.0"
-    glob "^7.1.2"
-    ignore "^3.3.5"
-    pify "^3.0.0"
-    slash "^1.0.0"
 
 globule@^1.0.0:
   version "1.2.1"
@@ -3727,10 +3795,10 @@ ignore-walk@^3.0.1:
   dependencies:
     minimatch "^3.0.4"
 
-ignore@^3.3.5:
-  version "3.3.10"
-  resolved "https://registry.yarnpkg.com/ignore/-/ignore-3.3.10.tgz#0a97fb876986e8081c631160f8f9f389157f0043"
-  integrity sha512-Pgs951kaMm5GXP7MOvxERINe3gsaVjUWFm+UZPSq9xYriQAksyhg0csnS0KXSNRD5NmNdapXEpjxG49+AKh/ug==
+ignore@^5.1.1:
+  version "5.1.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/ignore/-/ignore-5.1.4.tgz#84b7b3dbe64552b6ef0eca99f6743dbec6d97adf"
+  integrity sha1-hLez2+ZFUrbvDsqZ9nQ9vsbZet8=
 
 import-cwd@^2.0.0:
   version "2.1.0"
@@ -3781,10 +3849,10 @@ indexes-of@^1.0.1:
   resolved "https://registry.yarnpkg.com/indexes-of/-/indexes-of-1.0.1.tgz#f30f716c8e2bd346c7b67d3df3915566a7c05607"
   integrity sha1-8w9xbI4r00bHtn0985FVZqfAVgc=
 
-indexof@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/indexof/-/indexof-0.0.1.tgz#82dc336d232b9062179d05ab3293a66059fd435d"
-  integrity sha1-gtwzbSMrkGIXnQWrMpOmYFn9Q10=
+infer-owner@^1.0.3:
+  version "1.0.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/infer-owner/-/infer-owner-1.0.4.tgz#c4cefcaa8e51051c2a40ba2ce8a3d27295af9467"
+  integrity sha1-xM78qo5RBRwqQLos6KPScpWvlGc=
 
 inflight@^1.0.4:
   version "1.0.6"
@@ -3816,10 +3884,10 @@ inject-loader@4.0.1:
   dependencies:
     babel-core "~6"
 
-interpret@1.2.0, interpret@^1.0.1:
+interpret@1.2.0, interpret@^1.2.0:
   version "1.2.0"
-  resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.2.0.tgz#d5061a6224be58e8083985f5014d844359576296"
-  integrity sha512-mT34yGKMNceBQUoVn7iCDKDntA7SC6gycMAWzGx1z/CMCTV7b2AAtXlo3nRyHZ1FelRkQbQjprHSYGwzLtkVbw==
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/interpret/-/interpret-1.2.0.tgz#d5061a6224be58e8083985f5014d844359576296"
+  integrity sha1-1QYaYiS+WOgIOYX1AU2EQ1lXYpY=
 
 invariant@^2.2.2:
   version "2.2.4"
@@ -4334,12 +4402,12 @@ load-json-file@^1.0.0:
     pinkie-promise "^2.0.0"
     strip-bom "^2.0.0"
 
-loader-runner@^2.3.0:
+loader-runner@^2.4.0:
   version "2.4.0"
-  resolved "https://registry.yarnpkg.com/loader-runner/-/loader-runner-2.4.0.tgz#ed47066bfe534d7e84c4c7b9998c2a75607d9357"
-  integrity sha512-Jsmr89RcXGIwivFY21FcRrisYZfvLMTWx5kOLc+JTxtpBOG6xML0vzbc6SEQG2FO9/4Fc3wW4LVcB5DmGflaRw==
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/loader-runner/-/loader-runner-2.4.0.tgz#ed47066bfe534d7e84c4c7b9998c2a75607d9357"
+  integrity sha1-7UcGa/5TTX6ExMe5mYwqdWB9k1c=
 
-loader-utils@1.2.3, loader-utils@^1.0.1, loader-utils@^1.0.2, loader-utils@^1.1.0, loader-utils@^1.2.3:
+loader-utils@1.2.3, loader-utils@^1.0.2, loader-utils@^1.1.0, loader-utils@^1.2.3:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.2.3.tgz#1ff5dc6911c9f0a062531a4c04b609406108c2c7"
   integrity sha512-fkpz8ejdnEMG3s37wGL07iSBDg99O9D5yflE9RGNH3hRdx9SOwYfnGYdZOUIZitN8E+E2vkq3MUMYMvPYl5ZZA==
@@ -4366,17 +4434,12 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
-lodash.tail@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/lodash.tail/-/lodash.tail-4.1.1.tgz#d2333a36d9e7717c8ad2f7cacafec7c32b444664"
-  integrity sha1-0jM6NtnncXyK0vfKyv7HwytERmQ=
-
 lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.3, lodash@^4.17.4, lodash@~4.17.10:
   version "4.17.11"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
-lodash@^4.17.13, lodash@^4.17.14:
+lodash@^4.17.13, lodash@^4.17.15:
   version "4.17.15"
   resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
   integrity sha1-tEf2ZwoEVbv+7dETku/zMOoJdUg=
@@ -4388,15 +4451,10 @@ log-symbols@2.2.0:
   dependencies:
     chalk "^2.0.1"
 
-lolex@^2.3.2:
-  version "2.7.5"
-  resolved "https://registry.yarnpkg.com/lolex/-/lolex-2.7.5.tgz#113001d56bfc7e02d56e36291cc5c413d1aa0733"
-  integrity sha512-l9x0+1offnKKIzYVjyXU2SiwhXDLekRzKyhnbyldPHvC7BvLPVpdNUNR2KeMAiCN2D/kLNttZgQD5WjSxuBx3Q==
-
-lolex@^4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/lolex/-/lolex-4.0.1.tgz#4a99c2251579d693c6a083446dae0e5c3844d3fa"
-  integrity sha512-UHuOBZ5jjsKuzbB/gRNNW8Vg8f00Emgskdq2kvZxgBJCS0aqquAuXai/SkWORlKeZEiNQWZjFZOqIUcH9LqKCw==
+lolex@^4.1.0, lolex@^4.2.0:
+  version "4.2.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/lolex/-/lolex-4.2.0.tgz#ddbd7f6213ca1ea5826901ab1222b65d714b3cd7"
+  integrity sha1-3b1/YhPKHqWCaQGrEiK2XXFLPNc=
 
 loose-envify@^1.0.0:
   version "1.4.0"
@@ -4405,10 +4463,10 @@ loose-envify@^1.0.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-lottie-web@5.5.7:
-  version "5.5.7"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/lottie-web/-/lottie-web-5.5.7.tgz#a8341487be1c31915fb3a784c3ec25fd6c9468df"
-  integrity sha1-qDQUh74cMZFfs6eEw+wl/WyUaN8=
+lottie-web@5.5.8:
+  version "5.5.8"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/lottie-web/-/lottie-web-5.5.8.tgz#146ae23636279866fef84668d1920cccb0443643"
+  integrity sha1-FGriNjYnmGb++EZo0ZIMzLBENkM=
 
 loud-rejection@^1.0.0:
   version "1.6.0"
@@ -4496,10 +4554,10 @@ md5.js@^1.3.4:
     inherits "^2.0.1"
     safe-buffer "^5.1.2"
 
-mediaelement@4.2.10:
-  version "4.2.10"
-  resolved "https://registry.yarnpkg.com/mediaelement/-/mediaelement-4.2.10.tgz#09e4b8a76e01911e45722ef0554864f597fc478a"
-  integrity sha512-3YdKhoDfARAWZVz2526sgI/dD5c4+31CDfFwWdnnGRQxgpzu1whcNu4DptGXez3zMyNR2L9KcWITVtUqSQMtng==
+mediaelement@4.2.12:
+  version "4.2.12"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/mediaelement/-/mediaelement-4.2.12.tgz#904ad1088a65b216f9c19ac3b47b6d2c0fb0dea9"
+  integrity sha1-kErRCIplshb5wZrDtHttLA+w3qk=
   dependencies:
     global "^4.3.1"
 
@@ -4512,7 +4570,7 @@ mem@^4.0.0:
     mimic-fn "^2.0.0"
     p-is-promise "^2.0.0"
 
-memory-fs@^0.4.0, memory-fs@^0.4.1, memory-fs@~0.4.1:
+memory-fs@^0.4.0, memory-fs@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/memory-fs/-/memory-fs-0.4.1.tgz#3a9a20b8462523e447cfbc7e8bb80ed667bfc552"
   integrity sha1-OpoguEYlI+RHz7x+i7gO1me/xVI=
@@ -4536,7 +4594,12 @@ meow@^3.7.0:
     redent "^1.0.0"
     trim-newlines "^1.0.0"
 
-micromatch@^3.0.4, micromatch@^3.1.10, micromatch@^3.1.4, micromatch@^3.1.8:
+merge2@^1.2.3:
+  version "1.2.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/merge2/-/merge2-1.2.4.tgz#c9269589e6885a60cf80605d9522d4b67ca646e3"
+  integrity sha1-ySaVieaIWmDPgGBdlSLUtnymRuM=
+
+micromatch@^3.0.4, micromatch@^3.1.10, micromatch@^3.1.4:
   version "3.1.10"
   resolved "https://registry.yarnpkg.com/micromatch/-/micromatch-3.1.10.tgz#70859bc95c9840952f359a068a3fc49f9ecfac23"
   integrity sha512-MWikgl9n9M3w+bpsY3He8L+w9eF9338xRl8IAO5viDizwSzziFEyUzo2xrrloB64ADbTf8uA8vRqqttDTOmccg==
@@ -4554,6 +4617,14 @@ micromatch@^3.0.4, micromatch@^3.1.10, micromatch@^3.1.4, micromatch@^3.1.8:
     regex-not "^1.0.0"
     snapdragon "^0.8.1"
     to-regex "^3.0.2"
+
+micromatch@^4.0.2:
+  version "4.0.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/micromatch/-/micromatch-4.0.2.tgz#4fcb0999bf9fbc2fcbdd212f6d629b9a56c39259"
+  integrity sha1-T8sJmb+fvC/L3SEvbWKbmlbDklk=
+  dependencies:
+    braces "^3.0.1"
+    picomatch "^2.0.5"
 
 miller-rabin@^4.0.0:
   version "4.0.1"
@@ -4653,14 +4724,6 @@ mixin-deep@^1.2.0:
     for-in "^1.0.2"
     is-extendable "^1.0.1"
 
-mixin-object@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/mixin-object/-/mixin-object-2.0.1.tgz#4fb949441dab182540f1fe035ba60e1947a5e57e"
-  integrity sha1-T7lJRB2rGCVA8f4DW6YOGUel5X4=
-  dependencies:
-    for-in "^0.1.3"
-    is-extendable "^0.1.1"
-
 mkdirp@0.5.1, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.0:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/mkdirp/-/mkdirp-0.5.1.tgz#30057438eac6cf7f8c4767f38648d6697d75c903"
@@ -4697,27 +4760,28 @@ mocha@6.2.0:
     yargs-parser "13.0.0"
     yargs-unparser "1.5.0"
 
-mochapack@1.1.2:
-  version "1.1.2"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/mochapack/-/mochapack-1.1.2.tgz#b1d32ccbcad04ba040587af2a9db29c92b5fccea"
-  integrity sha1-sdMsy8rQS6BAWHryqdspyStfzOo=
+mochapack@1.1.4:
+  version "1.1.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/mochapack/-/mochapack-1.1.4.tgz#cd587f0f95389d24a41e0ad61c7b29916ccbb250"
+  integrity sha1-zVh/D5U4nSSkHgrWHHspkWzLslA=
   dependencies:
-    babel-runtime "^6.18.0"
-    chalk "^2.3.0"
-    chokidar "^2.0.4"
-    glob-parent "^3.1.0"
-    globby "^7.1.1"
-    interpret "^1.0.1"
-    is-glob "^4.0.0"
-    loader-utils "^1.1.0"
-    lodash "^4.17.14"
+    babel-runtime "^6.26.0"
+    chalk "^2.4.2"
+    chokidar "^3.0.2"
+    glob-parent "^5.0.0"
+    globby "^10.0.1"
+    interpret "^1.2.0"
+    is-glob "^4.0.1"
+    loader-utils "^1.2.3"
+    lodash "^4.17.15"
     memory-fs "^0.4.1"
-    nodent-runtime "^3.0.3"
-    normalize-path "^2.0.1"
-    progress "^2.0.0"
-    source-map-support "^0.5.0"
-    strip-ansi "^4.0.0"
-    toposort "^1.0.0"
+    minimatch "^3.0.4"
+    nodent-runtime "^3.2.1"
+    normalize-path "^3.0.0"
+    progress "^2.0.3"
+    source-map-support "^0.5.13"
+    strip-ansi "^5.2.0"
+    toposort "^2.0.2"
     yargs "^13.0.0"
 
 mousetrap@1.6.3:
@@ -4788,20 +4852,25 @@ neo-async@^2.5.0:
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.0.tgz#b9d15e4d71c6762908654b5183ed38b753340835"
   integrity sha512-MFh0d/Wa7vkKO3Y3LlacqAEeHK0mckVqzDieUKTT+KGxi+zIpeVsFxymkIiRpbpDziHc290Xr9A1O4Om7otoRA==
 
+neo-async@^2.6.1:
+  version "2.6.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/neo-async/-/neo-async-2.6.1.tgz#ac27ada66167fa8849a6addd837f6b189ad2081c"
+  integrity sha1-rCetpmFn+ohJpq3dg39rGJrSCBw=
+
 nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
   integrity sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==
 
-nise@^1.4.10:
-  version "1.4.10"
-  resolved "https://registry.yarnpkg.com/nise/-/nise-1.4.10.tgz#ae46a09a26436fae91a38a60919356ae6db143b6"
-  integrity sha512-sa0RRbj53dovjc7wombHmVli9ZihXbXCQ2uH3TNm03DyvOSIQbxg+pbqDKrk2oxMK1rtLGVlKxcB9rrc6X5YjA==
+nise@^1.5.2:
+  version "1.5.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/nise/-/nise-1.5.2.tgz#b6d29af10e48b321b307e10e065199338eeb2652"
+  integrity sha1-ttKa8Q5IsyGzB+EOBlGZM47rJlI=
   dependencies:
-    "@sinonjs/formatio" "^3.1.0"
+    "@sinonjs/formatio" "^3.2.1"
     "@sinonjs/text-encoding" "^0.7.1"
     just-extend "^4.0.2"
-    lolex "^2.3.2"
+    lolex "^4.1.0"
     path-to-regexp "^1.7.0"
 
 no-case@^2.2.0:
@@ -4837,10 +4906,10 @@ node-gyp@^3.8.0:
     tar "^2.0.0"
     which "1"
 
-node-libs-browser@^2.0.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/node-libs-browser/-/node-libs-browser-2.2.0.tgz#c72f60d9d46de08a940dedbb25f3ffa2f9bbaa77"
-  integrity sha512-5MQunG/oyOaBdttrL40dA7bUfPORLRWMUJLQtMg7nluxUvk5XwnLdL9twQHFAjRx/y7mIMkLKT9++qPbbk6BZA==
+node-libs-browser@^2.2.1:
+  version "2.2.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/node-libs-browser/-/node-libs-browser-2.2.1.tgz#b64f513d18338625f90346d27b0d235e631f6425"
+  integrity sha1-tk9RPRgzhiX5A0bSew0jXmMfZCU=
   dependencies:
     assert "^1.1.1"
     browserify-zlib "^0.2.0"
@@ -4852,7 +4921,7 @@ node-libs-browser@^2.0.0:
     events "^3.0.0"
     https-browserify "^1.0.0"
     os-browserify "^0.3.0"
-    path-browserify "0.0.0"
+    path-browserify "0.0.1"
     process "^0.11.10"
     punycode "^1.2.4"
     querystring-es3 "^0.2.0"
@@ -4864,7 +4933,7 @@ node-libs-browser@^2.0.0:
     tty-browserify "0.0.0"
     url "^0.11.0"
     util "^0.11.0"
-    vm-browserify "0.0.4"
+    vm-browserify "^1.0.1"
 
 node-modules-regexp@^1.0.0:
   version "1.0.0"
@@ -4924,10 +4993,10 @@ node-sass@4.12.0:
     stdout-stream "^1.4.0"
     "true-case-path" "^1.0.2"
 
-nodemon@1.19.1:
-  version "1.19.1"
-  resolved "https://registry.yarnpkg.com/nodemon/-/nodemon-1.19.1.tgz#576f0aad0f863aabf8c48517f6192ff987cd5071"
-  integrity sha512-/DXLzd/GhiaDXXbGId5BzxP1GlsqtMGM9zTmkWrgXtSqjKmGSbLicM/oAy4FR0YWm14jCHRwnR31AHS2dYFHrg==
+nodemon@1.19.2:
+  version "1.19.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/nodemon/-/nodemon-1.19.2.tgz#b0975147dc99b3761ceb595b3f9277084931dcc0"
+  integrity sha1-sJdRR9yZs3Yc61lbP5J3CEkx3MA=
   dependencies:
     chokidar "^2.1.5"
     debug "^3.1.0"
@@ -4950,7 +5019,7 @@ nodent-compiler@^3.2.10:
     nodent-transform "^3.2.9"
     source-map "^0.5.7"
 
-nodent-runtime@>=3.2.1, nodent-runtime@^3.0.3:
+nodent-runtime@>=3.2.1, nodent-runtime@^3.2.1:
   version "3.2.1"
   resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/nodent-runtime/-/nodent-runtime-3.2.1.tgz#9e2755d85e39f764288f0d4752ebcfe3e541e00e"
   integrity sha1-nidV2F4592Qojw1HUuvP4+VB4A4=
@@ -4992,7 +5061,7 @@ normalize-package-data@^2.3.2, normalize-package-data@^2.3.4:
     semver "2 || 3 || 4 || 5"
     validate-npm-package-license "^3.0.1"
 
-normalize-path@^2.0.1, normalize-path@^2.1.1:
+normalize-path@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-2.1.1.tgz#1ab28b556e198363a8c1a6f7e6fa20137fe6aed9"
   integrity sha1-GrKLVW4Zg2Oowab35vogE3/mrtk=
@@ -5279,10 +5348,10 @@ pascalcase@^0.1.1:
   resolved "https://registry.yarnpkg.com/pascalcase/-/pascalcase-0.1.1.tgz#b363e55e8006ca6fe21784d2db22bd15d7917f14"
   integrity sha1-s2PlXoAGym/iF4TS2yK9FdeRfxQ=
 
-path-browserify@0.0.0:
-  version "0.0.0"
-  resolved "https://registry.yarnpkg.com/path-browserify/-/path-browserify-0.0.0.tgz#a0b870729aae214005b7d5032ec2cbbb0fb4451a"
-  integrity sha1-oLhwcpquIUAFt9UDLsLLuw+0RRo=
+path-browserify@0.0.1:
+  version "0.0.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/path-browserify/-/path-browserify-0.0.1.tgz#e6c4ddd7ed3aa27c68a20cc4e50e1a4ee83bbc4a"
+  integrity sha1-5sTd1+06onxoogzE5Q4aTug7vEo=
 
 path-dirname@^1.0.0:
   version "1.0.2"
@@ -5337,12 +5406,10 @@ path-type@^1.0.0:
     pify "^2.0.0"
     pinkie-promise "^2.0.0"
 
-path-type@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/path-type/-/path-type-3.0.0.tgz#cef31dc8e0a1a3bb0d105c0cd97cf3bf47f4e36f"
-  integrity sha512-T2ZUsdZFHgA3u4e5PfPbjd7HDDpxPnQb5jN0SrDsjNSuVXHJqtwTnWqG0B1jZrgmJ/7lj1EmVIByWt1gxGkWvg==
-  dependencies:
-    pify "^3.0.0"
+path-type@^4.0.0:
+  version "4.0.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/path-type/-/path-type-4.0.0.tgz#84ed01c0a7ba380afe09d90a8c180dcd9d03043b"
+  integrity sha1-hO0BwKe6OAr+CdkKjBgNzZ0DBDs=
 
 pathval@^1.1.0:
   version "1.1.0"
@@ -5369,6 +5436,11 @@ picomatch@^2.0.4:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/picomatch/-/picomatch-2.0.6.tgz#f39cfedd26213982733ae6b819d3da0e736598d5"
   integrity sha512-Btng9qVvFsW6FkXYQQK5nEI5i8xdXFDmlKxC7Q8S2Bu5HGWnbQf7ts2kOoxJIrZn5hmw61RZIayAg2zBuJDtyQ==
+
+picomatch@^2.0.5:
+  version "2.0.7"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/picomatch/-/picomatch-2.0.7.tgz#514169d8c7cd0bdbeecc8a2609e34a7163de69f6"
+  integrity sha1-UUFp2MfNC9vuzIomCeNKcWPeafY=
 
 pify@^2.0.0:
   version "2.3.0"
@@ -5550,10 +5622,10 @@ process@~0.5.1:
   resolved "https://registry.yarnpkg.com/process/-/process-0.5.2.tgz#1638d8a8e34c2f440a91db95ab9aeb677fc185cf"
   integrity sha1-FjjYqONML0QKkduVq5rrZ3/Bhc8=
 
-progress@^2.0.0:
+progress@^2.0.3:
   version "2.0.3"
-  resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
-  integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
+  integrity sha1-foz42PW48jnBvGi+tOt4Vn1XLvg=
 
 promise-inflight@^1.0.1:
   version "1.0.1"
@@ -5964,7 +6036,12 @@ ret@~0.1.10:
   resolved "https://registry.yarnpkg.com/ret/-/ret-0.1.15.tgz#b8a4825d5bdb1fc3f6f53c2bc33f81388681c7bc"
   integrity sha512-TTlYpa+OL+vMMNG24xSlQGEJ3B/RzEfUlLct7b5G/ytav+wPrplCpVMFuwzXbkecJrb6IYo1iFb0S9v37754mg==
 
-rimraf@2, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.2, rimraf@^2.6.3:
+reusify@^1.0.0:
+  version "1.0.4"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/reusify/-/reusify-1.0.4.tgz#90da382b1e126efc02146e90845a88db12925d76"
+  integrity sha1-kNo4Kx4SbvwCFG6QhFqI2xKSXXY=
+
+rimraf@2, rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.3:
   version "2.6.3"
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.3.tgz#b2d104fe0d8fb27cf9e0a1cda8262dd3833c6cab"
   integrity sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==
@@ -5978,6 +6055,11 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
   dependencies:
     hash-base "^3.0.0"
     inherits "^2.0.1"
+
+run-parallel@^1.1.9:
+  version "1.1.9"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/run-parallel/-/run-parallel-1.1.9.tgz#c9dd3a7cf9f4b2c4b6244e173a6ed866e61dd679"
+  integrity sha1-yd06fPn0ssS2JE4XOm7YZuYd1nk=
 
 run-queue@^1.0.0, run-queue@^1.0.3:
   version "1.0.3"
@@ -6018,17 +6100,16 @@ sass-graph@^2.2.4:
     scss-tokenizer "^0.2.3"
     yargs "^7.0.0"
 
-sass-loader@7.1.0:
-  version "7.1.0"
-  resolved "https://registry.yarnpkg.com/sass-loader/-/sass-loader-7.1.0.tgz#16fd5138cb8b424bf8a759528a1972d72aad069d"
-  integrity sha512-+G+BKGglmZM2GUSfT9TLuEp6tzehHPjAMoRRItOojWIqIGPloVCMhNIQuG639eJ+y033PaGTSjLaTHts8Kw79w==
+sass-loader@8.0.0:
+  version "8.0.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/sass-loader/-/sass-loader-8.0.0.tgz#e7b07a3e357f965e6b03dd45b016b0a9746af797"
+  integrity sha1-57B6PjV/ll5rA91FsBawqXRq95c=
   dependencies:
-    clone-deep "^2.0.1"
-    loader-utils "^1.0.1"
-    lodash.tail "^4.1.1"
-    neo-async "^2.5.0"
-    pify "^3.0.0"
-    semver "^5.5.0"
+    clone-deep "^4.0.1"
+    loader-utils "^1.2.3"
+    neo-async "^2.6.1"
+    schema-utils "^2.1.0"
+    semver "^6.3.0"
 
 sax@^1.2.4:
   version "1.2.4"
@@ -6051,6 +6132,14 @@ schema-utils@^2.0.0:
   dependencies:
     ajv "^6.1.0"
     ajv-keywords "^3.1.0"
+
+schema-utils@^2.0.1, schema-utils@^2.1.0:
+  version "2.2.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/schema-utils/-/schema-utils-2.2.0.tgz#48a065ce219e0cacf4631473159037b2c1ae82da"
+  integrity sha1-SKBlziGeDKz0YxRzFZA3ssGugto=
+  dependencies:
+    ajv "^6.10.2"
+    ajv-keywords "^3.4.1"
 
 scss-tokenizer@^0.2.3:
   version "0.2.3"
@@ -6082,15 +6171,15 @@ semver@^6.0.0:
   resolved "https://registry.yarnpkg.com/semver/-/semver-6.0.0.tgz#05e359ee571e5ad7ed641a6eec1e547ba52dea65"
   integrity sha1-BeNZ7lceWtftZBpu7B5Ue6Ut6mU=
 
+semver@^6.3.0:
+  version "6.3.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/semver/-/semver-6.3.0.tgz#ee0a64c8af5e8ceea67687b133761e1becbd1d3d"
+  integrity sha1-7gpkyK9ejO6mdoexM3YeG+y9HT0=
+
 semver@~5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.3.0.tgz#9b2ce5d3de02d17c6012ad326aa6b4d0cf54f94f"
   integrity sha1-myzl094C0XxgEq0yaqa00M9U+U8=
-
-serialize-javascript@^1.4.0:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-1.6.1.tgz#4d1f697ec49429a847ca6f442a2a755126c4d879"
-  integrity sha512-A5MOagrPFga4YaKQSWHryl7AXvbQkEqpw4NNYMTNYUNV51bA8ABHgYFpqKx+YFFrw59xMV1qGH1R4AgoNIVgCw==
 
 serialize-javascript@^1.7.0:
   version "1.7.0"
@@ -6135,14 +6224,12 @@ sha.js@^2.4.0, sha.js@^2.4.8:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-shallow-clone@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/shallow-clone/-/shallow-clone-1.0.0.tgz#4480cd06e882ef68b2ad88a3ea54832e2c48b571"
-  integrity sha512-oeXreoKR/SyNJtRJMAKPDSvd28OqEwG4eR/xc856cRGBII7gX9lvAqDxusPm0846z/w/hWYjI1NpKwJ00NHzRA==
+shallow-clone@^3.0.0:
+  version "3.0.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/shallow-clone/-/shallow-clone-3.0.1.tgz#8f2981ad92531f55035b01fb230769a40e02efa3"
+  integrity sha1-jymBrZJTH1UDWwH7IwdppA4C76M=
   dependencies:
-    is-extendable "^0.1.1"
-    kind-of "^5.0.0"
-    mixin-object "^2.0.1"
+    kind-of "^6.0.2"
 
 shebang-command@^1.2.0:
   version "1.2.0"
@@ -6166,17 +6253,17 @@ signal-exit@^3.0.0, signal-exit@^3.0.2:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
   integrity sha1-tf3AjxKH6hF4Yo5BXiUTK3NkbG0=
 
-sinon@7.3.2:
-  version "7.3.2"
-  resolved "https://registry.yarnpkg.com/sinon/-/sinon-7.3.2.tgz#82dba3a6d85f6d2181e1eca2c10d8657c2161f28"
-  integrity sha512-thErC1z64BeyGiPvF8aoSg0LEnptSaWE7YhdWWbWXgelOyThent7uKOnnEh9zBxDbKixtr5dEko+ws1sZMuFMA==
+sinon@7.4.2:
+  version "7.4.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/sinon/-/sinon-7.4.2.tgz#ecd54158fef2fcfbdb231a3fa55140e8cb02ad6c"
+  integrity sha1-7NVBWP7y/PvbIxo/pVFA6MsCrWw=
   dependencies:
     "@sinonjs/commons" "^1.4.0"
     "@sinonjs/formatio" "^3.2.1"
-    "@sinonjs/samsam" "^3.3.1"
+    "@sinonjs/samsam" "^3.3.3"
     diff "^3.5.0"
-    lolex "^4.0.1"
-    nise "^1.4.10"
+    lolex "^4.2.0"
+    nise "^1.5.2"
     supports-color "^5.5.0"
 
 slash@^1.0.0:
@@ -6188,6 +6275,11 @@ slash@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/slash/-/slash-2.0.0.tgz#de552851a1759df3a8f206535442f5ec4ddeab44"
   integrity sha512-ZYKh3Wh2z1PpEXWr0MpSBZ0V6mZHAQfYevttO11c51CaWjGTaadiKZ+wVt1PbMlDV5qhMFslpZCemhwOK7C89A==
+
+slash@^3.0.0:
+  version "3.0.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/slash/-/slash-3.0.0.tgz#6539be870c165adbd5240220dbe361f1bc4d4634"
+  integrity sha1-ZTm+hwwWWtvVJAIg2+Nh8bxNRjQ=
 
 snapdragon-node@^2.0.1:
   version "2.1.1"
@@ -6242,18 +6334,18 @@ source-map-support@^0.4.15:
   dependencies:
     source-map "^0.5.6"
 
-source-map-support@^0.5.0, source-map-support@^0.5.9:
-  version "0.5.11"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.11.tgz#efac2ce0800355d026326a0ca23e162aeac9a4e2"
-  integrity sha512-//sajEx/fGL3iw6fltKMdPvy8kL3kJ2O3iuYlRoT3k9Kb4BjOoZ+BZzaNHeuaruSt+Kf3Zk9tnfAQg9/AJqUVQ==
+source-map-support@^0.5.13, source-map-support@~0.5.12:
+  version "0.5.13"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/source-map-support/-/source-map-support-0.5.13.tgz#31b24a9c2e73c2de85066c0feb7d44767ed52932"
+  integrity sha1-MbJKnC5zwt6FBmwP631Edn7VKTI=
   dependencies:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
 
-source-map-support@~0.5.9:
-  version "0.5.10"
-  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.10.tgz#2214080bc9d51832511ee2bab96e3c2f9353120c"
-  integrity sha512-YfQ3tQFTK/yzlGJuX8pTwa4tifQj4QS2Mj7UegOu8jAz59MqIiMGPXxQhVQiIMNzayuUSF/jEuVnfFF5JqybmQ==
+source-map-support@^0.5.9:
+  version "0.5.11"
+  resolved "https://registry.yarnpkg.com/source-map-support/-/source-map-support-0.5.11.tgz#efac2ce0800355d026326a0ca23e162aeac9a4e2"
+  integrity sha512-//sajEx/fGL3iw6fltKMdPvy8kL3kJ2O3iuYlRoT3k9Kb4BjOoZ+BZzaNHeuaruSt+Kf3Zk9tnfAQg9/AJqUVQ==
   dependencies:
     buffer-from "^1.0.0"
     source-map "^0.6.0"
@@ -6472,13 +6564,13 @@ strip-json-comments@2.0.1, strip-json-comments@~2.0.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
   integrity sha1-PFMZQukIwml8DsNEhYwobHygpgo=
 
-style-loader@0.23.1:
-  version "0.23.1"
-  resolved "https://registry.yarnpkg.com/style-loader/-/style-loader-0.23.1.tgz#cb9154606f3e771ab6c4ab637026a1049174d925"
-  integrity sha512-XK+uv9kWwhZMZ1y7mysB+zoihsEj4wneFWAS5qoiLwzW0WzSqMrrsIy+a3zkQJq0ipFtBpX5W3MqyRIBF/WFGg==
+style-loader@1.0.0:
+  version "1.0.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/style-loader/-/style-loader-1.0.0.tgz#1d5296f9165e8e2c85d24eee0b7caf9ec8ca1f82"
+  integrity sha1-HVKW+RZejiyF0k7uC3yvnsjKH4I=
   dependencies:
-    loader-utils "^1.1.0"
-    schema-utils "^1.0.0"
+    loader-utils "^1.2.3"
+    schema-utils "^2.0.1"
 
 supports-color@6.0.0:
   version "6.0.0"
@@ -6506,10 +6598,15 @@ supports-color@^5.2.0, supports-color@^5.3.0, supports-color@^5.5.0:
   dependencies:
     has-flag "^3.0.0"
 
-tapable@^1.0.0, tapable@^1.1.0:
+tapable@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/tapable/-/tapable-1.1.1.tgz#4d297923c5a72a42360de2ab52dadfaaec00018e"
   integrity sha512-9I2ydhj8Z9veORCw5PRm4u9uebCn0mcCa6scWoNcbZ6dAtoo2618u9UUzxgmsCOreJpqDDuv61LvwofW7hLcBA==
+
+tapable@^1.1.3:
+  version "1.1.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/tapable/-/tapable-1.1.3.tgz#a1fccc06b58db61fd7a45da2da44f5f3a3e67ba2"
+  integrity sha1-ofzMBrWNth/XpF2i2kT186Pme6I=
 
 tar@^2.0.0:
   version "2.2.1"
@@ -6540,28 +6637,29 @@ term-size@^1.2.0:
   dependencies:
     execa "^0.7.0"
 
-terser-webpack-plugin@^1.1.0:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/terser-webpack-plugin/-/terser-webpack-plugin-1.2.3.tgz#3f98bc902fac3e5d0de730869f50668561262ec8"
-  integrity sha512-GOK7q85oAb/5kE12fMuLdn2btOS9OBZn4VsecpHDywoUC/jLhSAKOiYo0ezx7ss2EXPMzyEWFoE0s1WLE+4+oA==
+terser-webpack-plugin@^1.4.1:
+  version "1.4.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/terser-webpack-plugin/-/terser-webpack-plugin-1.4.1.tgz#61b18e40eaee5be97e771cdbb10ed1280888c2b4"
+  integrity sha1-YbGOQOruW+l+dxzbsQ7RKAiIwrQ=
   dependencies:
-    cacache "^11.0.2"
-    find-cache-dir "^2.0.0"
+    cacache "^12.0.2"
+    find-cache-dir "^2.1.0"
+    is-wsl "^1.1.0"
     schema-utils "^1.0.0"
-    serialize-javascript "^1.4.0"
+    serialize-javascript "^1.7.0"
     source-map "^0.6.1"
-    terser "^3.16.1"
-    webpack-sources "^1.1.0"
-    worker-farm "^1.5.2"
+    terser "^4.1.2"
+    webpack-sources "^1.4.0"
+    worker-farm "^1.7.0"
 
-terser@^3.16.1:
-  version "3.16.1"
-  resolved "https://registry.yarnpkg.com/terser/-/terser-3.16.1.tgz#5b0dd4fa1ffd0b0b43c2493b2c364fd179160493"
-  integrity sha512-JDJjgleBROeek2iBcSNzOHLKsB/MdDf+E/BOAJ0Tk9r7p9/fVobfv7LMJ/g/k3v9SXdmjZnIlFd5nfn/Rt0Xow==
+terser@^4.1.2:
+  version "4.2.1"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/terser/-/terser-4.2.1.tgz#1052cfe17576c66e7bc70fcc7119f22b155bdac1"
+  integrity sha1-EFLP4XV2xm57xw/McRnyKxVb2sE=
   dependencies:
-    commander "~2.17.1"
+    commander "^2.20.0"
     source-map "~0.6.1"
-    source-map-support "~0.5.9"
+    source-map-support "~0.5.12"
 
 through2@^2.0.0:
   version "2.0.5"
@@ -6640,6 +6738,11 @@ toposort@^1.0.0:
   resolved "https://registry.yarnpkg.com/toposort/-/toposort-1.0.7.tgz#2e68442d9f64ec720b8cc89e6443ac6caa950029"
   integrity sha1-LmhELZ9k7HILjMieZEOsbKqVACk=
 
+toposort@^2.0.2:
+  version "2.0.2"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"
+  integrity sha1-riF2gXXRVZ1IvvNUILL0li8JwzA=
+
 touch@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/touch/-/touch-3.1.0.tgz#fe365f5f75ec9ed4e56825e0bb76d24ab74af83b"
@@ -6712,27 +6815,27 @@ uglify-js@3.4.x:
     commander "~2.17.1"
     source-map "~0.6.1"
 
-uglify-js@^3.5.12:
-  version "3.5.14"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.5.14.tgz#edf2a322c37fd7173a954fb35af199b52fb10946"
-  integrity sha512-dgyjIw8KFK6AyVl5vm2tEqPewv5TKGEiiVFLI1LbF+oHua/Njd8tZk3lIbF1AWU1rNdEg7scaceADb4zqCcWXg==
+uglify-js@^3.6.0:
+  version "3.6.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/uglify-js/-/uglify-js-3.6.0.tgz#704681345c53a8b2079fb6cec294b05ead242ff5"
+  integrity sha1-cEaBNFxTqLIHn7bOwpSwXq0kL/U=
   dependencies:
     commander "~2.20.0"
     source-map "~0.6.1"
 
-uglifyjs-webpack-plugin@2.1.3:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/uglifyjs-webpack-plugin/-/uglifyjs-webpack-plugin-2.1.3.tgz#b00a18d1acda271deb755c99ba0d93568156eb76"
-  integrity sha1-sAoY0azaJx3rdVyZug2TVoFW63Y=
+uglifyjs-webpack-plugin@2.2.0:
+  version "2.2.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/uglifyjs-webpack-plugin/-/uglifyjs-webpack-plugin-2.2.0.tgz#e75bc80e7f1937f725954c9b4c5a1e967ea9d0d7"
+  integrity sha1-51vIDn8ZN/cllUybTFoeln6p0Nc=
   dependencies:
-    cacache "^11.3.2"
+    cacache "^12.0.2"
     find-cache-dir "^2.1.0"
     is-wsl "^1.1.0"
     schema-utils "^1.0.0"
     serialize-javascript "^1.7.0"
     source-map "^0.6.1"
-    uglify-js "^3.5.12"
-    webpack-sources "^1.3.0"
+    uglify-js "^3.6.0"
+    webpack-sources "^1.4.0"
     worker-farm "^1.7.0"
 
 undefsafe@^2.0.2:
@@ -6909,7 +7012,12 @@ utila@^0.4.0, utila@~0.4:
   resolved "https://registry.yarnpkg.com/utila/-/utila-0.4.0.tgz#8a16a05d445657a3aea5eecc5b12a4fa5379772c"
   integrity sha1-ihagXURWV6Oupe7MWxKk+lN5dyw=
 
-uuid@3.3.2, uuid@^3.3.2:
+uuid@3.3.3:
+  version "3.3.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/uuid/-/uuid-3.3.3.tgz#4568f0216e78760ee1dbf3a4d2cf53e224112866"
+  integrity sha1-RWjwIW54dg7h2/Ok0s9T4iQRKGY=
+
+uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==
@@ -6943,26 +7051,24 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vm-browserify@0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-0.0.4.tgz#5d7ea45bbef9e4a6ff65f95438e0a87c357d5a73"
-  integrity sha1-XX6kW7755Kb/ZflUOOCofDV9WnM=
-  dependencies:
-    indexof "0.0.1"
+vm-browserify@^1.0.1:
+  version "1.1.0"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/vm-browserify/-/vm-browserify-1.1.0.tgz#bd76d6a23323e2ca8ffa12028dc04559c75f9019"
+  integrity sha1-vXbWojMj4sqP+hICjcBFWcdfkBk=
 
-watchpack@^1.5.0:
+watchpack@^1.6.0:
   version "1.6.0"
-  resolved "https://registry.yarnpkg.com/watchpack/-/watchpack-1.6.0.tgz#4bc12c2ebe8aa277a71f1d3f14d685c7b446cd00"
-  integrity sha512-i6dHe3EyLjMmDlU1/bGQpEw25XSjkJULPuAVKCbNRefQVq48yXKUpwg538F7AZTf9kyr57zj++pQFltUa5H7yA==
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/watchpack/-/watchpack-1.6.0.tgz#4bc12c2ebe8aa277a71f1d3f14d685c7b446cd00"
+  integrity sha1-S8EsLr6KonenHx0/FNaFx7RGzQA=
   dependencies:
     chokidar "^2.0.2"
     graceful-fs "^4.1.2"
     neo-async "^2.5.0"
 
-webpack-cli@3.3.6:
-  version "3.3.6"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/webpack-cli/-/webpack-cli-3.3.6.tgz#2c8c399a2642133f8d736a359007a052e060032c"
-  integrity sha1-LIw5miZCEz+Nc2o1kAegUuBgAyw=
+webpack-cli@3.3.7:
+  version "3.3.7"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/webpack-cli/-/webpack-cli-3.3.7.tgz#77c8580dd8e92f69d635e0238eaf9d9c15759a91"
+  integrity sha1-d8hYDdjpL2nWNeAjjq+dnBV1mpE=
   dependencies:
     chalk "2.4.2"
     cross-spawn "6.0.5"
@@ -6976,42 +7082,42 @@ webpack-cli@3.3.6:
     v8-compile-cache "2.0.3"
     yargs "13.2.4"
 
-webpack-sources@^1.1.0, webpack-sources@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-1.3.0.tgz#2a28dcb9f1f45fe960d8f1493252b5ee6530fa85"
-  integrity sha512-OiVgSrbGu7NEnEvQJJgdSFPl2qWKkWq5lHMhgiToIiN9w34EBnjYzSYs+VbL5KoYiLNtFFa7BZIKxRED3I32pA==
+webpack-sources@^1.4.0, webpack-sources@^1.4.1:
+  version "1.4.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/webpack-sources/-/webpack-sources-1.4.3.tgz#eedd8ec0b928fbf1cbfe994e22d2d890f330a933"
+  integrity sha1-7t2OwLko+/HL/plOItLYkPMwqTM=
   dependencies:
     source-list-map "^2.0.0"
     source-map "~0.6.1"
 
-webpack@4.38.0:
-  version "4.38.0"
-  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/webpack/-/webpack-4.38.0.tgz#6d77108404b08883c78f4e7e45a43c4e5c47c931"
-  integrity sha1-bXcQhASwiIPHj05+RaQ8TlxHyTE=
+webpack@4.39.3:
+  version "4.39.3"
+  resolved "https://artifactory.binckbank.nv:443/artifactory/api/npm/npmjs/webpack/-/webpack-4.39.3.tgz#a02179d1032156b713b6ec2da7e0df9d037def50"
+  integrity sha1-oCF50QMhVrcTtuwtp+DfnQN971A=
   dependencies:
     "@webassemblyjs/ast" "1.8.5"
     "@webassemblyjs/helper-module-context" "1.8.5"
     "@webassemblyjs/wasm-edit" "1.8.5"
     "@webassemblyjs/wasm-parser" "1.8.5"
-    acorn "^6.2.0"
-    ajv "^6.1.0"
-    ajv-keywords "^3.1.0"
-    chrome-trace-event "^1.0.0"
+    acorn "^6.2.1"
+    ajv "^6.10.2"
+    ajv-keywords "^3.4.1"
+    chrome-trace-event "^1.0.2"
     enhanced-resolve "^4.1.0"
-    eslint-scope "^4.0.0"
+    eslint-scope "^4.0.3"
     json-parse-better-errors "^1.0.2"
-    loader-runner "^2.3.0"
-    loader-utils "^1.1.0"
-    memory-fs "~0.4.1"
-    micromatch "^3.1.8"
-    mkdirp "~0.5.0"
-    neo-async "^2.5.0"
-    node-libs-browser "^2.0.0"
+    loader-runner "^2.4.0"
+    loader-utils "^1.2.3"
+    memory-fs "^0.4.1"
+    micromatch "^3.1.10"
+    mkdirp "^0.5.1"
+    neo-async "^2.6.1"
+    node-libs-browser "^2.2.1"
     schema-utils "^1.0.0"
-    tapable "^1.1.0"
-    terser-webpack-plugin "^1.1.0"
-    watchpack "^1.5.0"
-    webpack-sources "^1.3.0"
+    tapable "^1.1.3"
+    terser-webpack-plugin "^1.4.1"
+    watchpack "^1.6.0"
+    webpack-sources "^1.4.1"
 
 which-module@^1.0.0:
   version "1.0.0"
@@ -7043,13 +7149,6 @@ widest-line@^2.0.0:
   integrity sha512-Ba5m9/Fa4Xt9eb2ELXt77JxVDV8w7qQrH0zS/TWSJdLyAwQjWoOzpzj5lwVftDz6n/EOu3tNACS84v509qwnJA==
   dependencies:
     string-width "^2.1.1"
-
-worker-farm@^1.5.2:
-  version "1.6.0"
-  resolved "https://registry.yarnpkg.com/worker-farm/-/worker-farm-1.6.0.tgz#aecc405976fab5a95526180846f0dba288f3a4a0"
-  integrity sha512-6w+3tHbM87WnSWnENBUvA2pxJPLhQUg5LKwUQHq3r+XPhIM+Gh2R5ycbwPCyuGbNg+lPgdcnQUhuC02kJCvffQ==
-  dependencies:
-    errno "~0.1.7"
 
 worker-farm@^1.7.0:
   version "1.7.0"

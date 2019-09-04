@@ -1,4 +1,4 @@
-import ParameterTypes from "../../operation/metadata/ParameterTypes";
+import ParameterTypes from '../../operation/metadata/ParameterTypes';
 
 function EventListenerController() {
     return {
