@@ -59,7 +59,7 @@ class MediaElementTimelineProvider {
     }
 
     stop() {
-
+        this.player.stop();
     }
 
     pause() {
