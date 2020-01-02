@@ -7,6 +7,7 @@ import $ from 'jquery';
 import TimelineEventNames from './timeline-event-names';
 import ConfigurationResolver from './configuration/configuration-resolver';
 import Mousetrap from 'mousetrap';
+import LanguageManager from './language-manager';
 
 class EngineFactory {
 
@@ -93,7 +94,10 @@ class EngineFactory {
             return false;
         });
 
-        const chronoTriggerEngine = new engineClass(configuration, this._eventbus, timelineProvider);
+        const { language, labels } = configuration;
+        const languageManager = new LanguageManager(language, labels, this._eventbus);
+
+        const chronoTriggerEngine = new engineClass(configuration, this._eventbus, timelineProvider, languageManager);
         return chronoTriggerEngine;
     }
 

@@ -11,4 +11,4 @@ function resolvePropertyValues(operationData, properties) {
     return copy;
 }
 
-export default resolvePropertyValues
+export default resolvePropertyValues;

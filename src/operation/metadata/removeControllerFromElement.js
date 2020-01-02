@@ -1,4 +1,4 @@
-import ParameterTypes from "./parameterTypes";
+import ParameterTypes from "./ParameterTypes";
 
 function removeControllerFromElement() {
     return {

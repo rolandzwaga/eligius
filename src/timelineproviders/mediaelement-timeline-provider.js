@@ -1,5 +1,6 @@
 import TimelineEventNames from '../timeline-event-names';
-import MediaElementPlayer from 'mediaelement';
+import MediaElement from 'mediaelement';
+import $ from 'jquery';
 
 class MediaElementTimelineProvider {
 
@@ -33,17 +34,32 @@ class MediaElementTimelineProvider {
 
     init(selector) {
         const urls = this._extractUrls(this.config);
-        this.player = new MediaElementPlayer(document.querySelector(selector), {
+        this._addVideoElements(selector, urls);
+        this.player = new MediaElement(document.querySelector('.mejs__player'), {
             success: (mediaElement, originalNode, instance) => { }
         });
     }
 
-    play() {
+    _addVideoElements(selector, urls) {
+        const videoElm = ['<video class=\'mejs__player\'>'];
+        urls.forEach(url => {
+            videoElm.push(`<source src='${url}' type='${this._extractFileType(url)}'/>`);
+        });
+        videoElm.push('</video>');
+        $(selector).append(videoElm.join(''));
+    }
 
+    _extractFileType(url) {
+        const lastIdx = url.lastIndexOf('.');
+        return `video/${url.substr(lastIdx+1)}`;
+    }
+
+    play() {
+        this.player.play();
     }
 
     stop() {
-
+        this.player.stop();
     }
 
     pause() {

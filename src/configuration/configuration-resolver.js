@@ -128,20 +128,14 @@ class ConfigurationResolver {
     }
 
     _gatherOperations(actions) {
-        let result = [];
-        if (!actions) {
-            return result;
-        }
-        actions.forEach((action) => {
+        return (actions || []).reduce((list, action) => {
             if (action.endOperations) {
-                result = result.concat(action.startOperations.concat(action.endOperations));
+                return list.concat(action.startOperations.concat(action.endOperations));
             } else {
-                result = result.concat(action.startOperations);
+                return list.concat(action.startOperations);
             }
-        });
-        return result;
+        }, []);
     }
-
 }
 
 export default ConfigurationResolver;

@@ -322,6 +322,19 @@
             ]
         }
     ],
+    "timeline-flow": {
+        "uri": "animation-01",
+        "children": [
+            {
+                "uri": "animation-02",
+                "param": true
+            },
+            {
+                "uri": "animation-03",
+                "param": false
+            }
+        ] 
+    },
     "eventActions":[],
     "labels": [
         {
