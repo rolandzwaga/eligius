@@ -8,6 +8,18 @@ declare namespace ChronoTrigger {
     isStart: boolean;
   }
 
+  export type TimelineTypes = 'animation' | 'mediaplayer';
+
+  export interface ITimeline {
+    uri: string;
+    type: TimelineTypes;
+    uri: string;
+    duration: numberl;
+    loop: boolean;
+    selector: string;
+    timelineActions: TimelineAction[];
+  }
+
   class OperationNamesProvider {
     getOperationNames(): string[];
   }
@@ -58,7 +70,7 @@ declare namespace ChronoTrigger {
     addTimelineSettings(selector: string, systemName: string): ConfigurationFactory;
     addLanguage(code: string, languageLabel: string): ConfigurationFactory;
     addTimeline(
-      type: TimelineType,
+      type: TimelineTypes,
       duration: number,
       uri: string,
       loop: boolean,
@@ -322,6 +334,7 @@ declare namespace ChronoTrigger {
 
   class TimelineAction extends EndableAction {
     constructor(actionConfiguration: ITimelineActionConfiguration, eventbus: Eventbus);
+    active: boolean;
     duration: IDuration;
   }
 }
