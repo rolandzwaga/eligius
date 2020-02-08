@@ -5,6 +5,7 @@ import TimelineEventNames from './timeline-event-names';
 /**
  * ChronoTriggerEngine, this is where the magic happens. The engine is responsible for starting and stoppping
  * the given timeline provider and triggering the actions associated with it.
+ * ...
  */
 class ChronoTriggerEngine {
   constructor(configuration, eventbus, timelineProvider, languageManager) {

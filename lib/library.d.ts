@@ -309,7 +309,9 @@ declare namespace ChronoTrigger {
   interface ConfigurationResolver extends IConfigurationResolver {
     new (importer: IResourceImporter, eventbus: Eventbus): ConfigurationResolver;
   }
-  class ConfigurationResolver {}
+  class ConfigurationResolver {
+    constructor(importer: IResourceImporter, eventbus: Eventbus);
+  }
 
   class EngineFactory {
     constructor(importer: IResourceImporter, windowRef: Window, eventbus: Eventbus);
