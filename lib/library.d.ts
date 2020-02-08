@@ -3,6 +3,11 @@ export = ChronoTrigger;
 export as namespace ChronoTrigger;
 
 declare namespace ChronoTrigger {
+  export interface IChronoTriggerFunction extends Function {
+    id: string;
+    isStart: boolean;
+  }
+
   class OperationNamesProvider {
     getOperationNames(): string[];
   }
@@ -23,22 +28,12 @@ declare namespace ChronoTrigger {
     constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
     getId(): string;
     setName(name: string): T;
-    getConfiguration(
-      callBack: (
-        configuration: IActionConfiguration
-      ) => IActionConfiguration | void
-    ): T;
-    addStartOperation(
-      systemName: string,
-      operationData: IOperationData
-    ): OperationEditor<T>;
+    getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
+    addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
     next(): ActionCreatorFactory;
   }
   class BaseEndableActionCreator<T> extends BaseActionCreator<T> {
-    addEndOperation(
-      systemName: string,
-      operationData: IOperationData
-    ): OperationEditor<T>;
+    addEndOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
   }
 
   class BaseTimelineActionCreator<T> extends BaseEndableActionCreator<T> {
@@ -46,12 +41,8 @@ declare namespace ChronoTrigger {
   }
 
   class ActionCreator extends BaseActionCreator<ActionCreator> {}
-  class EndableActionCreator extends BaseEndableActionCreator<
-    EndableActionCreator
-  > {}
-  class TimelineActionCreator extends BaseTimelineActionCreator<
-    TimelineActionCreator
-  > {}
+  class EndableActionCreator extends BaseEndableActionCreator<EndableActionCreator> {}
+  class TimelineActionCreator extends BaseTimelineActionCreator<TimelineActionCreator> {}
 
   class ActionCreatorFactory {
     createAction(name: string): ActionCreator;
@@ -64,10 +55,7 @@ declare namespace ChronoTrigger {
   class ConfigurationFactory {
     constructor(configuration?: IConfiguration);
     init(defaultLanguage: string): ConfigurationFactory;
-    addTimelineSettings(
-      selector: string,
-      systemName: string
-    ): ConfigurationFactory;
+    addTimelineSettings(selector: string, systemName: string): ConfigurationFactory;
     addLanguage(code: string, languageLabel: string): ConfigurationFactory;
     addTimeline(
       type: TimelineType,
@@ -80,15 +68,9 @@ declare namespace ChronoTrigger {
     createInitAction(name: string): EndableActionCreator;
     createEventAction(name: string): ActionCreator;
     createTimelineAction(uri: string, name: string): TimelineActionCreator;
-    getConfiguration(
-      callBack: (configuration: IConfiguration) => IConfiguration | void
-    ): ConfigurationFactory;
+    getConfiguration(callBack: (configuration: IConfiguration) => IConfiguration | void): ConfigurationFactory;
     removeTimeline(uri: string): ConfigurationFactory;
-    addLabel(
-      id: string,
-      code: string,
-      translation: string
-    ): ConfigurationFactory;
+    addLabel(id: string, code: string, translation: string): ConfigurationFactory;
     editAction(id: string): ActionEditor;
     editEventAction(id: string): ActionEditor;
     editInitAction(id: string): EndableActionEditor;
@@ -104,10 +86,7 @@ declare namespace ChronoTrigger {
   }
 
   class TimelineProviderSettingsEditor {
-    constructor(
-      providerSettings: ITimelineProviderSettingsConfiguration,
-      configurationFactory: ConfigurationFactory
-    );
+    constructor(providerSettings: ITimelineProviderSettingsConfiguration, configurationFactory: ConfigurationFactory);
     setVendor(vendor: string): TimelineProviderSettingsEditor;
     setSelector(selector: string): TimelineProviderSettingsEditor;
     setSystemname(systemName: string): TimelineProviderSettingsEditor;
@@ -126,29 +105,16 @@ declare namespace ChronoTrigger {
   }
 
   class BaseActionEditor<T> {
-    constructor(
-      actionConfig: IActionConfiguration,
-      configurationFactory?: ConfigurationFactory
-    );
-    getConfiguration(
-      callBack: (
-        configuration: IActionConfiguration
-      ) => IActionConfiguration | void
-    ): T;
+    constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
+    getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
     setName(name: string): T;
     getName(): string;
-    addStartOperation(
-      systemName: string,
-      operationData: IOperationData
-    ): OperationEditor<T>;
+    addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
     editStartOperation(id: string): OperationEditor<T>;
     removeStartOperation(id: string): T;
   }
   class BaseEndableActionEditor<T> extends BaseActionEditor<T> {
-    addEndOperation(
-      systemName: string,
-      operationData: IOperationData
-    ): OperationEditor<T>;
+    addEndOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
     editEndOperation(id: string): OperationEditor<T>;
     removeEndOperation(id: string): T;
   }
@@ -158,16 +124,12 @@ declare namespace ChronoTrigger {
   }
 
   class ActionEditor extends BaseActionEditor<ActionEditor> {}
-  class EndableActionEditor extends BaseEndableActionEditor<
-    EndableActionEditor
-  > {}
-  class TimelineActionEditor extends BaseTimelineActionEditor<
-    TimelineActionEditor
-  > {}
+  class EndableActionEditor extends BaseEndableActionEditor<EndableActionEditor> {}
+  class TimelineActionEditor extends BaseTimelineActionEditor<TimelineActionEditor> {}
 
   enum TimelineType {
-    animation = "animation",
-    video = "video"
+    animation = 'animation',
+    video = 'video',
   }
 
   class ParameterTypes {
@@ -235,25 +197,13 @@ declare namespace ChronoTrigger {
   class Eventbus {
     constructor();
     clear(): void;
-    on(
-      eventName: string,
-      eventHandler: Function,
-      eventTopic?: string
-    ): () => void;
+    on(eventName: string, eventHandler: Function, eventTopic?: string): () => void;
     off(eventName: string, eventHandler: Function, eventTopic?: string): void;
     once(eventName: string, eventHandler: Function, eventTopic?: string): void;
     broadcast(eventName: string, args?: any[]): void;
-    broadcastForTopic(
-      eventName: string,
-      eventTopic: string,
-      args?: any[]
-    ): void;
+    broadcastForTopic(eventName: string, eventTopic: string, args?: any[]): void;
     registerEventlistener(eventbusListener: IEventbusListener): void;
-    registerInterceptor(
-      eventName: string,
-      interceptor: IEventInterceptor,
-      eventTopic: string
-    ): void;
+    registerInterceptor(eventName: string, interceptor: IEventInterceptor, eventTopic: string): void;
   }
 
   interface IEventInterceptor {
@@ -310,11 +260,7 @@ declare namespace ChronoTrigger {
   }
 
   class ChronoTriggerEngine implements IChronoTriggerEngine {
-    constructor(
-      configuration: IConfiguration,
-      eventbus: Eventbus,
-      timelineProvider: ITimelineProvider
-    );
+    constructor(configuration: IConfiguration, eventbus: Eventbus, timelineProvider: ITimelineProvider);
     init(): Promise<ITimelineProvider>;
     destroy(): void;
   }
@@ -336,49 +282,26 @@ declare namespace ChronoTrigger {
   }
 
   interface IConfigurationResolver {
-    process(
-      actionRegistryListener: IEventbusListener,
-      configuration: IConfiguration
-    ): any;
+    process(actionRegistryListener: IEventbusListener, configuration: IConfiguration): any;
     importSystemEntry(systemName: string): any;
-    initializeEventActions(
-      actionRegistryListener: IEventbusListener,
-      config: IConfiguration
-    ): void;
+    initializeEventActions(actionRegistryListener: IEventbusListener, config: IConfiguration): void;
     initializeActions(config: IConfiguration, actionsLookup: any): void;
     initializeInitActions(config: IConfiguration, actionsLookup: any): void;
     initializeTimelineActions(config: IConfiguration): void;
     initializeTimelineAction(timelineConfig: any): void;
     resolveOperations(config: IConfiguration): void;
-    processConfiguration(
-      config: IConfiguration,
-      parentConfig: IConfiguration
-    ): void;
-    processConfigProperty(
-      key: string,
-      config: IConfiguration,
-      parentConfig: IConfiguration
-    ): void;
+    processConfiguration(config: IConfiguration, parentConfig: IConfiguration): void;
+    processConfigProperty(key: string, config: IConfiguration, parentConfig: IConfiguration): void;
   }
 
   interface ConfigurationResolver extends IConfigurationResolver {
-    new (
-      importer: IResourceImporter,
-      eventbus: Eventbus
-    ): ConfigurationResolver;
+    new (importer: IResourceImporter, eventbus: Eventbus): ConfigurationResolver;
   }
   class ConfigurationResolver {}
 
   class EngineFactory {
-    constructor(
-      importer: IResourceImporter,
-      windowRef: Window,
-      eventbus: Eventbus
-    );
-    createEngine(
-      configuration: IConfiguration,
-      resolver?: IConfigurationResolver
-    ): IChronoTriggerEngine;
+    constructor(importer: IResourceImporter, windowRef: Window, eventbus: Eventbus);
+    createEngine(configuration: IConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine;
     destroy(): void;
   }
 
@@ -393,18 +316,12 @@ declare namespace ChronoTrigger {
   }
 
   class EndableAction extends Action {
-    constructor(
-      actionConfiguration: IEndableActionConfiguration,
-      eventbus: Eventbus
-    );
+    constructor(actionConfiguration: IEndableActionConfiguration, eventbus: Eventbus);
     end(initOperationData?: IOperationData): Promise<IOperationData>;
   }
 
   class TimelineAction extends EndableAction {
-    constructor(
-      actionConfiguration: ITimelineActionConfiguration,
-      eventbus: Eventbus
-    );
+    constructor(actionConfiguration: ITimelineActionConfiguration, eventbus: Eventbus);
     duration: IDuration;
   }
 }
