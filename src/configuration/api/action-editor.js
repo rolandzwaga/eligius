@@ -73,7 +73,7 @@ export class EndableActionEditor extends ActionEditor {
     }
 
     let { endOperations } = this.actionConfig;
-    if (endOperations) {
+    if (!endOperations) {
       endOperations = this.actionConfig.endOperations = [];
     }
     const newConfig = {
