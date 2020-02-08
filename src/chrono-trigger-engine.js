@@ -3,7 +3,7 @@ import $ from 'jquery';
 import TimelineEventNames from './timeline-event-names';
 
 /**
- * ChronoTriggerEngine
+ * ChronoTriggerEngine, this is where the magic happens
  */
 class ChronoTriggerEngine {
   constructor(configuration, eventbus, timelineProvider, languageManager) {
