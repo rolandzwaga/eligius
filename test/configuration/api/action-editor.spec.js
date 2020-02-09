@@ -1,115 +1,151 @@
 import { expect } from 'chai';
-import { ActionEditor, OperationEditor } from "../../../src/configuration/api/action-editor";
+import { ActionEditor, OperationEditor } from '../../../src/configuration/api/action-editor';
 
 describe('ActionEditor', () => {
+  let actionEditor = null;
+  let configurationFactory = null;
+  let actionConfig = null;
 
-    let actionEditor = null;
-    let configurationFactory = null;
-    let actionConfig = null;
+  beforeEach(() => {
+    configurationFactory = {};
+    actionConfig = {
+      id: '111-222-333',
+      name: 'name',
+      startOperations: [],
+    };
+    actionEditor = new ActionEditor(actionConfig, configurationFactory);
+  });
 
-    beforeEach(() => {
-        configurationFactory = {};
-        actionConfig = {
-            id: '111-222-333',
-            name: 'name',
-            startOperations: []
-        };
-        actionEditor = new ActionEditor(actionConfig, configurationFactory);
+  it('should initialize properly', () => {
+    // expect
+    expect(actionEditor.configurationFactory).is.equal(configurationFactory);
+    expect(actionEditor.actionConfig).is.equal(actionConfig);
+  });
+
+  it('should set the name', () => {
+    // given
+
+    // test
+    actionEditor.setName('TestName');
+
+    // expect
+    const { actionConfig } = actionEditor;
+    expect(actionConfig.name).to.equal('TestName');
+  });
+
+  it('should return an operation editor', () => {
+    // given
+    const { actionConfig } = actionEditor;
+    actionConfig.startOperations.push({
+      id: 'test',
+      operationData: {},
     });
 
-    it('should initialize properly', () => {
-        // expect
-        expect(actionEditor.configurationFactory).is.equal(configurationFactory);
-        expect(actionEditor.actionConfig).is.equal(actionConfig);
+    // test
+    const editor = actionEditor.editStartOperation('test');
+
+    // expect
+    expect(editor).to.be.an.instanceOf(OperationEditor);
+  });
+
+  it('should throw an operation not found error', () => {
+    // given
+    let errorMessage = null;
+    // test
+    try {
+      actionEditor.editStartOperation('test');
+    } catch (e) {
+      errorMessage = e.message;
+    }
+
+    // expect
+    expect(errorMessage).to.equal('operation not found for id test');
+  });
+
+  it('should remove the operation with the given id', () => {
+    // given
+    const { actionConfig } = actionEditor;
+    actionConfig.startOperations.push({
+      id: 'test',
+      operationData: {},
     });
 
-    it('should set the name', () => {
-        // given
-        
+    // test
+    actionEditor.removeStartOperation('test');
 
-        // test
-        actionEditor.setName('TestName');
+    // expect
+    expect(actionConfig.startOperations.length).to.equal(0);
+  });
 
-        // expect
-        const { actionConfig } =  actionEditor;
-        expect(actionConfig.name).to.equal('TestName');
-    });
+  it('should move the start operation with given id up', () => {
+    // given
+    const { actionConfig } = actionEditor;
+    const op1 = {
+      id: 'test',
+      operationData: {},
+    };
+    const op2 = {
+      id: 'test2',
+      operationData: {},
+    };
+    actionConfig.startOperations.push(op1, op2);
 
-    it('should return an operation editor', () => {
-        // given
-        const { actionConfig } =  actionEditor;
-        actionConfig.startOperations.push({
-            id: 'test',
-            operationData: {}
-        });
+    // test
+    actionEditor.moveStartOperation('test', 'up');
 
-        // test
-        const editor = actionEditor.editStartOperation('test')
+    // expect
+    expect(actionConfig.startOperations.indexOf(op1)).to.equal(1);
+  });
 
-        // expect
-        expect(editor).to.be.an.instanceOf(OperationEditor);
-    });
+  it('should move the start operation with given id down', () => {
+    // given
+    const { actionConfig } = actionEditor;
+    const op1 = {
+      id: 'test',
+      operationData: {},
+    };
+    const op2 = {
+      id: 'test2',
+      operationData: {},
+    };
+    actionConfig.startOperations.push(op1, op2);
 
-    it('should throw an operation not found error', () => {
-        // given
-        let errorMessage = null;
-        // test
-        try{
-            actionEditor.editStartOperation('test')
-        } catch(e) {
-            errorMessage = e.message;
-        }
+    // test
+    actionEditor.moveStartOperation('test2', 'down');
 
-        // expect
-        expect(errorMessage).to.equal('operation not found for id test');
-    });
+    // expect
+    expect(actionConfig.startOperations.indexOf(op2)).to.equal(0);
+  });
 
-    it('should remove the operation with the given id', () => {
-        // given
-        const { actionConfig } =  actionEditor;
-        actionConfig.startOperations.push({
-            id: 'test',
-            operationData: {}
-        });
+  it('should return the configuration editor', () => {
+    // test
+    const result = actionEditor.next();
 
-        // test
-        actionEditor.removeStartOperation('test')
+    // expect
+    expect(result).to.equal(configurationFactory);
+  });
 
-        // expect
-        expect(actionConfig.startOperations.length).to.equal(0);
-    });
+  it('should pass the configuration to the getConfiguration callback', () => {
+    // given
+    let config = null;
 
-    it('should return the configuration editor', () => {
-        // test
-        const result = actionEditor.next();
+    // test
+    actionEditor.getConfiguration(c => (config = c));
 
-        // expect
-        expect(result).to.equal(configurationFactory);
-    });
+    // expect
+    expect(config).to.equal(actionEditor.actionConfig);
+  });
 
-    it('should pass the configuration to the getConfiguration callback', () => {
-        // given
-        let config = null;
+  it('should substitute the actionConfig with the instance returned from the getConfiguration callback', () => {
+    // given
+    let config = {
+      id: '888-777-666',
+    };
 
-        // test
-        actionEditor.getConfiguration(c => config = c);
+    // test
+    actionEditor.getConfiguration(c => config);
 
-        // expect
-        expect(config).to.equal(actionEditor.actionConfig);
-    });
-
-    it('should substitute the actionConfig with the instance returned from the getConfiguration callback', () => {
-        // given
-        let config = {
-            'id': '888-777-666'
-        };
-
-        // test
-        actionEditor.getConfiguration(c => config);
-
-        // expect
-        expect(config).to.equal(actionEditor.actionConfig);
-
-    });
-
+    // expect
+    expect(config).to.equal(actionEditor.actionConfig);
+  });
 });
