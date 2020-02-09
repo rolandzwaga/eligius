@@ -116,6 +116,8 @@ declare namespace ChronoTrigger {
     next(): T;
   }
 
+  type TMoveDirection = 'up' | 'down';
+
   class BaseActionEditor<T> {
     constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
     getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;
@@ -124,11 +126,13 @@ declare namespace ChronoTrigger {
     addStartOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
     editStartOperation(id: string): OperationEditor<T>;
     removeStartOperation(id: string): T;
+    moveStartOperation(id: string, direction: TMoveDirection): T;
   }
   class BaseEndableActionEditor<T> extends BaseActionEditor<T> {
     addEndOperation(systemName: string, operationData: IOperationData): OperationEditor<T>;
     editEndOperation(id: string): OperationEditor<T>;
     removeEndOperation(id: string): T;
+    moveEndOperation(id: string, direction: TMoveDirection): T;
   }
 
   class BaseTimelineActionEditor<T> extends BaseEndableActionEditor<T> {

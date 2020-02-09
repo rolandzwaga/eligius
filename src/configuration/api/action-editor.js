@@ -2,6 +2,15 @@ import uuid from 'uuid';
 import * as operations from '../../operation';
 import deepcopy from '../../operation/helper/deepcopy';
 
+function array_move(arr, old_index, new_index) {
+  if (new_index >= arr.length) {
+    new_index = 0;
+  } else if (new_index < 0) {
+    new_index = arr.length - 1;
+  }
+  arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+}
+
 export class ActionEditor {
   actionConfig = null;
   configurationFactory = null;
@@ -45,7 +54,8 @@ export class ActionEditor {
   }
 
   editStartOperation(id) {
-    const operation = this.actionConfig.startOperations.find(o => o.id === id);
+    const { startOperations } = this.actionConfig;
+    const operation = startOperations.find(o => o.id === id);
     if (operation) {
       return new OperationEditor(operation, this);
     }
@@ -53,10 +63,22 @@ export class ActionEditor {
   }
 
   removeStartOperation(id) {
-    const operation = this.actionConfig.startOperations.find(o => o.id === id);
-    const idx = this.actionConfig.startOperations.indexOf(operation);
+    const { startOperations } = this.actionConfig;
+    const operation = startOperations.find(o => o.id === id);
+    const idx = startOperations.indexOf(operation);
     if (idx > -1) {
-      this.actionConfig.startOperations.splice(idx, 1);
+      startOperations.splice(idx, 1);
+    }
+    return this;
+  }
+
+  moveStartOperation(id, direction) {
+    const { startOperations } = this.actionConfig;
+    const operation = startOperations.find(o => o.id === id);
+    const idx = startOperations.indexOf(operation);
+    if (idx > -1) {
+      const newIdx = direction === 'up' ? idx + 1 : idx - 1;
+      array_move(startOperations, idx, newIdx);
     }
     return this;
   }
@@ -86,7 +108,8 @@ export class EndableActionEditor extends ActionEditor {
   }
 
   editEndOperation(id) {
-    const operationConfig = this.actionConfig.endOperations.find(o => o.id === id);
+    const { endOperations } = this.actionConfig;
+    const operationConfig = endOperations.find(o => o.id === id);
     if (operationConfig) {
       return new OperationEditor(operationConfig, this);
     }
@@ -94,10 +117,22 @@ export class EndableActionEditor extends ActionEditor {
   }
 
   removeEndOperation(id) {
-    const operation = this.actionConfig.endOperations.find(o => o.id === id);
-    const idx = this.actionConfig.endOperations.indexOf(operation);
+    const { endOperations } = this.actionConfig;
+    const operation = endOperations.find(o => o.id === id);
+    const idx = endOperations.indexOf(operation);
     if (idx > -1) {
-      this.actionConfig.endOperations.splice(idx, 1);
+      endOperations.splice(idx, 1);
+    }
+    return this;
+  }
+
+  moveEndOperation(id, direction) {
+    const { endOperations } = this.actionConfig;
+    const operation = endOperations.find(o => o.id === id);
+    const idx = endOperations.indexOf(operation);
+    if (idx > -1) {
+      const newIdx = direction === 'up' ? idx + 1 : idx - 1;
+      array_move(endOperations, idx, newIdx);
     }
     return this;
   }
