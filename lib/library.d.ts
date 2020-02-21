@@ -114,14 +114,14 @@ declare namespace ChronoTrigger {
   type TMoveDirection = 'up' | 'down';
 
   interface IMetadataProperty {
-    type: keyof ParameterTypes;
+    type: string;
     required?: boolean;
   }
 
   interface IOperationMetadata {
     description: string;
     dependentProperties?: string[];
-    properties?: { [key: string]: IMetadataProperty | keyof ParameterTypes };
+    properties?: { [key: string]: IMetadataProperty | string };
     outputProperties?: string[];
   }
 
