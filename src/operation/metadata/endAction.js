@@ -1,10 +1,11 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function endAction() {
-    return {
-        actionOperationData: {
-            type: ParameterTypes.OBJECT
-        }
-    };
+  return {
+    description: 'Ends the current action',
+    properties: {
+      actionOperationData: ParameterTypes.OBJECT,
+    },
+  };
 }
 export default endAction;

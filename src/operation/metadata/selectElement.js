@@ -1,17 +1,17 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function selectElement() {
-    return {
-        selector: {
-            type: ParameterTypes.SELECTOR,
-            required: true
-        },
-        propertyName: {
-            type: ParameterTypes.STRING
-        },
-        useSelectedElementAsRoot: {
-            type: ParameterTypes.BOOLEAN
-        }
-    };
+  return {
+    description: 'Selects an element using the given selector',
+    properties: {
+      selector: {
+        type: ParameterTypes.SELECTOR,
+        required: true,
+      },
+      propertyName: ParameterTypes.STRING,
+      useSelectedElementAsRoot: ParameterTypes.BOOLEAN,
+    },
+    outputProperties: ['selectedElement'],
+  };
 }
 export default selectElement;

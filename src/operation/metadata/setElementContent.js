@@ -1,14 +1,16 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function setElementContent() {
-    return {
-        append: {
-            type: ParameterTypes.BOOLEAN
-        },
-        template: {
-            type: ParameterTypes.HTML_CONTENT,
-            required: true
-        }
-    };
+  return {
+    description: 'Sets the given HTML content in the selected element',
+    dependentProperties: ['selectedElement'],
+    properties: {
+      append: ParameterTypes.BOOLEAN,
+      template: {
+        type: ParameterTypes.HTML_CONTENT,
+        required: true,
+      },
+    },
+  };
 }
 export default setElementContent;

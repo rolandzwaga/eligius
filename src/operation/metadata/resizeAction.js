@@ -1,10 +1,12 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function resizeAction() {
-    return {
-        actionOperationData: {
-            type: ParameterTypes.OBJECT
-        }
-    };
+  return {
+    description: 'Triggers a resize on the current action',
+    dependentProperties: ['actionInstance'],
+    properties: {
+      actionOperationData: ParameterTypes.OBJECT,
+    },
+  };
 }
 export default resizeAction;

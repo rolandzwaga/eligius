@@ -118,6 +118,18 @@ declare namespace ChronoTrigger {
 
   type TMoveDirection = 'up' | 'down';
 
+  interface IMetadataProperty {
+    type: string;
+    required?: boolean;
+  }
+
+  interface IOperationMetadata {
+    description: string;
+    dependentProperties?: string[];
+    properties?: { [key: string]: IMetadataProperty | string };
+    outputProperties?: string[];
+  }
+
   class BaseActionEditor<T> {
     constructor(actionConfig: IActionConfiguration, configurationFactory?: ConfigurationFactory);
     getConfiguration(callBack: (configuration: IActionConfiguration) => IActionConfiguration | void): T;

@@ -1,11 +1,12 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function startAction() {
-    return {
-        actionOperationData: {
-            type: ParameterTypes.OBJECT,
-            required: true
-        }
-    };
+  return {
+    description: 'Starts the selected action',
+    dependentProperties: ['actionInstance'],
+    properties: {
+      actionOperationData: ParameterTypes.OBJECT,
+    },
+  };
 }
 export default startAction;

@@ -1,10 +1,14 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function requestAction() {
-    return {
-        systemName: {
-            type: ParameterTypes.ACTION_NAME
-        }
-    };
+  return {
+    description: 'Retrieves an instance of the specified action',
+    properties: {
+      systemName: {
+        type: ParameterTypes.ACTION_NAME,
+      },
+    },
+    outputProperties: ['actionInstance'],
+  };
 }
 export default requestAction;

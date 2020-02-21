@@ -1,11 +1,14 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function getImport() {
-    return {
-        systemName: {
-            type: ParameterTypes.SYSTEM_NAME,
-            required: true
-        }
-    };
+  return {
+    properties: {
+      systemName: {
+        type: ParameterTypes.SYSTEM_NAME,
+        required: true,
+      },
+    },
+    outputProperties: ['importedInstance'],
+  };
 }
 export default getImport;

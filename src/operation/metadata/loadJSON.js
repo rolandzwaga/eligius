@@ -1,17 +1,17 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function loadJSON() {
-    return {
-        url: {
-            type: ParameterTypes.URL,
-            required: true
-        },
-        cache: {
-            type: ParameterTypes.BOOLEAN
-        },
-        propertyName: {
-            type: ParameterTypes.STRING
-        }
-    };
+  return {
+    description: 'Load JSON from the given url',
+    properties: {
+      url: {
+        type: ParameterTypes.URL,
+        required: true,
+      },
+      cache: ParameterTypes.BOOLEAN,
+      propertyName: ParameterTypes.STRING,
+    },
+    outputProprties: ['json'],
+  };
 }
 export default loadJSON;

@@ -1,4 +1,7 @@
 function toggleElement() {
-    return {};
+  return {
+    description: 'Toggles the selected element',
+    dependentProperties: ['selectedElement'],
+  };
 }
 export default toggleElement;

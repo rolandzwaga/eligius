@@ -1,10 +1,11 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function customFunction() {
-    return {
-        systemName: {
-            type: ParameterTypes.SYSTEM_NAME
-        }
-    };
+  return {
+    description: 'Executes the specified custom function',
+    properties: {
+      systemName: ParameterTypes.SYSTEM_NAME,
+    },
+  };
 }
 export default customFunction;

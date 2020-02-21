@@ -1,11 +1,14 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function wait() {
-    return {
-        milliseconds: {
-            type: ParameterTypes.INTEGER,
-            required: true
-        }
-    };
+  return {
+    description: 'Waits for the given amount of milliseconds before the action continues',
+    properties: {
+      milliseconds: {
+        type: ParameterTypes.INTEGER,
+        required: true,
+      },
+    },
+  };
 }
 export default wait;

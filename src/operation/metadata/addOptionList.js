@@ -5,22 +5,18 @@ function addOptionList() {
     description:
       'Creates a list of option elements from the specified data and adds it to the currently selected element.',
     dependentProperties: ['selectedElement'],
-    valueProperty: {
-      type: ParameterTypes.STRING,
-      required: true,
-    },
-    labelProperty: {
-      type: ParameterTypes.STRING,
-      required: true,
-    },
-    defaultIndex: {
-      type: ParameterTypes.INTEGER,
-    },
-    defaultValue: {
-      type: ParameterTypes.STRING,
-    },
-    optionData: {
-      type: ParameterTypes.OBJECT,
+    properties: {
+      valueProperty: {
+        type: ParameterTypes.STRING,
+        required: true,
+      },
+      labelProperty: {
+        type: ParameterTypes.STRING,
+        required: true,
+      },
+      defaultIndex: ParameterTypes.INTEGER,
+      defaultValue: ParameterTypes.STRING,
+      optionData: ParameterTypes.OBJECT,
     },
   };
 }

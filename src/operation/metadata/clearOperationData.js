@@ -1,4 +1,6 @@
 function clearOperationData() {
-    return {};
+  return {
+    description: 'clears the current operation data',
+  };
 }
 export default clearOperationData;

@@ -1,9 +1,16 @@
-import ParameterTypes from "./ParameterTypes";
+import ParameterTypes from './ParameterTypes';
 
 function getControllerFromElement() {
-    return {
-        controllerName: ParameterTypes.CONTROLLER_NAME,
-        required: true
-    };
+  return {
+    description: 'Retrieves the specified controller from the current element',
+    dependentProperties: ['selectedElement'],
+    properties: {
+      controllerName: {
+        type: ParameterTypes.CONTROLLER_NAME,
+        required: true,
+      },
+    },
+    outputProperties: ['controllerInstance'],
+  };
 }
 export default getControllerFromElement;
