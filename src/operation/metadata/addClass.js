@@ -5,7 +5,7 @@ function addClass() {
     description: 'Add a class to the selected element(s)',
     className: {
       type: ParameterTypes.CLASS_NAME,
-      requires: true,
+      required: true,
     },
   };
 }
