@@ -43,13 +43,14 @@ export class ActionEditor {
       throw Error(`Unknown operation: ${systemName}`);
     }
 
-    const { startOperations } = this.actionConfig;
+    const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
     const newConfig = {
       id: uuid(),
       systemName: systemName,
       operationData: operationData,
     };
     startOperations.push(newConfig);
+    this.actionConfig.startOperations = startOperations;
     return new OperationEditor(newConfig, this);
   }
 
@@ -63,22 +64,24 @@ export class ActionEditor {
   }
 
   removeStartOperation(id) {
-    const { startOperations } = this.actionConfig;
+    const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
     const operation = startOperations.find(o => o.id === id);
     const idx = startOperations.indexOf(operation);
     if (idx > -1) {
       startOperations.splice(idx, 1);
+      this.actionConfig.startOperations = startOperations;
     }
     return this;
   }
 
   moveStartOperation(id, direction) {
-    const { startOperations } = this.actionConfig;
+    const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
     const operation = startOperations.find(o => o.id === id);
     const idx = startOperations.indexOf(operation);
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(startOperations, idx, newIdx);
+      this.actionConfig.startOperations = startOperations;
     }
     return this;
   }
@@ -94,16 +97,14 @@ export class EndableActionEditor extends ActionEditor {
       throw Error(`Unknown operation: ${systemName}`);
     }
 
-    let { endOperations } = this.actionConfig;
-    if (!endOperations) {
-      endOperations = this.actionConfig.endOperations = [];
-    }
+    const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
     const newConfig = {
       id: uuid(),
       systemName: systemName,
       operationData: operationData,
     };
     endOperations.push(newConfig);
+    this.actionConfig.endOperations = endOperations;
     return new OperationEditor(newConfig, this);
   }
 
@@ -117,22 +118,24 @@ export class EndableActionEditor extends ActionEditor {
   }
 
   removeEndOperation(id) {
-    const { endOperations } = this.actionConfig;
+    const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
     const operation = endOperations.find(o => o.id === id);
     const idx = endOperations.indexOf(operation);
     if (idx > -1) {
       endOperations.splice(idx, 1);
+      this.actionConfig.endOperations = endOperations;
     }
     return this;
   }
 
   moveEndOperation(id, direction) {
-    const { endOperations } = this.actionConfig;
+    const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
     const operation = endOperations.find(o => o.id === id);
     const idx = endOperations.indexOf(operation);
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(endOperations, idx, newIdx);
+      this.actionConfig.endOperations = endOperations;
     }
     return this;
   }
