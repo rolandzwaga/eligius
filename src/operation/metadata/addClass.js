@@ -2,7 +2,7 @@ import ParameterTypes from './parameterTypes';
 
 function addClass() {
   return {
-    description: 'Add a class to the selected element',
+    description: 'Add a class to the selected element.',
     dependentProperties: ['selectedElement'],
     properties: {
       className: {
