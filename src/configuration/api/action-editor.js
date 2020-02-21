@@ -143,14 +143,16 @@ export class TimelineActionEditor extends EndableActionEditor {
     if (end != undefined && start > end) {
       throw Error('start position cannot be higher than end position');
     }
-    this.actionConfig.duration = {
-      start: start,
+    const duration = {
+      start,
     };
     if (end) {
-      this.actionConfig.duration.end = end;
-    } else {
-      delete this.actionConfig.duration.end;
+      duration.end = end;
     }
+    this.actionConfig = {
+      ...this.actionConfig,
+      duration,
+    };
     return this;
   }
 }
@@ -181,22 +183,31 @@ export class OperationEditor {
     if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
-    this.operationConfig.systemName = systemName;
+    this.operationConfig = {
+      ...this.operationConfig,
+      systemName,
+    };
     return this;
   }
 
   setOperationData(operationData) {
-    this.operationConfig.operationData = operationData;
+    this.operationConfig = {
+      ...this.operationConfig,
+      operationData,
+    };
     return this;
   }
 
   setOperationDataItem(key, value) {
     const { operationData } = this.operationConfig;
     if (!operationData) {
-      operationData = this.operationConfig.operationData = {};
+      operationData = {};
     }
-    operationData[key] = value;
-    return this;
+    operationData = {
+      ...operationData,
+      [key]: value,
+    };
+    return this.setOperationData(operationData);
   }
 
   getOperationDataKeys() {
