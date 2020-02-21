@@ -204,18 +204,12 @@ export class OperationEditor {
     if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
-    this.operationConfig = {
-      ...this.operationConfig,
-      systemName,
-    };
+    this.operationConfig.systemName = systemName;
     return this;
   }
 
   setOperationData(operationData) {
-    this.operationConfig = {
-      ...this.operationConfig,
-      operationData,
-    };
+    this.operationConfig.operationData = operationData;
     return this;
   }
 
@@ -224,10 +218,7 @@ export class OperationEditor {
     if (!operationData) {
       operationData = {};
     }
-    operationData = {
-      ...operationData,
-      [key]: value,
-    };
+    operationData[key] = value;
     return this.setOperationData(operationData);
   }
 
