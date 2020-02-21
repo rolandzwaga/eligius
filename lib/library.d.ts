@@ -13,8 +13,7 @@ declare namespace ChronoTrigger {
   export interface ITimeline {
     uri: string;
     type: TimelineTypes;
-    uri: string;
-    duration: numberl;
+    duration: number;
     loop: boolean;
     selector: string;
     timelineActions: TimelineAction[];
@@ -30,10 +29,6 @@ declare namespace ChronoTrigger {
 
   class OperationMetadataProvider {
     getOperationMetadata(operationName: string): IOperationMetadata;
-  }
-
-  interface IOperationMetadata {
-    [name: string]: ParameterTypes[keyof ParameterTypes];
   }
 
   class BaseActionCreator<T> {
