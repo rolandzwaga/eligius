@@ -20,6 +20,12 @@ export class ActionEditor {
     this.configurationFactory = configurationFactory;
   }
 
+  updateConfiguration() {
+    this.actionConfig = {
+      ...this.actionConfig,
+    };
+  }
+
   getConfiguration(callBack) {
     const copy = deepcopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
@@ -205,11 +211,13 @@ export class OperationEditor {
       throw Error(`Unknown operation: ${systemName}`);
     }
     this.operationConfig.systemName = systemName;
+    this.actionEditor.updateConfiguration();
     return this;
   }
 
   setOperationData(operationData) {
     this.operationConfig.operationData = operationData;
+    this.actionEditor.updateConfiguration();
     return this;
   }
 
