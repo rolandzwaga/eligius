@@ -30,7 +30,10 @@ export class ActionEditor {
   }
 
   setName(name) {
-    this.actionConfig.name = name;
+    this.actionConfig = {
+      ...this.actionConfig,
+      name,
+    };
     return this;
   }
 
@@ -50,7 +53,10 @@ export class ActionEditor {
       operationData: operationData,
     };
     startOperations.push(newConfig);
-    this.actionConfig.startOperations = startOperations;
+    this.actionConfig = {
+      ...this.actionConfig,
+      startOperations,
+    };
     return new OperationEditor(newConfig, this);
   }
 
@@ -69,7 +75,10 @@ export class ActionEditor {
     const idx = startOperations.indexOf(operation);
     if (idx > -1) {
       startOperations.splice(idx, 1);
-      this.actionConfig.startOperations = startOperations;
+      this.actionConfig = {
+        ...this.actionConfig,
+        startOperations,
+      };
     }
     return this;
   }
@@ -81,7 +90,10 @@ export class ActionEditor {
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(startOperations, idx, newIdx);
-      this.actionConfig.startOperations = startOperations;
+      this.actionConfig = {
+        ...this.actionConfig,
+        startOperations,
+      };
     }
     return this;
   }
@@ -123,7 +135,10 @@ export class EndableActionEditor extends ActionEditor {
     const idx = endOperations.indexOf(operation);
     if (idx > -1) {
       endOperations.splice(idx, 1);
-      this.actionConfig.endOperations = endOperations;
+      this.actionConfig = {
+        ...this.actionConfig,
+        endOperations,
+      };
     }
     return this;
   }
@@ -135,7 +150,10 @@ export class EndableActionEditor extends ActionEditor {
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(endOperations, idx, newIdx);
-      this.actionConfig.endOperations = endOperations;
+      this.actionConfig = {
+        ...this.actionConfig,
+        endOperations,
+      };
     }
     return this;
   }
