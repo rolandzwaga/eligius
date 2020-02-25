@@ -74,7 +74,7 @@ describe('ActionEditor', () => {
     actionEditor.removeStartOperation('test');
 
     // expect
-    expect(actionConfig.startOperations.length).to.equal(0);
+    expect(actionEditor.actionConfig.startOperations.length).to.equal(0);
   });
 
   it('should move the start operation with given id up', () => {
@@ -94,7 +94,7 @@ describe('ActionEditor', () => {
     actionEditor.moveStartOperation('test', 'up');
 
     // expect
-    expect(actionConfig.startOperations.indexOf(op1)).to.equal(1);
+    expect(actionEditor.actionConfig.startOperations.indexOf(op1)).to.equal(1);
   });
 
   it('should move the start operation with given id down', () => {
@@ -114,7 +114,7 @@ describe('ActionEditor', () => {
     actionEditor.moveStartOperation('test2', 'down');
 
     // expect
-    expect(actionConfig.startOperations.indexOf(op2)).to.equal(0);
+    expect(actionEditor.actionConfig.startOperations.indexOf(op2)).to.equal(0);
   });
 
   it('should return the configuration editor', () => {

@@ -14,7 +14,8 @@ describe('RequestAnimationFrameTimelineProvider', () => {
 
   beforeEach(() => {
     stub = createStub();
-    sinon.stub(global, 'requestAnimationFrame', stub.add);
+    global.requestAnimationFrame = () => {};
+    sinon.stub(global, 'requestAnimationFrame').callsFake(stub.add);
 
     configuration = {
       timelines: [
@@ -27,9 +28,9 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     provider = new RequestAnimationFrameTimelineProvider(eventbus, configuration);
   });
 
-  /* afterEach(() => {
-        global.requestAnimationFrame.restore();
-    }); */
+  afterEach(() => {
+    global.requestAnimationFrame.restore();
+  });
 
   it('should start', () => {
     provider._start();

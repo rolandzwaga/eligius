@@ -10,7 +10,6 @@ class LanguageManagerStub {
 }
 
 describe('ChronoTriggerEngine', () => {
-
   let ChronoTriggerEngine;
   let fakeContainer;
   let configuration;
@@ -27,8 +26,8 @@ describe('ChronoTriggerEngine', () => {
     const inject = require('inject-loader!../src/chrono-trigger-engine');
 
     ChronoTriggerEngine = inject({
-      'jquery': jQueryStub,
-      './language-manager': LanguageManagerStub
+      jquery: jQueryStub,
+      './language-manager': LanguageManagerStub,
     }).default;
   });
 
@@ -42,14 +41,14 @@ describe('ChronoTriggerEngine', () => {
 
     fakeContainer = {
       html: sinon.stub().withArgs(configuration.layoutTemplate),
-      length: 1
+      length: 1,
     };
   }
 
   function setupEventbus() {
     eventbus = {
-      on: sinon.stub()
-    }
+      on: sinon.stub(),
+    };
   }
 
   it('should create an engine', () => {
@@ -127,20 +126,24 @@ describe('ChronoTriggerEngine', () => {
     setupEventbus();
     configuration.language = {};
     configuration.labels = {};
-    configuration.timelines = [{
-      type: "animation",
-      uri: "animation-01",
-      loop: false,
-      timelineActions: [{
-        name: "testname",
-        duration: {
-          start: 1,
-          end: 2
-        },
-        start: () => {},
-        end: () => {}
-      }]
-    }];
+    configuration.timelines = [
+      {
+        type: 'animation',
+        uri: 'animation-01',
+        loop: false,
+        timelineActions: [
+          {
+            name: 'testname',
+            duration: {
+              start: 1,
+              end: 2,
+            },
+            start: () => {},
+            end: () => {},
+          },
+        ],
+      },
+    ];
 
     const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
 
@@ -159,19 +162,23 @@ describe('ChronoTriggerEngine', () => {
     setupEventbus();
     configuration.language = {};
     configuration.labels = {};
-    configuration.timelines = [{
-      type: "animation",
-      uri: "animation-01",
-      loop: false,
-      timelineActions: [{
-        name: "testname",
-        duration: {
-          start: 1
-        },
-        start: () => {},
-        end: () => {}
-      }]
-    }];
+    configuration.timelines = [
+      {
+        type: 'animation',
+        uri: 'animation-01',
+        loop: false,
+        timelineActions: [
+          {
+            name: 'testname',
+            duration: {
+              start: 1,
+            },
+            start: () => {},
+            end: () => {},
+          },
+        ],
+      },
+    ];
 
     const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
 
@@ -180,6 +187,5 @@ describe('ChronoTriggerEngine', () => {
 
     // expect
     expect(configuration.timelines[0].timelineActions[0].duration.end).to.equal(Infinity);
-  })
-
+  });
 });

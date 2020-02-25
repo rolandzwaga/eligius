@@ -1,7 +1,9 @@
 import modifyDimensions from './helper/modifyDimensions';
 
 function getElementDimensions(operationData, eventBus) {
-  const { selectedElement, dimensions = {}, modifier } = operationData;
+  const { selectedElement, modifier } = operationData;
+  let { dimensions } = operationData;
+  dimensions = dimensions || {};
   dimensions.width = selectedElement.innerWidth();
   dimensions.height = selectedElement.innerHeight();
   if (dimensions.height === 0) {

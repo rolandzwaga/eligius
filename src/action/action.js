@@ -13,6 +13,7 @@ class Action {
       this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData, context);
     }).catch(e => {
       console.error(`Error in action start '${this.name}'`);
+      console.error(e);
       throw e;
     });
     return result;
