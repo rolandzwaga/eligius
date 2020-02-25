@@ -1,81 +1,90 @@
 import deepcopy from '../operation/helper/deepcopy';
 
 class Action {
+  constructor(actionConfiguration, eventBus) {
+    this.name = actionConfiguration.name;
+    this.startOperations = actionConfiguration.startOperations;
+    this.eventbus = eventBus;
+  }
 
-	constructor(actionConfiguration, eventBus) {
-		this.name = actionConfiguration.name;
-		this.startOperations = actionConfiguration.startOperations;
-		this.eventbus = eventBus; 
-	}
+  start(initOperationData) {
+    const context = {};
+    const result = new Promise((resolve, reject) => {
+      this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData, context);
+    }).catch(e => {
+      console.error(`Error in action start '${this.name}'`);
+      throw e;
+    });
+    return result;
+  }
 
-	start(initOperationData) {
-		const result = new Promise((resolve, reject) => {
-			this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData);
-		}).catch((e) => {
-			console.error(`Error in action start '${this.name}'`);
-			throw e;
-		});
-		return result;
-	}
+  executeOperation(operations, idx, resolve, reject, previousOperationData, context) {
+    previousOperationData = previousOperationData || {};
+    if (context.newIndex) {
+      idx = context.newIndex;
+      delete context.newIndex;
+    }
+    context.currentIndex = idx;
 
-	executeOperation(operations, idx, resolve, reject, previousOperationData) {
-		previousOperationData = previousOperationData || {};
+    if (idx < operations.length) {
+      const operationInfo = operations[idx];
+      const copy = operationInfo.operationData ? deepcopy(operationInfo.operationData) : {};
+      const mergedOperationData = Object.assign(previousOperationData, copy);
 
-		if (idx < operations.length) {
-			const operationInfo = operations[idx];
-			const copy = (operationInfo.operationData) ? deepcopy(operationInfo.operationData) : {};
-			const mergedOperationData = Object.assign(previousOperationData, copy);
-			
-			const result = operationInfo.instance(mergedOperationData, this.eventbus);
-			
-            if (result.then) {
-				result.then((resultOperationData) => {
-					this.executeOperation(operations, ++idx, resolve, reject, resultOperationData);
-				}).catch((error) => {
-					reject(error);
-				});
-            } else {
-                this.executeOperation(operations, ++idx, resolve, reject, result);
-            }
-		} else {
-			resolve(previousOperationData);
-		}
-	}
+      const result = operationInfo.instance.call(context, mergedOperationData, this.eventbus);
 
-	resize(operationData) {
-		const idx = 0;
-		const result = new Promise((resolve, reject) => {
-			this.executeResizeOperation(this.startOperations, idx, resolve, reject, operationData);
-		});
-		return result;
-	}
+      if (result.then) {
+        result
+          .then(resultOperationData => {
+            this.executeOperation(operations, ++idx, resolve, reject, resultOperationData, context);
+          })
+          .catch(error => {
+            reject(error);
+          });
+      } else {
+        this.executeOperation(operations, ++idx, resolve, reject, result, context);
+      }
+    } else {
+      resolve(previousOperationData);
+    }
+  }
 
-	executeResizeOperation(operations, idx, resolve, reject, previousOperationData) {
-		previousOperationData = previousOperationData || {};
-		
-		if (idx < operations.length) {
-			const operationInfo = operations[idx];
-			if ((operationInfo.resizeInstance)) {
-				const copy = ((operationInfo.operationData)) ? deepcopy(operationInfo.operationData) : {};
-				const mergedOperationData = Object.assign(previousOperationData, copy);
+  resize(operationData) {
+    const idx = 0;
+    const result = new Promise((resolve, reject) => {
+      this.executeResizeOperation(this.startOperations, idx, resolve, reject, operationData);
+    });
+    return result;
+  }
 
-				const result = operationInfo.resizeInstance(mergedOperationData);
-				if (result.then){
-					result.then((resultOperationData) => {
-						this.executeResizeOperation(operations, ++idx, resolve, reject, resultOperationData);
-					}).catch((error) => {
-						reject(error);
-					});
-				} else {
-					this.executeResizeOperation(operations, ++idx, resolve, reject, result);
-				}
-			} else {
-				this.executeResizeOperation(operations, ++idx, resolve, reject, previousOperationData);
-			}
-		} else {
-			resolve(previousOperationData);
-		}
-	}
+  executeResizeOperation(operations, idx, resolve, reject, previousOperationData) {
+    previousOperationData = previousOperationData || {};
+
+    if (idx < operations.length) {
+      const operationInfo = operations[idx];
+      if (operationInfo.resizeInstance) {
+        const copy = operationInfo.operationData ? deepcopy(operationInfo.operationData) : {};
+        const mergedOperationData = Object.assign(previousOperationData, copy);
+
+        const result = operationInfo.resizeInstance(mergedOperationData);
+        if (result.then) {
+          result
+            .then(resultOperationData => {
+              this.executeResizeOperation(operations, ++idx, resolve, reject, resultOperationData);
+            })
+            .catch(error => {
+              reject(error);
+            });
+        } else {
+          this.executeResizeOperation(operations, ++idx, resolve, reject, result);
+        }
+      } else {
+        this.executeResizeOperation(operations, ++idx, resolve, reject, previousOperationData);
+      }
+    } else {
+      resolve(previousOperationData);
+    }
+  }
 }
 
 export default Action;
