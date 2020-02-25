@@ -1167,10 +1167,10 @@ ajv-keywords@^3.4.1:
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.4.1.tgz#ef916e271c64ac12171fd8384eaae6b2345854da"
   integrity sha512-RO1ibKvd27e6FEShVFfPALuHI3WjSVNeK5FIsmme/LYRNxjKuNj+Dt7bucLa6NdSv3JcVTyMlm9kGR84z1XpaQ==
 
-ajv@6.11.0:
-  version "6.11.0"
-  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.11.0.tgz#c3607cbc8ae392d8a5a536f25b21f8e5f3f87fe9"
-  integrity sha512-nCprB/0syFYy9fVYU1ox1l2KN8S9I+tziH8D4zdZuLT3N6RMlGSGt5FSTpAiHB/Whv8Qs1cWHma1aMKZyaHRKA==
+ajv@6.12.0:
+  version "6.12.0"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.0.tgz#06d60b96d87b8454a5adaba86e7854da629db4b7"
+  integrity sha512-D6gFiFA0RRLyUbvijN74DWAjXSFxWKaWP7mldxkVhyhAV3+SWA9HEJPHQ2c9soIeTFJqcSdFDGFgdqs1iUU2Hw==
   dependencies:
     fast-deep-equal "^3.1.1"
     fast-json-stable-stringify "^2.0.0"
@@ -4650,10 +4650,10 @@ loose-envify@^1.0.0:
   dependencies:
     js-tokens "^3.0.0 || ^4.0.0"
 
-lottie-web@5.6.4:
-  version "5.6.4"
-  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.6.4.tgz#8520f9e7e8daa9e0ab8343c628c3f470800088a4"
-  integrity sha512-eU+21Wo/RSi4i260S7fDUxfhNJ9PhfzUJMVQpip0yZd19oJ18jrNCoSQKVUzjC2TzOjqumlLZXR636ezKoWNQg==
+lottie-web@5.6.5:
+  version "5.6.5"
+  resolved "https://registry.yarnpkg.com/lottie-web/-/lottie-web-5.6.5.tgz#3a2f5f6ba64fb492cf8557dae504d06ead132525"
+  integrity sha512-rpBnawJxb+4QhZz8PyZl6k5y4NpzFrpuV/+c/36w4pryKv6EWb9aEwsqCXl+zK1dYddyFyN1zdvsonJyk7aNTg==
 
 loud-rejection@^1.0.0:
   version "1.6.0"
@@ -7384,10 +7384,10 @@ utila@^0.4.0, utila@~0.4:
   resolved "https://registry.yarnpkg.com/utila/-/utila-0.4.0.tgz#8a16a05d445657a3aea5eecc5b12a4fa5379772c"
   integrity sha1-ihagXURWV6Oupe7MWxKk+lN5dyw=
 
-uuid@3.4.0:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
-  integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
+uuid@7.0.0:
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-7.0.0.tgz#1833d4b9ce50b732bfaa271f9cb74e974d303c79"
+  integrity sha512-LNUrNsXdI/fUsypJbWM8Jt4DgQdFAZh41p9C7WE9Cn+CULOEkoG2lgQyH68v3wnIy5K3fN4jdSt270K6IFA3MQ==
 
 uuid@^3.3.2:
   version "3.3.2"
