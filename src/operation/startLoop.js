@@ -10,7 +10,9 @@ function startLoop(operationData, eventBus) {
       context.skip = true;
     }
   }
-  operationData[propertyName] = collection[context.loopIndex];
+  if (collection && collection.length) {
+    operationData[propertyName] = collection[context.loopIndex];
+  }
   return operationData;
 }
 

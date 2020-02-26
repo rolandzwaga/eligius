@@ -356,4 +356,50 @@ describe('Action', () => {
         done(e);
       });
   });
+
+  it('should skip the loop for a null collection', done => {
+    const testCollection = null;
+    const op1 = {
+      operationData: {
+        collection: testCollection,
+        propertyName: 'value',
+      },
+      instance: startLoop,
+    };
+    const op2 = {
+      operationData: {},
+      instance: function(op) {
+        if (!op.newCollection) {
+          op.newCollection = [];
+        }
+        op.newCollection.push(op.value);
+        return op;
+      },
+    };
+    const op3 = {
+      operationData: {},
+      instance: endLoop,
+    };
+    const op4 = {
+      operationData: { test: true },
+      instance: op => op,
+    };
+    action.startOperations.push(op1);
+    action.startOperations.push(op2);
+    action.startOperations.push(op3);
+    action.startOperations.push(op4);
+
+    // test
+    action
+      .start()
+      .then(operationData => {
+        // expect
+        expect(operationData.newCollection).to.be.undefined;
+        expect(operationData.test).to.be.true;
+        done();
+      })
+      .catch(e => {
+        done(e);
+      });
+  });
 });
