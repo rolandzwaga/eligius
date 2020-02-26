@@ -156,6 +156,7 @@ declare namespace ChronoTrigger {
   }
 
   class ParameterTypes {
+    static HTML_ELEMENT_NAME: string;
     static CLASS_NAME: string;
     static SELECTOR: string;
     static STRING: string;

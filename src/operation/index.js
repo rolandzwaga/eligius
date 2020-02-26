@@ -6,7 +6,7 @@ export { default as animateWithClass } from './animateWithClass';
 export { default as broadcastEvent } from './broadcastEvent';
 export { default as clearElement } from './clearElement';
 export { default as clearOperationData } from './clearOperationData';
-import { default as createElement } from './createElement';
+export { default as createElement } from './createElement';
 export { default as customFunction } from './customFunction';
 export { default as endAction } from './endAction';
 export { default as endLoop } from './endLoop';
