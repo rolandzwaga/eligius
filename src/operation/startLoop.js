@@ -3,7 +3,7 @@ function startLoop(operationData, eventBus) {
   const { collection, propertyName } = operationData;
   if (!context.loopIndex) {
     context.loopIndex = 0;
-    context.loopLength = collection.length;
+    context.loopLength = collection.length - 1;
     context.startIndex = context.currentIndex;
   }
   operationData[propertyName] = collection[context.loopIndex];

@@ -7,6 +7,7 @@ function endLoop(operationData, eventBus) {
     delete context.loopIndex;
     delete context.loopLength;
     delete context.startIndex;
+    delete context.newIndex;
   }
   return operationData;
 }

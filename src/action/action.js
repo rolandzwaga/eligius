@@ -21,7 +21,7 @@ class Action {
 
   executeOperation(operations, idx, resolve, reject, previousOperationData, context) {
     previousOperationData = previousOperationData || {};
-    if (context.newIndex !== undefined) {
+    if (context.hasOwnProperty('newIndex')) {
       idx = context.newIndex;
       delete context.newIndex;
     }

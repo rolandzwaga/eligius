@@ -222,9 +222,10 @@ describe('Action', () => {
   });
 
   it.only('should loop the given operation 10 times', done => {
+    const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const op1 = {
       operationData: {
-        collection: [1, 2, 3, 4, 5, 6, 7, 8, 10],
+        collection: testCollection,
         propertyName: 'value',
       },
       instance: startLoop,
@@ -252,7 +253,10 @@ describe('Action', () => {
       .start()
       .then(operationData => {
         // expect
-        expect(operationData.newCollection.length).to.be.equal(10);
+        expect(operationData.newCollection.length).to.be.equal(testCollection.length);
+        operationData.newCollection.forEach((letter, index) => {
+          expect(letter).to.be.equal(testCollection[index]);
+        });
         done();
       })
       .catch(e => {
