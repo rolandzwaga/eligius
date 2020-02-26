@@ -1,6 +1,7 @@
 require('jsdom-global')();
 import { Action } from '../../src/action';
 import { expect } from 'chai';
+import { startLoop, endLoop } from '../../src/operation';
 
 describe('Action', () => {
   let action = null;
@@ -213,6 +214,45 @@ describe('Action', () => {
         // expect
         expect(operationData.result[0]).to.be.equal(0);
         expect(operationData.result[1]).to.be.equal(1);
+        done();
+      })
+      .catch(e => {
+        done(e);
+      });
+  });
+
+  it.only('should loop the given operation 10 times', done => {
+    const op1 = {
+      operationData: {
+        collection: [1, 2, 3, 4, 5, 6, 7, 8, 10],
+        propertyName: 'value',
+      },
+      instance: startLoop,
+    };
+    const op2 = {
+      operationData: {},
+      instance: function(op) {
+        if (!op.newCollection) {
+          op.newCollection = [];
+        }
+        op.newCollection.push(op.value);
+        return op;
+      },
+    };
+    const op3 = {
+      operationData: {},
+      instance: endLoop,
+    };
+    action.startOperations.push(op1);
+    action.startOperations.push(op2);
+    action.startOperations.push(op3);
+
+    // test
+    action
+      .start()
+      .then(operationData => {
+        // expect
+        expect(operationData.newCollection.length).to.be.equal(10);
         done();
       })
       .catch(e => {

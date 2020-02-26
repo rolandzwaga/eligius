@@ -4,8 +4,10 @@ function startLoop(operationData, eventBus) {
   if (!context.loopIndex) {
     context.loopIndex = 0;
     context.loopLength = collection.length;
-    context.startIndex = index.currentIndex;
+    context.startIndex = context.currentIndex;
   }
   operationData[propertyName] = collection[context.loopIndex];
   return operationData;
 }
+
+export default startLoop;
