@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import * as operations from '../../operation';
 import deepcopy from '../../operation/helper/deepcopy';
 
@@ -54,7 +54,7 @@ export class ActionEditor {
 
     const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
     const newConfig = {
-      id: uuid(),
+      id: uuidv4(),
       systemName: systemName,
       operationData: operationData,
     };
@@ -117,7 +117,7 @@ export class EndableActionEditor extends ActionEditor {
 
     const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
     const newConfig = {
-      id: uuid(),
+      id: uuidv4(),
       systemName: systemName,
       operationData: operationData,
     };

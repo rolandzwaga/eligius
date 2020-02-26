@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor } from './action-editor';
 import { TimelineActionEditor, EndableActionEditor } from './action-editor';
@@ -16,7 +16,7 @@ class ConfigurationFactory {
 
   init(defaultLanguage) {
     this.configuration = {
-      id: uuid(),
+      id: uuidv4(),
       engine: {
         systemName: 'ChronoTriggerEngine',
       },
