@@ -264,6 +264,53 @@ describe('Action', () => {
       });
   });
 
+  it('should loop the given async operation 10 times', done => {
+    const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+    const op1 = {
+      operationData: {
+        collection: testCollection,
+        propertyName: 'value',
+      },
+      instance: startLoop,
+    };
+    const op2 = {
+      operationData: {},
+      instance: function(op) {
+        if (!op.newCollection) {
+          op.newCollection = [];
+        }
+        op.newCollection.push(op.value);
+        return new Promise(resolve => {
+          setTimeout(() => {
+            resolve(op);
+          }, 10);
+        });
+      },
+    };
+    const op3 = {
+      operationData: {},
+      instance: endLoop,
+    };
+    action.startOperations.push(op1);
+    action.startOperations.push(op2);
+    action.startOperations.push(op3);
+
+    // test
+    action
+      .start()
+      .then(operationData => {
+        // expect
+        expect(operationData.newCollection.length).to.be.equal(testCollection.length);
+        operationData.newCollection.forEach((letter, index) => {
+          expect(letter).to.be.equal(testCollection[index]);
+        });
+        done();
+      })
+      .catch(e => {
+        done(e);
+      });
+  });
+
   it('should skip the loop for an empty collection', done => {
     const testCollection = [];
     const op1 = {
@@ -287,13 +334,14 @@ describe('Action', () => {
       operationData: {},
       instance: endLoop,
     };
-    const op3 = {
+    const op4 = {
       operationData: { test: true },
       instance: op => op,
     };
     action.startOperations.push(op1);
     action.startOperations.push(op2);
     action.startOperations.push(op3);
+    action.startOperations.push(op4);
 
     // test
     action
