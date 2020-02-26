@@ -26,6 +26,13 @@ class Action {
       delete context.newIndex;
     }
     context.currentIndex = idx;
+    if (context.skip) {
+      if (idx < operations.length) {
+        this.executeOperation(operations, ++idx, resolve, reject, previousOperationData, context);
+      } else {
+        resolve(previousOperationData);
+      }
+    }
 
     if (idx < operations.length) {
       const operationInfo = operations[idx];

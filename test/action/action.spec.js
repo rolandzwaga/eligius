@@ -221,7 +221,7 @@ describe('Action', () => {
       });
   });
 
-  it.only('should loop the given operation 10 times', done => {
+  it('should loop the given operation 10 times', done => {
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const op1 = {
       operationData: {
@@ -257,6 +257,51 @@ describe('Action', () => {
         operationData.newCollection.forEach((letter, index) => {
           expect(letter).to.be.equal(testCollection[index]);
         });
+        done();
+      })
+      .catch(e => {
+        done(e);
+      });
+  });
+
+  it('should skip the loop for an empty collection', done => {
+    const testCollection = [];
+    const op1 = {
+      operationData: {
+        collection: testCollection,
+        propertyName: 'value',
+      },
+      instance: startLoop,
+    };
+    const op2 = {
+      operationData: {},
+      instance: function(op) {
+        if (!op.newCollection) {
+          op.newCollection = [];
+        }
+        op.newCollection.push(op.value);
+        return op;
+      },
+    };
+    const op3 = {
+      operationData: {},
+      instance: endLoop,
+    };
+    const op3 = {
+      operationData: { test: true },
+      instance: op => op,
+    };
+    action.startOperations.push(op1);
+    action.startOperations.push(op2);
+    action.startOperations.push(op3);
+
+    // test
+    action
+      .start()
+      .then(operationData => {
+        // expect
+        expect(operationData.newCollection).to.be.undefined;
+        expect(operationData.test).to.be.true;
         done();
       })
       .catch(e => {
