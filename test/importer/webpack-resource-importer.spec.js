@@ -12,6 +12,7 @@ describe('WebpackResourceImporter', () => {
     'broadcastEvent',
     'clearElement',
     'clearOperationData',
+    'createElement',
     'customFunction',
     'endAction',
     'endLoop',
