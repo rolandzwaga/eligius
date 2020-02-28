@@ -18,6 +18,9 @@ export class ControllerNamesProvider {
 export class OperationMetadataProvider {
   getOperationMetadata(operationName) {
     const getMetadata = operationMetadata[operationName];
+    if (!getMetadata) {
+      throw new Error(`Cound not find metadata for operation called ${operationName}`);
+    }
     return getMetadata();
   }
 }
