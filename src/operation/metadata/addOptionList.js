@@ -16,7 +16,7 @@ function addOptionList() {
       },
       defaultIndex: ParameterTypes.INTEGER,
       defaultValue: ParameterTypes.STRING,
-      optionData: ParameterTypes.OBJECT,
+      optionData: ParameterTypes.ARRAY,
     },
   };
 }

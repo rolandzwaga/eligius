@@ -5,6 +5,7 @@ function getControllerInstance(operationData, eventBus) {
   let { propertyName } = operationData;
 
   propertyName = propertyName || 'controllerInstance';
+  operationData[propertyName] = null;
   const resultCallback = instance => {
     operationData[propertyName] = instance;
   };

@@ -8,7 +8,9 @@ function getElementDimensions() {
       dimensions: ParameterTypes.DIMENSIONS,
       modifier: ParameterTypes.DIMENSIONS_MODIFIER,
     },
-    outputProperties: ['dimensions'],
+    outputProperties: {
+      dimensions: ParameterTypes.DIMENSIONS,
+    },
   };
 }
 export default getElementDimensions;

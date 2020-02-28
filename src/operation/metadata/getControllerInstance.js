@@ -8,9 +8,14 @@ function getControllerInstance() {
         type: ParameterTypes.CONTROLLER_NAME,
         required: true,
       },
-      propertyName: ParameterTypes.STRING,
+      propertyName: {
+        type: ParameterTypes.STRING,
+        defaultValue: 'controllerInstance',
+      },
     },
-    outputProperties: ['controllerInstance'],
+    outputProperties: {
+      controllerInstance: ParameterTypes.OBJECT,
+    },
   };
 }
 export default getControllerInstance;

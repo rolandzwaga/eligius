@@ -8,7 +8,9 @@ function getImport() {
         required: true,
       },
     },
-    outputProperties: ['importedInstance'],
+    outputProperties: {
+      importedInstance: ParameterTypes.OBJECT,
+    },
   };
 }
 export default getImport;

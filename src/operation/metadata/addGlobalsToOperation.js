@@ -6,7 +6,7 @@ function addGlobalsToOperation() {
     dependentProperties: ['selectedElement'],
     properties: {
       globalProperties: {
-        type: ParameterTypes.OBJECT,
+        type: ParameterTypes.ARRAY,
         required: true,
       },
     },

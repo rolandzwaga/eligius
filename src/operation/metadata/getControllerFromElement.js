@@ -10,7 +10,9 @@ function getControllerFromElement() {
         required: true,
       },
     },
-    outputProperties: ['controllerInstance'],
+    outputProperties: {
+      controllerInstance: ParameterTypes.OBJECT,
+    },
   };
 }
 export default getControllerFromElement;

@@ -11,7 +11,9 @@ function selectElement() {
       propertyName: ParameterTypes.STRING,
       useSelectedElementAsRoot: ParameterTypes.BOOLEAN,
     },
-    outputProperties: ['selectedElement'],
+    outputProperties: {
+      selectedElement: ParameterTypes.OBJECT,
+    },
   };
 }
 export default selectElement;

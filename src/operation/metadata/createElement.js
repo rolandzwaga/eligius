@@ -10,7 +10,9 @@ function customFunction() {
       },
       attributes: ParameterTypes.OBJECT,
     },
-    outputProperties: ['template'],
+    outputProperties: {
+      template: ParameterTypes.OBJECT,
+    },
   };
 }
 export default customFunction;

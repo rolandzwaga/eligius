@@ -8,7 +8,9 @@ function requestAction() {
         type: ParameterTypes.ACTION_NAME,
       },
     },
-    outputProperties: ['actionInstance'],
+    outputProperties: {
+      actionInstance: ParameterTypes.OBJECT,
+    },
   };
 }
 export default requestAction;
