@@ -31,6 +31,10 @@ declare namespace ChronoTrigger {
     getOperationMetadata(operationName: string): IOperationMetadata;
   }
 
+  class TimeLineEventNamesProvider {
+    getEventNames(): string[];
+  }
+
   class BaseActionCreator<T> {
     constructor(name: string, actionCreatorFactory?: ActionCreatorFactory);
     getId(): string;
