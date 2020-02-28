@@ -21,7 +21,7 @@ describe('createElement', () => {
     createElement(operationData);
 
     // expect
-    expect(operationData.template).to.equal('<div />');
+    expect(operationData.template).to.equal('<div/>');
   });
 
   it('should create an element with attributes', () => {

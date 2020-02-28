@@ -9,7 +9,10 @@ function loadJSON() {
         required: true,
       },
       cache: ParameterTypes.BOOLEAN,
-      propertyName: ParameterTypes.STRING,
+      propertyName: {
+        type: ParameterTypes.STRING,
+        defaultValue: 'json',
+      },
     },
     outputProprties: ['json'],
   };

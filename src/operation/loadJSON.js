@@ -1,5 +1,7 @@
 function loadJSON(jsonCache, operationData, eventBus) {
-  const { url, cache, propertyName = 'json' } = operationData;
+  const { url, cache } = operationData;
+  let { propertyName } = operationData;
+  propertyName = propertyName || 'json';
 
   if (cache && jsonCache[url]) {
     operationData[propertyName] = jsonCache[url];
