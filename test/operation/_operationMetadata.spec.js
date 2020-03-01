@@ -96,6 +96,7 @@ describe('automatic input and output tests', () => {
         empty: () => {},
         innerWidth: () => 10,
         innerHeight: () => 10,
+        off: () => {},
       };
     }
     if (propertyName === 'controllerInstance') {

@@ -19,6 +19,15 @@ declare namespace ChronoTrigger {
     timelineActions: TimelineAction[];
   }
 
+  export interface ITimelineConfiguration {
+    uri: string;
+    type: TimelineTypes;
+    duration: number;
+    loop: boolean;
+    selector: string;
+    timelineActions: ITimelineActionConfiguration[];
+  }
+
   class OperationNamesProvider {
     getOperationNames(): string[];
   }
@@ -267,10 +276,10 @@ declare namespace ChronoTrigger {
     language: string;
     layoutTemplate: string;
     availableLanguages: ILanguageInfo[];
-    initActions: EndableAction[];
-    actions: EndableAction[];
-    eventActions: Action[];
-    timelines: ITimeline[];
+    initActions: IEndableActionConfiguration[];
+    actions: IEndableActionConfiguration[];
+    eventActions: IActionConfiguration[];
+    timelines: ITimelineConfiguration[];
     timelineFlow: ITimelineFlow;
     labels: ILabelInfo[];
   }
@@ -314,6 +323,7 @@ declare namespace ChronoTrigger {
     id: string;
     systemName: string;
     operationData: IOperationData;
+    instance?: (operationData: IOperationData, eventbus: Eventbus) => Promise<IOperationData> | IOperationData;
   }
 
   interface IOperationData {

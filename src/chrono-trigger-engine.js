@@ -141,11 +141,12 @@ class ChronoTriggerEngine {
     if (!end || isNaN(end)) {
       end = timeLineAction.duration.end = Infinity;
     }
+
     if (isFinite(end)) {
       const timelineEndPositions = this._initializeTimelinePosition(this._timeLineActionsLookup[uri], end);
       const endMethod = timeLineAction.end.bind(timeLineAction);
       if (timeLineAction.id) {
-        endMethod.id = endMethod.id;
+        endMethod.id = timeLineAction.id;
       }
       timelineEndPositions.push(endMethod);
     }
