@@ -44,7 +44,7 @@
                     }
                 }
             ],
-            "endOperations":[
+            "endOperations": [
                 {
                     "systemName": "selectElement",
                     "operationData": {
@@ -88,7 +88,7 @@
                     }
                 }
             ],
-            "endOperations":[
+            "endOperations": [
                 {
                     "systemName": "selectElement",
                     "operationData": {
@@ -131,11 +131,13 @@
                     "systemName": "addControllerToElement",
                     "operationData": {
                         "eventName": "change",
-                        "actions": ["BroadcastLanguageChange"]
+                        "actions": [
+                            "BroadcastLanguageChange"
+                        ]
                     }
                 }
             ],
-            "endOperations":[
+            "endOperations": [
                 {
                     "systemName": "selectElement",
                     "operationData": {
@@ -173,7 +175,7 @@
                     }
                 }
             ],
-            "endOperations":[
+            "endOperations": [
                 {
                     "systemName": "selectElement",
                     "operationData": {
@@ -322,7 +324,7 @@
             ]
         }
     ],
-    "timeline-flow": {
+    "timelineFlow": {
         "uri": "animation-01",
         "children": [
             {
@@ -333,9 +335,9 @@
                 "uri": "animation-03",
                 "param": false
             }
-        ] 
+        ]
     },
-    "eventActions":[],
+    "eventActions": [],
     "labels": [
         {
             "id": "mainTitle",

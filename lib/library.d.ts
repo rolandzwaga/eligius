@@ -120,6 +120,7 @@ declare namespace ChronoTrigger {
   interface IMetadataProperty {
     type: string;
     required?: boolean;
+    defaultValue?: any;
   }
 
   interface IOperationMetadata {
@@ -249,8 +250,45 @@ declare namespace ChronoTrigger {
     getProviderNames(): string[];
   }
 
+  interface IEngineInfo {
+    systemName: string;
+  }
+
+  interface ILanguageInfo {
+    code: string;
+    label: string;
+  }
+
   interface IConfiguration {
-    [name: string]: any;
+    id: string;
+    engine: IEngineInfo;
+    timelineProviderSettings: ITimelineProviderSettingsConfiguration;
+    containerSelector: string;
+    language: string;
+    layoutTemplate: string;
+    availableLanguages: ILanguageInfo[];
+    initActions: EndableAction[];
+    actions: EndableAction[];
+    eventActions: Action[];
+    timelines: ITimeline[];
+    timelineFlow: ITimelineFlow;
+    labels: ILabelInfo[];
+  }
+
+  interface ILabelInfo {
+    id: string;
+    labels: ILabelContent[];
+  }
+
+  interface ILabelContent {
+    code: string;
+    label: string;
+  }
+
+  interface ITimelineFlow {
+    uri: string;
+    param?: any;
+    children: ITimelineFlow[];
   }
 
   interface IActionConfiguration {

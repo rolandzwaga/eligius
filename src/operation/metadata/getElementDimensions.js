@@ -5,7 +5,6 @@ function getElementDimensions() {
     description: 'Calculates the dimensions for the current element',
     dependentProperties: ['selectedElement'],
     properties: {
-      dimensions: ParameterTypes.DIMENSIONS,
       modifier: ParameterTypes.DIMENSIONS_MODIFIER,
     },
     outputProperties: {

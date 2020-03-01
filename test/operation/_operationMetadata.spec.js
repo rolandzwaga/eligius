@@ -20,16 +20,15 @@ describe('automatic input and output tests', () => {
   });
 
   xit('should have the correct in- and output for all operations based on their metadata', () => {
-    const propertyTypes = getAllPropertyTypes(metadata);
     Object.entries(operations).forEach(([name, operation]) => {
-      testOperation(name, operation, metadata[name](), propertyTypes);
+      testOperation(name, operation, metadata[name](), metadata);
     });
   });
 
-  function testOperation(operationName, operation, metadataInfo, propertyTypes) {
+  function testOperation(operationName, operation, metadataInfo, metadata) {
     const context = {};
     const eventbus = new Eventbus();
-    const operationData = initializeOperationData(operationName, metadataInfo, propertyTypes);
+    const operationData = initializeOperationData(operationName, metadataInfo, metadata);
     try {
       const result = operation.call(context, operationData, eventbus);
       expect(result).not.to.be.undefined;
@@ -49,12 +48,13 @@ describe('automatic input and output tests', () => {
     }
   }
 
-  function initializeOperationData(operationName, metadataInfo, propertyTypes) {
+  function initializeOperationData(operationName, metadataInfo, metadata) {
     let dependentProps = {};
     let props = {};
     if (metadataInfo.dependentProperties) {
       dependentProps = metadataInfo.dependentProperties.reduce((acc, propertyName) => {
-        const type = propertyTypes[propertyName];
+        const propertyInfo = metadata[operationName].properties[propertyName];
+        const type = typeof propertyInfo === 'string' ? propertyInfo : propertyInfo.type;
         if (!type) {
           throw new Error(
             `${operationName}: property ${propertyName} was not found in list: ${metadataInfo.dependentProperties.join(
@@ -70,7 +70,8 @@ describe('automatic input and output tests', () => {
     if (metadataInfo.properties) {
       const propertyNames = Object.keys(metadataInfo.properties);
       props = propertyNames.reduce((acc, propertyName) => {
-        const type = propertyTypes[propertyName];
+        const propertyInfo = metadata[operationName].properties[propertyName];
+        const type = typeof propertyInfo === 'string' ? propertyInfo : propertyInfo.type;
         if (!type) {
           throw new Error(
             `${operationName}: property ${propertyName} was not found in list: ${propertyNames.join(', ')}`
@@ -138,34 +139,5 @@ describe('automatic input and output tests', () => {
       default:
         propertyType;
     }
-  }
-
-  function getAllPropertyTypes(metadata) {
-    const propTypes = Object.values(metadata).reduce((acc, func) => {
-      const mt = func();
-
-      if (mt.properties) {
-        Object.entries(mt.properties).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            acc[key] = value;
-          } else {
-            acc[key] = value.defaultValue ? value.defaultValue : value.type;
-          }
-        });
-      }
-
-      if (mt.outputProperties) {
-        Object.entries(mt.outputProperties).forEach(([key, value]) => {
-          if (typeof value === 'string') {
-            acc[key] = value;
-          } else {
-            acc[key] = value.defaultValue ? value.defaultValue : value.type;
-          }
-        });
-      }
-
-      return acc;
-    }, {});
-    return propTypes;
   }
 });
