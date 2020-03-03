@@ -22,6 +22,7 @@ describe('WebpackResourceImporter', () => {
     'getElementDimensions',
     'getImport',
     'loadJSON',
+    'log',
     'removeClass',
     'removeControllerFromElement',
     'removeElement',

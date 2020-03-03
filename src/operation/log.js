@@ -1,7 +1,7 @@
-function logOperation(operationData, eventBus) {
+function log(operationData, eventBus) {
   console.dir(this);
   console.dir(operationData);
   return operationData;
 }
 
-export default logOperation;
+export default log;
