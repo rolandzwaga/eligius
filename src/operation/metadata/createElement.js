@@ -9,6 +9,7 @@ function customFunction() {
         required: true,
       },
       attributes: ParameterTypes.OBJECT,
+      text: ParameterTypes.STRING,
     },
     outputProperties: {
       template: ParameterTypes.OBJECT,

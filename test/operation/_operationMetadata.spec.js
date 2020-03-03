@@ -19,7 +19,7 @@ describe('automatic input and output tests', () => {
     expect(isEqual).to.be.true;
   });
 
-  xit('should have the correct in- and output for all operations based on their metadata', () => {
+  /*it('should have the correct in- and output for all operations based on their metadata', () => {
     Object.entries(operations).forEach(([name, operation]) => {
       testOperation(name, operation, metadata[name](), metadata);
     });
@@ -140,5 +140,5 @@ describe('automatic input and output tests', () => {
       default:
         propertyType;
     }
-  }
+  }*/
 });

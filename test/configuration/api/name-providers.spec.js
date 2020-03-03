@@ -9,8 +9,6 @@ describe('name-providers', () => {
     // test
     const eventNames = provider.getEventNames();
 
-    console.dir(eventNames);
-
     // expect
     expect(eventNames).to.not.be.undefined;
     expect(eventNames.length > 0).to.be.true;
