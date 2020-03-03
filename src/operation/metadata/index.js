@@ -16,6 +16,7 @@ export { default as getControllerInstance } from './getControllerInstance';
 export { default as getElementDimensions } from './getElementDimensions';
 export { default as getImport } from './getImport';
 export { default as loadJSON } from './loadJSON';
+export { default as logOperation } from './logOperation';
 export { default as removeClass } from './removeClass';
 export { default as removeControllerFromElement } from './removeControllerFromElement';
 export { default as removeElement } from './removeElement';
