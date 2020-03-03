@@ -10,7 +10,7 @@ function startLoop() {
       },
       propertyName: {
         type: ParameterTypes.STRING,
-        required: true,
+        defaultValue: 'currentItem',
       },
     },
   };

@@ -1,6 +1,8 @@
 function startLoop(operationData, eventBus) {
   const context = this;
-  const { collection, propertyName } = operationData;
+  const { collection } = operationData;
+  let { propertyName } = operationData;
+  propertyName = propertyName || 'currentItem';
   if (!context.loopIndex) {
     if (collection && collection.length) {
       context.loopIndex = 0;

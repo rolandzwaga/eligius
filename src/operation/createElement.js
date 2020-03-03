@@ -1,6 +1,9 @@
 import $ from 'jquery';
+import resolvePropertyValues from './helper/resolvePropertyValues';
 
 function createElement(operationData, eventBus) {
+  operationData = resolvePropertyValues(operationData, operationData);
+  console.dir(operationData);
   const { elementName, attributes, text } = operationData;
   const serializedAttrs = attributes
     ? ' ' +

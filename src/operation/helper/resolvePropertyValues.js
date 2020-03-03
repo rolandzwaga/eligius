@@ -2,13 +2,12 @@ import extractOperationDataArgumentValues from './extractOperationDataArgumentVa
 import deepcopy from './deepcopy';
 
 function resolvePropertyValues(operationData, properties) {
-    const copy = deepcopy(properties);
-    const extract = extractOperationDataArgumentValues.bind(null, operationData);
-    for(let propertyName in properties) {
-        const propertyValue = properties[propertyName];
-        copy[propertyName] = extract(propertyValue);
-    }
-    return copy;
+  const copy = properties !== operationData ? deepcopy(properties) : properties;
+  const extract = extractOperationDataArgumentValues.bind(null, operationData);
+  Object.entries(properties).forEach(([key, value]) => {
+    copy[key] = extract(value);
+  });
+  return copy;
 }
 
 export default resolvePropertyValues;
