@@ -1,9 +1,11 @@
 import RequestAnimationFrameTimelineProvider from '../../src/timelineproviders/request-animation-frame-timeline-provider';
 import createStub from 'raf-stub';
 import sinon from 'sinon';
+import { expect } from 'chai';
 
 class MockEventBus {
   on() {}
+  broadcastForTopic() {}
 }
 
 describe('RequestAnimationFrameTimelineProvider', () => {
@@ -33,6 +35,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   });
 
   it('should start', () => {
-    provider._start();
+    provider.play();
+    expect(provider.playState).to.equal('running');
   });
 });
