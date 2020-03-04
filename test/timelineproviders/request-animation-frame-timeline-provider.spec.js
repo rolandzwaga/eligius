@@ -1,4 +1,3 @@
-import RequestAnimationFrameTimelineProvider from '../../src/timelineproviders/request-animation-frame-timeline-provider';
 import createStub from 'raf-stub';
 import sinon from 'sinon';
 import { expect } from 'chai';
@@ -13,11 +12,24 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   let configuration = null;
   let eventbus = null;
   let stub = null;
+  let RequestAnimationFrameTimelineProvider = null;
+  let fakeContainer = ['selectedElement'];
+
+  function jQueryStub(selector) {
+    return fakeContainer;
+  }
 
   beforeEach(() => {
     stub = createStub();
     global.requestAnimationFrame = () => {};
     global.cancelAnimationFrame = () => {};
+
+    const inject = require('inject-loader!../../src/timelineproviders/request-animation-frame-timeline-provider');
+
+    RequestAnimationFrameTimelineProvider = inject({
+      jquery: jQueryStub,
+    }).default;
+
     sinon.stub(global, 'requestAnimationFrame').callsFake(stub.add);
     sinon.stub(global, 'cancelAnimationFrame').callsFake(stub.add);
 
@@ -25,6 +37,8 @@ describe('RequestAnimationFrameTimelineProvider', () => {
       timelines: [
         {
           type: 'animation',
+          duration: 5,
+          selector: 'selector',
         },
       ],
     };
@@ -37,11 +51,15 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   });
 
   it('should start', () => {
+    provider.init();
+
     provider.play();
     expect(provider.playState).to.equal('running');
   });
 
   it('should pause', () => {
+    provider.init();
+
     provider.play();
     expect(provider.playState).to.equal('running');
     provider.pause();
@@ -49,6 +67,8 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   });
 
   it('should stop', () => {
+    provider.init();
+
     provider.play();
     expect(provider.playState).to.equal('running');
     provider.stop();

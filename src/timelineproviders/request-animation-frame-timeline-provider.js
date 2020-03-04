@@ -16,15 +16,12 @@ class RequestAnimationFrameTimelineProvider {
     this.currentPlaylistItem = null;
     this.firstFrame = true;
     this.playState = 'stopped';
+    this.granularity = 1000;
     this._addEventListeners();
   }
 
   _extractPlaylist(configuration) {
-    const playlist = configuration.timelines
-      .filter(timeline => timeline.type === 'animation')
-      .map(timeline => {
-        return timeline;
-      });
+    const playlist = configuration.timelines.filter(timeline => timeline.type === 'animation');
     return playlist;
   }
 
@@ -71,7 +68,7 @@ class RequestAnimationFrameTimelineProvider {
     if (!this.playState !== 'running') {
       return;
     }
-    if (!this.last || now - this.last >= 1000) {
+    if (!this.last || now - this.last >= this.granularity) {
       if (!this.last && this.firstFrame) {
         this.firstFrame = false;
         this.eventbus.broadcastForTopic(TimelineEventNames.FIRSTFRAME, this.providerid);
@@ -130,7 +127,7 @@ class RequestAnimationFrameTimelineProvider {
     this.currentPlaylistItem = this.playlist[0];
     this.container = $(this.currentPlaylistItem.selector);
     if (!this.container.length) {
-      throw new Error(`timeline selector '${selector}' not found`);
+      throw new Error(`timeline selector '${this.currentPlaylistItem.selector}' not found`);
     }
     const promise = new Promise(resolve => {
       resolve();
