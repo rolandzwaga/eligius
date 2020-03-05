@@ -8,10 +8,10 @@ import TimelineEventNames from './timeline-event-names';
  * ...
  */
 class ChronoTriggerEngine {
-  constructor(configuration, eventbus, timelineProvider, languageManager) {
+  constructor(configuration, eventbus, timelineProviders, languageManager) {
     this._configuration = configuration;
     this._eventbus = eventbus;
-    this._timelineProvider = timelineProvider;
+    this._timelineProviders = timelineProviders;
     this._timeLineActionsLookup = {};
     this._eventbusListeners = [];
     this._languageManager = languageManager;
@@ -50,23 +50,21 @@ class ChronoTriggerEngine {
     if (!timelineProviderSettings) {
       return;
     }
-
-    const playerContainer = $(`#${timelineProviderSettings.selector}`);
-
-    if (playerContainer.length) {
-      return new Promise(resolve => {
-        this._timelineProvider.init().then(() => {
-          this._executeActions(this._configuration.initActions, 'start').then(() => {
-            this._timelineProvider.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor));
-            this._timelineProvider.on(TimelineEventNames.SEEK, this._onSeekHandler.bind(this, Math.floor));
-            resolve(this._timelineProvider);
-          });
-        });
-      });
+    const firstTimeline = this._configuration.timelines[0];
+    const providerSettings = this._timelineProviders[firstTimeline.type];
+    if (this._activeTimelineProvider) {
+      this._activeTimelineProvider.destroy();
     }
+    this._activeTimelineProvider = providerSettings.provider;
 
     return new Promise(resolve => {
-      resolve();
+      this._activeTimelineProvider.init(firstTimeline.selector).then(() => {
+        this._executeActions(this._configuration.initActions, 'start').then(() => {
+          this._activeTimelineProvider.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor));
+          this._activeTimelineProvider.on(TimelineEventNames.SEEK, this._onSeekHandler.bind(this, Math.floor));
+          resolve(this._activeTimelineProvider);
+        });
+      });
     });
   }
 
@@ -79,11 +77,15 @@ class ChronoTriggerEngine {
     await this._cleanUp();
     this._configuration = null;
     this._eventbus = null;
-    this._timelineProvider = null;
+    Object.values(this._timelineProviders).forEach(provider => {
+      provider.destroy();
+    });
+    this._timelineProviders = null;
+    this._activeTimelineProvider = null;
     this._timeLineActionsLookup = null;
     this._eventbusListeners.forEach(remover => remover());
-    if (this._timelineProvider) {
-      this._timelineProvider.destroy();
+    if (this._timelineProviders) {
+      this._timelineProviders.destroy();
     }
   }
 
@@ -184,29 +186,34 @@ class ChronoTriggerEngine {
     resultCallback($(engineRootSelector));
   }
 
-  _handleRequestTimelineUri(index, position, previousVideoPosition) {
+  _handleRequestTimelineUri(uri, position, previousVideoPosition) {
     position = position || 0;
     previousVideoPosition = previousVideoPosition || 0;
-    this._timelineProvider.stop();
+    this._activeTimelineProvider.stop();
     this._cleanUpTimeline().then(() => {
-      const timelineConfig = this._configuration.timelines[index];
+      const timelineConfig = this._configuration.timelines.find(timeline => timeline.uri === uri);
       this._currentTimelineUri = timelineConfig.uri;
-      this._timelineProvider.loop = timelineConfig.loop;
-      if (!this._timelineProvider.loop && position > 0) {
-        this._timelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
-          this._timelineProvider.pause();
-          this._eventbus.broadcastForTopic(TimelineEventNames.DURATION, this._timelineProvider.playerid, [
+      const newProviderSettings = this._timelineProviders[timelineConfig.type];
+      if (this._activeTimelineProvider !== newProviderSettings.provider) {
+        this._activeTimelineProvider.destroy();
+        this._activeTimelineProvider = newProviderSettings.provider;
+      }
+      this._activeTimelineProvider.loop = timelineConfig.loop;
+      if (!this._activeTimelineProvider.loop && position > 0) {
+        this._activeTimelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
+          this._activeTimelineProvider.pause();
+          this._eventbus.broadcastForTopic(TimelineEventNames.DURATION, this._activeTimelineProvider.playerid, [
             this.getDuration(),
           ]);
           this._executeStartActions().then(() => {
-            this._timelineProvider.seek(position);
+            this._activeTimelineProvider.seek(position);
             this._onSeekHandler(Math.floor, {
               offset: position,
             });
           });
         });
       }
-      this._timelineProvider.playlistItem(index);
+      this._activeTimelineProvider.playlistItem(uri);
     });
   }
 
@@ -246,7 +253,7 @@ class ChronoTriggerEngine {
   }
 
   _handleRequestTimelinePosition(floor, resultCallback) {
-    resultCallback(floor(this._timelineProvider.getPosition()));
+    resultCallback(floor(this._timelineProviders.getPosition()));
   }
 
   _handleTimelineComplete() {
@@ -294,14 +301,14 @@ class ChronoTriggerEngine {
       const pos = floor(event.position);
       if (this._lastPosition !== pos) {
         this._executeActionsForPosition(pos);
-        this._eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this._timelineProvider.playerid, [
+        this._eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this._activeTimelineProvider.playerid, [
           pos,
-          this._timelineProvider.getDuration(),
+          this._activeTimelineProvider.getDuration(),
         ]);
       }
-      this._eventbus.broadcastForTopic(TimelineEventNames.TIME_UPDATE, this._timelineProvider.playerid, [
+      this._eventbus.broadcastForTopic(TimelineEventNames.TIME_UPDATE, this._activeTimelineProvider.playerid, [
         event.position,
-        this._timelineProvider.getDuration(),
+        this._activeTimelineProvider.getDuration(),
       ]);
     }
   }
@@ -312,7 +319,7 @@ class ChronoTriggerEngine {
       return;
     }
     this._executeSeekActions(pos).then(() => {
-      this._timelineProvider.play();
+      this._activeTimelineProvider.play();
     });
   }
 

@@ -100,6 +100,10 @@ declare namespace ChronoTrigger {
   }
 
   interface ITimelineProviderSettingsConfiguration {
+    [key: string]: ITimelineProviderSettings;
+  }
+
+  interface ITimelineProviderSettings {
     vendor: string;
     selector: string;
     systemName: string;
@@ -163,11 +167,6 @@ declare namespace ChronoTrigger {
   class ActionEditor extends BaseActionEditor<ActionEditor> {}
   class EndableActionEditor extends BaseEndableActionEditor<EndableActionEditor> {}
   class TimelineActionEditor extends BaseTimelineActionEditor<TimelineActionEditor> {}
-
-  enum TimelineType {
-    animation = 'animation',
-    video = 'video',
-  }
 
   class ParameterTypes {
     static HTML_ELEMENT_NAME: string;

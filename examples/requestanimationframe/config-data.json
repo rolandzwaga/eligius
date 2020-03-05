@@ -4,9 +4,10 @@
         "systemName": "ChronoTriggerEngine"
     },
     "timelineProviderSettings": {
-        "vendor": "chronotrigger",
-        "selector": "main",
-        "systemName": "RequestAnimationFrameTimelineProvider"
+        "animation": {
+            "vendor": "chronotrigger",
+            "systemName": "RequestAnimationFrameTimelineProvider"
+        }
     },
     "containerSelector": "#ct-container",
     "language": "en-US",

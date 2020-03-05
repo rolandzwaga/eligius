@@ -17,7 +17,7 @@ class RequestAnimationFrameTimelineProvider {
     this.firstFrame = true;
     this.playState = 'stopped';
     this.granularity = 1000;
-    this._addEventListeners();
+    this.playlist = this._extractPlaylist(config);
   }
 
   _extractPlaylist(configuration) {
@@ -25,13 +25,14 @@ class RequestAnimationFrameTimelineProvider {
     return playlist;
   }
 
-  playlistItem(index) {
-    if (index < 0 || index > this.playlist.length) {
+  playlistItem(uri) {
+    if (uri === null || !uri.length || this.playlist.length === 0) {
       return;
     }
-    this.currentPlaylistItem = this.playlist[index];
+    this.currentPlaylistItem = this.playlist.find(item => {
+      return item.uri === uri;
+    });
     this.firstFrame = true;
-    this.reset();
   }
 
   _addEventListeners() {
@@ -65,7 +66,7 @@ class RequestAnimationFrameTimelineProvider {
   }
 
   _update(now) {
-    if (!this.playState !== 'running') {
+    if (this.playState !== 'running') {
       return;
     }
     if (!this.last || now - this.last >= this.granularity) {
@@ -96,6 +97,7 @@ class RequestAnimationFrameTimelineProvider {
     if (this.requestID && this.playState === 'running') {
       return;
     }
+    this.playState = 'running';
     this.requestID = requestAnimationFrame(this._updateBound);
   }
 
@@ -123,7 +125,7 @@ class RequestAnimationFrameTimelineProvider {
   }
 
   init() {
-    this.playlist = this._extractPlaylist(this.config);
+    this._addEventListeners();
     this.currentPlaylistItem = this.playlist[0];
     this.container = $(this.currentPlaylistItem.selector);
     if (!this.container.length) {
@@ -138,10 +140,12 @@ class RequestAnimationFrameTimelineProvider {
   destroy() {
     this.stop();
     this._eventbusListeners.forEach(func => func());
+    this.container = null;
+    this.currentPlaylistItem = null;
   }
 
   toggleplay() {
-    if (!this.playState !== 'running') {
+    if (this.playState !== 'running') {
       this.play();
     } else {
       this.pause();
@@ -149,7 +153,6 @@ class RequestAnimationFrameTimelineProvider {
   }
 
   play() {
-    this.playState = 'running';
     this._start();
     this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.providerid);
   }
