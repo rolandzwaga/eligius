@@ -14,14 +14,16 @@ describe('ChronoTriggerEngine', () => {
   let fakeContainer;
   let configuration;
   let eventbus;
-  let provider;
+  let providers;
+  let languageManager;
 
   beforeEach(() => {
     ChronoTriggerEngine = null;
     fakeContainer = null;
     configuration = {};
     eventbus = {};
-    provider = {};
+    providers = {};
+    languageManager = {};
 
     const inject = require('inject-loader!../src/chrono-trigger-engine');
 
@@ -53,20 +55,20 @@ describe('ChronoTriggerEngine', () => {
 
   it('should create an engine', () => {
     // test
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // expect
     expect(engine).to.not.equal(null);
     expect(engine._configuration).to.equal(configuration);
     expect(engine._eventbus).to.equal(eventbus);
-    expect(engine._timelineProvider).to.equal(provider);
+    expect(engine._timelineProviders).to.equal(providers);
   });
 
   it('should create the layout template', () => {
     // given
     setupLayoutInit();
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // test
     engine._createLayoutTemplate();
@@ -76,7 +78,7 @@ describe('ChronoTriggerEngine', () => {
     // given
     configuration.containerSelector = '.test';
     let error = null;
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // test
     try {
@@ -94,7 +96,7 @@ describe('ChronoTriggerEngine', () => {
     // given
     setupEventbus();
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // test
     engine._addInitialisationListeners();
@@ -110,13 +112,13 @@ describe('ChronoTriggerEngine', () => {
     configuration.language = {};
     configuration.labels = {};
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // test
     engine.init();
 
     // expect
-    expect(engine._languageManager).to.not.equal(null);
+    expect(engine._languageManager).to.equal(languageManager);
     // expect(engine._languageManager._currentLanguage).to.equal(configuration.language);
   });
 
@@ -145,7 +147,7 @@ describe('ChronoTriggerEngine', () => {
       },
     ];
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // test
     engine.init();
@@ -180,7 +182,7 @@ describe('ChronoTriggerEngine', () => {
       },
     ];
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, provider);
+    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
     // test
     engine.init();
