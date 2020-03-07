@@ -46,8 +46,7 @@ class ChronoTriggerEngine {
   }
 
   _initializeTimelineProvider() {
-    const { timelineProviderSettings } = this._configuration;
-    if (!timelineProviderSettings) {
+    if (!this._configuration.timelines || !this._configuration.timelines.length) {
       return;
     }
     const firstTimeline = this._configuration.timelines[0];
@@ -169,7 +168,7 @@ class ChronoTriggerEngine {
   }
 
   _executeActions(actions, methodName, idx = 0) {
-    if (idx < actions.length) {
+    if (actions && idx < actions.length) {
       const action = actions[idx];
 
       const promise = action[methodName]();

@@ -146,6 +146,16 @@ describe('ChronoTriggerEngine', () => {
         ],
       },
     ];
+    providers = {
+      animation: {
+        provider: {
+          init: () => {
+            return new Promise(resolve => resolve());
+          },
+          on: () => {},
+        },
+      },
+    };
 
     const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
@@ -156,6 +166,7 @@ describe('ChronoTriggerEngine', () => {
     expect(engine._timeLineActionsLookup['animation-01']).to.not.equal(null);
     expect(engine._timeLineActionsLookup['animation-01'][1].length).to.equal(1);
     expect(engine._timeLineActionsLookup['animation-01'][2].length).to.equal(1);
+    expect(engine._activeTimelineProvider).to.equal(providers['animation'].provider);
   });
 
   it('should initialize end duration to Infinity for timeline actions without an end value', () => {
@@ -181,6 +192,16 @@ describe('ChronoTriggerEngine', () => {
         ],
       },
     ];
+    providers = {
+      animation: {
+        provider: {
+          init: () => {
+            return new Promise(resolve => resolve());
+          },
+          on: () => {},
+        },
+      },
+    };
 
     const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
