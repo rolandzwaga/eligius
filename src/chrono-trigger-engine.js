@@ -195,9 +195,11 @@ class ChronoTriggerEngine {
     this._cleanUpTimeline().then(() => {
       const timelineConfig = this._configuration.timelines.find(timeline => timeline.uri === uri);
       this._currentTimelineUri = timelineConfig.uri;
-      this._eventbus.broadcastForTopic(TimelineEventNames.TIMELINE_CHANGE, this._activeTimelineProvider.playerid, [
-        timelineConfig.uri,
-      ]);
+      this._eventbus.broadcastForTopic(
+        TimelineEventNames.CURRENT_TIMELINE_CHANGE,
+        this._activeTimelineProvider.playerid,
+        [timelineConfig.uri]
+      );
       const newProviderSettings = this._timelineProviders[timelineConfig.type];
       if (this._activeTimelineProvider !== newProviderSettings.provider) {
         this._activeTimelineProvider.destroy();

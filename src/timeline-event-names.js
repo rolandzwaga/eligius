@@ -9,7 +9,7 @@ class TimelineEventNames {
   static CONTAINER_REQUEST = 'timeline-container-request';
   static DURATION_REQUEST = 'timeline-duration-request';
   static PROVIDERID_REQUEST = 'timeline-providerid-request';
-  static REQUEST_CURRENT_TIMELINE = 'timeline-request-timeline';
+  static REQUEST_CURRENT_TIMELINE = 'timeline-request-current-timeline';
 
   // timeline announcements
   static DURATION = 'timeline-duration';
@@ -23,7 +23,7 @@ class TimelineEventNames {
   static RESIZE = 'timeline-resize';
   static POSITION_UPDATE = 'timeline-position-update';
   static TIME_UPDATE = 'timeline-time-update';
-  static TIMELINE_CHANGE = 'timeline-timeline-change';
+  static CURRENT_TIMELINE_CHANGE = 'timeline-current-timeline-change';
 
   // factory and engine events
   static REQUEST_INSTANCE = 'request-instance';
