@@ -198,6 +198,8 @@ declare namespace ChronoTrigger {
     static RESIZE_REQUEST: string;
     static CONTAINER_REQUEST: string;
     static DURATION_REQUEST: string;
+    static PROVIDERID_REQUEST: string;
+    static REQUEST_CURRENT_TIMELINE: string;
 
     // timeline announcements
     static DURATION: string;
@@ -211,6 +213,7 @@ declare namespace ChronoTrigger {
     static RESIZE: string;
     static POSITION_UPDATE: string;
     static TIME_UPDATE: string;
+    static CURRENT_TIMELINE_CHANGE: string;
 
     // factory and engine events
     static REQUEST_INSTANCE: string;
