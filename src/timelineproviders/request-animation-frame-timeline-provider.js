@@ -11,7 +11,6 @@ class RequestAnimationFrameTimelineProvider {
     this._updateBound = this._update.bind(this);
     this.loop = false;
     this._eventbusListeners = [];
-    this.providerid = `provider${Math.random() * 1000}`;
     this.playlist = [];
     this.currentPlaylistItem = null;
     this.firstFrame = true;
@@ -36,29 +35,15 @@ class RequestAnimationFrameTimelineProvider {
   }
 
   _addEventListeners() {
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.providerid)
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this), this.providerid)
+      this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this))
     );
     this._eventbusListeners.push(
       this.eventbus.on(TimelineEventNames.PROVIDERID_REQUEST, this.requestProviderIdHandler.bind(this))
@@ -72,7 +57,7 @@ class RequestAnimationFrameTimelineProvider {
     if (!this.last || now - this.last >= this.granularity) {
       if (!this.last && this.firstFrame) {
         this.firstFrame = false;
-        this.eventbus.broadcastForTopic(TimelineEventNames.FIRSTFRAME, this.providerid);
+        this.eventbus.broadcast(TimelineEventNames.FIRSTFRAME);
       }
       this.last = now;
       this.current++;
@@ -81,12 +66,12 @@ class RequestAnimationFrameTimelineProvider {
           this._reset();
         } else {
           this.stop();
-          this.eventbus.broadcastForTopic(TimelineEventNames.COMPLETE, this.providerid);
+          this.eventbus.broadcast(TimelineEventNames.COMPLETE);
           return;
         }
       }
-      this.eventbus.broadcastForTopic(TimelineEventNames.TIME, this.providerid, [{ position: this.current }]);
-      this.eventbus.broadcastForTopic(TimelineEventNames.POSITION_UPDATE, this.providerid, [
+      this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.current }]);
+      this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
         { position: this.current, duration: this.currentPlaylistItem.duration },
       ]);
     }
@@ -154,27 +139,27 @@ class RequestAnimationFrameTimelineProvider {
 
   play() {
     this._start();
-    this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.providerid);
+    this.eventbus.broadcast(TimelineEventNames.PLAY);
   }
 
   stop() {
     this._cancelAnimationFrame();
     this.playState = 'stopped';
-    this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.providerid);
+    this.eventbus.broadcast(TimelineEventNames.STOP);
   }
 
   pause() {
     this.playState = 'paused';
-    this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.providerid);
+    this.eventbus.broadcast(TimelineEventNames.PAUSE);
   }
 
   seek(position) {
     if (position < 0 || position > this.currentPlaylistItem.duration) {
       return;
     }
-    this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.providerid);
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this.current, this.getDuration()]);
     this.current = position;
-    this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.providerid);
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
   }
 
   getPosition() {
@@ -194,11 +179,11 @@ class RequestAnimationFrameTimelineProvider {
   }
 
   on(eventName, handler) {
-    return this.eventbus.on(eventName, handler, this.providerid);
+    return this.eventbus.on(eventName, handler);
   }
 
   once(eventName, handler) {
-    return this.eventbus.once(eventName, handler, this.providerid);
+    return this.eventbus.once(eventName, handler);
   }
 }
 

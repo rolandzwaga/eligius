@@ -2,225 +2,225 @@ import $ from 'jquery';
 import TimelineEventNames from '../timeline-event-names';
 
 class JwPlayerTimelineProvider {
+  constructor(eventbus, config) {
+    this.eventbus = eventbus;
+    this.config = config;
+    this.loop = false;
+    this.player = null;
+    this.currentLoopHandler = null;
+    this._eventbusListeners = [];
+    this._addEventListeners();
+  }
 
-   constructor(eventbus, config) {
-        this.eventbus = eventbus;
-        this.config = config;
-        this.providerid = config.playerSettings.selector;
-        this.loop = false;
-        this.player = null;
-        this.currentLoopHandler = null;
-        this._eventbusListeners = [];
-        this._addEventListeners();
+  _extractUrls(configuration) {
+    const urls = configuration.timelines
+      .filter(timeline => timeline.type === 'video')
+      .map(timeline => {
+        return timeline.uri;
+      });
+    return urls;
+  }
+
+  init(selector) {
+    const urls = this._extractUrls(this.config);
+    const jwp = window.jwplayer;
+    const p = $(`#${selector}`);
+    if (!p.length) {
+      throw new Error(`videoplayer selector '${selector}' not found`);
+    }
+    let w = p.innerWidth();
+    let h = p.innerHeight();
+    if (w === 0) {
+      w = 100;
+    }
+    if (h === 0) {
+      h = 300;
     }
 
-    _extractUrls(configuration) {
-        const urls = configuration.timelines.filter(timeline => timeline.type === "video").map(timeline => {
-            return timeline.uri;
-        });
-        return urls;
-    }
+    this.player = jwp(this.config.playerSettings.selector);
+    this.player.setup({
+      file: urls[0],
+      image: this.config.playerSettings.poster,
+      height: h,
+      width: w,
+      controls: true,
+      autostart: false,
+      displaytitle: false,
+      displaydescription: false,
+      nextUpDisplay: false,
+      abouttext: 'Rosetta Group',
+      aboutlink: 'http://www.rosettagroup.nl',
+      stretching: 'fill',
+      repeat: false,
+    });
+    const playlist = [];
+    urls.forEach(url => {
+      playlist.push({
+        file: url,
+        title: url,
+        image: this.config.playerSettings.poster,
+      });
+    });
+    const promise = new Promise((resolve, reject) => {
+      this.player.once('ready', () => {
+        this._handlePlayerReady(resolve);
+      });
+      this.player.load(playlist);
+    });
+    return promise;
+  }
 
-    init(selector) {
-        const urls = this._extractUrls(this.config);
-        const jwp = window.jwplayer;
-        const p = $(`#${selector}`);
-        if (!p.length) {
-            throw new Error(`videoplayer selector '${selector}' not found`);
-        }
-        let w = p.innerWidth();
-        let h = p.innerHeight();
-        if (w === 0) {
-            w = 100;
-        }
-        if (h === 0) {
-            h = 300;
-        }
+  _handlePlayerReady(resolve) {
+    this.player.once('firstFrame', () => {
+      this.player.pause();
+      this.eventbus.broadcast(TimelineEventNames.DURATION, [this.getDuration()]);
+      resolve(this);
+    });
+    this.player.on(TimelineEventNames.TIME, this._loopHandler.bind(this, Math.floor));
+    this.player.on(TimelineEventNames.SEEKED, this._seekedHandler.bind(this));
+    this.player.on(TimelineEventNames.COMPLETE, this._handlePlayerComplete.bind(this));
+    setTimeout(() => {
+      this.player.play();
+    }, 10);
+  }
 
-        this.player = jwp(this.config.playerSettings.selector);
-        this.player.setup({
-            file: urls[0],
-            image: this.config.playerSettings.poster,
-            height: h,
-            width: w,
-            controls: true,
-            autostart: false,
-            displaytitle: false,
-            displaydescription: false,
-            nextUpDisplay: false,
-            abouttext: 'Rosetta Group',
-            aboutlink: 'http://www.rosettagroup.nl',
-            stretching: "fill",
-            repeat: false
-        });
-        const playlist = [];
-        urls.forEach((url) => {
-            playlist.push({
-                file: url,
-                title: url,
-                image: this.config.playerSettings.poster
-            });
-        });
-        const promise = new Promise((resolve, reject) => {
-            this.player.once("ready", () => {
-                this._handlePlayerReady(resolve);
-            });
-            this.player.load(playlist);
-        });
-        return promise;
+  _handlePlayerComplete() {
+    if (!this.loop) {
+      this.stop();
+      this.eventbus.broadcast(TimelineEventNames.COMPLETE, [this.player.getPlaylistIndex()]);
     }
+  }
 
-    _handlePlayerReady(resolve) {
-        this.player.once("firstFrame", () => {
-            this.player.pause();
-            this.eventbus.broadcastForTopic(TimelineEventNames.DURATION, this.player.playerid, [this.getDuration()]);
-            resolve(this);
-        });
-        this.player.on(TimelineEventNames.TIME, this._loopHandler.bind(this, Math.floor));
-        this.player.on(TimelineEventNames.SEEKED, this._seekedHandler.bind(this));
-        this.player.on(TimelineEventNames.COMPLETE, this._handlePlayerComplete.bind(this));
-        setTimeout(()=> {
-            this.player.play();
-        },10);
-    }
+  _seekedHandler() {
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
+  }
 
-    _handlePlayerComplete() {
-        if (!this.loop) {
-            this.stop();
-            this.eventbus.broadcastForTopic(TimelineEventNames.COMPLETE, this.providerid, [this.player.getPlaylistIndex()]);
-        }
-    }
+  destroy() {
+    this.player.remove();
+    this._eventbusListeners.forEach(func => func());
+  }
 
-    _seekedHandler() {
-        this.eventbus.broadcastForTopic(TimelineEventNames.SEEKED, this.providerid, [this.getPosition(), this.getDuration()]);
+  _loopHandler(floor, event) {
+    const pos = floor(event.position);
+    if (this.loop && pos === floor(this.player.getDuration() - 1)) {
+      this.seek(0);
     }
+  }
 
-    destroy() {
-        this.player.remove();
-        this._eventbusListeners.forEach(func => func());
+  _timeResetLoopHandler(event) {
+    if (this.loop) {
+      this.seek(0);
     }
+  }
 
-    _loopHandler(floor, event) {
-        const pos = floor(event.position);
-        if ((this.loop) && (pos === floor(this.player.getDuration() - 1))) {
-            this.seek(0);
-        }
-    }
+  _addEventListeners() {
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this)));
+  }
 
-    _timeResetLoopHandler(event) {
-        if (this.loop) {
-            this.seek(0);
-        }
+  _container(resultCallback) {
+    let suffix = '';
+    if (this.player.getProvider().name !== 'html5') {
+      suffix = '_wrapper';
     }
+    const container = $(`#${this.providerid}${suffix}`);
+    resultCallback(container);
+  }
 
-    _addEventListeners() {
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this), this.providerid));
-        this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this), this.providerid));
+  toggleplay() {
+    if (this.paused) {
+      this.play();
+    } else {
+      this.pause();
     }
+  }
 
-    _container(resultCallback) {
-        let suffix = "";
-        if (this.player.getProvider().name !== "html5") {
-            suffix = "_wrapper";
-        }
-        const container = $(`#${this.providerid}${suffix}`);
-        resultCallback(container);
-    }
+  play() {
+    this.paused = false;
+    this.player.play();
+    this.eventbus.broadcast(TimelineEventNames.PLAY);
+  }
 
-    toggleplay() {
-        if (this.paused) {
-            this.play()
-        } else {
-            this.pause();
-        }
-    }
+  stop() {
+    this.paused = false;
+    this.player.stop();
+    this.eventbus.broadcast(TimelineEventNames.STOP);
+  }
 
-    play() {
-        this.paused = false;
-        this.player.play();
-        this.eventbus.broadcastForTopic(TimelineEventNames.PLAY, this.providerid);
-    }
+  pause() {
+    this.paused = true;
+    this.player.pause();
+    this.eventbus.broadcast(TimelineEventNames.PAUSE);
+  }
 
-    stop() {
-        this.paused = false;
-        this.player.stop();
-        this.eventbus.broadcastForTopic(TimelineEventNames.STOP, this.providerid);
-    }
+  seek(position) {
+    const currentPosition = this.player.getPosition();
+    this.player.seek(position);
+    this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, [position, currentPosition, this.player.getDuration()]);
+  }
 
-    pause() {
-        this.paused = true;
-        this.player.pause();
-        this.eventbus.broadcastForTopic(TimelineEventNames.PAUSE, this.providerid);
-    }
+  resize(width, height) {
+    this.player.resize(width, height);
+    this.eventbus.broadcast(TimelineEventNames.RESIZE, [width, height]);
+  }
 
-    seek(position) {
-        const currentPosition = this.player.getPosition();
-        this.player.seek(position);
-        this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, this.providerid, [position, currentPosition, this.player.getDuration()]);
-    }
+  duration(resultCallback) {
+    resultCallback(Math.floor(this.getDuration()));
+  }
 
-    resize(width, height) {
-        this.player.resize(width, height);
-        this.eventbus.broadcastForTopic(TimelineEventNames.RESIZE, this.providerid, [width, height]);
-    }
+  playlistItem(index) {
+    this.player.playlistItem(index);
+  }
 
-    duration(resultCallback) {
-        resultCallback(Math.floor(this.getDuration()));
-    }
+  once(eventName, callback) {
+    this.player.once(eventName, callback);
+  }
 
-    playlistItem(index) {
-        this.player.playlistItem(index);
-    }
+  off(eventName, callback) {
+    this.player.off(eventName, callback);
+  }
 
-    once(eventName, callback) {
-        this.player.once(eventName, callback);
-    }
+  on(eventName, callback) {
+    this.player.on(eventName, callback);
+  }
 
-    off(eventName, callback) {
-        this.player.off(eventName, callback);
-    }
+  getPosition() {
+    return this.player.getPosition();
+  }
 
-    on(eventName, callback) {
-        this.player.on(eventName, callback);
-    }
+  getPlaylistIndex() {
+    return this.player.getPlaylistIndex();
+  }
 
-    getPosition() {
-        return this.player.getPosition();
-    }
+  getState() {
+    return this.player.getState();
+  }
 
-    getPlaylistIndex() {
-        return this.player.getPlaylistIndex();
-    }
+  getDuration() {
+    return this.player.getDuration();
+  }
 
-    getState() {
-        return this.player.getState();
-    }
+  getMute() {
+    return this.player.getMute();
+  }
 
-    getDuration() {
-        return this.player.getDuration();
-    }
+  getVolume() {
+    return this.player.getVolume();
+  }
 
-    getMute() {
-        return this.player.getMute();
-    }
+  setMute(state) {
+    this.player.setMute(state);
+  }
 
-    getVolume() {
-        return this.player.getVolume();
-    }
-
-    setMute(state) {
-        this.player.setMute(state);
-    }
-
-    setVolume(volume) {
-        this.player.setVolume(volume);
-    }
+  setVolume(volume) {
+    this.player.setVolume(volume);
+  }
 }
 
 export default JwPlayerTimelineProvider;
