@@ -1,6 +1,6 @@
 {
   "name": "chrono-trigger-js",
-  "version": "1.5.18",
+  "version": "1.6.0",
   "description": "An engine that allows arbitrary functionality, defined by a JSON configuration, to be triggered according to a given timeline provider",
   "main": "./lib/library.min.js",
   "types": "./lib/library.d.ts",
