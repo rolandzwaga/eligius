@@ -35,7 +35,7 @@ class SubtitlesController {
   }
 
   removeTitle(container) {
-    container.text('');
+    container.empty();
     this.lastFunc = null;
   }
 
@@ -51,19 +51,19 @@ class SubtitlesController {
   onSeekedHandler(arg) {
     let position = arg.position;
     let func = this.actionLookup[position];
-    while (!func && position > -1) {
-      func = this.actionLookup[--position];
+    while (!func && --position >= 0) {
+      func = this.actionLookup[position];
     }
     if (func) {
       func();
       this.lastFunc = func;
     } else {
-      this.removeTitle;
+      this.removeTitle();
     }
   }
 
   setTitle(container, titleLanguageLookup) {
-    container.text(titleLanguageLookup[this.currentLanguage]);
+    container.html(titleLanguageLookup[this.currentLanguage]);
   }
 
   createActionLookup(operationData, container) {
