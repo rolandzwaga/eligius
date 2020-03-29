@@ -10,9 +10,9 @@ class SubtitlesController {
 
   attach(eventbus) {
     const detachTime = eventbus.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this));
-    const detachTime = eventbus.on(TimelineEventNames.SEEKED, this.onSeekedHandler.bind(this));
+    const detachSeek = eventbus.on(TimelineEventNames.SEEKED, this.onSeekedHandler.bind(this));
     const detachLangChange = eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler.bind(this));
-    this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange]);
+    this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange, detachSeek]);
   }
 
   detach(eventbus) {
