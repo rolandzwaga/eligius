@@ -1,4 +1,4 @@
-import * as actions from './action';
+export { Action, EndableAction, TimelineAction } from './action';
 export { default as ConfigurationResolver } from './configuration/configuration-resolver';
 export { default as ChronoTriggerEngine } from './chrono-trigger-engine';
 export { default as EngineFactory } from './engine-factory';
@@ -27,5 +27,3 @@ export {
 } from './configuration/api/name-providers';
 export { default as TimelineProviderSettingsEditor } from './configuration/api/timeline-provider-settings-editor';
 export { default as ParameterTypes } from './operation/metadata/ParameterTypes';
-
-export default actions;

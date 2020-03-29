@@ -92,10 +92,7 @@ class EngineFactory {
 
     Mousetrap.bind('space', event => {
       event.preventDefault();
-      this._eventbus.broadcastForTopic(
-        TimelineEventNames.PLAY_TOGGLE_REQUEST,
-        chronoTriggerEngine._activeTimelineProvider.providerid
-      );
+      this._eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
       return false;
     });
 
