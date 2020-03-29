@@ -198,7 +198,6 @@ declare namespace ChronoTrigger {
     static RESIZE_REQUEST: string;
     static CONTAINER_REQUEST: string;
     static DURATION_REQUEST: string;
-    static PROVIDERID_REQUEST: string;
     static REQUEST_CURRENT_TIMELINE: string;
 
     // timeline announcements

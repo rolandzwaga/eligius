@@ -45,9 +45,6 @@ class RequestAnimationFrameTimelineProvider {
     this._eventbusListeners.push(
       this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this))
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.PROVIDERID_REQUEST, this.requestProviderIdHandler.bind(this))
-    );
   }
 
   _update(now) {
@@ -172,10 +169,6 @@ class RequestAnimationFrameTimelineProvider {
 
   requestDurationHandler(callBack) {
     callBack(this.currentPlaylistItem.duration);
-  }
-
-  requestProviderIdHandler(callBack) {
-    callBack(this.providerid);
   }
 
   on(eventName, handler) {

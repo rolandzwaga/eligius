@@ -8,7 +8,6 @@ class TimelineEventNames {
   static RESIZE_REQUEST = 'timeline-resize-request';
   static CONTAINER_REQUEST = 'timeline-container-request';
   static DURATION_REQUEST = 'timeline-duration-request';
-  static PROVIDERID_REQUEST = 'timeline-providerid-request';
   static REQUEST_CURRENT_TIMELINE = 'timeline-request-current-timeline';
 
   // timeline announcements
