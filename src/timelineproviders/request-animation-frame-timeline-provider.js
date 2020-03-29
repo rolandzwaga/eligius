@@ -157,6 +157,10 @@ class RequestAnimationFrameTimelineProvider {
     this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this.current, this.getDuration()]);
     this.current = position;
     this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
+    this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.getPosition() }]);
+    this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
+      { position: this.current, duration: this.currentPlaylistItem.duration },
+    ]);
   }
 
   getPosition() {

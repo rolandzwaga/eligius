@@ -10,6 +10,7 @@ class SubtitlesController {
 
   attach(eventbus) {
     const detachTime = eventbus.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this));
+    const detachTime = eventbus.on(TimelineEventNames.SEEKED, this.onSeekedHandler.bind(this));
     const detachLangChange = eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler.bind(this));
     this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange]);
   }
@@ -38,11 +39,26 @@ class SubtitlesController {
     this.lastFunc = null;
   }
 
-  onTimeHandler({ position }) {
+  onTimeHandler(arg) {
+    const position = arg.position;
     const func = this.actionLookup[position];
     if (func) {
       func();
       this.lastFunc = func;
+    }
+  }
+
+  onSeekedHandler(arg) {
+    let position = arg.position;
+    let func = this.actionLookup[position];
+    while (!func && position > -1) {
+      func = this.actionLookup[--position];
+    }
+    if (func) {
+      func();
+      this.lastFunc = func;
+    } else {
+      this.removeTitle;
     }
   }
 
