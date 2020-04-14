@@ -186,6 +186,8 @@ declare namespace ChronoTrigger {
     static DIMENSIONS_MODIFIER: string;
     static URL: string;
     static HTML_CONTENT: string;
+    static LABEL_ID: string;
+    static IMAGE_PATH: string;
   }
 
   class TimelineEventNames {
