@@ -18,4 +18,5 @@ export default class ParameterTypes {
   static HTML_CONTENT = 'ParameterType:htmlContent';
   static LABEL_ID = 'ParameterType:labelId';
   static IMAGE_PATH = 'ParameterType:ImagePath';
+  static QUADRANT_POSITION = 'ParameterType:QuadrantPosition';
 }

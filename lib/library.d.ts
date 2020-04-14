@@ -188,6 +188,7 @@ declare namespace ChronoTrigger {
     static HTML_CONTENT: string;
     static LABEL_ID: string;
     static IMAGE_PATH: string;
+    static QUADRANT_POSITION: string;
   }
 
   class TimelineEventNames {
