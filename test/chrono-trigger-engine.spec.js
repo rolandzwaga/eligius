@@ -102,7 +102,7 @@ describe('ChronoTriggerEngine', () => {
     engine._addInitialisationListeners();
 
     // expect
-    expect(engine._eventbusListeners.length).to.equal(6);
+    expect(engine._eventbusListeners.length).to.equal(7);
   });
 
   it('should initialize correctly', () => {
@@ -150,7 +150,7 @@ describe('ChronoTriggerEngine', () => {
       animation: {
         provider: {
           init: () => {
-            return new Promise(resolve => resolve());
+            return new Promise((resolve) => resolve());
           },
           on: () => {},
         },
@@ -196,7 +196,7 @@ describe('ChronoTriggerEngine', () => {
       animation: {
         provider: {
           init: () => {
-            return new Promise(resolve => resolve());
+            return new Promise((resolve) => resolve());
           },
           on: () => {},
         },

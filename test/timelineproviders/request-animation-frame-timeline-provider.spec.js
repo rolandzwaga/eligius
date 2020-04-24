@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 class MockEventBus {
   on() {}
-  broadcastForTopic() {}
+  broadcast() {}
 }
 
 describe('RequestAnimationFrameTimelineProvider', () => {
