@@ -14,8 +14,8 @@ class JwPlayerTimelineProvider {
 
   _extractUrls(configuration) {
     const urls = configuration.timelines
-      .filter(timeline => timeline.type === 'video')
-      .map(timeline => {
+      .filter((timeline) => timeline.type === 'video')
+      .map((timeline) => {
         return timeline.uri;
       });
     return urls;
@@ -54,7 +54,7 @@ class JwPlayerTimelineProvider {
       repeat: false,
     });
     const playlist = [];
-    urls.forEach(url => {
+    urls.forEach((url) => {
       playlist.push({
         file: url,
         title: url,
@@ -97,7 +97,7 @@ class JwPlayerTimelineProvider {
 
   destroy() {
     this.player.remove();
-    this._eventbusListeners.forEach(func => func());
+    this._eventbusListeners.forEach((func) => func());
   }
 
   _loopHandler(floor, event) {

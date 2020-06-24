@@ -7,7 +7,7 @@ class RequestAnimationFrameTimelineProvider {
     this.config = config;
     this.requestID = null;
     this.last = 0;
-    this.current = 0;
+    this.currentPosition = 0;
     this._updateBound = this._update.bind(this);
     this.loop = false;
     this._eventbusListeners = [];
@@ -20,7 +20,7 @@ class RequestAnimationFrameTimelineProvider {
   }
 
   _extractPlaylist(configuration) {
-    const playlist = configuration.timelines.filter(timeline => timeline.type === 'animation');
+    const playlist = configuration.timelines.filter((timeline) => timeline.type === 'animation');
     return playlist;
   }
 
@@ -28,7 +28,7 @@ class RequestAnimationFrameTimelineProvider {
     if (uri === null || !uri.length || this.playlist.length === 0) {
       return;
     }
-    this.currentPlaylistItem = this.playlist.find(item => {
+    this.currentPlaylistItem = this.playlist.find((item) => {
       return item.uri === uri;
     });
     this.firstFrame = true;
@@ -57,8 +57,8 @@ class RequestAnimationFrameTimelineProvider {
         this.eventbus.broadcast(TimelineEventNames.FIRSTFRAME);
       }
       this.last = now;
-      this.current++;
-      if (this.current > this.currentPlaylistItem.duration) {
+      this.currentPosition++;
+      if (this.currentPosition > this.currentPlaylistItem.duration) {
         if (this.loop) {
           this._reset();
         } else {
@@ -67,9 +67,9 @@ class RequestAnimationFrameTimelineProvider {
           return;
         }
       }
-      this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.current }]);
+      this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.currentPosition }]);
       this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-        { position: this.current, duration: this.currentPlaylistItem.duration },
+        { position: this.currentPosition, duration: this.currentPlaylistItem.duration },
       ]);
     }
     this.requestID = requestAnimationFrame(this._updateBound);
@@ -86,7 +86,7 @@ class RequestAnimationFrameTimelineProvider {
   _reset() {
     this._cancelAnimationFrame();
     this.last = 0;
-    this.current = 0;
+    this.currentPosition = 0;
   }
 
   _resize() {
@@ -102,7 +102,7 @@ class RequestAnimationFrameTimelineProvider {
       cancelAnimationFrame(this.requestID);
       this.requestID = null;
       this.last = 0;
-      this.current = 0;
+      this.currentPosition = 0;
     }
   }
 
@@ -113,7 +113,7 @@ class RequestAnimationFrameTimelineProvider {
     if (!this.container.length) {
       throw new Error(`timeline selector '${this.currentPlaylistItem.selector}' not found`);
     }
-    const promise = new Promise(resolve => {
+    const promise = new Promise((resolve) => {
       resolve();
     });
     return promise;
@@ -121,7 +121,7 @@ class RequestAnimationFrameTimelineProvider {
 
   destroy() {
     this.stop();
-    this._eventbusListeners.forEach(func => func());
+    this._eventbusListeners.forEach((func) => func());
     this.container = null;
     this.currentPlaylistItem = null;
   }
@@ -154,17 +154,17 @@ class RequestAnimationFrameTimelineProvider {
     if (position < 0 || position > this.currentPlaylistItem.duration) {
       return;
     }
-    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this.current, this.getDuration()]);
-    this.current = position;
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this.currentPosition, this.getDuration()]);
+    this.currentPosition = position;
     this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
     this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.getPosition() }]);
     this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-      { position: this.current, duration: this.currentPlaylistItem.duration },
+      { position: this.currentPosition, duration: this.currentPlaylistItem.duration },
     ]);
   }
 
   getPosition() {
-    return this.current;
+    return this.currentPosition;
   }
 
   getDuration() {

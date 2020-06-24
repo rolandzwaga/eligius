@@ -56,7 +56,7 @@ class ChronoTriggerEngine {
     }
     this._activeTimelineProvider = providerSettings.provider;
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this._activeTimelineProvider.init(firstTimeline.selector).then(() => {
         this._executeActions(this._configuration.initActions, 'start').then(() => {
           this._activeTimelineProvider.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor));
@@ -76,13 +76,13 @@ class ChronoTriggerEngine {
     await this._cleanUp();
     this._configuration = null;
     this._eventbus = null;
-    Object.values(this._timelineProviders).forEach(provider => {
+    Object.values(this._timelineProviders).forEach((provider) => {
       provider.destroy();
     });
     this._timelineProviders = null;
     this._activeTimelineProvider = null;
     this._timeLineActionsLookup = null;
-    this._eventbusListeners.forEach(remover => remover());
+    this._eventbusListeners.forEach((remover) => remover());
     if (this._timelineProviders) {
       this._timelineProviders.destroy();
     }
@@ -122,7 +122,7 @@ class ChronoTriggerEngine {
     if (!this._configuration.timelines) {
       return;
     }
-    this._configuration.timelines.forEach(timelineInfo => {
+    this._configuration.timelines.forEach((timelineInfo) => {
       timelineInfo.timelineActions.forEach(this._addTimelineAction.bind(this, timelineInfo.uri));
     });
   }
@@ -179,7 +179,7 @@ class ChronoTriggerEngine {
         return this._executeActions(actions, methodName, ++idx);
       });
     }
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       resolve();
     });
   }
@@ -192,20 +192,26 @@ class ChronoTriggerEngine {
     position = position || 0;
     previousVideoPosition = previousVideoPosition || 0;
     this._activeTimelineProvider.stop();
+
     this._cleanUpTimeline().then(() => {
-      const timelineConfig = this._configuration.timelines.find(timeline => timeline.uri === uri);
+      const timelineConfig = this._configuration.timelines.find((timeline) => timeline.uri === uri);
       this._currentTimelineUri = timelineConfig.uri;
+
       this._eventbus.broadcastForTopic(
         TimelineEventNames.CURRENT_TIMELINE_CHANGE,
         this._activeTimelineProvider.playerid,
         [timelineConfig.uri]
       );
+
       const newProviderSettings = this._timelineProviders[timelineConfig.type];
+
       if (this._activeTimelineProvider !== newProviderSettings.provider) {
         this._activeTimelineProvider.destroy();
         this._activeTimelineProvider = newProviderSettings.provider;
       }
+
       this._activeTimelineProvider.loop = timelineConfig.loop;
+
       if (!this._activeTimelineProvider.loop && position > 0) {
         this._activeTimelineProvider.once(TimelineEventNames.FIRST_FRAME, () => {
           this._activeTimelineProvider.pause();
@@ -220,6 +226,7 @@ class ChronoTriggerEngine {
           });
         });
       }
+
       this._activeTimelineProvider.playlistItem(uri);
     });
   }
@@ -233,15 +240,13 @@ class ChronoTriggerEngine {
   }
 
   _getActionsForPosition(position, allActions) {
-    return allActions.filter(action => {
+    return allActions.filter((action) => {
       return !action.active && action.duration.start <= position && action.duration.end >= position;
     });
   }
 
   _getActiveActions(allActions) {
-    const actions = allActions.filter(action => {
-      return action.active;
-    });
+    const actions = allActions.filter((action) => action.active);
     return actions.sort((a, b) => {
       if (b.duration.start < a.duration.start) {
         return -1;
@@ -297,7 +302,7 @@ class ChronoTriggerEngine {
 
   _getTimelineActionsForUri(uri) {
     let timelineActions;
-    this._configuration.timelines.some(timelineInfo => {
+    this._configuration.timelines.some((timelineInfo) => {
       if (timelineInfo.uri === uri) {
         timelineActions = timelineInfo.timelineActions;
         return true;
@@ -340,7 +345,7 @@ class ChronoTriggerEngine {
     if (actions) {
       const executions = actions[position];
       if (executions) {
-        executions.forEach(exec => {
+        executions.forEach((exec) => {
           exec();
         });
       }
@@ -354,7 +359,7 @@ class ChronoTriggerEngine {
 
     const promise = this._executeActions(currentActions, 'end', 0);
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       promise.then(() => {
         this._executeActions(newActions, 'start', 0).then(() => {
           resolve();

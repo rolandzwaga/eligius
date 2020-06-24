@@ -26,8 +26,8 @@ class MediaElementTimelineProvider {
 
   _extractUrls(configuration) {
     const urls = configuration.timelines
-      .filter(timeline => timeline.type === 'video')
-      .map(timeline => {
+      .filter((timeline) => timeline.type === 'video')
+      .map((timeline) => {
         return timeline.url;
       });
     return urls;
@@ -37,7 +37,7 @@ class MediaElementTimelineProvider {
     const urls = this._extractUrls(this.config);
     this._addVideoElements(selector, urls);
     const self = this;
-    const promise = new Promise(resolve => {
+    const promise = new Promise((resolve) => {
       self.player = new MediaElementPlayer(document.getElementById(`#${this._videoElementId}`), {
         success: (mediaElement, originalNode, instance) => {
           resolve();
@@ -50,7 +50,7 @@ class MediaElementTimelineProvider {
   _addVideoElements(selector, urls) {
     this._videoElementId = uuidv4();
     const videoElm = [`<video class='mejs__player' id=${this._videoElementId}>`];
-    urls.forEach(url => {
+    urls.forEach((url) => {
       videoElm.push(`<source src='${url}' type='${this._extractFileType(url)}'/>`);
     });
     videoElm.push('</video>');
@@ -73,7 +73,7 @@ class MediaElementTimelineProvider {
   destroy() {
     this.stop();
     $(this._videoElementId).remove();
-    this._eventbusListeners.forEach(func => func());
+    this._eventbusListeners.forEach((func) => func());
   }
 
   pause() {}
@@ -85,6 +85,8 @@ class MediaElementTimelineProvider {
   _container() {}
 
   duration() {}
+
+  getPosition() {}
 }
 
 export default MediaElementTimelineProvider;
