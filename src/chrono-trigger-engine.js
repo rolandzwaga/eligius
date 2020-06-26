@@ -49,8 +49,14 @@ class ChronoTriggerEngine {
     if (!this._configuration.timelines || !this._configuration.timelines.length) {
       return;
     }
+
     const firstTimeline = this._configuration.timelines[0];
     const providerSettings = this._timelineProviders[firstTimeline.type];
+
+    if (!providerSettings) {
+      throw new Error(`No timeline provider configured for type ${firstTimeline.type}`);
+    }
+
     if (this._activeTimelineProvider) {
       this._activeTimelineProvider.destroy();
     }

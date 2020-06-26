@@ -90,7 +90,7 @@ class EngineFactory {
 
     const chronoTriggerEngine = new engineClass(configuration, this._eventbus, timelineProviders, languageManager);
 
-    Mousetrap.bind('space', event => {
+    Mousetrap.bind('space', (event) => {
       event.preventDefault();
       this._eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
       return false;

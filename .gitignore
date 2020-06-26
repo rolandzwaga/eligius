@@ -1,3 +1,4 @@
 /node_modules
 /examples/requestanimationframe/build
+/examples/mediaelement/build
 /yarn-error.log
