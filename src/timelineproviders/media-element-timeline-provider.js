@@ -1,3 +1,5 @@
+import css_mediaelement from '../../node_modules/mediaelement/build/mediaelementplayer.min.css';
+
 import TimelineEventNames from '../timeline-event-names';
 import 'mediaelement';
 import $ from 'jquery';
@@ -38,17 +40,13 @@ class MediaElementTimelineProvider {
     const urls = this._extractUrls(this.config);
     this._addVideoElements(selector, urls);
     const self = this;
-    console.dir(MediaElementPlayer);
     const promise = new Promise((resolve) => {
-      self.player = new MediaElementPlayer(document.getElementById(`#${this._videoElementId}`), {
+      const videoElement = document.getElementById(this._videoElementId);
+      self.player = new MediaElementPlayer(videoElement, {
         success: (mediaElement, originalNode, instance) => {
-          console.dir(mediaElement);
-          console.dir(originalNode);
-          console.dir(instance);
           resolve();
         },
       });
-      console.dir(self.player);
     });
     return promise;
   }

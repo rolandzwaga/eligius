@@ -24,6 +24,11 @@ function buildEnginePack(configPath) {
 function copyAssets(basePath, destinationPath) {
   const videoPath = path.join(basePath, 'video');
   const videoDestPath = path.join(destinationPath, 'video');
+
+  if (!fs.pathExistsSync(videoPath)) {
+    return;
+  }
+
   fs.ensureDirSync(videoDestPath);
   const entries = fs.readdirSync(videoPath);
   for (const entry of entries) {
