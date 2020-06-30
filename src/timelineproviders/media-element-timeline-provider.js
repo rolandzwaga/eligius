@@ -44,9 +44,7 @@ class MediaElementTimelineProvider {
       const videoElement = document.getElementById(this._videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
         success: (mediaElement, originalNode, instance) => {
-          mediaElement.addEventListener('timeupdate', (evt) => {
-            console.dir(evt);
-          });
+          mediaElement.addEventListener('timeupdate', this.timeUpdateHandler.bind(this));
           instance.loop = this.loop;
           console.dir(mediaElement);
           console.dir(originalNode);
@@ -56,6 +54,14 @@ class MediaElementTimelineProvider {
       });
     });
     return promise;
+  }
+
+  timeUpdateHandler() {
+    console.log(this.player.currentTime);
+    this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.player.currentTime }]);
+    this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
+      { position: this.player.currentTime, duration: this.player.duration },
+    ]);
   }
 
   _addVideoElements(selector, urls) {
@@ -93,7 +99,9 @@ class MediaElementTimelineProvider {
 
   resize() {}
 
-  duration() {
+  duration() {}
+
+  getDuration() {
     return this.player.duration;
   }
 
