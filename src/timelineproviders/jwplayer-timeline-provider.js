@@ -179,7 +179,7 @@ class JwPlayerTimelineProvider {
   }
 
   once(eventName, callback) {
-    this.player.once(eventName, callback);
+    return this.player.once(eventName, callback);
   }
 
   off(eventName, callback) {
@@ -187,7 +187,7 @@ class JwPlayerTimelineProvider {
   }
 
   on(eventName, callback) {
-    this.player.on(eventName, callback);
+    return this.player.on(eventName, callback);
   }
 
   getPosition() {

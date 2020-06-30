@@ -44,6 +44,13 @@ class MediaElementTimelineProvider {
       const videoElement = document.getElementById(this._videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
         success: (mediaElement, originalNode, instance) => {
+          mediaElement.addEventListener('timeupdate', (evt) => {
+            console.dir(evt);
+          });
+          instance.loop = this.loop;
+          console.dir(mediaElement);
+          console.dir(originalNode);
+          console.dir(instance);
           resolve();
         },
       });
@@ -52,7 +59,7 @@ class MediaElementTimelineProvider {
   }
 
   _addVideoElements(selector, urls) {
-    const videoElm = [`<video class='mejs__player' id=${this._videoElementId}>`];
+    const videoElm = [`<video class='mejs__player' id=${this._videoElementId} data-mejsoptions='{"preload": "true"}'>`];
     urls.forEach((url) => {
       videoElm.push(`<source src='${url}' type='${this._extractFileType(url)}'/>`);
     });
@@ -75,7 +82,8 @@ class MediaElementTimelineProvider {
 
   destroy() {
     this.stop();
-    $(this._videoElementId).remove();
+    this.player.destroy();
+    $(`#${this._videoElementId}`).remove();
     this._eventbusListeners.forEach((func) => func());
   }
 
@@ -86,10 +94,22 @@ class MediaElementTimelineProvider {
   resize() {}
 
   duration() {
-    console.log('duration was called!');
+    return this.player.duration;
   }
 
-  getPosition() {}
+  getPosition() {
+    return this.player.currentTime;
+  }
+
+  on(eventName, handler) {
+    const remove = this.eventbus.on(eventName, handler);
+    this._eventbusListeners.push(remove);
+    return remove;
+  }
+
+  once(eventName, handler) {
+    this.eventbus.once(eventName, handler);
+  }
 
   _container() {}
 }
