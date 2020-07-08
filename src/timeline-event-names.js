@@ -23,6 +23,7 @@ class TimelineEventNames {
   static POSITION_UPDATE = 'timeline-position-update';
   static TIME_UPDATE = 'timeline-time-update';
   static CURRENT_TIMELINE_CHANGE = 'timeline-current-timeline-change';
+  static FIRSTFRAME = 'timeline-firstframe';
 
   // factory and engine events
   static REQUEST_INSTANCE = 'request-instance';

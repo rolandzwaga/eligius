@@ -1,17 +1,17 @@
 import { TimelineAction, EndableAction, Action } from '../action';
 import getNestedPropertyValue from '../operation/helper/getNestedPropertyValue';
+import { IConfigurationResolver, IResourceImporter, IEngineConfiguration } from '../types';
+import { IEventbus, IEventListener } from '../eventbus/types';
+import { IAction } from '../action/types';
 
-class ConfigurationResolver {
-  constructor(importer, eventbus) {
-    this.importer = importer;
-    this.eventbus = eventbus;
-  }
+class ConfigurationResolver implements IConfigurationResolver {
+  constructor(private importer: IResourceImporter, private eventbus: IEventbus) {}
 
-  importSystemEntry(systemName) {
+  importSystemEntry(systemName: string): any {
     return this.importer.import(systemName)[systemName];
   }
 
-  process(actionRegistryListener, configuration) {
+  process(actionRegistryListener, configuration: IEngineConfiguration): Record<string, IAction> {
     const actionsLookup = {};
     this.processConfiguration(configuration, configuration);
     this.resolveOperations(configuration);
@@ -22,9 +22,9 @@ class ConfigurationResolver {
     return actionsLookup;
   }
 
-  initializeEventActions(actionRegistryListener, config) {
+  initializeEventActions(actionRegistryListener, config: IEngineConfiguration): void {
     if (actionRegistryListener && config.eventActions) {
-      config.eventActions.forEach(actionData => {
+      config.eventActions.forEach((actionData) => {
         const eventAction = new Action(actionData, this.eventbus);
         actionRegistryListener.registerAction(eventAction, actionData.eventName, actionData.eventTopic);
       });
@@ -34,7 +34,7 @@ class ConfigurationResolver {
 
   initializeActions(config, actionsLookup) {
     if (config.actions) {
-      config.actions.forEach(actionData => {
+      config.actions.forEach((actionData) => {
         const action = new EndableAction(actionData, this.eventbus);
         actionsLookup[actionData.name] = action;
       });
@@ -46,7 +46,7 @@ class ConfigurationResolver {
     if (!config.initActions) {
       return;
     }
-    config.initActions = config.initActions.map(actionData => {
+    config.initActions = config.initActions.map((actionData) => {
       const initAction = new EndableAction(actionData, this.eventbus);
       actionsLookup[actionData.name] = initAction;
       return initAction;
@@ -63,7 +63,7 @@ class ConfigurationResolver {
     if (!timelineConfig.timelineActions) {
       return;
     }
-    timelineConfig.timelineActions = timelineConfig.timelineActions.map(actionData => {
+    timelineConfig.timelineActions = timelineConfig.timelineActions.map((actionData) => {
       const timelineAction = new TimelineAction(actionData, this.eventbus);
       if (!timelineAction.endOperations) {
         timelineAction.endOperations = [];
@@ -75,7 +75,7 @@ class ConfigurationResolver {
   resolveOperations(config) {
     const timelineOperations = [];
     if (config.timelines) {
-      config.timelines.forEach(timelineInfo => {
+      config.timelines.forEach((timelineInfo) => {
         timelineOperations.push(...this._gatherOperations(timelineInfo.timelineActions));
       });
     }
@@ -85,7 +85,7 @@ class ConfigurationResolver {
       .concat(this._gatherOperations(config.actions))
       .concat(this._gatherOperations(config.eventActions));
 
-    systemNameHolders.forEach(holder => {
+    systemNameHolders.forEach((holder) => {
       holder.instance = this.importSystemEntry(holder.systemName);
     });
   }
@@ -99,7 +99,7 @@ class ConfigurationResolver {
         this.processConfiguration(config[i], parentConfig);
       }
     } else {
-      Object.keys(config).forEach(key => {
+      Object.keys(config).forEach((key) => {
         this.processConfigProperty(key, config, parentConfig);
       });
     }

@@ -46,7 +46,7 @@ class ChronoTriggerEngine {
   }
 
   _initializeTimelineProvider() {
-    if (!this._configuration.timelines || !this._configuration.timelines.length) {
+    if (!this._configuration.timelines?.length) {
       return;
     }
 
@@ -63,7 +63,7 @@ class ChronoTriggerEngine {
     this._activeTimelineProvider = providerSettings.provider;
 
     return new Promise((resolve) => {
-      this._activeTimelineProvider.init(firstTimeline.selector).then(() => {
+      this._activeTimelineProvider.init().then(() => {
         this._executeActions(this._configuration.initActions, 'start').then(() => {
           this._activeTimelineProvider.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor));
           this._activeTimelineProvider.on(TimelineEventNames.SEEK, this._onSeekHandler.bind(this, Math.floor));

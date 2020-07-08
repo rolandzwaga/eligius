@@ -1,7 +1,7 @@
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 
-module.exports = function(env, args) {
+module.exports = function (env, args) {
   let libraryName = 'library';
   let minimizers = [],
     outputFile;
@@ -19,7 +19,7 @@ module.exports = function(env, args) {
   }
 
   const config = {
-    entry: ['@babel/polyfill', path.join(__dirname, 'src/index.js')],
+    entry: path.join(__dirname, 'src/index.js'),
     devtool: 'source-map',
     output: {
       path: path.join(__dirname, 'lib'),
@@ -38,38 +38,14 @@ module.exports = function(env, args) {
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.tsx?$|\.js$|/,
+          use: 'ts-loader',
           exclude: /(node_modules)/,
-          use: [
-            {
-              loader: 'babel-loader',
-              options: {
-                presets: ['@babel/preset-env'],
-                plugins: [
-                  [
-                    '@babel/plugin-transform-modules-commonjs',
-                    {
-                      allowTopLevelThis: true,
-                    },
-                  ],
-                  [
-                    '@babel/plugin-proposal-class-properties',
-                    {
-                      loose: true,
-                    },
-                  ],
-                  '@babel/plugin-proposal-object-rest-spread',
-                  ['@babel/plugin-transform-spread', { loose: true }],
-                  '@babel/plugin-transform-parameters',
-                  '@babel/plugin-transform-arrow-functions',
-                  '@babel/plugin-transform-object-assign',
-                  '@babel/plugin-transform-regenerator',
-                ],
-              },
-            },
-          ],
         },
       ],
+    },
+    resolve: {
+      extensions: ['.tsx', '.ts', '.js'],
     },
     optimization: {
       minimizer: minimizers,

@@ -320,7 +320,7 @@ declare namespace ChronoTrigger {
 
   interface IDuration {
     start: number;
-    end?: number;
+    end: number;
   }
 
   interface IOperationConfiguration {

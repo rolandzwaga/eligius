@@ -1,17 +1,21 @@
 import deepcopy from '../operation/helper/deepcopy';
+import { IAction, TOperation, TOperationData } from './types';
+import { IEventbus } from '../eventbus/types';
 
-class Action {
-  constructor(actionConfiguration, eventBus) {
+class Action implements IAction {
+  name: string;
+  startOperations: TOperation[];
+
+  constructor(actionConfiguration: any, private eventBus: IEventbus) {
     this.name = actionConfiguration.name;
     this.startOperations = actionConfiguration.startOperations;
-    this.eventbus = eventBus;
   }
 
-  start(initOperationData) {
+  start(initOperationData: TOperationData): Promise<TOperationData> {
     const context = {};
-    const result = new Promise((resolve, reject) => {
+    const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData, context);
-    }).catch(e => {
+    }).catch((e) => {
       console.error(`Error in action start '${this.name}'`);
       console.error(e);
       throw e;
@@ -19,7 +23,7 @@ class Action {
     return result;
   }
 
-  executeOperation(operations, idx, resolve, reject, previousOperationData, context) {
+  executeOperation(operations, idx, resolve, reject, previousOperationData, context): void {
     previousOperationData = previousOperationData || {};
     if (context.hasOwnProperty('newIndex')) {
       idx = context.newIndex;
@@ -43,10 +47,10 @@ class Action {
 
       if (result.then) {
         result
-          .then(resultOperationData => {
+          .then((resultOperationData) => {
             this.executeOperation(operations, ++idx, resolve, reject, resultOperationData, context);
           })
-          .catch(error => {
+          .catch((error) => {
             reject(error);
           });
       } else {
@@ -77,10 +81,10 @@ class Action {
         const result = operationInfo.resizeInstance(mergedOperationData);
         if (result.then) {
           result
-            .then(resultOperationData => {
+            .then((resultOperationData) => {
               this.executeResizeOperation(operations, ++idx, resolve, reject, resultOperationData);
             })
-            .catch(error => {
+            .catch((error) => {
               reject(error);
             });
         } else {
