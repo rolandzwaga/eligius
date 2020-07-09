@@ -2,7 +2,6 @@ export type TEventHandler = (...args: any[]) => void;
 export type TEventHandlerRemover = () => void;
 
 export interface IEventbus {
-  constructor();
   clear(): void;
   on(eventName: string, eventHandler: TEventHandler, eventTopic?: string): TEventHandlerRemover;
   off(eventName: string, eventHandler: TEventHandler, eventTopic?: string): void;

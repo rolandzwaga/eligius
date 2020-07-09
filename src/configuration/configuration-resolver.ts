@@ -1,8 +1,16 @@
 import { TimelineAction, EndableAction, Action } from '../action';
 import getNestedPropertyValue from '../operation/helper/getNestedPropertyValue';
-import { IConfigurationResolver, IResourceImporter, IEngineConfiguration } from '../types';
+import {
+  IConfigurationResolver,
+  IResourceImporter,
+  IEngineConfiguration,
+  IEngineFactory,
+  ITimelineConfiguration,
+  IResolvedEngineConfiguration,
+} from '../types';
 import { IEventbus, IEventListener } from '../eventbus/types';
 import { IAction } from '../action/types';
+import { ActionRegistryEventbusListener } from '../eventbus';
 
 class ConfigurationResolver implements IConfigurationResolver {
   constructor(private importer: IResourceImporter, private eventbus: IEventbus) {}
@@ -11,18 +19,24 @@ class ConfigurationResolver implements IConfigurationResolver {
     return this.importer.import(systemName)[systemName];
   }
 
-  process(actionRegistryListener, configuration: IEngineConfiguration): Record<string, IAction> {
-    const actionsLookup = {};
+  process(
+    actionRegistryListener: ActionRegistryEventbusListener | undefined,
+    configuration: IEngineConfiguration
+  ): [Record<string, IAction>, IResolvedEngineConfiguration] {
+    const actionsLookup: Record<string, IAction> = {};
     this.processConfiguration(configuration, configuration);
     this.resolveOperations(configuration);
     this.initializeTimelineActions(configuration);
     this.initializeInitActions(configuration, actionsLookup);
     this.initializeActions(configuration, actionsLookup);
     this.initializeEventActions(actionRegistryListener, configuration);
-    return actionsLookup;
+    return [actionsLookup, configuration];
   }
 
-  initializeEventActions(actionRegistryListener, config: IEngineConfiguration): void {
+  initializeEventActions(
+    actionRegistryListener: ActionRegistryEventbusListener | undefined,
+    config: IEngineConfiguration
+  ): void {
     if (actionRegistryListener && config.eventActions) {
       config.eventActions.forEach((actionData) => {
         const eventAction = new Action(actionData, this.eventbus);
@@ -32,7 +46,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     }
   }
 
-  initializeActions(config, actionsLookup) {
+  initializeActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
     if (config.actions) {
       config.actions.forEach((actionData) => {
         const action = new EndableAction(actionData, this.eventbus);
@@ -42,7 +56,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     }
   }
 
-  initializeInitActions(config, actionsLookup) {
+  initializeInitActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
     if (!config.initActions) {
       return;
     }
@@ -53,13 +67,13 @@ class ConfigurationResolver implements IConfigurationResolver {
     });
   }
 
-  initializeTimelineActions(config) {
+  initializeTimelineActions(config: IEngineConfiguration) {
     if (config.timelines) {
       config.timelines.forEach(this.initializeTimelineAction.bind(this));
     }
   }
 
-  initializeTimelineAction(timelineConfig) {
+  initializeTimelineAction(timelineConfig: ITimelineConfiguration) {
     if (!timelineConfig.timelineActions) {
       return;
     }
@@ -72,8 +86,8 @@ class ConfigurationResolver implements IConfigurationResolver {
     });
   }
 
-  resolveOperations(config) {
-    const timelineOperations = [];
+  resolveOperations(config: IEngineConfiguration) {
+    const timelineOperations: any[] = [];
     if (config.timelines) {
       config.timelines.forEach((timelineInfo) => {
         timelineOperations.push(...this._gatherOperations(timelineInfo.timelineActions));
@@ -90,7 +104,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     });
   }
 
-  processConfiguration(config, parentConfig) {
+  processConfiguration(config: any, parentConfig: any) {
     if (config == null) {
       return;
     }
@@ -105,7 +119,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     }
   }
 
-  processConfigProperty(key, config, parentConfig) {
+  processConfigProperty(key: string, config: any, parentConfig: any) {
     const value = config[key];
     if (typeof value === 'string') {
       if (value.startsWith('config:')) {
@@ -124,7 +138,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     }
   }
 
-  _gatherOperations(actions) {
+  _gatherOperations(actions: any[]): any[] {
     if (!actions) {
       return [];
     }

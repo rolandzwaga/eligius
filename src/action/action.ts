@@ -1,17 +1,24 @@
 import deepcopy from '../operation/helper/deepcopy';
-import { IAction, TOperation, TOperationData } from './types';
+import {
+  IAction,
+  TOperationData,
+  IOperationInfo,
+  IResolvedActionConfiguration,
+  TActionContext,
+  TOperationResult,
+} from './types';
 import { IEventbus } from '../eventbus/types';
 
 class Action implements IAction {
   name: string;
-  startOperations: TOperation[];
+  startOperations: IOperationInfo[];
 
-  constructor(actionConfiguration: any, private eventBus: IEventbus) {
+  constructor(actionConfiguration: IResolvedActionConfiguration, private eventbus: IEventbus) {
     this.name = actionConfiguration.name;
     this.startOperations = actionConfiguration.startOperations;
   }
 
-  start(initOperationData: TOperationData): Promise<TOperationData> {
+  start(initOperationData?: TOperationData): Promise<TOperationData> {
     const context = {};
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData, context);
@@ -23,7 +30,14 @@ class Action implements IAction {
     return result;
   }
 
-  executeOperation(operations, idx, resolve, reject, previousOperationData, context): void {
+  executeOperation(
+    operations: IOperationInfo[],
+    idx: number,
+    resolve: (value?: any | PromiseLike<any>) => void,
+    reject: (reason?: any) => void,
+    previousOperationData: TOperationData | undefined,
+    context: TActionContext
+  ): void {
     previousOperationData = previousOperationData || {};
     if (context.hasOwnProperty('newIndex')) {
       idx = context.newIndex;
@@ -43,55 +57,18 @@ class Action implements IAction {
       const copy = operationInfo.operationData ? deepcopy(operationInfo.operationData) : {};
       const mergedOperationData = Object.assign(previousOperationData, copy);
 
-      const result = operationInfo.instance.call(context, mergedOperationData, this.eventbus);
+      const result: TOperationResult = operationInfo.instance.call(context, mergedOperationData, this.eventbus);
 
       if (result.then) {
         result
-          .then((resultOperationData) => {
+          .then((resultOperationData: TOperationData) => {
             this.executeOperation(operations, ++idx, resolve, reject, resultOperationData, context);
           })
-          .catch((error) => {
+          .catch((error: any) => {
             reject(error);
           });
       } else {
         this.executeOperation(operations, ++idx, resolve, reject, result, context);
-      }
-    } else {
-      resolve(previousOperationData);
-    }
-  }
-
-  resize(operationData) {
-    const idx = 0;
-    const result = new Promise((resolve, reject) => {
-      this.executeResizeOperation(this.startOperations, idx, resolve, reject, operationData);
-    });
-    return result;
-  }
-
-  executeResizeOperation(operations, idx, resolve, reject, previousOperationData) {
-    previousOperationData = previousOperationData || {};
-
-    if (idx < operations.length) {
-      const operationInfo = operations[idx];
-      if (operationInfo.resizeInstance) {
-        const copy = operationInfo.operationData ? deepcopy(operationInfo.operationData) : {};
-        const mergedOperationData = Object.assign(previousOperationData, copy);
-
-        const result = operationInfo.resizeInstance(mergedOperationData);
-        if (result.then) {
-          result
-            .then((resultOperationData) => {
-              this.executeResizeOperation(operations, ++idx, resolve, reject, resultOperationData);
-            })
-            .catch((error) => {
-              reject(error);
-            });
-        } else {
-          this.executeResizeOperation(operations, ++idx, resolve, reject, result);
-        }
-      } else {
-        this.executeResizeOperation(operations, ++idx, resolve, reject, previousOperationData);
       }
     } else {
       resolve(previousOperationData);

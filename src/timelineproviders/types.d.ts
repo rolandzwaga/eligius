@@ -1,6 +1,6 @@
 import { TEventHandler } from '../eventbus/types';
 
-interface ITimelineProvider {
+export interface ITimelineProvider {
   loop: boolean;
   init(): Promise<any>;
   start(): void;

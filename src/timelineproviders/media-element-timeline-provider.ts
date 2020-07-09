@@ -15,6 +15,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
   #eventbusListeners: TEventHandlerRemover[] = [];
   #playlist: ITimelineConfiguration[] = [];
   #length: number = 0;
+  #urls: string[] = [];
   player: mediaelementjs.MediaElementPlayer | undefined;
 
   loop = false;
@@ -42,15 +43,17 @@ class MediaElementTimelineProvider implements ITimelineProvider {
 
   init() {
     const selector = '';
-    const urls = this._extractUrls(this.config);
-    this._addVideoElements(selector, urls);
+    this.#urls = this._extractUrls(this.config);
+    this._addVideoElements(selector, this.#urls);
     const self = this;
     const promise = new Promise((resolve) => {
       const videoElement = document.getElementById(this.#videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
         success: (mediaElement: any, originalNode: any, instance: mediaelementjs.MediaElementPlayer) => {
-          mediaElement.addEventListener('timeupdate', this.timeUpdateHandler.bind(this));
+          mediaElement.addEventListener('timeupdate', this._timeUpdateHandler.bind(this));
           instance.loop = this.loop;
+          instance.controlsAreVisible = false;
+          instance.controlsEnabled = false;
           resolve();
         },
       });
@@ -58,7 +61,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
     return promise;
   }
 
-  timeUpdateHandler() {
+  private _timeUpdateHandler() {
     if (this.player) {
       this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.player.currentTime }]);
       this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
@@ -67,7 +70,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
     }
   }
 
-  _addVideoElements(selector: string, urls: string[]) {
+  private _addVideoElements(selector: string, urls: string[]) {
     const videoElm = [`<video class='mejs__player' id=${this.#videoElementId} data-mejsoptions='{"preload": "true"}'>`];
     urls.forEach((url) => {
       videoElm.push(`<source src='${url}' type='${this._extractFileType(url)}'/>`);
@@ -79,6 +82,10 @@ class MediaElementTimelineProvider implements ITimelineProvider {
   _extractFileType(url: string) {
     const lastIdx = url.lastIndexOf('.');
     return `video/${url.substr(lastIdx + 1)}`;
+  }
+
+  playlistItem(uri: string) {
+    this.player?.setSrc(uri);
   }
 
   start() {
@@ -118,7 +125,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
   }
 
   getPosition() {
-    return this.player?.currentTime || -1;
+    return this.player?.getCurrentTime() || -1;
   }
 
   _container(resultCallback: TResultCallback) {

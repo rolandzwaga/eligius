@@ -19,7 +19,7 @@ module.exports = function (env, args) {
   }
 
   const config = {
-    entry: path.join(__dirname, 'src/index.js'),
+    entry: path.join(__dirname, 'src/index.ts'),
     devtool: 'source-map',
     output: {
       path: path.join(__dirname, 'lib'),

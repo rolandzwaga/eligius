@@ -1,13 +1,14 @@
 import { TOperationData, TOperation } from './action/types';
+import { TTimelineType, ITimelineProvider } from './timelineproviders/types';
 
 export interface IEngineFactory {
-  createEngine(engineConfig: IEngineConfiguration, resolver?: any): IChronoTriggerEngine;
+  createEngine(engineConfig: IEngineConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine;
 }
 
 export interface IEngineConfiguration {
   id: string;
   engine: IEngineInfo;
-  timelineProviderSettings: Record<string, ITimelineProviderSettings>;
+  timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
   containerSelector: string;
   language: string;
   layoutTemplate: string;
@@ -20,10 +21,34 @@ export interface IEngineConfiguration {
   labels: ILabelInfo[];
 }
 
-interface ITimelineProviderSettings {
+export interface IResolvedEngineConfiguration {
+  id: string;
+  engine: IEngineInfo;
+  timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
+  containerSelector: string;
+  language: string;
+  layoutTemplate: string;
+  availableLanguages: ILanguageInfo[];
+  initActions: IEndableAction[];
+  actions: IEndableAction[];
+  timelines: IResolvedTimelineConfiguration[];
+  timelineFlow: ITimelineFlow;
+  labels: ILabelInfo[];
+}
+
+export interface ITimelineProviderSettings {
   vendor: string;
   selector: string;
   systemName: string;
+}
+
+export interface IResolvedTimelineConfiguration {
+  uri: string;
+  type: TimelineTypes;
+  duration: number;
+  loop: boolean;
+  selector: string;
+  timelineActions: ITimelineAction[];
 }
 
 export interface ITimelineConfiguration {
@@ -55,7 +80,10 @@ export interface IResourceImporter {
 }
 
 export interface IConfigurationResolver {
-  process(actionRegistryListener: IEventbusListener, configuration: IConfiguration): any;
+  process(
+    actionRegistryListener: IEventbusListener,
+    configuration: IConfiguration
+  ): [Record<string, IAction>, IResolvedEngineConfiguration];
   importSystemEntry(systemName: string): any;
   initializeEventActions(actionRegistryListener: IEventbusListener, config: IConfiguration): void;
   initializeActions(config: IConfiguration, actionsLookup: any): void;
@@ -72,4 +100,11 @@ export type TResultCallback = (result: any) => void;
 export interface IDuration {
   start: number;
   end: number;
+}
+
+export type TimelineTypes = 'animation' | 'mediaplayer';
+
+export interface ITimelineProviderInfo {
+  vendor: string;
+  provider: ITimelineProvider;
 }
