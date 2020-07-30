@@ -1,10 +1,14 @@
 import TimelineEventNames from './timeline-event-names';
 import $ from 'jquery';
-import { IEventbus } from './eventbus/types';
+import { IEventbus, TEventHandlerRemover } from './eventbus/types';
+import { ILanguageLabel, ILabel, TResultCallback } from './types';
 
 class LanguageManager {
-  constructor(private language: string, private labels, private eventbus: IEventbus) {
-    if (!language || !language.length) {
+  #labelLookup: Record<string, ILabel[]> = {};
+  #eventbusListeners: TEventHandlerRemover[] = [];
+
+  constructor(private currentLanguage: string, labels: ILanguageLabel[], private eventbus: IEventbus) {
+    if (!currentLanguage || !currentLanguage.length) {
       throw new Error('language ctor arg cannot be null or have zero length');
     }
     if (!labels) {
@@ -13,72 +17,68 @@ class LanguageManager {
     if (!eventbus) {
       throw new Error('eventbus ctor arg cannot be null');
     }
-    this.eventbus = eventbus;
-    this._labelLookup = {};
-    this._currentLanguage = language;
-    this._setRootElementLang(language);
-    this._eventbusListeners = [];
+    this._setRootElementLang(currentLanguage);
     this._createLabelLookup(labels);
     this._addEventbusListeners(eventbus);
   }
 
-  _addEventbusListeners(eventbus) {
-    this._eventbusListeners.push(
+  _addEventbusListeners(eventbus: IEventbus) {
+    this.#eventbusListeners.push(
       eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, this._handleRequestLabelCollection.bind(this))
     );
-    this._eventbusListeners.push(
+    this.#eventbusListeners.push(
       eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, this._handleRequestLabelCollections.bind(this))
     );
-    this._eventbusListeners.push(
+    this.#eventbusListeners.push(
       eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, this._handleRequestCurrentLanguage.bind(this))
     );
-    this._eventbusListeners.push(
+    this.#eventbusListeners.push(
       eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this._handleLanguageChange.bind(this))
     );
   }
 
-  _handleRequestCurrentLanguage(resultCallback) {
-    resultCallback(this._currentLanguage);
+  _handleRequestCurrentLanguage(resultCallback: TResultCallback) {
+    resultCallback(this.currentLanguage);
   }
 
-  _handleRequestLabelCollection(labelId, resultCallback) {
-    resultCallback(this._labelLookup[labelId]);
+  _handleRequestLabelCollection(labelId: string, resultCallback: TResultCallback) {
+    resultCallback(this.#labelLookup[labelId]);
   }
 
-  _handleRequestLabelCollections(labelIds, resultCallback) {
+  _handleRequestLabelCollections(labelIds: string[], resultCallback: TResultCallback) {
     const labelCollections = labelIds.map((labelId) => {
-      return this._labelLookup[labelId];
+      return this.#labelLookup[labelId];
     });
     resultCallback(labelCollections);
   }
 
-  _handleLanguageChange(language) {
+  _handleLanguageChange(language: string) {
     if (language && language.length) {
-      this._currentLanguage = language;
-      this._setRootElementLang(this._currentLanguage);
+      this.currentLanguage = language;
+      this._setRootElementLang(this.currentLanguage);
     } else {
       console.error('Language cannot be changed to null or empty string');
     }
   }
 
-  _setRootElementLang(language) {
-    const callBack = (rootSelector) => {
+  _setRootElementLang(language: string) {
+    const callBack = (rootSelector: string) => {
       const lang = this._extractLanguageFromCulture(language);
       $(rootSelector).attr('lang', lang);
     };
     this.eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [callBack]);
   }
 
-  _extractLanguageFromCulture(culture) {
+  _extractLanguageFromCulture(culture: string) {
     if (culture.indexOf('-') > -1) {
-      return culture.split('-').shift();
+      return culture.split('-').shift() as string;
     }
     return culture;
   }
 
-  _createLabelLookup(labels) {
+  _createLabelLookup(labels: ILanguageLabel[]) {
     labels.forEach((label) => {
-      this._labelLookup[label.id] = label.labels;
+      this.#labelLookup[label.id] = label.labels;
     });
   }
 }

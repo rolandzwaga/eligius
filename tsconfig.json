@@ -6,24 +6,25 @@
     "esModuleInterop": true,
     "allowJs": true,
     "checkJs": false,
-    "module": "esnext",
+    "module": "commonjs",
     "target": "es2015",
-    "jsx": "react",
     "moduleResolution": "node",
     "lib": ["es2015", "es6", "es2017", "dom"],
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "outDir": "lib",
+    "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "sourceMap": true,
+    "declaration": true
   },
   "typeAcquisition": {
     "enable": true
   },
   "typeRoots": ["./typings.d.ts", "./node_modules/@types"],
-  "include": [".src/.ts", "src/**/*", "./typings.d.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts", "dist"]
+  "exclude": ["node_modules", "dist"],
+  "include": ["src"]
 }

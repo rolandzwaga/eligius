@@ -11,7 +11,7 @@ import { IEventbus, TEventHandlerRemover } from './eventbus/types';
 import { ITimelineProvider } from './timelineproviders/types';
 import LanguageManager from './language-manager';
 import { TimelineAction } from './action';
-import { TOperation, IAction, IEndableAction, ITimelineAction } from './action/types';
+import { TOperation, IEndableAction, ITimelineAction } from './action/types';
 
 /**
  * ChronoTriggerEngine, this is where the magic happens. The engine is responsible for starting and stoppping

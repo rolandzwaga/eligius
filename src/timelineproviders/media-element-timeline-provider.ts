@@ -36,7 +36,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
 
   _extractUrls(configuration: IEngineConfiguration) {
     const urls = configuration.timelines
-      .filter((timeline) => timeline.type === 'video')
+      .filter((timeline) => timeline.type === 'mediaplayer')
       .map((timeline) => timeline.uri);
     return urls;
   }
@@ -49,7 +49,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
     const promise = new Promise((resolve) => {
       const videoElement = document.getElementById(this.#videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
-        success: (mediaElement: any, originalNode: any, instance: mediaelementjs.MediaElementPlayer) => {
+        success: (mediaElement: any, _originalNode: any, instance: mediaelementjs.MediaElementPlayer) => {
           mediaElement.addEventListener('timeupdate', this._timeUpdateHandler.bind(this));
           instance.loop = this.loop;
           instance.controlsAreVisible = false;

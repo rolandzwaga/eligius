@@ -1,0 +1,30 @@
+import { ITimelineProvider } from './types';
+import { IEventbus } from '../eventbus/types';
+import { IEngineConfiguration, TResultCallback } from '../types';
+declare class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
+    #private;
+    private eventbus;
+    private config;
+    loop: boolean;
+    constructor(eventbus: IEventbus, config: IEngineConfiguration);
+    private _extractPlaylist;
+    playlistItem(uri: string): void;
+    private _addEventListeners;
+    private _update;
+    private _start;
+    private _reset;
+    private _resize;
+    private _container;
+    private _cancelAnimationFrame;
+    init(): Promise<any>;
+    destroy(): void;
+    toggleplay(): void;
+    start(): void;
+    stop(): void;
+    pause(): void;
+    seek(position: number): void;
+    getPosition(): number;
+    getDuration(): number;
+    requestDurationHandler(callBack: TResultCallback): void;
+}
+export default RequestAnimationFrameTimelineProvider;

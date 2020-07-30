@@ -1,0 +1,37 @@
+import { ITimelineProvider } from './types';
+import { IEventbus } from '../eventbus/types';
+import { IEngineConfiguration, TResultCallback } from '../types';
+declare class JwPlayerTimelineProvider implements ITimelineProvider {
+    #private;
+    private eventbus;
+    private config;
+    loop: boolean;
+    constructor(eventbus: IEventbus, config: IEngineConfiguration);
+    _extractUrls(configuration: IEngineConfiguration): string[];
+    init(): Promise<any>;
+    _handlePlayerReady(resolve: (value: any | PromiseLike<any>) => void): void;
+    _handlePlayerComplete(): void;
+    _seekedHandler(): void;
+    destroy(): void;
+    _loopHandler(floor: (x: number) => number, jwplayerEvent: any): void;
+    _timeResetLoopHandler(): void;
+    _addEventListeners(): void;
+    _container(resultCallback: TResultCallback): void;
+    toggleplay(): void;
+    start(): void;
+    stop(): void;
+    pause(): void;
+    seek(position: number): void;
+    resize(width: number, height: number): void;
+    duration(resultCallback: TResultCallback): void;
+    playlistItem(uri: string): void;
+    getPosition(): any;
+    getPlaylistIndex(): any;
+    getState(): any;
+    getDuration(): any;
+    getMute(): any;
+    getVolume(): any;
+    setMute(state: boolean): void;
+    setVolume(volume: number): void;
+}
+export default JwPlayerTimelineProvider;

@@ -1,0 +1,36 @@
+export default ConfigurationFactory;
+declare class ConfigurationFactory {
+    constructor(config: any);
+    actionCreatorFactory: any;
+    configuration: any;
+    init(defaultLanguage: any): ConfigurationFactory;
+    setDefaultLanguage(defaultLanguage: any): ConfigurationFactory;
+    setContainerSelector(selector: any): ConfigurationFactory;
+    editTimelineProviderSettings(): TimelineProviderSettingsEditor;
+    getConfiguration(callBack: any): ConfigurationFactory;
+    addLanguage(code: any, languageLabel: any): ConfigurationFactory;
+    _internalAddAction(collectionName: any, action: any): void;
+    _initializeCollection(parent: any, name: any): any;
+    addAction(action: any): void;
+    addInitAction(action: any): void;
+    addEventAction(action: any): void;
+    addTimelineAction(uri: any, action: any): void;
+    createAction(name: any): any;
+    createInitAction(name: any): any;
+    createEventAction(name: any): any;
+    createTimelineAction(uri: any, name: any): any;
+    addTimeline(uri: any, type: any, duration: any, loop: any, selector: any): ConfigurationFactory;
+    getTimeline(uri: any): any;
+    removeTimeline(uri: any): ConfigurationFactory | undefined;
+    _initializeLabel(id: any, labels: any): any;
+    _getLabelTranslation(labelTranslations: any, languageCode: any): any;
+    addLabel(id: any, code: any, translation: any): ConfigurationFactory;
+    editAction(id: any): ActionEditor;
+    editEventAction(id: any): ActionEditor;
+    editInitAction(id: any): EndableActionEditor;
+    editTimelineAction(uri: any, id: any): TimelineActionEditor;
+}
+import TimelineProviderSettingsEditor from "./timeline-provider-settings-editor";
+import { ActionEditor } from "./action-editor";
+import { EndableActionEditor } from "./action-editor";
+import { TimelineActionEditor } from "./action-editor";

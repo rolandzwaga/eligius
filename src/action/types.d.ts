@@ -48,14 +48,23 @@ export interface ITimelineAction extends IEndableAction {
   duration: IDuration;
 }
 
-export type TOperationResult = Promise<TOperationData> | TOperationData;
+export type TOperationResult<T = TOperationData> = Promise<T> | T;
 
 export interface IOperationInfo {
   operationData: TOperationData;
   instance: TOperation;
 }
 
-export type TOperation = (operationData: IOperationData, eventbus: IEventbus) => TOperationResult;
+export interface IOperationContext {
+  loopIndex: number;
+  loopLength: number;
+  startIndex: number;
+  newIndex: number;
+  currentIndex: number;
+  skip: boolean;
+}
+
+export type TOperation<T = IOperationData> = (operationData: T, eventbus: IEventbus) => TOperationResult<T>;
 
 export type TOperationData = Record<string, any>;
 

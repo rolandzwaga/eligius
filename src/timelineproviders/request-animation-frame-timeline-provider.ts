@@ -50,7 +50,7 @@ class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
 
   private _addEventListeners() {
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this)));
+    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
@@ -68,7 +68,7 @@ class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
     if (!this.#last || now - this.#last >= this.#granularity) {
       if (!this.#last && this.#firstFrame) {
         this.#firstFrame = false;
-        this.eventbus.broadcast(TimelineEventNames.FIRSTFRAME);
+        this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
       }
       this.#last = now;
       this.#currentPosition++;

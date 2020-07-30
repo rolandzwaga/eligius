@@ -40,6 +40,7 @@ export interface ITimelineProviderSettings {
   vendor: string;
   selector: string;
   systemName: string;
+  poster: string;
 }
 
 export interface IResolvedTimelineConfiguration {
@@ -107,4 +108,19 @@ export type TimelineTypes = 'animation' | 'mediaplayer';
 export interface ITimelineProviderInfo {
   vendor: string;
   provider: ITimelineProvider;
+}
+
+export interface ILanguageLabel {
+  id: string;
+  labels: ILabel[];
+}
+
+export interface ILabel {
+  language: string;
+  text: string;
+}
+
+export interface IDimensions {
+  width: number;
+  height: number;
 }

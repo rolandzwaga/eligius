@@ -2,12 +2,16 @@ import $ from 'jquery';
 import TimelineEventNames from '../timeline-event-names';
 import { ITimelineProvider } from './types';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { IEngineConfiguration } from '../types';
+import { IEngineConfiguration, TResultCallback } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 class JwPlayerTimelineProvider implements ITimelineProvider {
+  #paused: boolean = false;
   #player: any = null;
   #currentLoopHandler: Function | null = null;
   #eventbusListeners: TEventHandlerRemover[] = [];
+  #playlist: any[] = [];
+  #videoElementId: string = uuidv4();
 
   loop = false;
 
@@ -17,7 +21,7 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
 
   _extractUrls(configuration: IEngineConfiguration) {
     const urls = configuration.timelines
-      .filter((timeline) => timeline.type === 'video')
+      .filter((timeline) => timeline.type === 'mediaplayer')
       .map((timeline) => {
         return timeline.uri;
       });
@@ -25,6 +29,8 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
   }
 
   init(): Promise<any> {
+    const settings = this.config.timelineProviderSettings['mediaplayer'];
+    const { selector } = settings;
     const urls = this._extractUrls(this.config);
     const jwp = (window as any).jwplayer;
     const p = $(`#${selector}`);
@@ -40,10 +46,10 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
       h = 300;
     }
 
-    this.#player = jwp(this.config.playerSettings.selector);
+    this.#player = jwp(selector);
     this.#player.setup({
       file: urls[0],
-      image: this.config.playerSettings.poster,
+      image: settings.poster,
       height: h,
       width: w,
       controls: true,
@@ -51,29 +57,30 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
       displaytitle: false,
       displaydescription: false,
       nextUpDisplay: false,
-      abouttext: 'Rosetta Group',
-      aboutlink: 'http://www.rosettagroup.nl',
+      abouttext: 'ChronoTriggerJS',
+      aboutlink: 'http://www.google.com',
       stretching: 'fill',
       repeat: false,
     });
-    const playlist = [];
+    this.#playlist.length = 0;
     urls.forEach((url) => {
-      playlist.push({
+      const item = {
         file: url,
         title: url,
-        image: this.config.playerSettings.poster,
-      });
+        image: settings.poster,
+      };
+      this.#playlist.push(item);
     });
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise((resolve) => {
       this.#player.once('ready', () => {
         this._handlePlayerReady(resolve);
       });
-      this.#player.load(playlist);
+      this.#player.load(this.#playlist);
     });
     return promise;
   }
 
-  _handlePlayerReady(resolve) {
+  _handlePlayerReady(resolve: (value: any | PromiseLike<any>) => void) {
     this.#player.once('firstFrame', () => {
       this.#player.pause();
       this.eventbus.broadcast(TimelineEventNames.DURATION, [this.getDuration()]);
@@ -103,14 +110,14 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
     this.#eventbusListeners.forEach((func) => func());
   }
 
-  _loopHandler(floor, event) {
-    const pos = floor(event.position);
+  _loopHandler(floor: (x: number) => number, jwplayerEvent: any) {
+    const pos = floor(jwplayerEvent.position);
     if (this.loop && pos === floor(this.#player.getDuration() - 1)) {
       this.seek(0);
     }
   }
 
-  _timeResetLoopHandler(event) {
+  _timeResetLoopHandler() {
     if (this.loop) {
       this.seek(0);
     }
@@ -118,7 +125,7 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
 
   _addEventListeners() {
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.play.bind(this)));
+    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
@@ -127,70 +134,61 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
     this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this)));
   }
 
-  _container(resultCallback) {
+  _container(resultCallback: TResultCallback) {
     let suffix = '';
     if (this.#player.getProvider().name !== 'html5') {
       suffix = '_wrapper';
     }
-    const container = $(`#${this.providerid}${suffix}`);
+    const container = $(`#${this.#videoElementId}${suffix}`);
     resultCallback(container);
   }
 
   toggleplay() {
-    if (this.paused) {
-      this.play();
+    if (this.#paused) {
+      this.start();
     } else {
       this.pause();
     }
   }
 
   start() {
-    this.paused = false;
+    this.#paused = false;
     this.#player.play();
     this.eventbus.broadcast(TimelineEventNames.PLAY);
   }
 
   stop() {
-    this.paused = false;
+    this.#paused = false;
     this.#player.stop();
     this.eventbus.broadcast(TimelineEventNames.STOP);
   }
 
   pause() {
-    this.paused = true;
+    this.#paused = true;
     this.#player.pause();
     this.eventbus.broadcast(TimelineEventNames.PAUSE);
   }
 
-  seek(position) {
+  seek(position: number) {
     const currentPosition = this.#player.getPosition();
     this.#player.seek(position);
-    this.eventbus.broadcastForTopic(TimelineEventNames.SEEK, [position, currentPosition, this.#player.getDuration()]);
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, currentPosition, this.#player.getDuration()]);
   }
 
-  resize(width, height) {
+  resize(width: number, height: number) {
     this.#player.resize(width, height);
     this.eventbus.broadcast(TimelineEventNames.RESIZE, [width, height]);
   }
 
-  duration(resultCallback) {
+  duration(resultCallback: TResultCallback) {
     resultCallback(Math.floor(this.getDuration()));
   }
 
-  playlistItem(index) {
-    this.#player.playlistItem(index);
-  }
-
-  once(eventName, callback) {
-    return this.#player.once(eventName, callback);
-  }
-
-  off(eventName, callback) {
-    this.#player.off(eventName, callback);
-  }
-
-  on(eventName, callback) {
-    return this.#player.on(eventName, callback);
+  playlistItem(uri: string) {
+    const index = this.#playlist.findIndex((item) => item.file === uri);
+    if (index > -1) {
+      this.#player.playlistItem(index);
+    }
   }
 
   getPosition() {
@@ -217,11 +215,11 @@ class JwPlayerTimelineProvider implements ITimelineProvider {
     return this.#player.getVolume();
   }
 
-  setMute(state) {
+  setMute(state: boolean) {
     this.#player.setMute(state);
   }
 
-  setVolume(volume) {
+  setVolume(volume: number) {
     this.#player.setVolume(volume);
   }
 }

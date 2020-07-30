@@ -11,6 +11,7 @@ module.exports = function (env, args) {
       new UglifyJsPlugin({
         parallel: true,
         sourceMap: true,
+        include: /\.min\.js$/,
       })
     );
     outputFile = libraryName + '.min.js';
@@ -38,14 +39,14 @@ module.exports = function (env, args) {
     module: {
       rules: [
         {
-          test: /\.tsx?$|\.js$|/,
-          use: 'ts-loader',
-          exclude: /(node_modules)/,
+          test: /\.ts?$|\.js$|/,
+          use: 'awesome-typescript-loader',
+          exclude: /node_modules/,
         },
       ],
     },
     resolve: {
-      extensions: ['.tsx', '.ts', '.js'],
+      extensions: ['.ts', '.js'],
     },
     optimization: {
       minimizer: minimizers,

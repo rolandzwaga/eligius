@@ -17,10 +17,9 @@ import {
 } from './types';
 import { IEventbus } from './eventbus/types';
 import { IAction } from './action/types';
-import { ITimelineProvider } from './timelineproviders/types';
 
 class EngineFactory implements IEngineFactory {
-  #resizeTimeout: NodeJS.Timeout | null = null;
+  #resizeTimeout: number = -1;
   #actionsLookup: Record<string, IAction> = {};
   #importer: IResourceImporter;
   #eventbus: IEventbus;
