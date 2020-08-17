@@ -116,8 +116,8 @@ export interface ILanguageLabel {
 }
 
 export interface ILabel {
-  language: string;
-  text: string;
+  code: string;
+  label: string;
 }
 
 export interface IDimensions {

@@ -1,14 +1,25 @@
 import TimelineEventNames from '../timeline-event-names';
 import deepcopy from '../operation/helper/deepcopy';
+import { TOperationData, IEndableAction } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { IController } from './types';
 
-class EventListenerController {
+interface IActionInstanceInfo {
+  start: boolean;
+  action: IEndableAction;
+}
+
+class EventListenerController implements IController {
+  operationData: TOperationData | null;
+  actionInstanceInfos: IActionInstanceInfo[];
+  name = 'EventListenerController';
+
   constructor() {
     this.operationData = null;
-    this.actionInstanceInfos = null;
-    this.name = 'EventListenerController';
+    this.actionInstanceInfos = [];
   }
 
-  init(operationData) {
+  init(operationData: TOperationData) {
     this.operationData = {
       selectedElement: operationData.selectedElement,
       eventName: operationData.eventName,
@@ -17,14 +28,18 @@ class EventListenerController {
     };
   }
 
-  attach(eventbus) {
+  attach(eventbus: IEventbus) {
+    if (!this.operationData) {
+      return;
+    }
+
     const { selectedElement, actions, eventName } = this.operationData;
     if (!this.actionInstanceInfos) {
       this.actionInstanceInfos = [];
-      const resultCallback = isStart => actionInstance => {
+      const resultCallback = (isStart: boolean) => (actionInstance: IEndableAction) => {
         this.actionInstanceInfos.push({ start: isStart, action: actionInstance });
       };
-      actions.forEach(actionName => {
+      actions.forEach((actionName: string) => {
         const [isStart, name] = this._isStartAction(actionName);
         eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback(isStart)]);
       });
@@ -36,12 +51,12 @@ class EventListenerController {
     }
   }
 
-  _getElementTagName(element) {
-    const tagName = element.length ? element[0].tagName : element.tagName;
+  _getElementTagName(element: JQuery | HTMLElement) {
+    const tagName = (element as JQuery).length ? (element as JQuery)[0].tagName : (element as HTMLElement).tagName;
     return tagName.toUpperCase();
   }
 
-  _isStartAction(actionName) {
+  _isStartAction(actionName: string): [boolean, string] {
     const prefix = actionName.substr(0, 'end:'.length);
     if (prefix === 'end:') {
       return [false, actionName.substr('end:'.length)];
@@ -50,27 +65,38 @@ class EventListenerController {
     }
   }
 
-  _eventHandler(event) {
+  _eventHandler(event: any) {
+    if (!this.operationData) {
+      return;
+    }
+
     const copy = this.operationData.actionOperationData ? deepcopy(this.operationData.actionOperationData) : {};
+
     if (event.target) {
       copy.targetValue = event.target.value;
     }
+
     this._executeAction(this.actionInstanceInfos, copy, 0);
   }
 
-  _executeAction(actions, operationData, idx) {
+  _executeAction(actions: IActionInstanceInfo[], operationData: TOperationData, idx: number) {
     if (idx < actions.length) {
       const actionInfo = actions[idx];
       const { action } = actionInfo;
       const method = actionInfo.start ? action.start.bind(action) : action.end.bind(action);
-      method(operationData).then(resultOperationData => {
+      method(operationData).then((resultOperationData) => {
         return this._executeAction(actions, Object.assign(operationData, resultOperationData), ++idx);
       });
     }
   }
 
-  _selectEventHandler(event) {
+  _selectEventHandler(event: any) {
+    if (!this.operationData) {
+      return;
+    }
+
     const options = event.target;
+
     for (let i = 0, l = options.length; i < l; i++) {
       const opt = options[i];
       if (opt.selected) {
@@ -81,8 +107,8 @@ class EventListenerController {
     }
   }
 
-  detach(eventbus) {
-    this.operationData.selectedElement.off(this.operationData.eventName);
+  detach(_eventbus: IEventbus) {
+    this.operationData?.selectedElement.off(this.operationData.eventName);
   }
 }
 
