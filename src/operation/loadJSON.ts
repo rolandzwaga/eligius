@@ -6,6 +6,7 @@ export interface ILoadJSONOperationData {
   url: string;
   cache: boolean;
   propertyName?: string;
+  json?: any;
 }
 
 const loadJSON: TOperation<ILoadJSONOperationData> = function (operationData, _eventBus) {

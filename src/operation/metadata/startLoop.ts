@@ -1,16 +1,16 @@
-import ParameterTypes from './ParameterTypes';
+import { IStartLoopOperationData } from '../startLoop';
 import { IOperationMetadata } from './types';
 
-function startLoop(): IOperationMetadata {
+function startLoop(): IOperationMetadata<IStartLoopOperationData> {
   return {
     description: 'Starts a loop over the given collection',
     properties: {
       collection: {
-        type: ParameterTypes.ARRAY,
+        type: 'ParameterType:array',
         required: true,
       },
       propertyName: {
-        type: ParameterTypes.STRING,
+        type: 'ParameterType:string',
         defaultValue: 'currentItem',
       },
     },

@@ -1,11 +1,14 @@
-import ParameterTypes from './ParameterTypes';
+import { ICustomFunctionOperationData } from '../customFunction';
 import { IOperationMetadata } from './types';
 
-function customFunction(): IOperationMetadata {
+function customFunction(): IOperationMetadata<ICustomFunctionOperationData> {
   return {
     description: 'Executes the specified custom function',
     properties: {
-      systemName: ParameterTypes.SYSTEM_NAME,
+      systemName: {
+        type: 'ParameterType:systemName',
+        required: true,
+      },
     },
   };
 }

@@ -1,12 +1,12 @@
-import ParameterTypes from './ParameterTypes';
+import { IExtendControllerOperationData } from '../extendController';
 import { IOperationMetadata } from './types';
 
-function extendController(): IOperationMetadata {
+function extendController(): IOperationMetadata<IExtendControllerOperationData> {
   return {
     description: 'Extends the current controller',
     dependentProperties: ['controllerInstance'],
     properties: {
-      controllerExtension: ParameterTypes.OBJECT,
+      controllerExtension: 'ParameterType:object',
     },
   };
 }

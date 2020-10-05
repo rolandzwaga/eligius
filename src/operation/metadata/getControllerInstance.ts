@@ -1,21 +1,21 @@
-import ParameterTypes from './ParameterTypes';
+import { IGetControllerInstanceOperationData } from '../getControllerInstance';
 import { IOperationMetadata } from './types';
 
-function getControllerInstance(): IOperationMetadata {
+function getControllerInstance(): IOperationMetadata<IGetControllerInstanceOperationData> {
   return {
     description: 'Retrieves an instance of the specified controller',
     properties: {
       systemName: {
-        type: ParameterTypes.CONTROLLER_NAME,
+        type: 'ParameterType:controllerName',
         required: true,
       },
       propertyName: {
-        type: ParameterTypes.STRING,
+        type: 'ParameterType:string',
         defaultValue: 'controllerInstance',
       },
     },
     outputProperties: {
-      controllerInstance: ParameterTypes.OBJECT,
+      controllerInstance: 'ParameterType:object',
     },
   };
 }

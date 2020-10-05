@@ -1,15 +1,15 @@
-import ParameterTypes from './ParameterTypes';
+import { ISetOperationData } from '../setOperationData';
 import { IOperationMetadata } from './types';
 
-function setOperationData(): IOperationMetadata {
+function setOperationData(): IOperationMetadata<ISetOperationData> {
   return {
     description: 'Sets the given properties on the current operation data',
     properties: {
       properties: {
-        type: ParameterTypes.OBJECT,
+        type: 'ParameterType:object',
         required: true,
       },
-      override: ParameterTypes.BOOLEAN,
+      override: 'ParameterType:boolean',
     },
   };
 }

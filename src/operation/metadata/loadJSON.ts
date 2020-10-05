@@ -1,17 +1,17 @@
-import ParameterTypes from './ParameterTypes';
+import { ILoadJSONOperationData } from '../loadJSON';
 import { IOperationMetadata } from './types';
 
-function loadJSON(): IOperationMetadata {
+function loadJSON(): IOperationMetadata<ILoadJSONOperationData> {
   return {
     description: 'Load JSON from the given url',
     properties: {
       url: {
-        type: ParameterTypes.URL,
+        type: 'ParameterType:url',
         required: true,
       },
-      cache: ParameterTypes.BOOLEAN,
+      cache: 'ParameterType:boolean',
       propertyName: {
-        type: ParameterTypes.STRING,
+        type: 'ParameterType:string',
         defaultValue: 'json',
       },
     },

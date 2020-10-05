@@ -1,4 +1,3 @@
-import ParameterTypes from './ParameterTypes';
 import { IOperationMetadata } from './types';
 import { IAnimateWithClassOperationData } from '../animateWithClass';
 
@@ -8,10 +7,10 @@ function animateWithClass(): IOperationMetadata<IAnimateWithClassOperationData> 
     dependentProperties: ['selectedElement'],
     properties: {
       className: {
-        type: ParameterTypes.CLASS_NAME,
+        type: 'ParameterType:className',
         required: true,
       },
-      removeClass: ParameterTypes.BOOLEAN,
+      removeClass: 'ParameterType:boolean',
     },
   };
 }

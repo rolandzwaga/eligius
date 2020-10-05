@@ -1,18 +1,18 @@
-import ParameterTypes from './ParameterTypes';
+import { IGetControllerFromElementOperationData } from '../getControllerFromElement';
 import { IOperationMetadata } from './types';
 
-function getControllerFromElement(): IOperationMetadata {
+function getControllerFromElement(): IOperationMetadata<IGetControllerFromElementOperationData> {
   return {
     description: 'Retrieves the specified controller from the current element',
     dependentProperties: ['selectedElement'],
     properties: {
       controllerName: {
-        type: ParameterTypes.CONTROLLER_NAME,
+        type: 'ParameterType:controllerName',
         required: true,
       },
     },
     outputProperties: {
-      controllerInstance: ParameterTypes.OBJECT,
+      controllerInstance: 'ParameterType:object',
     },
   };
 }

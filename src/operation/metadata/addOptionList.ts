@@ -1,4 +1,3 @@
-import ParameterTypes from './ParameterTypes';
 import { IOperationMetadata } from './types';
 import { IAddOptionListOperationData } from '../addOptionList';
 
@@ -9,16 +8,16 @@ function addOptionList(): IOperationMetadata<IAddOptionListOperationData> {
     dependentProperties: ['selectedElement'],
     properties: {
       valueProperty: {
-        type: ParameterTypes.STRING,
+        type: 'ParameterType:string',
         required: true,
       },
       labelProperty: {
-        type: ParameterTypes.STRING,
+        type: 'ParameterType:string',
         required: true,
       },
-      defaultIndex: ParameterTypes.INTEGER,
-      defaultValue: ParameterTypes.STRING,
-      optionData: ParameterTypes.ARRAY,
+      defaultIndex: 'ParameterType:integer',
+      defaultValue: 'ParameterType:string',
+      optionData: 'ParameterType:array',
     },
   };
 }

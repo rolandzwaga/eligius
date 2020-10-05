@@ -1,13 +1,13 @@
-import ParameterTypes from './ParameterTypes';
+import { ISetElementAttributesOperationData } from '../setElementAttributes';
 import { IOperationMetadata } from './types';
 
-function setElementAttributes(): IOperationMetadata {
+function setElementAttributes(): IOperationMetadata<ISetElementAttributesOperationData> {
   return {
     description: 'Sets the given attributes on the selected element',
     dependentProperties: ['selectedElement'],
     properties: {
       attributes: {
-        type: ParameterTypes.OBJECT,
+        type: 'ParameterType:object',
         required: true,
       },
     },

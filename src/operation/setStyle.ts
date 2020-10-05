@@ -4,6 +4,7 @@ import { TOperation } from '../action/types';
 export interface ISetStyleOperationData {
   properties: any;
   propertyName?: string;
+  selectedElement?: JQuery;
 }
 
 const setStyle: TOperation<ISetStyleOperationData> = function (operationData, _eventBus) {

@@ -1,13 +1,13 @@
-import ParameterTypes from './ParameterTypes';
+import { IToggleClassOperationData } from '../toggleClass';
 import { IOperationMetadata } from './types';
 
-function toggleClass(): IOperationMetadata {
+function toggleClass(): IOperationMetadata<IToggleClassOperationData> {
   return {
     description: 'Toggles the given class on the selected element',
     dependentProperties: ['selectedElement'],
     properties: {
       className: {
-        type: ParameterTypes.CLASS_NAME,
+        type: 'ParameterType:className',
         required: true,
       },
     },

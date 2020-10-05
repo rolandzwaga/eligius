@@ -1,13 +1,14 @@
-import TParameterTypes from './ParameterTypes';
+import TParameterTypes from './TParameterTypes';
 
 export type TComplexProperyMetadata = {
   type: TParameterTypes;
-  required: boolean;
+  defaultValue?: any;
+  required?: boolean;
 };
 
 export type TArrayProperyMetadata = {
   type: 'ParameterType:array';
-  itemType: Omit<TParameterTypes, 'ParameterType:array'>;
+  itemType: TParameterTypes;
   required?: boolean;
 };
 

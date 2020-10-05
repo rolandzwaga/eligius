@@ -1,11 +1,11 @@
-import ParameterTypes from './ParameterTypes';
+import { IClearOperationDataOperationData } from '../clearOperationData';
 import { IOperationMetadata } from './types';
 
-function clearOperationData(): IOperationMetadata {
+function clearOperationData(): IOperationMetadata<IClearOperationDataOperationData> {
   return {
     description: 'clears the current operation data',
     properties: {
-      properties: ParameterTypes.ARRAY,
+      properties: 'ParameterType:array',
     },
   };
 }

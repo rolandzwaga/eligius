@@ -5,7 +5,7 @@ import { IController } from '../controllers/types';
 
 export interface IAddControllerToElementOperationData {
   selectedElement: JQuery;
-  controllerInstance: IController;
+  controllerInstance: IController<any>;
 }
 
 const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function (operationData, eventBus) {

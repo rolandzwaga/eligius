@@ -1,13 +1,13 @@
-import ParameterTypes from './ParameterTypes';
+import { IReparentElementOperationData } from '../reparentElement';
 import { IOperationMetadata } from './types';
 
-function reparentElement(): IOperationMetadata {
+function reparentElement(): IOperationMetadata<IReparentElementOperationData> {
   return {
     description: 'Moves the selected element to the new location described by the given selector',
     dependentProperties: ['selectedElement'],
     properties: {
       newParentSelector: {
-        type: ParameterTypes.SELECTOR,
+        type: 'ParameterType:selector',
         required: true,
       },
     },

@@ -1,12 +1,12 @@
-import ParameterTypes from './ParameterTypes';
+import { IEndActionOperationData } from '../endAction';
 import { IOperationMetadata } from './types';
 
-function endAction(): IOperationMetadata {
+function endAction(): IOperationMetadata<IEndActionOperationData> {
   return {
     description: 'Ends the current action',
     dependentProperties: ['actionInstance'],
     properties: {
-      actionOperationData: ParameterTypes.OBJECT,
+      actionOperationData: 'ParameterType:object',
     },
   };
 }

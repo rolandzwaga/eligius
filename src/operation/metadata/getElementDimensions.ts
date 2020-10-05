@@ -1,15 +1,15 @@
-import ParameterTypes from './ParameterTypes';
+import { IGetElementDimensionsOperationData } from '../getElementDimensions';
 import { IOperationMetadata } from './types';
 
-function getElementDimensions(): IOperationMetadata {
+function getElementDimensions(): IOperationMetadata<IGetElementDimensionsOperationData> {
   return {
     description: 'Calculates the dimensions for the current element',
     dependentProperties: ['selectedElement'],
     properties: {
-      modifier: ParameterTypes.DIMENSIONS_MODIFIER,
+      modifier: 'ParameterType:dimensionsModifier',
     },
     outputProperties: {
-      dimensions: ParameterTypes.DIMENSIONS,
+      dimensions: 'ParameterType:dimensions',
     },
   };
 }

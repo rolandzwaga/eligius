@@ -1,13 +1,13 @@
-import ParameterTypes from './ParameterTypes';
+import { IRemoveControllerFromElementOperationData } from '../removeControllerFromElement';
 import { IOperationMetadata } from './types';
 
-function removeControllerFromElement(): IOperationMetadata {
+function removeControllerFromElement(): IOperationMetadata<IRemoveControllerFromElementOperationData> {
   return {
     description: 'Removes the specified controller from the selected element',
     dependentProperties: ['selectedElement'],
     properties: {
       controllerName: {
-        type: ParameterTypes.CONTROLLER_NAME,
+        type: 'ParameterType:controllerName',
         required: true,
       },
     },

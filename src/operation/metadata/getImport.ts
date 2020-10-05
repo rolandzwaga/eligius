@@ -1,17 +1,17 @@
-import ParameterTypes from './ParameterTypes';
+import { IGetImportOperationData } from '../getImport';
 import { IOperationMetadata } from './types';
 
-function getImport(): IOperationMetadata {
+function getImport(): IOperationMetadata<IGetImportOperationData> {
   return {
     description: 'Retrieves a javascript import specified by the given system name',
     properties: {
       systemName: {
-        type: ParameterTypes.SYSTEM_NAME,
+        type: 'ParameterType:systemName',
         required: true,
       },
     },
     outputProperties: {
-      importedInstance: ParameterTypes.OBJECT,
+      importedInstance: 'ParameterType:object',
     },
   };
 }

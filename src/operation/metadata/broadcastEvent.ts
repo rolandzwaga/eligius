@@ -1,14 +1,14 @@
-import ParameterTypes from './ParameterTypes';
+import { IBroadcastEventOperationData } from '../broadcastEvent';
 import { IOperationMetadata } from './types';
 
-function broadcastEvent(): IOperationMetadata {
+function broadcastEvent(): IOperationMetadata<IBroadcastEventOperationData> {
   return {
     description: 'Broadcasts an eventbus event with the given type, topic and optional arguments',
     properties: {
-      eventArgs: ParameterTypes.ARRAY,
-      eventTopic: ParameterTypes.EVENT_TOPIC,
+      eventArgs: 'ParameterType:array',
+      eventTopic: 'ParameterType:eventTopic',
       eventName: {
-        type: ParameterTypes.EVENT_NAME,
+        type: 'ParameterType:eventName',
         required: true,
       },
     },

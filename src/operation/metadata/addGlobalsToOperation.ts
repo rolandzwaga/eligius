@@ -1,4 +1,3 @@
-import ParameterTypes from './ParameterTypes';
 import { IOperationMetadata } from './types';
 import { IAddControllerToElementOperationData } from '../addControllerToElement';
 
@@ -8,7 +7,8 @@ function addGlobalsToOperation(): IOperationMetadata<IAddControllerToElementOper
     dependentProperties: ['selectedElement'],
     properties: {
       globalProperties: {
-        type: ParameterTypes.ARRAY,
+        type: 'ParameterType:array',
+        itemType: 'ParameterType:string',
         required: true,
       },
     },

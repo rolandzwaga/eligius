@@ -19,7 +19,7 @@ const startLoop: TOperation<IStartLoopOperationData> = function (this: IOperatio
       context.skip = true;
     }
   }
-  if (collection && collection.length) {
+  if (collection && collection.length && context.loopIndex) {
     (operationData as any)[propertyName] = collection[context.loopIndex];
   }
   return operationData;

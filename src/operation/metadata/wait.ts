@@ -1,12 +1,12 @@
-import ParameterTypes from './ParameterTypes';
+import { IWaitOperationData } from '../wait';
 import { IOperationMetadata } from './types';
 
-function wait(): IOperationMetadata {
+function wait(): IOperationMetadata<IWaitOperationData> {
   return {
     description: 'Waits the given amount of milliseconds before the action continues',
     properties: {
       milliseconds: {
-        type: ParameterTypes.INTEGER,
+        type: 'ParameterType:integer',
         required: true,
       },
     },

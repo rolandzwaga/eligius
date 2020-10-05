@@ -22,7 +22,7 @@ export interface IAddOptionListOperationData {
   labelProperty: string;
   defaultIndex: number;
   defaultValue: string;
-  optionData: any;
+  optionData: any[];
   selectedElement: JQuery;
 }
 
@@ -33,7 +33,7 @@ const addOptionList: TOperation<IAddOptionListOperationData> = function (operati
 
   const optionElements = optionData.map(createOption);
 
-  selectedElement.html(optionElements);
+  selectedElement.html(optionElements.join(''));
 
   return operationData;
 };

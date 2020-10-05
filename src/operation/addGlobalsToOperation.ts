@@ -11,7 +11,7 @@ const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = function (
     prev[current] = getGlobals(current);
     return prev;
   }, {});
-  delete operationData.globalProperties;
+  delete (operationData as any).globalProperties;
   return Object.assign(operationData, globalValues);
 };
 

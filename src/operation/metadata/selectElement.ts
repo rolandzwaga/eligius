@@ -1,19 +1,19 @@
-import ParameterTypes from './ParameterTypes';
+import { ISelectElementOperationData } from '../selectElement';
 import { IOperationMetadata } from './types';
 
-function selectElement(): IOperationMetadata {
+function selectElement(): IOperationMetadata<ISelectElementOperationData> {
   return {
     description: 'Selects an element using the given selector',
     properties: {
       selector: {
-        type: ParameterTypes.SELECTOR,
+        type: 'ParameterType:selector',
         required: true,
       },
-      propertyName: ParameterTypes.STRING,
-      useSelectedElementAsRoot: ParameterTypes.BOOLEAN,
+      propertyName: 'ParameterType:string',
+      useSelectedElementAsRoot: 'ParameterType:boolean',
     },
     outputProperties: {
-      selectedElement: ParameterTypes.OBJECT,
+      selectedElement: 'ParameterType:object',
     },
   };
 }

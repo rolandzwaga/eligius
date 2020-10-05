@@ -56,12 +56,12 @@ export interface IOperationInfo {
 }
 
 export interface IOperationContext {
-  loopIndex: number;
-  loopLength: number;
-  startIndex: number;
-  newIndex: number;
+  loopIndex?: number;
+  loopLength?: number;
+  startIndex?: number;
+  newIndex?: number;
   currentIndex: number;
-  skip: boolean;
+  skip?: boolean;
 }
 
 export type TOperation<T = IOperationData> = (operationData: T, eventbus: IEventbus) => TOperationResult<T>;

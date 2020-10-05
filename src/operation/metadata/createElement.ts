@@ -1,20 +1,20 @@
-import ParameterTypes from './ParameterTypes';
+import { ICreateElementOperationData } from '../createElement';
 import { IOperationMetadata } from './types';
 
-function customFunction(): IOperationMetadata {
+function createElement(): IOperationMetadata<ICreateElementOperationData> {
   return {
     description: 'Creates an HTML element with the given name and optionally adds the given attributes',
     properties: {
       elementName: {
-        type: ParameterTypes.HTML_ELEMENT_NAME,
+        type: 'ParameterType:htmlElementName',
         required: true,
       },
-      attributes: ParameterTypes.OBJECT,
-      text: ParameterTypes.STRING,
+      attributes: 'ParameterType:object',
+      text: 'ParameterType:string',
     },
     outputProperties: {
-      template: ParameterTypes.OBJECT,
+      template: 'ParameterType:object',
     },
   };
 }
-export default customFunction;
+export default createElement;

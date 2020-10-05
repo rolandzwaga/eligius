@@ -1,12 +1,12 @@
-import ParameterTypes from './ParameterTypes';
+import { IStartActionOperationData } from '../startAction';
 import { IOperationMetadata } from './types';
 
-function startAction(): IOperationMetadata {
+function startAction(): IOperationMetadata<IStartActionOperationData> {
   return {
     description: 'Starts the selected action',
     dependentProperties: ['actionInstance'],
     properties: {
-      actionOperationData: ParameterTypes.OBJECT,
+      actionOperationData: 'ParameterType:object',
     },
   };
 }

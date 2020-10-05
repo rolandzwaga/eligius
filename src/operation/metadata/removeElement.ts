@@ -1,6 +1,7 @@
+import { IRemoveElementOperationData } from '../removeElement';
 import { IOperationMetadata } from './types';
 
-function removeElement(): IOperationMetadata {
+function removeElement(): IOperationMetadata<IRemoveElementOperationData> {
   return {
     description: 'Removes the selected element from the DOM',
     dependentProperties: ['selectedElement'],

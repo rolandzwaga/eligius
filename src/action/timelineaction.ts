@@ -13,7 +13,7 @@ class TimelineAction extends EndableAction {
     this.active = false;
     this.duration = actionConfiguration.duration;
     this.duration.start = +this.duration.start;
-    this.duration.end = +this.duration.end;
+    this.duration.end = +(this.duration.end ?? -1);
   }
 
   start(initOperationData: TOperationData): Promise<TOperationData> {

@@ -1,16 +1,16 @@
-import ParameterTypes from './ParameterTypes';
+import { IRequestActionOperationData } from '../requestAction';
 import { IOperationMetadata } from './types';
 
-function requestAction(): IOperationMetadata {
+function requestAction(): IOperationMetadata<IRequestActionOperationData> {
   return {
     description: 'Retrieves an instance of the specified action',
     properties: {
       systemName: {
-        type: ParameterTypes.ACTION_NAME,
+        type: 'ParameterType:actionName',
       },
     },
     outputProperties: {
-      actionInstance: ParameterTypes.OBJECT,
+      actionInstance: 'ParameterType:object',
     },
   };
 }
