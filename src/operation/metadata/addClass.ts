@@ -1,4 +1,3 @@
-import ParameterTypes from './ParameterTypes';
 import { IOperationMetadata } from './types';
 import { IAddClassOperationData } from '../addClass';
 
@@ -8,7 +7,7 @@ function addClass(): IOperationMetadata<IAddClassOperationData> {
     dependentProperties: ['selectedElement'],
     properties: {
       className: {
-        type: ParameterTypes.CLASS_NAME,
+        type: 'ParameterType:className',
         required: true,
       },
     },

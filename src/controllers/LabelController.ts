@@ -1,17 +1,21 @@
 import TimelineEventNames from '../timeline-event-names';
 import { TEventHandlerRemover, IEventbus } from '../eventbus/types';
-import { TOperationData } from '../action/types';
 import { ILabel } from '../types';
 import { IController } from './types';
 
-class LabelController implements IController {
+export interface ILabelControllerMetadata {
+  selectedElement: JQuery;
+  labelId: string;
+}
+
+class LabelController implements IController<ILabelControllerMetadata> {
   listeners: TEventHandlerRemover[] = [];
   currentLanguage: string | null = null;
-  operationData: TOperationData | null = null;
+  operationData: ILabelControllerMetadata | null = null;
   labelData: Record<string, string> = {};
   name = 'LabelController';
 
-  init(operationData: TOperationData) {
+  init(operationData: ILabelControllerMetadata) {
     this.operationData = Object.assign({}, operationData);
   }
 

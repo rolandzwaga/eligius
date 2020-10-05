@@ -1,4 +1,4 @@
-import { TOperationData, TOperation } from './action/types';
+import { TOperationData, TOperation, IEndableActionConfiguration, IActionConfiguration } from './action/types';
 import { TTimelineType, ITimelineProvider } from './timelineproviders/types';
 
 export interface IEngineFactory {
@@ -12,13 +12,13 @@ export interface IEngineConfiguration {
   containerSelector: string;
   language: string;
   layoutTemplate: string;
-  availableLanguages: ILanguageInfo[];
+  availableLanguages: ILabel[];
   initActions: IEndableActionConfiguration[];
   actions: IEndableActionConfiguration[];
-  eventActions: IActionConfiguration[];
+  eventActions?: IActionConfiguration[];
   timelines: ITimelineConfiguration[];
-  timelineFlow: ITimelineFlow;
-  labels: ILabelInfo[];
+  timelineFlow?: ITimelineFlow;
+  labels: ILanguageLabel[];
 }
 
 export interface IResolvedEngineConfiguration {
@@ -35,6 +35,8 @@ export interface IResolvedEngineConfiguration {
   timelineFlow: ITimelineFlow;
   labels: ILabelInfo[];
 }
+
+export interface ITimelineFlow {}
 
 export interface ITimelineProviderSettings {
   vendor: string;
@@ -100,7 +102,7 @@ export type TResultCallback = (result: any) => void;
 
 export interface IDuration {
   start: number;
-  end: number;
+  end?: number;
 }
 
 export type TimelineTypes = 'animation' | 'mediaplayer';

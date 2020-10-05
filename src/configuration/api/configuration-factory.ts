@@ -4,41 +4,50 @@ import { ActionEditor } from './action-editor';
 import { TimelineActionEditor, EndableActionEditor } from './action-editor';
 import TimelineProviderSettingsEditor from './timeline-provider-settings-editor';
 import deepcopy from '../../operation/helper/deepcopy';
+import { ILabel, ILanguageLabel, ITimelineConfiguration, TimelineTypes } from '../../types';
+import { IActionConfiguration, ITimelineActionConfiguration } from '../../action/types';
+import { IEngineConfiguration } from '../../types';
+
+export type TEngineConfigurationLists = Pick<
+  IEngineConfiguration,
+  'availableLanguages' | 'initActions' | 'actions' | 'eventActions' | 'timelines' | 'labels'
+>;
 
 class ConfigurationFactory {
-  actionCreatorFactory = null;
-  configuration = null;
+  actionCreatorFactory: ActionCreatorFactory;
+  configuration: IEngineConfiguration;
 
-  constructor(config) {
-    this.configuration = config || {};
+  constructor(config?: IEngineConfiguration) {
+    this.configuration = config || ({} as any);
     this.actionCreatorFactory = new ActionCreatorFactory(this);
   }
 
-  init(defaultLanguage) {
+  init(defaultLanguage: string) {
     this.configuration = {
       id: uuidv4(),
       engine: {
         systemName: 'ChronoTriggerEngine',
       },
       containerSelector: '#ct-container',
-      timelineProviderSettings: {
-        vendor: null,
-        selector: null,
-        systemName: null,
-      },
+      timelineProviderSettings: {} as any,
       language: defaultLanguage,
       availableLanguages: [],
+      layoutTemplate: '',
+      initActions: [],
+      actions: [],
+      timelines: [],
+      labels: [],
     };
 
     return this;
   }
 
-  setDefaultLanguage(defaultLanguage) {
+  setDefaultLanguage(defaultLanguage: string) {
     this.configuration.language = defaultLanguage;
     return this;
   }
 
-  setContainerSelector(selector) {
+  setContainerSelector(selector: string) {
     this.configuration.containerSelector = selector;
     return this;
   }
@@ -47,8 +56,8 @@ class ConfigurationFactory {
     return new TimelineProviderSettingsEditor(this.configuration.timelineProviderSettings, this);
   }
 
-  getConfiguration(callBack) {
-    const copy = deepcopy(this.configuration);
+  getConfiguration(callBack: (copy: IEngineConfiguration) => IEngineConfiguration) {
+    const copy = deepcopy<IEngineConfiguration>(this.configuration);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
       this.configuration = newConfig;
@@ -56,7 +65,7 @@ class ConfigurationFactory {
     return this;
   }
 
-  addLanguage(code, languageLabel) {
+  addLanguage(code: string, languageLabel: string) {
     const languages = this._initializeCollection(this.configuration, 'availableLanguages');
     languages.push({
       code: code,
@@ -65,31 +74,31 @@ class ConfigurationFactory {
     return this;
   }
 
-  _internalAddAction(collectionName, action) {
+  _internalAddAction(collectionName: keyof TEngineConfigurationLists, action: IActionConfiguration) {
     const actions = this._initializeCollection(this.configuration, collectionName);
-    actions.push(action);
+    actions?.push(action as any);
   }
 
-  _initializeCollection(parent, name) {
+  _initializeCollection<T, K extends keyof T>(parent: T, name: K): T[K] {
     if (!parent[name]) {
-      parent[name] = [];
+      (parent[name] as any) = [];
     }
-    return parent[name];
+    return parent[name] as T[K];
   }
 
-  addAction(action) {
+  addAction(action: IActionConfiguration) {
     this._internalAddAction('actions', action);
   }
 
-  addInitAction(action) {
+  addInitAction(action: IActionConfiguration) {
     this._internalAddAction('initActions', action);
   }
 
-  addEventAction(action) {
+  addEventAction(action: IActionConfiguration) {
     this._internalAddAction('eventActions', action);
   }
 
-  addTimelineAction(uri, action) {
+  addTimelineAction(uri: string, action: ITimelineActionConfiguration) {
     const timeline = this.getTimeline(uri);
     if (timeline) {
       const timelineActions = this._initializeCollection(timeline, 'timelineActions');
@@ -99,29 +108,29 @@ class ConfigurationFactory {
     }
   }
 
-  createAction(name) {
+  createAction(name: string) {
     return this.actionCreatorFactory.createAction(name);
   }
 
-  createInitAction(name) {
+  createInitAction(name: string) {
     return this.actionCreatorFactory.createInitAction(name);
   }
 
-  createEventAction(name) {
+  createEventAction(name: string) {
     return this.actionCreatorFactory.createEventAction(name);
   }
 
-  createTimelineAction(uri, name) {
+  createTimelineAction(uri: string, name: string) {
     return this.actionCreatorFactory.createTimelineAction(uri, name);
   }
 
-  addTimeline(uri, type, duration, loop, selector) {
+  addTimeline(uri: string, type: TimelineTypes, duration: number, loop: boolean, selector: string) {
     const timelines = this._initializeCollection(this.configuration, 'timelines');
     const timeline = this.getTimeline(uri);
     if (timeline) {
       throw Error(`timeline for uri ${uri} already exists`);
     }
-    const timelineConfig = {
+    const timelineConfig: ITimelineConfiguration = {
       type: type,
       uri: uri,
       duration: duration,
@@ -133,14 +142,11 @@ class ConfigurationFactory {
     return this;
   }
 
-  getTimeline(uri) {
-    return this.configuration.timelines ? this.configuration.timelines.find(t => t.uri === uri) : null;
+  getTimeline(uri: string) {
+    return this.configuration.timelines.find((t) => t.uri === uri);
   }
 
-  removeTimeline(uri) {
-    if (!this.configuration.timelines) {
-      return;
-    }
+  removeTimeline(uri: string) {
     const timelineConfig = this.getTimeline(uri);
     if (timelineConfig) {
       const idx = this.configuration.timelines.indexOf(timelineConfig);
@@ -151,8 +157,8 @@ class ConfigurationFactory {
     return this;
   }
 
-  _initializeLabel(id, labels) {
-    let label = labels.find(l => l.id === id);
+  _initializeLabel(id: string, labels: ILanguageLabel[]) {
+    let label = labels.find((l) => l.id === id);
     if (!label) {
       labels.push({
         id: id,
@@ -163,18 +169,19 @@ class ConfigurationFactory {
     return label;
   }
 
-  _getLabelTranslation(labelTranslations, languageCode) {
-    let translation = labelTranslations.find(l => l.code === languageCode);
+  _getLabelTranslation(labelTranslations: ILabel[], languageCode: string) {
+    let translation = labelTranslations.find((l) => l.code === languageCode);
     if (!translation) {
       translation = {
         code: languageCode,
+        label: '',
       };
       labelTranslations.push(translation);
     }
     return translation;
   }
 
-  addLabel(id, code, translation) {
+  addLabel(id: string, code: string, translation: string) {
     const labels = this._initializeCollection(this.configuration, 'labels');
     const labelConfig = this._initializeLabel(id, labels);
     const labelTranslation = this._getLabelTranslation(labelConfig.labels, code);
@@ -182,36 +189,36 @@ class ConfigurationFactory {
     return this;
   }
 
-  editAction(id) {
-    const actionConfig = this.configuration.actions.find(a => a.id === id);
+  editAction(id: string) {
+    const actionConfig = this.configuration.actions.find((a) => a.id === id);
     if (actionConfig) {
       return new ActionEditor(actionConfig, this);
     }
     throw new Error(`Action not found for id ${id}`);
   }
 
-  editEventAction(id) {
-    const actionConfig = this.configuration.eventActions.find(a => a.id === id);
+  editEventAction(id: string) {
+    const actionConfig = this.configuration.eventActions?.find((a) => a.id === id);
     if (actionConfig) {
       return new ActionEditor(actionConfig, this);
     }
     throw new Error(`Event action not found for id ${id}`);
   }
 
-  editInitAction(id) {
-    const actionConfig = this.configuration.initActions.find(a => a.id === id);
+  editInitAction(id: string) {
+    const actionConfig = this.configuration.initActions.find((a) => a.id === id);
     if (actionConfig) {
       return new EndableActionEditor(actionConfig, this);
     }
     throw new Error(`Init action not found for id ${id}`);
   }
 
-  editTimelineAction(uri, id) {
+  editTimelineAction(uri: string, id: string) {
     const timeline = this.getTimeline(uri);
     if (!timeline) {
       throw new Error(`Timeline not found for id ${id}`);
     }
-    const actionConfig = timeline.timelineActions.find(a => a.id === id);
+    const actionConfig = timeline.timelineActions.find((a) => a.id === id);
     if (actionConfig) {
       return new TimelineActionEditor(actionConfig, this);
     }

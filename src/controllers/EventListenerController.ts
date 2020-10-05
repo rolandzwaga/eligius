@@ -9,8 +9,15 @@ interface IActionInstanceInfo {
   action: IEndableAction;
 }
 
-class EventListenerController implements IController {
-  operationData: TOperationData | null;
+export interface IEventListenerControllerOperationData {
+  selectedElement: JQuery;
+  eventName: string;
+  actions: string[];
+  actionOperationData?: TOperationData;
+}
+
+class EventListenerController implements IController<IEventListenerControllerOperationData> {
+  operationData: IEventListenerControllerOperationData | null;
   actionInstanceInfos: IActionInstanceInfo[];
   name = 'EventListenerController';
 
@@ -19,7 +26,7 @@ class EventListenerController implements IController {
     this.actionInstanceInfos = [];
   }
 
-  init(operationData: TOperationData) {
+  init(operationData: IEventListenerControllerOperationData) {
     this.operationData = {
       selectedElement: operationData.selectedElement,
       eventName: operationData.eventName,
@@ -36,13 +43,16 @@ class EventListenerController implements IController {
     const { selectedElement, actions, eventName } = this.operationData;
     if (!this.actionInstanceInfos) {
       this.actionInstanceInfos = [];
+
       const resultCallback = (isStart: boolean) => (actionInstance: IEndableAction) => {
         this.actionInstanceInfos.push({ start: isStart, action: actionInstance });
       };
+
       actions.forEach((actionName: string) => {
         const [isStart, name] = this._isStartAction(actionName);
         eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback(isStart)]);
       });
+
       if (this._getElementTagName(selectedElement) === 'SELECT') {
         selectedElement.on(eventName, this._selectEventHandler.bind(this));
       } else {

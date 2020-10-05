@@ -1,10 +1,11 @@
 import attachControllerToElement from './helper/attachControllerToElement';
 import internalResolve from './helper/internalResolve';
 import { TOperation } from '../action/types';
+import { IController } from '../controllers/types';
 
 export interface IAddControllerToElementOperationData {
   selectedElement: JQuery;
-  controllerInstance: any;
+  controllerInstance: IController;
 }
 
 const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function (operationData, eventBus) {

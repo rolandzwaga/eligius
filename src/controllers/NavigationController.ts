@@ -1,34 +1,45 @@
 import $ from 'jquery';
+import { IController } from './types';
+import { TOperationData } from '../action/types';
+import { TEventHandlerRemover, IEventbus } from '../eventbus/types';
+import LabelController from './LabelController';
+import { TResultCallback } from '../types';
 
-class NavigationController {
-  constructor() {
-    this.name = 'NavigationController';
-    this.playerId = null;
-    this.navigation = null;
-    this.navLookup = {};
-    this.navVidIdLookup = {};
-    this.ctrlLookup = {};
-    this.activeNavigationPoint = null;
-    this.labelControllers = null;
-    this.eventhandlers = null;
-    this.eventbus = null;
-    this.container = null;
-  }
+export interface INavigationControllerOperationData {
+  selectedElement: JQuery;
+  json: any;
+}
 
-  init(operationData) {
+class NavigationController implements IController<INavigationControllerOperationData> {
+  name: string = 'NavigationController';
+  navigation: any[] = [];
+  navLookup: Record<string, any> = {};
+  navVidIdLookup: Record<string, any> = {};
+  ctrlLookup: Record<string, LabelController> = {};
+  activeNavigationPoint: any | null = null;
+  labelControllers: LabelController[] = [];
+  eventhandlers: TEventHandlerRemover[] = [];
+  eventbus: IEventbus | null = null;
+  container: JQuery | null = null;
+
+  constructor() {}
+
+  init(operationData: TOperationData) {
     this.container = operationData.selectedElement;
-    this.playerId = operationData.playerId;
     this.navigation = this.buildNavigationData(operationData.json);
   }
 
-  attach(eventbus) {
-    this.eventhandlers = [];
-    this.labelControllers = [];
+  attach(eventbus: IEventbus) {
+    if (!this.container) {
+      return;
+    }
+
+    this.eventbus = eventbus;
+
     this.eventhandlers.push(eventbus.on('navigate-to-video-url', this.handleNavigateVideoUrl.bind(this)));
     this.eventhandlers.push(eventbus.on('highlight-navigation', this.highlightMenu.bind(this)));
     this.eventhandlers.push(eventbus.on('request-current-navigation', this.handleRequestCurrentNavigation.bind(this)));
-    this.eventhandlers.push(eventbus.on('video-complete', this.handleVideoComplete.bind(this), this.playerId));
-    this.eventbus = eventbus;
+    this.eventhandlers.push(eventbus.on('video-complete', this.handleVideoComplete.bind(this)));
 
     this.buildHtml(this.container, this.navigation);
     this.initHistory.bind(this);
@@ -45,7 +56,7 @@ class NavigationController {
     this.highlightMenu(videoIndex);
   }
 
-  getQueryVariable(variableIdx) {
+  getQueryVariable(variableIdx: number) {
     const href = window.location.href;
     const hashIndex = href.indexOf('#');
     if (hashIndex > -1) {
@@ -58,24 +69,27 @@ class NavigationController {
     return null;
   }
 
-  handleRequestCurrentNavigation(resultCallback) {
-    resultCallback({
-      navigationData: this.activeNavigationPoint,
-      title: this.ctrlLookup[this.activeNavigationPoint.labelId].labelData[
-        this.ctrlLookup[this.activeNavigationPoint.labelId].currentLanguage
-      ],
-    });
+  handleRequestCurrentNavigation(resultCallback: TResultCallback) {
+    if (this.activeNavigationPoint) {
+      const labelCtrl = this.ctrlLookup[this.activeNavigationPoint.labelId];
+      resultCallback({
+        navigationData: this.activeNavigationPoint,
+        title: labelCtrl.labelData[labelCtrl.currentLanguage || ''],
+      });
+    } else {
+      resultCallback(null);
+    }
   }
 
-  detach(eventbus) {
-    if (this.eventhandlers) {
-      this.eventhandlers.forEach((handler) => {
-        handler();
-      });
-    }
+  detach(eventbus: IEventbus) {
+    this.eventhandlers.forEach((handler) => {
+      handler();
+    });
+
     this.labelControllers.forEach((ctrl) => {
       ctrl.detach(eventbus);
     });
+
     this.labelControllers.length = 0;
     this.eventbus = null;
     this.container = null;
@@ -83,100 +97,110 @@ class NavigationController {
   }
 
   pushCurrentState(position = -1) {
+    if (!this.activeNavigationPoint) {
+      return;
+    }
+    const labelCtrl: LabelController = this.ctrlLookup[this.activeNavigationPoint.labelId];
+
+    if (!labelCtrl) {
+      return;
+    }
+
     const state = {
       navigationData: this.activeNavigationPoint,
-      title: this.ctrlLookup[this.activeNavigationPoint.labelId].labelData[
-        this.ctrlLookup[this.activeNavigationPoint.labelId].currentLanguage
-      ],
+      title: labelCtrl.labelData[labelCtrl.currentLanguage || ''],
+      position: -1,
     };
     if (position > -1) {
       state.position = position;
     }
-    this.eventbus.broadcast('push-history-state', [state]);
+    this.eventbus?.broadcast('push-history-state', [state]);
   }
 
-  buildHtml(parentElm, data) {
+  buildHtml(parentElm: JQuery, data: any) {
     const ul = $('<ul/>');
     data.forEach(this.addNavElement.bind(this, ul));
     parentElm.append(ul);
   }
 
-  addNavElement(parentElm, data) {
+  addNavElement(parentElm: JQuery, data: any) {
     if (data.visible) {
       const li = $('<li/>');
       const a = $(`<a href='javascript:;' id='nav_${data.videoUrlIndex}'/>`);
       li.append(a);
       this.addLabel(a, data.labelId);
       this.addClickHandler(a, data.videoUrlIndex);
+
       if (data.children) {
         const ul = $('<ul/>');
         data.children.forEach(this.addNavElement.bind(this, ul));
         li.append(ul);
       }
+
       parentElm.append(li);
     }
   }
 
-  addClickHandler(parentElm, videoIndex) {
+  addClickHandler(parentElm: JQuery, videoIndex: number) {
     parentElm.mouseup(this.menuMouseupHandler.bind(this, videoIndex));
   }
 
-  menuMouseupHandler(videoIndex) {
+  menuMouseupHandler(videoIndex: number) {
     const navdata = this.navVidIdLookup[videoIndex];
     if (navdata) {
-      this.eventbus.broadcast('request-video-url', [navdata.videoUrlIndex]);
+      this.eventbus?.broadcast('request-video-url', [navdata.videoUrlIndex]);
       this.handleNavigateVideoUrl(navdata.videoUrlIndex);
     }
   }
 
-  handleNavigateVideoUrl(index, requestedVideoPosition) {
-    requestedVideoPosition = requestedVideoPosition ? requestedVideoPosition : 0;
+  handleNavigateVideoUrl(index: number, requestedVideoPosition: number = 0) {
     this.highlightMenu(index);
-    this.eventbus.broadcast('request-video-url', [index, requestedVideoPosition]);
+    this.eventbus?.broadcast('request-video-url', [index, requestedVideoPosition]);
     this.activeNavigationPoint = this.navVidIdLookup[index];
     this.pushCurrentState(requestedVideoPosition);
   }
 
-  highlightMenu(index) {
+  highlightMenu(index: number) {
     const navElm = $(`#nav_${index}`);
+
     if (navElm.length) {
       $('.current-menu-item').removeClass('current-menu-item');
       navElm.addClass('current-menu-item');
     }
   }
 
-  handleVideoComplete(index) {
+  handleVideoComplete(index: number) {
     const navData = this.navVidIdLookup[index];
     if (navData.autoNext) {
-      this.eventbus.broadcast('request-video-url', [navData.next.videoUrlIndex]);
+      this.eventbus?.broadcast('request-video-url', [navData.next.videoUrlIndex]);
     } else {
-      this.eventbus.broadcast('request-video-cleanup');
+      this.eventbus?.broadcast('request-video-cleanup');
     }
   }
 
-  addLabel(parentElm, labelId) {
+  addLabel(parentElm: JQuery, labelId: string) {
     const data = {
       selectedElement: parentElm,
       labelId: labelId,
     };
-    const resultCallback = (instance) => {
+    const resultCallback = (instance: LabelController) => {
       instance.init(data);
-      instance.attach(this.eventbus);
+      instance.attach(this.eventbus as IEventbus);
       this.labelControllers.push(instance);
       this.ctrlLookup[labelId] = instance;
     };
-    this.eventbus.broadcast('request-instance', ['LabelController', resultCallback]);
+    this.eventbus?.broadcast('request-instance', ['LabelController', resultCallback]);
   }
 
-  buildNavigationData(data) {
-    const result = [];
-    data.navigationData.forEach((nav, index) => {
+  buildNavigationData(data: any) {
+    const result: any[] = [];
+    data.navigationData.forEach((nav: any, index: number) => {
       this.navLookup[nav.id] = nav;
       this.navVidIdLookup[nav.videoUrlIndex] = nav;
       nav.previous = data.navigationData[index - 1];
     });
 
-    data.navigationData.forEach((nav, index) => {
+    data.navigationData.forEach((nav: any, index: number) => {
       if (nav.nextId) {
         nav.next = this.navLookup[nav.nextId];
         delete nav.nextId;
@@ -185,11 +209,11 @@ class NavigationController {
       }
     });
 
-    data.roots.forEach((id) => {
+    data.roots.forEach((id: string) => {
       const nav = this.navLookup[id];
       if (nav.children) {
-        nav.children = nav.children.map((id) => {
-          return this.navLookup[id];
+        nav.children = nav.children.map((childId: string) => {
+          return this.navLookup[childId];
         });
       }
       result.push(nav);

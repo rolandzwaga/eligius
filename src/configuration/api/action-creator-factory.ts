@@ -1,54 +1,56 @@
 import { v4 as uuidv4 } from 'uuid';
+import {
+  IActionConfiguration,
+  IEndableActionConfiguration,
+  ITimelineActionConfiguration,
+  TOperationData,
+} from '../../action/types';
 import * as operations from '../../operation';
 import deepcopy from '../../operation/helper/deepcopy';
+import ConfigurationFactory from './configuration-factory';
 
 export class ActionCreatorFactory {
-  configfactory = null;
+  constructor(private readonly configurationfactory: ConfigurationFactory) {}
 
-  constructor(configfactory) {
-    this.configfactory = configfactory;
-  }
-
-  createAction(name) {
+  createAction(name: string): ActionCreator {
     const creator = new ActionCreator(name, this);
-    this.configfactory.addAction(creator.actionConfig);
+    this.configurationfactory.addAction(creator.actionConfig);
     return creator;
   }
 
-  createInitAction(name) {
+  createInitAction(name: string): EndableActionCreator {
     const creator = new EndableActionCreator(name, this);
-    this.configfactory.addInitAction(creator.actionConfig);
+    this.configurationfactory.addInitAction(creator.actionConfig);
     return creator;
   }
 
-  createEventAction(name) {
+  createEventAction(name: string): ActionCreator {
     const creator = new ActionCreator(name, this);
-    this.configfactory.addEventAction(creator.actionConfig);
+    this.configurationfactory.addEventAction(creator.actionConfig);
     return creator;
   }
 
-  createTimelineAction(uri, name) {
+  createTimelineAction(uri: string, name: string): TimelineActionCreator {
     const creator = new TimelineActionCreator(name, this);
-    this.configfactory.addTimelineAction(uri, creator.actionConfig);
+    this.configurationfactory.addTimelineAction(uri, creator.actionConfig);
     return creator;
   }
 
   end() {
-    return this.configfactory;
+    return this.configurationfactory;
   }
 }
 
-export class ActionCreator {
-  actionConfig = null;
-  factory = null;
+export class ActionCreator<T extends IActionConfiguration = IActionConfiguration> {
+  actionConfig: T;
 
-  constructor(name, factory) {
-    this.factory = factory;
+  constructor(name: string | undefined, private readonly factory: ActionCreatorFactory) {
     this.actionConfig = {
+      name: '',
       id: uuidv4(),
       startOperations: [],
-    };
-    if (name) {
+    } as any;
+    if (name?.length) {
       this.actionConfig.name = name;
     }
   }
@@ -57,12 +59,12 @@ export class ActionCreator {
     return this.actionConfig.id;
   }
 
-  setName(name) {
+  setName(name: string) {
     this.actionConfig.name = name;
     return this;
   }
 
-  getConfiguration(callBack) {
+  getConfiguration(callBack: (config: T) => T) {
     const copy = deepcopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
@@ -71,8 +73,8 @@ export class ActionCreator {
     return this;
   }
 
-  addStartOperation(systemName, operationData) {
-    if (!operations[systemName]) {
+  addStartOperation(systemName: string, operationData: TOperationData) {
+    if (!(operations as Record<string, any>)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
 
@@ -90,9 +92,11 @@ export class ActionCreator {
   }
 }
 
-export class EndableActionCreator extends ActionCreator {
-  addEndOperation(systemName, operationData) {
-    if (!operations[systemName]) {
+export class EndableActionCreator<
+  T extends IEndableActionConfiguration = IEndableActionConfiguration
+> extends ActionCreator<T> {
+  addEndOperation(systemName: string, operationData: TOperationData) {
+    if (!(operations as Record<string, any>)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
 
@@ -109,8 +113,8 @@ export class EndableActionCreator extends ActionCreator {
   }
 }
 
-export class TimelineActionCreator extends EndableActionCreator {
-  addDuration(start, end) {
+export class TimelineActionCreator extends EndableActionCreator<ITimelineActionConfiguration> {
+  addDuration(start: number, end?: number) {
     this.actionConfig.duration = {
       start: start,
     };

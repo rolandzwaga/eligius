@@ -1,24 +1,39 @@
-import lottie from 'lottie-web';
+import lottie, { AnimationItem } from 'lottie-web';
 import TimelineEventNames from '../timeline-event-names';
-import { TOperationData } from '../action/types';
-import { IEventbus } from '../eventbus/types';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IController } from './types';
 
-class LottieController {
+export interface IInnerMetadata {
+  selectedElement: JQuery;
+  renderer: 'svg' | 'canvas' | 'html';
+  loop: boolean;
+  autoplay: boolean;
+  animationData: any;
+  json: any;
+  labelIds: string[];
+  viewBox: string;
+  iefallback: any;
+}
+
+export interface ILottieControllerMetadata extends IInnerMetadata {
+  url: string;
+}
+
+class LottieController implements IController<ILottieControllerMetadata> {
   name = 'LottieController';
   currentLanguage: string | null = null;
-  labelData = {};
-  listeners = [];
-  anim = null;
-  operationData: TOperationData | null = null;
-  serializedData = null;
-  serializedIEData = null;
-  animationData = null;
+  labelData: Record<string, Record<string, string>> = {};
+  listeners: TEventHandlerRemover[] = [];
+  animationItem: AnimationItem | null = null;
+  operationData: IInnerMetadata | null = null;
+  serializedData: string | null = null;
+  serializedIEData: string | null = null;
   freezePosition = -1;
   endPosition = -1;
 
   constructor() {}
 
-  init(operationData: TOperationData) {
+  init(operationData: ILottieControllerMetadata) {
     this.operationData = {
       selectedElement: operationData.selectedElement,
       renderer: operationData.renderer,
@@ -28,6 +43,7 @@ class LottieController {
       json: operationData.json,
       labelIds: operationData.labelIds,
       viewBox: operationData.viewBox,
+      iefallback: operationData.iefallback,
     };
     if (operationData.url.indexOf('[') > -1) {
       this.parseFilename(operationData.url);
@@ -40,7 +56,7 @@ class LottieController {
     }
   }
 
-  parseFilename(name) {
+  parseFilename(name: string) {
     const params = name.substr(name.indexOf('[') + 1, name.indexOf(']') - name.indexOf('[') - 1);
     const settings = params.split(',');
     settings.forEach((setting) => {
@@ -54,9 +70,13 @@ class LottieController {
   }
 
   attach(eventbus: IEventbus) {
+    if (!this.operationData) {
+      return;
+    }
+
     const { labelIds } = this.operationData;
     if (labelIds && labelIds.length) {
-      const resultHolder = {};
+      const resultHolder: { language: string; labelCollections: any[] } = {} as any;
 
       eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [resultHolder]);
       this.currentLanguage = resultHolder.language;
@@ -67,77 +87,82 @@ class LottieController {
     this.createAnimation();
   }
 
-  detach(eventbus: IEventbus) {
+  detach(_eventbus: IEventbus) {
     this.listeners.forEach((func) => {
       func();
     });
-    if (this.anim) {
+
+    if (this.animationItem) {
       if (this.endPosition > -1) {
-        this.anim.onComplete = this.destroy.bind(this);
-        this.anim.playSegments([this.freezePosition, this.endPosition], true);
+        this.animationItem.addEventListener('complete', this.destroy.bind(this));
+        this.animationItem.playSegments([this.freezePosition, this.endPosition], true);
       } else {
-        this.anim.destroy();
+        this.animationItem.destroy();
       }
     }
   }
 
   destroy() {
-    if (this.anim) {
-      this.anim.destroy();
-      this.anim = null;
+    if (this.animationItem) {
+      this.animationItem.destroy();
+      this.animationItem = null;
     }
   }
 
   createAnimation() {
-    if (this.anim) {
-      this.anim.destroy();
+    if (!this.operationData || !this.serializedData) {
+      return;
     }
-    let serialized = this.isIE() ? this.serializedIEData : this.serializedData;
+
+    this.animationItem?.destroy();
+    let serialized = this.isIE() && this.serializedIEData ? this.serializedIEData : this.serializedData;
 
     const { labelIds } = this.operationData;
     if (labelIds && labelIds.length) {
       labelIds.forEach((id) => {
-        serialized = serialized.split(`!!${id}!!`).join(this.labelData[id][this.currentLanguage]);
+        serialized = serialized.split(`!!${id}!!`).join(this.labelData[id][this.currentLanguage ?? '']);
       });
     }
-    const animData = JSON.parse(serialized);
+    const animationData = JSON.parse(serialized);
 
-    const animationData = {
+    const animationSettings = {
       autoplay: this.operationData.autoplay,
       container: this.operationData.selectedElement[0],
       loop: this.operationData.loop,
       renderer: this.operationData.renderer,
-      animationData: animData,
+      animationData,
     };
 
-    this.anim = lottie.loadAnimation(animationData);
+    this.animationItem = lottie.loadAnimation(animationSettings);
     if (this.endPosition < 0) {
-      this.endPosition = this.anim.timeCompleted;
+      this.endPosition = this.animationItem.timeCompleted;
     }
 
     if (this.freezePosition > -1) {
-      this.anim.playSegments([0, this.freezePosition], true);
+      this.animationItem.playSegments([0, this.freezePosition], true);
     }
     if (this.operationData.viewBox) {
       this.operationData.selectedElement.find('svg').attr('viewBox', this.operationData.viewBox);
     }
   }
 
-  createTextDataLookup(data) {
+  createTextDataLookup(data: any[]) {
     data.forEach((infos, index) => {
-      infos.forEach((d) => {
-        this.labelData[this.operationData.labelIds[index]][d.code] = d.label;
+      infos.forEach((d: any) => {
+        if (this.operationData) {
+          this.labelData[this.operationData.labelIds[index]][d.code] = d.label;
+        }
       });
     });
   }
 
-  handleLanguageChange(code) {
+  handleLanguageChange(code: string) {
     this.currentLanguage = code;
     this.createAnimation();
   }
 
   isIE() {
-    const isIE = false || !!document['documentMode'];
+    const isIE = false || !!(window.document as any)['documentMode'];
 
     // Edge 20+
     const isEdge = !isIE && !!window['StyleMedia'];

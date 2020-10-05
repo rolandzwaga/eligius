@@ -32,7 +32,7 @@ export interface IResolvedTimelineActionConfiguration extends IResolvedEndableAc
 export interface IOperationConfiguration {
   id: string;
   systemName: string;
-  operationData: IOperationData;
+  operationData: TOperationData;
 }
 
 export interface IAction {

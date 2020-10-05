@@ -1,45 +1,53 @@
+import { Func } from 'mocha';
+import { TOperationData } from '../action/types';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
 import TimelineEventNames from '../timeline-event-names';
+import { IController } from './types';
 
-class SubtitlesController {
-  constructor() {
-    this.actionLookup = null;
-    this.currentLanguage = null;
-    this.lastFunc = null;
-    this.name = 'SubtitlesController';
-  }
+export interface ISubtitlesControllerOperationData {
+  selectedElement: JQuery;
+  language: string;
+  subtitleData: any;
+}
 
-  attach(eventbus) {
+class SubtitlesController implements IController<ISubtitlesControllerOperationData> {
+  actionLookup: Record<string, any> = {};
+  currentLanguage: string | null = null;
+  lastFunc: Function | null = null;
+  name = 'SubtitlesController';
+
+  attach(eventbus: IEventbus) {
     const detachTime = eventbus.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this));
     const detachSeek = eventbus.on(TimelineEventNames.SEEKED, this.onSeekedHandler.bind(this));
     const detachLangChange = eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler.bind(this));
     this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange, detachSeek]);
   }
 
-  detach(eventbus) {
+  detach(_eventbus: IEventbus) {
     this.internalDetach();
   }
 
-  internalDetach(detachMethods) {
+  internalDetach(detachMethods?: TEventHandlerRemover[]) {
     if (detachMethods) {
-      detachMethods.forEach(f => {
+      detachMethods.forEach((f) => {
         f();
       });
     }
   }
 
-  languageChangeHandler(newLanguage) {
+  languageChangeHandler(newLanguage: string) {
     this.currentLanguage = newLanguage;
     if (this.lastFunc) {
       this.lastFunc();
     }
   }
 
-  removeTitle(container) {
-    container.empty();
+  removeTitle(container?: JQuery) {
+    container?.empty();
     this.lastFunc = null;
   }
 
-  onTimeHandler(arg) {
+  onTimeHandler(arg: any) {
     const position = arg.position;
     const func = this.actionLookup[position];
     if (func) {
@@ -48,7 +56,7 @@ class SubtitlesController {
     }
   }
 
-  onSeekedHandler(arg) {
+  onSeekedHandler(arg: any) {
     let position = arg.position;
     let func = this.actionLookup[position];
     while (!func && --position >= 0) {
@@ -62,27 +70,33 @@ class SubtitlesController {
     }
   }
 
-  setTitle(container, titleLanguageLookup) {
-    container.html(titleLanguageLookup[this.currentLanguage]);
+  setTitle(container: JQuery, titleLanguageLookup: Record<string, string>) {
+    if (this.currentLanguage) {
+      container.html(titleLanguageLookup[this.currentLanguage]);
+    }
   }
 
-  createActionLookup(operationData, container) {
+  createActionLookup(operationData: TOperationData, container: JQuery) {
     const subtitleData = operationData.subtitleData;
     const titles = subtitleData[0].titles;
-    const subtitleTimeLookup = {};
+    const subtitleTimeLookup: Record<number, () => void> = {};
+
     for (let i = 0, ii = titles.length; i < ii; i++) {
-      const titleLanguageLookup = {};
+      const titleLanguageLookup: Record<string, string> = {};
+
       for (let j = 0, jj = subtitleData.length; j < jj; j++) {
         const subs = subtitleData[j];
         titleLanguageLookup[subs.lang] = subs.titles[i].text;
       }
+
       subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(this, container, titleLanguageLookup);
       subtitleTimeLookup[titles[i].duration.end] = this.removeTitle;
     }
+
     return subtitleTimeLookup;
   }
 
-  init(operationData) {
+  init(operationData: ISubtitlesControllerOperationData) {
     const container = operationData.selectedElement;
     this.removeTitle = this.removeTitle.bind(this, container);
     this.currentLanguage = operationData.language;
