@@ -1,3 +1,4 @@
+import { ICreateElementOperationData } from '../createElement';
 import { IOperationMetadata } from './types';
-declare function customFunction(): IOperationMetadata;
-export default customFunction;
+declare function createElement(): IOperationMetadata<ICreateElementOperationData>;
+export default createElement;

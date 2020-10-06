@@ -1,3 +1,4 @@
 import { IOperationMetadata } from './types';
-declare function animateWithClass(): IOperationMetadata;
+import { IAnimateWithClassOperationData } from '../animateWithClass';
+declare function animateWithClass(): IOperationMetadata<IAnimateWithClassOperationData>;
 export default animateWithClass;

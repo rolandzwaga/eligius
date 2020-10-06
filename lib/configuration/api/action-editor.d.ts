@@ -1,38 +1,38 @@
-export class ActionEditor {
-    constructor(actionConfig: any, configurationFactory: any);
-    actionConfig: any;
-    configurationFactory: any;
+import { IActionConfiguration, IEndableActionConfiguration, IOperationConfiguration, ITimelineActionConfiguration, TOperationData } from '../../action/types';
+import ConfigurationFactory from './configuration-factory';
+export declare class ActionEditor<T extends IActionConfiguration = IActionConfiguration> {
+    protected actionConfig: T;
+    protected readonly configurationFactory: ConfigurationFactory;
+    constructor(actionConfig: T, configurationFactory: ConfigurationFactory);
     updateConfiguration(): void;
-    getConfiguration(callBack: any): ActionEditor;
-    setName(name: any): ActionEditor;
-    getName(): any;
-    addStartOperation(systemName: any, operationData: any): OperationEditor;
-    editStartOperation(id: any): OperationEditor;
-    removeStartOperation(id: any): ActionEditor;
-    moveStartOperation(id: any, direction: any): ActionEditor;
-    next(): any;
+    getConfiguration(callBack: (config: T) => T): this;
+    setName(name: string): this;
+    getName(): string;
+    addStartOperation(systemName: string, operationData: TOperationData): OperationEditor<this>;
+    editStartOperation(id: string): OperationEditor<ActionEditor<T>>;
+    removeStartOperation(id: string): this;
+    moveStartOperation(id: string, direction: 'up' | 'down'): this;
+    next(): ConfigurationFactory;
 }
-export class EndableActionEditor extends ActionEditor {
-    constructor(actionConfig: any, configurationFactory: any);
-    addEndOperation(systemName: any, operationData: any): OperationEditor;
-    editEndOperation(id: any): OperationEditor;
-    removeEndOperation(id: any): EndableActionEditor;
-    moveEndOperation(id: any, direction: any): EndableActionEditor;
+export declare class EndableActionEditor<T extends IEndableActionConfiguration = IEndableActionConfiguration> extends ActionEditor<T> {
+    addEndOperation(systemName: string, operationData: TOperationData): OperationEditor<this>;
+    editEndOperation(id: string): OperationEditor<this>;
+    removeEndOperation(id: string): this;
+    moveEndOperation(id: string, direction: 'up' | 'down'): this;
 }
-export class TimelineActionEditor extends EndableActionEditor {
-    constructor(actionConfig: any, configurationFactory: any);
-    setDuration(start: any, end: any): TimelineActionEditor;
+export declare class TimelineActionEditor extends EndableActionEditor<ITimelineActionConfiguration> {
+    setDuration(start: number, end?: number): this;
 }
-export class OperationEditor {
-    constructor(operationConfig: any, actionEditor: any);
-    operationConfig: any;
-    actionEditor: any;
-    getConfiguration(callBack: any): OperationEditor;
-    getSystemName(): any;
-    setSystemName(systemName: any): OperationEditor;
-    setOperationData(operationData: any): OperationEditor;
-    setOperationDataItem(key: any, value: any): OperationEditor;
+export declare class OperationEditor<T extends ActionEditor> {
+    private operationConfig;
+    private actionEditor;
+    constructor(operationConfig: IOperationConfiguration, actionEditor: T);
+    getConfiguration(callBack: (config: IOperationConfiguration) => IOperationConfiguration): this;
+    getSystemName(): string;
+    setSystemName(systemName: string): this;
+    setOperationData(operationData: TOperationData): this;
+    setOperationDataItem(key: string, value: any): this;
     getOperationDataKeys(): string[];
-    getOperationDataValue(key: any): any;
-    next(): any;
+    getOperationDataValue(key: string): any;
+    next(): T;
 }

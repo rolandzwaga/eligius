@@ -1,2 +1,4 @@
-export function getElementData(name: any, element: any): any;
-export const getElementControllers: (element?: any) => any;
+/// <reference types="jquery" />
+declare function getElementData(name: string, element: JQuery): any;
+declare const getElementControllers: (element: JQuery<HTMLElement>) => any;
+export { getElementData, getElementControllers };

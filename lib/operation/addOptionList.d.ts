@@ -5,7 +5,7 @@ export interface IAddOptionListOperationData {
     labelProperty: string;
     defaultIndex: number;
     defaultValue: string;
-    optionData: any;
+    optionData: any[];
     selectedElement: JQuery;
 }
 declare const addOptionList: TOperation<IAddOptionListOperationData>;

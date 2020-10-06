@@ -1,32 +1,41 @@
-export default LottieController;
-declare class LottieController {
+/// <reference types="jquery" />
+import { AnimationItem } from 'lottie-web';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IController } from './types';
+export interface IInnerMetadata {
+    selectedElement: JQuery;
+    renderer: 'svg' | 'canvas' | 'html';
+    loop: boolean;
+    autoplay: boolean;
+    animationData: any;
+    json: any;
+    labelIds: string[];
+    viewBox: string;
+    iefallback: any;
+}
+export interface ILottieControllerMetadata extends IInnerMetadata {
+    url: string;
+}
+declare class LottieController implements IController<ILottieControllerMetadata> {
     name: string;
-    currentLanguage: any;
-    labelData: {};
-    listeners: any[];
-    anim: import("lottie-web").AnimationItem | null;
-    operationData: {
-        selectedElement: any;
-        renderer: any;
-        loop: any;
-        autoplay: any;
-        animationData: any;
-        json: any;
-        labelIds: any;
-        viewBox: any;
-    } | null;
+    currentLanguage: string | null;
+    labelData: Record<string, Record<string, string>>;
+    listeners: TEventHandlerRemover[];
+    animationItem: AnimationItem | null;
+    operationData: IInnerMetadata | null;
     serializedData: string | null;
     serializedIEData: string | null;
-    animationData: any;
     freezePosition: number;
     endPosition: number;
-    init(operationData: any): void;
-    parseFilename(name: any): void;
-    attach(eventbus: any): void;
-    detach(eventbus: any): void;
+    constructor();
+    init(operationData: ILottieControllerMetadata): void;
+    parseFilename(name: string): void;
+    attach(eventbus: IEventbus): void;
+    detach(_eventbus: IEventbus): void;
     destroy(): void;
     createAnimation(): void;
-    createTextDataLookup(data: any): void;
-    handleLanguageChange(code: any): void;
+    createTextDataLookup(data: any[]): void;
+    handleLanguageChange(code: string): void;
     isIE(): boolean;
 }
+export default LottieController;

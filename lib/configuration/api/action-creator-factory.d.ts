@@ -1,27 +1,27 @@
-export class ActionCreatorFactory {
-    constructor(configfactory: any);
-    configfactory: any;
-    createAction(name: any): ActionCreator;
-    createInitAction(name: any): EndableActionCreator;
-    createEventAction(name: any): ActionCreator;
-    createTimelineAction(uri: any, name: any): TimelineActionCreator;
-    end(): any;
+import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration, TOperationData } from '../../action/types';
+import ConfigurationFactory from './configuration-factory';
+export declare class ActionCreatorFactory {
+    private readonly configurationfactory;
+    constructor(configurationfactory: ConfigurationFactory);
+    createAction(name: string): ActionCreator;
+    createInitAction(name: string): EndableActionCreator;
+    createEventAction(name: string): ActionCreator;
+    createTimelineAction(uri: string, name: string): TimelineActionCreator;
+    end(): ConfigurationFactory;
 }
-export class ActionCreator {
-    constructor(name: any, factory: any);
-    actionConfig: any;
-    factory: any;
-    getId(): any;
-    setName(name: any): ActionCreator;
-    getConfiguration(callBack: any): ActionCreator;
-    addStartOperation(systemName: any, operationData: any): ActionCreator;
-    next(): any;
+export declare class ActionCreator<T extends IActionConfiguration = IActionConfiguration> {
+    private readonly factory;
+    actionConfig: T;
+    constructor(name: string | undefined, factory: ActionCreatorFactory);
+    getId(): string;
+    setName(name: string): this;
+    getConfiguration(callBack: (config: T) => T): this;
+    addStartOperation(systemName: string, operationData: TOperationData): this;
+    next(): ActionCreatorFactory;
 }
-export class EndableActionCreator extends ActionCreator {
-    constructor(name: any, factory: any);
-    addEndOperation(systemName: any, operationData: any): EndableActionCreator;
+export declare class EndableActionCreator<T extends IEndableActionConfiguration = IEndableActionConfiguration> extends ActionCreator<T> {
+    addEndOperation(systemName: string, operationData: TOperationData): this;
 }
-export class TimelineActionCreator extends EndableActionCreator {
-    constructor(name: any, factory: any);
-    addDuration(start: any, end: any): TimelineActionCreator;
+export declare class TimelineActionCreator extends EndableActionCreator<ITimelineActionConfiguration> {
+    addDuration(start: number, end?: number): this;
 }

@@ -11,4 +11,3 @@ export { ActionEditor, EndableActionEditor, TimelineActionEditor, OperationEdito
 export { ActionCreatorFactory, ActionCreator, EndableActionCreator, TimelineActionCreator, } from './configuration/api/action-creator-factory';
 export { OperationNamesProvider, ControllerNamesProvider, OperationMetadataProvider, TimeLineEventNamesProvider, } from './configuration/api/name-providers';
 export { default as TimelineProviderSettingsEditor } from './configuration/api/timeline-provider-settings-editor';
-export { default as ParameterTypes } from './operation/metadata/ParameterTypes';

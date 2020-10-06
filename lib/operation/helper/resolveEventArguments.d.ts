@@ -1,2 +1,3 @@
+import { TOperationData } from '../../action/types';
+declare function resolveEventArguments(operationData: TOperationData, eventArgs: any[]): any[] | undefined;
 export default resolveEventArguments;
-declare function resolveEventArguments(operationData: any, eventArgs: any): any;

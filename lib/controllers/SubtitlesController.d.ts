@@ -1,17 +1,26 @@
-export default SubtitlesController;
-declare class SubtitlesController {
-    actionLookup: {} | null;
-    currentLanguage: any;
-    lastFunc: any;
+/// <reference types="jquery" />
+import { TOperationData } from '../action/types';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IController } from './types';
+export interface ISubtitlesControllerOperationData {
+    selectedElement: JQuery;
+    language: string;
+    subtitleData: any;
+}
+declare class SubtitlesController implements IController<ISubtitlesControllerOperationData> {
+    actionLookup: Record<string, any>;
+    currentLanguage: string | null;
+    lastFunc: Function | null;
     name: string;
-    attach(eventbus: any): void;
-    internalDetach(detachMethods: any): void;
-    detach(eventbus: any): void;
-    languageChangeHandler(newLanguage: any): void;
-    removeTitle(container: any): void;
+    attach(eventbus: IEventbus): void;
+    detach(_eventbus: IEventbus): void;
+    internalDetach(detachMethods?: TEventHandlerRemover[]): void;
+    languageChangeHandler(newLanguage: string): void;
+    removeTitle(container?: JQuery): void;
     onTimeHandler(arg: any): void;
     onSeekedHandler(arg: any): void;
-    setTitle(container: any, titleLanguageLookup: any): void;
-    createActionLookup(operationData: any, container: any): {};
-    init(operationData: any): void;
+    setTitle(container: JQuery, titleLanguageLookup: Record<string, string>): void;
+    createActionLookup(operationData: TOperationData, container: JQuery): Record<number, () => void>;
+    init(operationData: ISubtitlesControllerOperationData): void;
 }
+export default SubtitlesController;

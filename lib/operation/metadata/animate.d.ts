@@ -1,3 +1,4 @@
 import { IOperationMetadata } from './types';
-declare function animate(): IOperationMetadata;
+import { IAnimateOperationData } from '../animate';
+declare function animate(): IOperationMetadata<IAnimateOperationData>;
 export default animate;

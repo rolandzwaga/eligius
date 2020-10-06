@@ -1,2 +1,2 @@
+declare function getNestedPropertyValue(propertyChain: string, sourceObject: any): any;
 export default getNestedPropertyValue;
-declare function getNestedPropertyValue(propertyChain: any, sourceObject: any): any;

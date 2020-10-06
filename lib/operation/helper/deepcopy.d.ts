@@ -1,2 +1,2 @@
+declare function deepcopy<T>(original: T): T;
 export default deepcopy;
-declare function deepcopy(original: any): any;

@@ -1,7 +1,10 @@
 import { IEngineFactory, IResourceImporter, TResultCallback, IEngineConfiguration, IConfigurationResolver, IChronoTriggerEngine, TimelineTypes, ITimelineProviderInfo, IResolvedEngineConfiguration } from './types';
 import { IEventbus } from './eventbus/types';
 declare class EngineFactory implements IEngineFactory {
-    #private;
+    private resizeTimeout;
+    private actionsLookup;
+    private importer;
+    private eventbus;
     constructor(importer: IResourceImporter, windowRef: any, eventbus?: IEventbus);
     destroy(): void;
     _resizeHandler(): void;

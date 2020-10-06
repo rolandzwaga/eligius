@@ -1,3 +1,4 @@
 import { IOperationMetadata } from './types';
-declare function addControllerToElement(): IOperationMetadata;
+import { IAddControllerToElementOperationData } from '../addControllerToElement';
+declare function addControllerToElement(): IOperationMetadata<IAddControllerToElementOperationData>;
 export default addControllerToElement;

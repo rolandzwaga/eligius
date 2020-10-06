@@ -1,8 +1,9 @@
 /// <reference types="jquery" />
 import { TOperation } from '../action/types';
-export interface IAddControllerToElementMetadata {
+import { IController } from '../controllers/types';
+export interface IAddControllerToElementOperationData {
     selectedElement: JQuery;
-    controllerInstance: any;
+    controllerInstance: IController<any>;
 }
-declare const addControllerToElement: TOperation<IAddControllerToElementMetadata>;
+declare const addControllerToElement: TOperation<IAddControllerToElementOperationData>;
 export default addControllerToElement;

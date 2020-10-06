@@ -1,15 +1,23 @@
-export default ProgressbarController;
-declare class ProgressbarController {
-    selectedElement: any;
-    textElement: any;
-    detachers: any[];
+/// <reference types="jquery" />
+import { TEventHandlerRemover, IEventbus } from '../eventbus/types';
+import { TOperationData } from '../action/types';
+import { IController } from './types';
+export interface IProgressbarControllerOperationData {
+    selectedElement: JQuery;
+    textElement: JQuery;
+}
+declare class ProgressbarController implements IController<IProgressbarControllerOperationData> {
     name: string;
-    init(operationData: any): void;
-    attach(eventbus: any): void;
-    detach(eventbus: any): void;
+    selectedElement: JQuery | null;
+    textElement: JQuery | null;
+    detachers: TEventHandlerRemover[];
+    init(operationData: TOperationData): void;
+    attach(eventbus: IEventbus): void;
+    detach(_eventbus: IEventbus): void;
     positionUpdateHandler({ position, duration }: {
-        position: any;
-        duration: any;
+        position: number;
+        duration: number;
     }): void;
     clickHandler(): void;
 }
+export default ProgressbarController;
