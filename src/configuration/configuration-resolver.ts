@@ -9,7 +9,12 @@ import {
   IResolvedEngineConfiguration,
 } from '../types';
 import { IEventbus, IEventListener } from '../eventbus/types';
-import { IAction } from '../action/types';
+import {
+  IAction,
+  IResolvedActionConfiguration,
+  IResolvedEndableActionConfiguration,
+  IResolvedEventActionConfiguration,
+} from '../action/types';
 import { ActionRegistryEventbusListener } from '../eventbus';
 
 class ConfigurationResolver implements IConfigurationResolver {
@@ -26,11 +31,11 @@ class ConfigurationResolver implements IConfigurationResolver {
     const actionsLookup: Record<string, IAction> = {};
     this.processConfiguration(configuration, configuration);
     this.resolveOperations(configuration);
+    this.initializeEventActions(actionRegistryListener, configuration);
     this.initializeTimelineActions(configuration);
     this.initializeInitActions(configuration, actionsLookup);
     this.initializeActions(configuration, actionsLookup);
-    this.initializeEventActions(actionRegistryListener, configuration);
-    return [actionsLookup, configuration];
+    return [actionsLookup, (configuration as unknown) as IResolvedEngineConfiguration];
   }
 
   initializeEventActions(
@@ -38,7 +43,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     config: IEngineConfiguration
   ): void {
     if (actionRegistryListener && config.eventActions) {
-      config.eventActions.forEach((actionData) => {
+      ((config.eventActions as unknown) as IResolvedEventActionConfiguration[]).forEach((actionData) => {
         const eventAction = new Action(actionData, this.eventbus);
         actionRegistryListener.registerAction(eventAction, actionData.eventName, actionData.eventTopic);
       });
@@ -48,11 +53,11 @@ class ConfigurationResolver implements IConfigurationResolver {
 
   initializeActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
     if (config.actions) {
-      config.actions.forEach((actionData) => {
+      ((config.actions as unknown) as IResolvedEndableActionConfiguration[]).forEach((actionData) => {
         const action = new EndableAction(actionData, this.eventbus);
         actionsLookup[actionData.name] = action;
       });
-      delete config.actions;
+      delete (config as any).actions;
     }
   }
 
@@ -60,11 +65,14 @@ class ConfigurationResolver implements IConfigurationResolver {
     if (!config.initActions) {
       return;
     }
-    config.initActions = config.initActions.map((actionData) => {
-      const initAction = new EndableAction(actionData, this.eventbus);
-      actionsLookup[actionData.name] = initAction;
-      return initAction;
-    });
+
+    (config as any).initActions = ((config.initActions as unknown) as IResolvedEndableActionConfiguration[]).map(
+      (actionData) => {
+        const initAction = new EndableAction(actionData, this.eventbus);
+        actionsLookup[actionData.name] = initAction;
+        return initAction;
+      }
+    );
   }
 
   initializeTimelineActions(config: IEngineConfiguration) {
@@ -97,7 +105,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     const systemNameHolders = this._gatherOperations(config.initActions)
       .concat(timelineOperations)
       .concat(this._gatherOperations(config.actions))
-      .concat(this._gatherOperations(config.eventActions));
+      .concat(this._gatherOperations(config.eventActions ?? []));
 
     systemNameHolders.forEach((holder) => {
       holder.instance = this.importSystemEntry(holder.systemName);

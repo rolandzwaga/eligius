@@ -15,6 +15,11 @@ export interface ITimelineActionConfiguration extends IEndableActionConfiguratio
   duration: IDuration;
 }
 
+export interface IEventActionConfiguration extends IActionConfiguration {
+  eventName: string;
+  eventTopic?: string;
+}
+
 export interface IResolvedActionConfiguration {
   id: string;
   name: string;
@@ -27,6 +32,11 @@ export interface IResolvedEndableActionConfiguration extends IResolvedActionConf
 
 export interface IResolvedTimelineActionConfiguration extends IResolvedEndableActionConfiguration {
   duration: IDuration;
+}
+
+export interface IResolvedEventActionConfiguration extends IResolvedActionConfiguration {
+  eventName: string;
+  eventTopic?: string;
 }
 
 export interface IOperationConfiguration {
@@ -45,7 +55,7 @@ export interface IEndableAction extends IAction {
 
 export interface ITimelineAction extends IEndableAction {
   active: boolean;
-  duration: IDuration;
+  duration: IStrictDuration;
 }
 
 export type TOperationResult<T = TOperationData> = Promise<T> | T;

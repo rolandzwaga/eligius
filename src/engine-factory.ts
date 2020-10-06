@@ -19,41 +19,41 @@ import { IEventbus } from './eventbus/types';
 import { IAction } from './action/types';
 
 class EngineFactory implements IEngineFactory {
-  #resizeTimeout: number = -1;
-  #actionsLookup: Record<string, IAction> = {};
-  #importer: IResourceImporter;
-  #eventbus: IEventbus;
+  private resizeTimeout: any = -1;
+  private actionsLookup: Record<string, IAction> = {};
+  private importer: IResourceImporter;
+  private eventbus: IEventbus;
 
   constructor(importer: IResourceImporter, windowRef: any, eventbus?: IEventbus) {
-    this.#importer = importer;
-    this.#eventbus = eventbus || new Eventbus();
-    this.#eventbus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
-    this.#eventbus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
-    this.#eventbus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
+    this.importer = importer;
+    this.eventbus = eventbus || new Eventbus();
+    this.eventbus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
+    this.eventbus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
+    this.eventbus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
 
     $(windowRef).resize(this._resizeHandler.bind(this));
   }
 
   destroy() {
-    this.#eventbus.clear();
+    this.eventbus.clear();
   }
 
   _resizeHandler() {
-    if (this.#resizeTimeout) {
-      clearTimeout(this.#resizeTimeout);
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
     }
-    this.#resizeTimeout = setTimeout(() => {
-      this.#eventbus.broadcast(TimelineEventNames.RESIZE);
+    this.resizeTimeout = setTimeout(() => {
+      this.eventbus.broadcast(TimelineEventNames.RESIZE);
     }, 200);
   }
 
   _importSystemEntryWithEventbusDependency(systemName: string): any {
     const ctor = this._importSystemEntry(systemName);
-    return new ctor(this.#eventbus);
+    return new ctor(this.eventbus);
   }
 
   _importSystemEntry(systemName: string): any {
-    return this.#importer.import(systemName)[systemName];
+    return this.importer.import(systemName)[systemName];
   }
 
   _requestInstanceHandler(systemName: string, resultCallback: TResultCallback) {
@@ -65,7 +65,7 @@ class EngineFactory implements IEngineFactory {
   }
 
   _requestActionHandler(systemName: string, resultCallback: TResultCallback) {
-    const action = this.#actionsLookup[systemName];
+    const action = this.actionsLookup[systemName];
     if (action) {
       resultCallback(action);
     } else {
@@ -81,33 +81,33 @@ class EngineFactory implements IEngineFactory {
     let actionRegistryListener: ActionRegistryEventbusListener | undefined = undefined;
     if (configuration.eventActions && configuration.eventActions.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
-      this.#eventbus.registerEventlistener(actionRegistryListener);
+      this.eventbus.registerEventlistener(actionRegistryListener);
     }
 
-    this.#eventbus.registerInterceptor(
+    this.eventbus.registerInterceptor(
       TimelineEventNames.REQUEST_TIMELINE_URI,
-      new RequestVideoUriInterceptor(this.#eventbus)
+      new RequestVideoUriInterceptor(this.eventbus)
     );
 
-    resolver = resolver || new ConfigurationResolver(this.#importer, this.#eventbus);
+    resolver = resolver || new ConfigurationResolver(this.importer, this.eventbus);
     const [actionLookup, resolvedConfiguration] = resolver.process(actionRegistryListener, configuration);
-    this.#actionsLookup = actionLookup;
+    this.actionsLookup = actionLookup;
 
-    const timelineProviders = this._createTimelineProviders(resolvedConfiguration, this.#eventbus);
+    const timelineProviders = this._createTimelineProviders(resolvedConfiguration, this.eventbus);
 
     const { language, labels } = configuration;
-    const languageManager = new LanguageManager(language, labels, this.#eventbus);
+    const languageManager = new LanguageManager(language, labels, this.eventbus);
 
     const chronoTriggerEngine = new engineClass(
       resolvedConfiguration,
-      this.#eventbus,
+      this.eventbus,
       timelineProviders,
       languageManager
     );
 
     Mousetrap.bind('space', (event) => {
       event.preventDefault();
-      this.#eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
+      this.eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
       return false;
     });
 

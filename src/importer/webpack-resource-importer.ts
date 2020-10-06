@@ -5,7 +5,7 @@ import * as m from '..';
 import { IResourceImporter } from '../types';
 import { TOperation } from '../action/types';
 
-const operations: Record<string, TOperation> = ops;
+const operations: Record<string, TOperation<any>> = ops as any;
 const controllers: Record<string, any> = ctrls;
 const providers: Record<string, any> = prvdrs;
 const main: Record<string, any> = m;

@@ -1,4 +1,10 @@
-import { TOperationData, TOperation, IEndableActionConfiguration, IActionConfiguration } from './action/types';
+import {
+  TOperationData,
+  TOperation,
+  IEndableActionConfiguration,
+  IActionConfiguration,
+  IEndableAction,
+} from './action/types';
 import { TTimelineType, ITimelineProvider } from './timelineproviders/types';
 
 export interface IEngineFactory {
@@ -103,6 +109,11 @@ export type TResultCallback = (result: any) => void;
 export interface IDuration {
   start: number;
   end?: number;
+}
+
+export interface IStrictDuration {
+  start: number;
+  end: number;
 }
 
 export type TimelineTypes = 'animation' | 'mediaplayer';

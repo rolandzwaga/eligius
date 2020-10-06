@@ -15,7 +15,9 @@ function loadJSON(): IOperationMetadata<ILoadJSONOperationData> {
         defaultValue: 'json',
       },
     },
-    outputProperties: ['json'],
+    outputProperties: {
+      json: 'ParameterType:object',
+    },
   };
 }
 export default loadJSON;

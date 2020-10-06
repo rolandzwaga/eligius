@@ -10,8 +10,8 @@ export interface IGetElementDimensionsOperationData {
 const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function (operationData, _eventBus) {
   const { selectedElement, modifier } = operationData;
   const dimensions = {
-    width: selectedElement.innerWidth(),
-    height: selectedElement.innerHeight(),
+    width: selectedElement.innerWidth() ?? 0,
+    height: selectedElement.innerHeight() ?? 0,
   };
   if (dimensions.height === 0) {
     dimensions.height = dimensions.width;

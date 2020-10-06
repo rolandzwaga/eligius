@@ -13,7 +13,7 @@ const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperati
   propertyNames.forEach((name) => {
     delete (operationData as any)[name];
   });
-  delete operationData.propertyNames;
+  delete (operationData as any).propertyNames;
   return operationData;
 };
 

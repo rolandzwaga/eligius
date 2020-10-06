@@ -26,4 +26,3 @@ export {
   TimeLineEventNamesProvider,
 } from './configuration/api/name-providers';
 export { default as TimelineProviderSettingsEditor } from './configuration/api/timeline-provider-settings-editor';
-export { default as ParameterTypes } from './operation/metadata/TParameterTypes';

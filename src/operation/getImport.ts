@@ -12,7 +12,7 @@ const getImport: TOperation<IGetImportOperationData> = function (operationData, 
     operationData.importedInstance = instance;
   };
   eventBus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [systemName, callBack]);
-  delete operationData.systemName;
+  delete (operationData as any).systemName;
   return operationData;
 };
 

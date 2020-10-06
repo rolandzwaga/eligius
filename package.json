@@ -8,6 +8,7 @@
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "type-check": "tsc --pretty --noEmit",
     "test": "mochapack --glob \"*.spec.js\" test --recursive --require test/setup.js --webpack-config test/webpack.config.js --watch",
     "test-ci": "mochapack --glob \"*.spec.js\" test --recursive --webpack-config test/webpack.config.js",
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
@@ -32,6 +33,7 @@
   },
   "devDependencies": {
     "@types/jquery": "3.5.1",
+    "@types/mocha": "^8.0.3",
     "@types/mousetrap": "1.6.4",
     "@types/node": "14.11.2",
     "@types/uuid": "8.3.0",
