@@ -1,5 +1,5 @@
-import internalResolve from './helper/internalResolve';
 import { TOperation } from '../action/types';
+import internalResolve from './helper/internal-resolve';
 
 export interface IWaitOperationData {
   milliseconds: number;

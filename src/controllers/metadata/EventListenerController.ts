@@ -1,5 +1,4 @@
-import { TPropertyMetadata } from '../../operation/metadata/types';
-import { IEventListenerControllerOperationData } from '../EventListenerController';
+import { IEventListenerControllerOperationData } from '../event-listener-controller';
 import { IControllerMetadata } from './types';
 
 function EventListenerController(): IControllerMetadata<IEventListenerControllerOperationData> {

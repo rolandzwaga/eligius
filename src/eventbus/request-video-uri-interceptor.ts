@@ -1,7 +1,7 @@
 import TimelineEventNames from '../timeline-event-names';
-import { IEventInterceptor, IEventbus } from './types';
+import { IEventbusInterceptor, IEventbus } from './types';
 
-class RequestVideoUriInterceptor implements IEventInterceptor {
+class RequestVideoUriInterceptor implements IEventbusInterceptor {
   constructor(private eventbus: IEventbus) {}
 
   intercept(args: any[]): any[] {

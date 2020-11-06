@@ -1,4 +1,4 @@
-import { IProgressbarControllerOperationData } from '../ProgressbarController';
+import { IProgressbarControllerOperationData } from '../progressbar-controller';
 import { IControllerMetadata } from './types';
 
 function ProgressbarController(): IControllerMetadata<IProgressbarControllerOperationData> {

@@ -1,4 +1,4 @@
-import { ILottieControllerMetadata } from '../LottieController';
+import { ILottieControllerMetadata } from '../lottie-controller';
 import { IControllerMetadata } from './types';
 
 function LottieController(): IControllerMetadata<ILottieControllerMetadata> {

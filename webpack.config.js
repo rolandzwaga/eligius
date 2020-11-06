@@ -7,7 +7,7 @@ module.exports = function (env, args) {
     outputFile;
 
   if (args.mode === 'production') {
-    minimizers.push(new TerserPlugin());
+    minimizers.push(new TerserPlugin({ include: /\.min\.js$/ }));
     outputFile = libraryName + '.min.js';
   } else {
     outputFile = libraryName + '.js';

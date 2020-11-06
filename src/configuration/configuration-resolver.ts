@@ -1,21 +1,15 @@
-import { TimelineAction, EndableAction, Action } from '../action';
-import getNestedPropertyValue from '../operation/helper/getNestedPropertyValue';
+import { Action, EndableAction, TimelineAction } from '../action';
+import { IAction, IResolvedEndableActionConfiguration, IResolvedEventActionConfiguration } from '../action/types';
+import { ActionRegistryEventbusListener } from '../eventbus';
+import { IEventbus } from '../eventbus/types';
+import getNestedPropertyValue from '../operation/helper/get-nested-property-value';
 import {
   IConfigurationResolver,
-  IResourceImporter,
   IEngineConfiguration,
-  IEngineFactory,
-  ITimelineConfiguration,
   IResolvedEngineConfiguration,
+  IResourceImporter,
+  ITimelineConfiguration,
 } from '../types';
-import { IEventbus, IEventListener } from '../eventbus/types';
-import {
-  IAction,
-  IResolvedActionConfiguration,
-  IResolvedEndableActionConfiguration,
-  IResolvedEventActionConfiguration,
-} from '../action/types';
-import { ActionRegistryEventbusListener } from '../eventbus';
 
 class ConfigurationResolver implements IConfigurationResolver {
   constructor(private importer: IResourceImporter, private eventbus: IEventbus) {}

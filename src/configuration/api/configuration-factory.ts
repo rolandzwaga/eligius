@@ -2,11 +2,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor } from './action-editor';
 import { TimelineActionEditor, EndableActionEditor } from './action-editor';
-import TimelineProviderSettingsEditor from './timeline-provider-settings-editor';
+import TimelineProvidersSettingsEditor from './timeline-provider-settings-editor';
 import deepcopy from '../../operation/helper/deepcopy';
-import { ILabel, ILanguageLabel, ITimelineConfiguration, TimelineTypes } from '../../types';
+import { IEngineConfiguration, ILabel, ILanguageLabel, ITimelineConfiguration, TimelineTypes } from '../../types';
 import { IActionConfiguration, ITimelineActionConfiguration } from '../../action/types';
-import { IEngineConfiguration } from '../../types';
 
 export type TEngineConfigurationLists = Pick<
   IEngineConfiguration,
@@ -53,7 +52,7 @@ class ConfigurationFactory {
   }
 
   editTimelineProviderSettings() {
-    return new TimelineProviderSettingsEditor(this.configuration.timelineProviderSettings, this);
+    return new TimelineProvidersSettingsEditor(this.configuration.timelineProviderSettings, this);
   }
 
   getConfiguration(callBack: (copy: IEngineConfiguration) => IEngineConfiguration) {

@@ -1,4 +1,4 @@
-import { ILabelControllerMetadata } from '../LabelController';
+import { ILabelControllerMetadata } from '../label-controller';
 import { IControllerMetadata } from './types';
 
 function LabelController(): IControllerMetadata<ILabelControllerMetadata> {
