@@ -1,22 +1,14 @@
-import deepcopy from '../operation/helper/deepcopy';
-import {
-  IAction,
-  TOperationData,
-  IOperationInfo,
-  IResolvedActionConfiguration,
-  TActionContext,
-  TOperationResult,
-} from './types';
+import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
+import { deepcopy } from '../operation/helper/deepcopy';
+import { TActionContext, TOperationData, TOperationResult } from '../operation/types';
+import { isPromise } from './isPromise';
+import { IAction } from './types';
 
-class Action implements IAction {
-  name: string;
-  startOperations: IOperationInfo[];
+export class Action implements IAction {
+  public id = '';
 
-  constructor(actionConfiguration: IResolvedActionConfiguration, private eventbus: IEventbus) {
-    this.name = actionConfiguration.name;
-    this.startOperations = actionConfiguration.startOperations;
-  }
+  constructor(public name: string, public startOperations: IResolvedOperation[], private eventbus: IEventbus) {}
 
   start(initOperationData?: TOperationData): Promise<TOperationData> {
     const context = {};
@@ -31,7 +23,7 @@ class Action implements IAction {
   }
 
   executeOperation(
-    operations: IOperationInfo[],
+    operations: IResolvedOperation[],
     idx: number,
     resolve: (value?: any | PromiseLike<any>) => void,
     reject: (reason?: any) => void,
@@ -59,7 +51,7 @@ class Action implements IAction {
 
       const result: TOperationResult = operationInfo.instance.call(context, mergedOperationData, this.eventbus);
 
-      if (result.then) {
+      if (isPromise(result)) {
         result
           .then((resultOperationData: TOperationData) => {
             this.executeOperation(operations, ++idx, resolve, reject, resultOperationData, context);
@@ -75,5 +67,3 @@ class Action implements IAction {
     }
   }
 }
-
-export default Action;

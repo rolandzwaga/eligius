@@ -1,81 +1,10 @@
-import {
-  TOperationData,
-  TOperation,
-  IEndableActionConfiguration,
-  IActionConfiguration,
-  IEndableAction,
-  ITimelineAction,
-  ITimelineActionConfiguration,
-} from './action/types';
+import { IAction } from './action/types';
+import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
+import { IEventbusListener } from './eventbus/types';
 import { ITimelineProvider } from './timelineproviders/types';
 
 export interface IEngineFactory {
   createEngine(engineConfig: IEngineConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine;
-}
-
-export interface IEngineConfiguration {
-  id: string;
-  engine: IEngineInfo;
-  timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
-  containerSelector: string;
-  language: string;
-  layoutTemplate: string;
-  availableLanguages: ILabel[];
-  initActions: IEndableActionConfiguration[];
-  actions: IEndableActionConfiguration[];
-  eventActions?: IActionConfiguration[];
-  timelines: ITimelineConfiguration[];
-  timelineFlow?: ITimelineFlow;
-  labels: ILanguageLabel[];
-}
-
-export interface IResolvedEngineConfiguration {
-  id: string;
-  engine: IEngineInfo;
-  timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
-  containerSelector: string;
-  language: string;
-  layoutTemplate: string;
-  availableLanguages: ILanguageInfo[];
-  initActions: IEndableAction[];
-  actions: IEndableAction[];
-  timelines: IResolvedTimelineConfiguration[];
-  timelineFlow: ITimelineFlow;
-  labels: ILabelInfo[];
-}
-
-export interface ITimelineFlow {}
-
-export interface ITimelineProviderSettings {
-  vendor: string;
-  selector: string;
-  systemName: string;
-  poster: string;
-}
-
-export interface IResolvedTimelineConfiguration {
-  uri: string;
-  type: TimelineTypes;
-  duration: number;
-  loop: boolean;
-  selector: string;
-  timelineActions: ITimelineAction[];
-}
-
-export interface ITimelineConfiguration {
-  uri: string;
-  type: TimelineTypes;
-  duration: number;
-  loop: boolean;
-  selector: string;
-  timelineActions: ITimelineActionConfiguration[];
-}
-
-export interface IOperationConfiguration {
-  id: string;
-  systemName: string;
-  operationData: TOperationData;
-  instance?: TOperation;
 }
 
 export interface IChronoTriggerEngine {
@@ -93,17 +22,8 @@ export interface IResourceImporter {
 export interface IConfigurationResolver {
   process(
     actionRegistryListener: IEventbusListener,
-    configuration: IConfiguration
+    configuration: IEngineConfiguration
   ): [Record<string, IAction>, IResolvedEngineConfiguration];
-  importSystemEntry(systemName: string): any;
-  initializeEventActions(actionRegistryListener: IEventbusListener, config: IConfiguration): void;
-  initializeActions(config: IConfiguration, actionsLookup: any): void;
-  initializeInitActions(config: IConfiguration, actionsLookup: any): void;
-  initializeTimelineActions(config: IConfiguration): void;
-  initializeTimelineAction(timelineConfig: any): void;
-  resolveOperations(config: IConfiguration): void;
-  processConfiguration(config: IConfiguration, parentConfig: IConfiguration): void;
-  processConfigProperty(key: string, config: IConfiguration, parentConfig: IConfiguration): void;
 }
 
 export type TResultCallback = (result: any) => void;

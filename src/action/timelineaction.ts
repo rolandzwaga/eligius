@@ -1,20 +1,20 @@
-import EndableAction from './endableaction';
+import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
-import { IResolvedTimelineActionConfiguration, TOperationData } from './types';
+import { TOperationData } from '../operation/types';
 import { IStrictDuration } from '../types';
+import { EndableAction } from './endableaction';
 
-class TimelineAction extends EndableAction {
-  id: string = '';
-  active: boolean;
-  duration: IStrictDuration;
+export class TimelineAction extends EndableAction {
+  public active = false;
 
-  constructor(actionConfiguration: IResolvedTimelineActionConfiguration, eventBus: IEventbus) {
-    super(actionConfiguration, eventBus);
-    this.active = false;
-    this.duration = {
-      start: actionConfiguration.duration.start,
-      end: actionConfiguration.duration.end ? +actionConfiguration.duration.end : -1,
-    };
+  constructor(
+    name: string,
+    startOperations: IResolvedOperation[],
+    endOperations: IResolvedOperation[],
+    public duration: IStrictDuration,
+    eventBus: IEventbus
+  ) {
+    super(name, startOperations, endOperations, eventBus);
   }
 
   start(initOperationData: TOperationData): Promise<TOperationData> {
@@ -32,5 +32,3 @@ class TimelineAction extends EndableAction {
     return super.end(initOperationData);
   }
 }
-
-export default TimelineAction;

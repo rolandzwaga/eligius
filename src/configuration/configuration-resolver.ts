@@ -25,14 +25,14 @@ class ConfigurationResolver implements IConfigurationResolver {
     const actionsLookup: Record<string, IAction> = {};
     this.processConfiguration(configuration, configuration);
     this.resolveOperations(configuration);
-    this.initializeEventActions(actionRegistryListener, configuration);
-    this.initializeTimelineActions(configuration);
-    this.initializeInitActions(configuration, actionsLookup);
-    this.initializeActions(configuration, actionsLookup);
+    this.resolveEventActions(actionRegistryListener, configuration);
+    this.resolveTimelineActions(configuration);
+    this.resolveInitActions(configuration, actionsLookup);
+    this.resolveActions(configuration, actionsLookup);
     return [actionsLookup, (configuration as unknown) as IResolvedEngineConfiguration];
   }
 
-  initializeEventActions(
+  resolveEventActions(
     actionRegistryListener: ActionRegistryEventbusListener | undefined,
     config: IEngineConfiguration
   ): void {
@@ -45,7 +45,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     }
   }
 
-  initializeActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
+  resolveActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
     if (config.actions) {
       ((config.actions as unknown) as IResolvedEndableActionConfiguration[]).forEach((actionData) => {
         const action = new EndableAction(actionData, this.eventbus);
@@ -55,7 +55,7 @@ class ConfigurationResolver implements IConfigurationResolver {
     }
   }
 
-  initializeInitActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
+  resolveInitActions(config: IEngineConfiguration, actionsLookup: Record<string, IAction>) {
     if (!config.initActions) {
       return;
     }
@@ -69,13 +69,13 @@ class ConfigurationResolver implements IConfigurationResolver {
     );
   }
 
-  initializeTimelineActions(config: IEngineConfiguration) {
+  resolveTimelineActions(config: IEngineConfiguration) {
     if (config.timelines) {
-      config.timelines.forEach(this.initializeTimelineAction.bind(this));
+      config.timelines.forEach(this.resolveTimelineAction.bind(this));
     }
   }
 
-  initializeTimelineAction(timelineConfig: ITimelineConfiguration) {
+  resolveTimelineAction(timelineConfig: ITimelineConfiguration) {
     if (!timelineConfig.timelineActions) {
       return;
     }
@@ -144,11 +144,12 @@ class ConfigurationResolver implements IConfigurationResolver {
     if (!actions) {
       return [];
     }
-    return actions.reduce((list, action) => {
+
+    return actions.flatMap((action) => {
       if (action.endOperations) {
-        return list.concat(action.startOperations.concat(action.endOperations));
+        return [...action.startOperations, ...action.endOperations];
       } else {
-        return list.concat(action.startOperations);
+        return action.startOperations;
       }
     }, []);
   }

@@ -29,6 +29,7 @@
     "lottie-web": "5.7.4",
     "mediaelement": "4.2.16",
     "mousetrap": "1.6.5",
+    "ts-is-present": "^1.1.5",
     "uuid": "8.3.1"
   },
   "devDependencies": {

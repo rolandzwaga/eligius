@@ -1,13 +1,16 @@
-import Action from './action';
-import { IOperationInfo, IResolvedEndableActionConfiguration, TOperationData } from './types';
+import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
+import { TOperationData } from '../operation/types';
+import { Action } from './action';
 
-class EndableAction extends Action {
-  endOperations: IOperationInfo[];
-
-  constructor(actionConfiguration: IResolvedEndableActionConfiguration, eventBus: IEventbus) {
-    super(actionConfiguration, eventBus);
-    this.endOperations = actionConfiguration.endOperations;
+export class EndableAction extends Action {
+  constructor(
+    name: string,
+    startOperations: IResolvedOperation[],
+    public endOperations: IResolvedOperation[],
+    eventBus: IEventbus
+  ) {
+    super(name, startOperations, eventBus);
   }
 
   end(initOperationData?: TOperationData): Promise<TOperationData> {
@@ -27,5 +30,3 @@ class EndableAction extends Action {
     });
   }
 }
-
-export default EndableAction;
