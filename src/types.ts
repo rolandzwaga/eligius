@@ -21,8 +21,8 @@ export interface IResourceImporter {
 
 export interface IConfigurationResolver {
   process(
-    actionRegistryListener: IEventbusListener,
-    configuration: IEngineConfiguration
+    configuration: IEngineConfiguration,
+    actionRegistryListener?: IEventbusListener
   ): [Record<string, IAction>, IResolvedEngineConfiguration];
 }
 

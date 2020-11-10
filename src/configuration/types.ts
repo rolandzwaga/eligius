@@ -16,7 +16,7 @@ export interface IEngineConfiguration {
   availableLanguages: ILabel[];
   initActions: IEndableActionConfiguration[];
   actions: IEndableActionConfiguration[];
-  eventActions?: IActionConfiguration[];
+  eventActions?: IEventActionConfiguration[];
   timelines: ITimelineConfiguration[];
   timelineFlow?: ITimelineFlow;
   labels: ILanguageLabel[];
@@ -68,6 +68,11 @@ export interface IOperationConfiguration {
   id: string;
   systemName: string;
   operationData: TOperationData;
+}
+
+export interface IEventActionConfiguration extends IActionConfiguration {
+  eventName: string;
+  eventTopic?: string;
 }
 
 export interface IActionConfiguration {

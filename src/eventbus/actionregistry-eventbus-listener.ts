@@ -1,7 +1,7 @@
-import { IEventListener } from './types';
 import { IAction } from '../action/types';
+import { IEventbusListener } from './types';
 
-class ActionRegistryEventbusListener implements IEventListener {
+class ActionRegistryEventbusListener implements IEventbusListener {
   #actionRegistry: Record<string, IAction[]> = {};
 
   registerAction(action: IAction, eventName: string, eventTopic?: string): void {
