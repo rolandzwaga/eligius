@@ -1,7 +1,8 @@
-import { TOperationData } from '../../action/types';
+import { TOperationData } from '../types';
 
-function mergeOperationData<T extends TOperationData, K = T>(operationData: T, newOperationData: TOperationData): K {
+export function mergeOperationData<T extends TOperationData, K = T>(
+  operationData: T,
+  newOperationData: TOperationData
+): K {
   return Object.assign(operationData, newOperationData) as K;
 }
-
-export default mergeOperationData;

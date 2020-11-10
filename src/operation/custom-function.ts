@@ -1,12 +1,16 @@
-import { TOperation } from '../action/types';
-import TimelineEventNames from '../timeline-event-names';
-import internalResolve from './helper/internal-resolve';
+import { TimelineEventNames } from '..';
+import { IEventbus } from '../eventbus/types';
+import { internalResolve } from './helper/internal-resolve';
+import { TOperation } from './types';
 
 export interface ICustomFunctionOperationData {
   systemName: string;
 }
 
-const customFunction: TOperation<ICustomFunctionOperationData> = function (operationData, eventBus) {
+export const customFunction: TOperation<ICustomFunctionOperationData> = function (
+  operationData: ICustomFunctionOperationData,
+  eventBus: IEventbus
+) {
   const { systemName } = operationData;
   return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
     const resultCallback = (func: Function) => {
@@ -22,5 +26,3 @@ const customFunction: TOperation<ICustomFunctionOperationData> = function (opera
     eventBus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [systemName, resultCallback]);
   });
 };
-
-export default customFunction;

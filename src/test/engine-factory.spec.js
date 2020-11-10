@@ -48,7 +48,7 @@ describe('EngineFactory', () => {
       mousetrap: {
         bind: () => {},
       },
-    }).default;
+    }).EngineFactory;
   });
 
   function jQueryStub(windowInst) {

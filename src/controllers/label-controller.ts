@@ -1,5 +1,5 @@
-import TimelineEventNames from '../timeline-event-names';
-import { TEventHandlerRemover, IEventbus } from '../eventbus/types';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { ILabel } from '../types';
 import { IController } from './types';
 
@@ -8,7 +8,7 @@ export interface ILabelControllerMetadata {
   labelId: string;
 }
 
-class LabelController implements IController<ILabelControllerMetadata> {
+export class LabelController implements IController<ILabelControllerMetadata> {
   listeners: TEventHandlerRemover[] = [];
   currentLanguage: string | null = null;
   operationData: ILabelControllerMetadata | null = null;
@@ -62,5 +62,3 @@ class LabelController implements IController<ILabelControllerMetadata> {
     });
   }
 }
-
-export default LabelController;

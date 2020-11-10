@@ -3,6 +3,7 @@ import { TOperationData } from '../operation/types';
 import { IStrictDuration } from '../types';
 
 export interface IAction {
+  id: string;
   name: string;
   startOperations: IResolvedOperation[];
   start(initOperationData?: TOperationData): Promise<TOperationData>;

@@ -1,12 +1,16 @@
-import TimelineEventNames from '../timeline-event-names';
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
+import { TOperation } from './types';
 
 export interface IGetControllerInstanceOperationData {
   systemName: string;
   propertyName?: string;
 }
 
-const getControllerInstance: TOperation<IGetControllerInstanceOperationData> = function (operationData, eventBus) {
+export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> = function (
+  operationData: IGetControllerInstanceOperationData,
+  eventBus: IEventbus
+) {
   const { systemName } = operationData;
   let { propertyName } = operationData;
 
@@ -18,5 +22,3 @@ const getControllerInstance: TOperation<IGetControllerInstanceOperationData> = f
   eventBus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [systemName, resultCallback]);
   return operationData;
 };
-
-export default getControllerInstance;

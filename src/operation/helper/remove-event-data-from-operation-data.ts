@@ -1,9 +1,7 @@
-import { TOperationData } from '../../action/types';
+import { TOperationData } from '../types';
 
-function removeEventDataFromOperationData(operationData: TOperationData) {
+export function removeEventDataFromOperationData(operationData: TOperationData) {
   delete operationData.eventName;
   delete operationData.eventTopic;
   delete operationData.eventArgs;
 }
-
-export default removeEventDataFromOperationData;

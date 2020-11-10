@@ -1,5 +1,6 @@
-import { TOperation } from '../action/types';
-import internalResolve from './helper/internal-resolve';
+import { IEventbus } from '../eventbus/types';
+import { internalResolve } from './helper/internal-resolve';
+import { TOperation } from './types';
 
 export interface IAnimateWithClassOperationData {
   selectedElement: JQuery;
@@ -7,7 +8,10 @@ export interface IAnimateWithClassOperationData {
   removeClass?: boolean;
 }
 
-const animateWithClass: TOperation<IAnimateWithClassOperationData> = function (operationData, _eventBus) {
+export const animateWithClass: TOperation<IAnimateWithClassOperationData> = function (
+  operationData: IAnimateWithClassOperationData,
+  _eventBus: IEventbus
+) {
   let { selectedElement, className, removeClass } = operationData;
   removeClass = removeClass !== undefined ? removeClass : true;
 
@@ -28,5 +32,3 @@ const animateWithClass: TOperation<IAnimateWithClassOperationData> = function (o
 
   return promise;
 };
-
-export default animateWithClass;

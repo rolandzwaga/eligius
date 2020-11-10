@@ -1,16 +1,19 @@
-import { TOperation } from '../action/types';
+import { IController } from '../controllers/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface IExtendControllerOperationData {
-  controllerInstance: any;
+  controllerInstance: IController<any>;
   controllerExtension: any;
 }
 
-const extendController: TOperation<IExtendControllerOperationData> = function (operationData, _eventBus) {
+export const extendController: TOperation<IExtendControllerOperationData> = function (
+  operationData: IExtendControllerOperationData,
+  _eventBus: IEventbus
+) {
   const { controllerInstance, controllerExtension } = operationData;
 
   operationData.controllerInstance = Object.assign(controllerInstance, controllerExtension);
 
   return operationData;
 };
-
-export default extendController;

@@ -1,6 +1,7 @@
 import $ from 'jquery';
-import { TOperation } from '../action/types';
-import resolvePropertyValues from './helper/resolve-property-values';
+import { IEventbus } from '../eventbus/types';
+import { resolvePropertyValues } from './helper/resolve-property-values';
+import { TOperation } from './types';
 
 export interface ICreateElementOperationData {
   elementName: string;
@@ -9,20 +10,24 @@ export interface ICreateElementOperationData {
   template: JQuery;
 }
 
-const createElement: TOperation<ICreateElementOperationData> = function (operationData, _eventBus) {
+export const createElement: TOperation<ICreateElementOperationData> = function (
+  operationData: ICreateElementOperationData,
+  _eventBus: IEventbus
+) {
   operationData = resolvePropertyValues(operationData, operationData);
   const { elementName, attributes, text } = operationData;
+
   const serializedAttrs = attributes
     ? ' ' +
       Object.entries(attributes)
         .map(([key, value]) => `${key}="${value}"`)
         .join(' ')
     : '';
+
   const template = text
     ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
     : $(`<${elementName}${serializedAttrs}/>`);
+
   operationData.template = template;
   return operationData;
 };
-
-export default createElement;

@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
+import * as operations from '../../operation';
+import { deepcopy } from '../../operation/helper/deepcopy';
+import { TOperationData } from '../../operation/types';
+import { IDuration } from '../../types';
 import {
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
   ITimelineActionConfiguration,
-  TOperationData,
-} from '../../action/types';
-import * as operations from '../../operation';
-import deepcopy from '../../operation/helper/deepcopy';
-import { IDuration } from '../../types';
-import ConfigurationFactory from './configuration-factory';
+} from '../types';
+import { ConfigurationFactory } from './configuration-factory';
 
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {

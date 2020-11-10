@@ -2,7 +2,7 @@ import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
 import { TOperationData } from '../operation/types';
 import { IStrictDuration } from '../types';
-import { EndableAction } from './endableaction';
+import { EndableAction } from './endable-action';
 
 export class TimelineAction extends EndableAction {
   public active = false;

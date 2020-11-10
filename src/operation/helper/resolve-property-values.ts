@@ -1,8 +1,8 @@
-import { TOperationData } from '../../action/types';
-import deepcopy from './deepcopy';
+import { TOperationData } from '../types';
+import { deepcopy } from './deepcopy';
 import extractOperationDataArgumentValues from './extract-operation-data-argument-values';
 
-function resolvePropertyValues(operationData: TOperationData, properties: any) {
+export function resolvePropertyValues(operationData: TOperationData, properties: any) {
   const copy = properties !== operationData ? deepcopy(properties) : properties;
   const extract = extractOperationDataArgumentValues.bind(null, operationData);
   Object.entries(properties).forEach(([key, value]) => {
@@ -10,5 +10,3 @@ function resolvePropertyValues(operationData: TOperationData, properties: any) {
   });
   return copy;
 }
-
-export default resolvePropertyValues;

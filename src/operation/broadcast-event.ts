@@ -1,6 +1,7 @@
-import { TOperation } from '../action/types';
-import removeEventDataFromOperationData from './helper/remove-event-data-from-operation-data';
-import resolveEventArguments from './helper/resolve-event-arguments';
+import { IEventbus } from '../eventbus/types';
+import { removeEventDataFromOperationData } from './helper/remove-event-data-from-operation-data';
+import { resolveEventArguments } from './helper/resolve-event-arguments';
+import { TOperation } from './types';
 
 export interface IBroadcastEventOperationData {
   eventArgs: any;
@@ -8,7 +9,10 @@ export interface IBroadcastEventOperationData {
   eventName: string;
 }
 
-const broadcastEvent: TOperation<IBroadcastEventOperationData> = function (operationData, eventBus) {
+export const broadcastEvent: TOperation<IBroadcastEventOperationData> = function (
+  operationData: IBroadcastEventOperationData,
+  eventBus: IEventbus
+) {
   const { eventArgs, eventTopic, eventName } = operationData;
 
   const eventArguments = resolveEventArguments(operationData, eventArgs);
@@ -22,5 +26,3 @@ const broadcastEvent: TOperation<IBroadcastEventOperationData> = function (opera
   removeEventDataFromOperationData(operationData);
   return operationData;
 };
-
-export default broadcastEvent;

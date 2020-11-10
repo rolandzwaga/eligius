@@ -1,4 +1,5 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface ISetElementContentOperationData {
   append: boolean;
@@ -6,7 +7,10 @@ export interface ISetElementContentOperationData {
   template: string;
 }
 
-const setElementContent: TOperation<ISetElementContentOperationData> = function (operationData, _eventBus) {
+export const setElementContent: TOperation<ISetElementContentOperationData> = function (
+  operationData: ISetElementContentOperationData,
+  _eventBus: IEventbus
+) {
   const { append, selectedElement, template } = operationData;
   if (!append) {
     selectedElement.html(template);
@@ -15,5 +19,3 @@ const setElementContent: TOperation<ISetElementContentOperationData> = function 
   }
   return operationData;
 };
-
-export default setElementContent;

@@ -1,14 +1,16 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface IRemoveClassOperationData {
   selectedElement: JQuery;
   className: string;
 }
 
-const removeClass: TOperation<IRemoveClassOperationData> = function (operationData, _eventBus) {
+export const removeClass: TOperation<IRemoveClassOperationData> = function (
+  operationData: IRemoveClassOperationData,
+  _eventBus: IEventbus
+) {
   const { selectedElement, className } = operationData;
   selectedElement.removeClass(className);
   return operationData;
 };
-
-export default removeClass;

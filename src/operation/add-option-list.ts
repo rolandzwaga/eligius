@@ -1,4 +1,5 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 function createOptionElementText(
   valueProperty: string,
@@ -26,7 +27,10 @@ export interface IAddOptionListOperationData {
   selectedElement: JQuery;
 }
 
-const addOptionList: TOperation<IAddOptionListOperationData> = function (operationData, _eventBus) {
+export const addOptionList: TOperation<IAddOptionListOperationData> = function (
+  operationData: IAddOptionListOperationData,
+  _eventBus: IEventbus
+) {
   const { valueProperty, labelProperty, defaultIndex, defaultValue, optionData, selectedElement } = operationData;
 
   const createOption = createOptionElementText.bind(null, valueProperty, labelProperty, defaultIndex, defaultValue);
@@ -37,5 +41,3 @@ const addOptionList: TOperation<IAddOptionListOperationData> = function (operati
 
   return operationData;
 };
-
-export default addOptionList;

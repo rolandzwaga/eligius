@@ -1,1 +1,1 @@
-export { default as WebpackResourceImporter } from './webpack-resource-importer';
+export { WebpackResourceImporter } from './webpack-resource-importer';

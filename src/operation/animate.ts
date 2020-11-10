@@ -1,5 +1,6 @@
-import { TOperation } from '../action/types';
-import internalResolve from './helper/internal-resolve';
+import { IEventbus } from '../eventbus/types';
+import { internalResolve } from './helper/internal-resolve';
+import { TOperation } from './types';
 
 export interface IAnimateOperationData {
   animationEasing: string;
@@ -8,7 +9,10 @@ export interface IAnimateOperationData {
   animationDuration: number;
 }
 
-const animate: TOperation<IAnimateOperationData> = function (operationData, _eventBus) {
+export const animate: TOperation<IAnimateOperationData> = function (
+  operationData: IAnimateOperationData,
+  _eventBus: IEventbus
+) {
   const { animationEasing, selectedElement, animationProperties, animationDuration } = operationData;
   const promise = new Promise<IAnimateOperationData>((resolve, reject) => {
     try {
@@ -27,5 +31,3 @@ const animate: TOperation<IAnimateOperationData> = function (operationData, _eve
   });
   return promise;
 };
-
-export default animate;

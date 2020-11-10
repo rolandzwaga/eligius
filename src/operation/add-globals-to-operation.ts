@@ -1,11 +1,15 @@
-import { TOperation } from '../action/types';
-import getGlobals from './helper/get-globals';
+import { IEventbus } from '../eventbus/types';
+import { getGlobals } from './helper/get-globals';
+import { TOperation } from './types';
 
 export interface IAddGlobalsToOperationData {
   globalProperties: string[];
 }
 
-const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = function (operationData, _eventBus) {
+const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = function (
+  operationData: IAddGlobalsToOperationData,
+  _eventBus: IEventbus
+) {
   const { globalProperties } = operationData;
   const globalValues = globalProperties.reduce((prev: any, current: any) => {
     prev[current] = getGlobals(current);

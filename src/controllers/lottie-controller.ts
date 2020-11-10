@@ -1,6 +1,6 @@
 import lottie, { AnimationItem } from 'lottie-web';
-import TimelineEventNames from '../timeline-event-names';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
 export interface IInnerMetadata {
@@ -19,7 +19,7 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
   url: string;
 }
 
-class LottieController implements IController<ILottieControllerMetadata> {
+export class LottieController implements IController<ILottieControllerMetadata> {
   name = 'LottieController';
   currentLanguage: string | null = null;
   labelData: Record<string, Record<string, string>> = {};
@@ -170,5 +170,3 @@ class LottieController implements IController<ILottieControllerMetadata> {
     return isEdge || isIE;
   }
 }
-
-export default LottieController;

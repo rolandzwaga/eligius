@@ -1,13 +1,15 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface IClearElementOperationData {
   selectedElement: JQuery;
 }
 
-const clearElement: TOperation<IClearElementOperationData> = function (operationData, _eventBus) {
+export const clearElement: TOperation<IClearElementOperationData> = function (
+  operationData: IClearElementOperationData,
+  _eventBus: IEventbus
+) {
   const { selectedElement } = operationData;
   selectedElement.empty();
   return operationData;
 };
-
-export default clearElement;

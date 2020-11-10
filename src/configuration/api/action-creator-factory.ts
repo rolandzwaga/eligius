@@ -1,13 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
-import {
-  IActionConfiguration,
-  IEndableActionConfiguration,
-  ITimelineActionConfiguration,
-  TOperationData,
-} from '../../action/types';
 import * as operations from '../../operation';
-import deepcopy from '../../operation/helper/deepcopy';
-import ConfigurationFactory from './configuration-factory';
+import { deepcopy } from '../../operation/helper/deepcopy';
+import { TOperationData } from '../../operation/types';
+import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration } from '../types';
+import { ConfigurationFactory } from './configuration-factory';
 
 export class ActionCreatorFactory {
   constructor(private readonly configurationfactory: ConfigurationFactory) {}

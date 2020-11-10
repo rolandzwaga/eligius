@@ -1,7 +1,8 @@
-import TimelineEventNames from '../timeline-event-names';
-import deepcopy from '../operation/helper/deepcopy';
-import { TOperationData, IEndableAction } from '../action/types';
+import { IEndableAction } from '../action/types';
 import { IEventbus } from '../eventbus/types';
+import { deepcopy } from '../operation/helper/deepcopy';
+import { TOperationData } from '../operation/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
 interface IActionInstanceInfo {
@@ -16,7 +17,7 @@ export interface IEventListenerControllerOperationData {
   actionOperationData?: TOperationData;
 }
 
-class EventListenerController implements IController<IEventListenerControllerOperationData> {
+export class EventListenerController implements IController<IEventListenerControllerOperationData> {
   operationData: IEventListenerControllerOperationData | null;
   actionInstanceInfos: IActionInstanceInfo[];
   name = 'EventListenerController';
@@ -121,5 +122,3 @@ class EventListenerController implements IController<IEventListenerControllerOpe
     this.operationData?.selectedElement.off(this.operationData.eventName);
   }
 }
-
-export default EventListenerController;

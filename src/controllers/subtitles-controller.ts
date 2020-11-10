@@ -1,7 +1,6 @@
-import { Func } from 'mocha';
-import { TOperationData } from '../action/types';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import TimelineEventNames from '../timeline-event-names';
+import { TOperationData } from '../operation/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
 export interface ISubtitlesControllerOperationData {
@@ -10,7 +9,7 @@ export interface ISubtitlesControllerOperationData {
   subtitleData: any;
 }
 
-class SubtitlesController implements IController<ISubtitlesControllerOperationData> {
+export class SubtitlesController implements IController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
   currentLanguage: string | null = null;
   lastFunc: Function | null = null;
@@ -103,5 +102,3 @@ class SubtitlesController implements IController<ISubtitlesControllerOperationDa
     this.actionLookup = this.createActionLookup(operationData, container);
   }
 }
-
-export default SubtitlesController;

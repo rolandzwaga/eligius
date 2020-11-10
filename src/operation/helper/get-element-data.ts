@@ -1,6 +1,8 @@
+import { IController } from '../../controllers/types';
+
 const controllersName = 'chronoEngineControllers';
 
-function getElementData(name: string, element: JQuery) {
+function getElementData(name: string, element: JQuery): IController<any>[] {
   return element.data(name);
 }
 

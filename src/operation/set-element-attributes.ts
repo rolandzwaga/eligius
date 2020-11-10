@@ -1,16 +1,18 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface ISetElementAttributesOperationData {
   attributes: any;
   selectedElement: JQuery;
 }
 
-const setElementAttributes: TOperation<ISetElementAttributesOperationData> = function (operationData, _eventBus) {
+export const setElementAttributes: TOperation<ISetElementAttributesOperationData> = function (
+  operationData: ISetElementAttributesOperationData,
+  _eventBus: IEventbus
+) {
   const { attributes, selectedElement } = operationData;
   Object.keys(attributes).forEach((attrName) => {
     selectedElement.attr(attrName, attributes[attrName]);
   });
   return operationData;
 };
-
-export default setElementAttributes;

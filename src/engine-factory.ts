@@ -1,24 +1,23 @@
-import { Eventbus, ActionRegistryEventbusListener, RequestVideoUriInterceptor } from './eventbus';
 import $ from 'jquery';
-import TimelineEventNames from './timeline-event-names';
-import ConfigurationResolver from './configuration/configuration-resolver';
 import Mousetrap from 'mousetrap';
-import LanguageManager from './language-manager';
+import { IAction } from './action/types';
+import { ConfigurationResolver } from './configuration/configuration-resolver';
+import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
+import { ActionRegistryEventbusListener, Eventbus, RequestVideoUriInterceptor } from './eventbus';
+import { IEventbus } from './eventbus/types';
+import { LanguageManager } from './language-manager';
+import { TimelineEventNames } from './timeline-event-names';
 import {
+  IChronoTriggerEngine,
+  IConfigurationResolver,
   IEngineFactory,
   IResourceImporter,
-  TResultCallback,
-  IEngineConfiguration,
-  IConfigurationResolver,
-  IChronoTriggerEngine,
-  TimelineTypes,
   ITimelineProviderInfo,
-  IResolvedEngineConfiguration,
+  TimelineTypes,
+  TResultCallback,
 } from './types';
-import { IEventbus } from './eventbus/types';
-import { IAction } from './action/types';
 
-class EngineFactory implements IEngineFactory {
+export class EngineFactory implements IEngineFactory {
   private resizeTimeout: any = -1;
   private actionsLookup: Record<string, IAction> = {};
   private importer: IResourceImporter;
@@ -38,7 +37,7 @@ class EngineFactory implements IEngineFactory {
     this.eventbus.clear();
   }
 
-  _resizeHandler() {
+  private _resizeHandler() {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
@@ -47,24 +46,24 @@ class EngineFactory implements IEngineFactory {
     }, 200);
   }
 
-  _importSystemEntryWithEventbusDependency(systemName: string): any {
+  private _importSystemEntryWithEventbusDependency(systemName: string): any {
     const ctor = this._importSystemEntry(systemName);
     return new ctor(this.eventbus);
   }
 
-  _importSystemEntry(systemName: string): any {
+  private _importSystemEntry(systemName: string): any {
     return this.importer.import(systemName)[systemName];
   }
 
-  _requestInstanceHandler(systemName: string, resultCallback: TResultCallback) {
+  private _requestInstanceHandler(systemName: string, resultCallback: TResultCallback) {
     resultCallback(this._importSystemEntryWithEventbusDependency(systemName));
   }
 
-  _requestFunctionHandler(systemName: string, resultCallback: TResultCallback) {
+  private _requestFunctionHandler(systemName: string, resultCallback: TResultCallback) {
     resultCallback(this._importSystemEntry(systemName));
   }
 
-  _requestActionHandler(systemName: string, resultCallback: TResultCallback) {
+  private _requestActionHandler(systemName: string, resultCallback: TResultCallback) {
     const action = this.actionsLookup[systemName];
     if (action) {
       resultCallback(action);
@@ -76,7 +75,7 @@ class EngineFactory implements IEngineFactory {
 
   createEngine(configuration: IEngineConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine {
     const { systemName } = configuration.engine;
-    const engineClass = this._importSystemEntry(systemName);
+    const EngineClass = this._importSystemEntry(systemName);
 
     let actionRegistryListener: ActionRegistryEventbusListener | undefined = undefined;
     if (configuration.eventActions && configuration.eventActions.length) {
@@ -90,7 +89,7 @@ class EngineFactory implements IEngineFactory {
     );
 
     resolver = resolver || new ConfigurationResolver(this.importer, this.eventbus);
-    const [actionLookup, resolvedConfiguration] = resolver.process(actionRegistryListener, configuration);
+    const [actionLookup, resolvedConfiguration] = resolver.process(configuration, actionRegistryListener);
     this.actionsLookup = actionLookup;
 
     const timelineProviders = this._createTimelineProviders(resolvedConfiguration, this.eventbus);
@@ -98,7 +97,7 @@ class EngineFactory implements IEngineFactory {
     const { language, labels } = configuration;
     const languageManager = new LanguageManager(language, labels, this.eventbus);
 
-    const chronoTriggerEngine = new engineClass(
+    const chronoTriggerEngine = new EngineClass(
       resolvedConfiguration,
       this.eventbus,
       timelineProviders,
@@ -114,7 +113,7 @@ class EngineFactory implements IEngineFactory {
     return chronoTriggerEngine;
   }
 
-  _createTimelineProviders(
+  private _createTimelineProviders(
     configuration: IResolvedEngineConfiguration,
     eventbus: IEventbus
   ): Record<TimelineTypes, ITimelineProviderInfo> {
@@ -135,5 +134,3 @@ class EngineFactory implements IEngineFactory {
     return result;
   }
 }
-
-export default EngineFactory;

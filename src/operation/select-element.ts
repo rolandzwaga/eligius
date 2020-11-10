@@ -1,5 +1,6 @@
-import TimelineEventNames from '../timeline-event-names';
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
+import { TOperation } from './types';
 
 function findElementBySelector(root: JQuery, selector: string, operationData: any, propertyName: string) {
   const element = root.find(selector);
@@ -18,7 +19,10 @@ export interface ISelectElementOperationData {
   useSelectedElementAsRoot: boolean;
 }
 
-const selectElement: TOperation<ISelectElementOperationData> = function (operationData, eventBus) {
+export const selectElement: TOperation<ISelectElementOperationData> = function (
+  operationData: ISelectElementOperationData,
+  eventBus: IEventbus
+) {
   const { selector, propertyName = 'selectedElement', useSelectedElementAsRoot } = operationData;
 
   if (!selector) {
@@ -37,5 +41,3 @@ const selectElement: TOperation<ISelectElementOperationData> = function (operati
   eventBus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [rootCallback]);
   return operationData;
 };
-
-export default selectElement;

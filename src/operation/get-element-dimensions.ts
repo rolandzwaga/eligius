@@ -1,5 +1,6 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
 import modifyDimensions from './helper/modify-dimensions';
+import { TOperation } from './types';
 
 export interface IGetElementDimensionsOperationData {
   selectedElement: JQuery;
@@ -7,7 +8,10 @@ export interface IGetElementDimensionsOperationData {
   dimensions: { width?: number; height?: number };
 }
 
-const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function (operationData, _eventBus) {
+export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function (
+  operationData: IGetElementDimensionsOperationData,
+  _eventBus: IEventbus
+) {
   const { selectedElement, modifier } = operationData;
   const dimensions = {
     width: selectedElement.innerWidth() ?? 0,
@@ -22,5 +26,3 @@ const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = fun
   operationData.dimensions = dimensions;
   return operationData;
 };
-
-export default getElementDimensions;

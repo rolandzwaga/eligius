@@ -1,9 +1,10 @@
-import { IOperationContext, TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { IOperationContext, TOperation } from './types';
 
-const log: TOperation<never> = function (this: IOperationContext, operationData, _eventBus) {
-  console.dir(this);
-  console.dir(operationData);
+export const log: TOperation<never> = function (this: IOperationContext, operationData: never, _eventBus: IEventbus) {
+  console.group('Operation info');
+  console.dir({ context: this });
+  console.dir({ operationData });
+  console.groupEnd();
   return operationData;
 };
-
-export default log;

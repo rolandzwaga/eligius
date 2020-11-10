@@ -1,14 +1,18 @@
-import { TOperation } from '../action/types';
 import { IController } from '../controllers/types';
+import { IEventbus } from '../eventbus/types';
 import attachControllerToElement from './helper/attach-controller-to-element';
-import internalResolve from './helper/internal-resolve';
+import { internalResolve } from './helper/internal-resolve';
+import { TOperation } from './types';
 
 export interface IAddControllerToElementOperationData {
   selectedElement: JQuery;
   controllerInstance: IController<any>;
 }
 
-const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function (operationData, eventBus) {
+export const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function (
+  operationData: IAddControllerToElementOperationData,
+  eventBus: IEventbus
+) {
   const { selectedElement, controllerInstance } = operationData;
 
   attachControllerToElement(selectedElement, controllerInstance);
@@ -27,5 +31,3 @@ const addControllerToElement: TOperation<IAddControllerToElementOperationData> =
     return operationData;
   }
 };
-
-export default addControllerToElement;

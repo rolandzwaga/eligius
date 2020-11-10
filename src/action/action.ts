@@ -2,7 +2,7 @@ import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
 import { deepcopy } from '../operation/helper/deepcopy';
 import { TActionContext, TOperationData, TOperationResult } from '../operation/types';
-import { isPromise } from './isPromise';
+import { isPromise } from './is-promise';
 import { IAction } from './types';
 
 export class Action implements IAction {

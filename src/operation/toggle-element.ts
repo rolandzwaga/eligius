@@ -1,12 +1,14 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface IToggleElementOperationData {
   selectedElement: JQuery;
 }
 
-const toggleElement: TOperation<IToggleElementOperationData> = function toggleElement(operationData, _eventBus) {
+export const toggleElement: TOperation<IToggleElementOperationData> = function toggleElement(
+  operationData: IToggleElementOperationData,
+  _eventBus: IEventbus
+) {
   operationData.selectedElement.toggle();
   return operationData;
 };
-
-export default toggleElement;

@@ -14,8 +14,8 @@
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
     "build-example-2": "node build/engine-pack-builder examples/mediaelement/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/mediaelement/build/boot.js",
     "full-build": "npm run build && npm run dev-build",
-    "build": "webpack --mode production --display-modules",
-    "dev-build": "webpack --mode development --progress --colors --display-modules",
+    "build": "webpack --mode production",
+    "dev-build": "webpack --mode development --progress --colors",
     "dev": "webpack --mode development --progress --colors --display-modules --watch",
     "stage-build": "git add lib/library.js lib/library.js.map lib/library.min.js lib/library.min.js.map lib/library.d.ts",
     "publish-patch": "yarn full-build && yarn stage-build && git commit -m\"Add new patch build\" && npm version patch",
@@ -77,5 +77,9 @@
     "typescript": "4.0.5",
     "webpack": "5.4.0",
     "webpack-cli": "4.2.0"
-  }
+  },
+  "browserslist": [
+    "defaults",
+    "not ie 11"
+  ]
 }

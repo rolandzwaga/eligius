@@ -1,12 +1,13 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface IRemovePropertiesFromOperationDataOperationData {
   propertyNames: string[];
 }
 
-const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperationDataOperationData> = function (
-  operationData,
-  _eventBus
+export const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperationDataOperationData> = function (
+  operationData: IRemovePropertiesFromOperationDataOperationData,
+  _eventBus: IEventbus
 ) {
   const { propertyNames } = operationData;
 
@@ -16,5 +17,3 @@ const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperati
   delete (operationData as any).propertyNames;
   return operationData;
 };
-
-export default removePropertiesFromOperationData;

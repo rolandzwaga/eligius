@@ -1,6 +1,6 @@
-import { IEventbus, IEventbusListener, TEventHandler, IEventbusInterceptor, TEventHandlerRemover } from './types';
+import { IEventbus, IEventbusInterceptor, IEventbusListener, TEventHandler, TEventHandlerRemover } from './types';
 
-class Eventbus implements IEventbus {
+export class Eventbus implements IEventbus {
   private eventHandlers: Record<string, TEventHandler[]> = {};
   private eventInterceptors: Record<string, IEventbusInterceptor[]> = {};
   private eventListeners: IEventbusListener[] = [];
@@ -99,5 +99,3 @@ class Eventbus implements IEventbus {
     }
   }
 }
-
-export default Eventbus;

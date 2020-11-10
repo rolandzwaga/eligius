@@ -1,14 +1,16 @@
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TOperation } from './types';
 
 export interface IAddClassOperationData {
   selectedElement: JQuery;
   className: string;
 }
 
-const addClass: TOperation<IAddClassOperationData> = function (operationData, _eventBus) {
+export const addClass: TOperation<IAddClassOperationData> = function (
+  operationData: IAddClassOperationData,
+  _eventBus: IEventbus
+) {
   const { selectedElement, className } = operationData;
   selectedElement.addClass(className);
   return operationData;
 };
-
-export default addClass;

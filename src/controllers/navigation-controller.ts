@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import { TOperationData } from '../action/types';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TOperationData } from '../operation/types';
 import { TResultCallback } from '../types';
-import LabelController from './label-controller';
+import { LabelController } from './label-controller';
 import { IController } from './types';
 
 export interface INavigationControllerOperationData {
@@ -10,7 +10,7 @@ export interface INavigationControllerOperationData {
   json: any;
 }
 
-class NavigationController implements IController<INavigationControllerOperationData> {
+export class NavigationController implements IController<INavigationControllerOperationData> {
   name: string = 'NavigationController';
   navigation: any[] = [];
   navLookup: Record<string, any> = {};
@@ -221,5 +221,3 @@ class NavigationController implements IController<INavigationControllerOperation
     return result;
   }
 }
-
-export default NavigationController;

@@ -1,12 +1,16 @@
-import TimelineEventNames from '../timeline-event-names';
-import { TOperation } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
+import { TOperation } from './types';
 
 export interface IGetImportOperationData {
   systemName: string;
   importedInstance: any;
 }
 
-const getImport: TOperation<IGetImportOperationData> = function (operationData, eventBus) {
+export const getImport: TOperation<IGetImportOperationData> = function (
+  operationData: IGetImportOperationData,
+  eventBus: IEventbus
+) {
   const { systemName } = operationData;
   const callBack = (instance: any) => {
     operationData.importedInstance = instance;
@@ -15,5 +19,3 @@ const getImport: TOperation<IGetImportOperationData> = function (operationData, 
   delete (operationData as any).systemName;
   return operationData;
 };
-
-export default getImport;

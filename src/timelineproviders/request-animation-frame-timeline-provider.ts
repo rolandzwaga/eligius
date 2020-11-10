@@ -1,78 +1,85 @@
 import $ from 'jquery';
-import TimelineEventNames from '../timeline-event-names';
-import { ITimelineProvider } from './types';
+import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '../configuration/types';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { IEngineConfiguration, ITimelineConfiguration, TResultCallback } from '../types';
+import { TimelineEventNames } from '../timeline-event-names';
+import { TResultCallback } from '../types';
+import { ITimelineProvider } from './types';
 
 type TUpdateMethod = (now: number) => void;
 type TPlayState = 'stopped' | 'running' | 'paused';
 
-class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
-  #requestID: number = -1;
-  #last: number = 0;
-  #currentPosition: number = 0;
-  #updateBound: TUpdateMethod = this._update.bind(this);
-  #eventbusListeners: TEventHandlerRemover[] = [];
-  #firstFrame = true;
-  #currentPlaylistItem: ITimelineConfiguration;
-  #granularity = 1000;
-  #playState: TPlayState = 'stopped';
-  #playlist: ITimelineConfiguration[];
-  #container: JQuery<HTMLElement> | undefined;
+export class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
+  private _requestID: number = -1;
+  private _last: number = 0;
+  private _currentPosition: number = 0;
+  private _updateBound: TUpdateMethod = this._update.bind(this);
+  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _firstFrame = true;
+  private _currentPlaylistItem: IResolvedTimelineConfiguration;
+  private _granularity = 1000;
+  private _playState: TPlayState = 'stopped';
+  private _playlist: IResolvedTimelineConfiguration[];
+  private _containerElement: JQuery<HTMLElement> | undefined;
 
   loop: boolean = false;
 
-  constructor(private eventbus: IEventbus, private config: IEngineConfiguration) {
+  constructor(private eventbus: IEventbus, private config: IResolvedEngineConfiguration) {
     this.eventbus = eventbus;
     this.config = config;
-    this.#playlist = this._extractPlaylist(config);
-    this.#currentPlaylistItem = this.#playlist[0];
+    this._playlist = this._extractPlaylist(config);
+    this._currentPlaylistItem = this._playlist[0];
   }
 
-  private _extractPlaylist(configuration: IEngineConfiguration): ITimelineConfiguration[] {
+  private _extractPlaylist(configuration: IResolvedEngineConfiguration): IResolvedTimelineConfiguration[] {
     const playlist = configuration.timelines.filter((timeline) => timeline.type === 'animation');
     return playlist;
   }
 
   playlistItem(uri: string): void {
-    if (uri === null || !uri.length || this.#playlist.length === 0) {
+    if (uri === null || !uri.length || this._playlist.length === 0) {
       return;
     }
-    const item = this.#playlist.find((item) => {
+
+    const item = this._playlist.find((item) => {
       return item.uri === uri;
     });
+
     if (!item) {
       throw new Error(`Unknown playlist uri: ${uri}`);
     }
-    this.#currentPlaylistItem = item;
-    this.#firstFrame = true;
+
+    this._currentPlaylistItem = item;
+    this._firstFrame = true;
   }
 
   private _addEventListeners() {
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
-    this.#eventbusListeners.push(
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
+    this._eventbusListeners.push(
       this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this))
     );
   }
 
   private _update(now: number): void {
-    if (this.#playState !== 'running') {
+    if (this._playState !== 'running') {
       return;
     }
-    if (!this.#last || now - this.#last >= this.#granularity) {
-      if (!this.#last && this.#firstFrame) {
-        this.#firstFrame = false;
+
+    if (!this._last || now - this._last >= this._granularity) {
+      if (!this._last && this._firstFrame) {
+        this._firstFrame = false;
         this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
       }
-      this.#last = now;
-      this.#currentPosition++;
-      if (this.#currentPosition > this.#currentPlaylistItem.duration) {
+
+      this._last = now;
+      this._currentPosition++;
+
+      if (this._currentPosition > this._currentPlaylistItem.duration) {
         if (this.loop) {
           this._reset();
         } else {
@@ -81,26 +88,28 @@ class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
           return;
         }
       }
-      this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.#currentPosition }]);
+
+      this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this._currentPosition }]);
       this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-        { position: this.#currentPosition, duration: this.#currentPlaylistItem.duration },
+        { position: this._currentPosition, duration: this._currentPlaylistItem.duration },
       ]);
     }
-    this.#requestID = requestAnimationFrame(this.#updateBound);
+
+    this._requestID = requestAnimationFrame(this._updateBound);
   }
 
   private _start() {
-    if (this.#requestID && this.#playState === 'running') {
+    if (this._requestID && this._playState === 'running') {
       return;
     }
-    this.#playState = 'running';
-    this.#requestID = requestAnimationFrame(this.#updateBound);
+    this._playState = 'running';
+    this._requestID = requestAnimationFrame(this._updateBound);
   }
 
   private _reset() {
     this._cancelAnimationFrame();
-    this.#last = 0;
-    this.#currentPosition = 0;
+    this._last = 0;
+    this._currentPosition = 0;
   }
 
   private _resize() {
@@ -108,39 +117,42 @@ class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
   }
 
   private _container(callBack: TResultCallback) {
-    callBack(this.#container);
+    callBack(this._containerElement);
   }
 
   private _cancelAnimationFrame() {
-    if (this.#requestID) {
-      cancelAnimationFrame(this.#requestID);
-      this.#requestID = -1;
-      this.#last = 0;
-      this.#currentPosition = 0;
+    if (this._requestID) {
+      cancelAnimationFrame(this._requestID);
+      this._requestID = -1;
+      this._last = 0;
+      this._currentPosition = 0;
     }
   }
 
   init(): Promise<any> {
     this._addEventListeners();
-    this.#currentPlaylistItem = this.#playlist[0];
-    this.#container = $(this.#currentPlaylistItem.selector);
-    if (!this.#container.length) {
-      throw new Error(`timeline selector '${this.#currentPlaylistItem.selector}' not found`);
+    this._currentPlaylistItem = this._playlist[0];
+    this._containerElement = $(this._currentPlaylistItem.selector);
+
+    if (!this._containerElement.length) {
+      throw new Error(`timeline selector '${this._currentPlaylistItem.selector}' not found`);
     }
+
     const promise = new Promise((resolve) => {
       resolve();
     });
+
     return promise;
   }
 
   destroy() {
     this.stop();
-    this.#eventbusListeners.forEach((func) => func());
-    this.#container = undefined;
+    this._eventbusListeners.forEach((func) => func());
+    this._containerElement = undefined;
   }
 
   toggleplay() {
-    if (this.#playState !== 'running') {
+    if (this._playState !== 'running') {
       this.start();
     } else {
       this.pause();
@@ -154,39 +166,38 @@ class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
 
   stop() {
     this._cancelAnimationFrame();
-    this.#playState = 'stopped';
+    this._playState = 'stopped';
     this.eventbus.broadcast(TimelineEventNames.STOP);
   }
 
   pause() {
-    this.#playState = 'paused';
+    this._playState = 'paused';
     this.eventbus.broadcast(TimelineEventNames.PAUSE);
   }
 
   seek(position: number) {
-    if (position < 0 || position > this.#currentPlaylistItem.duration) {
+    if (position < 0 || position > this._currentPlaylistItem.duration) {
       return;
     }
-    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this.#currentPosition, this.getDuration()]);
-    this.#currentPosition = position;
+
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this._currentPosition, this.getDuration()]);
+    this._currentPosition = position;
     this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
     this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.getPosition() }]);
     this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-      { position: this.#currentPosition, duration: this.#currentPlaylistItem.duration },
+      { position: this._currentPosition, duration: this._currentPlaylistItem.duration },
     ]);
   }
 
   getPosition() {
-    return this.#currentPosition;
+    return this._currentPosition;
   }
 
   getDuration() {
-    return this.#currentPlaylistItem.duration;
+    return this._currentPlaylistItem.duration;
   }
 
   requestDurationHandler(callBack: TResultCallback) {
-    callBack(this.#currentPlaylistItem.duration);
+    callBack(this._currentPlaylistItem.duration);
   }
 }
-
-export default RequestAnimationFrameTimelineProvider;

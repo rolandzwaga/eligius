@@ -1,40 +1,40 @@
-import * as css_mediaelement from '../../node_modules/mediaelement/build/mediaelementplayer.min.css';
-
-import TimelineEventNames from '../timeline-event-names';
-import 'mediaelement';
 import $ from 'jquery';
+import 'mediaelement';
 import { v4 as uuidv4 } from 'uuid';
-import { ITimelineProvider } from './types';
+import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '../configuration/types';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { IEngineConfiguration, ITimelineConfiguration, TResultCallback } from '../types';
+import { TimelineEventNames } from '../timeline-event-names';
+import { TResultCallback } from '../types';
+import { ITimelineProvider } from './types';
 
 const { MediaElementPlayer } = global as any;
 
-class MediaElementTimelineProvider implements ITimelineProvider {
-  #videoElementId: string = uuidv4();
-  #eventbusListeners: TEventHandlerRemover[] = [];
-  #playlist: ITimelineConfiguration[] = [];
-  #length: number = 0;
-  #urls: string[] = [];
+export class MediaElementTimelineProvider implements ITimelineProvider {
+  private _videoElementId: string = uuidv4();
+  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _playlist: IResolvedTimelineConfiguration[] = [];
+  private _length: number = 0;
+  private _urls: string[] = [];
+
   player: mediaelementjs.MediaElementPlayer | undefined;
 
   loop = false;
 
-  constructor(private eventbus: IEventbus, private config: IEngineConfiguration) {
+  constructor(private eventbus: IEventbus, private config: IResolvedEngineConfiguration) {
     this._addEventListeners();
   }
 
   _addEventListeners() {
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
-    this.#eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
+    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this)));
   }
 
-  _extractUrls(configuration: IEngineConfiguration) {
+  _extractUrls(configuration: IResolvedEngineConfiguration) {
     const urls = configuration.timelines
       .filter((timeline) => timeline.type === 'mediaplayer')
       .map((timeline) => timeline.uri);
@@ -43,11 +43,12 @@ class MediaElementTimelineProvider implements ITimelineProvider {
 
   init() {
     const selector = '';
-    this.#urls = this._extractUrls(this.config);
-    this._addVideoElements(selector, this.#urls);
+    this._urls = this._extractUrls(this.config);
+    this._addVideoElements(selector, this._urls);
     const self = this;
+
     const promise = new Promise((resolve) => {
-      const videoElement = document.getElementById(this.#videoElementId);
+      const videoElement = document.getElementById(this._videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
         success: (mediaElement: any, _originalNode: any, instance: mediaelementjs.MediaElementPlayer) => {
           mediaElement.addEventListener('timeupdate', this._timeUpdateHandler.bind(this));
@@ -58,6 +59,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
         },
       });
     });
+
     return promise;
   }
 
@@ -71,7 +73,7 @@ class MediaElementTimelineProvider implements ITimelineProvider {
   }
 
   private _addVideoElements(selector: string, urls: string[]) {
-    const videoElm = [`<video class='mejs__player' id=${this.#videoElementId} data-mejsoptions='{"preload": "true"}'>`];
+    const videoElm = [`<video class='mejs__player' id=${this._videoElementId} data-mejsoptions='{"preload": "true"}'>`];
     urls.forEach((url) => {
       videoElm.push(`<source src='${url}' type='${this._extractFileType(url)}'/>`);
     });
@@ -102,8 +104,8 @@ class MediaElementTimelineProvider implements ITimelineProvider {
     }
 
     this.player?.remove();
-    $(`#${this.#videoElementId}`).remove();
-    this.#eventbusListeners.forEach((func) => func());
+    $(`#${this._videoElementId}`).remove();
+    this._eventbusListeners.forEach((func) => func());
   }
 
   pause() {
@@ -129,8 +131,6 @@ class MediaElementTimelineProvider implements ITimelineProvider {
   }
 
   _container(resultCallback: TResultCallback) {
-    resultCallback($(`#${this.#videoElementId}`));
+    resultCallback($(`#${this._videoElementId}`));
   }
 }
-
-export default MediaElementTimelineProvider;

@@ -1,12 +1,12 @@
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TOperationData } from '../operation/types';
 import { IController } from './types';
-import { TOperationData } from '../action/types';
-import { TEventHandlerRemover, IEventbus } from '../eventbus/types';
 
 export interface IRoutingControllerOperationData {
   json: any;
 }
 
-class RoutingController implements IController<IRoutingControllerOperationData> {
+export class RoutingController implements IController<IRoutingControllerOperationData> {
   name = 'RoutingController';
   navLookup: Record<string, any> = {};
   navVidIdLookup: Record<string, any> = {};
@@ -143,5 +143,3 @@ class RoutingController implements IController<IRoutingControllerOperationData> 
     return result;
   }
 }
-
-export default RoutingController;

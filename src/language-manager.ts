@@ -1,9 +1,9 @@
-import TimelineEventNames from './timeline-event-names';
 import $ from 'jquery';
 import { IEventbus, TEventHandlerRemover } from './eventbus/types';
-import { ILanguageLabel, ILabel, TResultCallback } from './types';
+import { TimelineEventNames } from './timeline-event-names';
+import { ILabel, ILanguageLabel, TResultCallback } from './types';
 
-class LanguageManager {
+export class LanguageManager {
   #labelLookup: Record<string, ILabel[]> = {};
   #eventbusListeners: TEventHandlerRemover[] = [];
 
@@ -82,5 +82,3 @@ class LanguageManager {
     });
   }
 }
-
-export default LanguageManager;

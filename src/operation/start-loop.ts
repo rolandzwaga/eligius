@@ -1,15 +1,20 @@
-import { TOperation, IOperationContext } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { IOperationContext, TOperation } from './types';
 
 export interface IStartLoopOperationData {
   collection: any[];
   propertyName?: string;
 }
 
-const startLoop: TOperation<IStartLoopOperationData> = function (this: IOperationContext, operationData, _eventBus) {
+export const startLoop: TOperation<IStartLoopOperationData> = function (
+  this: IOperationContext,
+  operationData: IStartLoopOperationData,
+  _eventBus: IEventbus
+) {
   const context = this;
   const { collection } = operationData;
-  let { propertyName } = operationData;
-  propertyName = propertyName || 'currentItem';
+  const { propertyName = 'currentItem' } = operationData;
+
   if (!context.loopIndex) {
     if (collection && collection.length) {
       context.loopIndex = 0;
@@ -19,10 +24,10 @@ const startLoop: TOperation<IStartLoopOperationData> = function (this: IOperatio
       context.skip = true;
     }
   }
+
   if (collection && collection.length && context.loopIndex) {
     (operationData as any)[propertyName] = collection[context.loopIndex];
   }
+
   return operationData;
 };
-
-export default startLoop;

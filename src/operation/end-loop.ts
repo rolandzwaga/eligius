@@ -1,7 +1,13 @@
-import { TOperation, IOperationContext } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { IOperationContext, TOperation } from './types';
 
-const endLoop: TOperation<never> = function (this: IOperationContext, operationData, _eventBus) {
+export const endLoop: TOperation<never> = function (
+  this: IOperationContext,
+  operationData: never,
+  _eventBus: IEventbus
+) {
   const context = this;
+
   if (!context.skip) {
     if (context.loopIndex !== undefined && context.loopLength !== undefined && context.loopIndex < context.loopLength) {
       context.loopIndex = context.loopIndex + 1;
@@ -15,7 +21,6 @@ const endLoop: TOperation<never> = function (this: IOperationContext, operationD
   } else {
     delete context.skip;
   }
+
   return operationData;
 };
-
-export default endLoop;

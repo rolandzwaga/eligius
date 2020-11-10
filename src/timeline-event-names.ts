@@ -1,4 +1,4 @@
-class TimelineEventNames {
+export class TimelineEventNames {
   // timeline requests
   static PLAY_TOGGLE_REQUEST = 'timeline-play-toggle-request';
   static PLAY_REQUEST = 'timeline-play-request';
@@ -43,5 +43,3 @@ class TimelineEventNames {
   static REQUEST_CURRENT_LANGUAGE = 'request-current-language';
   static LANGUAGE_CHANGE = 'language-change';
 }
-
-export default TimelineEventNames;

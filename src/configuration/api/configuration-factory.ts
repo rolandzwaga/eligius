@@ -1,18 +1,22 @@
 import { v4 as uuidv4 } from 'uuid';
+import { deepcopy } from '../../operation/helper/deepcopy';
+import { ILabel, ILanguageLabel, TimelineTypes } from '../../types';
+import {
+  IActionConfiguration,
+  IEngineConfiguration,
+  ITimelineActionConfiguration,
+  ITimelineConfiguration,
+} from '../types';
 import { ActionCreatorFactory } from './action-creator-factory';
-import { ActionEditor } from './action-editor';
-import { TimelineActionEditor, EndableActionEditor } from './action-editor';
+import { ActionEditor, EndableActionEditor, TimelineActionEditor } from './action-editor';
 import TimelineProvidersSettingsEditor from './timeline-provider-settings-editor';
-import deepcopy from '../../operation/helper/deepcopy';
-import { IEngineConfiguration, ILabel, ILanguageLabel, ITimelineConfiguration, TimelineTypes } from '../../types';
-import { IActionConfiguration, ITimelineActionConfiguration } from '../../action/types';
 
 export type TEngineConfigurationLists = Pick<
   IEngineConfiguration,
   'availableLanguages' | 'initActions' | 'actions' | 'eventActions' | 'timelines' | 'labels'
 >;
 
-class ConfigurationFactory {
+export class ConfigurationFactory {
   actionCreatorFactory: ActionCreatorFactory;
   configuration: IEngineConfiguration;
 
@@ -224,5 +228,3 @@ class ConfigurationFactory {
     throw new Error(`Timeline action not found for id ${id}`);
   }
 }
-
-export default ConfigurationFactory;
