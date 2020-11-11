@@ -1,6 +1,6 @@
 import { IEventbus } from './eventbus/types';
 import { ILanguageLabel, TResultCallback } from './types';
-declare class LanguageManager {
+export declare class LanguageManager {
     #private;
     private currentLanguage;
     private eventbus;
@@ -14,4 +14,3 @@ declare class LanguageManager {
     _extractLanguageFromCulture(culture: string): string;
     _createLabelLookup(labels: ILanguageLabel[]): void;
 }
-export default LanguageManager;

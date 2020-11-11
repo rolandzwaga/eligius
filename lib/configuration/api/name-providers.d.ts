@@ -1,12 +1,13 @@
-export class OperationNamesProvider {
+import { IOperationMetadata } from '../../operation/metadata/types';
+export declare class OperationNamesProvider {
     getOperationNames(): string[];
 }
-export class ControllerNamesProvider {
+export declare class ControllerNamesProvider {
     getControllerNames(): string[];
 }
-export class OperationMetadataProvider {
-    getOperationMetadata(operationName: any): any;
+export declare class OperationMetadataProvider {
+    getOperationMetadata(operationName: string): IOperationMetadata<any>;
 }
-export class TimeLineEventNamesProvider {
+export declare class TimeLineEventNamesProvider {
     getEventNames(): any[];
 }

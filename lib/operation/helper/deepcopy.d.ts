@@ -1,2 +1,1 @@
-declare function deepcopy<T>(original: T): T;
-export default deepcopy;
+export declare function deepcopy<T>(original: T): T;

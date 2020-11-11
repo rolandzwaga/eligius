@@ -1,4 +1,4 @@
-declare class TimelineEventNames {
+export declare class TimelineEventNames {
     static PLAY_TOGGLE_REQUEST: string;
     static PLAY_REQUEST: string;
     static STOP_REQUEST: string;
@@ -36,4 +36,3 @@ declare class TimelineEventNames {
     static REQUEST_CURRENT_LANGUAGE: string;
     static LANGUAGE_CHANGE: string;
 }
-export default TimelineEventNames;

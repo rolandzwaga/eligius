@@ -1,5 +1,6 @@
-import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration, TOperationData } from '../../action/types';
-import ConfigurationFactory from './configuration-factory';
+import { TOperationData } from '../../operation/types';
+import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration } from '../types';
+import { ConfigurationFactory } from './configuration-factory';
 export declare class ActionCreatorFactory {
     private readonly configurationfactory;
     constructor(configurationfactory: ConfigurationFactory);

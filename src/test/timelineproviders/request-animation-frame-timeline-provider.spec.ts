@@ -1,6 +1,6 @@
+import { expect } from 'chai';
 import createStub from 'raf-stub';
 import sinon from 'sinon';
-import { expect } from 'chai';
 
 class MockEventBus {
   on() {}
@@ -8,27 +8,27 @@ class MockEventBus {
 }
 
 describe('RequestAnimationFrameTimelineProvider', () => {
-  let provider = null;
-  let configuration = null;
-  let eventbus = null;
-  let stub = null;
-  let RequestAnimationFrameTimelineProvider = null;
-  let fakeContainer = ['selectedElement'];
+  let provider: any = null;
+  let configuration: any = null;
+  let eventbus: any = null;
+  let stub: any = null;
+  let RequestAnimationFrameTimelineProvider: any = null;
+  let fakeContainer: any = ['selectedElement'];
 
-  function jQueryStub(selector) {
+  function jQueryStub(_selector: string) {
     return fakeContainer;
   }
 
   beforeEach(() => {
     stub = createStub();
-    global.requestAnimationFrame = () => {};
+    global.requestAnimationFrame = (_callback: any): number => -1;
     global.cancelAnimationFrame = () => {};
 
     const inject = require('../../timelineproviders/request-animation-frame-timeline-provider');
 
     RequestAnimationFrameTimelineProvider = inject({
       jquery: jQueryStub,
-    }).default;
+    }).RequestAnimationFrameTimelineProvider;
 
     sinon.stub(global, 'requestAnimationFrame').callsFake(stub.add);
     sinon.stub(global, 'cancelAnimationFrame').callsFake(stub.add);
@@ -47,7 +47,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   });
 
   afterEach(() => {
-    global.requestAnimationFrame.restore();
+    (global.requestAnimationFrame as any).restore();
   });
 
   it('should start', () => {

@@ -1,11 +1,13 @@
-import { IAction, TOperationData, IOperationInfo, IResolvedActionConfiguration, TActionContext } from './types';
+import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
-declare class Action implements IAction {
-    private eventbus;
+import { TActionContext, TOperationData } from '../operation/types';
+import { IAction } from './types';
+export declare class Action implements IAction {
     name: string;
-    startOperations: IOperationInfo[];
-    constructor(actionConfiguration: IResolvedActionConfiguration, eventbus: IEventbus);
+    startOperations: IResolvedOperation[];
+    private eventbus;
+    id: string;
+    constructor(name: string, startOperations: IResolvedOperation[], eventbus: IEventbus);
     start(initOperationData?: TOperationData): Promise<TOperationData>;
-    executeOperation(operations: IOperationInfo[], idx: number, resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void, previousOperationData: TOperationData | undefined, context: TActionContext): void;
+    executeOperation(operations: IResolvedOperation[], idx: number, resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void, previousOperationData: TOperationData | undefined, context: TActionContext): void;
 }
-export default Action;

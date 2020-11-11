@@ -1,12 +1,23 @@
-import { ITimelineProvider } from './types';
+import { IResolvedEngineConfiguration } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
-import { IEngineConfiguration, TResultCallback } from '../types';
-declare class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
-    #private;
+import { TResultCallback } from '../types';
+import { ITimelineProvider } from './types';
+export declare class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
     private eventbus;
     private config;
+    private _requestID;
+    private _last;
+    private _currentPosition;
+    private _updateBound;
+    private _eventbusListeners;
+    private _firstFrame;
+    private _currentPlaylistItem;
+    private _granularity;
+    private _playState;
+    private _playlist;
+    private _containerElement;
     loop: boolean;
-    constructor(eventbus: IEventbus, config: IEngineConfiguration);
+    constructor(eventbus: IEventbus, config: IResolvedEngineConfiguration);
     private _extractPlaylist;
     playlistItem(uri: string): void;
     private _addEventListeners;
@@ -27,4 +38,3 @@ declare class RequestAnimationFrameTimelineProvider implements ITimelineProvider
     getDuration(): number;
     requestDurationHandler(callBack: TResultCallback): void;
 }
-export default RequestAnimationFrameTimelineProvider;

@@ -1,16 +1,21 @@
 import 'mediaelement';
-import { ITimelineProvider } from './types';
+import { IResolvedEngineConfiguration } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
-import { IEngineConfiguration, TResultCallback } from '../types';
-declare class MediaElementTimelineProvider implements ITimelineProvider {
-    #private;
+import { TResultCallback } from '../types';
+import { ITimelineProvider } from './types';
+export declare class MediaElementTimelineProvider implements ITimelineProvider {
     private eventbus;
     private config;
+    private _videoElementId;
+    private _eventbusListeners;
+    private _playlist;
+    private _length;
+    private _urls;
     player: mediaelementjs.MediaElementPlayer | undefined;
     loop: boolean;
-    constructor(eventbus: IEventbus, config: IEngineConfiguration);
+    constructor(eventbus: IEventbus, config: IResolvedEngineConfiguration);
     _addEventListeners(): void;
-    _extractUrls(configuration: IEngineConfiguration): string[];
+    _extractUrls(configuration: IResolvedEngineConfiguration): string[];
     init(): Promise<unknown>;
     private _timeUpdateHandler;
     private _addVideoElements;
@@ -27,4 +32,3 @@ declare class MediaElementTimelineProvider implements ITimelineProvider {
     getPosition(): number;
     _container(resultCallback: TResultCallback): void;
 }
-export default MediaElementTimelineProvider;

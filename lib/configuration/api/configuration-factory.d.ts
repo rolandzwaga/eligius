@@ -1,19 +1,17 @@
+import { ILabel, ILanguageLabel, TimelineTypes } from '../../types';
+import { IActionConfiguration, IEngineConfiguration, ITimelineActionConfiguration, ITimelineConfiguration } from '../types';
 import { ActionCreatorFactory } from './action-creator-factory';
-import { ActionEditor } from './action-editor';
-import { TimelineActionEditor, EndableActionEditor } from './action-editor';
-import TimelineProviderSettingsEditor from './timeline-provider-settings-editor';
-import { ILabel, ILanguageLabel, ITimelineConfiguration, TimelineTypes } from '../../types';
-import { IActionConfiguration, ITimelineActionConfiguration } from '../../action/types';
-import { IEngineConfiguration } from '../../types';
+import { ActionEditor, EndableActionEditor, TimelineActionEditor } from './action-editor';
+import TimelineProvidersSettingsEditor from './timeline-provider-settings-editor';
 export declare type TEngineConfigurationLists = Pick<IEngineConfiguration, 'availableLanguages' | 'initActions' | 'actions' | 'eventActions' | 'timelines' | 'labels'>;
-declare class ConfigurationFactory {
+export declare class ConfigurationFactory {
     actionCreatorFactory: ActionCreatorFactory;
     configuration: IEngineConfiguration;
     constructor(config?: IEngineConfiguration);
     init(defaultLanguage: string): this;
     setDefaultLanguage(defaultLanguage: string): this;
     setContainerSelector(selector: string): this;
-    editTimelineProviderSettings(): TimelineProviderSettingsEditor;
+    editTimelineProviderSettings(): TimelineProvidersSettingsEditor;
     getConfiguration(callBack: (copy: IEngineConfiguration) => IEngineConfiguration): this;
     addLanguage(code: string, languageLabel: string): this;
     _internalAddAction(collectionName: keyof TEngineConfigurationLists, action: IActionConfiguration): void;
@@ -23,7 +21,7 @@ declare class ConfigurationFactory {
     addEventAction(action: IActionConfiguration): void;
     addTimelineAction(uri: string, action: ITimelineActionConfiguration): void;
     createAction(name: string): import("./action-creator-factory").ActionCreator<IActionConfiguration>;
-    createInitAction(name: string): import("./action-creator-factory").EndableActionCreator<import("../../action/types").IEndableActionConfiguration>;
+    createInitAction(name: string): import("./action-creator-factory").EndableActionCreator<import("../types").IEndableActionConfiguration>;
     createEventAction(name: string): import("./action-creator-factory").ActionCreator<IActionConfiguration>;
     createTimelineAction(uri: string, name: string): import("./action-creator-factory").TimelineActionCreator;
     addTimeline(uri: string, type: TimelineTypes, duration: number, loop: boolean, selector: string): this;
@@ -32,9 +30,8 @@ declare class ConfigurationFactory {
     _initializeLabel(id: string, labels: ILanguageLabel[]): ILanguageLabel;
     _getLabelTranslation(labelTranslations: ILabel[], languageCode: string): ILabel;
     addLabel(id: string, code: string, translation: string): this;
-    editAction(id: string): ActionEditor<import("../../action/types").IEndableActionConfiguration>;
-    editEventAction(id: string): ActionEditor<IActionConfiguration>;
-    editInitAction(id: string): EndableActionEditor<import("../../action/types").IEndableActionConfiguration>;
+    editAction(id: string): ActionEditor<import("../types").IEndableActionConfiguration>;
+    editEventAction(id: string): ActionEditor<import("../types").IEventActionConfiguration>;
+    editInitAction(id: string): EndableActionEditor<import("../types").IEndableActionConfiguration>;
     editTimelineAction(uri: string, id: string): TimelineActionEditor;
 }
-export default ConfigurationFactory;

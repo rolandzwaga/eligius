@@ -1,5 +1,6 @@
-import { IActionConfiguration, IEndableActionConfiguration, IOperationConfiguration, ITimelineActionConfiguration, TOperationData } from '../../action/types';
-import ConfigurationFactory from './configuration-factory';
+import { TOperationData } from '../../operation/types';
+import { IActionConfiguration, IEndableActionConfiguration, IOperationConfiguration, ITimelineActionConfiguration } from '../types';
+import { ConfigurationFactory } from './configuration-factory';
 export declare class ActionEditor<T extends IActionConfiguration = IActionConfiguration> {
     protected actionConfig: T;
     protected readonly configurationFactory: ConfigurationFactory;

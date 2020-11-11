@@ -1,6 +1,5 @@
-import { TOperation } from '../action/types';
+import { TOperation } from './types';
 export interface IWaitOperationData {
     milliseconds: number;
 }
-declare const wait: TOperation<IWaitOperationData>;
-export default wait;
+export declare const wait: TOperation<IWaitOperationData>;

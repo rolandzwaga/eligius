@@ -1,3 +1,3 @@
-export { default as Action } from './action';
-export { default as EndableAction } from './endableaction';
-export { default as TimelineAction } from './timelineaction';
+export { Action } from './action';
+export { EndableAction } from './endable-action';
+export { TimelineAction } from './timeline-action';

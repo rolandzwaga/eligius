@@ -1,13 +1,19 @@
-import { ITimelineProvider } from './types';
+import { IResolvedEngineConfiguration } from '../configuration/types';
 import { IEventbus } from '../eventbus/types';
-import { IEngineConfiguration, TResultCallback } from '../types';
-declare class JwPlayerTimelineProvider implements ITimelineProvider {
-    #private;
+import { TResultCallback } from '../types';
+import { ITimelineProvider } from './types';
+export declare class JwPlayerTimelineProvider implements ITimelineProvider {
     private eventbus;
     private config;
+    private _paused;
+    private _player;
+    private _currentLoopHandler;
+    private _eventbusListeners;
+    private _playlist;
+    private _videoElementId;
     loop: boolean;
-    constructor(eventbus: IEventbus, config: IEngineConfiguration);
-    _extractUrls(configuration: IEngineConfiguration): string[];
+    constructor(eventbus: IEventbus, config: IResolvedEngineConfiguration);
+    _extractUrls(configuration: IResolvedEngineConfiguration): string[];
     init(): Promise<any>;
     _handlePlayerReady(resolve: (value: any | PromiseLike<any>) => void): void;
     _handlePlayerComplete(): void;
@@ -34,4 +40,3 @@ declare class JwPlayerTimelineProvider implements ITimelineProvider {
     setMute(state: boolean): void;
     setVolume(volume: number): void;
 }
-export default JwPlayerTimelineProvider;

@@ -1,7 +1,6 @@
-import { IEventInterceptor, IEventbus } from './types';
-declare class RequestVideoUriInterceptor implements IEventInterceptor {
+import { IEventbus, IEventbusInterceptor } from './types';
+export declare class RequestVideoUriInterceptor implements IEventbusInterceptor {
     private eventbus;
     constructor(eventbus: IEventbus);
     intercept(args: any[]): any[];
 }
-export default RequestVideoUriInterceptor;

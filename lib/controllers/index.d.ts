@@ -1,7 +1,7 @@
-export { default as EventListenerController } from './EventListenerController';
-export { default as LabelController } from './LabelController';
-export { default as LottieController } from './LottieController';
-export { default as NavigationController } from './NavigationController';
-export { default as ProgressbarController } from './ProgressbarController';
-export { default as RoutingController } from './RoutingController';
-export { default as SubtitlesController } from './SubtitlesController';
+export { EventListenerController } from './event-listener-controller';
+export { LabelController } from './label-controller';
+export { LottieController } from './lottie-controller';
+export { NavigationController } from './navigation-controller';
+export { ProgressbarController } from './progressbar-controller';
+export { RoutingController } from './routing-controller';
+export { SubtitlesController } from './subtitles-controller';

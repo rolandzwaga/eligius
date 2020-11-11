@@ -1,3 +1,3 @@
-export { default as JwPlayerTimelineProvider } from './jwplayer-timeline-provider';
-export { default as MediaElementTimelineProvider } from './media-element-timeline-provider';
-export { default as RequestAnimationFrameTimelineProvider } from './request-animation-frame-timeline-provider';
+export { JwPlayerTimelineProvider } from './jwplayer-timeline-provider';
+export { MediaElementTimelineProvider } from './media-element-timeline-provider';
+export { RequestAnimationFrameTimelineProvider } from './request-animation-frame-timeline-provider';
