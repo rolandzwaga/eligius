@@ -3,7 +3,7 @@ import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';
 
 export interface IAnimateOperationData {
-  animationEasing: string;
+  animationEasing?: string;
   selectedElement: JQuery;
   animationProperties: any;
   animationDuration: number;

@@ -1,6 +1,6 @@
 import { TOperationData } from '~/operation/types';
 import { deepcopy } from './deepcopy';
-import extractOperationDataArgumentValues from './extract-operation-data-argument-values';
+import { extractOperationDataArgumentValues } from './extract-operation-data-argument-values';
 
 export function resolvePropertyValues(operationData: TOperationData, properties: any) {
   const copy = properties !== operationData ? deepcopy(properties) : properties;

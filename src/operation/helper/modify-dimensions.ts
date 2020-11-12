@@ -99,7 +99,7 @@ function _modifyDimensions(
   return dimensions;
 }
 
-function modifyDimensions(dimensions: IDimensions, modifier: string) {
+export function modifyDimensions(dimensions: IDimensions, modifier: string) {
   let ratioModifier: string | null = null;
   if (modifier.indexOf('|') > -1) {
     [modifier, ratioModifier] = modifier.split('|');
@@ -126,5 +126,3 @@ function modifyDimensions(dimensions: IDimensions, modifier: string) {
     modifyDimensionsByRatio(ratioModifier, dimensions);
   }
 }
-
-export default modifyDimensions;

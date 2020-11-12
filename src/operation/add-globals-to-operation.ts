@@ -6,7 +6,7 @@ export interface IAddGlobalsToOperationData {
   globalProperties: string[];
 }
 
-const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = function (
+export const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = function (
   operationData: IAddGlobalsToOperationData,
   _eventBus: IEventbus
 ) {
@@ -18,5 +18,3 @@ const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = function (
   delete (operationData as any).globalProperties;
   return Object.assign(operationData, globalValues);
 };
-
-export default addGlobalsToOperation;

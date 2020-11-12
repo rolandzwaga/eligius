@@ -4,58 +4,58 @@ import { TimelineEventNames } from '~/timeline-event-names';
 import { ILabel, ILanguageLabel, TResultCallback } from '~/types';
 
 export class LanguageManager {
-  #labelLookup: Record<string, ILabel[]> = {};
-  #eventbusListeners: TEventHandlerRemover[] = [];
+  private _labelLookup: Record<string, ILabel[]> = {};
+  private _eventbusListeners: TEventHandlerRemover[] = [];
 
-  constructor(private currentLanguage: string, labels: ILanguageLabel[], private eventbus: IEventbus) {
-    if (!currentLanguage || !currentLanguage.length) {
+  constructor(private _currentLanguage: string, labels: ILanguageLabel[], private _eventbus: IEventbus) {
+    if (!_currentLanguage || !_currentLanguage.length) {
       throw new Error('language ctor arg cannot be null or have zero length');
     }
     if (!labels) {
       throw new Error('labels ctor arg cannot be null');
     }
-    if (!eventbus) {
+    if (!_eventbus) {
       throw new Error('eventbus ctor arg cannot be null');
     }
-    this._setRootElementLang(currentLanguage);
+    this._setRootElementLang(_currentLanguage);
     this._createLabelLookup(labels);
-    this._addEventbusListeners(eventbus);
+    this._addEventbusListeners(_eventbus);
   }
 
   _addEventbusListeners(eventbus: IEventbus) {
-    this.#eventbusListeners.push(
+    this._eventbusListeners.push(
       eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, this._handleRequestLabelCollection.bind(this))
     );
-    this.#eventbusListeners.push(
+    this._eventbusListeners.push(
       eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, this._handleRequestLabelCollections.bind(this))
     );
-    this.#eventbusListeners.push(
+    this._eventbusListeners.push(
       eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, this._handleRequestCurrentLanguage.bind(this))
     );
-    this.#eventbusListeners.push(
+    this._eventbusListeners.push(
       eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this._handleLanguageChange.bind(this))
     );
   }
 
   _handleRequestCurrentLanguage(resultCallback: TResultCallback) {
-    resultCallback(this.currentLanguage);
+    resultCallback(this._currentLanguage);
   }
 
   _handleRequestLabelCollection(labelId: string, resultCallback: TResultCallback) {
-    resultCallback(this.#labelLookup[labelId]);
+    resultCallback(this._labelLookup[labelId]);
   }
 
   _handleRequestLabelCollections(labelIds: string[], resultCallback: TResultCallback) {
     const labelCollections = labelIds.map((labelId) => {
-      return this.#labelLookup[labelId];
+      return this._labelLookup[labelId];
     });
     resultCallback(labelCollections);
   }
 
   _handleLanguageChange(language: string) {
     if (language && language.length) {
-      this.currentLanguage = language;
-      this._setRootElementLang(this.currentLanguage);
+      this._currentLanguage = language;
+      this._setRootElementLang(this._currentLanguage);
     } else {
       console.error('Language cannot be changed to null or empty string');
     }
@@ -66,7 +66,7 @@ export class LanguageManager {
       const lang = this._extractLanguageFromCulture(language);
       $(rootSelector).attr('lang', lang);
     };
-    this.eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [callBack]);
+    this._eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [callBack]);
   }
 
   _extractLanguageFromCulture(culture: string) {
@@ -78,7 +78,7 @@ export class LanguageManager {
 
   _createLabelLookup(labels: ILanguageLabel[]) {
     labels.forEach((label) => {
-      this.#labelLookup[label.id] = label.labels;
+      this._labelLookup[label.id] = label.labels;
     });
   }
 }

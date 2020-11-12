@@ -3,7 +3,7 @@ import { resolvePropertyValues } from './helper/resolve-property-values';
 import { TOperation } from './types';
 
 export interface ISetOperationData {
-  override: boolean;
+  override?: boolean;
   properties: any;
 }
 

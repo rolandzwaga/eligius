@@ -1,14 +1,14 @@
 import { IEventbus } from '~/eventbus/types';
 import { IOperationContext, TOperation } from './types';
 
-export interface IStartLoopOperationData {
-  collection: any[];
+export type TStartLoopOperationData = {
+  collection: any[] | null;
   propertyName?: string;
-}
+};
 
-export const startLoop: TOperation<IStartLoopOperationData> = function (
+export const startLoop: TOperation<TStartLoopOperationData> = function (
   this: IOperationContext,
-  operationData: IStartLoopOperationData,
+  operationData: TStartLoopOperationData,
   _eventBus: IEventbus
 ) {
   const context = this;

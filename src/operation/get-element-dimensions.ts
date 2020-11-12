@@ -1,11 +1,11 @@
 import { IEventbus } from '~/eventbus/types';
-import modifyDimensions from './helper/modify-dimensions';
+import { modifyDimensions } from './helper/modify-dimensions';
 import { TOperation } from './types';
 
 export interface IGetElementDimensionsOperationData {
   selectedElement: JQuery;
   modifier: string;
-  dimensions: { width?: number; height?: number };
+  dimensions?: { width?: number; height?: number };
 }
 
 export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function (

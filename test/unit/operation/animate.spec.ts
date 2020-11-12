@@ -1,0 +1,64 @@
+import { expect } from 'chai';
+import { animate } from '~/operation/animate';
+
+class MockElement {
+  properties: any;
+  duration: number;
+  easing: number | Function;
+  callback: Function;
+
+  animate(properties, duration, easing, callback) {
+    this.properties = properties;
+    this.duration = duration;
+    if (typeof easing === 'number') {
+      this.easing = easing;
+      this.callback = callback;
+      callback();
+    } else if (typeof easing === 'function') {
+      this.callback = easing;
+      easing();
+    }
+  }
+}
+
+describe('animate', () => {
+  it('should animate with easing when defined', () => {
+    // given
+    const mockElement = new MockElement();
+
+    const operationData = {
+      animationEasing: 'slow',
+      selectedElement: (mockElement as any) as JQuery,
+      animationProperties: {},
+      animationDuration: 5,
+    };
+
+    // test
+    const promise = animate(operationData, {} as any) as Promise<any>;
+
+    // expect
+    return promise.then((data) => {
+      expect(data.selectedElement).to.equal(operationData.selectedElement);
+    });
+  });
+
+  it('should animate without easing when not defined', () => {
+    // given
+    const mockElement = new MockElement();
+
+    const operationData = {
+      selectedElement: (mockElement as any) as JQuery,
+      animationProperties: {},
+      animationDuration: 5,
+    };
+
+    // test
+    const promise = animate(operationData, {} as any) as Promise<any>;
+
+    // expect
+    promise.then((data) => {
+      expect(data.selectedElement).to.equal(operationData.selectedElement);
+    });
+    return promise;
+  });
+});

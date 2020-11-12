@@ -1,4 +1,4 @@
-import getNestedValue from './get-nested-value';
+import { getNestedValue } from './get-nested-value';
 
 export function getNestedPropertyValue(propertyChain: string, sourceObject: any) {
   const properties = propertyChain.split('.');

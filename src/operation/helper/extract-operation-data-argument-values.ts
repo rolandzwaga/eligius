@@ -1,6 +1,6 @@
-import getNestedValue from './get-nested-value';
+import { getNestedValue } from './get-nested-value';
 
-function extractOperationDataArgumentValues(sourceObject: any, argumentValue: string | any) {
+export function extractOperationDataArgumentValues(sourceObject: any, argumentValue: string | any) {
   if (typeof argumentValue === 'string' && argumentValue.toLowerCase().startsWith('operationdata.')) {
     const propNames = argumentValue.split('.');
     propNames.shift();
@@ -8,5 +8,3 @@ function extractOperationDataArgumentValues(sourceObject: any, argumentValue: st
   }
   return argumentValue;
 }
-
-export default extractOperationDataArgumentValues;

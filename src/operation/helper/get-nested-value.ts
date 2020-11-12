@@ -1,4 +1,4 @@
-function getNestedValue(properties: any, sourceObject: any) {
+export function getNestedValue(properties: any, sourceObject: any) {
   if (!properties) {
     throw Error('properties arg cannot be null');
   }
@@ -23,5 +23,3 @@ function getNestedValue(properties: any, sourceObject: any) {
 
   return suffix ? currentInstance + suffix : currentInstance;
 }
-
-export default getNestedValue;

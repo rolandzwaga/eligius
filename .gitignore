@@ -2,3 +2,5 @@
 /examples/requestanimationframe/build
 /examples/mediaelement/build
 /yarn-error.log
+/coverage
+/dist

@@ -1,3 +1,4 @@
+import { IController } from '~/controllers/types';
 import { IEventbus } from '~/eventbus/types';
 import { getElementControllers } from './helper/get-element-data';
 import { TOperation } from './types';
@@ -5,7 +6,7 @@ import { TOperation } from './types';
 export interface IGetControllerFromElementOperationData {
   selectedElement: JQuery;
   controllerName: string;
-  controllerInstance: any;
+  controllerInstance?: IController<any>;
 }
 
 export const getControllerFromElement: TOperation<IGetControllerFromElementOperationData> = function (

@@ -1,7 +1,7 @@
-import { IStartLoopOperationData } from '~/operation/start-loop';
+import { TStartLoopOperationData } from '~/operation/start-loop';
 import { IOperationMetadata } from './types';
 
-function startLoop(): IOperationMetadata<IStartLoopOperationData> {
+function startLoop(): IOperationMetadata<TStartLoopOperationData> {
   return {
     description: 'Starts a loop over the given collection',
     properties: {

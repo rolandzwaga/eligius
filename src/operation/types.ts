@@ -13,4 +13,4 @@ export interface IOperationContext {
 
 export type TOperation<T = TOperationData> = (operationData: T, eventbus: IEventbus) => TOperationResult<T>;
 
-export type TOperationData = Record<string, any>;
+export type TOperationData = any;
