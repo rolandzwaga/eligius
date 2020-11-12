@@ -1,4 +1,4 @@
-import { TOperationData } from '../types';
+import { TOperationData } from '~/operation/types';
 import { deepcopy } from './deepcopy';
 import extractOperationDataArgumentValues from './extract-operation-data-argument-values';
 

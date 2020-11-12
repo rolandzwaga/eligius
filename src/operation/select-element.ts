@@ -1,5 +1,5 @@
-import { IEventbus } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
+import { IEventbus } from '~/eventbus/types';
+import { TimelineEventNames } from '~/timeline-event-names';
 import { TOperation } from './types';
 
 function findElementBySelector(root: JQuery, selector: string, operationData: any, propertyName: string) {

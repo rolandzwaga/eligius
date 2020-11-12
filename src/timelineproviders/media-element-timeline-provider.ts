@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import 'mediaelement';
 import { v4 as uuidv4 } from 'uuid';
-import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '../configuration/types';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { TResultCallback } from '../types';
+import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '~/configuration/types';
+import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
+import { TimelineEventNames } from '~/timeline-event-names';
+import { TResultCallback } from '~/types';
 import { ITimelineProvider } from './types';
 
 const { MediaElementPlayer } = global as any;

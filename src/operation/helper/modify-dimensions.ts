@@ -1,4 +1,4 @@
-import { IDimensions } from '../../types';
+import { IDimensions } from '~/types';
 
 function modifyDimensionsByRatio(ratioModifier: string, dimensions: IDimensions) {
   //h[ar=8-1]

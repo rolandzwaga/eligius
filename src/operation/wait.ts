@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';
 

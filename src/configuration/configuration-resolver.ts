@@ -1,11 +1,11 @@
 import { isDefined } from 'ts-is-present';
-import { Action, EndableAction, TimelineAction } from '../action';
-import { IAction } from '../action/types';
-import { ActionRegistryEventbusListener } from '../eventbus';
-import { IEventbus } from '../eventbus/types';
-import { deepcopy } from '../operation/helper/deepcopy';
-import { getNestedPropertyValue } from '../operation/helper/get-nested-property-value';
-import { IConfigurationResolver, IResourceImporter } from '../types';
+import { Action, EndableAction, TimelineAction } from '~/action';
+import { IAction } from '~/action/types';
+import { ActionRegistryEventbusListener } from '~/eventbus';
+import { IEventbus } from '~/eventbus/types';
+import { deepcopy } from '~/operation/helper/deepcopy';
+import { getNestedPropertyValue } from '~/operation/helper/get-nested-property-value';
+import { IConfigurationResolver, IResourceImporter } from '~/types';
 import {
   IActionConfiguration,
   IEndableActionConfiguration,

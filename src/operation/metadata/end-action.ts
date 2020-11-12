@@ -1,4 +1,4 @@
-import { IEndActionOperationData } from '../end-action';
+import { IEndActionOperationData } from '~/operation/end-action';
 import { IOperationMetadata } from './types';
 
 function endAction(): IOperationMetadata<IEndActionOperationData> {

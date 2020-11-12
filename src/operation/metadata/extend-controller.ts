@@ -1,4 +1,4 @@
-import { IExtendControllerOperationData } from '../extend-controller';
+import { IExtendControllerOperationData } from '~/operation/extend-controller';
 import { IOperationMetadata } from './types';
 
 function extendController(): IOperationMetadata<IExtendControllerOperationData> {

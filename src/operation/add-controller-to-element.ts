@@ -1,5 +1,5 @@
-import { IController } from '../controllers/types';
-import { IEventbus } from '../eventbus/types';
+import { IController } from '~/controllers/types';
+import { IEventbus } from '~/eventbus/types';
 import attachControllerToElement from './helper/attach-controller-to-element';
 import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';

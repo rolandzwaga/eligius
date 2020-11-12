@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { removeEventDataFromOperationData } from './helper/remove-event-data-from-operation-data';
 import { resolveEventArguments } from './helper/resolve-event-arguments';
 import { TOperation } from './types';

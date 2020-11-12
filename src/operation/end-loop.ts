@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { IOperationContext, TOperation } from './types';
 
 export const endLoop: TOperation<never> = function (
@@ -8,7 +8,7 @@ export const endLoop: TOperation<never> = function (
 ) {
   const context = this;
 
-  if (!context.skip) {
+  if (!context.skipNextOperation) {
     if (context.loopIndex !== undefined && context.loopLength !== undefined && context.loopIndex < context.loopLength) {
       context.loopIndex = context.loopIndex + 1;
       context.newIndex = context.startIndex;
@@ -19,7 +19,7 @@ export const endLoop: TOperation<never> = function (
       delete context.newIndex;
     }
   } else {
-    delete context.skip;
+    delete context.skipNextOperation;
   }
 
   return operationData;

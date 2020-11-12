@@ -39,13 +39,13 @@ describe('startLoop', () => {
     expect(context.loopIndex).to.be.undefined;
     expect(context.loopLength).to.be.undefined;
     expect(context.startIndex).to.be.undefined;
-    expect(context.skip).to.be.true;
+    expect(context.skipNextOperation).to.be.true;
     expect(result.test).to.be.undefined;
   });
 
   it('should set the context when a null collection is passed in', () => {
     // given
-    const context = {
+    const context: IOperationContext = {
       currentIndex: 10,
     };
     const operationData = {
@@ -60,7 +60,7 @@ describe('startLoop', () => {
     expect(context.loopIndex).to.be.undefined;
     expect(context.loopLength).to.be.undefined;
     expect(context.startIndex).to.be.undefined;
-    expect(context.skip).to.be.true;
+    expect(context.skipNextOperation).to.be.true;
     expect(result.test).to.be.undefined;
   });
 });

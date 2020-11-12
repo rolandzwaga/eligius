@@ -1,12 +1,12 @@
 import $ from 'jquery';
-import { IEndableAction, ITimelineAction } from './action/types';
-import { IResolvedEngineConfiguration } from './configuration/types';
-import { IEventbus, TEventHandlerRemover } from './eventbus/types';
-import { LanguageManager } from './language-manager';
-import { TOperation } from './operation/types';
-import { TimelineEventNames } from './timeline-event-names';
-import { ITimelineProvider } from './timelineproviders/types';
-import { IChronoTriggerEngine, ITimelineProviderInfo, TimelineTypes, TResultCallback } from './types';
+import { IEndableAction, ITimelineAction } from '~/action/types';
+import { IResolvedEngineConfiguration } from '~/configuration/types';
+import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
+import { LanguageManager } from '~/language-manager';
+import { TOperation } from '~/operation/types';
+import { TimelineEventNames } from '~/timeline-event-names';
+import { ITimelineProvider } from '~/timelineproviders/types';
+import { IChronoTriggerEngine, ITimelineProviderInfo, TimelineTypes, TResultCallback } from '~/types';
 
 /**
  * ChronoTriggerEngine, this is where the magic happens. The engine is responsible for starting and stoppping

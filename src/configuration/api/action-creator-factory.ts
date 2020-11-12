@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import * as operations from '../../operation';
-import { deepcopy } from '../../operation/helper/deepcopy';
-import { TOperationData } from '../../operation/types';
-import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration } from '../types';
+import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration } from '~/configuration/types';
+import * as operations from '~/operation';
+import { deepcopy } from '~/operation/helper/deepcopy';
+import { TOperationData } from '~/operation/types';
 import { ConfigurationFactory } from './configuration-factory';
 
 export class ActionCreatorFactory {

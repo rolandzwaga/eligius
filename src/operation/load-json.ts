@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { TOperation } from './types';
 
 const jsonCache: Record<string, any> = {};

@@ -1,6 +1,6 @@
 const engineConfig = require('EngineConfig');
-import { EngineFactory } from './engine-factory';
-import { WebpackResourceImporter } from './importer/webpack-resource-importer';
+import { EngineFactory } from '~/engine-factory';
+import { WebpackResourceImporter } from '~/importer/webpack-resource-importer';
 
 const factory = new EngineFactory(new WebpackResourceImporter(), window);
 const engine = factory.createEngine(engineConfig);

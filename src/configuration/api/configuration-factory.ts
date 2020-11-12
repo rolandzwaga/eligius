@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { deepcopy } from '../../operation/helper/deepcopy';
-import { ILabel, ILanguageLabel, TimelineTypes } from '../../types';
 import {
   IActionConfiguration,
   IEngineConfiguration,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
-} from '../types';
+} from '~/configuration/types';
+import { deepcopy } from '~/operation/helper/deepcopy';
+import { ILabel, ILanguageLabel, TimelineTypes } from '~/types';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor, EndableActionEditor, TimelineActionEditor } from './action-editor';
 import TimelineProvidersSettingsEditor from './timeline-provider-settings-editor';

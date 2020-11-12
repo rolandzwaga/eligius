@@ -1,4 +1,4 @@
-import { IReparentElementOperationData } from '../reparent-element';
+import { IReparentElementOperationData } from '~/operation/reparent-element';
 import { IOperationMetadata } from './types';
 
 function reparentElement(): IOperationMetadata<IReparentElementOperationData> {

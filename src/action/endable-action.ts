@@ -1,6 +1,6 @@
-import { IResolvedOperation } from '../configuration/types';
-import { IEventbus } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
+import { IResolvedOperation } from '~/configuration/types';
+import { IEventbus } from '~/eventbus/types';
+import { IOperationContext, TOperationData } from '~/operation/types';
 import { Action } from './action';
 
 export class EndableAction extends Action {
@@ -15,7 +15,7 @@ export class EndableAction extends Action {
 
   end(initOperationData?: TOperationData): Promise<TOperationData> {
     if (this.endOperations.length) {
-      const context = {};
+      const context: IOperationContext = { currentIndex: -1 };
       const idx = 0;
       const result = new Promise<TOperationData>((resolve, reject) => {
         this.executeOperation(this.endOperations, idx, resolve, reject, initOperationData, context);

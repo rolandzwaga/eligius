@@ -1,5 +1,5 @@
-import { IAction } from '../action/types';
-import { IEventbus } from '../eventbus/types';
+import { IAction } from '~/action/types';
+import { IEventbus } from '~/eventbus/types';
 import { internalResolve } from './helper/internal-resolve';
 import { mergeOperationData } from './helper/merge-operation-data';
 import { TOperation } from './types';

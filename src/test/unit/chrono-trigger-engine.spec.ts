@@ -2,11 +2,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 class LanguageManagerStub {
-  constructor(language, labels, eventbus) {
-    this.language = language;
-    this.labels = labels;
-    this.eventbus = eventbus;
-  }
+  constructor(public language: string, public labels: any[], public eventbus: IEventbus) {}
 }
 
 describe('ChronoTriggerEngine', () => {

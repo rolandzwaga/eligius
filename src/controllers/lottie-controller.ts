@@ -1,6 +1,6 @@
 import lottie, { AnimationItem } from 'lottie-web';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
+import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
+import { TimelineEventNames } from '~/timeline-event-names';
 import { IController } from './types';
 
 export interface IInnerMetadata {

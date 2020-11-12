@@ -1,7 +1,7 @@
-import { IResolvedOperation } from '../configuration/types';
-import { IEventbus } from '../eventbus/types';
-import { deepcopy } from '../operation/helper/deepcopy';
-import { TActionContext, TOperationData, TOperationResult } from '../operation/types';
+import { IResolvedOperation } from '~/configuration/types';
+import { IEventbus } from '~/eventbus/types';
+import { deepcopy } from '~/operation/helper/deepcopy';
+import { IOperationContext, TOperationData, TOperationResult } from '~/operation/types';
 import { isPromise } from './is-promise';
 import { IAction } from './types';
 
@@ -11,7 +11,7 @@ export class Action implements IAction {
   constructor(public name: string, public startOperations: IResolvedOperation[], private eventbus: IEventbus) {}
 
   start(initOperationData?: TOperationData): Promise<TOperationData> {
-    const context = {};
+    const context: IOperationContext = { currentIndex: -1 };
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData, context);
     }).catch((e) => {
@@ -27,16 +27,17 @@ export class Action implements IAction {
     idx: number,
     resolve: (value?: any | PromiseLike<any>) => void,
     reject: (reason?: any) => void,
-    previousOperationData: TOperationData | undefined,
-    context: TActionContext
+    previousOperationData: TOperationData | undefined = {},
+    context: IOperationContext
   ): void {
-    previousOperationData = previousOperationData || {};
-    if (context.hasOwnProperty('newIndex')) {
+    if (context.newIndex !== undefined) {
       idx = context.newIndex;
       delete context.newIndex;
     }
+
     context.currentIndex = idx;
-    if (context.skip) {
+
+    if (context.skipNextOperation) {
       if (idx < operations.length) {
         this.executeOperation(operations, ++idx, resolve, reject, previousOperationData, context);
       } else {

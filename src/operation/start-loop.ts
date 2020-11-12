@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { IOperationContext, TOperation } from './types';
 
 export interface IStartLoopOperationData {
@@ -12,20 +12,19 @@ export const startLoop: TOperation<IStartLoopOperationData> = function (
   _eventBus: IEventbus
 ) {
   const context = this;
-  const { collection } = operationData;
-  const { propertyName = 'currentItem' } = operationData;
+  const { collection, propertyName = 'currentItem' } = operationData;
 
-  if (!context.loopIndex) {
-    if (collection && collection.length) {
+  if (context.loopIndex === undefined) {
+    if (collection?.length) {
       context.loopIndex = 0;
       context.loopLength = collection.length - 1;
       context.startIndex = context.currentIndex;
     } else {
-      context.skip = true;
+      context.skipNextOperation = true;
     }
   }
 
-  if (collection && collection.length && context.loopIndex) {
+  if (collection?.length && context.loopIndex !== undefined) {
     (operationData as any)[propertyName] = collection[context.loopIndex];
   }
 

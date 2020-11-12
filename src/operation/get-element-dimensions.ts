@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import modifyDimensions from './helper/modify-dimensions';
 import { TOperation } from './types';
 

@@ -1,4 +1,4 @@
-import { IAnimateWithClassOperationData } from '../animate-with-class';
+import { IAnimateWithClassOperationData } from '~/operation/animate-with-class';
 import { IOperationMetadata } from './types';
 
 function animateWithClass(): IOperationMetadata<IAnimateWithClassOperationData> {

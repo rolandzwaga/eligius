@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '../configuration/types';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { TResultCallback } from '../types';
+import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '~/configuration/types';
+import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
+import { TimelineEventNames } from '~/timeline-event-names';
+import { TResultCallback } from '~/types';
 import { ITimelineProvider } from './types';
 
 type TUpdateMethod = (now: number) => void;

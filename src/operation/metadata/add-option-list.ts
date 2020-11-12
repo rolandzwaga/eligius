@@ -1,4 +1,4 @@
-import { IAddOptionListOperationData } from '../add-option-list';
+import { IAddOptionListOperationData } from '~/operation/add-option-list';
 import { IOperationMetadata } from './types';
 
 function addOptionList(): IOperationMetadata<IAddOptionListOperationData> {

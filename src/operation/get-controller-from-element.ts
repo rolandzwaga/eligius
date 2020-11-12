@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { getElementControllers } from './helper/get-element-data';
 import { TOperation } from './types';
 

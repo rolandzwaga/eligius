@@ -1,4 +1,4 @@
-import { ISetElementAttributesOperationData } from '../set-element-attributes';
+import { ISetElementAttributesOperationData } from '~/operation/set-element-attributes';
 import { IOperationMetadata } from './types';
 
 function setElementAttributes(): IOperationMetadata<ISetElementAttributesOperationData> {

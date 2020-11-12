@@ -1,5 +1,5 @@
-import { IResolvedEngineConfiguration, ITimelineFlow } from './configuration/types';
-import { IEventbus } from './eventbus/types';
+import { IResolvedEngineConfiguration, ITimelineFlow } from '~/configuration/types';
+import { IEventbus } from '~/eventbus/types';
 
 export class ChronoTriggerFlowController {
   timelineFlow?: ITimelineFlow;

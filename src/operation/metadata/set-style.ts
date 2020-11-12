@@ -1,4 +1,4 @@
-import { ISetStyleOperationData } from '../set-style';
+import { ISetStyleOperationData } from '~/operation/set-style';
 import { IOperationMetadata } from './types';
 
 function setStyle(): IOperationMetadata<ISetStyleOperationData> {

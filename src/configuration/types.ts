@@ -1,6 +1,6 @@
-import { IEndableAction, ITimelineAction } from '../action/types';
-import { TOperation, TOperationData } from '../operation/types';
-import { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '../types';
+import { IEndableAction, ITimelineAction } from '~/action/types';
+import { TOperation, TOperationData } from '~/operation/types';
+import { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '~/types';
 
 export interface IEngineInfo {
   systemName: string;

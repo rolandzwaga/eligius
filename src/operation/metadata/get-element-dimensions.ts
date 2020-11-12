@@ -1,4 +1,4 @@
-import { IGetElementDimensionsOperationData } from '../get-element-dimensions';
+import { IGetElementDimensionsOperationData } from '~/operation/get-element-dimensions';
 import { IOperationMetadata } from './types';
 
 function getElementDimensions(): IOperationMetadata<IGetElementDimensionsOperationData> {

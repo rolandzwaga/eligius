@@ -1,4 +1,4 @@
-import { IStartActionOperationData } from '../start-action';
+import { IStartActionOperationData } from '~/operation/start-action';
 import { IOperationMetadata } from './types';
 
 function startAction(): IOperationMetadata<IStartActionOperationData> {

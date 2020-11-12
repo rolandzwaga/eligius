@@ -1,4 +1,4 @@
-import { IResizeActionOperationData } from '../resize-action';
+import { IResizeActionOperationData } from '~/operation/resize-action';
 import { IOperationMetadata } from './types';
 
 function resizeAction(): IOperationMetadata<IResizeActionOperationData> {

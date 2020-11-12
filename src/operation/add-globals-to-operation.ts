@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 import { getGlobals } from './helper/get-globals';
 import { TOperation } from './types';
 

@@ -1,4 +1,4 @@
-import { IRemoveClassOperationData } from '../remove-class';
+import { IRemoveClassOperationData } from '~/operation/remove-class';
 import { IOperationMetadata } from './types';
 
 function removeClass(): IOperationMetadata<IRemoveClassOperationData> {

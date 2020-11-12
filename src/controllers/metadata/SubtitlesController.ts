@@ -1,4 +1,4 @@
-import { ISubtitlesControllerOperationData } from '../subtitles-controller';
+import { ISubtitlesControllerOperationData } from '~/controllers/subtitles-controller';
 import { IControllerMetadata } from './types';
 
 function SubtitlesController(): IControllerMetadata<ISubtitlesControllerOperationData> {

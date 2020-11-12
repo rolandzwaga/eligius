@@ -1,5 +1,5 @@
-import { IController } from '../controllers/types';
-import { IEventbus } from '../eventbus/types';
+import { IController } from '~/controllers/types';
+import { IEventbus } from '~/eventbus/types';
 import { TOperation } from './types';
 
 export interface IExtendControllerOperationData {

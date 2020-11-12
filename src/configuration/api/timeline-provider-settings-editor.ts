@@ -1,6 +1,6 @@
-import * as timelineProviders from '../../timelineproviders';
-import { TimelineTypes } from '../../types';
-import { ITimelineProviderSettings } from '../types';
+import { ITimelineProviderSettings } from '~/configuration/types';
+import * as timelineProviders from '~/timelineproviders';
+import { TimelineTypes } from '~/types';
 import { ConfigurationFactory } from './configuration-factory';
 
 export default class TimelineProvidersSettingsEditor {

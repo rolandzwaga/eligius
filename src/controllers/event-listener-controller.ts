@@ -1,8 +1,8 @@
-import { IEndableAction } from '../action/types';
-import { IEventbus } from '../eventbus/types';
-import { deepcopy } from '../operation/helper/deepcopy';
-import { TOperationData } from '../operation/types';
-import { TimelineEventNames } from '../timeline-event-names';
+import { IEndableAction } from '~/action/types';
+import { IEventbus } from '~/eventbus/types';
+import { deepcopy } from '~/operation/helper/deepcopy';
+import { TOperationData } from '~/operation/types';
+import { TimelineEventNames } from '~/timeline-event-names';
 import { IController } from './types';
 
 interface IActionInstanceInfo {

@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import { v4 as uuidv4 } from 'uuid';
-import { IResolvedEngineConfiguration } from '../configuration/types';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { TResultCallback } from '../types';
+import { IResolvedEngineConfiguration } from '~/configuration/types';
+import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
+import { TimelineEventNames } from '~/timeline-event-names';
+import { TResultCallback } from '~/types';
 import { ITimelineProvider } from './types';
 
 export class JwPlayerTimelineProvider implements ITimelineProvider {

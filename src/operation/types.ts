@@ -1,4 +1,4 @@
-import { IEventbus } from '../eventbus/types';
+import { IEventbus } from '~/eventbus/types';
 
 export type TOperationResult<T = TOperationData> = Promise<T> | T;
 
@@ -8,11 +8,9 @@ export interface IOperationContext {
   startIndex?: number;
   newIndex?: number;
   currentIndex: number;
-  skip?: boolean;
+  skipNextOperation?: boolean;
 }
 
 export type TOperation<T = TOperationData> = (operationData: T, eventbus: IEventbus) => TOperationResult<T>;
 
 export type TOperationData = Record<string, any>;
-
-export type TActionContext = Record<string, any>;

@@ -1,4 +1,4 @@
-import { IRequestActionOperationData } from '../request-action';
+import { IRequestActionOperationData } from '~/operation/request-action';
 import { IOperationMetadata } from './types';
 
 function requestAction(): IOperationMetadata<IRequestActionOperationData> {

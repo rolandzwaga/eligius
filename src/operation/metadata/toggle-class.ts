@@ -1,4 +1,4 @@
-import { IToggleClassOperationData } from '../toggle-class';
+import { IToggleClassOperationData } from '~/operation/toggle-class';
 import { IOperationMetadata } from './types';
 
 function toggleClass(): IOperationMetadata<IToggleClassOperationData> {

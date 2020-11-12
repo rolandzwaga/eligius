@@ -1,9 +1,9 @@
-﻿import * as m from '..';
-import * as ctrls from '../controllers';
-import * as ops from '../operation';
-import { TOperation } from '../operation/types';
-import * as prvdrs from '../timelineproviders';
-import { IResourceImporter } from '../types';
+﻿import * as ctrls from '~/controllers';
+import * as m from '~/index';
+import * as ops from '~/operation';
+import { TOperation } from '~/operation/types';
+import * as prvdrs from '~/timelineproviders';
+import { IResourceImporter } from '~/types';
 
 const operations: Record<string, TOperation<any>> = ops as any;
 const controllers: Record<string, any> = ctrls;

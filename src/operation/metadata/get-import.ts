@@ -1,4 +1,4 @@
-import { IGetImportOperationData } from '../get-import';
+import { IGetImportOperationData } from '~/operation/get-import';
 import { IOperationMetadata } from './types';
 
 function getImport(): IOperationMetadata<IGetImportOperationData> {

@@ -1,7 +1,7 @@
-import { IAction } from './action/types';
-import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
-import { IEventbusListener } from './eventbus/types';
-import { ITimelineProvider } from './timelineproviders/types';
+import { IAction } from '~/action/types';
+import { IEngineConfiguration, IResolvedEngineConfiguration } from '~/configuration/types';
+import { IEventbusListener } from '~/eventbus/types';
+import { ITimelineProvider } from '~/timelineproviders/types';
 
 export interface IEngineFactory {
   createEngine(engineConfig: IEngineConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine;

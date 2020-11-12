@@ -6,8 +6,7 @@ export interface IOperationContext {
     startIndex?: number;
     newIndex?: number;
     currentIndex: number;
-    skip?: boolean;
+    skipNextOperation?: boolean;
 }
 export declare type TOperation<T = TOperationData> = (operationData: T, eventbus: IEventbus) => TOperationResult<T>;
 export declare type TOperationData = Record<string, any>;
-export declare type TActionContext = Record<string, any>;

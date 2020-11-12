@@ -1,5 +1,5 @@
+import { IAnimateOperationData } from '~/operation/animate';
 import { IOperationMetadata } from './types';
-import { IAnimateOperationData } from '../animate';
 
 function animate(): IOperationMetadata<IAnimateOperationData> {
   return {

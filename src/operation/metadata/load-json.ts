@@ -1,4 +1,4 @@
-import { ILoadJSONOperationData } from '../load-json';
+import { ILoadJSONOperationData } from '~/operation/load-json';
 import { IOperationMetadata } from './types';
 
 function loadJSON(): IOperationMetadata<ILoadJSONOperationData> {
