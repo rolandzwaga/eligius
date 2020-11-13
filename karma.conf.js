@@ -1,8 +1,7 @@
-// , { pattern: 'src/test/**/*.+(ts)' }
 module.exports = function (config) {
   config.set({
     frameworks: ['jasmine', 'karma-typescript'],
-    files: ['test/**/*.spec.ts'],
+    files: ['src/test/**/*.spec.ts'],
     preprocessors: {
       '**/*.ts': 'karma-typescript',
     },

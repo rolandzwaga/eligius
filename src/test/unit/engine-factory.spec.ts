@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-const inject = require('inject-loader!~/engine-factory');
+import { EngineFactory } from '~/engine-factory';
 
 class MockImporter {
   import(name) {
@@ -18,7 +18,7 @@ class MockEngine {
   provider: any;
   languageManager: any;
 
-  constructor(config, eventbus, provider, languageManager) {
+  constructor(config: any, eventbus: any, provider: any, languageManager: any) {
     this.config = config;
     this.eventbus = eventbus;
     this.provider = provider;
@@ -27,7 +27,7 @@ class MockEngine {
 }
 
 class MockEventbus {
-  registerInterceptor(_name, _instance) {
+  registerInterceptor(_name: any, _instance: any) {
     return {};
   }
 }
@@ -35,42 +35,24 @@ class MockEventbus {
 class MockTimelineProvider {}
 
 class ConfigurationResolverStub {
-  process(_actionRegistryListener, _configuration) {}
+  process(_actionRegistryListener: any, _configuration: any) {}
 }
 
 describe('EngineFactory', () => {
-  let EngineFactory;
   let windowRef = {};
   let resizer;
-
-  beforeEach(() => {
-    EngineFactory = null;
-
-    EngineFactory = inject({
-      jquery: jQueryStub,
-      './configuration/configuration-resolver': ConfigurationResolverStub,
-      mousetrap: {
-        bind: () => {},
-      },
-    }).EngineFactory;
-  });
-
-  function jQueryStub(windowInst) {
-    expect(windowInst).to.equal(windowRef);
-    return resizer;
-  }
 
   it('should create', () => {
     // given
     const importer = new MockImporter();
     resizer = {
-      resize: (handler) => {
+      resize: (handler: any) => {
         expect(handler).to.not.equal(null);
       },
     };
 
     // test
-    const factory = new EngineFactory(importer, windowRef);
+    const factory = new EngineFactory(importer as any, windowRef);
 
     // expect
     expect(factory).not.to.be.null;
@@ -79,7 +61,7 @@ describe('EngineFactory', () => {
   it('should create the engine', () => {
     // given
     const importer = new MockImporter();
-    const factory = new EngineFactory(importer, windowRef);
+    const factory = new EngineFactory(importer as any, windowRef);
 
     const config = {
       engine: {
@@ -110,6 +92,6 @@ describe('EngineFactory', () => {
     };
 
     // test
-    factory.createEngine(config);
+    factory.createEngine(config as any);
   });
 });

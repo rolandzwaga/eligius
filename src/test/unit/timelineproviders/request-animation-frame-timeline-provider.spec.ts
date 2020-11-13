@@ -1,6 +1,5 @@
 import { expect } from 'chai';
-const inject = require('../../timelineproviders/request-animation-frame-timeline-provider');
-
+import { RequestAnimationFrameTimelineProvider } from '~/timelineproviders/request-animation-frame-timeline-provider';
 class MockEventBus {
   on() {}
   broadcast() {}
@@ -17,10 +16,6 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   }
 
   beforeEach(() => {
-    const RequestAnimationFrameTimelineProvider = inject({
-      jquery: jQueryStub,
-    }).RequestAnimationFrameTimelineProvider;
-
     configuration = {
       timelines: [
         {

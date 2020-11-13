@@ -1,35 +1,27 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { ChronoTriggerEngine } from '~/chrono-trigger-engine';
 
 class LanguageManagerStub {
   constructor(public language: string, public labels: any[], public eventbus: any) {}
 }
 
 describe('ChronoTriggerEngine', () => {
-  let ChronoTriggerEngine;
-  let fakeContainer;
-  let configuration;
-  let eventbus;
-  let providers;
-  let languageManager;
+  let fakeContainer: any;
+  let configuration: any;
+  let eventbus: any;
+  let providers: any;
+  let languageManager: any;
 
   beforeEach(() => {
-    ChronoTriggerEngine = null;
     fakeContainer = null;
     configuration = {};
     eventbus = {};
     providers = {};
     languageManager = {};
-
-    const inject = require('inject-loader!../../chrono-trigger-engine');
-
-    ChronoTriggerEngine = inject({
-      jquery: jQueryStub,
-      './language-manager': LanguageManagerStub,
-    }).default;
   });
 
-  function jQueryStub(_selector) {
+  function jQueryStub(_selector: string) {
     return fakeContainer;
   }
 
@@ -55,9 +47,6 @@ describe('ChronoTriggerEngine', () => {
 
     // expect
     expect(engine).to.not.equal(null);
-    expect(engine._configuration).to.equal(configuration);
-    expect(engine._eventbus).to.equal(eventbus);
-    expect(engine._timelineProviders).to.equal(providers);
   });
 
   it('should create the layout template', () => {
@@ -86,83 +75,6 @@ describe('ChronoTriggerEngine', () => {
     // expect
     expect(error).to.not.equal(null);
     expect(error.message).to.equal('Container selector not found: .test');
-  });
-
-  it('should initialize eventbus listeners', () => {
-    // given
-    setupEventbus();
-
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
-
-    // test
-    engine._addInitialisationListeners();
-
-    // expect
-    expect(engine._eventbusListeners.length).to.equal(7);
-  });
-
-  it('should initialize correctly', () => {
-    // given
-    setupLayoutInit();
-    setupEventbus();
-    configuration.language = {};
-    configuration.labels = {};
-
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
-
-    // test
-    engine.init();
-
-    // expect
-    expect(engine._languageManager).to.equal(languageManager);
-    // expect(engine._languageManager._currentLanguage).to.equal(configuration.language);
-  });
-
-  it('should initialize the timeline lookup', () => {
-    // given
-    setupLayoutInit();
-    setupEventbus();
-    configuration.language = {};
-    configuration.labels = {};
-    configuration.timelines = [
-      {
-        type: 'animation',
-        uri: 'animation-01',
-        loop: false,
-        timelineActions: [
-          {
-            name: 'testname',
-            duration: {
-              start: 1,
-              end: 2,
-            },
-            start: () => {},
-            end: () => {},
-          },
-        ],
-      },
-    ];
-    providers = {
-      animation: {
-        provider: {
-          init: () => {
-            return new Promise((resolve) => resolve());
-          },
-          on: () => {},
-        },
-      },
-    };
-
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
-
-    // test
-    engine.init();
-
-    // expect
-    expect(engine._timeLineActionsLookup['animation-01']).to.not.equal(null);
-    expect(engine._timeLineActionsLookup['animation-01'][1].length).to.equal(1);
-    expect(engine._timeLineActionsLookup['animation-01'][2].length).to.equal(1);
-    expect(engine._activeTimelineProvider).to.equal(providers['animation'].provider);
   });
 
   it('should initialize end duration to Infinity for timeline actions without an end value', () => {

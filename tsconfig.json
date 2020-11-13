@@ -29,6 +29,6 @@
     "enable": true
   },
   "typeRoots": ["./typings.d.ts", "./node_modules/@types"],
-  "exclude": ["node_modules", "dist", "src/test"],
+  "exclude": ["node_modules", "dist"],
   "include": ["src"]
 }

@@ -1,23 +1,13 @@
 import { expect } from 'chai';
-const inject = require('~/operation/create-element');
+import { createElement } from '~/operation/create-element';
 
 describe('createElement', () => {
-  let createElement = null;
-
-  beforeEach(() => {
-    createElement = null;
-
-    createElement = inject({
-      jquery: (input) => input,
-    }).default;
-  });
-
   it('should create a simple element', () => {
     // given
-    const operationData = { elementName: 'div' };
+    const operationData: any = { elementName: 'div' };
 
     // test
-    const newData: any = createElement(operationData);
+    const newData: any = createElement(operationData, {} as any);
 
     // expect
     expect(newData.template).to.equal('<div/>');
@@ -25,10 +15,10 @@ describe('createElement', () => {
 
   it('should create a simple element with text', () => {
     // given
-    const operationData = { elementName: 'div', text: 'test' };
+    const operationData: any = { elementName: 'div', text: 'test' };
 
     // test
-    const newData: any = createElement(operationData);
+    const newData: any = createElement(operationData, {} as any);
 
     // expect
     expect(newData.template).to.equal('<div>test</div>');
@@ -36,7 +26,7 @@ describe('createElement', () => {
 
   it('should create an element with attributes', () => {
     // given
-    const operationData = {
+    const operationData: any = {
       elementName: 'div',
       attributes: {
         class: 'test',
@@ -45,7 +35,7 @@ describe('createElement', () => {
     };
 
     // test
-    const newData: any = createElement(operationData);
+    const newData: any = createElement(operationData, {} as any);
 
     // expect
     expect(newData.template).to.equal('<div class="test" id="testmore"/>');
@@ -53,7 +43,7 @@ describe('createElement', () => {
 
   it('should create an element with attributes and text', () => {
     // given
-    const operationData = {
+    const operationData: any = {
       elementName: 'div',
       attributes: {
         class: 'testClass',
@@ -63,7 +53,7 @@ describe('createElement', () => {
     };
 
     // test
-    const newData: any = createElement(operationData);
+    const newData: any = createElement(operationData, {} as any);
 
     // expect
     expect(newData.template).to.equal('<div class="testClass" id="testId">test text</div>');

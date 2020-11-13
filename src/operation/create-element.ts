@@ -5,7 +5,7 @@ import { TOperation } from './types';
 
 export interface ICreateElementOperationData {
   elementName: string;
-  attributes: any;
+  attributes?: any;
   text: string;
   template: JQuery;
 }
