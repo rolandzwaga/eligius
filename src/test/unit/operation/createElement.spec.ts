@@ -10,7 +10,7 @@ describe('createElement', () => {
     const newData: any = createElement(operationData, {} as any);
 
     // expect
-    expect(newData.template).to.equal('<div/>');
+    expect(newData.template.prop('outerHTML')).to.equal('<div></div>');
   });
 
   it('should create a simple element with text', () => {
@@ -21,7 +21,7 @@ describe('createElement', () => {
     const newData: any = createElement(operationData, {} as any);
 
     // expect
-    expect(newData.template).to.equal('<div>test</div>');
+    expect(newData.template.prop('outerHTML')).to.equal('<div>test</div>');
   });
 
   it('should create an element with attributes', () => {
@@ -38,7 +38,7 @@ describe('createElement', () => {
     const newData: any = createElement(operationData, {} as any);
 
     // expect
-    expect(newData.template).to.equal('<div class="test" id="testmore"/>');
+    expect(newData.template.prop('outerHTML')).to.equal('<div class="test" id="testmore"></div>');
   });
 
   it('should create an element with attributes and text', () => {
@@ -56,6 +56,6 @@ describe('createElement', () => {
     const newData: any = createElement(operationData, {} as any);
 
     // expect
-    expect(newData.template).to.equal('<div class="testClass" id="testId">test text</div>');
+    expect(newData.template.prop('outerHTML')).to.equal('<div class="testClass" id="testId">test text</div>');
   });
 });

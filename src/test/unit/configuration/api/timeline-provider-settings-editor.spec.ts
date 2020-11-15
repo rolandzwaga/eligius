@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import { TimelineProviderSettingsEditor } from '~/configuration/api/timeline-provider-settings-editor';
 
 describe('TimelineProviderSettingsEditor', () => {
-  let editor;
-  let configuration;
-  let factory;
+  let editor: any;
+  let configuration: any;
+  let factory: any;
 
   beforeEach(() => {
     configuration = {};
@@ -40,7 +40,7 @@ describe('TimelineProviderSettingsEditor', () => {
     const systemName = 'RequestAnimationFrameTimelineProvider';
 
     // test
-    editor.setSystemname(systemName);
+    editor.setSystemName(systemName);
 
     // expect
     expect(configuration.systemName).to.equal(systemName);
@@ -53,13 +53,13 @@ describe('TimelineProviderSettingsEditor', () => {
 
     // test
     try {
-      editor.setSystemname(systemName);
+      editor.setSystemName(systemName);
     } catch (e) {
       errorMessage = e.message;
     }
 
     // expect
-    expect(errorMessage).to.equal('Unknown timelineprovider system name: UnknownTimelineProvider');
+    expect(errorMessage).to.equal('Unknown timeline provider system name: UnknownTimelineProvider');
   });
 
   it('should return the configuration factory', () => {
@@ -68,6 +68,6 @@ describe('TimelineProviderSettingsEditor', () => {
     const result = editor.next();
 
     // expect
-    expect(result).to.equal(factory);
+    expect(result).to.eql(factory);
   });
 });

@@ -68,8 +68,8 @@ describe('EventListenerController', () => {
 
   it('should create the EventListenerController', () => {
     expect(controller.name).to.equal('EventListenerController');
-    expect(controller.operationData).to.be.null;
-    expect(controller.actionInstanceInfos).to.be.null;
+    expect(controller.operationData).to.be.undefined;
+    expect(controller.actionInstanceInfos).to.be.undefined;
   });
 
   it('should initialize the EventListenerController', () => {

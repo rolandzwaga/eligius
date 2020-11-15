@@ -123,6 +123,7 @@ export class EngineFactory implements IEngineFactory {
       (acc, [timelineType, settings]) => {
         const timelineProviderClass = this._importSystemEntry(settings.systemName);
         acc[timelineType as TimelineTypes] = {
+          id: settings.id,
           vendor: settings.vendor,
           provider: new timelineProviderClass(eventbus, configuration),
         };

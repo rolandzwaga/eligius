@@ -1,9 +1,16 @@
 import { expect } from 'chai';
-import { loadJSON } from '~/operation/load-json';
+import { deepcopy } from '~/operation/helper/deepcopy';
+import { clearCache, loadJSON } from '~/operation/load-json';
 
 let result = null;
 
-describe('loadJSON', () => {
+function getResult() {
+  return new Promise((resolve) => {
+    resolve(result);
+  });
+}
+
+fdescribe('loadJSON', () => {
   let fetch;
 
   beforeAll(() => {
@@ -11,17 +18,21 @@ describe('loadJSON', () => {
     window.fetch = function () {
       return new Promise((resolve) => {
         resolve({
-          body: result,
+          json: getResult,
         } as any);
       });
     };
+  });
+
+  beforeEach(() => {
+    clearCache();
   });
 
   afterAll(() => {
     window.fetch = fetch;
   });
 
-  it('should load the specified json', () => {
+  it('should load the specified json', async () => {
     // given
     result = { test: true };
     const operationData = {
@@ -30,42 +41,42 @@ describe('loadJSON', () => {
     };
 
     // test
-    const promise = loadJSON(operationData, {} as any) as Promise<any>;
+    const newData = await loadJSON(operationData, {} as any);
 
     // expect
-    promise.then((newData) => {
-      expect(newData.json).to.equal(result);
-    });
-    return promise;
+    expect(newData.json).to.equal(result);
   });
 
-  it('should return the cached json the second time its called', () => {
+  it('should return the cached json the second time its called', async () => {
     // given
-    let oldResult = result;
-    result = { test: false };
+    result = { test: true };
     const operationData = {
       url: '/test.json',
       cache: true,
     };
 
     // test
-    const newData: any = loadJSON(operationData, {} as any);
+    let newData: any = await loadJSON(deepcopy(operationData), {} as any);
 
     // expect
+    expect(newData.json).to.equal(result);
+    result = { test: false };
+    newData = await loadJSON(operationData, {} as any);
     expect(newData.json).to.not.equal(result);
-    expect(newData.json).to.equal(oldResult);
   });
 
-  it('should assign the json to the given propertyName', () => {
+  it('should assign the json to the given propertyName', async () => {
     // given
+    result = { test: true };
     const operationData = {
       url: '/test.json',
       propertyName: 'testProperty',
       cache: true,
     };
+    await loadJSON(deepcopy(operationData), {} as any);
 
     // test
-    const newData: any = loadJSON(operationData, {} as any);
+    const newData: any = await loadJSON(operationData, {} as any);
 
     // expect
     expect(newData.testProperty.test).to.be.true;

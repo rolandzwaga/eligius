@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import $ from 'jquery';
 import sinon from 'sinon';
 import { ChronoTriggerEngine } from '~/chrono-trigger-engine';
 
@@ -7,32 +8,26 @@ class LanguageManagerStub {
 }
 
 describe('ChronoTriggerEngine', () => {
-  let fakeContainer: any;
   let configuration: any;
   let eventbus: any;
   let providers: any;
   let languageManager: any;
 
   beforeEach(() => {
-    fakeContainer = null;
     configuration = {};
     eventbus = {};
     providers = {};
     languageManager = {};
+    $('<div class="test"/>').appendTo(document.body);
   });
 
-  function jQueryStub(_selector: string) {
-    return fakeContainer;
-  }
+  afterEach(() => {
+    $('.test').remove();
+  });
 
   function setupLayoutInit() {
-    configuration.layoutTemplate = '<div/>';
+    configuration.layoutTemplate = '<div class="layout"/>';
     configuration.containerSelector = '.test';
-
-    fakeContainer = {
-      html: sinon.stub().withArgs(configuration.layoutTemplate),
-      length: 1,
-    };
   }
 
   function setupEventbus() {
@@ -57,11 +52,12 @@ describe('ChronoTriggerEngine', () => {
 
     // test
     engine._createLayoutTemplate();
+    expect($('.layout').length).to.equal(1);
   });
 
   it('should throw an error when container selector cannot be resolved', () => {
     // given
-    configuration.containerSelector = '.test';
+    configuration.containerSelector = '.test_does_not_exist';
     let error = null;
     const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
 
@@ -74,10 +70,10 @@ describe('ChronoTriggerEngine', () => {
 
     // expect
     expect(error).to.not.equal(null);
-    expect(error.message).to.equal('Container selector not found: .test');
+    expect(error.message).to.equal('Container selector not found: .test_does_not_exist');
   });
 
-  it('should initialize end duration to Infinity for timeline actions without an end value', () => {
+  it('should initialize end duration to Infinity for timeline actions with an end value below zero', () => {
     // given
     setupLayoutInit();
     setupEventbus();
@@ -93,6 +89,16 @@ describe('ChronoTriggerEngine', () => {
             name: 'testname',
             duration: {
               start: 1,
+              end: -1,
+            },
+            start: () => {},
+            end: () => {},
+          },
+          {
+            name: 'testname2',
+            duration: {
+              start: 1,
+              end: 10,
             },
             start: () => {},
             end: () => {},
@@ -118,5 +124,6 @@ describe('ChronoTriggerEngine', () => {
 
     // expect
     expect(configuration.timelines[0].timelineActions[0].duration.end).to.equal(Infinity);
+    expect(configuration.timelines[0].timelineActions[1].duration.end).to.equal(10);
   });
 });

@@ -9,7 +9,7 @@ class MockImporter {
   }
 
   import(name) {
-    return { [name]: this.lookup[name] } || { [name]: {} };
+    return this.lookup[name] ? { [name]: this.lookup[name] } : { [name]: {} };
   }
 
   addEntry(name, value) {
@@ -117,17 +117,47 @@ describe('ConfigurationResolver', () => {
             },
           },
         ],
-        endOperations: [],
+        endOperations: [
+          {
+            id: 'test2',
+            systemName: 'removeElement',
+            operationData: {
+              selector: '#progress',
+            },
+          },
+        ],
       },
     ];
     const resolver = new ConfigurationResolver(importer as any, eventbus as any);
 
     // test
-    const [actionsLookup, processedConfig] = resolver.process(config);
+    const [, processedConfig] = resolver.process(config);
 
     // expect
+    const actionConfig = config.initActions[0];
     const resolvedAction = processedConfig.initActions[0];
-    expect(actionsLookup['TestAction']).to.equal(resolvedAction);
+
+    expect(resolvedAction).to.not.be.undefined;
+    expect(resolvedAction.id).to.equal(actionConfig.id);
+    expect(resolvedAction.name).to.equal(actionConfig.name);
+    expect(resolvedAction.startOperations.length).to.equal(actionConfig.startOperations.length);
+    expect(resolvedAction.endOperations.length).to.equal(actionConfig.endOperations.length);
+
+    let operationConfig = actionConfig.startOperations[0];
+    let resolvedOperation = resolvedAction.startOperations[0];
+
+    expect(resolvedOperation.instance).to.not.be.undefined;
+    expect(resolvedOperation.id).to.equal(operationConfig.id);
+    expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
+    expect(resolvedOperation.operationData).to.eql(operationConfig.operationData);
+
+    operationConfig = actionConfig.endOperations[0];
+    resolvedOperation = resolvedAction.endOperations[0];
+
+    expect(resolvedOperation.instance).to.not.be.undefined;
+    expect(resolvedOperation.id).to.equal(operationConfig.id);
+    expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
+    expect(resolvedOperation.operationData).to.eql(operationConfig.operationData);
   });
 
   it('should initialize actions', () => {
@@ -146,7 +176,15 @@ describe('ConfigurationResolver', () => {
             },
           },
         ],
-        endOperations: [],
+        endOperations: [
+          {
+            id: 'test2',
+            systemName: 'removeElement',
+            operationData: {
+              selector: '#progress',
+            },
+          },
+        ],
       },
     ];
     const resolver = new ConfigurationResolver(importer as any, eventbus as any);
@@ -160,6 +198,7 @@ describe('ConfigurationResolver', () => {
     expect(processedConfig.actions).to.not.be.undefined;
     expect(processedConfig.actions[0]).to.not.be.undefined;
     expect(processedConfig.actions[0].startOperations[0].instance).to.not.be.undefined;
+    expect(processedConfig.actions[0].endOperations[0].instance).to.not.be.undefined;
   });
 
   it('should initialize timeline actions', () => {
@@ -167,6 +206,7 @@ describe('ConfigurationResolver', () => {
     const config = createTestConfig();
     config.timelines = [
       {
+        id: '111-222-333-444',
         uri: 'uri',
         type: 'animation',
         duration: 100,
@@ -189,7 +229,15 @@ describe('ConfigurationResolver', () => {
                 },
               },
             ],
-            endOperations: [],
+            endOperations: [
+              {
+                id: 'test2',
+                systemName: 'removeElement',
+                operationData: {
+                  selector: '#progress',
+                },
+              },
+            ],
           },
         ],
       },
@@ -200,9 +248,22 @@ describe('ConfigurationResolver', () => {
     const [, processedConfig] = resolver.process(config);
 
     // expect
-    const resolvedAction: any = processedConfig.timelines[0].timelineActions[0];
+    const timeline = config.timelines[0];
+    const resolvedTimeline = processedConfig.timelines[0];
+
+    expect(timeline.id).to.equal(resolvedTimeline.id);
+    expect(timeline.uri).to.equal(resolvedTimeline.uri);
+    expect(timeline.type).to.equal(resolvedTimeline.type);
+    expect(timeline.duration).to.equal(resolvedTimeline.duration);
+    expect(timeline.loop).to.equal(resolvedTimeline.loop);
+    expect(timeline.selector).to.equal(resolvedTimeline.selector);
+
+    const actionConfig = timeline.timelineActions[0];
+    const resolvedAction: any = resolvedTimeline.timelineActions[0];
     expect(resolvedAction).to.not.null;
     expect(resolvedAction.eventbus).to.equal(eventbus);
+    expect(resolvedAction.id).to.equal(actionConfig.id);
+    expect(resolvedAction.name).to.equal(actionConfig.name);
   });
 
   it('should resolve config: properties', () => {

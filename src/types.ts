@@ -41,6 +41,7 @@ export interface IStrictDuration {
 export type TimelineTypes = 'animation' | 'mediaplayer';
 
 export interface ITimelineProviderInfo {
+  id: string;
   vendor: string;
   provider: ITimelineProvider;
 }
@@ -51,7 +52,8 @@ export interface ILanguageLabel {
 }
 
 export interface ILabel {
-  code: string;
+  id: string;
+  languageCode: string;
   label: string;
 }
 

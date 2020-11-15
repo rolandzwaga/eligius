@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import { addOptionList } from '~/operation/add-option-list';
 
 class MockElement {
-  optionsHtml: string;
-  html(optionsHtml) {
+  optionsHtml: string = '';
+  html(optionsHtml: string) {
     this.optionsHtml = optionsHtml;
   }
 }
@@ -35,9 +35,9 @@ describe('addOptionList', () => {
 
     // expect
     expect(mockElement.optionsHtml).to.not.be.null;
-    expect(mockElement.optionsHtml.length).to.equal(2);
-    expect(mockElement.optionsHtml[0]).to.equal("<option value='x' selected>label 1</option>");
-    expect(mockElement.optionsHtml[1]).to.equal("<option value='y'>label 2</option>");
+    expect(mockElement.optionsHtml).to.equal(
+      "<option value='x' selected>label 1</option><option value='y'>label 2</option>"
+    );
   });
 
   // test

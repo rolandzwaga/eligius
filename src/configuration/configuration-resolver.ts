@@ -132,8 +132,10 @@ function resolveTimelineAction(
     start: actionConfiguration.duration.start,
   };
 
-  const { name, endOperations, startOperations } = resolvedConfig;
-  return new TimelineAction(name, startOperations, endOperations, duration, eventbus);
+  const { id, name, endOperations, startOperations } = resolvedConfig;
+  const action = new TimelineAction(name, startOperations, endOperations, duration, eventbus);
+  action.id = id;
+  return action;
 }
 
 function resolveActions(
@@ -147,7 +149,9 @@ function resolveActions(
 
   return resolvedConfigs.map<EndableAction>((resolvedConfig) => {
     const { name, endOperations, startOperations } = resolvedConfig;
-    return new EndableAction(name, startOperations, endOperations, eventbus);
+    const action = new EndableAction(name, startOperations, endOperations, eventbus);
+    action.id = resolvedConfig.id;
+    return action;
   });
 }
 

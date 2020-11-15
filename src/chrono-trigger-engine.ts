@@ -153,7 +153,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     );
     const startMethod = timeLineAction.start.bind(timeLineAction);
 
-    if (timeLineAction.id.length) {
+    if (timeLineAction.id?.length) {
       (startMethod as any).id = timeLineAction.id;
       (startMethod as any).isStart = true;
     }
@@ -169,7 +169,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
       const timelineEndPositions = this._initializeTimelinePosition(this._timeLineActionsLookup[uri], end);
       const endMethod = timeLineAction.end.bind(timeLineAction);
 
-      if (timeLineAction.id.length) {
+      if (timeLineAction.id?.length) {
         (endMethod as any).id = timeLineAction.id;
       }
 

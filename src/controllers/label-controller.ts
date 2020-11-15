@@ -58,7 +58,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
 
   createTextDataLookup(data: ILabel[]) {
     data.forEach((d) => {
-      this.labelData[d.code] = d.label;
+      this.labelData[d.languageCode] = d.label;
     });
   }
 }

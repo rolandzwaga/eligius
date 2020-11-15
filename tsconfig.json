@@ -12,10 +12,10 @@
     "checkJs": false,
     "module": "commonjs",
     "target": "es2015",
+    "rootDir": ".",
     "moduleResolution": "node",
     "lib": ["es2015", "es6", "es2017", "dom"],
     "outDir": "lib",
-    "rootDir": "src",
     "skipLibCheck": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -23,12 +23,12 @@
     "isolatedModules": true,
     "noEmit": true,
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "typeRoots": ["./src/@types/typings.d.ts", "./node_modules/@types"]
   },
   "typeAcquisition": {
     "enable": true
   },
-  "typeRoots": ["./typings.d.ts", "./node_modules/@types"],
-  "exclude": ["node_modules", "dist"],
-  "include": ["src"]
+
+  "exclude": ["node_modules", "dist", "src/test"]
 }

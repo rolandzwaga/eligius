@@ -14,6 +14,7 @@ export default class TimelineProvidersSettingsEditor {
       throw new Error(`Settings for a '${timelineType}' provider already exist`);
     }
     this.providersSettings[timelineType] = {
+      id: '',
       poster: '',
       selector: '',
       systemName: '',

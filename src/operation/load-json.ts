@@ -10,6 +10,16 @@ export interface ILoadJSONOperationData {
   json?: any;
 }
 
+export const clearCache = () => {
+  for (let p in jsonCache) {
+    delete jsonCache[p];
+  }
+};
+
+export const addToCache = (key: string, value: any) => {
+  jsonCache[key] = value;
+};
+
 export const loadJSON: TOperation<ILoadJSONOperationData> = function (
   operationData: ILoadJSONOperationData,
   _eventBus: IEventbus
@@ -23,8 +33,10 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = function (
 
   return new Promise((resolve, reject) => {
     fetch(url)
-      .then((response) => {
-        jsonCache[url] = (operationData as any)[propertyName as string] = response.body;
+      .then(async (response) => {
+        const json = await response.json();
+        const cacheValue = ((operationData as any)[propertyName] = json);
+        addToCache(url, cacheValue);
         resolve(operationData);
       })
       .catch(reject);

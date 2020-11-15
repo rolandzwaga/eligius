@@ -70,8 +70,15 @@ export class ConfigurationFactory {
 
   addLanguage(code: string, languageLabel: string) {
     const languages = this._initializeCollection(this.configuration, 'availableLanguages');
+    const existing = languages.find((lang) => lang.languageCode === code);
+
+    if (existing) {
+      throw new Error(`Language code '${code}' already exists`);
+    }
+
     languages.push({
-      code: code,
+      id: uuidv4(),
+      languageCode: code,
       label: languageLabel,
     });
     return this;
@@ -134,6 +141,7 @@ export class ConfigurationFactory {
       throw Error(`timeline for uri ${uri} already exists`);
     }
     const timelineConfig: ITimelineConfiguration = {
+      id: uuidv4(),
       type: type,
       uri: uri,
       duration: duration,
@@ -173,10 +181,11 @@ export class ConfigurationFactory {
   }
 
   _getLabelTranslation(labelTranslations: ILabel[], languageCode: string) {
-    let translation = labelTranslations.find((l) => l.code === languageCode);
+    let translation = labelTranslations.find((l) => l.languageCode === languageCode);
     if (!translation) {
       translation = {
-        code: languageCode,
+        id: uuidv4(),
+        languageCode: languageCode,
         label: '',
       };
       labelTranslations.push(translation);

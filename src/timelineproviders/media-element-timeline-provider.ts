@@ -7,7 +7,7 @@ import { TimelineEventNames } from '~/timeline-event-names';
 import { TResultCallback } from '~/types';
 import { ITimelineProvider } from './types';
 
-const { MediaElementPlayer } = global as any;
+const { MediaElementPlayer } = window as any;
 
 export class MediaElementTimelineProvider implements ITimelineProvider {
   private _videoElementId: string = uuidv4();

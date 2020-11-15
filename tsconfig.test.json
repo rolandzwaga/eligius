@@ -14,21 +14,21 @@
     "target": "es2015",
     "moduleResolution": "node",
     "lib": ["es2015", "es6", "es2017", "dom"],
-    "outDir": "lib",
     "rootDir": "src",
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
     "sourceMap": true,
-    "declaration": true
+    "declaration": true,
+    "typeRoots": ["./src/@types/typings.d.ts", "./src/@types/test-typings.d.ts", "./node_modules/@types"],
+    "types": ["jasmine"]
   },
   "typeAcquisition": {
     "enable": true
   },
-  "typeRoots": ["./typings.d.ts", "./test-typings.d.ts", "./node_modules/@types"],
   "exclude": ["node_modules", "dist"],
   "include": ["src"]
 }

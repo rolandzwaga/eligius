@@ -18,14 +18,11 @@ export interface IEventListenerControllerOperationData {
 }
 
 export class EventListenerController implements IController<IEventListenerControllerOperationData> {
-  operationData: IEventListenerControllerOperationData | null;
-  actionInstanceInfos: IActionInstanceInfo[];
+  operationData?: IEventListenerControllerOperationData;
+  actionInstanceInfos?: IActionInstanceInfo[];
   name = 'EventListenerController';
 
-  constructor() {
-    this.operationData = null;
-    this.actionInstanceInfos = [];
-  }
+  constructor() {}
 
   init(operationData: IEventListenerControllerOperationData) {
     this.operationData = {
@@ -46,7 +43,7 @@ export class EventListenerController implements IController<IEventListenerContro
       this.actionInstanceInfos = [];
 
       const resultCallback = (isStart: boolean) => (actionInstance: IEndableAction) => {
-        this.actionInstanceInfos.push({ start: isStart, action: actionInstance });
+        this.actionInstanceInfos?.push({ start: isStart, action: actionInstance });
       };
 
       actions.forEach((actionName: string) => {

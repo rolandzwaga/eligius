@@ -40,6 +40,7 @@ export interface IResolvedEngineConfiguration {
 export interface ITimelineFlow {}
 
 export interface ITimelineProviderSettings {
+  id: string;
   vendor: string;
   selector: string;
   systemName: string;
@@ -47,6 +48,7 @@ export interface ITimelineProviderSettings {
 }
 
 export interface IResolvedTimelineConfiguration {
+  id: string;
   uri: string;
   type: TimelineTypes;
   duration: number;
@@ -56,6 +58,7 @@ export interface IResolvedTimelineConfiguration {
 }
 
 export interface ITimelineConfiguration {
+  id: string;
   uri: string;
   type: TimelineTypes;
   duration: number;
