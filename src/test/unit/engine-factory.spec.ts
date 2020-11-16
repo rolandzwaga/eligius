@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { IEngineConfiguration } from '~/configuration/types';
 import { EngineFactory } from '~/engine-factory';
 
 class MockImporter {
@@ -63,27 +64,39 @@ describe('EngineFactory', () => {
     const importer = new MockImporter();
     const factory = new EngineFactory(importer as any, windowRef);
 
-    const config = {
+    const config: IEngineConfiguration = {
+      id: 'testEngine',
+      containerSelector: 'containerSelector',
+      layoutTemplate: 'layoutTemplate',
+      availableLanguages: [],
       engine: {
         systemName: 'ChronoTriggerEngine',
       },
+      actions: [],
+      initActions: [],
       timelineProviderSettings: {
         animation: {
+          id: '1111',
+          selector: '.test',
+          poster: '',
           vendor: 'chronotrigger',
           systemName: 'MockTimelineProvider',
         },
       },
+      timelines: [],
       language: 'en-US',
       labels: [
         {
           id: 'mainTitle',
           labels: [
             {
-              code: 'en-US',
+              id: '111',
+              languageCode: 'en-US',
               label: 'test 1',
             },
             {
-              code: 'nl-NL',
+              id: '222',
+              languageCode: 'nl-NL',
               label: 'tezt 1',
             },
           ],
@@ -92,6 +105,6 @@ describe('EngineFactory', () => {
     };
 
     // test
-    factory.createEngine(config as any);
+    factory.createEngine(config);
   });
 });

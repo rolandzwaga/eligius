@@ -2,7 +2,7 @@ import { IActionConfiguration, IEngineConfiguration, ITimelineActionConfiguratio
 import { ILabel, ILanguageLabel, TimelineTypes } from '~/types';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor, EndableActionEditor, TimelineActionEditor } from './action-editor';
-import TimelineProvidersSettingsEditor from './timeline-provider-settings-editor';
+import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
 export declare type TEngineConfigurationLists = Pick<IEngineConfiguration, 'availableLanguages' | 'initActions' | 'actions' | 'eventActions' | 'timelines' | 'labels'>;
 export declare class ConfigurationFactory {
     actionCreatorFactory: ActionCreatorFactory;

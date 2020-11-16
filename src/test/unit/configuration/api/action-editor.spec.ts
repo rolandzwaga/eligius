@@ -59,7 +59,7 @@ describe('ActionEditor', () => {
     }
 
     // expect
-    expect(errorMessage).to.equal('operation not found for id test');
+    expect(errorMessage).to.equal('start operation not found for id test');
   });
 
   it('should remove the operation with the given id', () => {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '~/configuration/api/action-editor';
 import { ConfigurationFactory } from '~/configuration/api/configuration-factory';
-import { TimelineProviderSettingsEditor } from '~/configuration/api/timeline-provider-settings-editor';
+import { TimelineProvidersSettingsEditor } from '~/configuration/api/timeline-provider-settings-editor';
 
 describe('ConfigurationFactory', () => {
   let configurationFactory;
@@ -19,7 +19,7 @@ describe('ConfigurationFactory', () => {
     expect(configuration.id).not.to.be.undefined;
     expect(configuration.engine.systemName).to.equal('ChronoTriggerEngine');
     expect(configuration.containerSelector).to.equal('#ct-container');
-    expect(configuration.timelineProviderSettings).to.deep.equal({ vendor: null, selector: null, systemName: null });
+    expect(configuration.timelineProviderSettings).to.deep.equal({});
     expect(configuration.language).to.equal('nl-NL');
     expect(configuration.availableLanguages.length).to.equal(0);
   });
@@ -58,7 +58,7 @@ describe('ConfigurationFactory', () => {
     const editor = configurationFactory.editTimelineProviderSettings();
 
     // expect
-    expect(editor).to.be.an.instanceOf(TimelineProviderSettingsEditor);
+    expect(editor).to.be.an.instanceOf(TimelineProvidersSettingsEditor);
   });
 
   it('should add the given language', () => {
@@ -72,7 +72,7 @@ describe('ConfigurationFactory', () => {
     const { configuration } = configurationFactory;
     expect(configuration.availableLanguages.length).to.equal(1);
     const lang = configuration.availableLanguages[0];
-    expect(lang.code).to.equal('en-US');
+    expect(lang.languageCode).to.equal('en-US');
     expect(lang.label).to.equal('English');
   });
 
@@ -207,7 +207,7 @@ describe('ConfigurationFactory', () => {
     const { configuration } = configurationFactory;
     expect(configuration.labels.length).to.equal(1);
     expect(configuration.labels[0].id).to.equal('test');
-    expect(configuration.labels[0].labels[0].code).to.equal('nl-NL');
+    expect(configuration.labels[0].labels[0].languageCode).to.equal('nl-NL');
     expect(configuration.labels[0].labels[0].label).to.equal('dit is een test');
   });
 
@@ -223,7 +223,7 @@ describe('ConfigurationFactory', () => {
     const { configuration } = configurationFactory;
     expect(configuration.labels.length).to.equal(1);
     expect(configuration.labels[0].id).to.equal('test');
-    expect(configuration.labels[0].labels[1].code).to.equal('en-US');
+    expect(configuration.labels[0].labels[1].languageCode).to.equal('en-US');
     expect(configuration.labels[0].labels[1].label).to.equal('this is a test');
   });
 

@@ -43,8 +43,8 @@ export class Eventbus implements IEventbus {
   }
 
   once(eventName: string, eventHandler: TEventHandler, eventTopic?: string): void {
-    const eventHandlerDecorator = () => {
-      eventHandler(...arguments);
+    const eventHandlerDecorator = (...args: any[]) => {
+      eventHandler(...args);
       this.off(eventName, eventHandlerDecorator, eventTopic);
     };
     this.on(eventName, eventHandlerDecorator, eventTopic);
@@ -91,7 +91,7 @@ export class Eventbus implements IEventbus {
         listener.handleEvent(eventName, eventTopic, args);
       });
 
-      if (args.length) {
+      if (args?.length) {
         handlers.forEach((handler: TEventHandler) => handler(...args));
       } else {
         handlers.forEach((handler: TEventHandler) => handler());

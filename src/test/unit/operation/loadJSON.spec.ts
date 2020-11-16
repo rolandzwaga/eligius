@@ -10,7 +10,7 @@ function getResult() {
   });
 }
 
-fdescribe('loadJSON', () => {
+describe('loadJSON', () => {
   let fetch;
 
   beforeAll(() => {

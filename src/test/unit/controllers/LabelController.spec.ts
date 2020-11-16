@@ -1,43 +1,7 @@
 import { expect } from 'chai';
 import { LabelController } from '~/controllers/label-controller';
+import { Eventbus } from '~/eventbus';
 import { TimelineEventNames } from '~/timeline-event-names';
-
-class MockEventbus {
-  eventName: string;
-  args: any;
-  languageChangeCallBack: Function;
-
-  broadcast(eventName: string, args: any) {
-    this.eventName = eventName;
-    this.args = args;
-    let result = null;
-    let callBack = args[args.length - 1];
-    switch (true) {
-      case eventName === TimelineEventNames.REQUEST_CURRENT_LANGUAGE:
-        result = 'en-GB';
-        break;
-      case eventName === TimelineEventNames.REQUEST_LABEL_COLLECTION:
-        result = [
-          {
-            code: 'en-GB',
-            label: 'test',
-          },
-          {
-            code: 'nl-NL',
-            label: 'tezt',
-          },
-        ];
-        break;
-    }
-    callBack(result);
-  }
-
-  on(eventName, callBack) {
-    this.eventName = eventName;
-    this.languageChangeCallBack = callBack;
-  }
-}
-
 class MockElement {
   content: string;
   html(content) {
@@ -53,7 +17,7 @@ describe('LabelController', () => {
 
   beforeEach(() => {
     controller = new LabelController();
-    eventbus = new MockEventbus();
+    eventbus = new Eventbus();
     selectedElement = new MockElement();
     operationData = {
       selectedElement: selectedElement,
@@ -79,11 +43,29 @@ describe('LabelController', () => {
   it('should attach properly', () => {
     // given
     controller.init(operationData);
+    eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
+      args[0]('en-GB');
+    });
+
+    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
+      args[1]([
+        {
+          id: '1111',
+          languageCode: 'nl-NL',
+          label: 'hallo',
+        },
+        {
+          id: '2222',
+          languageCode: 'en-GB',
+          label: 'hello',
+        },
+      ]);
+    });
 
     // test
     controller.attach(eventbus);
 
     // expect
-    expect(operationData.selectedElement.content).to.equal('test');
+    expect(operationData.selectedElement.content).to.equal('hello');
   });
 });

@@ -4,10 +4,11 @@ import { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '~/types';
 export interface IEngineInfo {
     systemName: string;
 }
+export declare type TTimelineProviderSettings = Record<Partial<TimelineTypes>, ITimelineProviderSettings>;
 export interface IEngineConfiguration {
     id: string;
     engine: IEngineInfo;
-    timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
+    timelineProviderSettings: TTimelineProviderSettings;
     containerSelector: string;
     language: string;
     layoutTemplate: string;
@@ -22,7 +23,7 @@ export interface IEngineConfiguration {
 export interface IResolvedEngineConfiguration {
     id: string;
     engine: IEngineInfo;
-    timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
+    timelineProviderSettings: TTimelineProviderSettings;
     containerSelector: string;
     language: string;
     layoutTemplate: string;
@@ -36,12 +37,14 @@ export interface IResolvedEngineConfiguration {
 export interface ITimelineFlow {
 }
 export interface ITimelineProviderSettings {
+    id: string;
     vendor: string;
     selector: string;
     systemName: string;
     poster: string;
 }
 export interface IResolvedTimelineConfiguration {
+    id: string;
     uri: string;
     type: TimelineTypes;
     duration: number;
@@ -50,6 +53,7 @@ export interface IResolvedTimelineConfiguration {
     timelineActions: ITimelineAction[];
 }
 export interface ITimelineConfiguration {
+    id: string;
     uri: string;
     type: TimelineTypes;
     duration: number;

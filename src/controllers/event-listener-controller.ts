@@ -74,7 +74,7 @@ export class EventListenerController implements IController<IEventListenerContro
   }
 
   _eventHandler(event: any) {
-    if (!this.operationData) {
+    if (!this.operationData || !this.actionInstanceInfos) {
       return;
     }
 
@@ -99,7 +99,7 @@ export class EventListenerController implements IController<IEventListenerContro
   }
 
   _selectEventHandler(event: any) {
-    if (!this.operationData) {
+    if (!this.operationData || !this.actionInstanceInfos) {
       return;
     }
 

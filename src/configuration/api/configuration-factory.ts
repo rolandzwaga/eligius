@@ -9,7 +9,7 @@ import { deepcopy } from '~/operation/helper/deepcopy';
 import { ILabel, ILanguageLabel, TimelineTypes } from '~/types';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor, EndableActionEditor, TimelineActionEditor } from './action-editor';
-import TimelineProvidersSettingsEditor from './timeline-provider-settings-editor';
+import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
 
 export type TEngineConfigurationLists = Pick<
   IEngineConfiguration,

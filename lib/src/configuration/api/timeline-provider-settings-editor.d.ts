@@ -1,10 +1,10 @@
-import { ITimelineProviderSettings } from '~/configuration/types';
+import { ITimelineProviderSettings, TTimelineProviderSettings } from '~/configuration/types';
 import { TimelineTypes } from '~/types';
 import { ConfigurationFactory } from './configuration-factory';
-export default class TimelineProvidersSettingsEditor {
+export declare class TimelineProvidersSettingsEditor {
     private providersSettings;
     private configurationFactory;
-    constructor(providersSettings: Record<TimelineTypes, ITimelineProviderSettings>, configurationFactory: ConfigurationFactory);
+    constructor(providersSettings: TTimelineProviderSettings, configurationFactory: ConfigurationFactory);
     addProvider(timelineType: TimelineTypes): TimelineProviderSettingsEditor;
     editProvider(timelineType: TimelineTypes): TimelineProviderSettingsEditor;
     next(): ConfigurationFactory;

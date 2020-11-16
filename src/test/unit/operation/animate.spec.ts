@@ -4,13 +4,13 @@ import { animate } from '~/operation/animate';
 class MockElement {
   properties: any;
   duration: number;
-  easing: number | Function;
+  easing: string | Function;
   callback: Function;
 
   animate(properties, duration, easing, callback) {
     this.properties = properties;
     this.duration = duration;
-    if (typeof easing === 'number') {
+    if (typeof easing === 'string') {
       this.easing = easing;
       this.callback = callback;
       callback();
@@ -22,7 +22,7 @@ class MockElement {
 }
 
 describe('animate', () => {
-  it('should animate with easing when defined', () => {
+  it('should animate with easing when defined', async () => {
     // given
     const mockElement = new MockElement();
 
@@ -34,15 +34,13 @@ describe('animate', () => {
     };
 
     // test
-    const promise = animate(operationData, {} as any) as Promise<any>;
+    const data = await animate(operationData, {} as any);
 
     // expect
-    return promise.then((data) => {
-      expect(data.selectedElement).to.equal(operationData.selectedElement);
-    });
+    expect(data.selectedElement).to.equal(operationData.selectedElement);
   });
 
-  it('should animate without easing when not defined', () => {
+  it('should animate without easing when not defined', async () => {
     // given
     const mockElement = new MockElement();
 
@@ -53,12 +51,9 @@ describe('animate', () => {
     };
 
     // test
-    const promise = animate(operationData, {} as any) as Promise<any>;
+    const data = await animate(operationData, {} as any);
 
     // expect
-    promise.then((data) => {
-      expect(data.selectedElement).to.equal(operationData.selectedElement);
-    });
-    return promise;
+    expect(data.selectedElement).to.equal(operationData.selectedElement);
   });
 });

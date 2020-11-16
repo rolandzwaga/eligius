@@ -16,14 +16,14 @@ describe('endLoop', () => {
 
   it('should reset if context.skip is true', () => {
     // given
-    const context = { skip: true };
+    const context = { skipNextOperation: true };
     const operationData = {};
 
     // test
     endLoop.call(context, operationData);
 
     // expect
-    expect(context.skip).to.be.undefined;
+    expect(context.skipNextOperation).to.be.undefined;
   });
 
   it('should increment loopIndex and restart the newIndex when the current is lower than the looplength', () => {

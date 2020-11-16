@@ -14,8 +14,8 @@ export interface IEventListenerControllerOperationData {
     actionOperationData?: TOperationData;
 }
 export declare class EventListenerController implements IController<IEventListenerControllerOperationData> {
-    operationData: IEventListenerControllerOperationData | null;
-    actionInstanceInfos: IActionInstanceInfo[];
+    operationData?: IEventListenerControllerOperationData;
+    actionInstanceInfos?: IActionInstanceInfo[];
     name: string;
     constructor();
     init(operationData: IEventListenerControllerOperationData): void;

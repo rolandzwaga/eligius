@@ -17,9 +17,9 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
   private _firstFrame = true;
   private _currentPlaylistItem: IResolvedTimelineConfiguration;
   private _granularity = 1000;
-  private _playState: TPlayState = 'stopped';
   private _playlist: IResolvedTimelineConfiguration[];
   private _containerElement: JQuery<HTMLElement> | undefined;
+  public playState: TPlayState = 'stopped';
 
   loop: boolean = false;
 
@@ -66,7 +66,7 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
   }
 
   private _update(now: number): void {
-    if (this._playState !== 'running') {
+    if (this.playState !== 'running') {
       return;
     }
 
@@ -99,10 +99,11 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
   }
 
   private _start() {
-    if (this._requestID && this._playState === 'running') {
+    if (this._requestID && this.playState === 'running') {
       return;
     }
-    this._playState = 'running';
+
+    this.playState = 'running';
     this._requestID = requestAnimationFrame(this._updateBound);
   }
 
@@ -152,7 +153,7 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
   }
 
   toggleplay() {
-    if (this._playState !== 'running') {
+    if (this.playState !== 'running') {
       this.start();
     } else {
       this.pause();
@@ -166,12 +167,12 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
 
   stop() {
     this._cancelAnimationFrame();
-    this._playState = 'stopped';
+    this.playState = 'stopped';
     this.eventbus.broadcast(TimelineEventNames.STOP);
   }
 
   pause() {
-    this._playState = 'paused';
+    this.playState = 'paused';
     this.eventbus.broadcast(TimelineEventNames.PAUSE);
   }
 
@@ -182,7 +183,7 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
 
     this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this._currentPosition, this.getDuration()]);
     this._currentPosition = position;
-    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this._currentPosition, this.getDuration()]);
     this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.getPosition() }]);
     this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
       { position: this._currentPosition, duration: this._currentPlaylistItem.duration },

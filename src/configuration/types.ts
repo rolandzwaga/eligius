@@ -6,10 +6,11 @@ export interface IEngineInfo {
   systemName: string;
 }
 
+export type TTimelineProviderSettings = Partial<Record<TimelineTypes, ITimelineProviderSettings>>;
 export interface IEngineConfiguration {
   id: string;
   engine: IEngineInfo;
-  timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
+  timelineProviderSettings: TTimelineProviderSettings;
   containerSelector: string;
   language: string;
   layoutTemplate: string;
@@ -25,7 +26,7 @@ export interface IEngineConfiguration {
 export interface IResolvedEngineConfiguration {
   id: string;
   engine: IEngineInfo;
-  timelineProviderSettings: Record<TimelineTypes, ITimelineProviderSettings>;
+  timelineProviderSettings: TTimelineProviderSettings;
   containerSelector: string;
   language: string;
   layoutTemplate: string;

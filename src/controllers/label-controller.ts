@@ -29,12 +29,14 @@ export class LabelController implements IController<ILabelControllerMetadata> {
         this.currentLanguage = language;
       },
     ]);
+
     eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTION, [
       this.operationData.labelId,
       (labelCollection: ILabel[]) => {
         this.createTextDataLookup(labelCollection);
       },
     ]);
+
     this.setLabel();
     this.listeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.handleLanguageChange.bind(this)));
   }

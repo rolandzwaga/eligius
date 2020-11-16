@@ -1,11 +1,11 @@
-import { ITimelineProviderSettings } from '~/configuration/types';
+import { ITimelineProviderSettings, TTimelineProviderSettings } from '~/configuration/types';
 import * as timelineProviders from '~/timelineproviders';
 import { TimelineTypes } from '~/types';
 import { ConfigurationFactory } from './configuration-factory';
 
-export default class TimelineProvidersSettingsEditor {
+export class TimelineProvidersSettingsEditor {
   constructor(
-    private providersSettings: Record<TimelineTypes, ITimelineProviderSettings>,
+    private providersSettings: TTimelineProviderSettings,
     private configurationFactory: ConfigurationFactory
   ) {}
 
@@ -13,21 +13,27 @@ export default class TimelineProvidersSettingsEditor {
     if (this.providersSettings[timelineType]) {
       throw new Error(`Settings for a '${timelineType}' provider already exist`);
     }
-    this.providersSettings[timelineType] = {
+    const settings = {
       id: '',
       poster: '',
       selector: '',
       systemName: '',
       vendor: '',
     };
-    return new TimelineProviderSettingsEditor(this.providersSettings[timelineType], this, this.configurationFactory);
+    this.providersSettings[timelineType] = settings;
+    return new TimelineProviderSettingsEditor(settings, this, this.configurationFactory);
   }
 
   editProvider(timelineType: TimelineTypes) {
     if (!this.providersSettings[timelineType]) {
       throw new Error(`No settings for a '${timelineType}' provider exist yet`);
     }
-    return new TimelineProviderSettingsEditor(this.providersSettings[timelineType], this, this.configurationFactory);
+
+    return new TimelineProviderSettingsEditor(
+      this.providersSettings[timelineType] as ITimelineProviderSettings,
+      this,
+      this.configurationFactory
+    );
   }
 
   next() {

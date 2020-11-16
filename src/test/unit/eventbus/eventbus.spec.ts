@@ -19,7 +19,7 @@ describe('Eventbus', () => {
     eventbus.broadcast('test', [1]);
 
     // expect
-    expect(called).to.be.equal(1);
+    expect(called).to.equal(1);
   });
 
   it('should register an event handler once and let it get called only once', () => {
@@ -63,6 +63,7 @@ describe('Eventbus', () => {
     const interceptor = {
       intercept: (args) => {
         called += args[0];
+        return args;
       },
     };
     eventbus.registerInterceptor('test', interceptor);
@@ -72,7 +73,7 @@ describe('Eventbus', () => {
     eventbus.broadcast('test2', [1]);
 
     // expect
-    expect(called).to.be.equal(1);
+    expect(called).to.equal(1);
   });
 
   it('should register and call the event interceptor for the specified topic', () => {
@@ -144,12 +145,12 @@ describe('Eventbus', () => {
     // expect
     expect(received.length).to.be.equal(2);
 
-    expect(received[0][0]).to.be.equal('test');
-    expect(received[0][1]).to.be.equal(null);
-    expect(received[0][2][0]).to.be.equal(1);
+    expect(received[0][0]).to.equal('test');
+    expect(received[0][1]).to.be.undefined;
+    expect(received[0][2][0]).to.equal(1);
 
-    expect(received[1][0]).to.be.equal('test2');
-    expect(received[1][1]).to.be.equal(topic);
-    expect(received[1][2][0]).to.be.equal(100);
+    expect(received[1][0]).to.equal('test2');
+    expect(received[1][1]).to.equal(topic);
+    expect(received[1][2][0]).to.equal(100);
   });
 });
