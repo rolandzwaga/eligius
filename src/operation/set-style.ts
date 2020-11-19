@@ -16,5 +16,7 @@ export const setStyle: TOperation<ISetStyleOperationData> = function (
 
   const properties = resolvePropertyValues(operationData, operationData.properties);
   (operationData as any)[propertyName].css(properties);
+  delete operationData.propertyName;
+
   return operationData;
 };

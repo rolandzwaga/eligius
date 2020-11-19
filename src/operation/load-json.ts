@@ -28,6 +28,7 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = function (
 
   if (cache && jsonCache[url]) {
     (operationData as any)[propertyName] = jsonCache[url];
+    delete operationData.propertyName;
     return operationData;
   }
 
@@ -36,6 +37,7 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = function (
       .then(async (response) => {
         const json = await response.json();
         const cacheValue = ((operationData as any)[propertyName] = json);
+        delete operationData.propertyName;
         addToCache(url, cacheValue);
         resolve(operationData);
       })

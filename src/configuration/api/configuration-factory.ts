@@ -31,7 +31,7 @@ export class ConfigurationFactory {
       engine: {
         systemName: 'ChronoTriggerEngine',
       },
-      containerSelector: '#ct-container',
+      containerSelector: '[data-ct-container=true]',
       timelineProviderSettings: {} as any,
       language: defaultLanguage,
       availableLanguages: [],
@@ -42,6 +42,11 @@ export class ConfigurationFactory {
       labels: [],
     };
 
+    return this;
+  }
+
+  setLayoutTemplate(layoutTemplate: string) {
+    this.configuration.layoutTemplate = layoutTemplate;
     return this;
   }
 
@@ -59,7 +64,7 @@ export class ConfigurationFactory {
     return new TimelineProvidersSettingsEditor(this.configuration.timelineProviderSettings, this);
   }
 
-  getConfiguration(callBack: (copy: IEngineConfiguration) => IEngineConfiguration) {
+  getConfiguration(callBack: (copy: IEngineConfiguration) => IEngineConfiguration | undefined) {
     const copy = deepcopy<IEngineConfiguration>(this.configuration);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
@@ -68,17 +73,17 @@ export class ConfigurationFactory {
     return this;
   }
 
-  addLanguage(code: string, languageLabel: string) {
+  addLanguage(languageCode: string, languageLabel: string) {
     const languages = this._initializeCollection(this.configuration, 'availableLanguages');
-    const existing = languages.find((lang) => lang.languageCode === code);
+    const existing = languages.find((lang) => lang.languageCode === languageCode);
 
     if (existing) {
-      throw new Error(`Language code '${code}' already exists`);
+      throw new Error(`Language code '${languageCode}' already exists`);
     }
 
     languages.push({
       id: uuidv4(),
-      languageCode: code,
+      languageCode: languageCode,
       label: languageLabel,
     });
     return this;

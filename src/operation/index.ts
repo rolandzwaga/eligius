@@ -1,6 +1,5 @@
 export { addClass } from './add-class';
 export { addControllerToElement } from './add-controller-to-element';
-export { addOptionList } from './add-option-list';
 export { animate } from './animate';
 export { animateWithClass } from './animate-with-class';
 export { broadcastEvent } from './broadcast-event';

@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
+  ExtractDataType,
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
@@ -7,7 +8,7 @@ import {
 } from '~/configuration/types';
 import * as operations from '~/operation';
 import { deepcopy } from '~/operation/helper/deepcopy';
-import { TOperationData } from '~/operation/types';
+import { TOperation, TOperationData } from '~/operation/types';
 import { IDuration } from '~/types';
 import { ConfigurationFactory } from './configuration-factory';
 
@@ -48,6 +49,19 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
 
   getName() {
     return this.actionConfig.name;
+  }
+
+  addStartOperationByType<T extends TOperation<any>>(
+    operationClass: T,
+    operationData: Partial<ExtractDataType<T>>
+  ): OperationEditor<this> {
+    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+
+    if (entries) {
+      return this.addStartOperation(entries[0], operationData);
+    }
+
+    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   addStartOperation(systemName: string, operationData: TOperationData): OperationEditor<this> {
@@ -135,6 +149,19 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
 export class EndableActionEditor<
   T extends IEndableActionConfiguration = IEndableActionConfiguration
 > extends ActionEditor<T> {
+  addEndOperationByType<T extends TOperation<any>>(
+    operationClass: T,
+    operationData: Partial<ExtractDataType<T>>
+  ): OperationEditor<this> {
+    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+
+    if (entries) {
+      return this.addEndOperation(entries[0], operationData);
+    }
+
+    throw new Error(`Operation class not found: ${operationClass.toString()}`);
+  }
+
   addEndOperation(systemName: string, operationData: TOperationData) {
     if (!(operations as any)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);

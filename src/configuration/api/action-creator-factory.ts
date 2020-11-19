@@ -1,8 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
-import { IActionConfiguration, IEndableActionConfiguration, ITimelineActionConfiguration } from '~/configuration/types';
+import {
+  ExtractDataType,
+  IActionConfiguration,
+  IEndableActionConfiguration,
+  ITimelineActionConfiguration,
+} from '~/configuration/types';
 import * as operations from '~/operation';
 import { deepcopy } from '~/operation/helper/deepcopy';
-import { TOperationData } from '~/operation/types';
+import { TOperation, TOperationData } from '~/operation/types';
 import { ConfigurationFactory } from './configuration-factory';
 
 export class ActionCreatorFactory {
@@ -69,6 +74,16 @@ export class ActionCreator<T extends IActionConfiguration = IActionConfiguration
     return this;
   }
 
+  addStartOperationByType<T extends TOperation<any>>(operationClass: T, operationData: Partial<ExtractDataType<T>>) {
+    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+
+    if (entries) {
+      return this.addStartOperation(entries[0], operationData);
+    }
+
+    throw new Error(`Operation class not found: ${operationClass.toString()}`);
+  }
+
   addStartOperation(systemName: string, operationData: TOperationData) {
     if (!(operations as Record<string, any>)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
@@ -91,6 +106,21 @@ export class ActionCreator<T extends IActionConfiguration = IActionConfiguration
 export class EndableActionCreator<
   T extends IEndableActionConfiguration = IEndableActionConfiguration
 > extends ActionCreator<T> {
+  constructor(name: string | undefined, factory: ActionCreatorFactory) {
+    super(name, factory);
+    this.actionConfig.endOperations = [];
+  }
+
+  addEndOperationByType<T extends TOperation<any>>(operationClass: T, operationData: Partial<ExtractDataType<T>>) {
+    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+
+    if (entries) {
+      return this.addEndOperation(entries[0], operationData);
+    }
+
+    throw new Error(`Operation class not found: ${operationClass.toString()}`);
+  }
+
   addEndOperation(systemName: string, operationData: TOperationData) {
     if (!(operations as Record<string, any>)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);

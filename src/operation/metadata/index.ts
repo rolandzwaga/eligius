@@ -1,6 +1,5 @@
 export { default as addClass } from './add-class';
 export { default as addControllerToElement } from './add-controller-to-element';
-export { default as addOptionList } from './add-option-list';
 export { default as animate } from './animate';
 export { default as animateWithClass } from './animate-with-class';
 export { default as broadcastEvent } from './broadcast-event';

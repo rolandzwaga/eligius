@@ -43,11 +43,17 @@ export class ConfigurationResolver implements IConfigurationResolver {
       timelines: resolveTimelines(configuration.timelines, this.importer, this.eventbus),
     };
 
+    let eventActions: IAction[] = [];
     if (configuration.eventActions && actionRegistryListener) {
-      resolveEventActions(configuration.eventActions, actionRegistryListener, this.importer, this.eventbus);
+      eventActions = resolveEventActions(
+        configuration.eventActions,
+        actionRegistryListener,
+        this.importer,
+        this.eventbus
+      );
     }
 
-    const actionsLookup = resolvedConfig.actions.reduce<Record<string, IAction>>(
+    const actionsLookup = resolvedConfig.actions.concat(eventActions as any[]).reduce<Record<string, IAction>>(
       (aggr, action) => ({
         ...aggr,
         [action.name]: action,
@@ -69,10 +75,11 @@ function resolveEventActions(
     return resolveActionConfiguration(config, importer);
   });
 
-  resolvedConfigs.forEach((config, index) => {
+  return resolvedConfigs.map((config, index) => {
     const { eventName, eventTopic } = eventActionConfigurations[index];
     const eventAction = new Action(config.name, config.startOperations, eventbus);
     actionRegistryListener.registerAction(eventAction, eventName, eventTopic);
+    return eventAction;
   });
 }
 

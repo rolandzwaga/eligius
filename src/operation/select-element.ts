@@ -15,15 +15,15 @@ function findElementBySelector(root: JQuery, selector: string, operationData: an
 
 export interface ISelectElementOperationData {
   selector: string;
-  propertyName: string;
-  useSelectedElementAsRoot: boolean;
+  propertyName?: string;
+  useSelectedElementAsRoot?: boolean;
 }
 
 export const selectElement: TOperation<ISelectElementOperationData> = function (
   operationData: ISelectElementOperationData,
   eventBus: IEventbus
 ) {
-  const { selector, propertyName = 'selectedElement', useSelectedElementAsRoot } = operationData;
+  const { selector, propertyName = 'selectedElement', useSelectedElementAsRoot = false } = operationData;
 
   if (!selector) {
     throw new Error('selector is undefined!');
@@ -39,5 +39,7 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
     findElementBySelector(root, selector, operationData, propertyName);
   };
   eventBus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [rootCallback]);
+  delete operationData.propertyName;
+
   return operationData;
 };

@@ -51,17 +51,8 @@ export class EventListenerController implements IController<IEventListenerContro
         eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback(isStart)]);
       });
 
-      if (this._getElementTagName(selectedElement) === 'SELECT') {
-        selectedElement.on(eventName, this._selectEventHandler.bind(this));
-      } else {
-        selectedElement.on(eventName, this._eventHandler.bind(this));
-      }
+      selectedElement.on(eventName, this._eventHandler.bind(this));
     }
-  }
-
-  _getElementTagName(element: JQuery | HTMLElement) {
-    const tagName = (element as JQuery).length ? (element as JQuery)[0].tagName : (element as HTMLElement).tagName;
-    return tagName.toUpperCase();
   }
 
   _isStartAction(actionName: string): [boolean, string] {
@@ -87,31 +78,13 @@ export class EventListenerController implements IController<IEventListenerContro
     this._executeAction(this.actionInstanceInfos, copy, 0);
   }
 
-  _executeAction(actions: IActionInstanceInfo[], operationData: TOperationData, idx: number) {
+  async _executeAction(actions: IActionInstanceInfo[], operationData: TOperationData, idx: number) {
     if (idx < actions.length) {
       const actionInfo = actions[idx];
       const { action } = actionInfo;
       const method = actionInfo.start ? action.start.bind(action) : action.end.bind(action);
-      method(operationData).then((resultOperationData) => {
-        return this._executeAction(actions, Object.assign(operationData, resultOperationData), ++idx);
-      });
-    }
-  }
-
-  _selectEventHandler(event: any) {
-    if (!this.operationData || !this.actionInstanceInfos) {
-      return;
-    }
-
-    const options = event.target;
-
-    for (let i = 0, l = options.length; i < l; i++) {
-      const opt = options[i];
-      if (opt.selected) {
-        const copy = this.operationData.actionOperationData ? deepcopy(this.operationData.actionOperationData) : {};
-        this._executeAction(this.actionInstanceInfos, Object.assign({ eventArgs: [opt.value] }, copy), 0);
-        break;
-      }
+      const resultOperationData = await method(operationData);
+      this._executeAction(actions, Object.assign(operationData, resultOperationData), ++idx);
     }
   }
 

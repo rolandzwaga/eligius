@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getControllerInstance } from '~/operation/get-controller-instance';
+import { getControllerInstance, IGetControllerInstanceOperationData } from '~/operation/get-controller-instance';
 
 class MockEventbus {
   controller: any;
@@ -17,8 +17,8 @@ class MockEventbus {
 describe('getControllerInstance', () => {
   it('should get the controller instance for the given systemName', () => {
     // given
-    const operationData = {
-      systemName: 'testName',
+    const operationData: IGetControllerInstanceOperationData = {
+      systemName: 'LabelController',
     };
     const controller = {};
     const eventbus = new MockEventbus(controller);
@@ -27,14 +27,14 @@ describe('getControllerInstance', () => {
     const newData: any = getControllerInstance(operationData, eventbus as any);
 
     // expect
-    expect(eventbus.eventName).to.equal('testName');
+    expect(eventbus.eventName).to.equal('LabelController');
     expect(newData.controllerInstance).to.equal(controller);
   });
 
   it('should get the controller instance for the given systemName and assign it to the given property name', () => {
     // given
-    const operationData = {
-      systemName: 'testName',
+    const operationData: IGetControllerInstanceOperationData = {
+      systemName: 'LabelController',
       propertyName: 'testProperty',
     };
     const controller = {};
@@ -44,7 +44,7 @@ describe('getControllerInstance', () => {
     const newData: any = getControllerInstance(operationData, eventbus as any);
 
     // expect
-    expect(eventbus.eventName).to.equal('testName');
+    expect(eventbus.eventName).to.equal('LabelController');
     expect(newData.testProperty).to.equal(controller);
   });
 });

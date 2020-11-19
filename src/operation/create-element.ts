@@ -1,21 +1,23 @@
 import $ from 'jquery';
 import { IEventbus } from '~/eventbus/types';
 import { resolvePropertyValues } from './helper/resolve-property-values';
-import { TOperation } from './types';
 
-export interface ICreateElementOperationData {
-  elementName: string;
-  attributes?: any;
-  text: string;
-  template: JQuery;
+export type TTagNames = keyof HTMLElementTagNameMap;
+
+export interface ICreateElementOperationData<T extends TTagNames> {
+  elementName: T;
+  text?: string;
+  attributes?: Partial<HTMLElementTagNameMap[T]>;
+  propertyName?: string;
+  template?: JQuery;
 }
 
-export const createElement: TOperation<ICreateElementOperationData> = function (
-  operationData: ICreateElementOperationData,
+export const createElement = function <T extends TTagNames>(
+  operationData: ICreateElementOperationData<T>,
   _eventBus: IEventbus
 ) {
   operationData = resolvePropertyValues(operationData, operationData);
-  const { elementName, attributes, text } = operationData;
+  const { elementName, attributes, text, propertyName = 'template' } = operationData;
 
   const serializedAttrs = attributes
     ? ' ' +
@@ -28,6 +30,8 @@ export const createElement: TOperation<ICreateElementOperationData> = function (
     ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
     : $(`<${elementName}${serializedAttrs}/>`);
 
-  operationData.template = template;
+  (operationData as any)[propertyName] = template;
+
+  delete operationData.propertyName;
   return operationData;
 };

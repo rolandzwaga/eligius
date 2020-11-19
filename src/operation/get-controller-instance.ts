@@ -1,9 +1,11 @@
+import * as controllers from '~/controllers';
 import { IEventbus } from '~/eventbus/types';
 import { TimelineEventNames } from '~/timeline-event-names';
 import { TOperation } from './types';
 
+type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {
-  systemName: string;
+  systemName: TSystemName;
   propertyName?: string;
 }
 
@@ -11,14 +13,13 @@ export const getControllerInstance: TOperation<IGetControllerInstanceOperationDa
   operationData: IGetControllerInstanceOperationData,
   eventBus: IEventbus
 ) {
-  const { systemName } = operationData;
-  let { propertyName } = operationData;
+  const { systemName, propertyName = 'controllerInstance' } = operationData;
 
-  propertyName = propertyName || 'controllerInstance';
   (operationData as any)[propertyName] = null;
   const resultCallback = (instance: any) => {
     (operationData as any)[propertyName as string] = instance;
   };
   eventBus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [systemName, resultCallback]);
+  delete operationData.propertyName;
   return operationData;
 };

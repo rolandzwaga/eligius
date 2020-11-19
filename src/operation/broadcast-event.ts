@@ -4,7 +4,7 @@ import { resolveEventArguments } from './helper/resolve-event-arguments';
 import { TOperation } from './types';
 
 export interface IBroadcastEventOperationData {
-  eventArgs: any;
+  eventArgs: any[];
   eventTopic?: string;
   eventName: string;
 }

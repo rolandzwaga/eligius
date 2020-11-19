@@ -63,7 +63,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
   _initializeTimelineProvider(): Promise<ITimelineProvider> {
     if (!this.configuration.timelines?.length) {
-      return Promise.resolve<any>(undefined);
+      throw new Error('No timelines present');
     }
 
     const firstTimeline = this.configuration.timelines[0];
@@ -79,15 +79,13 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
     this._activeTimelineProvider = providerSettings.provider;
 
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (this._activeTimelineProvider) {
-        this._activeTimelineProvider.init().then(() => {
-          this._executeActions(this.configuration.initActions, 'start').then(() => {
-            resolve(this._activeTimelineProvider);
-          });
-        });
+        await this._activeTimelineProvider.init();
+        await this._executeActions(this.configuration.initActions, 'start');
+        resolve(this._activeTimelineProvider);
       } else {
-        resolve();
+        throw new Error('NO ACTIVE TIMELINE PROVIDER');
       }
     });
   }
