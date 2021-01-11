@@ -47,6 +47,7 @@ export class Action implements IAction {
 
     if (idx < operations.length) {
       const operationInfo = operations[idx];
+
       const copy = operationInfo.operationData ? deepcopy(operationInfo.operationData) : {};
       const mergedOperationData = Object.assign(previousOperationData, copy);
 

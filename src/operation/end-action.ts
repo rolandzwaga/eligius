@@ -15,9 +15,14 @@ export const endAction: TOperation<IEndActionOperationData> = function (
 ) {
   const { actionInstance, actionOperationData } = operationData;
   delete operationData.actionOperationData;
+
   return new Promise<IEndActionOperationData>((resolve, reject) => {
-    const mergedData = mergeOperationData(operationData, actionOperationData);
-    actionInstance.end(mergedData).then(() => {
+    operationData = mergeOperationData(operationData, actionOperationData);
+
+    actionInstance.end(operationData).then(() => {
+      Object.keys(actionOperationData).forEach((key) => {
+        delete (operationData as any)[key];
+      });
       internalResolve(resolve, operationData);
     }, reject);
   });

@@ -39,7 +39,6 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
     findElementBySelector(root, selector, operationData, propertyName);
   };
   eventBus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [rootCallback]);
-  delete operationData.propertyName;
 
   return operationData;
 };

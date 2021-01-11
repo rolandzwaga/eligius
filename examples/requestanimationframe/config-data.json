@@ -1,360 +1,409 @@
 {
-    "id": "6291bf4c-07fb-49c6-9005-2dca98d1b3af",
-    "engine": {
-        "systemName": "ChronoTriggerEngine"
+  "id": "6291bf4c-07fb-49c6-9005-2dca98d1b3af",
+  "engine": {
+    "systemName": "ChronoTriggerEngine"
+  },
+  "timelineProviderSettings": {
+    "animation": {
+      "vendor": "chronotrigger",
+      "systemName": "RequestAnimationFrameTimelineProvider"
+    }
+  },
+  "containerSelector": "#ct-container",
+  "language": "en-US",
+  "layoutTemplate": "template:layoutTemplate",
+  "availableLanguages": [
+    {
+      "code": "en-US",
+      "label": "English"
     },
-    "timelineProviderSettings": {
-        "animation": {
-            "vendor": "chronotrigger",
-            "systemName": "RequestAnimationFrameTimelineProvider"
+    {
+      "code": "nl-NL",
+      "label": "Nederlands"
+    }
+  ],
+  "initActions": [
+    {
+      "name": "MainTitleLabel",
+      "startOperations": [
+        {
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#main-title"
+          }
+        },
+        {
+          "systemName": "getControllerInstance",
+          "operationData": {
+            "systemName": "LabelController"
+          }
+        },
+        {
+          "systemName": "addControllerToElement",
+          "operationData": {
+            "labelId": "mainTitle"
+          }
         }
+      ],
+      "endOperations": [
+        {
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#main-title"
+          }
+        },
+        {
+          "systemName": "removeControllerFromElement",
+          "operationData": {
+            "systemName": "LabelController"
+          }
+        }
+      ]
     },
-    "containerSelector": "#ct-container",
-    "language": "en-US",
-    "layoutTemplate": "template:layoutTemplate",
-    "availableLanguages": [
+    {
+      "name": "ProgressbarSetup",
+      "startOperations": [
         {
-            "code": "en-US",
-            "label": "English"
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#progress"
+          }
         },
         {
-            "code": "nl-NL",
-            "label": "Nederlands"
-        }
-    ],
-    "initActions": [
-        {
-            "name": "MainTitleLabel",
-            "startOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#main-title"
-                    }
-                },
-                {
-                    "systemName": "getControllerInstance",
-                    "operationData": {
-                        "systemName": "LabelController"
-                    }
-                },
-                {
-                    "systemName": "addControllerToElement",
-                    "operationData": {
-                        "labelId": "mainTitle"
-                    }
-                }
-            ],
-            "endOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#main-title"
-                    }
-                },
-                {
-                    "systemName": "removeControllerFromElement",
-                    "operationData": {
-                        "systemName": "LabelController"
-                    }
-                }
-            ]
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#progress-text",
+            "propertyName": "textElement"
+          }
         },
         {
-            "name": "ProgressbarSetup",
-            "startOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#progress"
-                    }
-                },
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#progress-text",
-                        "propertyName": "textElement"
-                    }
-                },
-                {
-                    "systemName": "getControllerInstance",
-                    "operationData": {
-                        "systemName": "ProgressbarController"
-                    }
-                },
-                {
-                    "systemName": "addControllerToElement",
-                    "operationData": {
-                        "playerId": "config:timelineProviderSettings.selector"
-                    }
-                }
-            ],
-            "endOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#progress"
-                    }
-                },
-                {
-                    "systemName": "removeControllerFromElement",
-                    "operationData": {
-                        "systemName": "ProgressbarController"
-                    }
-                }
-            ]
+          "systemName": "getControllerInstance",
+          "operationData": {
+            "systemName": "ProgressbarController"
+          }
         },
         {
-            "name": "LanguageSelection",
-            "startOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#langsel"
-                    }
-                },
-                {
-                    "systemName": "addOptionList",
-                    "operationData": {
-                        "optionData": "config:availableLanguages",
-                        "labelProperty": "label",
-                        "valueProperty": "code",
-                        "defaultValue": "nl_NL"
-                    }
-                },
-                {
-                    "systemName": "getControllerInstance",
-                    "operationData": {
-                        "systemName": "EventListenerController"
-                    }
-                },
-                {
-                    "systemName": "addControllerToElement",
-                    "operationData": {
-                        "eventName": "change",
-                        "actions": [
-                            "BroadcastLanguageChange"
-                        ]
-                    }
-                }
-            ],
-            "endOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#langsel"
-                    }
-                },
-                {
-                    "systemName": "removeControllerFromElement",
-                    "operationData": {
-                        "systemName": "EventListenerController"
-                    }
-                }
-            ]
+          "systemName": "addControllerToElement",
+          "operationData": {
+            "playerId": "config:timelineProviderSettings.selector"
+          }
+        }
+      ],
+      "endOperations": [
+        {
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#progress"
+          }
         },
         {
-            "name": "SubtitleDisplay",
-            "startOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#subtitles"
-                    }
-                },
-                {
-                    "systemName": "getControllerInstance",
-                    "operationData": {
-                        "systemName": "SubtitlesController"
-                    }
-                },
-                {
-                    "systemName": "addControllerToElement",
-                    "operationData": {
-                        "language": "config:language",
-                        "subtitleData": "json:testSubtitles"
-                    }
-                }
-            ],
-            "endOperations": [
-                {
-                    "systemName": "selectElement",
-                    "operationData": {
-                        "selector": "#subtitles"
-                    }
-                },
-                {
-                    "systemName": "removeControllerFromElement",
-                    "operationData": {
-                        "systemName": "SubtitlesController"
-                    }
-                }
-            ]
+          "systemName": "removeControllerFromElement",
+          "operationData": {
+            "systemName": "ProgressbarController"
+          }
         }
-    ],
-    "actions": [
+      ]
+    },
+    {
+      "name": "LanguageSelection",
+      "startOperations": [
         {
-            "name": "BroadcastLanguageChange",
-            "startOperations": [
-                {
-                    "systemName": "broadcastEvent",
-                    "operationData": {
-                        "eventName": "language-change"
-                    }
-                }
-            ]
-        }
-    ],
-    "timelines": [
+          "id": "6561337a-c83e-4d76-9ded-b887e59e151e",
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "[data-test=true]"
+          }
+        },
         {
-            "type": "animation",
-            "uri": "animation-01",
-            "duration": 45,
-            "loop": true,
-            "selector": ".timeline-div",
-            "timelineActions": [
-                {
-                    "name": "ShowChartHistoryItem",
-                    "duration": {
-                        "start": 7
-                    },
-                    "startOperations": [
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "selector": ".view-history-container"
-                            }
-                        },
-                        {
-                            "systemName": "setElementContent",
-                            "operationData": {
-                                "template": "<div class=\"view-history-item-borders view-history-item\" id=\"view-history-item-1\"><span class=\"huge\">1</span></div>",
-                                "append": true
-                            }
-                        },
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "useExistingAsRoot": true,
-                                "selector": "#view-history-item-1"
-                            }
-                        },
-                        {
-                            "systemName": "addClass",
-                            "operationData": {
-                                "className": "view-history-item-full"
-                            }
-                        }
-                    ],
-                    "endOperations": [
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "selector": "#view-history-item-1"
-                            }
-                        },
-                        {
-                            "systemName": "removeElement"
-                        }
-                    ]
-                },
-                {
-                    "name": "ShowGoogleMaps",
-                    "duration": {
-                        "start": 22,
-                        "end": 40
-                    },
-                    "startOperations": [
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "selector": ".main-view-container"
-                            }
-                        },
-                        {
-                            "systemName": "setElementContent",
-                            "operationData": {
-                                "template": "<iframe src=\"//www.google.com/maps/embed/v1/place?q=Harrods,Brompton%20Rd,%20UK&zoom=17&key=AIzaSyDsviN6zWckY8-lbIt9K6fw0eEJ43a274k\" class=\"google-maps-container\"/>"
-                            }
-                        }
-                    ],
-                    "endOperations": [
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "selector": ".main-view-container"
-                            }
-                        },
-                        {
-                            "systemName": "clearElement"
-                        }
-                    ]
-                },
-                {
-                    "name": "ShowGoogleMapsHistoryItem",
-                    "duration": {
-                        "start": 24
-                    },
-                    "startOperations": [
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "selector": ".view-history-container"
-                            }
-                        },
-                        {
-                            "systemName": "setElementContent",
-                            "operationData": {
-                                "template": "<div class=\"view-history-item\" id=\"view-history-item-2\"><span class=\"huge\">2</span></div>",
-                                "append": true
-                            }
-                        }
-                    ],
-                    "endOperations": [
-                        {
-                            "systemName": "selectElement",
-                            "operationData": {
-                                "selector": "#view-history-item-2"
-                            }
-                        },
-                        {
-                            "systemName": "removeElement"
-                        }
-                    ]
-                }
-            ]
+          "id": "7d282d68-e75d-4b92-bf13-8e836f39ee96",
+          "systemName": "createElement",
+          "operationData": {
+            "elementName": "select",
+            "attributes": {
+              "data-language-selector": "true",
+              "defaultValue": "nl-NL"
+            }
+          }
+        },
+        {
+          "id": "e61a532a-712a-4746-915a-ab0781bcd4dc",
+          "systemName": "setElementContent",
+          "operationData": {
+            "insertionType": "prepend"
+          }
+        },
+        {
+          "id": "beaa54ef-5809-44e8-8bdf-2cd868cd5ed9",
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "[data-language-selector=true]"
+          }
+        },
+        {
+          "id": "3cde6cdb-23e2-4149-a50b-0470cee46fb3",
+          "systemName": "startLoop",
+          "operationData": {
+            "collection": "config:availableLanguages"
+          }
+        },
+        {
+          "id": "0b636a6d-4c59-47e2-b9fa-c88bc8cdfeb6",
+          "systemName": "createElement",
+          "operationData": {
+            "elementName": "option",
+            "attributes": {
+              "value": "operationdata.currentItem.languageCode"
+            },
+            "text": "operationdata.currentItem.label"
+          }
+        },
+        {
+          "id": "eda9fd92-ebf0-4418-9351-057db29bcdb1",
+          "systemName": "setElementContent",
+          "operationData": {
+            "insertionType": "append"
+          }
+        },
+        {
+          "id": "2f215329-c443-40b7-b861-c5987fd7f5ad",
+          "systemName": "endLoop",
+          "operationData": {}
+        },
+        {
+          "id": "878c43e4-05c8-4b9f-a3c2-9db1e2c0a6a5",
+          "systemName": "getControllerInstance",
+          "operationData": {
+            "systemName": "EventListenerController"
+          }
+        },
+        {
+          "id": "ec1eab42-fa1a-436d-be61-a288e16d5c24",
+          "systemName": "addControllerToElement",
+          "operationData": {
+            "eventName": "change",
+            "actions": ["BroadcastLanguageChange"]
+          }
         }
-    ],
-    "timelineFlow": {
-        "id": "11-22-33",
-        "uri": "animation-01",
-        "children": [
+      ],
+      "endOperations": [
+        {
+          "id": "b5b58a06-bda3-4a14-8b5d-7f9f91b78b8e",
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "[data-language-selector=true]"
+          }
+        },
+        {
+          "id": "bec08c61-34df-415d-937d-065294bd9f44",
+          "systemName": "removeControllerFromElement",
+          "operationData": {
+            "controllerName": "EventListenerController"
+          }
+        }
+      ]
+    },
+    {
+      "name": "SubtitleDisplay",
+      "startOperations": [
+        {
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#subtitles"
+          }
+        },
+        {
+          "systemName": "getControllerInstance",
+          "operationData": {
+            "systemName": "SubtitlesController"
+          }
+        },
+        {
+          "systemName": "addControllerToElement",
+          "operationData": {
+            "language": "config:language",
+            "subtitleData": "json:testSubtitles"
+          }
+        }
+      ],
+      "endOperations": [
+        {
+          "systemName": "selectElement",
+          "operationData": {
+            "selector": "#subtitles"
+          }
+        },
+        {
+          "systemName": "removeControllerFromElement",
+          "operationData": {
+            "systemName": "SubtitlesController"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "name": "BroadcastLanguageChange",
+      "startOperations": [
+        {
+          "systemName": "broadcastEvent",
+          "operationData": {
+            "eventName": "language-change"
+          }
+        }
+      ]
+    }
+  ],
+  "timelines": [
+    {
+      "type": "animation",
+      "uri": "animation-01",
+      "duration": 45,
+      "loop": true,
+      "selector": ".timeline-div",
+      "timelineActions": [
+        {
+          "name": "ShowChartHistoryItem",
+          "duration": {
+            "start": 7
+          },
+          "startOperations": [
             {
-                "id": "44-55-66",
-                "uri": "animation-02",
-                "param": true
+              "systemName": "selectElement",
+              "operationData": {
+                "selector": ".view-history-container"
+              }
             },
             {
-                "id": "77-88-99",
-                "uri": "animation-03",
-                "param": false
+              "systemName": "setElementContent",
+              "operationData": {
+                "template": "<div class=\"view-history-item-borders view-history-item\" id=\"view-history-item-1\"><span class=\"huge\">1</span></div>",
+                "append": true
+              }
+            },
+            {
+              "systemName": "selectElement",
+              "operationData": {
+                "useExistingAsRoot": true,
+                "selector": "#view-history-item-1"
+              }
+            },
+            {
+              "systemName": "addClass",
+              "operationData": {
+                "className": "view-history-item-full"
+              }
             }
-        ]
-    },
-    "eventActions": [],
-    "labels": [
+          ],
+          "endOperations": [
+            {
+              "systemName": "selectElement",
+              "operationData": {
+                "selector": "#view-history-item-1"
+              }
+            },
+            {
+              "systemName": "removeElement"
+            }
+          ]
+        },
         {
-            "id": "mainTitle",
-            "labels": [
-                {
-                    "code": "en-US",
-                    "label": "This is the main title"
-                },
-                {
-                    "code": "nl-NL",
-                    "label": "Dit is de hoofdtitel"
-                }
-            ]
+          "name": "ShowGoogleMaps",
+          "duration": {
+            "start": 22,
+            "end": 40
+          },
+          "startOperations": [
+            {
+              "systemName": "selectElement",
+              "operationData": {
+                "selector": ".main-view-container"
+              }
+            },
+            {
+              "systemName": "setElementContent",
+              "operationData": {
+                "template": "<iframe src=\"//www.google.com/maps/embed/v1/place?q=Harrods,Brompton%20Rd,%20UK&zoom=17&key=AIzaSyDsviN6zWckY8-lbIt9K6fw0eEJ43a274k\" class=\"google-maps-container\"/>"
+              }
+            }
+          ],
+          "endOperations": [
+            {
+              "systemName": "selectElement",
+              "operationData": {
+                "selector": ".main-view-container"
+              }
+            },
+            {
+              "systemName": "clearElement"
+            }
+          ]
+        },
+        {
+          "name": "ShowGoogleMapsHistoryItem",
+          "duration": {
+            "start": 24
+          },
+          "startOperations": [
+            {
+              "systemName": "selectElement",
+              "operationData": {
+                "selector": ".view-history-container"
+              }
+            },
+            {
+              "systemName": "setElementContent",
+              "operationData": {
+                "template": "<div class=\"view-history-item\" id=\"view-history-item-2\"><span class=\"huge\">2</span></div>",
+                "append": true
+              }
+            }
+          ],
+          "endOperations": [
+            {
+              "systemName": "selectElement",
+              "operationData": {
+                "selector": "#view-history-item-2"
+              }
+            },
+            {
+              "systemName": "removeElement"
+            }
+          ]
         }
+      ]
+    }
+  ],
+  "timelineFlow": {
+    "id": "11-22-33",
+    "uri": "animation-01",
+    "children": [
+      {
+        "id": "44-55-66",
+        "uri": "animation-02",
+        "param": true
+      },
+      {
+        "id": "77-88-99",
+        "uri": "animation-03",
+        "param": false
+      }
     ]
+  },
+  "eventActions": [],
+  "labels": [
+    {
+      "id": "mainTitle",
+      "labels": [
+        {
+          "code": "en-US",
+          "label": "This is the main title"
+        },
+        {
+          "code": "nl-NL",
+          "label": "Dit is de hoofdtitel"
+        }
+      ]
+    }
+  ]
 }

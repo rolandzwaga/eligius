@@ -78,7 +78,7 @@ export class EngineFactory implements IEngineFactory {
     const EngineClass = this._importSystemEntry(systemName);
 
     let actionRegistryListener: ActionRegistryEventbusListener | undefined = undefined;
-    if (configuration.eventActions && configuration.eventActions.length) {
+    if (configuration.eventActions?.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
       this.eventbus.registerEventlistener(actionRegistryListener);
     }

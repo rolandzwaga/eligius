@@ -14,7 +14,7 @@ export class ActionCreatorFactory {
   constructor(private readonly configurationfactory: ConfigurationFactory) {}
 
   createAction(name: string): ActionCreator {
-    const creator = new ActionCreator(name, this);
+    const creator = new EndableActionCreator(name, this);
     this.configurationfactory.addAction(creator.actionConfig);
     return creator;
   }
@@ -127,7 +127,7 @@ export class EndableActionCreator<
     }
 
     let { endOperations } = this.actionConfig;
-    if (endOperations) {
+    if (!endOperations) {
       endOperations = this.actionConfig.endOperations = [];
     }
     endOperations.push({

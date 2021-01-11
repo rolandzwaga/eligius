@@ -113,17 +113,10 @@ describe('EventListenerController', () => {
 
   it('should call the select event handler', (done) => {
     // given
-    const options = [
-      {
-        selected: false,
-      },
-      {
-        selected: true,
+    const event = {
+      target: {
         value: 'test',
       },
-    ];
-    const event = {
-      target: options,
     };
     controller.init(operationData);
     controller.attach(eventbus as any);
@@ -132,7 +125,7 @@ describe('EventListenerController', () => {
     operationData.selectedElement.eventHandler(event);
 
     // expect
-    const expectedOperatonData = Object.assign({ eventArgs: ['test'] }, controller.operationData.actionOperationData);
+    const expectedOperatonData = Object.assign({ targetValue: 'test' }, controller.operationData.actionOperationData);
     setTimeout(() => {
       expect(controller.actionInstanceInfos[0].action.startOperationData).to.eql(expectedOperatonData);
       expect(controller.actionInstanceInfos[1].action.startOperationData).to.eql(expectedOperatonData);

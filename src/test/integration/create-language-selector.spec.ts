@@ -11,6 +11,8 @@ import {
   createElement,
   endLoop,
   getControllerInstance,
+  log,
+  removeControllerFromElement,
   selectElement,
   setElementContent,
   startLoop,
@@ -18,7 +20,7 @@ import {
 import { TimelineEventNames } from '~/timeline-event-names';
 import { IChronoTriggerEngine } from '~/types';
 
-fdescribe('Create option list', () => {
+describe('Create option list', () => {
   let configuration: IEngineConfiguration | null = null;
   let eventbus: Eventbus;
   let engine: IChronoTriggerEngine;
@@ -41,7 +43,7 @@ fdescribe('Create option list', () => {
       .addLanguage('nl-NL', 'Nederlands')
       .addLanguage('en-GB', 'English')
       .addTimeline('my-anim', 'animation', 100, false, '[data-anim-container=true]')
-      .createInitAction('CreateSelector');
+      .createInitAction('CreateLanguageSelector');
 
     actionCreator
       .addStartOperationByType(selectElement, { selector: '[data-test=true]' })
@@ -52,7 +54,7 @@ fdescribe('Create option list', () => {
           defaultValue: 'nl-NL',
         },
       })
-      .addStartOperationByType(setElementContent, { append: true })
+      .addStartOperationByType(setElementContent, { insertionType: 'prepend' })
       .addStartOperationByType(selectElement, { selector: '[data-language-selector=true]' })
       .addStartOperationByType(startLoop, { collection: 'config:availableLanguages' })
       .addStartOperationByType(createElement, {
@@ -62,13 +64,16 @@ fdescribe('Create option list', () => {
         },
         text: 'operationdata.currentItem.label',
       })
-      .addStartOperationByType(setElementContent, { append: true })
+      .addStartOperationByType(setElementContent, { insertionType: 'append' })
       .addStartOperationByType(endLoop, {})
       .addStartOperationByType(getControllerInstance, { systemName: 'EventListenerController' })
       .addStartOperationByType(addControllerToElement, {
         eventName: 'change',
         actions: ['BroadcastLanguageChange'],
-      });
+      })
+      .addEndOperationByType(selectElement, { selector: '[data-language-selector=true]' })
+      .addEndOperationByType(log, {})
+      .addEndOperationByType(removeControllerFromElement, { controllerName: 'EventListenerController' });
 
     const eventActionCreator = factory.createEventAction('BroadcastLanguageChange');
     eventActionCreator.addStartOperationByType(broadcastEvent, {
@@ -82,8 +87,8 @@ fdescribe('Create option list', () => {
     });
   });
 
-  afterEach(() => {
-    engine.destroy();
+  afterEach(async () => {
+    await engine.destroy();
     eventbus.clear();
     $('[data-ct-container=true]').remove();
   });
@@ -103,8 +108,7 @@ fdescribe('Create option list', () => {
       $('[data-language-selector=true]').val('en-GB').trigger('change');
       expect(selectedLang).to.equal('en-GB');
     } catch (e) {
-      console.error(e);
-      expect(true).to.be.false;
+      throw e;
     }
   });
 });

@@ -5,7 +5,7 @@ import { TOperation } from './types';
 
 export interface IRequestActionOperationData {
   systemName: string;
-  actionInstance: IAction;
+  actionInstance?: IAction;
 }
 
 export const requestAction: TOperation<IRequestActionOperationData> = function (

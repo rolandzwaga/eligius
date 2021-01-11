@@ -19,7 +19,7 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
   }
 
   if (context.loopIndex === undefined) {
-    if (collection.length) {
+    if (collection?.length) {
       context.loopIndex = 0;
       context.loopLength = collection.length - 1;
       context.startIndex = context.currentIndex;
@@ -28,7 +28,7 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
     }
   }
 
-  if (collection.length && context.loopIndex !== undefined) {
+  if (collection?.length && context.loopIndex !== undefined) {
     (operationData as any)[propertyName] = collection[context.loopIndex];
   }
 

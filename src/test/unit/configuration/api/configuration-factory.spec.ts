@@ -18,7 +18,7 @@ describe('ConfigurationFactory', () => {
     const { configuration } = configurationFactory;
     expect(configuration.id).not.to.be.undefined;
     expect(configuration.engine.systemName).to.equal('ChronoTriggerEngine');
-    expect(configuration.containerSelector).to.equal('#ct-container');
+    expect(configuration.containerSelector).to.equal('[data-ct-container=true]');
     expect(configuration.timelineProviderSettings).to.deep.equal({});
     expect(configuration.language).to.equal('nl-NL');
     expect(configuration.availableLanguages.length).to.equal(0);

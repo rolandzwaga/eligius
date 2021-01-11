@@ -16,15 +16,15 @@ export class EndableAction extends Action {
   end(initOperationData?: TOperationData): Promise<TOperationData> {
     if (this.endOperations.length) {
       const context: IOperationContext = { currentIndex: -1 };
-      const idx = 0;
       const result = new Promise<TOperationData>((resolve, reject) => {
-        this.executeOperation(this.endOperations, idx, resolve, reject, initOperationData, context);
+        this.executeOperation(this.endOperations, 0, resolve, reject, initOperationData, context);
       }).catch((e) => {
-        console.error(`Error in action end'${this.name}'`);
+        console.error(`Error in action end '${this.name}'`);
         throw e;
       });
       return result;
     }
+
     return new Promise((resolve) => {
       resolve(initOperationData);
     });

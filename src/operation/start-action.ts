@@ -14,9 +14,15 @@ export const startAction: TOperation<IStartActionOperationData> = function (
   _eventBus: IEventbus
 ) {
   const { actionInstance, actionOperationData } = operationData;
+  delete operationData.actionOperationData;
+
   return new Promise((resolve, reject) => {
     operationData = mergeOperationData(operationData, actionOperationData);
+
     actionInstance.start(operationData).then(() => {
+      Object.keys(actionOperationData).forEach((key) => {
+        delete (operationData as any)[key];
+      });
       internalResolve(resolve, operationData);
     }, reject);
   });

@@ -3,20 +3,29 @@ import { TOperation } from './types';
 
 export interface ISetElementContentOperationData {
   selectedElement: JQuery;
-  append?: boolean;
   template: string | JQuery.Node;
+  insertionType?: 'append' | 'prepend';
 }
 
 export const setElementContent: TOperation<ISetElementContentOperationData> = function (
   operationData: ISetElementContentOperationData,
   _eventBus: IEventbus
 ) {
-  const { append = false, selectedElement, template } = operationData;
+  const { insertionType, selectedElement, template } = operationData;
 
-  if (!append) {
-    selectedElement.html(template);
-  } else {
-    selectedElement.append(template);
+  switch (true) {
+    case insertionType === undefined:
+      selectedElement.html(template);
+      break;
+    case insertionType === 'append':
+      selectedElement.append(template);
+      break;
+    case insertionType === 'prepend':
+      selectedElement.prepend(template);
+      break;
   }
+
+  delete operationData.insertionType;
+
   return operationData;
 };

@@ -191,14 +191,12 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     return lookup[position];
   }
 
-  _executeActions(actions: IEndableAction[], methodName: 'start' | 'end', idx = 0): Promise<any> {
+  async _executeActions(actions: IEndableAction[], methodName: 'start' | 'end', idx = 0): Promise<any> {
     if (actions && idx < actions.length) {
       const action = actions[idx];
 
-      const promise = action[methodName]();
-      return promise.then(() => {
-        return this._executeActions(actions, methodName, ++idx);
-      });
+      await action[methodName]();
+      return this._executeActions(actions, methodName, ++idx);
     }
 
     return new Promise((resolve) => {
@@ -210,7 +208,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     resultCallback($(engineRootSelector));
   }
 
-  _handleRequestTimelineUri(uri: string, position?: number, previousVideoPosition?: number) {
+  async _handleRequestTimelineUri(uri: string, position?: number, previousVideoPosition?: number) {
     if (!this._activeTimelineProvider) {
       return;
     }
@@ -218,45 +216,45 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     previousVideoPosition = previousVideoPosition ?? 0;
     this._activeTimelineProvider.stop();
 
-    this._cleanUpTimeline().then(() => {
-      const timelineConfig = this.configuration.timelines.find((timeline) => timeline.uri === uri);
-      if (!timelineConfig || !this._activeTimelineProvider || this._currentTimelineUri === timelineConfig.uri) {
-        return;
-      }
-      this._currentTimelineUri = timelineConfig.uri;
+    await this._cleanUpTimeline();
 
-      this.eventbus.broadcast(TimelineEventNames.CURRENT_TIMELINE_CHANGE, [this._currentTimelineUri]);
+    const timelineConfig = this.configuration.timelines.find((timeline) => timeline.uri === uri);
+    if (!timelineConfig || !this._activeTimelineProvider || this._currentTimelineUri === timelineConfig.uri) {
+      return;
+    }
+    this._currentTimelineUri = timelineConfig.uri;
 
-      const newProviderSettings = this.timelineProviders[timelineConfig.type];
+    this.eventbus.broadcast(TimelineEventNames.CURRENT_TIMELINE_CHANGE, [this._currentTimelineUri]);
 
-      if (this._activeTimelineProvider !== newProviderSettings.provider) {
-        this._activeTimelineProvider.destroy();
-        this._activeTimelineProvider = newProviderSettings.provider;
-      }
+    const newProviderSettings = this.timelineProviders[timelineConfig.type];
 
-      this._activeTimelineProvider.loop = timelineConfig.loop;
+    if (this._activeTimelineProvider !== newProviderSettings.provider) {
+      this._activeTimelineProvider.destroy();
+      this._activeTimelineProvider = newProviderSettings.provider;
+    }
 
-      position = position ?? 0;
-      if (!this._activeTimelineProvider.loop && position > 0) {
-        this.eventbus.once(TimelineEventNames.FIRST_FRAME, () => {
-          if (!this._activeTimelineProvider) {
-            return;
-          }
+    this._activeTimelineProvider.loop = timelineConfig.loop;
 
-          this._activeTimelineProvider.pause();
-          this.eventbus.broadcast(TimelineEventNames.DURATION, [this._activeTimelineProvider.getDuration()]);
-          this._executeStartActions().then(() => {
-            position = position ?? 0;
-            this._activeTimelineProvider?.seek(position);
-            this._onSeekHandler(Math.floor, {
-              offset: position,
-            });
+    position = position ?? 0;
+    if (!this._activeTimelineProvider.loop && position > 0) {
+      this.eventbus.once(TimelineEventNames.FIRST_FRAME, () => {
+        if (!this._activeTimelineProvider) {
+          return;
+        }
+
+        this._activeTimelineProvider.pause();
+        this.eventbus.broadcast(TimelineEventNames.DURATION, [this._activeTimelineProvider.getDuration()]);
+        this._executeStartActions().then(() => {
+          position = position ?? 0;
+          this._activeTimelineProvider?.seek(position);
+          this._onSeekHandler(Math.floor, {
+            offset: position,
           });
         });
-      }
+      });
+    }
 
-      this._activeTimelineProvider.playlistItem(uri);
-    });
+    this._activeTimelineProvider.playlistItem(uri);
   }
 
   _cleanUpTimeline() {
@@ -286,7 +284,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     });
   }
 
-  _executeRelevantActions(filter: Function, executionType: 'start' | 'end') {
+  _executeRelevantActions(filter: (actions: ITimelineAction[]) => ITimelineAction[], executionType: 'start' | 'end') {
     const timelineActions = this._getRelevantTimelineActions();
     const currentActions = filter.apply(this, [timelineActions]);
     return this._executeActions(currentActions, executionType, 0);
@@ -302,7 +300,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
   _handleExecuteTimelineAction(uri: string, index: number, start: boolean) {
     const actions = this._getTimelineActionsForUri(uri);
-    const action = actions ? actions[index] : null;
+    const action = actions?.[index];
     if (action) {
       if (start) {
         action.start();
