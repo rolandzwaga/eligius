@@ -19,7 +19,7 @@ module.exports = function (env, args) {
     entry: path.join(__dirname, 'src/index.ts'),
     devtool: 'source-map',
     output: {
-      path: path.join(__dirname, 'lib'),
+      path: path.join(__dirname, 'dist'),
       filename: outputFile,
       library: libraryName,
       libraryTarget: 'umd',

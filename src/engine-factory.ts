@@ -121,6 +121,10 @@ export class EngineFactory implements IEngineFactory {
 
     const result = Object.entries(timelineProviderSettings).reduce<Record<TimelineTypes, ITimelineProviderInfo>>(
       (acc, [timelineType, settings]) => {
+        if (!settings) {
+          return acc;
+        }
+
         const timelineProviderClass = this._importSystemEntry(settings.systemName);
         acc[timelineType as TimelineTypes] = {
           id: settings.id,

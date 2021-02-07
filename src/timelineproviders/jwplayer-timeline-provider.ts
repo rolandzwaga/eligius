@@ -31,6 +31,9 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
 
   init(): Promise<any> {
     const settings = this.config.timelineProviderSettings['mediaplayer'];
+    if (!settings) {
+      throw new Error(`No settings found for 'mediaplayer' timeline provider`);
+    }
     const { selector } = settings;
     const urls = this._extractUrls(this.config);
     const jwp = (window as any).jwplayer;
