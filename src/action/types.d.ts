@@ -1,6 +1,6 @@
-import { IResolvedOperation } from '~/configuration/types';
-import { TOperationData } from '~/operation/types';
-import { IStrictDuration } from '~/types';
+import { IResolvedOperation } from '../configuration/types';
+import { TOperationData } from '../operation/types';
+import { IStrictDuration } from '../types';
 
 export interface IAction {
   id: string;

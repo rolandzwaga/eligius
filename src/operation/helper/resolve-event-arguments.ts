@@ -1,4 +1,4 @@
-import { TOperationData } from '~/operation/types';
+import { TOperationData } from '../../operation/types';
 import { extractOperationDataArgumentValues } from './extract-operation-data-argument-values';
 
 export function resolveEventArguments(operationData: TOperationData, eventArgs: any[]) {

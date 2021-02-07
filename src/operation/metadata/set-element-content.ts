@@ -1,4 +1,4 @@
-import { ISetElementContentOperationData } from '~/operation/set-element-content';
+import { ISetElementContentOperationData } from '../../operation/set-element-content';
 import { IOperationMetadata } from './types';
 
 function setElementContent(): IOperationMetadata<ISetElementContentOperationData> {

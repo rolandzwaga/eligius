@@ -1,4 +1,4 @@
-import { IEventbus } from '~/eventbus/types';
+import { IEventbus } from '../eventbus/types';
 
 export type TOperationResult<T = TOperationData> = Promise<T> | T;
 

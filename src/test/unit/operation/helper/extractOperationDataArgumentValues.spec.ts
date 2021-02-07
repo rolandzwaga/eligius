@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { extractOperationDataArgumentValues } from '~/operation/helper/extract-operation-data-argument-values';
+import { extractOperationDataArgumentValues } from '../operation/helper/extract-operation-data-argument-values';
 
 describe('extractOperationDataArgumentValues', () => {
   it('should extract the operation data argument values', () => {

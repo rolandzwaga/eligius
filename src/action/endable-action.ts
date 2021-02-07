@@ -1,6 +1,6 @@
-import { IResolvedOperation } from '~/configuration/types';
-import { IEventbus } from '~/eventbus/types';
-import { IOperationContext, TOperationData } from '~/operation/types';
+import { IResolvedOperation } from '../configuration/types';
+import { IEventbus } from '../eventbus/types';
+import { IOperationContext, TOperationData } from '../operation/types';
 import { Action } from './action';
 
 export class EndableAction extends Action {

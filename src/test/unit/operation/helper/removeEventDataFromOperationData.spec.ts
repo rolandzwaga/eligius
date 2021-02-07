@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { removeEventDataFromOperationData } from '~/operation/helper/remove-event-data-from-operation-data';
+import { removeEventDataFromOperationData } from '../operation/helper/remove-event-data-from-operation-data';
 
 describe('removeEventDataFromOperationData', () => {
   it('should remove the event data from the given operation data', () => {

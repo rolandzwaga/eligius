@@ -1,4 +1,4 @@
-import { TStartLoopOperationData } from '~/operation/start-loop';
+import { TStartLoopOperationData } from '../../operation/start-loop';
 import { IOperationMetadata } from './types';
 
 function startLoop(): IOperationMetadata<TStartLoopOperationData> {

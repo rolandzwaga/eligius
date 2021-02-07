@@ -1,4 +1,4 @@
-import { IBroadcastEventOperationData } from '~/operation/broadcast-event';
+import { IBroadcastEventOperationData } from '../../operation/broadcast-event';
 import { IOperationMetadata } from './types';
 
 function broadcastEvent(): IOperationMetadata<IBroadcastEventOperationData> {

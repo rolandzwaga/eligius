@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ISetElementContentOperationData, setElementContent } from '~/operation/set-element-content';
+import { ISetElementContentOperationData, setElementContent } from '../operation/set-element-content';
 
 class MockElement {
   htmlContent: string;

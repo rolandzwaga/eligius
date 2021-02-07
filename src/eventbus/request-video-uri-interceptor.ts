@@ -1,4 +1,4 @@
-import { TimelineEventNames } from '~/timeline-event-names';
+import { TimelineEventNames } from '../timeline-event-names';
 import { IEventbus, IEventbusInterceptor } from './types';
 
 export class RequestVideoUriInterceptor implements IEventbusInterceptor {

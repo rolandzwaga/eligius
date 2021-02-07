@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import $ from 'jquery';
-import { ConfigurationFactory } from '~/configuration/api/configuration-factory';
-import { IEngineConfiguration } from '~/configuration/types';
-import { EngineFactory } from '~/engine-factory';
-import { Eventbus } from '~/eventbus';
-import { WebpackResourceImporter } from '~/importer';
+import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
+import { IEngineConfiguration } from '../../configuration/types';
+import { EngineFactory } from '../../engine-factory';
+import { Eventbus } from '../../eventbus';
+import { WebpackResourceImporter } from '../../importer';
 import {
   addControllerToElement,
   broadcastEvent,
@@ -16,9 +16,9 @@ import {
   selectElement,
   setElementContent,
   startLoop,
-} from '~/operation';
-import { TimelineEventNames } from '~/timeline-event-names';
-import { IChronoTriggerEngine } from '~/types';
+} from '../../operation';
+import { TimelineEventNames } from '../../timeline-event-names';
+import { IChronoTriggerEngine } from '../../types';
 
 describe('Create option list', () => {
   let configuration: IEngineConfiguration | null = null;

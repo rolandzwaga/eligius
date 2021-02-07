@@ -1,4 +1,4 @@
-import { IRemoveElementOperationData } from '~/operation/remove-element';
+import { IRemoveElementOperationData } from '../../operation/remove-element';
 import { IOperationMetadata } from './types';
 
 function removeElement(): IOperationMetadata<IRemoveElementOperationData> {

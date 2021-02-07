@@ -1,4 +1,4 @@
-import { ICreateElementOperationData } from '~/operation/create-element';
+import { ICreateElementOperationData } from '../../operation/create-element';
 import { IOperationMetadata } from './types';
 
 function createElement(): IOperationMetadata<ICreateElementOperationData<any>> {

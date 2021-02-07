@@ -1,6 +1,6 @@
-import * as controllers from '~/controllers';
-import { IEventbus } from '~/eventbus/types';
-import { TimelineEventNames } from '~/timeline-event-names';
+import * as controllers from '../controllers';
+import { IEventbus } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { TOperation } from './types';
 
 type TSystemName = keyof typeof controllers;

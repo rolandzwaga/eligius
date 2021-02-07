@@ -1,11 +1,11 @@
 import { isDefined } from 'ts-is-present';
-import { Action, EndableAction, TimelineAction } from '~/action';
-import { IAction } from '~/action/types';
-import { ActionRegistryEventbusListener } from '~/eventbus';
-import { IEventbus } from '~/eventbus/types';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { getNestedPropertyValue } from '~/operation/helper/get-nested-property-value';
-import { IConfigurationResolver, IResourceImporter } from '~/types';
+import { Action, EndableAction, TimelineAction } from '../action';
+import { IAction } from '../action/types';
+import { ActionRegistryEventbusListener } from '../eventbus';
+import { IEventbus } from '../eventbus/types';
+import { deepCopy } from '../operation/helper/deep-copy';
+import { getNestedPropertyValue } from '../operation/helper/get-nested-property-value';
+import { IConfigurationResolver, IResourceImporter } from '../types';
 import {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -31,15 +31,15 @@ export class ConfigurationResolver implements IConfigurationResolver {
     const resolvedConfig: IResolvedEngineConfiguration = {
       id: configuration.id,
       engine: { ...configuration.engine },
-      timelineProviderSettings: deepcopy(configuration.timelineProviderSettings),
+      timelineProviderSettings: deepCopy(configuration.timelineProviderSettings),
       containerSelector: configuration.containerSelector,
       language: configuration.language,
       layoutTemplate: configuration.layoutTemplate,
-      availableLanguages: deepcopy(configuration.availableLanguages),
+      availableLanguages: deepCopy(configuration.availableLanguages),
       actions: resolveActions(configuration.actions, this.importer, this.eventbus),
       initActions: resolveActions(configuration.initActions, this.importer, this.eventbus),
-      labels: deepcopy(configuration.labels),
-      timelineFlow: deepcopy(configuration.timelineFlow),
+      labels: deepCopy(configuration.labels),
+      timelineFlow: deepCopy(configuration.timelineFlow),
       timelines: resolveTimelines(configuration.timelines, this.importer, this.eventbus),
     };
 
@@ -96,7 +96,7 @@ function resolveOperation(importer: IResourceImporter, operationConfig: IOperati
   return {
     id: operationConfig.id,
     systemName: operationConfig.systemName,
-    operationData: deepcopy(operationConfig.operationData),
+    operationData: deepCopy(operationConfig.operationData),
     instance: importer.import(operationConfig.systemName)[operationConfig.systemName],
   };
 }

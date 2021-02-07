@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { IEventbus } from '~/eventbus/types';
+import { IEventbus } from '../eventbus/types';
 import { resolvePropertyValues } from './helper/resolve-property-values';
 
 export type TTagNames = keyof HTMLElementTagNameMap;

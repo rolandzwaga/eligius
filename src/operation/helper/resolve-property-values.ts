@@ -1,12 +1,12 @@
 import $ from 'jquery';
-import { TOperationData } from '~/operation/types';
-import { deepcopy } from './deepcopy';
+import { TOperationData } from '../../operation/types';
+import { deepCopy } from './deep-copy';
 import { extractOperationDataArgumentValues } from './extract-operation-data-argument-values';
 
 const cache: any[] = [];
 
 export function resolvePropertyValues(operationData: TOperationData, properties: any) {
-  const copy = properties !== operationData ? deepcopy(properties) : properties;
+  const copy = properties !== operationData ? deepCopy(properties) : properties;
   const extract = extractOperationDataArgumentValues.bind(null, operationData);
 
   resolveProperties(properties, copy, extract);

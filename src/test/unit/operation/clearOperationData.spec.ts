@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { clearOperationData } from '~/operation/clear-operation-data';
+import { clearOperationData } from '../operation/clear-operation-data';
 
 describe('clearOperationData', () => {
   it('should clear the given operation data', () => {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { IEngineConfiguration } from '~/configuration/types';
-import { EngineFactory } from '~/engine-factory';
+import { IEngineConfiguration } from '../configuration/types';
+import { EngineFactory } from '../engine-factory';
 
 class MockImporter {
   import(name) {

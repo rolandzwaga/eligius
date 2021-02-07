@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { resolveEventArguments } from '~/operation/helper/resolve-event-arguments';
+import { resolveEventArguments } from '../operation/helper/resolve-event-arguments';
 
 describe('resolveEventArguments', () => {
   it('should return undefined when eventArgs is null', () => {

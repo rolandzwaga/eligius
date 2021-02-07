@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
-import { TOperationData } from '~/operation/types';
-import { TResultCallback } from '~/types';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TOperationData } from '../operation/types';
+import { TResultCallback } from '../types';
 import { LabelController } from './label-controller';
 import { IController } from './types';
 

@@ -1,4 +1,4 @@
-import { IAddControllerToElementOperationData } from '~/operation/add-controller-to-element';
+import { IAddControllerToElementOperationData } from '../../operation/add-controller-to-element';
 import { IOperationMetadata } from './types';
 
 function addGlobalsToOperation(): IOperationMetadata<IAddControllerToElementOperationData> {

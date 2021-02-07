@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import $ from 'jquery';
-import { ConfigurationFactory } from '~/configuration/api/configuration-factory';
-import { IEngineConfiguration } from '~/configuration/types';
-import { EngineFactory } from '~/engine-factory';
-import { Eventbus } from '~/eventbus';
-import { WebpackResourceImporter } from '~/importer';
-import { createElement, requestAction, selectElement, setElementContent, startAction } from '~/operation';
-import { IChronoTriggerEngine } from '~/types';
+import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
+import { IEngineConfiguration } from '../../configuration/types';
+import { EngineFactory } from '../../engine-factory';
+import { Eventbus } from '../../eventbus';
+import { WebpackResourceImporter } from '../../importer';
+import { createElement, requestAction, selectElement, setElementContent, startAction } from '../../operation';
+import { IChronoTriggerEngine } from '../../types';
 
 fdescribe('Re-use actions to add pictures', () => {
   let configuration: IEngineConfiguration | null = null;

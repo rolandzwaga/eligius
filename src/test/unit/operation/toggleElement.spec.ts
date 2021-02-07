@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toggleElement } from '~/operation/toggle-element';
+import { toggleElement } from '../operation/toggle-element';
 
 class MockElement {
   isToggled: boolean;

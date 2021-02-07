@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import * as operations from '~/operation';
-import * as metadata from '~/operation/metadata';
+import * as operations from '../operation';
+import * as metadata from '../operation/metadata';
 // import ParameterTypes from '../../src/operation/metadata/ParameterTypes';
 // import randomstring from 'randomstring';
 // import { Eventbus } from '../../eventbus';

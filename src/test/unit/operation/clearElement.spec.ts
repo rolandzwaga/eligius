@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { clearElement } from '~/operation/clear-element';
+import { clearElement } from '../operation/clear-element';
 
 class MockElement {
   emptied = false;

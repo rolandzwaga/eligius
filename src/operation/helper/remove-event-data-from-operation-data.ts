@@ -1,4 +1,4 @@
-import { TOperationData } from '~/operation/types';
+import { TOperationData } from '../../operation/types';
 
 export function removeEventDataFromOperationData(operationData: TOperationData) {
   delete operationData.eventName;

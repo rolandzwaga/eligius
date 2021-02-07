@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getElementControllers, getElementData } from '~/operation/helper/get-element-data';
+import { getElementControllers, getElementData } from '../operation/helper/get-element-data';
 
 class MockElement {
   name: string;

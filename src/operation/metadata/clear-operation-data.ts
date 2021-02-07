@@ -1,4 +1,4 @@
-import { IClearOperationDataOperationData } from '~/operation/clear-operation-data';
+import { IClearOperationDataOperationData } from '../../operation/clear-operation-data';
 import { IOperationMetadata } from './types';
 
 function clearOperationData(): IOperationMetadata<IClearOperationDataOperationData> {

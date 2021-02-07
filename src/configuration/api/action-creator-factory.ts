@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
+import * as operations from '../../operation';
+import { deepCopy } from '../../operation/helper/deep-copy';
+import { TOperation, TOperationData } from '../../operation/types';
 import {
   ExtractDataType,
   IActionConfiguration,
   IEndableActionConfiguration,
   ITimelineActionConfiguration,
-} from '~/configuration/types';
-import * as operations from '~/operation';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { TOperation, TOperationData } from '~/operation/types';
+} from '../types';
 import { ConfigurationFactory } from './configuration-factory';
 
 export class ActionCreatorFactory {
@@ -66,7 +66,7 @@ export class ActionCreator<T extends IActionConfiguration = IActionConfiguration
   }
 
   getConfiguration(callBack: (config: T) => T) {
-    const copy = deepcopy(this.actionConfig);
+    const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
       this.actionConfig = newConfig;

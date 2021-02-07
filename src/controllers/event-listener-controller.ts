@@ -1,8 +1,8 @@
-import { IEndableAction } from '~/action/types';
-import { IEventbus } from '~/eventbus/types';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { TOperationData } from '~/operation/types';
-import { TimelineEventNames } from '~/timeline-event-names';
+import { IEndableAction } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { deepCopy } from '../operation/helper/deep-copy';
+import { TOperationData } from '../operation/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
 interface IActionInstanceInfo {
@@ -29,7 +29,7 @@ export class EventListenerController implements IController<IEventListenerContro
       selectedElement: operationData.selectedElement,
       eventName: operationData.eventName,
       actions: operationData.actions.slice(),
-      actionOperationData: operationData.actionOperationData ? deepcopy(operationData.actionOperationData) : undefined,
+      actionOperationData: operationData.actionOperationData ? deepCopy(operationData.actionOperationData) : undefined,
     };
   }
 
@@ -69,7 +69,7 @@ export class EventListenerController implements IController<IEventListenerContro
       return;
     }
 
-    const copy = this.operationData.actionOperationData ? deepcopy(this.operationData.actionOperationData) : {};
+    const copy = this.operationData.actionOperationData ? deepCopy(this.operationData.actionOperationData) : {};
 
     if (event.target) {
       copy.targetValue = event.target.value;

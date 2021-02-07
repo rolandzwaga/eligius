@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { setStyle } from '~/operation/set-style';
+import { setStyle } from '../operation/set-style';
 
 class MockElement {
   cssProps: any;

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import $ from 'jquery';
-import { Eventbus } from '~/eventbus';
-import { TimelineEventNames } from '~/timeline-event-names';
-import { RequestAnimationFrameTimelineProvider } from '~/timelineproviders/request-animation-frame-timeline-provider';
+import { Eventbus } from '../eventbus';
+import { TimelineEventNames } from '../timeline-event-names';
+import { RequestAnimationFrameTimelineProvider } from '../timelineproviders/request-animation-frame-timeline-provider';
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 

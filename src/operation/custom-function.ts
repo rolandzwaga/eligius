@@ -1,5 +1,5 @@
-import { IEventbus } from '~/eventbus/types';
-import { TimelineEventNames } from '~/index';
+import { IEventbus } from '../eventbus/types';
+import { TimelineEventNames } from '../index';
 import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';
 

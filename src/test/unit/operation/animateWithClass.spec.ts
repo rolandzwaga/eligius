@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { animateWithClass } from '~/operation/animate-with-class';
+import { animateWithClass } from '../operation/animate-with-class';
 
 class MockElement {
   removedCalled = false;

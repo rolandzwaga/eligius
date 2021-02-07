@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { addGlobalsToOperation } from '~/operation/add-globals-to-operation';
-import { setGlobal } from '~/operation/helper/set-global';
+import { addGlobalsToOperation } from '../operation/add-globals-to-operation';
+import { setGlobal } from '../operation/helper/set-global';
 
 describe('addGlobalsToOperation', () => {
   it('should add the given gloabl properties to the given operation data', () => {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { WebpackResourceImporter } from '~/importer/webpack-resource-importer';
+import { WebpackResourceImporter } from '../importer/webpack-resource-importer';
 
 describe('WebpackResourceImporter', () => {
   let importer = null;

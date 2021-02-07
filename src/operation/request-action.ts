@@ -1,6 +1,6 @@
-import { IAction } from '~/action/types';
-import { IEventbus } from '~/eventbus/types';
-import { TimelineEventNames } from '~/timeline-event-names';
+import { IAction } from '../action/types';
+import { IEventbus } from '../eventbus/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { TOperation } from './types';
 
 export interface IRequestActionOperationData {

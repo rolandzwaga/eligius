@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { clearCache, loadJSON } from '~/operation/load-json';
+import { deepcopy } from '../operation/helper/deepcopy';
+import { clearCache, loadJSON } from '../operation/load-json';
 
 let result = null;
 

@@ -1,4 +1,4 @@
-import { IWaitOperationData } from '~/operation/wait';
+import { IWaitOperationData } from '../../operation/wait';
 import { IOperationMetadata } from './types';
 
 function wait(): IOperationMetadata<IWaitOperationData> {

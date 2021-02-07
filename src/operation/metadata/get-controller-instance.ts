@@ -1,4 +1,4 @@
-import { IGetControllerInstanceOperationData } from '~/operation/get-controller-instance';
+import { IGetControllerInstanceOperationData } from '../../operation/get-controller-instance';
 import { IOperationMetadata } from './types';
 
 function getControllerInstance(): IOperationMetadata<IGetControllerInstanceOperationData> {

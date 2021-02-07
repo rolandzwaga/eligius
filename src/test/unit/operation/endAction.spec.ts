@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { endAction } from '~/operation/end-action';
+import { endAction } from '../operation/end-action';
 
 class MockAction {
   end(operationData) {

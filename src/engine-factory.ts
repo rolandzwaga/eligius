@@ -1,12 +1,11 @@
 import $ from 'jquery';
 import Mousetrap from 'mousetrap';
-import { IAction } from '~/action/types';
-import { ConfigurationResolver } from '~/configuration/configuration-resolver';
-import { IEngineConfiguration, IResolvedEngineConfiguration } from '~/configuration/types';
-import { ActionRegistryEventbusListener, Eventbus, RequestVideoUriInterceptor } from '~/eventbus';
-import { IEventbus } from '~/eventbus/types';
-import { LanguageManager } from '~/language-manager';
-import { TimelineEventNames } from '~/timeline-event-names';
+import { IAction } from './action/types';
+import { ConfigurationResolver } from './configuration/configuration-resolver';
+import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
+import { ActionRegistryEventbusListener, Eventbus, IEventbus, RequestVideoUriInterceptor } from './eventbus';
+import { LanguageManager } from './language-manager';
+import { TimelineEventNames } from './timeline-event-names';
 import {
   IChronoTriggerEngine,
   IConfigurationResolver,

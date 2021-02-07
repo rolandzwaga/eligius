@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { LabelController } from '~/controllers/label-controller';
-import { Eventbus } from '~/eventbus';
-import { TimelineEventNames } from '~/timeline-event-names';
+import { LabelController } from '../controllers/label-controller';
+import { Eventbus } from '../eventbus';
+import { TimelineEventNames } from '../timeline-event-names';
 class MockElement {
   content: string;
   html(content) {

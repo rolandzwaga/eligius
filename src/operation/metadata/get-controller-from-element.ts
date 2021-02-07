@@ -1,4 +1,4 @@
-import { IGetControllerFromElementOperationData } from '~/operation/get-controller-from-element';
+import { IGetControllerFromElementOperationData } from '../../operation/get-controller-from-element';
 import { IOperationMetadata } from './types';
 
 function getControllerFromElement(): IOperationMetadata<IGetControllerFromElementOperationData> {

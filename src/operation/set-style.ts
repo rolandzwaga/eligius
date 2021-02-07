@@ -1,4 +1,4 @@
-import { IEventbus } from '~/eventbus/types';
+import { IEventbus } from '../eventbus/types';
 import { resolvePropertyValues } from './helper/resolve-property-values';
 import { TOperation } from './types';
 

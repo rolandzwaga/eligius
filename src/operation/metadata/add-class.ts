@@ -1,4 +1,4 @@
-import { IAddClassOperationData } from '~/operation/add-class';
+import { IAddClassOperationData } from '../../operation/add-class';
 import { IOperationMetadata } from './types';
 
 function addClass(): IOperationMetadata<IAddClassOperationData> {

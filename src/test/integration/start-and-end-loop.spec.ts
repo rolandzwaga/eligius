@@ -1,10 +1,10 @@
 import { expect } from 'chai';
-import { Action } from '~/action';
-import { IAction } from '~/action/types';
-import { IResolvedOperation } from '~/configuration/types';
-import { Eventbus } from '~/eventbus';
-import { endLoop } from '~/operation/end-loop';
-import { startLoop, TStartLoopOperationData } from '~/operation/start-loop';
+import { Action } from '../../action';
+import { IAction } from '../../action/types';
+import { IResolvedOperation } from '../../configuration/types';
+import { Eventbus } from '../../eventbus';
+import { endLoop } from '../../operation/end-loop';
+import { startLoop, TStartLoopOperationData } from '../../operation/start-loop';
 
 describe('Start and end loop', () => {
   let action: IAction = new Action('bla', [], {} as any);

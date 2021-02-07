@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { createElement } from '~/operation/create-element';
+import { createElement } from '../operation/create-element';
 
 describe('createElement', () => {
   it('should create a simple element', () => {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { log } from '~/operation/log';
+import { log } from '../operation/log';
 
 describe('log', () => {
   let dirFunc: any;

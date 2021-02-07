@@ -1,4 +1,4 @@
-import { ISetOperationData } from '~/operation/set-operation-data';
+import { ISetOperationData } from '../../operation/set-operation-data';
 import { IOperationMetadata } from './types';
 
 function setOperationData(): IOperationMetadata<ISetOperationData> {

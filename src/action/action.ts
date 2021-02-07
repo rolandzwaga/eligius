@@ -1,7 +1,7 @@
-import { IResolvedOperation } from '~/configuration/types';
-import { IEventbus } from '~/eventbus/types';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { IOperationContext, TOperationData, TOperationResult } from '~/operation/types';
+import { IResolvedOperation } from '../configuration/types';
+import { IEventbus } from '../eventbus/types';
+import { deepCopy } from '../operation/helper/deep-copy';
+import { IOperationContext, TOperationData, TOperationResult } from '../operation/types';
 import { isPromise } from './is-promise';
 import { IAction } from './types';
 
@@ -48,7 +48,7 @@ export class Action implements IAction {
     if (idx < operations.length) {
       const operationInfo = operations[idx];
 
-      const copy = operationInfo.operationData ? deepcopy(operationInfo.operationData) : {};
+      const copy = operationInfo.operationData ? deepCopy(operationInfo.operationData) : {};
       const mergedOperationData = Object.assign(previousOperationData, copy);
 
       const result: TOperationResult = operationInfo.instance.call(context, mergedOperationData, this.eventbus);

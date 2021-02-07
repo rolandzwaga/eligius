@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { resolvePropertyValues } from '~/operation/helper/resolve-property-values';
+import { resolvePropertyValues } from '../operation/helper/resolve-property-values';
 
 describe('resolvePropertyValues', () => {
   it('should resolve the given property values', () => {

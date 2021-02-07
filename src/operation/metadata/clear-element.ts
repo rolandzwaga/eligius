@@ -1,4 +1,4 @@
-import { IClearElementOperationData } from '~/operation/clear-element';
+import { IClearElementOperationData } from '../../operation/clear-element';
 import { IOperationMetadata } from './types';
 
 function clearElement(): IOperationMetadata<IClearElementOperationData> {

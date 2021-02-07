@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { IController } from '~/controllers/types';
-import { extendController } from '~/operation/extend-controller';
+import { IController } from '../controllers/types';
+import { extendController } from '../operation/extend-controller';
 
 describe('extendController', () => {
   it('should extend the given controller', () => {

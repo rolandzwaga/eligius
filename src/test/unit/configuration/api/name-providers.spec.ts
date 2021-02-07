@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { OperationMetadataProvider, TimeLineEventNamesProvider } from '~/configuration/api/name-providers';
+import { OperationMetadataProvider, TimeLineEventNamesProvider } from '../configuration/api/name-providers';
 
 describe('name-providers', () => {
   it('should return a list of event names', () => {

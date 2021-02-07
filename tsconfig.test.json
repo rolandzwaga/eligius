@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "~/*": ["src/*"]
-    },
     "noUnusedLocals": false,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,

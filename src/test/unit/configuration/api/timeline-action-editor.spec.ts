@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TimelineActionEditor } from '~/configuration/api/action-editor';
+import { TimelineActionEditor } from '../configuration/api/action-editor';
 
 describe('TimelineActionEditor.', () => {
   let timelineActionEditor = null;

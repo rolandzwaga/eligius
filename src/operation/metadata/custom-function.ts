@@ -1,4 +1,4 @@
-import { ICustomFunctionOperationData } from '~/operation/custom-function';
+import { ICustomFunctionOperationData } from '../../operation/custom-function';
 import { IOperationMetadata } from './types';
 
 function customFunction(): IOperationMetadata<ICustomFunctionOperationData> {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Eventbus } from '~/eventbus';
+import { Eventbus } from '../eventbus';
 
 describe('Eventbus', () => {
   let eventbus;

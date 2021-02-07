@@ -1,4 +1,4 @@
-import { TPropertyMetadata } from '~/operation/metadata/types';
+import { TPropertyMetadata } from '../../operation/metadata/types';
 
 export type IControllerMetadata<T> = {
   description: string;

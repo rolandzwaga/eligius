@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { removePropertiesFromOperationData } from '~/operation/remove-properties-from-operation-data';
+import { removePropertiesFromOperationData } from '../operation/remove-properties-from-operation-data';
 
 describe('removePropertiesFromOperationData', () => {
   it('should remove the specified properties from the given operationData', () => {

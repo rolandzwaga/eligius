@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getElementDimensions } from '~/operation/get-element-dimensions';
+import { getElementDimensions } from '../operation/get-element-dimensions';
 
 class MockElement {
   width: number;

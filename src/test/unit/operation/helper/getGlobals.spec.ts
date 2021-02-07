@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getGlobals } from '~/operation/helper/get-globals';
+import { getGlobals } from '../operation/helper/get-globals';
 
 describe('getGlobals', () => {
   it('should get the globals', () => {

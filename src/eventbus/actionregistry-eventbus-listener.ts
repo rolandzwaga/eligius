@@ -1,4 +1,4 @@
-import { IAction } from '~/action/types';
+import { IAction } from '../action/types';
 import { IEventbusListener } from './types';
 
 export class ActionRegistryEventbusListener implements IEventbusListener {

@@ -1,5 +1,5 @@
-import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
-import { TOperationData } from '~/operation/types';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TOperationData } from '../operation/types';
 import { IController } from './types';
 
 export interface IRoutingControllerOperationData {

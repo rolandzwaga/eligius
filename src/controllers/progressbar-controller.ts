@@ -1,6 +1,6 @@
-import { IEventbus, TEventHandlerRemover } from '~/eventbus/types';
-import { TOperationData } from '~/operation/types';
-import { TimelineEventNames } from '~/timeline-event-names';
+import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { TOperationData } from '../operation/types';
+import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
 export interface IProgressbarControllerOperationData {

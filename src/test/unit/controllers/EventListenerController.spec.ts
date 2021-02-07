@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EventListenerController } from '~/controllers/event-listener-controller';
+import { EventListenerController } from '../controllers/event-listener-controller';
 
 class MockAction {
   actionName: string;

@@ -1,4 +1,4 @@
-import { IEventbus } from '~/eventbus/types';
+import { IEventbus } from '../eventbus/types';
 import { mergeOperationData } from './helper/merge-operation-data';
 import { TOperation } from './types';
 

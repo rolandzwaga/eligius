@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
+import * as operations from '../../operation';
+import { deepCopy } from '../../operation/helper/deep-copy';
+import { TOperation, TOperationData } from '../../operation/types';
+import { IDuration } from '../../types';
 import {
   ExtractDataType,
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
   ITimelineActionConfiguration,
-} from '~/configuration/types';
-import * as operations from '~/operation';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { TOperation, TOperationData } from '~/operation/types';
-import { IDuration } from '~/types';
+} from '../types';
 import { ConfigurationFactory } from './configuration-factory';
 
 function array_move(arr: any[], old_index: number, new_index: number) {
@@ -31,7 +31,7 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
   }
 
   getConfiguration(callBack: (config: T) => T) {
-    const copy = deepcopy(this.actionConfig);
+    const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
       this.actionConfig = newConfig;
@@ -262,7 +262,7 @@ export class OperationEditor<T extends ActionEditor> {
   constructor(private operationConfig: IOperationConfiguration, private actionEditor: T) {}
 
   getConfiguration(callBack: (config: IOperationConfiguration) => IOperationConfiguration) {
-    const copy = deepcopy(this.operationConfig);
+    const copy = deepCopy(this.operationConfig);
     const newConfig = callBack.call(this, copy);
 
     if (newConfig) {

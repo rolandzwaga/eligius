@@ -1,4 +1,4 @@
-import { IToggleElementOperationData } from '~/operation/toggle-element';
+import { IToggleElementOperationData } from '../../operation/toggle-element';
 import { IOperationMetadata } from './types';
 
 function toggleElement(): IOperationMetadata<IToggleElementOperationData> {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { startLoop } from '~/operation/start-loop';
-import { IOperationContext } from '~/operation/types';
+import { startLoop } from '../operation/start-loop';
+import { IOperationContext } from '../operation/types';
 
 describe('startLoop', () => {
   it('should set the context when a valid collection is passed in', () => {

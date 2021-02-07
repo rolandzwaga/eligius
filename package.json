@@ -14,13 +14,14 @@
     "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
     "build-example-2": "node build/engine-pack-builder examples/mediaelement/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/mediaelement/build/boot.js",
     "full-build": "npm run build && npm run dev-build",
-    "build": "webpack --mode production",
+    "build": "webpack --mode production && yarn copy-dts",
     "dev-build": "webpack --mode development --progress --colors",
     "dev": "webpack --mode development --progress --colors --display-modules --watch",
     "stage-build": "git add lib/library.js lib/library.js.map lib/library.min.js lib/library.min.js.map lib/library.d.ts",
     "publish-patch": "yarn full-build && yarn stage-build && git commit -m\"Add new patch build\" && npm version patch",
     "publish-minor": "yarn full-build && yarn stage-build && git commit -m\"Add new minor build\"  && npm version minor",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src"
   },
   "dependencies": {
     "d3": "6.5.0",
@@ -50,6 +51,7 @@
     "child_process": "1.0.2",
     "chokidar": "3.5.1",
     "clean-webpack-plugin": "3.0.0",
+    "copyfiles": "^2.4.1",
     "css-loader": "5.0.1",
     "fast-async": "6.3.8",
     "file-loader": "6.2.0",

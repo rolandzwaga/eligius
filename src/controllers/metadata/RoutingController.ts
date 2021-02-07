@@ -1,4 +1,4 @@
-import { IRoutingControllerOperationData } from '~/controllers/routing-controller';
+import { IRoutingControllerOperationData } from '../../controllers/routing-controller';
 import { IControllerMetadata } from './types';
 
 function RoutingController(): IControllerMetadata<IRoutingControllerOperationData> {

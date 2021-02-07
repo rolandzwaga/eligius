@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TimelineProviderSettingsEditor } from '~/configuration/api/timeline-provider-settings-editor';
+import { TimelineProviderSettingsEditor } from '../configuration/api/timeline-provider-settings-editor';
 
 describe('TimelineProviderSettingsEditor', () => {
   let editor: any;

@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
+import { deepCopy } from '../../operation/helper/deep-copy';
+import { ILabel, ILanguageLabel, TimelineTypes } from '../../types';
 import {
   IActionConfiguration,
   IEngineConfiguration,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
-} from '~/configuration/types';
-import { deepcopy } from '~/operation/helper/deepcopy';
-import { ILabel, ILanguageLabel, TimelineTypes } from '~/types';
+} from '../types';
 import { ActionCreatorFactory } from './action-creator-factory';
 import { ActionEditor, EndableActionEditor, TimelineActionEditor } from './action-editor';
 import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
@@ -65,7 +65,7 @@ export class ConfigurationFactory {
   }
 
   getConfiguration(callBack: (copy: IEngineConfiguration) => IEngineConfiguration | undefined) {
-    const copy = deepcopy<IEngineConfiguration>(this.configuration);
+    const copy = deepCopy<IEngineConfiguration>(this.configuration);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
       this.configuration = newConfig;

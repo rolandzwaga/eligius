@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { endLoop } from '~/operation/end-loop';
+import { endLoop } from '../operation/end-loop';
 
 describe('endLoop', () => {
   it('should return the operation data', () => {

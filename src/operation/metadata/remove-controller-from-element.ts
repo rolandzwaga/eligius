@@ -1,4 +1,4 @@
-import { IRemoveControllerFromElementOperationData } from '~/operation/remove-controller-from-element';
+import { IRemoveControllerFromElementOperationData } from '../../operation/remove-controller-from-element';
 import { IOperationMetadata } from './types';
 
 function removeControllerFromElement(): IOperationMetadata<IRemoveControllerFromElementOperationData> {

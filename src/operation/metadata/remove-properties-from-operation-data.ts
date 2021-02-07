@@ -1,4 +1,4 @@
-import { IRemovePropertiesFromOperationDataOperationData } from '~/operation/remove-properties-from-operation-data';
+import { IRemovePropertiesFromOperationDataOperationData } from '../../operation/remove-properties-from-operation-data';
 import { IOperationMetadata } from './types';
 
 function removePropertiesFromOperationData(): IOperationMetadata<IRemovePropertiesFromOperationDataOperationData> {

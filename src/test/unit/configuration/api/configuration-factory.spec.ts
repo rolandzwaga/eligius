@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '~/configuration/api/action-editor';
-import { ConfigurationFactory } from '~/configuration/api/configuration-factory';
-import { TimelineProvidersSettingsEditor } from '~/configuration/api/timeline-provider-settings-editor';
+import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '../configuration/api/action-editor';
+import { ConfigurationFactory } from '../configuration/api/configuration-factory';
+import { TimelineProvidersSettingsEditor } from '../configuration/api/timeline-provider-settings-editor';
 
 describe('ConfigurationFactory', () => {
   let configurationFactory;

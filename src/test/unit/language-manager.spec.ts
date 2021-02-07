@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { LanguageManager } from '~/language-manager';
+import { LanguageManager } from '../language-manager';
 
 describe('LanguageManager', () => {
   let eventbus = null;

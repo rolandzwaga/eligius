@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ActionEditor, OperationEditor } from '~/configuration/api/action-editor';
+import { ActionEditor, OperationEditor } from '../configuration/api/action-editor';
 
 describe('ActionEditor', () => {
   let actionEditor = null;

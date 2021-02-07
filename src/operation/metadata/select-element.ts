@@ -1,4 +1,4 @@
-import { ISelectElementOperationData } from '~/operation/select-element';
+import { ISelectElementOperationData } from '../../operation/select-element';
 import { IOperationMetadata } from './types';
 
 function selectElement(): IOperationMetadata<ISelectElementOperationData> {

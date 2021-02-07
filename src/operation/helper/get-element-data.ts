@@ -1,4 +1,4 @@
-import { IController } from '~/controllers/types';
+import { IController } from '../../controllers/types';
 
 const controllersName = 'chronoEngineControllers';
 

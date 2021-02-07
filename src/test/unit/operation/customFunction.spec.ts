@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { customFunction } from '~/operation/custom-function';
+import { customFunction } from '../operation/custom-function';
 
 class MockEventbus {
   testFunction: Function;

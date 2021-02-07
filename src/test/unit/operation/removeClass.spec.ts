@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { removeClass } from '~/operation/remove-class';
+import { removeClass } from '../operation/remove-class';
 
 class MockElement {
   className: string;

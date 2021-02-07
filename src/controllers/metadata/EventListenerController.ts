@@ -1,4 +1,4 @@
-import { IEventListenerControllerOperationData } from '~/controllers/event-listener-controller';
+import { IEventListenerControllerOperationData } from '../../controllers/event-listener-controller';
 import { IControllerMetadata } from './types';
 
 function EventListenerController(): IControllerMetadata<IEventListenerControllerOperationData> {

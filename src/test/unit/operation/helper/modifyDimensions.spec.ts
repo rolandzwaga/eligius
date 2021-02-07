@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { modifyDimensions } from '~/operation/helper/modify-dimensions';
+import { modifyDimensions } from '../operation/helper/modify-dimensions';
 
 describe('modifyDimensions', () => {
   // given

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { addControllerToElement } from '~/operation/add-controller-to-element';
+import { addControllerToElement } from '../operation/add-controller-to-element';
 
 class MockElement {
   name: string;
