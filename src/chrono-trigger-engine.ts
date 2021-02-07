@@ -199,7 +199,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
       return this._executeActions(actions, methodName, ++idx);
     }
 
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       resolve();
     });
   }
@@ -380,7 +380,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     const newActions = this._getActionsForPosition(pos, timelineActions);
     const promise = this._executeActions(currentActions, 'end', 0);
 
-    return new Promise((resolve) => {
+    return new Promise<void>((resolve) => {
       promise.then(() => {
         this._executeActions(newActions, 'start', 0).then(() => {
           resolve();

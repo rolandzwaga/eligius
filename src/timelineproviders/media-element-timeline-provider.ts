@@ -47,7 +47,7 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
     this._addVideoElements(selector, this._urls);
     const self = this;
 
-    const promise = new Promise((resolve) => {
+    const promise = new Promise<void>((resolve) => {
       const videoElement = document.getElementById(this._videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
         success: (mediaElement: any, _originalNode: any, instance: mediaelementjs.MediaElementPlayer) => {

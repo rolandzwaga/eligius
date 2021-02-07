@@ -139,7 +139,7 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
       throw new Error(`timeline selector '${this._currentPlaylistItem.selector}' not found`);
     }
 
-    const promise = new Promise((resolve) => {
+    const promise = new Promise<void>((resolve) => {
       resolve();
     });
 
