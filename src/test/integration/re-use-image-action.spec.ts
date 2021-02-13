@@ -8,7 +8,7 @@ import { WebpackResourceImporter } from '../../importer';
 import { createElement, requestAction, selectElement, setElementContent, startAction } from '../../operation';
 import { IChronoTriggerEngine } from '../../types';
 
-fdescribe('Re-use actions to add pictures', () => {
+describe('Re-use actions to add pictures', () => {
   let configuration: IEngineConfiguration | null = null;
   let eventbus: Eventbus;
   let engine: IChronoTriggerEngine;

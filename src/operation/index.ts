@@ -32,4 +32,5 @@ export { startAction } from './start-action';
 export { startLoop } from './start-loop';
 export { toggleClass } from './toggle-class';
 export { toggleElement } from './toggle-element';
+export * from './types';
 export { wait } from './wait';

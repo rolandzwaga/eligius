@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';
-import { ChronoTriggerEngine } from '../chrono-trigger-engine';
+import { ChronoTriggerEngine } from '../../chrono-trigger-engine';
 
 class LanguageManagerStub {
   constructor(public language: string, public labels: any[], public eventbus: any) {}
@@ -110,7 +110,7 @@ describe('ChronoTriggerEngine', () => {
       animation: {
         provider: {
           init: () => {
-            return new Promise((resolve) => resolve());
+            return new Promise<void>((resolve) => resolve());
           },
           on: () => {},
         },

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { addClass } from '../operation/add-class';
+import { addClass } from '../../../operation/add-class';
 
 describe('addClass operation', () => {
   it('should add the specified class to the element', () => {

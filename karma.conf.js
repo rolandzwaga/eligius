@@ -2,8 +2,7 @@ module.exports = function (config) {
   config.set({
     basePath: '.',
     frameworks: ['jasmine', 'karma-typescript'],
-    files: [{ pattern: 'src/**/*.ts' }],
-    exclude: ['./src/@types/**.*'],
+    files: [{ pattern: 'src/**/*.+(ts|d.ts)' }],
     preprocessors: {
       '**/*.ts': ['karma-typescript'],
     },
@@ -19,7 +18,7 @@ module.exports = function (config) {
       captureConsole: true,
     },
     mime: {
-      'text/x-typescript': ['ts'],
+      'text/x-typescript': ['ts', 'd.ts'],
     },
     reporters: ['progress', 'karma-typescript'],
     colors: true,

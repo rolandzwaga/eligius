@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getControllerFromElement } from '../operation/get-controller-from-element';
+import { getControllerFromElement } from '../../../operation/get-controller-from-element';
 
 class MockElement {
   controllers: any[];

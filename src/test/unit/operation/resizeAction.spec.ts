@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { resizeAction } from '../operation/resize-action';
+import { resizeAction } from '../../../operation/resize-action';
 
 class MockAction {
   operationData: any;

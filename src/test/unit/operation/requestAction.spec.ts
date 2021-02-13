@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { requestAction } from '../operation/request-action';
-import { TimelineEventNames } from '../timeline-event-names';
+import { requestAction } from '../../../operation/request-action';
+import { TimelineEventNames } from '../../../timeline-event-names';
 
 class MockEventbus {
   mockAction: any = {};

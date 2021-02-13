@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { Action } from '../action';
-import { IAction } from '../action/types';
-import { Eventbus } from '../eventbus';
-import { IOperationContext } from '../operation/types';
+import { Action } from '../../../action';
+import { IAction } from '../../../action/types';
+import { Eventbus } from '../../../eventbus';
+import { IOperationContext } from '../../../operation/types';
 
 describe('Action', () => {
   let action: IAction = new Action('bla', [], {} as any);

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { animate } from '../operation/animate';
+import { animate } from '../../../operation/animate';
 
 class MockElement {
   properties: any;

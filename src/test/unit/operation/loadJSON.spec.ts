@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { deepcopy } from '../operation/helper/deepcopy';
-import { clearCache, loadJSON } from '../operation/load-json';
+import { deepCopy } from '../../../operation/helper/deep-copy';
+import { clearCache, loadJSON } from '../../../operation/load-json';
 
 let result = null;
 
@@ -56,7 +56,7 @@ describe('loadJSON', () => {
     };
 
     // test
-    let newData: any = await loadJSON(deepcopy(operationData), {} as any);
+    let newData: any = await loadJSON(deepCopy(operationData), {} as any);
 
     // expect
     expect(newData.json).to.equal(result);
@@ -73,7 +73,7 @@ describe('loadJSON', () => {
       propertyName: 'testProperty',
       cache: true,
     };
-    await loadJSON(deepcopy(operationData), {} as any);
+    await loadJSON(deepCopy(operationData), {} as any);
 
     // test
     const newData: any = await loadJSON(operationData, {} as any);

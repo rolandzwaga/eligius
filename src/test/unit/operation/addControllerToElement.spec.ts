@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { addControllerToElement } from '../operation/add-controller-to-element';
+import { addControllerToElement } from '../../../operation/add-controller-to-element';
 
 class MockElement {
   name: string;
@@ -53,7 +53,7 @@ describe('addControllerToElement', () => {
   it('should attach the controller with a promise result', () => {
     // given
     //let outerResolve;
-    const promise = new Promise((resolve) => {
+    const promise = new Promise<void>((resolve) => {
       resolve();
     });
 

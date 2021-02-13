@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { IAction } from '../action/types';
-import { startAction } from '../operation/start-action';
+import { IAction } from '../../../action/types';
+import { startAction } from '../../../operation/start-action';
 
 class MockAction {
   start(operationData) {

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { toggleClass } from '../operation/toggle-class';
+import { toggleClass } from '../../../operation/toggle-class';
 
 class MockElement {
   className: string;

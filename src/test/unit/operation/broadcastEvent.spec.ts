@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { broadcastEvent } from '../operation/broadcast-event';
+import { broadcastEvent } from '../../../operation/broadcast-event';
 
 class MockEventbus {
   eventName: string;

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getNestedValue } from '../operation/helper/get-nested-value';
+import { getNestedValue } from '../../../../operation/helper/get-nested-value';
 
 describe('getNestedValue', () => {
   it('should get the nested value', () => {

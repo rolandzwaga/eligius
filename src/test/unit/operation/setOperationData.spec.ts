@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { setOperationData } from '../operation/set-operation-data';
+import { setOperationData } from '../../../operation/set-operation-data';
 
 describe('setOperationData', () => {
   it('should set the specified operation data', () => {

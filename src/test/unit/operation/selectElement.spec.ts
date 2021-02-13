@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { IEventbus } from '../eventbus/types';
-import { ISelectElementOperationData, selectElement } from '../operation/select-element';
+import { IEventbus } from '../../../eventbus/types';
+import { ISelectElementOperationData, selectElement } from '../../../operation/select-element';
 
 class MockEventbus {
   rootElement: any;

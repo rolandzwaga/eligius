@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { ConfigurationResolver } from '../configuration/configuration-resolver';
-import { IEngineConfiguration } from '../configuration/types';
+import { ConfigurationResolver } from '../../../configuration/configuration-resolver';
+import { IEngineConfiguration } from '../../../configuration/types';
 
 class MockImporter {
   lookup: any;

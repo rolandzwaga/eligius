@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { customFunction } from '../operation/custom-function';
+import { customFunction } from '../../../operation/custom-function';
 
 class MockEventbus {
   testFunction: Function;
@@ -42,7 +42,7 @@ describe('customFunction', () => {
     };
     let called = false;
     const func = (opData, eventbus) => {
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         called = true;
         expect(opData).to.equal(operationData);
         expect(eventbus).to.equal(mockEventbus);

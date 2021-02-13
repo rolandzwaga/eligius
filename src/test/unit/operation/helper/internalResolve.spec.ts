@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { internalResolve } from '../operation/helper/internal-resolve';
+import { internalResolve } from '../../../../operation/helper/internal-resolve';
 
 describe('internalResolve', () => {
   it('it should call the given resolve with the given operationdata', () => {

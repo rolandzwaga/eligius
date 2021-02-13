@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { setElementAttributes } from '../operation/set-element-attributes';
+import { setElementAttributes } from '../../../operation/set-element-attributes';
 
 class MockElement {
   names = [];

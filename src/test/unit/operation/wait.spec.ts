@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { wait } from '../operation/wait';
+import { wait } from '../../../operation/wait';
 
 describe('wait', () => {
   const timeout = window.setTimeout;
