@@ -1,6 +1,6 @@
 {
   "name": "chrono-trigger-js",
-  "version": "1.6.7",
+  "version": "1.6.8",
   "description": "An engine that allows arbitrary functionality to be triggered according to a given timeline provider. A timeline provider can be a video, an audio file, a request animation frame loop, etc. The engine can be the basis for video annotations, presentation software or interactive infographics, for example.",
   "main": "./dist/library.min.js",
   "types": "./dist/src/index.d.ts",
