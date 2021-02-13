@@ -13,12 +13,12 @@ function buildEnginePack(configPath) {
   const config = loadConfiguration(configPath);
 
   const importerSource = generateImporterSourceCode(config, relativeImportPath, path.dirname(configPath));
-  saveSource(importerSource, path.join(destinationPath, 'webpack-resource-importer.js'));
+  saveSource(importerSource, path.join(destinationPath, 'webpack-resource-importer.ts'));
 
   copyAssets(path.dirname(configPath), path.join(destinationPath, 'dist'));
 
   const bootSource = generateBootSourceCode(config, relativeImportPath, configPath);
-  saveSource(bootSource, path.join(destinationPath, 'boot.js'));
+  saveSource(bootSource, path.join(destinationPath, 'boot.ts'));
 }
 
 function copyAssets(basePath, destinationPath) {

@@ -10,22 +10,25 @@ function generateImporterSourceCode(config, basePath, configPath) {
 
   const importerSourceCode = _generateSourceCode(importPaths);
 
-  const ast = Parser.parse(importerSourceCode, { ecmaVersion: 6, sourceType: 'module' });
-  const formattedCode = generate(ast);
+  //const ast = Parser.parse(importerSourceCode, { ecmaVersion: 6, sourceType: 'module' });
+  //const formattedCode = generate(ast);
 
-  return formattedCode;
+  return importerSourceCode; //formattedCode;
 }
 
 function _generateSourceCode(importPaths) {
-  const result = importPaths.map(imp => {
+  const result = importPaths.map((imp) => {
     const p = imp.path.split('\\').join('/');
-    return `import ${imp.systemName} from '${p}';`;
+    if (imp.defaultImport) {
+      return `import ${imp.systemName} from '${p}';`;
+    }
+    return `import { ${imp.systemName} } from '${p}';`;
   });
   result.push('class WebpackResourceImporter {');
-  result.push('import(name) {');
+  result.push('import(name: string): any {');
   result.push('switch(true) {');
   result.push(
-    ...importPaths.map(imp => {
+    ...importPaths.map((imp) => {
       return `case name === '${imp.systemName}': return { [name]: ${imp.systemName} };`;
     })
   );
@@ -48,11 +51,12 @@ function _gatherImportPaths(config, basePath, configPath) {
 
 function _gatherAssets(assetPath, subdir, extension) {
   const entries = fs.readdirSync(path.join(assetPath, subdir));
-  return entries.map(file => {
+  return entries.map((file) => {
     const importName = `${dashToCamelCase(path.basename(file, extension))}`;
     return {
       systemName: importName,
       path: `../${subdir}/${file}`,
+      defaultImport: true,
     };
   });
 }
@@ -70,7 +74,7 @@ function _gatherControllers(config, basePath) {
 function _gatherProviders(config, basePath) {
   if (config.timelineProviderSettings) {
     basePath = path.join(basePath, 'timelineproviders');
-    return Object.values(config.timelineProviderSettings).map(settings => {
+    return Object.values(config.timelineProviderSettings).map((settings) => {
       return {
         systemName: settings.systemName,
         path: path.join(basePath, camelCaseToDash(settings.systemName)),
@@ -98,7 +102,7 @@ function _gatherOperations(config, basePath) {
   importPaths.push(..._gatherOperationImportPathsFromActions(config.initActions, basePath));
   importPaths.push(..._gatherOperationImportPathsFromActions(config.actions, basePath));
   if (config.timelines) {
-    config.timelines.forEach(timeline => {
+    config.timelines.forEach((timeline) => {
       importPaths.push(..._gatherOperationImportPathsFromActions(timeline.timelineActions, basePath));
     });
   }
@@ -109,7 +113,7 @@ function _gatherOperations(config, basePath) {
 
 function dedupe(importPaths) {
   const lookup = {};
-  return importPaths.filter(imp => {
+  return importPaths.filter((imp) => {
     if (lookup[imp.systemName]) {
       return false;
     }
@@ -124,7 +128,7 @@ function _gatherControllerImportPathsFromActions(actionsConfig, basePath) {
   }
   const controllerPath = path.join(basePath, 'controllers');
   const importPaths = [];
-  actionsConfig.forEach(actionConfig => {
+  actionsConfig.forEach((actionConfig) => {
     importPaths.push(..._gatherControllerImportPaths(actionConfig.startOperations, controllerPath));
     importPaths.push(..._gatherControllerImportPaths(actionConfig.endOperations, controllerPath));
   });
@@ -137,7 +141,7 @@ function _gatherOperationImportPathsFromActions(actionsConfig, basePath) {
   }
   const operationPath = path.join(basePath, 'operation');
   const importPaths = [];
-  actionsConfig.forEach(actionConfig => {
+  actionsConfig.forEach((actionConfig) => {
     importPaths.push(..._gatherOperationImportPaths(actionConfig.startOperations, operationPath));
     importPaths.push(..._gatherOperationImportPaths(actionConfig.endOperations, operationPath));
   });
@@ -149,17 +153,17 @@ function _gatherControllerImportPaths(operationConfigs, basePath) {
     return [];
   }
   return operationConfigs
-    .filter(operationConfig => {
+    .filter((operationConfig) => {
       if (operationConfig.operationData && operationConfig.operationData.hasOwnProperty('systemName')) {
         return operationConfig.operationData.systemName.endsWith('Controller');
       }
       return false;
     })
-    .map(operationConfig => {
+    .map((operationConfig) => {
       const { systemName } = operationConfig.operationData;
       return {
         systemName: systemName,
-        path: path.join(basePath, systemName),
+        path: path.join(basePath, camelCaseToDash(systemName)),
       };
     });
 }
@@ -168,11 +172,11 @@ function _gatherOperationImportPaths(operationConfigs, basePath) {
   if (!operationConfigs) {
     return [];
   }
-  return operationConfigs.map(operationConfig => {
+  return operationConfigs.map((operationConfig) => {
     const { systemName } = operationConfig;
     return {
       systemName: systemName,
-      path: path.join(basePath, systemName),
+      path: path.join(basePath, camelCaseToDash(systemName)),
     };
   });
 }

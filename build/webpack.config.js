@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 
@@ -7,7 +8,7 @@ module.exports = (env) => {
   const outputPath = path.dirname(entryParam);
 
   return {
-    entry: path.resolve(__dirname, '../' + entryParam),
+    entry: path.resolve(__dirname, '../', entryParam),
     output: {
       path: path.resolve(outputPath, 'dist'),
       filename: 'chrono-trigger-bundle.js',
@@ -15,6 +16,11 @@ module.exports = (env) => {
     devtool: 'cheap-module-source-map',
     module: {
       rules: [
+        {
+          test: /\.ts?$|\.js$|/,
+          use: 'awesome-typescript-loader',
+          exclude: /node_modules/,
+        },
         {
           test: /\.html$/,
           exclude: /(node_modules)/,
@@ -43,6 +49,10 @@ module.exports = (env) => {
           use: ['svg-inline-loader'],
         },
       ],
+    },
+    resolve: {
+      plugins: [new TsconfigPathsPlugin()],
+      extensions: ['.ts', '.js'],
     },
     plugins: [
       new webpack.ProgressPlugin(),
