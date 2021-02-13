@@ -17,8 +17,8 @@
     "build": "webpack --mode production",
     "dev-build": "webpack --mode development --progress --color",
     "dev": "webpack --mode development --progress --colors --display-modules --watch",
-    "commit-patch": "yarn full-build && git commit -m\"Add new patch build\" && npm version patch",
-    "commit-minor": "yarn full-build && git commit -m\"Add new minor build\"  && npm version minor",
+    "commit-patch": "yarn full-build && npm version patch",
+    "commit-minor": "yarn full-build && npm version minor",
     "postversion": "git push && git push --tags",
     "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src"
   },
