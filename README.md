@@ -1,14 +1,14 @@
 # chrono-trigger-js
-An engine that allows arbitrary functionality to be triggered according to a given timeline.
-All of this powered by a json based configuration file.
 
-* All unit tests are passing: [![Build Status](https://travis-ci.com/rolandzwaga/chrono-trigger-js.svg?token=RSnZYLpseXLtqfKNySUF&branch=dev)](https://travis-ci.com/rolandzwaga/chrono-trigger-js)
+An engine that allows arbitrary functionality to be triggered according to a given timeline provider. A timeline provider can be a video, an audio file, a request animation frame loop, etc.
 
-* To install first get Yarn: https://yarnpkg.com
-* Then open up a command prompt in the project root and run 'yarn install'
-* Use 'npm run test' to run the unit tests (tests use Mocha, Chai and Sinon)
-* Use 'npm run build-example-1' to build the example project
-* Use 'npm run build' to create a production library bundle (written as library.min.js to ./lib directory)
-* Use 'npm run dev-build' to create a development library bundle (written as library.js to ./lib directory)
-* Use 'npm run full-build' to create production and development bundle
-* Use 'npm run dev' to create a watcher that creates a dev build after each save
+The engine can be the basis for video annotations, presentation software or interactive infographics, for example.
+
+- To install first get Yarn: https://yarnpkg.com
+- Then open up a command prompt in the project root and run 'yarn'
+- Use 'yarn test' to run the unit tests (tests use karma and jasmine)
+- Use 'yarn build-example-1' to build the example project
+- Use 'yarn build' to create a production library bundle (written as library.min.js to ./lib directory)
+- Use 'yarn dev-build' to create a development library bundle (written as library.js to ./lib directory)
+- Use 'yarn full-build' to create production and development bundle
+- Use 'yarn dev' to create a watcher that creates a dev build after each save

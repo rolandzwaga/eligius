@@ -12,7 +12,7 @@ module.exports = (env) => {
       path: path.resolve(outputPath, 'dist'),
       filename: 'chrono-trigger-bundle.js',
     },
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'cheap-module-source-map',
     module: {
       rules: [
         {

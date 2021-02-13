@@ -4,6 +4,9 @@
   "description": "An engine that allows arbitrary functionality to be triggered according to a given timeline provider. A timeline provider can be a video, an audio file, a request animation frame loop, etc. The engine can be the basis for video annotations, presentation software or interactive infographics, for example.",
   "main": "./dist/library.min.js",
   "types": "./dist/src/index.d.ts",
+  "files": [
+    "./dist/**/*"
+  ],
   "repository": "https://github.com/rolandzwaga/chrono-trigger.git",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
@@ -11,8 +14,8 @@
     "type-check": "tsc --pretty --noEmit",
     "test": "karma start",
     "test-ci": "jasmine-ts",
-    "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/requestanimationframe/build/boot.js",
-    "build-example-2": "node build/engine-pack-builder examples/mediaelement/config-data.json && webpack --config build/webpack.config.js --env.entryPath examples/mediaelement/build/boot.js",
+    "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env entryPath=examples/requestanimationframe/build/boot.js",
+    "build-example-2": "node build/engine-pack-builder examples/mediaelement/config-data.json && webpack --config build/webpack.config.js --env entryPath=examples/mediaelement/build/boot.js",
     "full-build": "yarn build && yarn dev-build",
     "build": "webpack --mode production",
     "dev-build": "webpack --mode development --progress --color",
@@ -20,7 +23,7 @@
     "commit-patch": "yarn full-build && npm version patch",
     "commit-minor": "yarn full-build && npm version minor",
     "postversion": "git push && git push --tags",
-    "copy-dts": "copyfiles -u 1 \"src/**/*.d.ts\" dist/src"
+    "prepublish": "yarn full-build"
   },
   "dependencies": {
     "d3": "6.5.0",
