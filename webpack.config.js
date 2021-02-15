@@ -1,5 +1,4 @@
 const TerserPlugin = require('terser-webpack-plugin');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const path = require('path');
 
@@ -31,18 +30,23 @@ module.exports = function (env, args) {
       mousetrap: { amd: 'mousetrap', global: 'Mousetrap', commonjs: 'mousetrap', commonjs2: 'mousetrap' },
       d3: { amd: 'd3', global: 'd3', commonjs: 'd3', commonjs2: 'd3' },
       uuid: { amd: 'uuid', global: 'uuid', commonjs: 'uuid', commonjs2: 'uuid' },
+      mediaelement: {
+        amd: 'mediaelement',
+        global: 'mediaelement',
+        commonjs: 'mediaelement',
+        commonjs2: 'mediaelement',
+      },
     },
     module: {
       rules: [
         {
           test: /\.ts?$|\.js$|/,
-          use: 'awesome-typescript-loader',
+          use: 'ts-loader',
           exclude: /node_modules/,
         },
       ],
     },
     resolve: {
-      plugins: [new TsconfigPathsPlugin()],
       extensions: ['.ts', '.js'],
     },
     optimization: {

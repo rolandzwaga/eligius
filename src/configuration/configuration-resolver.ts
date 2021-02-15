@@ -5,7 +5,7 @@ import { ActionRegistryEventbusListener } from '../eventbus';
 import { IEventbus } from '../eventbus/types';
 import { deepCopy } from '../operation/helper/deep-copy';
 import { getNestedPropertyValue } from '../operation/helper/get-nested-property-value';
-import { IConfigurationResolver, IResourceImporter } from '../types';
+import { IConfigurationResolver, ISimpleResourceImporter } from '../types';
 import {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -20,7 +20,7 @@ import {
 } from './types';
 
 export class ConfigurationResolver implements IConfigurationResolver {
-  constructor(private importer: IResourceImporter, private eventbus: IEventbus) {}
+  constructor(private importer: ISimpleResourceImporter, private eventbus: IEventbus) {}
 
   process(
     configuration: IEngineConfiguration,
@@ -68,7 +68,7 @@ export class ConfigurationResolver implements IConfigurationResolver {
 function resolveEventActions(
   eventActionConfigurations: IEventActionConfiguration[],
   actionRegistryListener: ActionRegistryEventbusListener,
-  importer: IResourceImporter,
+  importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
   const resolvedConfigs = eventActionConfigurations.map<IResolvedActionConfiguration>((config) => {
@@ -83,7 +83,7 @@ function resolveEventActions(
   });
 }
 
-function resolveTimelines(timelines: ITimelineConfiguration[], importer: IResourceImporter, eventbus: IEventbus) {
+function resolveTimelines(timelines: ITimelineConfiguration[], importer: ISimpleResourceImporter, eventbus: IEventbus) {
   const resolve = resolveTimelineAction.bind(null, importer, eventbus);
 
   return timelines.map<IResolvedTimelineConfiguration>((config) => ({
@@ -92,7 +92,10 @@ function resolveTimelines(timelines: ITimelineConfiguration[], importer: IResour
   }));
 }
 
-function resolveOperation(importer: IResourceImporter, operationConfig: IOperationConfiguration): IResolvedOperation {
+function resolveOperation(
+  importer: ISimpleResourceImporter,
+  operationConfig: IOperationConfiguration
+): IResolvedOperation {
   return {
     id: operationConfig.id,
     systemName: operationConfig.systemName,
@@ -103,7 +106,7 @@ function resolveOperation(importer: IResourceImporter, operationConfig: IOperati
 
 function resolveActionConfiguration(
   config: IActionConfiguration,
-  importer: IResourceImporter
+  importer: ISimpleResourceImporter
 ): IResolvedActionConfiguration {
   const resolve = resolveOperation.bind(null, importer);
 
@@ -116,7 +119,7 @@ function resolveActionConfiguration(
 
 function resolveEndableActionConfiguration(
   config: IEndableActionConfiguration,
-  importer: IResourceImporter
+  importer: ISimpleResourceImporter
 ): IResolvedEndableActionConfiguration {
   const resolve = resolveOperation.bind(null, importer);
 
@@ -129,7 +132,7 @@ function resolveEndableActionConfiguration(
 }
 
 function resolveTimelineAction(
-  importer: IResourceImporter,
+  importer: ISimpleResourceImporter,
   eventbus: IEventbus,
   actionConfiguration: ITimelineActionConfiguration
 ) {
@@ -147,7 +150,7 @@ function resolveTimelineAction(
 
 function resolveActions(
   actionConfigurations: IEndableActionConfiguration[],
-  importer: IResourceImporter,
+  importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
   const resolvedConfigs = actionConfigurations.map<IResolvedEndableActionConfiguration>((config) => {
@@ -162,7 +165,7 @@ function resolveActions(
   });
 }
 
-function resolvePlaceholders(config: any, rootConfig: any, importer: IResourceImporter) {
+function resolvePlaceholders(config: any, rootConfig: any, importer: ISimpleResourceImporter) {
   if (!isDefined(config)) {
     return;
   }
@@ -178,7 +181,7 @@ function resolvePlaceholders(config: any, rootConfig: any, importer: IResourceIm
   }
 }
 
-function resolvePlaceholder(key: string, config: any, rootConfig: any, importer: IResourceImporter) {
+function resolvePlaceholder(key: string, config: any, rootConfig: any, importer: ISimpleResourceImporter) {
   const value = config[key];
   if (typeof value === 'string') {
     if (value.startsWith('config:')) {

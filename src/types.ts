@@ -12,8 +12,11 @@ export interface IChronoTriggerEngine {
   destroy(): void;
 }
 
-export interface IResourceImporter {
+export interface ISimpleResourceImporter {
   import(name: string): Record<string, any>;
+}
+
+export interface IResourceImporter extends ISimpleResourceImporter {
   getOperationNames(): string[];
   getControllerNames(): string[];
   getProviderNames(): string[];

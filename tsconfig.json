@@ -17,7 +17,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
+    "noEmit": false,
     "sourceMap": true,
     "declaration": true,
     "typeRoots": ["./src/@types/typings.d.ts", "./node_modules/@types"]

@@ -10,7 +10,7 @@ import {
   IChronoTriggerEngine,
   IConfigurationResolver,
   IEngineFactory,
-  IResourceImporter,
+  ISimpleResourceImporter,
   ITimelineProviderInfo,
   TimelineTypes,
   TResultCallback,
@@ -19,10 +19,10 @@ import {
 export class EngineFactory implements IEngineFactory {
   private resizeTimeout: any = -1;
   private actionsLookup: Record<string, IAction> = {};
-  private importer: IResourceImporter;
+  private importer: ISimpleResourceImporter;
   private eventbus: IEventbus;
 
-  constructor(importer: IResourceImporter, windowRef: any, eventbus?: IEventbus) {
+  constructor(importer: ISimpleResourceImporter, windowRef: any, eventbus?: IEventbus) {
     this.importer = importer;
     this.eventbus = eventbus || new Eventbus();
     this.eventbus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));

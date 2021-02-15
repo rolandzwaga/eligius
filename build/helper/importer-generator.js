@@ -1,31 +1,28 @@
 const path = require('path');
 const fs = require('fs');
-const { Parser } = require('acorn');
-const { generate } = require('astring');
 const camelCaseToDash = require('./camelCaseToDash');
 const dashToCamelCase = require('./dashToCamelCase');
+const formatTypescript = require('./format-typescript');
 
 function generateImporterSourceCode(config, basePath, configPath) {
   const importPaths = _gatherImportPaths(config, basePath, configPath);
 
   const importerSourceCode = _generateSourceCode(importPaths);
 
-  //const ast = Parser.parse(importerSourceCode, { ecmaVersion: 6, sourceType: 'module' });
-  //const formattedCode = generate(ast);
-
-  return importerSourceCode; //formattedCode;
+  return formatTypescript(importerSourceCode);
 }
 
 function _generateSourceCode(importPaths) {
   const result = importPaths.map((imp) => {
     const p = imp.path.split('\\').join('/');
     if (imp.defaultImport) {
-      return `import ${imp.systemName} from '${p}';`;
+      return `const ${imp.systemName} = require('${p}');`;
     }
     return `import { ${imp.systemName} } from '${p}';`;
   });
-  result.push('class WebpackResourceImporter {');
-  result.push('import(name: string): any {');
+  result.push(`import { ISimpleResourceImporter } from '../../../src';`);
+  result.push('class WebpackResourceImporter implements ISimpleResourceImporter {');
+  result.push('import(name: string): Record<string, any> {');
   result.push('switch(true) {');
   result.push(
     ...importPaths.map((imp) => {
@@ -35,7 +32,7 @@ function _generateSourceCode(importPaths) {
   result.push(`default: throw Error("Unknown systemName: " + name);`);
   result.push('}}}');
   result.push('export default WebpackResourceImporter;');
-  return result.join('');
+  return result.join('\n');
 }
 
 function _gatherImportPaths(config, basePath, configPath) {

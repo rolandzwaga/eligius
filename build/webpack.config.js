@@ -1,5 +1,4 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 
@@ -18,8 +17,33 @@ module.exports = (env) => {
       rules: [
         {
           test: /\.ts?$|/,
-          use: 'awesome-typescript-loader',
+          loader: 'ts-loader',
           exclude: /node_modules/,
+          options: {
+            compilerOptions: {
+              noUnusedLocals: false,
+              noUnusedParameters: true,
+              allowSyntheticDefaultImports: true,
+              esModuleInterop: true,
+              allowJs: true,
+              checkJs: false,
+              module: 'commonjs',
+              target: 'es2015',
+              rootDir: '.',
+              moduleResolution: 'node',
+              lib: ['es2015', 'es6', 'es2017', 'dom'],
+              outDir: 'dist',
+              skipLibCheck: true,
+              strict: true,
+              forceConsistentCasingInFileNames: true,
+              resolveJsonModule: true,
+              isolatedModules: true,
+              noEmit: false,
+              sourceMap: true,
+              declaration: true,
+              typeRoots: ['./@types/typings.d.ts'],
+            },
+          },
         },
         {
           test: /\.html$/,
@@ -27,7 +51,7 @@ module.exports = (env) => {
           use: ['html-loader'],
         },
         {
-          test: /\.(jpg|png|gif)$/,
+          test: /\.(jpg|png|gif|webp)$/,
           exclude: /(node_modules)/,
           use: [
             {
@@ -51,7 +75,6 @@ module.exports = (env) => {
       ],
     },
     resolve: {
-      plugins: [new TsconfigPathsPlugin()],
       extensions: ['.ts', '.js'],
     },
     plugins: [

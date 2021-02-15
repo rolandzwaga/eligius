@@ -24,8 +24,9 @@ function _generateBootSource(config, basePath, configFileName, dirName) {
 
   const lines = _generateCssImports(cssPath);
 
-  lines.push(`const engineConfig = require('${configFileName}');`);
-  lines.push(`import EngineFactory from '${engineFactoryPath}';`);
+  lines.push(`import { IEngineConfiguration } from '../../../src';`);
+  lines.push(`const engineConfig = require('${configFileName}') as IEngineConfiguration;`);
+  lines.push(`import { EngineFactory } from '${engineFactoryPath}';`);
   lines.push("import WebpackResourceImporter from './webpack-resource-importer';");
   lines.push('const factory = new EngineFactory(new WebpackResourceImporter(), window);');
   lines.push('const engine = factory.createEngine(engineConfig);');
