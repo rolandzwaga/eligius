@@ -323,7 +323,7 @@
             {
               "systemName": "setElementContent",
               "operationData": {
-                "template": "<iframe src=\"//www.google.com/maps/embed/v1/place?q=Harrods,Brompton%20Rd,%20UK&zoom=17&key=AIzaSyDsviN6zWckY8-lbIt9K6fw0eEJ43a274k\" class=\"google-maps-container\"></iframe>"
+                "template": "<iframe src=\"//www.google.com/maps/embed/v1/place?q=Harrods,Brompton%20Rd,%20UK&zoom=17\" class=\"google-maps-container\"></iframe>"
               }
             }
           ],
