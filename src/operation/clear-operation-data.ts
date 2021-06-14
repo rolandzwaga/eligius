@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IClearOperationDataOperationData {
@@ -6,8 +5,7 @@ export interface IClearOperationDataOperationData {
 }
 
 export const clearOperationData: TOperation<IClearOperationDataOperationData> = function(
-  operationData: IClearOperationDataOperationData,
-  _eventBus: IEventbus
+  operationData: IClearOperationDataOperationData
 ) {
   const { properties } = operationData;
 

@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface ISetElementContentOperationData {
@@ -8,8 +7,7 @@ export interface ISetElementContentOperationData {
 }
 
 export const setElementContent: TOperation<ISetElementContentOperationData> = function(
-  operationData: ISetElementContentOperationData,
-  _eventBus: IEventbus
+  operationData: ISetElementContentOperationData
 ) {
   const { insertionType, selectedElement, template } = operationData;
 

@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { resolvePropertyValues } from './helper/resolve-property-values';
 import { TOperation } from './types';
 
@@ -9,8 +8,7 @@ export interface ISetStyleOperationData {
 }
 
 export const setStyle: TOperation<ISetStyleOperationData> = function(
-  operationData: ISetStyleOperationData,
-  _eventBus: IEventbus
+  operationData: ISetStyleOperationData
 ) {
   const { propertyName = 'selectedElement' } = operationData;
 

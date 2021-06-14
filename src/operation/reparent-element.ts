@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IReparentElementOperationData {
@@ -7,8 +6,7 @@ export interface IReparentElementOperationData {
 }
 
 export const reparentElement: TOperation<IReparentElementOperationData> = function(
-  operationData: IReparentElementOperationData,
-  _eventBus: IEventbus
+  operationData: IReparentElementOperationData
 ) {
   const { selectedElement, newParentSelector } = operationData;
   selectedElement.remove().appendTo(newParentSelector);

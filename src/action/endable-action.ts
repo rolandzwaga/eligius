@@ -15,7 +15,10 @@ export class EndableAction extends Action {
 
   end(initOperationData?: TOperationData): Promise<TOperationData> {
     if (this.endOperations.length) {
-      const context: IOperationContext = { currentIndex: -1 };
+      const context: IOperationContext = {
+        currentIndex: -1,
+        eventbus: this.eventbus,
+      };
       const result = new Promise<TOperationData>((resolve, reject) => {
         this.executeOperation(
           this.endOperations,

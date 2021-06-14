@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IToggleClassOperationData {
@@ -7,8 +6,7 @@ export interface IToggleClassOperationData {
 }
 
 export const toggleClass: TOperation<IToggleClassOperationData> = function(
-  operationData: IToggleClassOperationData,
-  _eventBus: IEventbus
+  operationData: IToggleClassOperationData
 ) {
   const { selectedElement, className } = operationData;
   selectedElement.toggleClass(className);

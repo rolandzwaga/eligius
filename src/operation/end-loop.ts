@@ -1,11 +1,6 @@
-import { IEventbus } from '../eventbus/types';
-import { IOperationContext, TOperation } from './types';
+import { TOperation } from './types';
 
-export const endLoop: TOperation<any> = function(
-  this: IOperationContext,
-  operationData: any,
-  _eventBus: IEventbus
-) {
+export const endLoop: TOperation<unknown> = function(operationData: unknown) {
   const context = this;
 
   if (!context.skipNextOperation) {

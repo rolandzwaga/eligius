@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { mergeOperationData } from './helper/merge-operation-data';
 import { TOperation } from './types';
 
@@ -8,8 +7,7 @@ export interface IResizeActionOperationData {
 }
 
 export const resizeAction: TOperation<IResizeActionOperationData> = function(
-  operationData: IResizeActionOperationData,
-  _eventBus: IEventbus
+  operationData: IResizeActionOperationData
 ) {
   const { actionInstance, actionOperationData } = operationData;
   operationData = mergeOperationData(operationData, actionOperationData);

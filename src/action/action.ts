@@ -15,11 +15,14 @@ export class Action implements IAction {
   constructor(
     public name: string,
     public startOperations: IResolvedOperation[],
-    private eventbus: IEventbus
+    protected eventbus: IEventbus
   ) {}
 
   start(initOperationData?: TOperationData): Promise<TOperationData> {
-    const context: IOperationContext = { currentIndex: -1 };
+    const context: IOperationContext = {
+      currentIndex: -1,
+      eventbus: this.eventbus,
+    };
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
         this.startOperations,
@@ -77,8 +80,7 @@ export class Action implements IAction {
 
       const result: TOperationResult = operationInfo.instance.call(
         context,
-        mergedOperationData,
-        this.eventbus
+        mergedOperationData
       );
 
       if (isPromise(result)) {

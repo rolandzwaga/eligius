@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';
 
@@ -9,8 +8,7 @@ export interface IAnimateWithClassOperationData {
 }
 
 export const animateWithClass: TOperation<IAnimateWithClassOperationData> = function(
-  operationData: IAnimateWithClassOperationData,
-  _eventBus: IEventbus
+  operationData: IAnimateWithClassOperationData
 ) {
   let { selectedElement, className, removeClass } = operationData;
   removeClass = removeClass !== undefined ? removeClass : true;

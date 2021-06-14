@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IClearElementOperationData {
@@ -6,8 +5,7 @@ export interface IClearElementOperationData {
 }
 
 export const clearElement: TOperation<IClearElementOperationData> = function(
-  operationData: IClearElementOperationData,
-  _eventBus: IEventbus
+  operationData: IClearElementOperationData
 ) {
   const { selectedElement } = operationData;
   selectedElement.empty();

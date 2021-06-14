@@ -1,5 +1,4 @@
 import { IAction } from '../action/types';
-import { IEventbus } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TOperation } from './types';
 
@@ -9,8 +8,7 @@ export interface IRequestActionOperationData {
 }
 
 export const requestAction: TOperation<IRequestActionOperationData> = function(
-  operationData: IRequestActionOperationData,
-  eventBus: IEventbus
+  operationData: IRequestActionOperationData
 ) {
   const { systemName } = operationData;
 
@@ -18,7 +16,7 @@ export const requestAction: TOperation<IRequestActionOperationData> = function(
     operationData.actionInstance = action;
   };
 
-  eventBus.broadcast(TimelineEventNames.REQUEST_ACTION, [
+  this.eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [
     systemName,
     resultCallback,
   ]);

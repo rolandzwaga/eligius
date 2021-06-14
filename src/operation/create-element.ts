@@ -1,6 +1,6 @@
 import $ from 'jquery';
-import { IEventbus } from '../eventbus/types';
 import { resolvePropertyValues } from './helper/resolve-property-values';
+import { TOperation } from './types';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
@@ -12,9 +12,10 @@ export interface ICreateElementOperationData<T extends TTagNames> {
   template?: JQuery;
 }
 
-export const createElement = function<T extends TTagNames>(
-  operationData: ICreateElementOperationData<T>,
-  _eventBus: IEventbus
+export const createElement: TOperation<ICreateElementOperationData<
+  any
+>> = function<T extends TTagNames>(
+  operationData: ICreateElementOperationData<T>
 ) {
   operationData = resolvePropertyValues(operationData, operationData);
   const {

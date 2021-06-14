@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface ISetElementAttributesOperationData {
@@ -7,8 +6,7 @@ export interface ISetElementAttributesOperationData {
 }
 
 export const setElementAttributes: TOperation<ISetElementAttributesOperationData> = function(
-  operationData: ISetElementAttributesOperationData,
-  _eventBus: IEventbus
+  operationData: ISetElementAttributesOperationData
 ) {
   const { attributes, selectedElement } = operationData;
   Object.keys(attributes).forEach(attrName => {

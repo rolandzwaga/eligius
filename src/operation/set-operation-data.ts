@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { resolvePropertyValues } from './helper/resolve-property-values';
 import { TOperation } from './types';
 
@@ -8,8 +7,7 @@ export interface ISetOperationData {
 }
 
 export const setOperationData: TOperation<ISetOperationData> = function(
-  operationData: ISetOperationData,
-  _eventBus: IEventbus
+  operationData: ISetOperationData
 ) {
   const { override, properties } = operationData;
   const resolvedProperties = resolvePropertyValues(operationData, properties);

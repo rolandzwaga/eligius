@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IRemovePropertiesFromOperationDataOperationData {
@@ -6,8 +5,7 @@ export interface IRemovePropertiesFromOperationDataOperationData {
 }
 
 export const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperationDataOperationData> = function(
-  operationData: IRemovePropertiesFromOperationDataOperationData,
-  _eventBus: IEventbus
+  operationData: IRemovePropertiesFromOperationDataOperationData
 ) {
   const { propertyNames } = operationData;
 

@@ -1,5 +1,4 @@
-import { IEventbus } from '../eventbus/types';
-import { IOperationContext, TOperation } from './types';
+import { TOperation } from './types';
 
 export type TStartLoopOperationData = {
   collection: any[] | string;
@@ -7,9 +6,7 @@ export type TStartLoopOperationData = {
 };
 
 export const startLoop: TOperation<TStartLoopOperationData> = function(
-  this: IOperationContext,
-  operationData: TStartLoopOperationData,
-  _eventBus: IEventbus
+  operationData: TStartLoopOperationData
 ) {
   const context = this;
   const { collection, propertyName = 'currentItem' } = operationData;

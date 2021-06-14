@@ -10,6 +10,7 @@
     "node": ">=10"
   },
   "scripts": {
+    "compile": "tsc --noEmit",
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test",

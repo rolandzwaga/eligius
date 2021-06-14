@@ -1,5 +1,4 @@
 import { IController } from '../controllers/types';
-import { IEventbus } from '../eventbus/types';
 import { attachControllerToElement } from './helper/attach-controller-to-element';
 import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';
@@ -11,8 +10,7 @@ export interface IAddControllerToElementOperationData {
 }
 
 export const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function(
-  operationData: IAddControllerToElementOperationData,
-  eventBus: IEventbus
+  operationData: IAddControllerToElementOperationData
 ) {
   const { selectedElement, controllerInstance } = operationData;
 
@@ -20,7 +18,7 @@ export const addControllerToElement: TOperation<IAddControllerToElementOperation
 
   controllerInstance.init(operationData);
 
-  const promise = controllerInstance.attach(eventBus);
+  const promise = controllerInstance.attach(this.eventbus);
 
   if (promise) {
     return new Promise((resolve, reject) => {

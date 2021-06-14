@@ -1,5 +1,4 @@
 import { IController } from '../controllers/types';
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IExtendControllerOperationData {
@@ -8,8 +7,7 @@ export interface IExtendControllerOperationData {
 }
 
 export const extendController: TOperation<IExtendControllerOperationData> = function(
-  operationData: IExtendControllerOperationData,
-  _eventBus: IEventbus
+  operationData: IExtendControllerOperationData
 ) {
   const { controllerInstance, controllerExtension } = operationData;
 

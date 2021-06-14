@@ -1,5 +1,4 @@
 import { IController } from '../controllers/types';
-import { IEventbus } from '../eventbus/types';
 import { getElementControllers } from './helper/get-element-data';
 import { TOperation } from './types';
 
@@ -10,8 +9,7 @@ export interface IGetControllerFromElementOperationData {
 }
 
 export const getControllerFromElement: TOperation<IGetControllerFromElementOperationData> = function(
-  operationData: IGetControllerFromElementOperationData,
-  _eventBus: IEventbus
+  operationData: IGetControllerFromElementOperationData
 ) {
   const { selectedElement, controllerName } = operationData;
   const controllers = getElementControllers(selectedElement);

@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IAddClassOperationData {
@@ -7,8 +6,7 @@ export interface IAddClassOperationData {
 }
 
 export const addClass: TOperation<IAddClassOperationData> = function(
-  operationData: IAddClassOperationData,
-  _eventBus: IEventbus
+  operationData: IAddClassOperationData
 ) {
   const { selectedElement, className } = operationData;
   selectedElement.addClass(className);

@@ -1,12 +1,13 @@
 import { expect } from 'chai';
 import { addClass } from '../../../operation/add-class';
+import { applyOperation } from './apply-operation';
 
 describe('addClass operation', () => {
   it('should add the specified class to the element', () => {
     // given
     const elementMock = {
       className: '',
-      addClass: function(className) {
+      addClass: function(className: string) {
         this.className = className;
       },
     };
@@ -17,7 +18,7 @@ describe('addClass operation', () => {
     };
 
     // test
-    const data = addClass(operationData, {} as any);
+    const data = applyOperation(addClass, operationData);
 
     // expect
     expect(data).to.equal(operationData);

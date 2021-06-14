@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 export interface IRemoveElementOperationData {
@@ -6,8 +5,7 @@ export interface IRemoveElementOperationData {
 }
 
 export const removeElement: TOperation<IRemoveElementOperationData> = function(
-  operationData: IRemoveElementOperationData,
-  _eventBus: IEventbus
+  operationData: IRemoveElementOperationData
 ) {
   const { selectedElement } = operationData;
   selectedElement.remove();

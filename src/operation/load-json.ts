@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { TOperation } from './types';
 
 const jsonCache: Record<string, any> = {};
@@ -21,8 +20,7 @@ export const addToCache = (key: string, value: any) => {
 };
 
 export const loadJSON: TOperation<ILoadJSONOperationData> = function(
-  operationData: ILoadJSONOperationData,
-  _eventBus: IEventbus
+  operationData: ILoadJSONOperationData
 ) {
   const { url, cache, propertyName = 'json' } = operationData;
 

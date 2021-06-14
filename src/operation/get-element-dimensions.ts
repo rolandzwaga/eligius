@@ -1,4 +1,3 @@
-import { IEventbus } from '../eventbus/types';
 import { modifyDimensions } from './helper/modify-dimensions';
 import { TOperation } from './types';
 
@@ -9,8 +8,7 @@ export interface IGetElementDimensionsOperationData {
 }
 
 export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function(
-  operationData: IGetElementDimensionsOperationData,
-  _eventBus: IEventbus
+  operationData: IGetElementDimensionsOperationData
 ) {
   const { selectedElement, modifier } = operationData;
   const dimensions = {

@@ -1,11 +1,6 @@
-import { IEventbus } from '../eventbus/types';
-import { IOperationContext, TOperation } from './types';
+import { TOperation } from './types';
 
-export const log: TOperation = function(
-  this: IOperationContext,
-  operationData: any,
-  _eventBus: IEventbus
-) {
+export const log: TOperation = function(operationData: unknown) {
   console.group('Operation info');
   console.dir({ context: this });
   console.dir({ operationData });

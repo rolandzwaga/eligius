@@ -7,7 +7,7 @@ import { RequestAnimationFrameTimelineProvider } from '../../../timelineprovider
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 describe('RequestAnimationFrameTimelineProvider', () => {
-  let provider: RequestAnimationFrameTimelineProvider = null;
+  let provider: RequestAnimationFrameTimelineProvider | null = null;
   let configuration: any = null;
   let eventbus: any = null;
 
@@ -36,48 +36,48 @@ describe('RequestAnimationFrameTimelineProvider', () => {
   });
 
   afterEach(() => {
-    provider.destroy();
+    provider?.destroy();
     eventbus.clear();
     $('#selector').remove();
   });
 
   it('should start and dispatch event', () => {
-    provider.init();
+    provider?.init();
     let started = false;
     eventbus.on(TimelineEventNames.PLAY, () => {
       started = true;
     });
 
-    provider.start();
-    expect(provider.playState).to.equal('running');
+    provider?.start();
+    expect(provider?.playState).to.equal('running');
     expect(started).to.be.true;
   });
 
   it('should pause and dispatch event', () => {
-    provider.init();
+    provider?.init();
     let paused = false;
     eventbus.on(TimelineEventNames.PAUSE, () => {
       paused = true;
     });
 
-    provider.start();
-    expect(provider.playState).to.equal('running');
-    provider.pause();
-    expect(provider.playState).to.equal('paused');
+    provider?.start();
+    expect(provider?.playState).to.equal('running');
+    provider?.pause();
+    expect(provider?.playState).to.equal('paused');
     expect(paused).to.be.true;
   });
 
   it('should stop and dispatch event', () => {
-    provider.init();
+    provider?.init();
     let stopped = false;
     eventbus.on(TimelineEventNames.STOP, () => {
       stopped = true;
     });
 
-    provider.start();
-    expect(provider.playState).to.equal('running');
-    provider.stop();
-    expect(provider.playState).to.equal('stopped');
+    provider?.start();
+    expect(provider?.playState).to.equal('running');
+    provider?.stop();
+    expect(provider?.playState).to.equal('stopped');
     expect(stopped).to.be.true;
   });
 
@@ -86,15 +86,15 @@ describe('RequestAnimationFrameTimelineProvider', () => {
    * extremely brittle
    */
   xit('should dispatch TimelineEventNames.TIME 5 times', async () => {
-    provider.init();
-    const recordedPositions = [];
+    provider?.init();
+    const recordedPositions: number[] = [];
 
-    eventbus.on(TimelineEventNames.TIME, position => {
+    eventbus.on(TimelineEventNames.TIME, (position: number) => {
       recordedPositions.push(position);
       console.dir(recordedPositions);
     });
 
-    provider.start();
+    provider?.start();
 
     const result: number[] = await new Promise(resolve => {
       setTimeout(() => {

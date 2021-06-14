@@ -1,5 +1,4 @@
 import { IAction } from '../action/types';
-import { IEventbus } from '../eventbus/types';
 import { internalResolve } from './helper/internal-resolve';
 import { mergeOperationData } from './helper/merge-operation-data';
 import { TOperation } from './types';
@@ -10,8 +9,7 @@ export interface IStartActionOperationData {
 }
 
 export const startAction: TOperation<IStartActionOperationData> = function(
-  operationData: IStartActionOperationData,
-  _eventBus: IEventbus
+  operationData: IStartActionOperationData
 ) {
   const { actionInstance, actionOperationData } = operationData;
   delete operationData.actionOperationData;

@@ -1,5 +1,4 @@
 import { IController } from '../controllers/types';
-import { IEventbus } from '../eventbus/types';
 import { getElementControllers } from './helper/get-element-data';
 import { TOperation } from './types';
 
@@ -9,8 +8,7 @@ export interface IRemoveControllerFromElementOperationData {
 }
 
 export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData> = function(
-  operationData: IRemoveControllerFromElementOperationData,
-  eventBus: IEventbus
+  operationData: IRemoveControllerFromElementOperationData
 ) {
   const { selectedElement, controllerName } = operationData;
 
@@ -22,7 +20,7 @@ export const removeControllerFromElement: TOperation<IRemoveControllerFromElemen
   if (controller) {
     const idx = controllers.indexOf(controller);
     controllers.splice(idx, 1);
-    controller.detach(eventBus);
+    controller.detach(this.eventbus);
   }
 
   return operationData;
