@@ -8,7 +8,7 @@ export interface IGetElementDimensionsOperationData {
   dimensions?: { width?: number; height?: number };
 }
 
-export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function (
+export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> = function(
   operationData: IGetElementDimensionsOperationData,
   _eventBus: IEventbus
 ) {

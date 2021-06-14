@@ -18,9 +18,14 @@ export class ControllerNamesProvider {
 
 export class OperationMetadataProvider {
   getOperationMetadata(operationName: string) {
-    const getMetadata = ((operationMetadata as any) as Record<string, () => IOperationMetadata<any>>)[operationName];
+    const getMetadata = ((operationMetadata as any) as Record<
+      string,
+      () => IOperationMetadata<any>
+    >)[operationName];
     if (!getMetadata) {
-      throw new Error(`Could not find metadata for operation called ${operationName}`);
+      throw new Error(
+        `Could not find metadata for operation called ${operationName}`
+      );
     }
     return getMetadata();
   }

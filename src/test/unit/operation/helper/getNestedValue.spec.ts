@@ -13,7 +13,10 @@ describe('getNestedValue', () => {
     };
 
     // test
-    const value = getNestedValue(['complexProperty', 'anotherComplexProperty', 'value'], operationData);
+    const value = getNestedValue(
+      ['complexProperty', 'anotherComplexProperty', 'value'],
+      operationData
+    );
 
     // expect
     expect(value).to.equal('test');
@@ -30,7 +33,10 @@ describe('getNestedValue', () => {
     };
 
     // test
-    const value = getNestedValue(['complexProperty', 'anotherComplexProperty', 'value+px'], operationData);
+    const value = getNestedValue(
+      ['complexProperty', 'anotherComplexProperty', 'value+px'],
+      operationData
+    );
 
     // expect
     expect(value).to.equal('100px');

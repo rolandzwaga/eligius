@@ -38,17 +38,24 @@ export class LabelController implements IController<ILabelControllerMetadata> {
     ]);
 
     this.setLabel();
-    this.listeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.handleLanguageChange.bind(this)));
+    this.listeners.push(
+      eventbus.on(
+        TimelineEventNames.LANGUAGE_CHANGE,
+        this.handleLanguageChange.bind(this)
+      )
+    );
   }
 
   setLabel() {
     if (this.currentLanguage) {
-      this.operationData?.selectedElement.html(this.labelData[this.currentLanguage]);
+      this.operationData?.selectedElement.html(
+        this.labelData[this.currentLanguage]
+      );
     }
   }
 
   detach(_eventbus: IEventbus) {
-    this.listeners.forEach((func) => {
+    this.listeners.forEach(func => {
       func();
     });
   }
@@ -59,7 +66,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
   }
 
   createTextDataLookup(data: ILabel[]) {
-    data.forEach((d) => {
+    data.forEach(d => {
       this.labelData[d.languageCode] = d.label;
     });
   }

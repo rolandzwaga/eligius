@@ -21,8 +21,13 @@ function array_move(arr: any[], old_index: number, new_index: number) {
   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
 }
 
-export class ActionEditor<T extends IActionConfiguration = IActionConfiguration> {
-  constructor(protected actionConfig: T, protected readonly configurationFactory: ConfigurationFactory) {}
+export class ActionEditor<
+  T extends IActionConfiguration = IActionConfiguration
+> {
+  constructor(
+    protected actionConfig: T,
+    protected readonly configurationFactory: ConfigurationFactory
+  ) {}
 
   updateConfiguration() {
     this.actionConfig = {
@@ -55,7 +60,9 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
     operationClass: T,
     operationData: Partial<ExtractDataType<T>>
   ): OperationEditor<this> {
-    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+    const entries = Object.entries(operations).find(
+      ([, value]) => value === operationClass
+    );
 
     if (entries) {
       return this.addStartOperation(entries[0], operationData);
@@ -64,12 +71,17 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
     throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
-  addStartOperation(systemName: string, operationData: TOperationData): OperationEditor<this> {
+  addStartOperation(
+    systemName: string,
+    operationData: TOperationData
+  ): OperationEditor<this> {
     if (!(operations as any)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
 
-    const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
+    const startOperations = this.actionConfig.startOperations
+      ? this.actionConfig.startOperations.slice()
+      : [];
 
     const newConfig = {
       id: uuidv4(),
@@ -89,7 +101,7 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
 
   editStartOperation(id: string) {
     const { startOperations } = this.actionConfig;
-    const operation = startOperations.find((o) => o.id === id);
+    const operation = startOperations.find(o => o.id === id);
 
     if (operation) {
       return new OperationEditor<ActionEditor<T>>(operation, this);
@@ -99,8 +111,10 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
   }
 
   removeStartOperation(id: string) {
-    const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
-    const operation = startOperations.find((o) => o.id === id);
+    const startOperations = this.actionConfig.startOperations
+      ? this.actionConfig.startOperations.slice()
+      : [];
+    const operation = startOperations.find(o => o.id === id);
 
     if (!operation) {
       throw new Error(`start operation not found for id ${id}`);
@@ -120,8 +134,10 @@ export class ActionEditor<T extends IActionConfiguration = IActionConfiguration>
   }
 
   moveStartOperation(id: string, direction: 'up' | 'down') {
-    const startOperations = this.actionConfig.startOperations ? this.actionConfig.startOperations.slice() : [];
-    const operation = startOperations.find((o) => o.id === id);
+    const startOperations = this.actionConfig.startOperations
+      ? this.actionConfig.startOperations.slice()
+      : [];
+    const operation = startOperations.find(o => o.id === id);
 
     if (!operation) {
       throw new Error(`start operation not found for id ${id}`);
@@ -153,7 +169,9 @@ export class EndableActionEditor<
     operationClass: T,
     operationData: Partial<ExtractDataType<T>>
   ): OperationEditor<this> {
-    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+    const entries = Object.entries(operations).find(
+      ([, value]) => value === operationClass
+    );
 
     if (entries) {
       return this.addEndOperation(entries[0], operationData);
@@ -167,7 +185,9 @@ export class EndableActionEditor<
       throw Error(`Unknown operation: ${systemName}`);
     }
 
-    const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
+    const endOperations = this.actionConfig.endOperations
+      ? this.actionConfig.endOperations.slice()
+      : [];
 
     const newConfig = {
       id: uuidv4(),
@@ -184,7 +204,7 @@ export class EndableActionEditor<
 
   editEndOperation(id: string) {
     const { endOperations } = this.actionConfig;
-    const operationConfig = endOperations.find((o) => o.id === id);
+    const operationConfig = endOperations.find(o => o.id === id);
 
     if (operationConfig) {
       return new OperationEditor<this>(operationConfig, this);
@@ -194,8 +214,10 @@ export class EndableActionEditor<
   }
 
   removeEndOperation(id: string) {
-    const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
-    const operation = endOperations.find((o) => o.id === id);
+    const endOperations = this.actionConfig.endOperations
+      ? this.actionConfig.endOperations.slice()
+      : [];
+    const operation = endOperations.find(o => o.id === id);
 
     if (!operation) {
       throw new Error(`operation not found for id ${id}`);
@@ -215,8 +237,10 @@ export class EndableActionEditor<
   }
 
   moveEndOperation(id: string, direction: 'up' | 'down') {
-    const endOperations = this.actionConfig.endOperations ? this.actionConfig.endOperations.slice() : [];
-    const operation = endOperations.find((o) => o.id === id);
+    const endOperations = this.actionConfig.endOperations
+      ? this.actionConfig.endOperations.slice()
+      : [];
+    const operation = endOperations.find(o => o.id === id);
 
     if (!operation) {
       throw new Error(`operation not found for id ${id}`);
@@ -236,7 +260,9 @@ export class EndableActionEditor<
   }
 }
 
-export class TimelineActionEditor extends EndableActionEditor<ITimelineActionConfiguration> {
+export class TimelineActionEditor extends EndableActionEditor<
+  ITimelineActionConfiguration
+> {
   setDuration(start: number, end?: number) {
     if (end != undefined && start > end) {
       throw Error('start position cannot be higher than end position');
@@ -259,9 +285,14 @@ export class TimelineActionEditor extends EndableActionEditor<ITimelineActionCon
 }
 
 export class OperationEditor<T extends ActionEditor> {
-  constructor(private operationConfig: IOperationConfiguration, private actionEditor: T) {}
+  constructor(
+    private operationConfig: IOperationConfiguration,
+    private actionEditor: T
+  ) {}
 
-  getConfiguration(callBack: (config: IOperationConfiguration) => IOperationConfiguration) {
+  getConfiguration(
+    callBack: (config: IOperationConfiguration) => IOperationConfiguration
+  ) {
     const copy = deepCopy(this.operationConfig);
     const newConfig = callBack.call(this, copy);
 

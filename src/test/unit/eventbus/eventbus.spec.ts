@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Eventbus } from '../../../eventbus';
 
 describe('Eventbus', () => {
-  let eventbus;
+  let eventbus = new Eventbus();
 
   beforeEach(() => {
     eventbus = new Eventbus();
@@ -11,7 +11,7 @@ describe('Eventbus', () => {
   it('should register an event handler and let it get called', () => {
     // given
     let called = 0;
-    eventbus.on('test', (val) => {
+    eventbus.on('test', val => {
       called += val;
     });
 
@@ -25,7 +25,7 @@ describe('Eventbus', () => {
   it('should register an event handler once and let it get called only once', () => {
     // given
     let called = 0;
-    eventbus.once('test', (val) => {
+    eventbus.once('test', val => {
       called += val;
     });
 
@@ -43,7 +43,7 @@ describe('Eventbus', () => {
     let topic = 'topic';
     eventbus.on(
       'test',
-      (val) => {
+      val => {
         called += val;
       },
       topic
@@ -61,7 +61,7 @@ describe('Eventbus', () => {
     // given
     let called = 0;
     const interceptor = {
-      intercept: (args) => {
+      intercept: args => {
         called += args[0];
         return args;
       },
@@ -81,7 +81,7 @@ describe('Eventbus', () => {
     let called = 0;
     let topic = 'topic';
     const interceptor = {
-      intercept: (args) => {
+      intercept: args => {
         called += args[0];
         return args;
       },
@@ -102,17 +102,17 @@ describe('Eventbus', () => {
     let called2 = 0;
     let topic = 'topic';
     const interceptor = {
-      intercept: (_args) => {
+      intercept: _args => {
         return [10];
       },
     };
     eventbus.registerInterceptor('test', interceptor);
-    eventbus.on('test', (val) => {
+    eventbus.on('test', val => {
       called1 += val;
     });
     eventbus.on(
       'test',
-      (val) => {
+      val => {
         called2 += val;
       },
       topic

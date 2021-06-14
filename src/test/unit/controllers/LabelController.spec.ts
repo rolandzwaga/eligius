@@ -3,17 +3,17 @@ import { LabelController } from '../../../controllers/label-controller';
 import { Eventbus } from '../../../eventbus';
 import { TimelineEventNames } from '../../../timeline-event-names';
 class MockElement {
-  content: string;
-  html(content) {
+  content: string = '';
+  html(content: string) {
     this.content = content;
   }
 }
 
 describe('LabelController', () => {
-  let controller = null;
-  let eventbus = null;
-  let selectedElement = null;
-  let operationData = null;
+  let controller = new LabelController();
+  let eventbus = new Eventbus();
+  let selectedElement = new MockElement();
+  let operationData = {};
 
   beforeEach(() => {
     controller = new LabelController();
@@ -43,24 +43,30 @@ describe('LabelController', () => {
   it('should attach properly', () => {
     // given
     controller.init(operationData);
-    eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.on(
+      TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+      (...args: any[]) => {
+        args[0]('en-GB');
+      }
+    );
 
-    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
-      args[1]([
-        {
-          id: '1111',
-          languageCode: 'nl-NL',
-          label: 'hallo',
-        },
-        {
-          id: '2222',
-          languageCode: 'en-GB',
-          label: 'hello',
-        },
-      ]);
-    });
+    eventbus.on(
+      TimelineEventNames.REQUEST_LABEL_COLLECTION,
+      (...args: any[]) => {
+        args[1]([
+          {
+            id: '1111',
+            languageCode: 'nl-NL',
+            label: 'hallo',
+          },
+          {
+            id: '2222',
+            languageCode: 'en-GB',
+            label: 'hello',
+          },
+        ]);
+      }
+    );
 
     // test
     controller.attach(eventbus);

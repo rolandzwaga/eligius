@@ -10,7 +10,8 @@ export interface INavigationControllerOperationData {
   json: any;
 }
 
-export class NavigationController implements IController<INavigationControllerOperationData> {
+export class NavigationController
+  implements IController<INavigationControllerOperationData> {
   name: string = 'NavigationController';
   navigation: any[] = [];
   navLookup: Record<string, any> = {};
@@ -36,10 +37,24 @@ export class NavigationController implements IController<INavigationControllerOp
 
     this.eventbus = eventbus;
 
-    this.eventhandlers.push(eventbus.on('navigate-to-video-url', this.handleNavigateVideoUrl.bind(this)));
-    this.eventhandlers.push(eventbus.on('highlight-navigation', this.highlightMenu.bind(this)));
-    this.eventhandlers.push(eventbus.on('request-current-navigation', this.handleRequestCurrentNavigation.bind(this)));
-    this.eventhandlers.push(eventbus.on('video-complete', this.handleVideoComplete.bind(this)));
+    this.eventhandlers.push(
+      eventbus.on(
+        'navigate-to-video-url',
+        this.handleNavigateVideoUrl.bind(this)
+      )
+    );
+    this.eventhandlers.push(
+      eventbus.on('highlight-navigation', this.highlightMenu.bind(this))
+    );
+    this.eventhandlers.push(
+      eventbus.on(
+        'request-current-navigation',
+        this.handleRequestCurrentNavigation.bind(this)
+      )
+    );
+    this.eventhandlers.push(
+      eventbus.on('video-complete', this.handleVideoComplete.bind(this))
+    );
 
     this.buildHtml(this.container, this.navigation);
     this.initHistory.bind(this);
@@ -82,11 +97,11 @@ export class NavigationController implements IController<INavigationControllerOp
   }
 
   detach(eventbus: IEventbus) {
-    this.eventhandlers.forEach((handler) => {
+    this.eventhandlers.forEach(handler => {
       handler();
     });
 
-    this.labelControllers.forEach((ctrl) => {
+    this.labelControllers.forEach(ctrl => {
       ctrl.detach(eventbus);
     });
 
@@ -100,7 +115,9 @@ export class NavigationController implements IController<INavigationControllerOp
     if (!this.activeNavigationPoint) {
       return;
     }
-    const labelCtrl: LabelController = this.ctrlLookup[this.activeNavigationPoint.labelId];
+    const labelCtrl: LabelController = this.ctrlLookup[
+      this.activeNavigationPoint.labelId
+    ];
 
     if (!labelCtrl) {
       return;
@@ -155,7 +172,10 @@ export class NavigationController implements IController<INavigationControllerOp
 
   handleNavigateVideoUrl(index: number, requestedVideoPosition: number = 0) {
     this.highlightMenu(index);
-    this.eventbus?.broadcast('request-video-url', [index, requestedVideoPosition]);
+    this.eventbus?.broadcast('request-video-url', [
+      index,
+      requestedVideoPosition,
+    ]);
     this.activeNavigationPoint = this.navVidIdLookup[index];
     this.pushCurrentState(requestedVideoPosition);
   }
@@ -172,7 +192,9 @@ export class NavigationController implements IController<INavigationControllerOp
   handleVideoComplete(index: number) {
     const navData = this.navVidIdLookup[index];
     if (navData.autoNext) {
-      this.eventbus?.broadcast('request-video-url', [navData.next.videoUrlIndex]);
+      this.eventbus?.broadcast('request-video-url', [
+        navData.next.videoUrlIndex,
+      ]);
     } else {
       this.eventbus?.broadcast('request-video-cleanup');
     }
@@ -189,7 +211,10 @@ export class NavigationController implements IController<INavigationControllerOp
       this.labelControllers.push(instance);
       this.ctrlLookup[labelId] = instance;
     };
-    this.eventbus?.broadcast('request-instance', ['LabelController', resultCallback]);
+    this.eventbus?.broadcast('request-instance', [
+      'LabelController',
+      resultCallback,
+    ]);
   }
 
   buildNavigationData(data: any) {

@@ -4,7 +4,11 @@ import { IEventbusListener } from './types';
 export class ActionRegistryEventbusListener implements IEventbusListener {
   private _actionRegistry: Record<string, IAction[]> = {};
 
-  registerAction(action: IAction, eventName: string, eventTopic?: string): void {
+  registerAction(
+    action: IAction,
+    eventName: string,
+    eventTopic?: string
+  ): void {
     if (eventTopic && eventTopic.length) {
       eventName = `${eventName}:${eventTopic}`;
     }
@@ -14,7 +18,11 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
     this._actionRegistry[eventName].push(action);
   }
 
-  handleEvent(eventName: string, eventTopic: string | undefined, args: any[]): void {
+  handleEvent(
+    eventName: string,
+    eventTopic: string | undefined,
+    args: any[]
+  ): void {
     if (eventTopic && eventTopic.length) {
       eventName = `${eventName}:${eventTopic}`;
     }
@@ -23,7 +31,7 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
       const operationData = {
         eventArgs: args,
       };
-      actions.forEach((action) => {
+      actions.forEach(action => {
         action.start(operationData);
       });
     }

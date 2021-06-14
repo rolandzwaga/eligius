@@ -1,7 +1,9 @@
 import { IExtendControllerOperationData } from '../../operation/extend-controller';
 import { IOperationMetadata } from './types';
 
-function extendController(): IOperationMetadata<IExtendControllerOperationData> {
+function extendController(): IOperationMetadata<
+  IExtendControllerOperationData
+> {
   return {
     description: 'Extends the current controller',
     dependentProperties: ['controllerInstance'],

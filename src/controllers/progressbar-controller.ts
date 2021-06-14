@@ -8,7 +8,8 @@ export interface IProgressbarControllerOperationData {
   textElement: JQuery;
 }
 
-export class ProgressbarController implements IController<IProgressbarControllerOperationData> {
+export class ProgressbarController
+  implements IController<IProgressbarControllerOperationData> {
   name: string = 'ProgressbarController';
   selectedElement: JQuery | null = null;
   textElement: JQuery | null = null;
@@ -20,7 +21,12 @@ export class ProgressbarController implements IController<IProgressbarController
   }
 
   attach(eventbus: IEventbus) {
-    this.detachers.push(eventbus.on(TimelineEventNames.POSITION_UPDATE, this.positionUpdateHandler.bind(this)));
+    this.detachers.push(
+      eventbus.on(
+        TimelineEventNames.POSITION_UPDATE,
+        this.positionUpdateHandler.bind(this)
+      )
+    );
 
     const clickHandler = this.clickHandler.bind(this);
     this.selectedElement?.on('click', clickHandler);
@@ -33,7 +39,13 @@ export class ProgressbarController implements IController<IProgressbarController
     });
   }
 
-  positionUpdateHandler({ position, duration }: { position: number; duration: number }) {
+  positionUpdateHandler({
+    position,
+    duration,
+  }: {
+    position: number;
+    duration: number;
+  }) {
     const percentage = (100 / duration) * position;
     this.selectedElement?.css('width', `${percentage}%`);
     this.textElement?.text(`${Math.floor(percentage)}%`);

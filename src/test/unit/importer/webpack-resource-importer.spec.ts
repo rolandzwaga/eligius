@@ -59,7 +59,7 @@ describe('WebpackResourceImporter', () => {
     var operationNames = importer.getOperationNames();
     expect(operationNames).to.not.be.null;
     expect(operationNames.length).to.not.equal(0);
-    operationNames.forEach((name) => {
+    operationNames.forEach(name => {
       expect(operations).to.contain(name);
     });
   });
@@ -68,13 +68,13 @@ describe('WebpackResourceImporter', () => {
     var controllerNames = importer.getControllerNames();
     expect(controllerNames).to.not.be.null;
     expect(controllerNames.length).to.not.equal(0);
-    controllerNames.forEach((name) => {
+    controllerNames.forEach(name => {
       expect(controllers).to.contain(name);
     });
   });
 
   it('should return all known operations', () => {
-    operations.forEach((op) => {
+    operations.forEach(op => {
       const imported = importer.import(op);
       expect(imported).to.not.equal(null);
       expect(imported[op]).to.not.equal(null);
@@ -82,7 +82,7 @@ describe('WebpackResourceImporter', () => {
   });
 
   it('should return all known controllers', () => {
-    controllers.forEach((op) => {
+    controllers.forEach(op => {
       const imported = importer.import(op);
       expect(imported).to.not.equal(null);
       expect(imported[op]).to.not.equal(null);
@@ -95,7 +95,7 @@ describe('WebpackResourceImporter', () => {
       /*'MediaElementTimelineProvider',*/ 'RequestAnimationFrameTimelineProvider',
     ];
 
-    providers.forEach((op) => {
+    providers.forEach(op => {
       const imported = importer.import(op);
       expect(imported).to.not.be.null;
       expect(imported[op]).to.not.be.null;

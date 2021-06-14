@@ -3,7 +3,7 @@ import { endAction } from '../../../operation/end-action';
 
 class MockAction {
   end(operationData) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(operationData);
     });
   }
@@ -24,7 +24,7 @@ describe('endAction', () => {
     // test
     const promise = endAction(operationData, {} as any) as Promise<any>;
 
-    return promise.then((result) => {
+    return promise.then(result => {
       expect(result).to.equal(operationData);
     });
   });

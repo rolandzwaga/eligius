@@ -6,7 +6,7 @@ export interface IReparentElementOperationData {
   newParentSelector: string;
 }
 
-export const reparentElement: TOperation<IReparentElementOperationData> = function (
+export const reparentElement: TOperation<IReparentElementOperationData> = function(
   operationData: IReparentElementOperationData,
   _eventBus: IEventbus
 ) {

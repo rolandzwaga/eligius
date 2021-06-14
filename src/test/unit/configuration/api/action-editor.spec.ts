@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { ActionEditor, OperationEditor } from '../../../../configuration/api/action-editor';
+import {
+  ActionEditor,
+  OperationEditor,
+} from '../../../../configuration/api/action-editor';
 
 describe('ActionEditor', () => {
   let actionEditor = null;
@@ -130,7 +133,7 @@ describe('ActionEditor', () => {
     let config = null;
 
     // test
-    actionEditor.getConfiguration((c) => (config = c));
+    actionEditor.getConfiguration(c => (config = c));
 
     // expect
     expect(config).to.equal(actionEditor.actionConfig);
@@ -143,7 +146,7 @@ describe('ActionEditor', () => {
     };
 
     // test
-    actionEditor.getConfiguration((_c) => config);
+    actionEditor.getConfiguration(_c => config);
 
     // expect
     expect(config).to.equal(actionEditor.actionConfig);

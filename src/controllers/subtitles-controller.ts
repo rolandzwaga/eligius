@@ -9,17 +9,31 @@ export interface ISubtitlesControllerOperationData {
   subtitleData: any;
 }
 
-export class SubtitlesController implements IController<ISubtitlesControllerOperationData> {
+export class SubtitlesController
+  implements IController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
   currentLanguage: string | null = null;
   lastFunc: Function | null = null;
   name = 'SubtitlesController';
 
   attach(eventbus: IEventbus) {
-    const detachTime = eventbus.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this));
-    const detachSeek = eventbus.on(TimelineEventNames.SEEKED, this.onSeekedHandler.bind(this));
-    const detachLangChange = eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler.bind(this));
-    this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange, detachSeek]);
+    const detachTime = eventbus.on(
+      TimelineEventNames.TIME,
+      this.onTimeHandler.bind(this)
+    );
+    const detachSeek = eventbus.on(
+      TimelineEventNames.SEEKED,
+      this.onSeekedHandler.bind(this)
+    );
+    const detachLangChange = eventbus.on(
+      TimelineEventNames.LANGUAGE_CHANGE,
+      this.languageChangeHandler.bind(this)
+    );
+    this.internalDetach = this.internalDetach.bind(this, [
+      detachTime,
+      detachLangChange,
+      detachSeek,
+    ]);
   }
 
   detach(_eventbus: IEventbus) {
@@ -28,7 +42,7 @@ export class SubtitlesController implements IController<ISubtitlesControllerOper
 
   internalDetach(detachMethods?: TEventHandlerRemover[]) {
     if (detachMethods) {
-      detachMethods.forEach((f) => {
+      detachMethods.forEach(f => {
         f();
       });
     }
@@ -88,7 +102,11 @@ export class SubtitlesController implements IController<ISubtitlesControllerOper
         titleLanguageLookup[subs.lang] = subs.titles[i].text;
       }
 
-      subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(this, container, titleLanguageLookup);
+      subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(
+        this,
+        container,
+        titleLanguageLookup
+      );
       subtitleTimeLookup[titles[i].duration.end] = this.removeTitle;
     }
 

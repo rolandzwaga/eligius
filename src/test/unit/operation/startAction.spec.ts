@@ -4,7 +4,7 @@ import { startAction } from '../../../operation/start-action';
 
 class MockAction {
   start(operationData) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       operationData.resolved = true;
       resolve(operationData);
     });
@@ -28,7 +28,7 @@ describe('startAction', () => {
     const promise = startAction(operationData, {} as any) as Promise<any>;
 
     // expect
-    promise.then((result) => {
+    promise.then(result => {
       expect(result.resolved).to.be.true;
       expect(result.prop).to.equal('test');
     });

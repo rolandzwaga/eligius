@@ -7,7 +7,7 @@ export interface IGetImportOperationData {
   importedInstance: any;
 }
 
-export const getImport: TOperation<IGetImportOperationData> = function (
+export const getImport: TOperation<IGetImportOperationData> = function(
   operationData: IGetImportOperationData,
   eventBus: IEventbus
 ) {
@@ -15,7 +15,10 @@ export const getImport: TOperation<IGetImportOperationData> = function (
   const callBack = (instance: any) => {
     operationData.importedInstance = instance;
   };
-  eventBus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [systemName, callBack]);
+  eventBus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
+    systemName,
+    callBack,
+  ]);
   delete (operationData as any).systemName;
   return operationData;
 };

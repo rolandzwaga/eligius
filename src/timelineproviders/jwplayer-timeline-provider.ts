@@ -16,14 +16,17 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
 
   loop = false;
 
-  constructor(private eventbus: IEventbus, private config: IResolvedEngineConfiguration) {
+  constructor(
+    private eventbus: IEventbus,
+    private config: IResolvedEngineConfiguration
+  ) {
     this._addEventListeners();
   }
 
   _extractUrls(configuration: IResolvedEngineConfiguration) {
     const urls = configuration.timelines
-      .filter((timeline) => timeline.type === 'mediaplayer')
-      .map((timeline) => {
+      .filter(timeline => timeline.type === 'mediaplayer')
+      .map(timeline => {
         return timeline.uri;
       });
     return urls;
@@ -67,7 +70,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
       repeat: false,
     });
     this._playlist.length = 0;
-    urls.forEach((url) => {
+    urls.forEach(url => {
       const item = {
         file: url,
         title: url,
@@ -75,7 +78,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
       };
       this._playlist.push(item);
     });
-    const promise = new Promise((resolve) => {
+    const promise = new Promise(resolve => {
       this._player.once('ready', () => {
         this._handlePlayerReady(resolve);
       });
@@ -87,12 +90,20 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   _handlePlayerReady(resolve: (value: any | PromiseLike<any>) => void) {
     this._player.once('firstFrame', () => {
       this._player.pause();
-      this.eventbus.broadcast(TimelineEventNames.DURATION, [this.getDuration()]);
+      this.eventbus.broadcast(TimelineEventNames.DURATION, [
+        this.getDuration(),
+      ]);
       resolve(this);
     });
-    this._player.on(TimelineEventNames.TIME, this._loopHandler.bind(this, Math.floor));
+    this._player.on(
+      TimelineEventNames.TIME,
+      this._loopHandler.bind(this, Math.floor)
+    );
     this._player.on(TimelineEventNames.SEEKED, this._seekedHandler.bind(this));
-    this._player.on(TimelineEventNames.COMPLETE, this._handlePlayerComplete.bind(this));
+    this._player.on(
+      TimelineEventNames.COMPLETE,
+      this._handlePlayerComplete.bind(this)
+    );
     setTimeout(() => {
       this._player.play();
     }, 10);
@@ -101,17 +112,22 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   _handlePlayerComplete() {
     if (!this.loop) {
       this.stop();
-      this.eventbus.broadcast(TimelineEventNames.COMPLETE, [this._player.getPlaylistIndex()]);
+      this.eventbus.broadcast(TimelineEventNames.COMPLETE, [
+        this._player.getPlaylistIndex(),
+      ]);
     }
   }
 
   _seekedHandler() {
-    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this.getPosition(), this.getDuration()]);
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [
+      this.getPosition(),
+      this.getDuration(),
+    ]);
   }
 
   destroy() {
     this._player.remove();
-    this._eventbusListeners.forEach((func) => func());
+    this._eventbusListeners.forEach(func => func());
   }
 
   _loopHandler(floor: (x: number) => number, jwplayerEvent: any) {
@@ -128,14 +144,42 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   }
 
   _addEventListeners() {
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this.resize.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.duration.bind(this)));
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.PLAY_TOGGLE_REQUEST,
+        this.toggleplay.bind(this)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.RESIZE_REQUEST,
+        this.resize.bind(this)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.CONTAINER_REQUEST,
+        this._container.bind(this)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.DURATION_REQUEST,
+        this.duration.bind(this)
+      )
+    );
   }
 
   _container(resultCallback: TResultCallback) {
@@ -176,7 +220,11 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   seek(position: number) {
     const currentPosition = this._player.getPosition();
     this._player.seek(position);
-    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, currentPosition, this._player.getDuration()]);
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [
+      position,
+      currentPosition,
+      this._player.getDuration(),
+    ]);
   }
 
   resize(width: number, height: number) {
@@ -189,7 +237,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   }
 
   playlistItem(uri: string) {
-    const index = this._playlist.findIndex((item) => item.file === uri);
+    const index = this._playlist.findIndex(item => item.file === uri);
     if (index > -1) {
       this._player.playlistItem(index);
     }

@@ -7,7 +7,9 @@ export interface IEngineInfo {
   systemName: string;
 }
 
-export type TTimelineProviderSettings = Partial<Record<TimelineTypes, ITimelineProviderSettings>>;
+export type TTimelineProviderSettings = Partial<
+  Record<TimelineTypes, ITimelineProviderSettings>
+>;
 export interface IEngineConfiguration {
   id: string;
   engine: IEngineInfo;
@@ -90,7 +92,8 @@ export interface IEndableActionConfiguration extends IActionConfiguration {
   endOperations: IOperationConfiguration[];
 }
 
-export interface ITimelineActionConfiguration extends IEndableActionConfiguration {
+export interface ITimelineActionConfiguration
+  extends IEndableActionConfiguration {
   duration: IDuration;
 }
 

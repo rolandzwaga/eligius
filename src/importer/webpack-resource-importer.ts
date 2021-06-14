@@ -1,5 +1,5 @@
 ﻿import * as ctrls from '../controllers';
-import * as m from '../index';
+import * as evtb from '../eventbus';
 import * as ops from '../operation';
 import { TOperation } from '../operation/types';
 import * as prvdrs from '../timelineproviders';
@@ -8,7 +8,7 @@ import { IResourceImporter } from '../types';
 const operations: Record<string, TOperation<any>> = ops as any;
 const controllers: Record<string, any> = ctrls;
 const providers: Record<string, any> = prvdrs;
-const main: Record<string, any> = m;
+const eventbus: Record<string, any> = evtb;
 
 export class WebpackResourceImporter implements IResourceImporter {
   getOperationNames(): string[] {
@@ -24,7 +24,11 @@ export class WebpackResourceImporter implements IResourceImporter {
   }
 
   import(name: string): Record<string, any> {
-    const value = operations[name] || controllers[name] || providers[name] || main[name];
+    const value =
+      operations[name] ??
+      controllers[name] ??
+      providers[name] ??
+      eventbus[name];
 
     return { [name]: value };
   }

@@ -1,7 +1,9 @@
 import { IAddControllerToElementOperationData } from '../../operation/add-controller-to-element';
 import { IOperationMetadata } from './types';
 
-function addGlobalsToOperation(): IOperationMetadata<IAddControllerToElementOperationData> {
+function addGlobalsToOperation(): IOperationMetadata<
+  IAddControllerToElementOperationData
+> {
   return {
     description: 'Add global properties to the current operation data.',
     dependentProperties: ['selectedElement'],

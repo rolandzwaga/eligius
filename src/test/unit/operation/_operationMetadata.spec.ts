@@ -7,13 +7,15 @@ import * as metadata from '../../../operation/metadata';
 
 describe('automatic input and output tests', () => {
   it('should have equal numbers of metadata as operations', () => {
-    expect(Object.keys(operations).length).to.equal(Object.keys(metadata).length);
+    expect(Object.keys(operations).length).to.equal(
+      Object.keys(metadata).length
+    );
   });
 
   it('should have equalnames between metadata and operations', () => {
     const operationNames = Object.keys(operations);
     const metadataNames = Object.keys(metadata);
-    const isEqual = operationNames.every((name) => {
+    const isEqual = operationNames.every(name => {
       return metadataNames.includes(name);
     });
     expect(isEqual).to.be.true;

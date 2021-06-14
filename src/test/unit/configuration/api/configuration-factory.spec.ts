@@ -1,5 +1,9 @@
 import { expect } from 'chai';
-import { ActionEditor, EndableActionEditor, TimelineActionEditor } from '../../../../configuration/api/action-editor';
+import {
+  ActionEditor,
+  EndableActionEditor,
+  TimelineActionEditor,
+} from '../../../../configuration/api/action-editor';
 import { ConfigurationFactory } from '../../../../configuration/api/configuration-factory';
 import { TimelineProvidersSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor';
 
@@ -18,7 +22,9 @@ describe('ConfigurationFactory', () => {
     const { configuration } = configurationFactory;
     expect(configuration.id).not.to.be.undefined;
     expect(configuration.engine.systemName).to.equal('ChronoTriggerEngine');
-    expect(configuration.containerSelector).to.equal('[data-ct-container=true]');
+    expect(configuration.containerSelector).to.equal(
+      '[data-ct-container=true]'
+    );
     expect(configuration.timelineProviderSettings).to.deep.equal({});
     expect(configuration.language).to.equal('nl-NL');
     expect(configuration.availableLanguages.length).to.equal(0);
@@ -139,7 +145,13 @@ describe('ConfigurationFactory', () => {
     configurationFactory.init('nl-NL');
 
     // test
-    configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+    configurationFactory.addTimeline(
+      'test',
+      'animation',
+      100,
+      false,
+      'selector'
+    );
 
     // expect
     const timeline = configurationFactory.getTimeline('test');
@@ -154,12 +166,24 @@ describe('ConfigurationFactory', () => {
   it('addTimeline should throw an error when a timeline with the given uri alreayd exists', () => {
     // given
     configurationFactory.init('nl-NL');
-    configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+    configurationFactory.addTimeline(
+      'test',
+      'animation',
+      100,
+      false,
+      'selector'
+    );
     let errorMessage = null;
 
     // test
     try {
-      configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+      configurationFactory.addTimeline(
+        'test',
+        'animation',
+        100,
+        false,
+        'selector'
+      );
     } catch (e) {
       errorMessage = e.message;
     }
@@ -171,7 +195,13 @@ describe('ConfigurationFactory', () => {
   it('addTimelineAction should add the specified action', () => {
     // given
     configurationFactory.init('nl-NL');
-    configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+    configurationFactory.addTimeline(
+      'test',
+      'animation',
+      100,
+      false,
+      'selector'
+    );
     const action = {};
 
     // test
@@ -186,7 +216,13 @@ describe('ConfigurationFactory', () => {
   it('removeTimeline should remove the timeline for the given uri', () => {
     // given
     configurationFactory.init('nl-NL');
-    configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+    configurationFactory.addTimeline(
+      'test',
+      'animation',
+      100,
+      false,
+      'selector'
+    );
 
     // test
     configurationFactory.removeTimeline('test');
@@ -272,10 +308,19 @@ describe('ConfigurationFactory', () => {
   it('createTimelineAction should add a timeline action with the given name to the timeline with the given uri', () => {
     // given
     configurationFactory.init('nl-NL');
-    configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+    configurationFactory.addTimeline(
+      'test',
+      'animation',
+      100,
+      false,
+      'selector'
+    );
 
     // test
-    const creator = configurationFactory.createTimelineAction('test', 'TestTimelineAction');
+    const creator = configurationFactory.createTimelineAction(
+      'test',
+      'TestTimelineAction'
+    );
 
     // expect
     const timeline = configurationFactory.getTimeline('test');
@@ -326,13 +371,25 @@ describe('ConfigurationFactory', () => {
   it('editTimelineAction should return a timelineactioneditor instance', () => {
     // given
     configurationFactory.init('nl-NL');
-    configurationFactory.addTimeline('test', 'animation', 100, false, 'selector');
+    configurationFactory.addTimeline(
+      'test',
+      'animation',
+      100,
+      false,
+      'selector'
+    );
 
-    const creator = configurationFactory.createTimelineAction('test', 'TestTimelineAction');
+    const creator = configurationFactory.createTimelineAction(
+      'test',
+      'TestTimelineAction'
+    );
     const { actionConfig } = creator;
 
     // test
-    const editor = configurationFactory.editTimelineAction('test', actionConfig.id);
+    const editor = configurationFactory.editTimelineAction(
+      'test',
+      actionConfig.id
+    );
 
     // expect
     expect(editor).to.be.an.instanceOf(TimelineActionEditor);

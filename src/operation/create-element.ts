@@ -12,12 +12,17 @@ export interface ICreateElementOperationData<T extends TTagNames> {
   template?: JQuery;
 }
 
-export const createElement = function <T extends TTagNames>(
+export const createElement = function<T extends TTagNames>(
   operationData: ICreateElementOperationData<T>,
   _eventBus: IEventbus
 ) {
   operationData = resolvePropertyValues(operationData, operationData);
-  const { elementName, attributes, text, propertyName = 'template' } = operationData;
+  const {
+    elementName,
+    attributes,
+    text,
+    propertyName = 'template',
+  } = operationData;
 
   const serializedAttrs = attributes
     ? ' ' +

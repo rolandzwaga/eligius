@@ -19,7 +19,8 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
   url: string;
 }
 
-export class LottieController implements IController<ILottieControllerMetadata> {
+export class LottieController
+  implements IController<ILottieControllerMetadata> {
   name = 'LottieController';
   currentLanguage: string | null = null;
   labelData: Record<string, Record<string, string>> = {};
@@ -57,9 +58,12 @@ export class LottieController implements IController<ILottieControllerMetadata> 
   }
 
   parseFilename(name: string) {
-    const params = name.substr(name.indexOf('[') + 1, name.indexOf(']') - name.indexOf('[') - 1);
+    const params = name.substr(
+      name.indexOf('[') + 1,
+      name.indexOf(']') - name.indexOf('[') - 1
+    );
     const settings = params.split(',');
-    settings.forEach((setting) => {
+    settings.forEach(setting => {
       const values = setting.split('=');
       if (values[0] === 'freeze') {
         this.freezePosition = +values[1];
@@ -76,26 +80,45 @@ export class LottieController implements IController<ILottieControllerMetadata> 
 
     const { labelIds } = this.operationData;
     if (labelIds && labelIds.length) {
-      const resultHolder: { language: string; labelCollections: any[] } = {} as any;
+      const resultHolder: {
+        language: string;
+        labelCollections: any[];
+      } = {} as any;
 
-      eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [resultHolder]);
+      eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [
+        resultHolder,
+      ]);
       this.currentLanguage = resultHolder.language;
-      this.listeners.push(eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.handleLanguageChange.bind(this)));
-      eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [this.operationData.labelIds, resultHolder]);
+      this.listeners.push(
+        eventbus.on(
+          TimelineEventNames.LANGUAGE_CHANGE,
+          this.handleLanguageChange.bind(this)
+        )
+      );
+      eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [
+        this.operationData.labelIds,
+        resultHolder,
+      ]);
       this.createTextDataLookup(resultHolder.labelCollections);
     }
     this.createAnimation();
   }
 
   detach(_eventbus: IEventbus) {
-    this.listeners.forEach((func) => {
+    this.listeners.forEach(func => {
       func();
     });
 
     if (this.animationItem) {
       if (this.endPosition > -1) {
-        this.animationItem.addEventListener('complete', this.destroy.bind(this));
-        this.animationItem.playSegments([this.freezePosition, this.endPosition], true);
+        this.animationItem.addEventListener(
+          'complete',
+          this.destroy.bind(this)
+        );
+        this.animationItem.playSegments(
+          [this.freezePosition, this.endPosition],
+          true
+        );
       } else {
         this.animationItem.destroy();
       }
@@ -115,12 +138,17 @@ export class LottieController implements IController<ILottieControllerMetadata> 
     }
 
     this.animationItem?.destroy();
-    let serialized = this.isIE() && this.serializedIEData ? this.serializedIEData : this.serializedData;
+    let serialized =
+      this.isIE() && this.serializedIEData
+        ? this.serializedIEData
+        : this.serializedData;
 
     const { labelIds } = this.operationData;
     if (labelIds && labelIds.length) {
-      labelIds.forEach((id) => {
-        serialized = serialized.split(`!!${id}!!`).join(this.labelData[id][this.currentLanguage ?? '']);
+      labelIds.forEach(id => {
+        serialized = serialized
+          .split(`!!${id}!!`)
+          .join(this.labelData[id][this.currentLanguage ?? '']);
       });
     }
     const animationData = JSON.parse(serialized);
@@ -142,7 +170,9 @@ export class LottieController implements IController<ILottieControllerMetadata> 
       this.animationItem.playSegments([0, this.freezePosition], true);
     }
     if (this.operationData.viewBox) {
-      this.operationData.selectedElement.find('svg').attr('viewBox', this.operationData.viewBox);
+      this.operationData.selectedElement
+        .find('svg')
+        .attr('viewBox', this.operationData.viewBox);
     }
   }
 

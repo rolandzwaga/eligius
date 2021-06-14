@@ -1,7 +1,9 @@
 import { IRemoveControllerFromElementOperationData } from '../../operation/remove-controller-from-element';
 import { IOperationMetadata } from './types';
 
-function removeControllerFromElement(): IOperationMetadata<IRemoveControllerFromElementOperationData> {
+function removeControllerFromElement(): IOperationMetadata<
+  IRemoveControllerFromElementOperationData
+> {
   return {
     description: 'Removes the specified controller from the selected element',
     dependentProperties: ['selectedElement'],

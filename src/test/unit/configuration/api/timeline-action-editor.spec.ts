@@ -19,14 +19,17 @@ describe('TimelineActionEditor.', () => {
         },
       ],
     };
-    timelineActionEditor = new TimelineActionEditor(actionConfig, configurationFactory);
+    timelineActionEditor = new TimelineActionEditor(
+      actionConfig,
+      configurationFactory
+    );
   });
 
   it('should set the duration start and end', () => {
     // given
 
     // test
-    timelineActionEditor.setDuration(12, 40).getConfiguration((config) => {
+    timelineActionEditor.setDuration(12, 40).getConfiguration(config => {
       expect(config.duration.start).to.equal(12);
       expect(config.duration.end).to.equal(40);
     });
@@ -36,7 +39,7 @@ describe('TimelineActionEditor.', () => {
     // given
 
     // test
-    timelineActionEditor.setDuration(12).getConfiguration((config) => {
+    timelineActionEditor.setDuration(12).getConfiguration(config => {
       expect(config.duration.start).to.equal(12);
       expect(config.duration.hasOwnProperty('end')).to.be.false;
     });
@@ -54,6 +57,8 @@ describe('TimelineActionEditor.', () => {
     }
 
     // expect
-    expect(errorMessage).to.equal('start position cannot be higher than end position');
+    expect(errorMessage).to.equal(
+      'start position cannot be higher than end position'
+    );
   });
 });

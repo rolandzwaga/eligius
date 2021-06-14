@@ -5,7 +5,7 @@ import { clearCache, loadJSON } from '../../../operation/load-json';
 let result = null;
 
 function getResult() {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     resolve(result);
   });
 }
@@ -15,8 +15,8 @@ describe('loadJSON', () => {
 
   beforeAll(() => {
     fetch = window.fetch;
-    window.fetch = function () {
-      return new Promise((resolve) => {
+    window.fetch = function() {
+      return new Promise(resolve => {
         resolve({
           json: getResult,
         } as any);

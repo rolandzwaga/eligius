@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { getControllerInstance, IGetControllerInstanceOperationData } from '../../../operation/get-controller-instance';
+import {
+  getControllerInstance,
+  IGetControllerInstanceOperationData,
+} from '../../../operation/get-controller-instance';
 
 class MockEventbus {
   controller: any;

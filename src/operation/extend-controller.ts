@@ -7,13 +7,16 @@ export interface IExtendControllerOperationData {
   controllerExtension: any;
 }
 
-export const extendController: TOperation<IExtendControllerOperationData> = function (
+export const extendController: TOperation<IExtendControllerOperationData> = function(
   operationData: IExtendControllerOperationData,
   _eventBus: IEventbus
 ) {
   const { controllerInstance, controllerExtension } = operationData;
 
-  operationData.controllerInstance = Object.assign(controllerInstance, controllerExtension);
+  operationData.controllerInstance = Object.assign(
+    controllerInstance,
+    controllerExtension
+  );
 
   return operationData;
 };

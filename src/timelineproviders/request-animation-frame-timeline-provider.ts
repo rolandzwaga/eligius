@@ -1,5 +1,8 @@
 import $ from 'jquery';
-import { IResolvedEngineConfiguration, IResolvedTimelineConfiguration } from '../configuration/types';
+import {
+  IResolvedEngineConfiguration,
+  IResolvedTimelineConfiguration,
+} from '../configuration/types';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TResultCallback } from '../types';
@@ -8,7 +11,8 @@ import { ITimelineProvider } from './types';
 type TUpdateMethod = (now: number) => void;
 type TPlayState = 'stopped' | 'running' | 'paused';
 
-export class RequestAnimationFrameTimelineProvider implements ITimelineProvider {
+export class RequestAnimationFrameTimelineProvider
+  implements ITimelineProvider {
   private _requestID: number = -1;
   private _last: number = 0;
   private _currentPosition: number = 0;
@@ -23,15 +27,22 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
 
   loop: boolean = false;
 
-  constructor(private eventbus: IEventbus, private config: IResolvedEngineConfiguration) {
+  constructor(
+    private eventbus: IEventbus,
+    private config: IResolvedEngineConfiguration
+  ) {
     this.eventbus = eventbus;
     this.config = config;
     this._playlist = this._extractPlaylist(config);
     this._currentPlaylistItem = this._playlist[0];
   }
 
-  private _extractPlaylist(configuration: IResolvedEngineConfiguration): IResolvedTimelineConfiguration[] {
-    const playlist = configuration.timelines.filter((timeline) => timeline.type === 'animation');
+  private _extractPlaylist(
+    configuration: IResolvedEngineConfiguration
+  ): IResolvedTimelineConfiguration[] {
+    const playlist = configuration.timelines.filter(
+      timeline => timeline.type === 'animation'
+    );
     return playlist;
   }
 
@@ -40,7 +51,7 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
       return;
     }
 
-    const item = this._playlist.find((item) => {
+    const item = this._playlist.find(item => {
       return item.uri === uri;
     });
 
@@ -53,15 +64,41 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
   }
 
   private _addEventListeners() {
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_TOGGLE_REQUEST, this.toggleplay.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.RESIZE_REQUEST, this._resize.bind(this)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.CONTAINER_REQUEST, this._container.bind(this)));
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.DURATION_REQUEST, this.requestDurationHandler.bind(this))
+      this.eventbus.on(
+        TimelineEventNames.PLAY_TOGGLE_REQUEST,
+        this.toggleplay.bind(this)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this))
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.RESIZE_REQUEST,
+        this._resize.bind(this)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.CONTAINER_REQUEST,
+        this._container.bind(this)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.DURATION_REQUEST,
+        this.requestDurationHandler.bind(this)
+      )
     );
   }
 
@@ -89,9 +126,14 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
         }
       }
 
-      this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this._currentPosition }]);
+      this.eventbus.broadcast(TimelineEventNames.TIME, [
+        { position: this._currentPosition },
+      ]);
       this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-        { position: this._currentPosition, duration: this._currentPlaylistItem.duration },
+        {
+          position: this._currentPosition,
+          duration: this._currentPlaylistItem.duration,
+        },
       ]);
     }
 
@@ -136,10 +178,12 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
     this._containerElement = $(this._currentPlaylistItem.selector);
 
     if (!this._containerElement.length) {
-      throw new Error(`timeline selector '${this._currentPlaylistItem.selector}' not found`);
+      throw new Error(
+        `timeline selector '${this._currentPlaylistItem.selector}' not found`
+      );
     }
 
-    const promise = new Promise<void>((resolve) => {
+    const promise = new Promise<void>(resolve => {
       resolve();
     });
 
@@ -148,7 +192,7 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
 
   destroy() {
     this.stop();
-    this._eventbusListeners.forEach((func) => func());
+    this._eventbusListeners.forEach(func => func());
     this._containerElement = undefined;
   }
 
@@ -181,12 +225,24 @@ export class RequestAnimationFrameTimelineProvider implements ITimelineProvider 
       return;
     }
 
-    this.eventbus.broadcast(TimelineEventNames.SEEK, [position, this._currentPosition, this.getDuration()]);
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [
+      position,
+      this._currentPosition,
+      this.getDuration(),
+    ]);
     this._currentPosition = position;
-    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this._currentPosition, this.getDuration()]);
-    this.eventbus.broadcast(TimelineEventNames.TIME, [{ position: this.getPosition() }]);
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [
+      this._currentPosition,
+      this.getDuration(),
+    ]);
+    this.eventbus.broadcast(TimelineEventNames.TIME, [
+      { position: this.getPosition() },
+    ]);
     this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-      { position: this._currentPosition, duration: this._currentPlaylistItem.duration },
+      {
+        position: this._currentPosition,
+        duration: this._currentPlaylistItem.duration,
+      },
     ]);
   }
 

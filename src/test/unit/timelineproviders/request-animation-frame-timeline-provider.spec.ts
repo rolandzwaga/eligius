@@ -29,7 +29,10 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     if (provider) {
       provider.destroy();
     }
-    provider = new RequestAnimationFrameTimelineProvider(eventbus, configuration);
+    provider = new RequestAnimationFrameTimelineProvider(
+      eventbus,
+      configuration
+    );
   });
 
   afterEach(() => {
@@ -86,14 +89,14 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     provider.init();
     const recordedPositions = [];
 
-    eventbus.on(TimelineEventNames.TIME, (position) => {
+    eventbus.on(TimelineEventNames.TIME, position => {
       recordedPositions.push(position);
       console.dir(recordedPositions);
     });
 
     provider.start();
 
-    const result: number[] = await new Promise((resolve) => {
+    const result: number[] = await new Promise(resolve => {
       setTimeout(() => {
         resolve(recordedPositions);
       }, 5500);

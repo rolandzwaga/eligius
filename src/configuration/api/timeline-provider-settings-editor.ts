@@ -11,7 +11,9 @@ export class TimelineProvidersSettingsEditor {
 
   addProvider(timelineType: TimelineTypes) {
     if (this.providersSettings[timelineType]) {
-      throw new Error(`Settings for a '${timelineType}' provider already exist`);
+      throw new Error(
+        `Settings for a '${timelineType}' provider already exist`
+      );
     }
     const settings = {
       id: '',
@@ -21,7 +23,11 @@ export class TimelineProvidersSettingsEditor {
       vendor: '',
     };
     this.providersSettings[timelineType] = settings;
-    return new TimelineProviderSettingsEditor(settings, this, this.configurationFactory);
+    return new TimelineProviderSettingsEditor(
+      settings,
+      this,
+      this.configurationFactory
+    );
   }
 
   editProvider(timelineType: TimelineTypes) {

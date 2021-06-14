@@ -9,7 +9,7 @@ export interface IEndActionOperationData {
   actionOperationData: any;
 }
 
-export const endAction: TOperation<IEndActionOperationData> = function (
+export const endAction: TOperation<IEndActionOperationData> = function(
   operationData: IEndActionOperationData,
   _eventBus: IEventbus
 ) {
@@ -20,7 +20,7 @@ export const endAction: TOperation<IEndActionOperationData> = function (
     operationData = mergeOperationData(operationData, actionOperationData);
 
     actionInstance.end(operationData).then(() => {
-      Object.keys(actionOperationData).forEach((key) => {
+      Object.keys(actionOperationData).forEach(key => {
         delete (operationData as any)[key];
       });
       internalResolve(resolve, operationData);

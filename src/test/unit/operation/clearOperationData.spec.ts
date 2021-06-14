@@ -11,7 +11,10 @@ describe('clearOperationData', () => {
     };
 
     // test
-    const newOperationData: any = clearOperationData(operationData as any, {} as any);
+    const newOperationData: any = clearOperationData(
+      operationData as any,
+      {} as any
+    );
 
     // expect
     expect(newOperationData).to.not.equal(operationData);
@@ -27,7 +30,10 @@ describe('clearOperationData', () => {
     };
 
     // test
-    const newOperationData: any = clearOperationData(operationData as any, {} as any);
+    const newOperationData: any = clearOperationData(
+      operationData as any,
+      {} as any
+    );
 
     // expect
     expect(newOperationData.bla).to.be.undefined;

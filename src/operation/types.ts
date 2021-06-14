@@ -11,6 +11,9 @@ export interface IOperationContext {
   skipNextOperation?: boolean;
 }
 
-export type TOperation<T = TOperationData> = (operationData: T, eventbus: IEventbus) => TOperationResult<T>;
+export type TOperation<T = TOperationData> = (
+  operationData: T,
+  eventbus: IEventbus
+) => TOperationResult<T>;
 
 export type TOperationData = any;

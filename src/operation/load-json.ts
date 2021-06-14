@@ -20,7 +20,7 @@ export const addToCache = (key: string, value: any) => {
   jsonCache[key] = value;
 };
 
-export const loadJSON: TOperation<ILoadJSONOperationData> = function (
+export const loadJSON: TOperation<ILoadJSONOperationData> = function(
   operationData: ILoadJSONOperationData,
   _eventBus: IEventbus
 ) {
@@ -34,7 +34,7 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = function (
 
   return new Promise((resolve, reject) => {
     fetch(url)
-      .then(async (response) => {
+      .then(async response => {
         const json = await response.json();
         const cacheValue = ((operationData as any)[propertyName] = json);
         delete operationData.propertyName;

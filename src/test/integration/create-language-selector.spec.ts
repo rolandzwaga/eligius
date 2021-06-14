@@ -32,7 +32,9 @@ describe('Create option list', () => {
 
     const factory = new ConfigurationFactory();
     factory.init('nl-NL');
-    factory.setLayoutTemplate('<div data-test=true><div data-anim-container="true"/></div>');
+    factory.setLayoutTemplate(
+      '<div data-test=true><div data-anim-container="true"/></div>'
+    );
     const settingsEditor = factory.editTimelineProviderSettings();
     settingsEditor
       .addProvider('animation')
@@ -42,7 +44,13 @@ describe('Create option list', () => {
     const actionCreator = factory
       .addLanguage('nl-NL', 'Nederlands')
       .addLanguage('en-GB', 'English')
-      .addTimeline('my-anim', 'animation', 100, false, '[data-anim-container=true]')
+      .addTimeline(
+        'my-anim',
+        'animation',
+        100,
+        false,
+        '[data-anim-container=true]'
+      )
       .createInitAction('CreateLanguageSelector');
 
     actionCreator
@@ -50,13 +58,17 @@ describe('Create option list', () => {
       .addStartOperationByType(createElement, {
         elementName: 'select',
         attributes: {
-          ['data-language-selector']: 'true',
+          'data-language-selector': 'true',
           defaultValue: 'nl-NL',
         },
       })
       .addStartOperationByType(setElementContent, { insertionType: 'prepend' })
-      .addStartOperationByType(selectElement, { selector: '[data-language-selector=true]' })
-      .addStartOperationByType(startLoop, { collection: 'config:availableLanguages' })
+      .addStartOperationByType(selectElement, {
+        selector: '[data-language-selector=true]',
+      })
+      .addStartOperationByType(startLoop, {
+        collection: 'config:availableLanguages',
+      })
       .addStartOperationByType(createElement, {
         elementName: 'option',
         attributes: {
@@ -66,22 +78,30 @@ describe('Create option list', () => {
       })
       .addStartOperationByType(setElementContent, { insertionType: 'append' })
       .addStartOperationByType(endLoop, {})
-      .addStartOperationByType(getControllerInstance, { systemName: 'EventListenerController' })
+      .addStartOperationByType(getControllerInstance, {
+        systemName: 'EventListenerController',
+      })
       .addStartOperationByType(addControllerToElement, {
         eventName: 'change',
         actions: ['BroadcastLanguageChange'],
       })
-      .addEndOperationByType(selectElement, { selector: '[data-language-selector=true]' })
+      .addEndOperationByType(selectElement, {
+        selector: '[data-language-selector=true]',
+      })
       .addEndOperationByType(log, {})
-      .addEndOperationByType(removeControllerFromElement, { controllerName: 'EventListenerController' });
+      .addEndOperationByType(removeControllerFromElement, {
+        controllerName: 'EventListenerController',
+      });
 
-    const eventActionCreator = factory.createEventAction('BroadcastLanguageChange');
+    const eventActionCreator = factory.createEventAction(
+      'BroadcastLanguageChange'
+    );
     eventActionCreator.addStartOperationByType(broadcastEvent, {
       eventName: TimelineEventNames.LANGUAGE_CHANGE,
       eventArgs: ['operationData.targetValue'],
     });
 
-    factory.getConfiguration((config) => {
+    factory.getConfiguration(config => {
       configuration = config;
       return undefined;
     });
@@ -95,17 +115,23 @@ describe('Create option list', () => {
 
   it('should create a selector and attach a change controller', async () => {
     let selectedLang = '';
-    eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode) => {
+    eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, languageCode => {
       selectedLang = languageCode;
     });
 
-    const engineFactory = new EngineFactory(new WebpackResourceImporter(), window, eventbus);
+    const engineFactory = new EngineFactory(
+      new WebpackResourceImporter(),
+      window,
+      eventbus
+    );
     engine = engineFactory.createEngine(configuration as IEngineConfiguration);
 
     try {
       const result = await engine.init();
       expect(result).to.not.be.undefined;
-      $('[data-language-selector=true]').val('en-GB').trigger('change');
+      $('[data-language-selector=true]')
+        .val('en-GB')
+        .trigger('change');
       expect(selectedLang).to.equal('en-GB');
     } catch (e) {
       throw e;

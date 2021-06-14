@@ -10,7 +10,10 @@ describe('extractOperationDataArgumentValues', () => {
     };
 
     // test
-    const value = extractOperationDataArgumentValues(operationData, operationData.operationDataArgument);
+    const value = extractOperationDataArgumentValues(
+      operationData,
+      operationData.operationDataArgument
+    );
 
     // expect
     expect(value).to.equal(operationData.extractedValue);

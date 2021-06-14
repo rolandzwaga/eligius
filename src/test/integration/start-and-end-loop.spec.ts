@@ -16,7 +16,7 @@ describe('Start and end loop', () => {
     action = new Action('test', startOperations, eventBus);
   });
 
-  it('should loop the given operation 10 times', (done) => {
+  it('should loop the given operation 10 times', done => {
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const op1 = {
       id: 'id1',
@@ -31,7 +31,7 @@ describe('Start and end loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -52,9 +52,11 @@ describe('Start and end loop', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
-        expect(operationData.newCollection.length).to.be.equal(testCollection.length);
+        expect(operationData.newCollection.length).to.be.equal(
+          testCollection.length
+        );
         operationData.newCollection.forEach((letter: string, index: number) => {
           expect(letter).to.be.equal(testCollection[index]);
         });
@@ -65,7 +67,7 @@ describe('Start and end loop', () => {
       });
   });
 
-  it('should loop the given async operation 10 times', (done) => {
+  it('should loop the given async operation 10 times', done => {
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const op1 = {
       id: 'id1',
@@ -80,12 +82,12 @@ describe('Start and end loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
         op.newCollection.push(op.value);
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve(op);
           }, 10);
@@ -105,9 +107,11 @@ describe('Start and end loop', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
-        expect(operationData.newCollection.length).to.be.equal(testCollection.length);
+        expect(operationData.newCollection.length).to.be.equal(
+          testCollection.length
+        );
         operationData.newCollection.forEach((letter: string, index: number) => {
           expect(letter).to.be.equal(testCollection[index]);
         });
@@ -118,7 +122,7 @@ describe('Start and end loop', () => {
       });
   });
 
-  it('should skip the loop for an empty collection', (done) => {
+  it('should skip the loop for an empty collection', done => {
     const testCollection: any[] = [];
     const op1 = {
       id: 'id1',
@@ -133,7 +137,7 @@ describe('Start and end loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -161,7 +165,7 @@ describe('Start and end loop', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.newCollection).to.be.undefined;
         expect(operationData.test).to.be.true;
@@ -172,7 +176,7 @@ describe('Start and end loop', () => {
       });
   });
 
-  it('should skip the loop for a null collection', (done) => {
+  it('should skip the loop for a null collection', done => {
     const testCollection: any[] | null = null;
     const op1: IResolvedOperation = {
       id: 'id1',
@@ -187,7 +191,7 @@ describe('Start and end loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {} as any,
-      instance: function (op) {
+      instance: function(op) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -205,7 +209,7 @@ describe('Start and end loop', () => {
       id: 'id4',
       systemName: 'systemNam4',
       operationData: { test: true },
-      instance: (op) => op,
+      instance: op => op,
     };
     action.startOperations.push(op1);
     action.startOperations.push(op2);
@@ -215,7 +219,7 @@ describe('Start and end loop', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.newCollection).to.be.undefined;
         expect(operationData.test).to.be.true;

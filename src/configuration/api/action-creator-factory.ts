@@ -42,10 +42,15 @@ export class ActionCreatorFactory {
   }
 }
 
-export class ActionCreator<T extends IActionConfiguration = IActionConfiguration> {
+export class ActionCreator<
+  T extends IActionConfiguration = IActionConfiguration
+> {
   actionConfig: T;
 
-  constructor(name: string | undefined, private readonly factory: ActionCreatorFactory) {
+  constructor(
+    name: string | undefined,
+    private readonly factory: ActionCreatorFactory
+  ) {
     this.actionConfig = {
       name: '',
       id: uuidv4(),
@@ -74,8 +79,13 @@ export class ActionCreator<T extends IActionConfiguration = IActionConfiguration
     return this;
   }
 
-  addStartOperationByType<T extends TOperation<any>>(operationClass: T, operationData: Partial<ExtractDataType<T>>) {
-    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+  addStartOperationByType<T extends TOperation<any>>(
+    operationClass: T,
+    operationData: Partial<ExtractDataType<T>>
+  ) {
+    const entries = Object.entries(operations).find(
+      ([, value]) => value === operationClass
+    );
 
     if (entries) {
       return this.addStartOperation(entries[0], operationData);
@@ -111,8 +121,13 @@ export class EndableActionCreator<
     this.actionConfig.endOperations = [];
   }
 
-  addEndOperationByType<T extends TOperation<any>>(operationClass: T, operationData: Partial<ExtractDataType<T>>) {
-    const entries = Object.entries(operations).find(([, value]) => value === operationClass);
+  addEndOperationByType<T extends TOperation<any>>(
+    operationClass: T,
+    operationData: Partial<ExtractDataType<T>>
+  ) {
+    const entries = Object.entries(operations).find(
+      ([, value]) => value === operationClass
+    );
 
     if (entries) {
       return this.addEndOperation(entries[0], operationData);
@@ -139,7 +154,9 @@ export class EndableActionCreator<
   }
 }
 
-export class TimelineActionCreator extends EndableActionCreator<ITimelineActionConfiguration> {
+export class TimelineActionCreator extends EndableActionCreator<
+  ITimelineActionConfiguration
+> {
   addDuration(start: number, end?: number) {
     this.actionConfig.duration = {
       start: start,

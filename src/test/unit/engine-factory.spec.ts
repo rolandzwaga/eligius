@@ -3,7 +3,7 @@ import { IEngineConfiguration } from '../../configuration/types';
 import { EngineFactory } from '../../engine-factory';
 
 class MockImporter {
-  import(name) {
+  import(name: string) {
     if (name === 'ChronoTriggerEngine') {
       return { ChronoTriggerEngine: MockEngine };
     } else if (name === 'MockTimelineProvider') {
@@ -27,30 +27,14 @@ class MockEngine {
   }
 }
 
-class MockEventbus {
-  registerInterceptor(_name: any, _instance: any) {
-    return {};
-  }
-}
-
 class MockTimelineProvider {}
-
-class ConfigurationResolverStub {
-  process(_actionRegistryListener: any, _configuration: any) {}
-}
 
 describe('EngineFactory', () => {
   let windowRef = {};
-  let resizer;
 
   it('should create', () => {
     // given
     const importer = new MockImporter();
-    resizer = {
-      resize: (handler: any) => {
-        expect(handler).to.not.equal(null);
-      },
-    };
 
     // test
     const factory = new EngineFactory(importer as any, windowRef);

@@ -8,11 +8,11 @@ class MockImporter {
     this.lookup = {};
   }
 
-  import(name) {
+  import(name: string) {
     return this.lookup[name] ? { [name]: this.lookup[name] } : { [name]: {} };
   }
 
-  addEntry(name, value) {
+  addEntry(name: string, value: any) {
     this.lookup[name] = value;
   }
 }
@@ -23,10 +23,10 @@ class MockEventbus {
 
 class MockActionRegistryListener {
   eventAction: any;
-  eventName: string;
-  eventTopic: string;
+  eventName: string = '';
+  eventTopic?: string;
 
-  registerAction(eventAction, eventName, eventTopic) {
+  registerAction(eventAction: any, eventName: string, eventTopic?: string) {
     this.eventAction = eventAction;
     this.eventName = eventName;
     this.eventTopic = eventTopic;
@@ -52,8 +52,8 @@ function createTestConfig(): IEngineConfiguration {
 }
 
 describe('ConfigurationResolver', () => {
-  let importer = null;
-  let eventbus = null;
+  let importer = new MockImporter();
+  let eventbus = new MockEventbus();
 
   beforeEach(() => {
     importer = new MockImporter();
@@ -63,7 +63,10 @@ describe('ConfigurationResolver', () => {
   it('should create', () => {
     // given
     // test
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
 
     // expect
     expect(resolver).to.not.be.null;
@@ -89,7 +92,10 @@ describe('ConfigurationResolver', () => {
         ],
       },
     ];
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
     const registry = new MockActionRegistryListener();
 
     // test
@@ -128,7 +134,10 @@ describe('ConfigurationResolver', () => {
         ],
       },
     ];
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
 
     // test
     const [, processedConfig] = resolver.process(config);
@@ -140,8 +149,12 @@ describe('ConfigurationResolver', () => {
     expect(resolvedAction).to.not.be.undefined;
     expect(resolvedAction.id).to.equal(actionConfig.id);
     expect(resolvedAction.name).to.equal(actionConfig.name);
-    expect(resolvedAction.startOperations.length).to.equal(actionConfig.startOperations.length);
-    expect(resolvedAction.endOperations.length).to.equal(actionConfig.endOperations.length);
+    expect(resolvedAction.startOperations.length).to.equal(
+      actionConfig.startOperations.length
+    );
+    expect(resolvedAction.endOperations.length).to.equal(
+      actionConfig.endOperations.length
+    );
 
     let operationConfig = actionConfig.startOperations[0];
     let resolvedOperation = resolvedAction.startOperations[0];
@@ -149,7 +162,9 @@ describe('ConfigurationResolver', () => {
     expect(resolvedOperation.instance).to.not.be.undefined;
     expect(resolvedOperation.id).to.equal(operationConfig.id);
     expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
-    expect(resolvedOperation.operationData).to.eql(operationConfig.operationData);
+    expect(resolvedOperation.operationData).to.eql(
+      operationConfig.operationData
+    );
 
     operationConfig = actionConfig.endOperations[0];
     resolvedOperation = resolvedAction.endOperations[0];
@@ -157,7 +172,9 @@ describe('ConfigurationResolver', () => {
     expect(resolvedOperation.instance).to.not.be.undefined;
     expect(resolvedOperation.id).to.equal(operationConfig.id);
     expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
-    expect(resolvedOperation.operationData).to.eql(operationConfig.operationData);
+    expect(resolvedOperation.operationData).to.eql(
+      operationConfig.operationData
+    );
   });
 
   it('should initialize actions', () => {
@@ -187,7 +204,10 @@ describe('ConfigurationResolver', () => {
         ],
       },
     ];
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
 
     // test
     const [actionsLookup, processedConfig] = resolver.process(config);
@@ -197,8 +217,10 @@ describe('ConfigurationResolver', () => {
     expect(resolvedAction).to.not.be.null;
     expect(processedConfig.actions).to.not.be.undefined;
     expect(processedConfig.actions[0]).to.not.be.undefined;
-    expect(processedConfig.actions[0].startOperations[0].instance).to.not.be.undefined;
-    expect(processedConfig.actions[0].endOperations[0].instance).to.not.be.undefined;
+    expect(processedConfig.actions[0].startOperations[0].instance).to.not.be
+      .undefined;
+    expect(processedConfig.actions[0].endOperations[0].instance).to.not.be
+      .undefined;
   });
 
   it('should initialize timeline actions', () => {
@@ -242,7 +264,10 @@ describe('ConfigurationResolver', () => {
         ],
       },
     ];
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
 
     // test
     const [, processedConfig] = resolver.process(config);
@@ -270,7 +295,10 @@ describe('ConfigurationResolver', () => {
     // give
     const config = createTestConfig();
     config.id = 'config:engine.systemName';
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
 
     // test
     const [, processedConfig] = resolver.process(config);
@@ -283,7 +311,10 @@ describe('ConfigurationResolver', () => {
     // give
     const config = createTestConfig();
     config.id = 'json:test';
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
     importer.addEntry('test', { test: 'testValue' });
 
     // test
@@ -298,7 +329,10 @@ describe('ConfigurationResolver', () => {
     const config = createTestConfig();
     config.layoutTemplate = 'template:test';
 
-    const resolver = new ConfigurationResolver(importer as any, eventbus as any);
+    const resolver = new ConfigurationResolver(
+      importer as any,
+      eventbus as any
+    );
     importer.addEntry('test', '<div>This is my template</div>');
 
     // test

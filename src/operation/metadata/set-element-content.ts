@@ -1,7 +1,9 @@
 import { ISetElementContentOperationData } from '../../operation/set-element-content';
 import { IOperationMetadata } from './types';
 
-function setElementContent(): IOperationMetadata<ISetElementContentOperationData> {
+function setElementContent(): IOperationMetadata<
+  ISetElementContentOperationData
+> {
   return {
     description: 'Sets the given HTML content in the selected element',
     dependentProperties: ['selectedElement'],

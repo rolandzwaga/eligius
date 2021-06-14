@@ -6,7 +6,7 @@ export type TStartLoopOperationData = {
   propertyName?: string;
 };
 
-export const startLoop: TOperation<TStartLoopOperationData> = function (
+export const startLoop: TOperation<TStartLoopOperationData> = function(
   this: IOperationContext,
   operationData: TStartLoopOperationData,
   _eventBus: IEventbus
@@ -15,7 +15,9 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
   const { collection, propertyName = 'currentItem' } = operationData;
 
   if (typeof collection === 'string') {
-    throw new Error('Expected collection to be array type, string value was probably not resolved correctly');
+    throw new Error(
+      'Expected collection to be array type, string value was probably not resolved correctly'
+    );
   }
 
   if (context.loopIndex === undefined) {

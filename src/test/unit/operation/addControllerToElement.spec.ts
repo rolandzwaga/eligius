@@ -53,7 +53,7 @@ describe('addControllerToElement', () => {
   it('should attach the controller with a promise result', () => {
     // given
     //let outerResolve;
-    const promise = new Promise<void>((resolve) => {
+    const promise = new Promise<void>(resolve => {
       resolve();
     });
 
@@ -63,10 +63,13 @@ describe('addControllerToElement', () => {
     };
 
     // test
-    const promiseResult = addControllerToElement(operationData as any, {} as any) as Promise<any>;
+    const promiseResult = addControllerToElement(
+      operationData as any,
+      {} as any
+    ) as Promise<any>;
 
     // expect
-    return promiseResult.then((data) => {
+    return promiseResult.then(data => {
       expect(data).to.equal(operationData);
     });
   });

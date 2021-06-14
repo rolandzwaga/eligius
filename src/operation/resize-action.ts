@@ -7,7 +7,7 @@ export interface IResizeActionOperationData {
   actionOperationData: any;
 }
 
-export const resizeAction: TOperation<IResizeActionOperationData> = function (
+export const resizeAction: TOperation<IResizeActionOperationData> = function(
   operationData: IResizeActionOperationData,
   _eventBus: IEventbus
 ) {

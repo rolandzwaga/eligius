@@ -2,7 +2,12 @@ import { IEventbus } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TOperation } from './types';
 
-function findElementBySelector(root: JQuery, selector: string, operationData: any, propertyName: string) {
+function findElementBySelector(
+  root: JQuery,
+  selector: string,
+  operationData: any,
+  propertyName: string
+) {
   const element = root.find(selector);
   if (!element.length) {
     console.warn(`selector '${selector}' wasn't found!`);
@@ -19,11 +24,15 @@ export interface ISelectElementOperationData {
   useSelectedElementAsRoot?: boolean;
 }
 
-export const selectElement: TOperation<ISelectElementOperationData> = function (
+export const selectElement: TOperation<ISelectElementOperationData> = function(
   operationData: ISelectElementOperationData,
   eventBus: IEventbus
 ) {
-  const { selector, propertyName = 'selectedElement', useSelectedElementAsRoot = false } = operationData;
+  const {
+    selector,
+    propertyName = 'selectedElement',
+    useSelectedElementAsRoot = false,
+  } = operationData;
 
   if (!selector) {
     throw new Error('selector is undefined!');

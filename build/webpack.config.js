@@ -2,14 +2,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const path = require('path');
 
-module.exports = (env) => {
-  const entryParam = env.entryPath;
+module.exports = (_env, params) => {
+  const entryParam = params.entry[0];
   const outputPath = path.dirname(entryParam);
 
   return {
-    entry: path.resolve(__dirname, '../', entryParam),
+    entry: entryParam,
     output: {
-      path: path.resolve(outputPath, 'dist'),
+      path: path.resolve(__dirname, '../', outputPath, 'dist'),
       filename: 'chrono-trigger-bundle.js',
     },
     devtool: 'cheap-module-source-map',
@@ -18,9 +18,12 @@ module.exports = (env) => {
         {
           test: /\.ts?$|/,
           loader: 'ts-loader',
-          exclude: /node_modules/,
+          exclude: /(node_modules)/,
           options: {
             compilerOptions: {
+              plugins: [{ name: 'typescript-plugin-css-modules' }],
+              include: ['./**/*'],
+              exclude: ['./src/test'],
               noUnusedLocals: false,
               noUnusedParameters: true,
               allowSyntheticDefaultImports: true,
@@ -37,11 +40,11 @@ module.exports = (env) => {
               strict: true,
               forceConsistentCasingInFileNames: true,
               resolveJsonModule: true,
-              isolatedModules: true,
+              isolatedModules: false,
               noEmit: false,
               sourceMap: true,
               declaration: true,
-              typeRoots: ['./@types/typings.d.ts'],
+              typeRoots: ['./typings.d.ts'],
             },
           },
         },
@@ -80,7 +83,9 @@ module.exports = (env) => {
     plugins: [
       new webpack.ProgressPlugin(),
       new HtmlWebpackPlugin({
-        template: 'build/template-index.html',
+        inject: true,
+        template: './build/template-index.html',
+        filename: 'index.html',
       }),
     ],
   };

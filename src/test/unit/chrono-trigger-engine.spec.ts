@@ -4,7 +4,11 @@ import sinon from 'sinon';
 import { ChronoTriggerEngine } from '../../chrono-trigger-engine';
 
 class LanguageManagerStub {
-  constructor(public language: string, public labels: any[], public eventbus: any) {}
+  constructor(
+    public language: string,
+    public labels: any[],
+    public eventbus: any
+  ) {}
 }
 
 describe('ChronoTriggerEngine', () => {
@@ -38,7 +42,12 @@ describe('ChronoTriggerEngine', () => {
 
   it('should create an engine', () => {
     // test
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
+    const engine = new ChronoTriggerEngine(
+      configuration,
+      eventbus,
+      providers,
+      languageManager
+    );
 
     // expect
     expect(engine).to.not.equal(null);
@@ -48,7 +57,12 @@ describe('ChronoTriggerEngine', () => {
     // given
     setupLayoutInit();
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
+    const engine = new ChronoTriggerEngine(
+      configuration,
+      eventbus,
+      providers,
+      languageManager
+    );
 
     // test
     engine._createLayoutTemplate();
@@ -59,7 +73,12 @@ describe('ChronoTriggerEngine', () => {
     // given
     configuration.containerSelector = '.test_does_not_exist';
     let error = null;
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
+    const engine = new ChronoTriggerEngine(
+      configuration,
+      eventbus,
+      providers,
+      languageManager
+    );
 
     // test
     try {
@@ -70,7 +89,9 @@ describe('ChronoTriggerEngine', () => {
 
     // expect
     expect(error).to.not.equal(null);
-    expect(error.message).to.equal('Container selector not found: .test_does_not_exist');
+    expect(error.message).to.equal(
+      'Container selector not found: .test_does_not_exist'
+    );
   });
 
   it('should initialize end duration to Infinity for timeline actions with an end value below zero', () => {
@@ -110,20 +131,29 @@ describe('ChronoTriggerEngine', () => {
       animation: {
         provider: {
           init: () => {
-            return new Promise<void>((resolve) => resolve());
+            return new Promise<void>(resolve => resolve());
           },
           on: () => {},
         },
       },
     };
 
-    const engine = new ChronoTriggerEngine(configuration, eventbus, providers, languageManager);
+    const engine = new ChronoTriggerEngine(
+      configuration,
+      eventbus,
+      providers,
+      languageManager
+    );
 
     // test
     engine.init();
 
     // expect
-    expect(configuration.timelines[0].timelineActions[0].duration.end).to.equal(Infinity);
-    expect(configuration.timelines[0].timelineActions[1].duration.end).to.equal(10);
+    expect(configuration.timelines[0].timelineActions[0].duration.end).to.equal(
+      Infinity
+    );
+    expect(configuration.timelines[0].timelineActions[1].duration.end).to.equal(
+      10
+    );
   });
 });

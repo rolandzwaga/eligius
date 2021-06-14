@@ -7,7 +7,7 @@ export interface ISetOperationData {
   properties: any;
 }
 
-export const setOperationData: TOperation<ISetOperationData> = function (
+export const setOperationData: TOperation<ISetOperationData> = function(
   operationData: ISetOperationData,
   _eventBus: IEventbus
 ) {

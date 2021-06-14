@@ -1,96 +1,85 @@
 {
-  "name": "chrono-trigger-js",
   "version": "1.6.8",
-  "description": "An engine that allows arbitrary functionality to be triggered according to a given timeline provider. A timeline provider can be a video, an audio file, a request animation frame loop, etc. The engine can be the basis for video annotations, presentation software or interactive infographics, for example.",
-  "main": "./dist/library.min.js",
-  "types": "./dist/src/index.d.ts",
-  "files": [
-    "./dist/**/*"
-  ],
-  "repository": "https://github.com/rolandzwaga/chrono-trigger.git",
-  "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
   "scripts": {
-    "type-check": "tsc --pretty --noEmit",
-    "test": "karma start",
-    "test-ci": "jasmine-ts",
-    "build-example-1": "node build/engine-pack-builder examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --env entryPath=examples/requestanimationframe/build/boot.ts",
-    "build-example-2": "node build/engine-pack-builder examples/mediaelement/config-data.json && webpack --config build/webpack.config.js --env entryPath=examples/mediaelement/build/boot.ts",
-    "full-build": "yarn build && yarn dev-build",
-    "build": "webpack --mode production",
-    "dev-build": "webpack --mode development --progress --color",
-    "dev": "webpack --mode development --progress --colors --display-modules --watch",
-    "commit-patch": "yarn full-build && npm version patch",
-    "commit-minor": "yarn full-build && npm version minor",
-    "postversion": "git push && git push --tags",
-    "prepublish": "yarn full-build"
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why",
+    "build-example-1": "ts-node ./build/engine-pack-builder ./examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --entry ./examples/requestanimationframe/build/boot.ts --stats-children"
+  },
+  "peerDependencies": {},
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "name": "chronotrigger-js",
+  "author": "rolandzwaga",
+  "module": "dist/chronotrigger-js.esm.js",
+  "size-limit": [
+    {
+      "path": "dist/chronotrigger-js.cjs.production.min.js",
+      "limit": "150 KB"
+    },
+    {
+      "path": "dist/chronotrigger-js.esm.js",
+      "limit": "150 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "4.12.0",
+    "@types/chai": "4.2.18",
+    "@types/fs-extra": "^9.0.11",
+    "@types/jasmine": "3.7.7",
+    "@types/jquery": "3.5.5",
+    "@types/mousetrap": "1.6.8",
+    "@types/node": "15.12.2",
+    "@types/uuid": "8.3.0",
+    "acorn": "8.4.0",
+    "ajv": "8.6.0",
+    "astring": "1.7.5",
+    "css-loader": "5.2.6",
+    "file-loader": "6.2.0",
+    "html-loader": "2.1.2",
+    "html-webpack-plugin": "5.3.1",
+    "husky": "6.0.0",
+    "size-limit": "4.12.0",
+    "style-loader": "2.0.0",
+    "svg-inline-loader": "0.8.2",
+    "ts-loader": "9.2.3",
+    "ts-morph": "11.0.0",
+    "ts-node": "^10.0.0",
+    "tsdx": "0.14.1",
+    "tslib": "2.3.0",
+    "typescript": "4.3.2",
+    "typescript-plugin-css-modules": "3.4.0",
+    "webpack": "5.38.1",
+    "webpack-cli": "4.7.2"
   },
   "dependencies": {
-    "d3": "6.5.0",
-    "es6-shim": "0.35.6",
-    "jquery": "3.5.1",
-    "lottie-web": "5.7.6",
+    "jquery": "3.6.0",
+    "lottie-web": "5.7.11",
     "mediaelement": "4.2.16",
     "mousetrap": "1.6.5",
     "ts-is-present": "1.2.1",
     "uuid": "8.3.2"
-  },
-  "devDependencies": {
-    "@types/chai": "4.2.15",
-    "@types/jasmine": "3.6.3",
-    "@types/jquery": "3.5.5",
-    "@types/mousetrap": "1.6.5",
-    "@types/node": "14.14.27",
-    "@types/sinon": "9.0.10",
-    "@types/uuid": "8.3.0",
-    "acorn": "8.0.5",
-    "ajv": "7.1.0",
-    "astring": "1.7.0",
-    "autoprefixer": "10.2.4",
-    "canvas": "2.6.1",
-    "chai": "4.3.0",
-    "child_process": "1.0.2",
-    "chokidar": "3.5.1",
-    "clean-webpack-plugin": "3.0.0",
-    "copyfiles": "2.4.1",
-    "css-loader": "5.0.2",
-    "fast-async": "6.3.8",
-    "file-loader": "6.2.0",
-    "fs-extra": "9.1.0",
-    "get-random-values": "1.2.2",
-    "html-loader": "1.3.2",
-    "html-webpack-plugin": "5.1.0",
-    "inject-loader": "4.0.1",
-    "jasmine-core": "3.6.0",
-    "karma": "6.1.1",
-    "karma-chrome-launcher": "^3.1.0",
-    "karma-cli": "2.0.0",
-    "karma-jasmine": "4.0.1",
-    "karma-spec-reporter": "0.0.32",
-    "karma-typescript": "5.4.0",
-    "node-sass": "5.0.0",
-    "nodemon": "2.0.7",
-    "parse5": "6.0.1",
-    "postcss": "8.2.6",
-    "postcss-loader": "5.0.0",
-    "pretty": "2.0.0",
-    "raf-stub": "3.0.0",
-    "randomstring": "1.1.5",
-    "sass-loader": "11.0.1",
-    "sinon": "9.2.4",
-    "style-loader": "2.0.0",
-    "svg-inline-loader": "0.8.2",
-    "terser-webpack-plugin": "5.1.1",
-    "ts-loader": "8.0.17",
-    "ts-morph": "^9.1.0",
-    "ts-node": "9.1.1",
-    "tsconfig-paths-webpack-plugin": "3.3.0",
-    "typescript": "4.1.5",
-    "webpack": "5.21.2",
-    "webpack-cli": "4.5.0"
-  },
-  "browserslist": [
-    "defaults",
-    "not ie 11"
-  ]
+  }
 }

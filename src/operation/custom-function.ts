@@ -7,7 +7,7 @@ export interface ICustomFunctionOperationData {
   systemName: string;
 }
 
-export const customFunction: TOperation<ICustomFunctionOperationData> = function (
+export const customFunction: TOperation<ICustomFunctionOperationData> = function(
   operationData: ICustomFunctionOperationData,
   eventBus: IEventbus
 ) {
@@ -23,6 +23,9 @@ export const customFunction: TOperation<ICustomFunctionOperationData> = function
         internalResolve(resolve, {}, operationData);
       }
     };
-    eventBus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [systemName, resultCallback]);
+    eventBus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
+      systemName,
+      resultCallback,
+    ]);
   });
 };

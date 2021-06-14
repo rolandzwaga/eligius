@@ -9,7 +9,7 @@ export interface IGetControllerInstanceOperationData {
   propertyName?: string;
 }
 
-export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> = function (
+export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> = function(
   operationData: IGetControllerInstanceOperationData,
   eventBus: IEventbus
 ) {
@@ -19,7 +19,10 @@ export const getControllerInstance: TOperation<IGetControllerInstanceOperationDa
   const resultCallback = (instance: any) => {
     (operationData as any)[propertyName as string] = instance;
   };
-  eventBus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [systemName, resultCallback]);
+  eventBus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [
+    systemName,
+    resultCallback,
+  ]);
   delete operationData.propertyName;
   return operationData;
 };

@@ -32,7 +32,8 @@ export class TimelineEventNames {
   static REQUEST_TIMELINE_URI = 'request-timeline-uri';
   static BEFORE_REQUEST_TIMELINE_URI = 'before-request-timeline-uri';
   static REQUEST_ENGINE_ROOT = 'request-engine-root';
-  static REQUEST_CURRENT_TIMELINE_POSITION = 'request-current-timeline-position';
+  static REQUEST_CURRENT_TIMELINE_POSITION =
+    'request-current-timeline-position';
   static REQUEST_TIMELINE_CLEANUP = 'request-timeline-cleanup';
   static EXECUTE_TIMELINEACTION = 'execute-timelineaction';
   static RESIZE_TIMELINEACTION = 'resize-timelineaction';

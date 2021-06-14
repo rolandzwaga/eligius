@@ -3,7 +3,8 @@ import { IOperationMetadata } from './types';
 
 function animate(): IOperationMetadata<IAnimateOperationData> {
   return {
-    description: 'Animates the selected element with the given animation settings.',
+    description:
+      'Animates the selected element with the given animation settings.',
     dependentProperties: ['selectedElement'],
     properties: {
       animationEasing: 'ParameterType:boolean',

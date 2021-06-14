@@ -9,7 +9,7 @@ export interface IBroadcastEventOperationData {
   eventName: string;
 }
 
-export const broadcastEvent: TOperation<IBroadcastEventOperationData> = function (
+export const broadcastEvent: TOperation<IBroadcastEventOperationData> = function(
   operationData: IBroadcastEventOperationData,
   eventBus: IEventbus
 ) {

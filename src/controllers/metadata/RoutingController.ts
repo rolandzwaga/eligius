@@ -1,7 +1,9 @@
 import { IRoutingControllerOperationData } from '../../controllers/routing-controller';
 import { IControllerMetadata } from './types';
 
-function RoutingController(): IControllerMetadata<IRoutingControllerOperationData> {
+function RoutingController(): IControllerMetadata<
+  IRoutingControllerOperationData
+> {
   return {
     description: '',
     properties: {

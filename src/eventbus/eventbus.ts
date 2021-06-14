@@ -1,4 +1,10 @@
-import { IEventbus, IEventbusInterceptor, IEventbusListener, TEventHandler, TEventHandlerRemover } from './types';
+import {
+  IEventbus,
+  IEventbusInterceptor,
+  IEventbusListener,
+  TEventHandler,
+  TEventHandlerRemover,
+} from './types';
 
 export class Eventbus implements IEventbus {
   private eventHandlers: Record<string, TEventHandler[]> = {};
@@ -15,7 +21,10 @@ export class Eventbus implements IEventbus {
     this.eventInterceptors = {};
   }
 
-  _getEventInterceptors(eventName: string, eventTopic?: string): IEventbusInterceptor[] {
+  _getEventInterceptors(
+    eventName: string,
+    eventTopic?: string
+  ): IEventbusInterceptor[] {
     if (eventTopic && eventTopic.length) {
       eventName = `${eventName}:${eventTopic}`;
     }
@@ -35,14 +44,22 @@ export class Eventbus implements IEventbus {
     return this.eventHandlers[eventName];
   }
 
-  on(eventName: string, eventHandler: TEventHandler, eventTopic?: string): TEventHandlerRemover {
+  on(
+    eventName: string,
+    eventHandler: TEventHandler,
+    eventTopic?: string
+  ): TEventHandlerRemover {
     this._getEventHandlers(eventName, eventTopic).push(eventHandler);
     return () => {
       this.off(eventName, eventHandler, eventTopic);
     };
   }
 
-  once(eventName: string, eventHandler: TEventHandler, eventTopic?: string): void {
+  once(
+    eventName: string,
+    eventHandler: TEventHandler,
+    eventTopic?: string
+  ): void {
     const eventHandlerDecorator = (...args: any[]) => {
       eventHandler(...args);
       this.off(eventName, eventHandlerDecorator, eventTopic);
@@ -50,7 +67,11 @@ export class Eventbus implements IEventbus {
     this.on(eventName, eventHandlerDecorator, eventTopic);
   }
 
-  off(eventName: string, eventHandler: TEventHandler, eventTopic?: string): void {
+  off(
+    eventName: string,
+    eventHandler: TEventHandler,
+    eventTopic?: string
+  ): void {
     const handlers = this._getEventHandlers(eventName, eventTopic);
     if (handlers) {
       const idx = handlers.indexOf(eventHandler);
@@ -72,18 +93,26 @@ export class Eventbus implements IEventbus {
     this.eventListeners.push(eventbusListener);
   }
 
-  registerInterceptor(eventName: string, interceptor: IEventbusInterceptor, eventTopic?: string): void {
+  registerInterceptor(
+    eventName: string,
+    interceptor: IEventbusInterceptor,
+    eventTopic?: string
+  ): void {
     const interceptors = this._getEventInterceptors(eventName, eventTopic);
     interceptors.push(interceptor);
   }
 
-  _callHandlers(eventName: string, eventTopic: string | undefined, args: any = []): void {
+  _callHandlers(
+    eventName: string,
+    eventTopic: string | undefined,
+    args: any = []
+  ): void {
     const handlers = this._getEventHandlers(eventName, eventTopic);
 
     if (handlers) {
       const interceptors = this._getEventInterceptors(eventName, eventTopic);
 
-      interceptors.forEach((interceptor) => {
+      interceptors.forEach(interceptor => {
         args = interceptor.intercept(args);
       });
 

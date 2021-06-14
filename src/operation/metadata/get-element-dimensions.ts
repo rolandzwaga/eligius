@@ -1,7 +1,9 @@
 import { IGetElementDimensionsOperationData } from '../../operation/get-element-dimensions';
 import { IOperationMetadata } from './types';
 
-function getElementDimensions(): IOperationMetadata<IGetElementDimensionsOperationData> {
+function getElementDimensions(): IOperationMetadata<
+  IGetElementDimensionsOperationData
+> {
   return {
     description: 'Calculates the dimensions for the current element',
     dependentProperties: ['selectedElement'],

@@ -8,25 +8,30 @@ export interface IAnimateWithClassOperationData {
   removeClass?: boolean;
 }
 
-export const animateWithClass: TOperation<IAnimateWithClassOperationData> = function (
+export const animateWithClass: TOperation<IAnimateWithClassOperationData> = function(
   operationData: IAnimateWithClassOperationData,
   _eventBus: IEventbus
 ) {
   let { selectedElement, className, removeClass } = operationData;
   removeClass = removeClass !== undefined ? removeClass : true;
 
-  const promise = new Promise<IAnimateWithClassOperationData>((resolve, reject) => {
-    try {
-      selectedElement.one('webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd', () => {
-        if (removeClass) {
-          selectedElement.removeClass(className);
-        }
-        internalResolve(resolve, {}, operationData);
-      });
-    } catch (e) {
-      reject(e);
+  const promise = new Promise<IAnimateWithClassOperationData>(
+    (resolve, reject) => {
+      try {
+        selectedElement.one(
+          'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
+          () => {
+            if (removeClass) {
+              selectedElement.removeClass(className);
+            }
+            internalResolve(resolve, {}, operationData);
+          }
+        );
+      } catch (e) {
+        reject(e);
+      }
     }
-  });
+  );
 
   selectedElement.addClass(className);
 

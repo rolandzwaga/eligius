@@ -9,17 +9,27 @@ export interface IAnimateOperationData {
   animationDuration: number;
 }
 
-export const animate: TOperation<IAnimateOperationData> = function (
+export const animate: TOperation<IAnimateOperationData> = function(
   operationData: IAnimateOperationData,
   _eventBus: IEventbus
 ) {
-  const { animationEasing, selectedElement, animationProperties, animationDuration } = operationData;
+  const {
+    animationEasing,
+    selectedElement,
+    animationProperties,
+    animationDuration,
+  } = operationData;
   const promise = new Promise<IAnimateOperationData>((resolve, reject) => {
     try {
       if (animationEasing) {
-        selectedElement.animate(animationProperties, animationDuration, animationEasing, () => {
-          internalResolve(resolve, {}, operationData);
-        });
+        selectedElement.animate(
+          animationProperties,
+          animationDuration,
+          animationEasing,
+          () => {
+            internalResolve(resolve, {}, operationData);
+          }
+        );
       } else {
         selectedElement.animate(animationProperties, animationDuration, () => {
           internalResolve(resolve, {}, operationData);

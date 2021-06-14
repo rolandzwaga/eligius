@@ -8,13 +8,16 @@ export interface ISetStyleOperationData {
   selectedElement?: JQuery;
 }
 
-export const setStyle: TOperation<ISetStyleOperationData> = function (
+export const setStyle: TOperation<ISetStyleOperationData> = function(
   operationData: ISetStyleOperationData,
   _eventBus: IEventbus
 ) {
   const { propertyName = 'selectedElement' } = operationData;
 
-  const properties = resolvePropertyValues(operationData, operationData.properties);
+  const properties = resolvePropertyValues(
+    operationData,
+    operationData.properties
+  );
   (operationData as any)[propertyName].css(properties);
   delete operationData.propertyName;
 

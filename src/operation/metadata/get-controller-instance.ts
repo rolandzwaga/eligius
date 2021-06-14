@@ -1,7 +1,9 @@
 import { IGetControllerInstanceOperationData } from '../../operation/get-controller-instance';
 import { IOperationMetadata } from './types';
 
-function getControllerInstance(): IOperationMetadata<IGetControllerInstanceOperationData> {
+function getControllerInstance(): IOperationMetadata<
+  IGetControllerInstanceOperationData
+> {
   return {
     description: 'Retrieves an instance of the specified controller',
     properties: {

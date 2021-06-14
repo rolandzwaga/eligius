@@ -8,7 +8,7 @@ export interface IRequestActionOperationData {
   actionInstance?: IAction;
 }
 
-export const requestAction: TOperation<IRequestActionOperationData> = function (
+export const requestAction: TOperation<IRequestActionOperationData> = function(
   operationData: IRequestActionOperationData,
   eventBus: IEventbus
 ) {
@@ -18,6 +18,9 @@ export const requestAction: TOperation<IRequestActionOperationData> = function (
     operationData.actionInstance = action;
   };
 
-  eventBus.broadcast(TimelineEventNames.REQUEST_ACTION, [systemName, resultCallback]);
+  eventBus.broadcast(TimelineEventNames.REQUEST_ACTION, [
+    systemName,
+    resultCallback,
+  ]);
   return operationData;
 };

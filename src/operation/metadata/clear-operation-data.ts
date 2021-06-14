@@ -1,7 +1,9 @@
 import { IClearOperationDataOperationData } from '../../operation/clear-operation-data';
 import { IOperationMetadata } from './types';
 
-function clearOperationData(): IOperationMetadata<IClearOperationDataOperationData> {
+function clearOperationData(): IOperationMetadata<
+  IClearOperationDataOperationData
+> {
   return {
     description: 'clears the current operation data',
     properties: {

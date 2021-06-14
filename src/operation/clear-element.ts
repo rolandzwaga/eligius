@@ -5,7 +5,7 @@ export interface IClearElementOperationData {
   selectedElement: JQuery;
 }
 
-export const clearElement: TOperation<IClearElementOperationData> = function (
+export const clearElement: TOperation<IClearElementOperationData> = function(
   operationData: IClearElementOperationData,
   _eventBus: IEventbus
 ) {

@@ -7,7 +7,7 @@ export interface ISetElementContentOperationData {
   insertionType?: 'append' | 'prepend';
 }
 
-export const setElementContent: TOperation<ISetElementContentOperationData> = function (
+export const setElementContent: TOperation<ISetElementContentOperationData> = function(
   operationData: ISetElementContentOperationData,
   _eventBus: IEventbus
 ) {

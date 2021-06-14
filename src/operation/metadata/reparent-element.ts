@@ -3,7 +3,8 @@ import { IOperationMetadata } from './types';
 
 function reparentElement(): IOperationMetadata<IReparentElementOperationData> {
   return {
-    description: 'Moves the selected element to the new location described by the given selector',
+    description:
+      'Moves the selected element to the new location described by the given selector',
     dependentProperties: ['selectedElement'],
     properties: {
       newParentSelector: {

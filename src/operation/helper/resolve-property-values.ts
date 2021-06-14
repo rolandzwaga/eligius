@@ -5,7 +5,10 @@ import { extractOperationDataArgumentValues } from './extract-operation-data-arg
 
 const cache: any[] = [];
 
-export function resolvePropertyValues(operationData: TOperationData, properties: any) {
+export function resolvePropertyValues(
+  operationData: TOperationData,
+  properties: any
+) {
   const copy = properties !== operationData ? deepCopy(properties) : properties;
   const extract = extractOperationDataArgumentValues.bind(null, operationData);
 
@@ -14,7 +17,11 @@ export function resolvePropertyValues(operationData: TOperationData, properties:
   return copy;
 }
 
-function resolveProperties(properties: any, copy: any, extract: (input: string) => any) {
+function resolveProperties(
+  properties: any,
+  copy: any,
+  extract: (input: string) => any
+) {
   if (cache.indexOf(properties) > -1) {
     return;
   }

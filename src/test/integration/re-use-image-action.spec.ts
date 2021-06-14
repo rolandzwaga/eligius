@@ -5,7 +5,13 @@ import { IEngineConfiguration } from '../../configuration/types';
 import { EngineFactory } from '../../engine-factory';
 import { Eventbus } from '../../eventbus';
 import { WebpackResourceImporter } from '../../importer';
-import { createElement, requestAction, selectElement, setElementContent, startAction } from '../../operation';
+import {
+  createElement,
+  requestAction,
+  selectElement,
+  setElementContent,
+  startAction,
+} from '../../operation';
 import { IChronoTriggerEngine } from '../../types';
 
 describe('Re-use actions to add pictures', () => {
@@ -32,7 +38,13 @@ describe('Re-use actions to add pictures', () => {
     factory
       .addLanguage('nl-NL', 'Nederlands')
       .addLanguage('en-GB', 'English')
-      .addTimeline('my-anim', 'animation', 100, false, '[data-anim-container=true]');
+      .addTimeline(
+        'my-anim',
+        'animation',
+        100,
+        false,
+        '[data-anim-container=true]'
+      );
 
     factory
       .createAction('AddImage')
@@ -62,7 +74,7 @@ describe('Re-use actions to add pictures', () => {
         },
       });
 
-    factory.getConfiguration((config) => {
+    factory.getConfiguration(config => {
       configuration = config;
       return undefined;
     });
@@ -75,7 +87,11 @@ describe('Re-use actions to add pictures', () => {
   });*/
 
   it('should add the pictures to the current template', async () => {
-    const engineFactory = new EngineFactory(new WebpackResourceImporter(), window, eventbus);
+    const engineFactory = new EngineFactory(
+      new WebpackResourceImporter(),
+      window,
+      eventbus
+    );
     engine = engineFactory.createEngine(configuration as IEngineConfiguration);
 
     try {

@@ -5,7 +5,7 @@ describe('internalResolve', () => {
   it('it should call the given resolve with the given operationdata', () => {
     // given
     let receivedData = null;
-    const resolve = (data) => {
+    const resolve = data => {
       receivedData = data;
     };
     const operationData = {};
@@ -20,7 +20,7 @@ describe('internalResolve', () => {
   it('it should call the given resolve with the merged operationdatas', () => {
     // given
     let receivedData = null;
-    const resolve = (data) => {
+    const resolve = data => {
       receivedData = data;
     };
     const operationData = {

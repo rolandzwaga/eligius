@@ -1,7 +1,9 @@
 import { IEventListenerControllerOperationData } from '../../controllers/event-listener-controller';
 import { IControllerMetadata } from './types';
 
-function EventListenerController(): IControllerMetadata<IEventListenerControllerOperationData> {
+function EventListenerController(): IControllerMetadata<
+  IEventListenerControllerOperationData
+> {
   return {
     description: 'EventListenerController',
     dependentProperties: ['selectedElement'],

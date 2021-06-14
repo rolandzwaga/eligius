@@ -7,7 +7,7 @@ describe('wait', () => {
 
   beforeAll(() => {
     mseconds = 0;
-    window.setTimeout = function (func, ms) {
+    window.setTimeout = function(func, ms) {
       mseconds = ms;
       func();
     } as any;
@@ -27,7 +27,7 @@ describe('wait', () => {
     const promise = wait(operationData, {} as any) as Promise<any>;
 
     // expect
-    promise.then((data) => {
+    promise.then(data => {
       expect(data).to.equal(operationData);
       expect(mseconds).to.equal(operationData.milliseconds);
     });

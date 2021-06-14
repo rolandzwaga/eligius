@@ -23,7 +23,7 @@ describe('Action', () => {
     expect(action.name).to.equal('test');
   });
 
-  it('should execute simple operations in sequence', (done) => {
+  it('should execute simple operations in sequence', done => {
     // given
     const opData1 = { value1: 'op1' };
     const op1 = {
@@ -51,7 +51,7 @@ describe('Action', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.result[0]).to.be.equal('op1');
         expect(operationData.result[1]).to.be.equal('op2');
@@ -62,7 +62,7 @@ describe('Action', () => {
       });
   });
 
-  it('should execute async operations in sequence', (done) => {
+  it('should execute async operations in sequence', done => {
     // given
     const opData1 = { value1: 'op1' };
     const op1 = {
@@ -71,7 +71,7 @@ describe('Action', () => {
       operationData: opData1,
       instance: (op: any) => {
         op.result = [op.value1];
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve(op);
           }, 500);
@@ -85,7 +85,7 @@ describe('Action', () => {
       operationData: opData2,
       instance: (op: any) => {
         op.result.push(op.value2);
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve(op);
           }, 200);
@@ -98,7 +98,7 @@ describe('Action', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.result[0]).to.be.equal('op1');
         expect(operationData.result[1]).to.be.equal('op2');
@@ -109,7 +109,7 @@ describe('Action', () => {
       });
   });
 
-  it('should execute async and simple operations mixed in sequence', (done) => {
+  it('should execute async and simple operations mixed in sequence', done => {
     // given
     const opData1 = { value1: 'op1' };
     const op1 = {
@@ -118,7 +118,7 @@ describe('Action', () => {
       operationData: opData1,
       instance: (op: any) => {
         op.result = [op.value1];
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve(op);
           }, 500);
@@ -142,7 +142,7 @@ describe('Action', () => {
       operationData: opData3,
       instance: (op: any) => {
         op.result.push(op.value3);
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve(op);
           }, 200);
@@ -156,7 +156,7 @@ describe('Action', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.result[0]).to.be.equal('op1');
         expect(operationData.result[1]).to.be.equal('op2');
@@ -168,13 +168,13 @@ describe('Action', () => {
       });
   });
 
-  it('should attach a context to the operation', (done) => {
+  it('should attach a context to the operation', done => {
     const opData = { value: 'op' };
     const op = {
       id: 'id1',
       systemName: 'systemNam1',
       operationData: opData,
-      instance: function (op: any) {
+      instance: function(op: any) {
         const context = this;
         op.result = [];
         op.result.push(context);
@@ -186,7 +186,7 @@ describe('Action', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.result[0]).to.not.be.undefined;
         done();
@@ -196,13 +196,13 @@ describe('Action', () => {
       });
   });
 
-  it('should add current operation index number to the context given to the operation', (done) => {
+  it('should add current operation index number to the context given to the operation', done => {
     const opData1 = { value1: 'op1' };
     const op1 = {
       id: 'id1',
       systemName: 'systemNam1',
       operationData: opData1,
-      instance: function (this: IOperationContext, op: any) {
+      instance: function(this: IOperationContext, op: any) {
         const context = this;
         op.result = [];
         op.result.push(context.currentIndex);
@@ -214,7 +214,7 @@ describe('Action', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: opData2,
-      instance: function (this: IOperationContext, op: any) {
+      instance: function(this: IOperationContext, op: any) {
         const context = this;
         op.result.push(context.currentIndex);
         return op;
@@ -226,7 +226,7 @@ describe('Action', () => {
     // test
     action
       .start()
-      .then((operationData) => {
+      .then(operationData => {
         // expect
         expect(operationData.result[0]).to.be.equal(0);
         expect(operationData.result[1]).to.be.equal(1);

@@ -6,7 +6,7 @@ export interface IToggleClassOperationData {
   className: string;
 }
 
-export const toggleClass: TOperation<IToggleClassOperationData> = function (
+export const toggleClass: TOperation<IToggleClassOperationData> = function(
   operationData: IToggleClassOperationData,
   _eventBus: IEventbus
 ) {

@@ -2,8 +2,16 @@ import $ from 'jquery';
 import Mousetrap from 'mousetrap';
 import { IAction } from './action/types';
 import { ConfigurationResolver } from './configuration/configuration-resolver';
-import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
-import { ActionRegistryEventbusListener, Eventbus, IEventbus, RequestVideoUriInterceptor } from './eventbus';
+import {
+  IEngineConfiguration,
+  IResolvedEngineConfiguration,
+} from './configuration/types';
+import {
+  ActionRegistryEventbusListener,
+  Eventbus,
+  IEventbus,
+  RequestVideoUriInterceptor,
+} from './eventbus';
 import { LanguageManager } from './language-manager';
 import { TimelineEventNames } from './timeline-event-names';
 import {
@@ -22,12 +30,25 @@ export class EngineFactory implements IEngineFactory {
   private importer: ISimpleResourceImporter;
   private eventbus: IEventbus;
 
-  constructor(importer: ISimpleResourceImporter, windowRef: any, eventbus?: IEventbus) {
+  constructor(
+    importer: ISimpleResourceImporter,
+    windowRef: any,
+    eventbus?: IEventbus
+  ) {
     this.importer = importer;
     this.eventbus = eventbus || new Eventbus();
-    this.eventbus.on(TimelineEventNames.REQUEST_INSTANCE, this._requestInstanceHandler.bind(this));
-    this.eventbus.on(TimelineEventNames.REQUEST_ACTION, this._requestActionHandler.bind(this));
-    this.eventbus.on(TimelineEventNames.REQUEST_FUNCTION, this._requestFunctionHandler.bind(this));
+    this.eventbus.on(
+      TimelineEventNames.REQUEST_INSTANCE,
+      this._requestInstanceHandler.bind(this)
+    );
+    this.eventbus.on(
+      TimelineEventNames.REQUEST_ACTION,
+      this._requestActionHandler.bind(this)
+    );
+    this.eventbus.on(
+      TimelineEventNames.REQUEST_FUNCTION,
+      this._requestFunctionHandler.bind(this)
+    );
 
     $(windowRef).resize(this._resizeHandler.bind(this));
   }
@@ -54,15 +75,24 @@ export class EngineFactory implements IEngineFactory {
     return this.importer.import(systemName)[systemName];
   }
 
-  private _requestInstanceHandler(systemName: string, resultCallback: TResultCallback) {
+  private _requestInstanceHandler(
+    systemName: string,
+    resultCallback: TResultCallback
+  ) {
     resultCallback(this._importSystemEntryWithEventbusDependency(systemName));
   }
 
-  private _requestFunctionHandler(systemName: string, resultCallback: TResultCallback) {
+  private _requestFunctionHandler(
+    systemName: string,
+    resultCallback: TResultCallback
+  ) {
     resultCallback(this._importSystemEntry(systemName));
   }
 
-  private _requestActionHandler(systemName: string, resultCallback: TResultCallback) {
+  private _requestActionHandler(
+    systemName: string,
+    resultCallback: TResultCallback
+  ) {
     const action = this.actionsLookup[systemName];
     if (action) {
       resultCallback(action);
@@ -72,11 +102,16 @@ export class EngineFactory implements IEngineFactory {
     }
   }
 
-  createEngine(configuration: IEngineConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine {
+  createEngine(
+    configuration: IEngineConfiguration,
+    resolver?: IConfigurationResolver
+  ): IChronoTriggerEngine {
     const { systemName } = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
-    let actionRegistryListener: ActionRegistryEventbusListener | undefined = undefined;
+    let actionRegistryListener:
+      | ActionRegistryEventbusListener
+      | undefined = undefined;
     if (configuration.eventActions?.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
       this.eventbus.registerEventlistener(actionRegistryListener);
@@ -87,14 +122,25 @@ export class EngineFactory implements IEngineFactory {
       new RequestVideoUriInterceptor(this.eventbus)
     );
 
-    resolver = resolver || new ConfigurationResolver(this.importer, this.eventbus);
-    const [actionLookup, resolvedConfiguration] = resolver.process(configuration, actionRegistryListener);
+    resolver =
+      resolver || new ConfigurationResolver(this.importer, this.eventbus);
+    const [actionLookup, resolvedConfiguration] = resolver.process(
+      configuration,
+      actionRegistryListener
+    );
     this.actionsLookup = actionLookup;
 
-    const timelineProviders = this._createTimelineProviders(resolvedConfiguration, this.eventbus);
+    const timelineProviders = this._createTimelineProviders(
+      resolvedConfiguration,
+      this.eventbus
+    );
 
     const { language, labels } = configuration;
-    const languageManager = new LanguageManager(language, labels, this.eventbus);
+    const languageManager = new LanguageManager(
+      language,
+      labels,
+      this.eventbus
+    );
 
     const chronoTriggerEngine = new EngineClass(
       resolvedConfiguration,
@@ -103,7 +149,7 @@ export class EngineFactory implements IEngineFactory {
       languageManager
     );
 
-    Mousetrap.bind('space', (event) => {
+    Mousetrap.bind('space', event => {
       event.preventDefault();
       this.eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
       return false;
@@ -118,22 +164,23 @@ export class EngineFactory implements IEngineFactory {
   ): Record<TimelineTypes, ITimelineProviderInfo> {
     const { timelineProviderSettings } = configuration;
 
-    const result = Object.entries(timelineProviderSettings).reduce<Record<TimelineTypes, ITimelineProviderInfo>>(
-      (acc, [timelineType, settings]) => {
-        if (!settings) {
-          return acc;
-        }
-
-        const timelineProviderClass = this._importSystemEntry(settings.systemName);
-        acc[timelineType as TimelineTypes] = {
-          id: settings.id,
-          vendor: settings.vendor,
-          provider: new timelineProviderClass(eventbus, configuration),
-        };
+    const result = Object.entries(timelineProviderSettings).reduce<
+      Record<TimelineTypes, ITimelineProviderInfo>
+    >((acc, [timelineType, settings]) => {
+      if (!settings) {
         return acc;
-      },
-      {} as Record<TimelineTypes, ITimelineProviderInfo>
-    );
+      }
+
+      const timelineProviderClass = this._importSystemEntry(
+        settings.systemName
+      );
+      acc[timelineType as TimelineTypes] = {
+        id: settings.id,
+        vendor: settings.vendor,
+        provider: new timelineProviderClass(eventbus, configuration),
+      };
+      return acc;
+    }, {} as Record<TimelineTypes, ITimelineProviderInfo>);
 
     return result;
   }

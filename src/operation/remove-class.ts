@@ -6,7 +6,7 @@ export interface IRemoveClassOperationData {
   className: string;
 }
 
-export const removeClass: TOperation<IRemoveClassOperationData> = function (
+export const removeClass: TOperation<IRemoveClassOperationData> = function(
   operationData: IRemoveClassOperationData,
   _eventBus: IEventbus
 ) {

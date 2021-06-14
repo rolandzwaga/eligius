@@ -1,7 +1,9 @@
 import { ISetElementAttributesOperationData } from '../../operation/set-element-attributes';
 import { IOperationMetadata } from './types';
 
-function setElementAttributes(): IOperationMetadata<ISetElementAttributesOperationData> {
+function setElementAttributes(): IOperationMetadata<
+  ISetElementAttributesOperationData
+> {
   return {
     description: 'Sets the given attributes on the selected element',
     dependentProperties: ['selectedElement'],

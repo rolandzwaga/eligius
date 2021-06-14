@@ -27,7 +27,10 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const promise = customFunction(operationData, mockEventbus as any) as Promise<any>;
+    const promise = customFunction(
+      operationData,
+      mockEventbus as any
+    ) as Promise<any>;
 
     // expect
     return promise.then(() => {
@@ -42,7 +45,7 @@ describe('customFunction', () => {
     };
     let called = false;
     const func = (opData, eventbus) => {
-      return new Promise<void>((resolve) => {
+      return new Promise<void>(resolve => {
         called = true;
         expect(opData).to.equal(operationData);
         expect(eventbus).to.equal(mockEventbus);
@@ -52,7 +55,10 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const promise = customFunction(operationData, mockEventbus as any) as Promise<any>;
+    const promise = customFunction(
+      operationData,
+      mockEventbus as any
+    ) as Promise<any>;
 
     // expect
     return promise.then(() => {

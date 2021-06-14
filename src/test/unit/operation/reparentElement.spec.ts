@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { IReparentElementOperationData, reparentElement } from '../../../operation/reparent-element';
+import {
+  IReparentElementOperationData,
+  reparentElement,
+} from '../../../operation/reparent-element';
 
 class MockElement {
   selector: string;

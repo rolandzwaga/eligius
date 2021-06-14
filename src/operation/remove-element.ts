@@ -5,7 +5,7 @@ export interface IRemoveElementOperationData {
   selectedElement: JQuery;
 }
 
-export const removeElement: TOperation<IRemoveElementOperationData> = function (
+export const removeElement: TOperation<IRemoveElementOperationData> = function(
   operationData: IRemoveElementOperationData,
   _eventBus: IEventbus
 ) {

@@ -3,7 +3,8 @@ import { IOperationMetadata } from './types';
 
 function broadcastEvent(): IOperationMetadata<IBroadcastEventOperationData> {
   return {
-    description: 'Broadcasts an eventbus event with the given type, topic and optional arguments',
+    description:
+      'Broadcasts an eventbus event with the given type, topic and optional arguments',
     properties: {
       eventArgs: 'ParameterType:array',
       eventTopic: 'ParameterType:eventTopic',

@@ -1,29 +1,30 @@
 import { expect } from 'chai';
 import { EventListenerController } from '../../../controllers/event-listener-controller';
+import { IEventbus } from '../../../eventbus';
 
 class MockAction {
   actionName: string;
   startOperationData: any;
   endOperationData: any;
-  constructor(actionName) {
+  constructor(actionName: string) {
     this.actionName = actionName;
   }
 
-  start(operationData) {
+  start(operationData: any) {
     this.startOperationData = operationData;
-    return new Promise((resolve) => resolve(operationData));
+    return new Promise(resolve => resolve(operationData));
   }
 
-  end(operationData) {
+  end(operationData: any) {
     this.endOperationData = operationData;
-    return new Promise((resolve) => resolve(operationData));
+    return new Promise(resolve => resolve(operationData));
   }
 }
 
 class MockEventbus {
-  eventname: string;
+  eventname: string = '';
   args: any;
-  broadcast(eventName, args) {
+  broadcast(eventName: string, args: any[]) {
     this.eventname = eventName;
     this.args = args;
     const [actionName, callBack] = args;
@@ -32,25 +33,25 @@ class MockEventbus {
 }
 
 class MockElement {
-  eventName: string;
-  eventHandler: Function;
+  eventName: string = '';
+  eventHandler: Function = () => '';
   tagName = 'select';
 
-  on(eventName, eventHandler) {
+  on(eventName: string, eventHandler: Function) {
     this.eventName = eventName;
     this.eventHandler = eventHandler;
   }
 
-  off(eventName) {
+  off(eventName: string) {
     this.eventName = eventName;
   }
 }
 
 describe('EventListenerController', () => {
-  let controller = null;
-  let eventbus = null;
-  let selectedElement = null;
-  let operationData = null;
+  let controller = new EventListenerController();
+  let eventbus = new MockEventbus();
+  let selectedElement = new MockElement();
+  let operationData: any = {};
 
   beforeEach(() => {
     controller = new EventListenerController();
@@ -78,10 +79,14 @@ describe('EventListenerController', () => {
     controller.init(operationData);
 
     // expect
-    expect(controller.operationData.selectedElement).to.equal(operationData.selectedElement);
-    expect(controller.operationData.eventName).to.equal(operationData.eventName);
-    expect(controller.operationData.actions.length).to.equal(2);
-    expect(controller.operationData.actionOperationData.test).to.equal('test');
+    expect(controller.operationData?.selectedElement).to.equal(
+      operationData.selectedElement
+    );
+    expect(controller.operationData?.eventName).to.equal(
+      operationData.eventName
+    );
+    expect(controller.operationData?.actions.length).to.equal(2);
+    expect(controller.operationData?.actionOperationData.test).to.equal('test');
   });
 
   it('should attach properly', () => {
@@ -92,11 +97,15 @@ describe('EventListenerController', () => {
     controller.attach(eventbus as any);
 
     // expect
-    expect(controller.actionInstanceInfos.length).to.equal(2);
-    expect(controller.actionInstanceInfos[0].action.actionName).to.equal('actionName1');
-    expect(controller.actionInstanceInfos[1].action.actionName).to.equal('actionName2');
-    expect(controller.actionInstanceInfos[0].start).to.be.true;
-    expect(controller.actionInstanceInfos[1].start).to.be.true;
+    expect(controller.actionInstanceInfos?.length).to.equal(2);
+    expect(controller.actionInstanceInfos?.[0].action?.name).to.equal(
+      'actionName1'
+    );
+    expect(controller.actionInstanceInfos?.[1].action?.name).to.equal(
+      'actionName2'
+    );
+    expect(controller.actionInstanceInfos?.[0].start).to.be.true;
+    expect(controller.actionInstanceInfos?.[1].start).to.be.true;
     expect(operationData.selectedElement.eventName).to.equal('test');
   });
 
@@ -105,13 +114,13 @@ describe('EventListenerController', () => {
     controller.init(operationData);
 
     // test
-    controller.detach(eventbus);
+    controller.detach((eventbus as any) as IEventbus);
 
     // expect
     expect(operationData.selectedElement.eventName).to.equal('test');
   });
 
-  it('should call the select event handler', (done) => {
+  it('should call the select event handler', done => {
     // given
     const event = {
       target: {
@@ -125,15 +134,22 @@ describe('EventListenerController', () => {
     operationData.selectedElement.eventHandler(event);
 
     // expect
-    const expectedOperatonData = Object.assign({ targetValue: 'test' }, controller.operationData.actionOperationData);
+    const expectedOperatonData = Object.assign(
+      { targetValue: 'test' },
+      controller.operationData?.actionOperationData
+    );
     setTimeout(() => {
-      expect(controller.actionInstanceInfos[0].action.startOperationData).to.eql(expectedOperatonData);
-      expect(controller.actionInstanceInfos[1].action.startOperationData).to.eql(expectedOperatonData);
+      expect(
+        controller.actionInstanceInfos?.[0].action.startOperationData
+      ).to.eql(expectedOperatonData);
+      expect(
+        controller.actionInstanceInfos?.[1].action.startOperationData
+      ).to.eql(expectedOperatonData);
       done();
     }, 100);
   });
 
-  it('should call the textinput event handler', (done) => {
+  it('should call the textinput event handler', done => {
     // given
     const event = {
       target: {
@@ -153,8 +169,12 @@ describe('EventListenerController', () => {
       controller.operationData.actionOperationData
     );
     setTimeout(() => {
-      expect(controller.actionInstanceInfos[0].action.startOperationData).to.eql(expectedOperatonData);
-      expect(controller.actionInstanceInfos[1].action.startOperationData).to.eql(expectedOperatonData);
+      expect(
+        controller.actionInstanceInfos[0].action.startOperationData
+      ).to.eql(expectedOperatonData);
+      expect(
+        controller.actionInstanceInfos[1].action.startOperationData
+      ).to.eql(expectedOperatonData);
       done();
     }, 100);
   });

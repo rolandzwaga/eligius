@@ -6,7 +6,8 @@ export interface IRoutingControllerOperationData {
   json: any;
 }
 
-export class RoutingController implements IController<IRoutingControllerOperationData> {
+export class RoutingController
+  implements IController<IRoutingControllerOperationData> {
   name = 'RoutingController';
   navLookup: Record<string, any> = {};
   navVidIdLookup: Record<string, any> = {};
@@ -21,8 +22,15 @@ export class RoutingController implements IController<IRoutingControllerOperatio
   }
 
   attach(eventbus: IEventbus) {
-    this.eventhandlers.push(eventbus.on('before-request-video-url', this.handleBeforeRequestVideoUrl.bind(this)));
-    this.eventhandlers.push(eventbus.on('push-history-state', this.handlePushHistoryState.bind(this)));
+    this.eventhandlers.push(
+      eventbus.on(
+        'before-request-video-url',
+        this.handleBeforeRequestVideoUrl.bind(this)
+      )
+    );
+    this.eventhandlers.push(
+      eventbus.on('push-history-state', this.handlePushHistoryState.bind(this))
+    );
     this.eventbus = eventbus;
     window.onpopstate = this.handlePopstate.bind(this);
 
@@ -30,31 +38,50 @@ export class RoutingController implements IController<IRoutingControllerOperatio
     if (navId) {
       const nav = this.navLookup[navId];
       const pos = +this.getQueryVariable(1);
-      this.eventbus.broadcast('request-video-url', [nav.videoUrlIndex, pos, true]);
+      this.eventbus.broadcast('request-video-url', [
+        nav.videoUrlIndex,
+        pos,
+        true,
+      ]);
     } else {
-      window.history.pushState({ navigationId: this.navigation[0].id }, '', `#/${this.navigation[0].id}`);
+      window.history.pushState(
+        { navigationId: this.navigation[0].id },
+        '',
+        `#/${this.navigation[0].id}`
+      );
     }
   }
 
   handlePopstate(event: any) {
-    const navigationId = event.state ? event.state.navigationId : this.navigation[0].id;
+    const navigationId = event.state
+      ? event.state.navigationId
+      : this.navigation[0].id;
     const position = event.state?.position ?? 0;
     const nav = this.navLookup[navigationId];
     this.eventbus?.broadcast('highlight-navigation', [nav.videoUrlIndex]);
-    this.eventbus?.broadcast('request-video-url', [nav.videoUrlIndex, position, true]);
+    this.eventbus?.broadcast('request-video-url', [
+      nav.videoUrlIndex,
+      position,
+      true,
+    ]);
   }
 
   detach(_eventbus: IEventbus) {
     if (this.eventhandlers) {
-      this.eventhandlers.forEach((handler) => {
+      this.eventhandlers.forEach(handler => {
         handler();
       });
     }
     this.eventbus = null;
   }
 
-  handleBeforeRequestVideoUrl(_index: number, _requestedVideoPosition: number = 0, isHistoryRequest: boolean = false) {
-    isHistoryRequest = isHistoryRequest !== undefined ? isHistoryRequest : false;
+  handleBeforeRequestVideoUrl(
+    _index: number,
+    _requestedVideoPosition: number = 0,
+    isHistoryRequest: boolean = false
+  ) {
+    isHistoryRequest =
+      isHistoryRequest !== undefined ? isHistoryRequest : false;
     if (!isHistoryRequest) {
       const resultCallback = (item: any) => {
         this.pushState(item);
@@ -87,19 +114,30 @@ export class RoutingController implements IController<IRoutingControllerOperatio
         const resultCallback = (position: number) => {
           currentPosition = position > 3 ? position - 3 : 0;
         };
-        this.eventbus?.broadcast('request-current-video-position', [resultCallback]);
+        this.eventbus?.broadcast('request-current-video-position', [
+          resultCallback,
+        ]);
       }
 
       const currentState = window.history.state;
-      if (currentState && currentState.navigationId !== state.navigationData.id) {
+      if (
+        currentState &&
+        currentState.navigationId !== state.navigationData.id
+      ) {
         window.history.pushState(
           { navigationId: state.navigationData.id, position: currentPosition },
           state.title,
           `#/${state.navigationData.id}/${currentPosition}`
         );
-      } else if (currentState && currentState.navigationId === state.navigationData.id) {
+      } else if (
+        currentState &&
+        currentState.navigationId === state.navigationData.id
+      ) {
         window.history.replaceState(
-          { navigationId: currentState.navigationId, position: currentPosition },
+          {
+            navigationId: currentState.navigationId,
+            position: currentPosition,
+          },
           state.title,
           `#/${currentState.navigationId}/${currentPosition}`
         );

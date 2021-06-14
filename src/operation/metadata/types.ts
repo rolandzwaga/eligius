@@ -10,7 +10,10 @@ export type TArrayProperyMetadata = {
   required?: boolean;
 };
 
-export type TPropertyMetadata = TComplexProperyMetadata | TArrayProperyMetadata | TParameterTypes;
+export type TPropertyMetadata =
+  | TComplexProperyMetadata
+  | TArrayProperyMetadata
+  | TParameterTypes;
 
 export interface IOperationMetadata<T> {
   description: string;

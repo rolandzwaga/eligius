@@ -6,7 +6,7 @@ export interface IAddClassOperationData {
   className: string;
 }
 
-export const addClass: TOperation<IAddClassOperationData> = function (
+export const addClass: TOperation<IAddClassOperationData> = function(
   operationData: IAddClassOperationData,
   _eventBus: IEventbus
 ) {

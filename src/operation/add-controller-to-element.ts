@@ -10,7 +10,7 @@ export interface IAddControllerToElementOperationData {
   [key: string]: any;
 }
 
-export const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function (
+export const addControllerToElement: TOperation<IAddControllerToElementOperationData> = function(
   operationData: IAddControllerToElementOperationData,
   eventBus: IEventbus
 ) {

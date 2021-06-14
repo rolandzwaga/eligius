@@ -59,7 +59,9 @@ describe('TimelineProviderSettingsEditor', () => {
     }
 
     // expect
-    expect(errorMessage).to.equal('Unknown timeline provider system name: UnknownTimelineProvider');
+    expect(errorMessage).to.equal(
+      'Unknown timeline provider system name: UnknownTimelineProvider'
+    );
   });
 
   it('should return the configuration factory', () => {

@@ -28,7 +28,12 @@ describe('endLoop', () => {
 
   it('should increment loopIndex and restart the newIndex when the current is lower than the looplength', () => {
     // given
-    const context = { loopIndex: 1, loopLength: 10, startIndex: 5, newIndex: 10 };
+    const context = {
+      loopIndex: 1,
+      loopLength: 10,
+      startIndex: 5,
+      newIndex: 10,
+    };
     const operationData = {};
 
     // test
@@ -43,7 +48,12 @@ describe('endLoop', () => {
 
   it('should reset the context when the loopIndex is equal to the loopLength', () => {
     // given
-    const context = { loopIndex: 10, loopLength: 10, startIndex: 5, newIndex: 10 };
+    const context = {
+      loopIndex: 10,
+      loopLength: 10,
+      startIndex: 5,
+      newIndex: 10,
+    };
     const operationData = {};
 
     // test

@@ -6,7 +6,12 @@ import { LanguageManager } from './language-manager';
 import { TOperation } from './operation/types';
 import { TimelineEventNames } from './timeline-event-names';
 import { ITimelineProvider } from './timelineproviders/types';
-import { IChronoTriggerEngine, ITimelineProviderInfo, TimelineTypes, TResultCallback } from './types';
+import {
+  IChronoTriggerEngine,
+  ITimelineProviderInfo,
+  TimelineTypes,
+  TResultCallback,
+} from './types';
 
 /**
  * ChronoTriggerEngine, this is where the magic happens. The engine is responsible for starting and stoppping
@@ -24,7 +29,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     private configuration: IResolvedEngineConfiguration,
     private eventbus: IEventbus,
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
-    private languageManager: LanguageManager
+    private _languageManager: LanguageManager
   ) {}
 
   init(): Promise<ITimelineProvider> {
@@ -34,12 +39,23 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
     const { timelines } = this.configuration;
 
-    this._currentTimelineUri = timelines && timelines.length ? timelines[0].uri : '';
+    this._currentTimelineUri =
+      timelines && timelines.length ? timelines[0].uri : '';
 
     this._createTimelineLookup();
 
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.TIME, this._onTimeHandler.bind(this, Math.floor)));
-    this._eventbusListeners.push(this.eventbus.on(TimelineEventNames.SEEK, this._onSeekHandler.bind(this, Math.floor)));
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.TIME,
+        this._onTimeHandler.bind(this, Math.floor)
+      )
+    );
+    this._eventbusListeners.push(
+      this.eventbus.on(
+        TimelineEventNames.SEEK,
+        this._onSeekHandler.bind(this, Math.floor)
+      )
+    );
 
     return this._initializeTimelineProvider();
   }
@@ -70,7 +86,9 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     const providerSettings = this.timelineProviders[firstTimeline.type];
 
     if (!providerSettings) {
-      throw new Error(`No timeline provider configured for type ${firstTimeline.type}`);
+      throw new Error(
+        `No timeline provider configured for type ${firstTimeline.type}`
+      );
     }
 
     if (this._activeTimelineProvider) {
@@ -79,7 +97,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
     this._activeTimelineProvider = providerSettings.provider;
 
-    return new Promise(async (resolve) => {
+    return new Promise(async resolve => {
       if (this._activeTimelineProvider) {
         await this._activeTimelineProvider.init();
         await this._executeActions(this.configuration.initActions, 'start');
@@ -98,9 +116,11 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
   async destroy() {
     await this._cleanUp();
     this._activeTimelineProvider = undefined;
-    this._eventbusListeners.forEach((remover) => remover());
+    this._eventbusListeners.forEach(remover => remover());
     if (this.timelineProviders) {
-      Object.values(this.timelineProviders).forEach((info) => info.provider.destroy());
+      Object.values(this.timelineProviders).forEach(info =>
+        info.provider.destroy()
+      );
     }
   }
 
@@ -108,11 +128,17 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     this._eventbusListeners.push(
       this.eventbus.on(
         TimelineEventNames.REQUEST_ENGINE_ROOT,
-        this._handleRequestEngineRoot.bind(this, this.configuration.containerSelector)
+        this._handleRequestEngineRoot.bind(
+          this,
+          this.configuration.containerSelector
+        )
       )
     );
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_URI, this._handleRequestTimelineUri.bind(this))
+      this.eventbus.on(
+        TimelineEventNames.REQUEST_TIMELINE_URI,
+        this._handleRequestTimelineUri.bind(this)
+      )
     );
     this._eventbusListeners.push(
       this.eventbus.on(
@@ -121,16 +147,28 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
       )
     );
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this._handleTimelineComplete.bind(this))
+      this.eventbus.on(
+        TimelineEventNames.REQUEST_TIMELINE_CLEANUP,
+        this._handleTimelineComplete.bind(this)
+      )
     );
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.EXECUTE_TIMELINEACTION, this._handleExecuteTimelineAction.bind(this))
+      this.eventbus.on(
+        TimelineEventNames.EXECUTE_TIMELINEACTION,
+        this._handleExecuteTimelineAction.bind(this)
+      )
     );
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.RESIZE_TIMELINEACTION, this._resizeTimelineAction.bind(this))
+      this.eventbus.on(
+        TimelineEventNames.RESIZE_TIMELINEACTION,
+        this._resizeTimelineAction.bind(this)
+      )
     );
     this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.REQUEST_CURRENT_TIMELINE, this._requestCurrentTimeline.bind(this))
+      this.eventbus.on(
+        TimelineEventNames.REQUEST_CURRENT_TIMELINE,
+        this._requestCurrentTimeline.bind(this)
+      )
     );
   }
 
@@ -138,8 +176,10 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     if (!this.configuration.timelines) {
       return;
     }
-    this.configuration.timelines.forEach((timelineInfo) => {
-      timelineInfo.timelineActions.forEach(this._addTimelineAction.bind(this, timelineInfo.uri));
+    this.configuration.timelines.forEach(timelineInfo => {
+      timelineInfo.timelineActions.forEach(
+        this._addTimelineAction.bind(this, timelineInfo.uri)
+      );
     });
   }
 
@@ -164,7 +204,10 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     }
 
     if (isFinite(end)) {
-      const timelineEndPositions = this._initializeTimelinePosition(this._timeLineActionsLookup[uri], end);
+      const timelineEndPositions = this._initializeTimelinePosition(
+        this._timeLineActionsLookup[uri],
+        end
+      );
       const endMethod = timeLineAction.end.bind(timeLineAction);
 
       if (timeLineAction.id?.length) {
@@ -175,7 +218,10 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     }
   }
 
-  _initializeUriLookup(lookup: Record<string, any>, uri: string): Record<number, any> {
+  _initializeUriLookup(
+    lookup: Record<string, any>,
+    uri: string
+  ): Record<number, any> {
     if (!lookup[uri]) {
       lookup[uri] = {};
     }
@@ -183,7 +229,10 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     return lookup[uri];
   }
 
-  _initializeTimelinePosition(lookup: Record<number, any>, position: number): TOperation[] {
+  _initializeTimelinePosition(
+    lookup: Record<number, any>,
+    position: number
+  ): TOperation[] {
     if (!lookup[position]) {
       lookup[position] = [];
     }
@@ -191,7 +240,11 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     return lookup[position];
   }
 
-  async _executeActions(actions: IEndableAction[], methodName: 'start' | 'end', idx = 0): Promise<any> {
+  async _executeActions(
+    actions: IEndableAction[],
+    methodName: 'start' | 'end',
+    idx = 0
+  ): Promise<any> {
     if (actions && idx < actions.length) {
       const action = actions[idx];
 
@@ -199,16 +252,23 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
       return this._executeActions(actions, methodName, ++idx);
     }
 
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       resolve();
     });
   }
 
-  _handleRequestEngineRoot(engineRootSelector: string, resultCallback: TResultCallback) {
+  _handleRequestEngineRoot(
+    engineRootSelector: string,
+    resultCallback: TResultCallback
+  ) {
     resultCallback($(engineRootSelector));
   }
 
-  async _handleRequestTimelineUri(uri: string, position?: number, previousVideoPosition?: number) {
+  async _handleRequestTimelineUri(
+    uri: string,
+    position?: number,
+    previousVideoPosition?: number
+  ) {
     if (!this._activeTimelineProvider) {
       return;
     }
@@ -218,13 +278,21 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
     await this._cleanUpTimeline();
 
-    const timelineConfig = this.configuration.timelines.find((timeline) => timeline.uri === uri);
-    if (!timelineConfig || !this._activeTimelineProvider || this._currentTimelineUri === timelineConfig.uri) {
+    const timelineConfig = this.configuration.timelines.find(
+      timeline => timeline.uri === uri
+    );
+    if (
+      !timelineConfig ||
+      !this._activeTimelineProvider ||
+      this._currentTimelineUri === timelineConfig.uri
+    ) {
       return;
     }
     this._currentTimelineUri = timelineConfig.uri;
 
-    this.eventbus.broadcast(TimelineEventNames.CURRENT_TIMELINE_CHANGE, [this._currentTimelineUri]);
+    this.eventbus.broadcast(TimelineEventNames.CURRENT_TIMELINE_CHANGE, [
+      this._currentTimelineUri,
+    ]);
 
     const newProviderSettings = this.timelineProviders[timelineConfig.type];
 
@@ -243,7 +311,9 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
         }
 
         this._activeTimelineProvider.pause();
-        this.eventbus.broadcast(TimelineEventNames.DURATION, [this._activeTimelineProvider.getDuration()]);
+        this.eventbus.broadcast(TimelineEventNames.DURATION, [
+          this._activeTimelineProvider.getDuration(),
+        ]);
         this._executeStartActions().then(() => {
           position = position ?? 0;
           this._activeTimelineProvider?.seek(position);
@@ -262,17 +332,24 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
   }
 
   _executeStartActions() {
-    return this._executeRelevantActions(this._getActionsForPosition.bind(this, 0), 'start');
+    return this._executeRelevantActions(
+      this._getActionsForPosition.bind(this, 0),
+      'start'
+    );
   }
 
   _getActionsForPosition(position: number, allActions: ITimelineAction[]) {
-    return allActions.filter((action) => {
-      return !action.active && action.duration.start <= position && action.duration.end >= position;
+    return allActions.filter(action => {
+      return (
+        !action.active &&
+        action.duration.start <= position &&
+        action.duration.end >= position
+      );
     });
   }
 
   _getActiveActions(allActions: ITimelineAction[]) {
-    const actions = allActions.filter((action) => action.active);
+    const actions = allActions.filter(action => action.active);
     return actions.sort((a, b) => {
       if (b.duration.start < a.duration.start) {
         return -1;
@@ -284,13 +361,19 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     });
   }
 
-  _executeRelevantActions(filter: (actions: ITimelineAction[]) => ITimelineAction[], executionType: 'start' | 'end') {
+  _executeRelevantActions(
+    filter: (actions: ITimelineAction[]) => ITimelineAction[],
+    executionType: 'start' | 'end'
+  ) {
     const timelineActions = this._getRelevantTimelineActions();
     const currentActions = filter.apply(this, [timelineActions]);
     return this._executeActions(currentActions, executionType, 0);
   }
 
-  _handleRequestTimelinePosition(floor: Function, resultCallback: TResultCallback) {
+  _handleRequestTimelinePosition(
+    floor: Function,
+    resultCallback: TResultCallback
+  ) {
     resultCallback(floor(this._activeTimelineProvider?.getPosition() || -1));
   }
 
@@ -323,7 +406,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
   }
 
   _getTimelineActionsForUri(uri: string): ITimelineAction[] {
-    const info = this.configuration.timelines.find((timelineInfo) => {
+    const info = this.configuration.timelines.find(timelineInfo => {
       return timelineInfo.uri === uri;
     });
     return info?.timelineActions ?? [];
@@ -335,7 +418,10 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
 
       if (this._lastPosition !== pos) {
         this._executeActionsForPosition(pos);
-        this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [pos, this._activeTimelineProvider?.getDuration()]);
+        this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
+          pos,
+          this._activeTimelineProvider?.getDuration(),
+        ]);
       }
 
       this.eventbus.broadcast(TimelineEventNames.TIME_UPDATE, [
@@ -380,7 +466,7 @@ export class ChronoTriggerEngine implements IChronoTriggerEngine {
     const newActions = this._getActionsForPosition(pos, timelineActions);
     const promise = this._executeActions(currentActions, 'end', 0);
 
-    return new Promise<void>((resolve) => {
+    return new Promise<void>(resolve => {
       promise.then(() => {
         this._executeActions(newActions, 'start', 0).then(() => {
           resolve();

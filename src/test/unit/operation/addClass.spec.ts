@@ -6,7 +6,7 @@ describe('addClass operation', () => {
     // given
     const elementMock = {
       className: '',
-      addClass: function (className) {
+      addClass: function(className) {
         this.className = className;
       },
     };

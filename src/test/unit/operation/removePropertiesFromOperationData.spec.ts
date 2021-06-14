@@ -12,7 +12,10 @@ describe('removePropertiesFromOperationData', () => {
     };
 
     // test
-    const newData: any = removePropertiesFromOperationData(operationData, {} as any);
+    const newData: any = removePropertiesFromOperationData(
+      operationData,
+      {} as any
+    );
 
     // expect
     expect(newData).to.equal(operationData);
