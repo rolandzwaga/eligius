@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { removePropertiesFromOperationData } from '../../../operation/remove-properties-from-operation-data';
+import { applyOperation } from './apply-operation';
 
 describe('removePropertiesFromOperationData', () => {
   it('should remove the specified properties from the given operationData', () => {
@@ -12,9 +13,9 @@ describe('removePropertiesFromOperationData', () => {
     };
 
     // test
-    const newData: any = removePropertiesFromOperationData(
-      operationData,
-      {} as any
+    const newData = applyOperation<typeof operationData>(
+      removePropertiesFromOperationData,
+      operationData
     );
 
     // expect

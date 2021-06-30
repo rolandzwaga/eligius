@@ -1,13 +1,16 @@
 import { expect } from 'chai';
 import { createElement } from '../../../operation/create-element';
+import { applyOperation } from './apply-operation';
 
 describe('createElement', () => {
   it('should create a simple element', () => {
     // given
-    const operationData: any = { elementName: 'div' };
+    const operationData = { elementName: 'div' };
 
     // test
-    const newData: any = createElement(operationData, {} as any);
+    const newData = applyOperation<{
+      template: { prop: (name: string) => string };
+    }>(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal('<div></div>');
@@ -15,10 +18,12 @@ describe('createElement', () => {
 
   it('should create a simple element with text', () => {
     // given
-    const operationData: any = { elementName: 'div', text: 'test' };
+    const operationData = { elementName: 'div', text: 'test' };
 
     // test
-    const newData: any = createElement(operationData, {} as any);
+    const newData = applyOperation<{
+      template: { prop: (name: string) => string };
+    }>(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal('<div>test</div>');
@@ -26,7 +31,7 @@ describe('createElement', () => {
 
   it('should create an element with attributes', () => {
     // given
-    const operationData: any = {
+    const operationData = {
       elementName: 'div',
       attributes: {
         class: 'test',
@@ -35,7 +40,9 @@ describe('createElement', () => {
     };
 
     // test
-    const newData: any = createElement(operationData, {} as any);
+    const newData = applyOperation<{
+      template: { prop: (name: string) => string };
+    }>(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
@@ -45,7 +52,7 @@ describe('createElement', () => {
 
   it('should create an element with attributes and text', () => {
     // given
-    const operationData: any = {
+    const operationData = {
       elementName: 'div',
       attributes: {
         class: 'testClass',
@@ -55,7 +62,9 @@ describe('createElement', () => {
     };
 
     // test
-    const newData: any = createElement(operationData, {} as any);
+    const newData = applyOperation<{
+      template: { prop: (name: string) => string };
+    }>(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(

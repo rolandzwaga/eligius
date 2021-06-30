@@ -1,9 +1,11 @@
 import { expect } from 'chai';
+import { TOperationData } from '../../../operation';
 import { resizeAction } from '../../../operation/resize-action';
+import { applyOperation } from './apply-operation';
 
 class MockAction {
   operationData: any;
-  resize(operationData) {
+  resize(operationData: TOperationData) {
     return (this.operationData = operationData);
   }
 }
@@ -20,7 +22,7 @@ describe('resizeAction', () => {
     };
 
     // test
-    const newData = resizeAction(operationData, {} as any);
+    const newData = applyOperation(resizeAction, operationData);
 
     // expect
     expect(mockAction.operationData).to.equal(newData);

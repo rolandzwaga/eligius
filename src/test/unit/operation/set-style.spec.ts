@@ -1,15 +1,16 @@
 import { expect } from 'chai';
 import { setStyle } from '../../../operation/set-style';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
   cssProps: any;
-  css(cssProps) {
+  css(cssProps: any) {
     this.cssProps = cssProps;
   }
 }
 
 describe('setStyle', () => {
-  it('should set the syle on the specified element', () => {
+  it('should set the style on the specified element', () => {
     // given
     const mockElement = new MockElement();
     const operationData = {
@@ -22,14 +23,14 @@ describe('setStyle', () => {
     };
 
     // test
-    setStyle(operationData, {} as any);
+    applyOperation(setStyle, operationData);
 
     // expect
     expect(mockElement.cssProps.visible).to.be.true;
     expect(mockElement.cssProps.display).to.equal('block');
   });
 
-  it('should set the syle on the specified element with a custom propertyName', () => {
+  it('should set the style on the specified element with a custom propertyName', () => {
     // given
     const mockElement = new MockElement();
     const operationData = {
@@ -43,7 +44,7 @@ describe('setStyle', () => {
     };
 
     // test
-    setStyle(operationData, {} as any);
+    applyOperation(setStyle, operationData);
 
     // expect
     expect(mockElement.cssProps.visible).to.be.true;

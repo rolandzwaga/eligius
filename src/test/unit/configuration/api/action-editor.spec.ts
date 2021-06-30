@@ -1,16 +1,18 @@
 import { expect } from 'chai';
+import { ConfigurationFactory } from '../../../../configuration/api';
 import {
   ActionEditor,
   OperationEditor,
 } from '../../../../configuration/api/action-editor';
+import { IActionConfiguration } from '../../../../configuration/types';
 
 describe('ActionEditor', () => {
-  let actionEditor = null;
-  let configurationFactory = null;
-  let actionConfig = null;
+  let actionEditor: ActionEditor = ({} as unknown) as ActionEditor;
+  let configurationFactory: ConfigurationFactory = ({} as unknown) as ConfigurationFactory;
+  let actionConfig: any;
 
   beforeEach(() => {
-    configurationFactory = {};
+    configurationFactory = ({} as unknown) as ConfigurationFactory;
     actionConfig = {
       id: '111-222-333',
       name: 'name',
@@ -21,8 +23,9 @@ describe('ActionEditor', () => {
 
   it('should initialize properly', () => {
     // expect
-    expect(actionEditor.configurationFactory).is.equal(configurationFactory);
-    expect(actionEditor.actionConfig).is.equal(actionConfig);
+    let config = {};
+    actionEditor.getConfiguration(cf => (config = cf));
+    expect(config).is.equal(actionConfig);
   });
 
   it('should set the name', () => {
@@ -32,17 +35,12 @@ describe('ActionEditor', () => {
     actionEditor.setName('TestName');
 
     // expect
-    const { actionConfig } = actionEditor;
-    expect(actionConfig.name).to.equal('TestName');
+    expect(actionEditor.getName()).to.equal('TestName');
   });
 
   it('should return an operation editor', () => {
     // given
-    const { actionConfig } = actionEditor;
-    actionConfig.startOperations.push({
-      id: 'test',
-      operationData: {},
-    });
+    actionEditor.addStartOperation('test', {}, 'test');
 
     // test
     const editor = actionEditor.editStartOperation('test');
@@ -67,57 +65,70 @@ describe('ActionEditor', () => {
 
   it('should remove the operation with the given id', () => {
     // given
-    const { actionConfig } = actionEditor;
-    actionConfig.startOperations.push({
-      id: 'test',
-      operationData: {},
-    });
+    actionEditor.addStartOperation('test', {}, 'test');
 
     // test
     actionEditor.removeStartOperation('test');
 
     // expect
-    expect(actionEditor.actionConfig.startOperations.length).to.equal(0);
+    actionEditor.getConfiguration(config => {
+      expect(config.startOperations.length).to.equal(0);
+      return undefined;
+    });
   });
 
   it('should move the start operation with given id up', () => {
     // given
-    const { actionConfig } = actionEditor;
     const op1 = {
       id: 'test',
+      systemName: 'test',
       operationData: {},
     };
     const op2 = {
       id: 'test2',
+      systemName: 'test2',
       operationData: {},
     };
-    actionConfig.startOperations.push(op1, op2);
+    actionEditor.getConfiguration(config => {
+      config.startOperations.push(op1, op2);
+      return config;
+    });
 
     // test
     actionEditor.moveStartOperation('test', 'up');
 
     // expect
-    expect(actionEditor.actionConfig.startOperations.indexOf(op1)).to.equal(1);
+    actionEditor.getConfiguration(config => {
+      expect(config.startOperations.indexOf(op1)).to.equal(1);
+      return undefined;
+    });
   });
 
   it('should move the start operation with given id down', () => {
     // given
-    const { actionConfig } = actionEditor;
     const op1 = {
       id: 'test',
+      systemName: 'test',
       operationData: {},
     };
     const op2 = {
       id: 'test2',
+      systemName: 'test2',
       operationData: {},
     };
-    actionConfig.startOperations.push(op1, op2);
+    actionEditor.getConfiguration(config => {
+      config.startOperations.push(op1, op2);
+      return config;
+    });
 
     // test
     actionEditor.moveStartOperation('test2', 'down');
 
     // expect
-    expect(actionEditor.actionConfig.startOperations.indexOf(op2)).to.equal(0);
+    actionEditor.getConfiguration(config => {
+      expect(config.startOperations.indexOf(op2)).to.equal(0);
+      return undefined;
+    });
   });
 
   it('should return the configuration editor', () => {
@@ -136,19 +147,19 @@ describe('ActionEditor', () => {
     actionEditor.getConfiguration(c => (config = c));
 
     // expect
-    expect(config).to.equal(actionEditor.actionConfig);
+    expect(config).to.not.be.null;
   });
 
   it('should substitute the actionConfig with the instance returned from the getConfiguration callback', () => {
     // given
-    let config = {
+    let config: IActionConfiguration = ({
       id: '888-777-666',
-    };
+    } as unknown) as IActionConfiguration;
 
     // test
     actionEditor.getConfiguration(_c => config);
 
     // expect
-    expect(config).to.equal(actionEditor.actionConfig);
+    expect(config).to.equal(actionEditor.next());
   });
 });

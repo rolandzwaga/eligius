@@ -1,8 +1,9 @@
 import { expect } from 'chai';
 import { toggleElement } from '../../../operation/toggle-element';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  isToggled: boolean;
+  isToggled: boolean = false;
   toggle() {
     this.isToggled = true;
   }
@@ -17,7 +18,7 @@ describe('toggleElement', () => {
     };
 
     // test
-    const newData = toggleElement(operationData, {} as any);
+    const newData = applyOperation(toggleElement, operationData);
 
     // expect
     expect(newData).to.equal(operationData);

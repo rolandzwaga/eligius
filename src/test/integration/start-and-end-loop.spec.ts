@@ -181,10 +181,10 @@ describe('Start and end loop', () => {
     const op1: IResolvedOperation = {
       id: 'id1',
       systemName: 'systemNam1',
-      operationData: {
+      operationData: ({
         collection: testCollection,
         propertyName: 'value',
-      } as TStartLoopOperationData,
+      } as unknown) as TStartLoopOperationData,
       instance: startLoop,
     };
     const op2: IResolvedOperation = {

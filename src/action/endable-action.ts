@@ -19,6 +19,7 @@ export class EndableAction extends Action {
         currentIndex: -1,
         eventbus: this.eventbus,
       };
+
       const result = new Promise<TOperationData>((resolve, reject) => {
         this.executeOperation(
           this.endOperations,

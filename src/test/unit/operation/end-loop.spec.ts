@@ -1,14 +1,18 @@
 import { expect } from 'chai';
 import { endLoop } from '../../../operation/end-loop';
+import { applyOperation } from './apply-operation';
 
 describe('endLoop', () => {
   it('should return the operation data', () => {
     // given
-    const context = {};
+    const context = {
+      currentIndex: -1,
+      eventbus: {} as any,
+    };
     const operationData = {};
 
     // test
-    const result = endLoop.call(context, operationData);
+    const result = applyOperation(endLoop, operationData, context);
 
     // expect
     expect(result).to.be.equal(operationData);
@@ -16,28 +20,34 @@ describe('endLoop', () => {
 
   it('should reset if context.skip is true', () => {
     // given
-    const context = { skipNextOperation: true };
+    const context = {
+      skipNextOperation: true,
+      currentIndex: -1,
+      eventbus: {} as any,
+    };
     const operationData = {};
 
     // test
-    endLoop.call(context, operationData);
+    applyOperation(endLoop, operationData, context);
 
     // expect
     expect(context.skipNextOperation).to.be.undefined;
   });
 
-  it('should increment loopIndex and restart the newIndex when the current is lower than the looplength', () => {
+  it('should increment loopIndex and restart the newIndex when the current is lower than the loopLength', () => {
     // given
     const context = {
+      currentIndex: -1,
       loopIndex: 1,
       loopLength: 10,
       startIndex: 5,
       newIndex: 10,
+      eventbus: {} as any,
     };
     const operationData = {};
 
     // test
-    endLoop.call(context, operationData);
+    applyOperation(endLoop, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.equal(2);
@@ -49,15 +59,17 @@ describe('endLoop', () => {
   it('should reset the context when the loopIndex is equal to the loopLength', () => {
     // given
     const context = {
+      currentIndex: -1,
       loopIndex: 10,
       loopLength: 10,
       startIndex: 5,
       newIndex: 10,
+      eventbus: {} as any,
     };
     const operationData = {};
 
     // test
-    endLoop.call(context, operationData);
+    applyOperation(endLoop, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.undefined;

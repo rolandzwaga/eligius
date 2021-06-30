@@ -1,24 +1,25 @@
 import { expect } from 'chai';
 import { animateWithClass } from '../../../operation/animate-with-class';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
   removedCalled = false;
   expectedClass: string;
-  handler: Function;
+  handler: () => void = () => {};
 
-  constructor(expectedClass) {
+  constructor(expectedClass: string) {
     this.expectedClass = expectedClass;
   }
 
-  one(_eventNames, handler) {
+  one(_eventNames: string[], handler: () => void) {
     this.handler = handler;
   }
 
-  addClass(className) {
+  addClass(className: string) {
     expect(className).to.equal(this.expectedClass);
   }
 
-  removeClass(className) {
+  removeClass(className: string) {
     this.removedCalled = true;
     expect(className).to.equal(this.expectedClass);
   }
@@ -35,7 +36,10 @@ describe('animateWithClass', () => {
     };
 
     // test
-    const promise = animateWithClass(operationData, {} as any);
+    const promise = applyOperation<Promise<typeof operationData>>(
+      animateWithClass,
+      operationData
+    );
     mockElement.handler();
     expect(mockElement.removedCalled).to.be.true;
     return promise;
@@ -52,7 +56,10 @@ describe('animateWithClass', () => {
     };
 
     // test
-    const promise = animateWithClass(operationData, {} as any);
+    const promise = applyOperation<Promise<typeof operationData>>(
+      animateWithClass,
+      operationData
+    );
     mockElement.handler();
     expect(mockElement.removedCalled).to.be.false;
     return promise;

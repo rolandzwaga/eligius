@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { getControllerFromElement } from '../../../operation/get-controller-from-element';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
   controllers: any[];
@@ -32,7 +33,10 @@ describe('getControllerFromElement', () => {
     };
 
     // test
-    const newData: any = getControllerFromElement(operationData, {} as any);
+    const newData = applyOperation<{ controllerInstance: any }>(
+      getControllerFromElement,
+      operationData
+    );
 
     // expect
     expect(newData.controllerInstance).to.equal(controllers[1]);

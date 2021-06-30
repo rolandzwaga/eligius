@@ -1,8 +1,10 @@
 import { expect } from 'chai';
+import { TOperation } from '../../../operation';
 import { endAction } from '../../../operation/end-action';
+import { applyOperation } from './apply-operation';
 
 class MockAction {
-  end(operationData) {
+  end(operationData: TOperation) {
     return new Promise(resolve => {
       resolve(operationData);
     });
@@ -15,14 +17,17 @@ describe('endAction', () => {
     const mockAction = new MockAction();
 
     const operationData = {
-      actionInstance: mockAction as any,
+      actionInstance: mockAction,
       actionOperationData: {
         test: true,
       },
     };
 
     // test
-    const promise = endAction(operationData, {} as any) as Promise<any>;
+    const promise = applyOperation<Promise<typeof operationData>>(
+      endAction,
+      operationData
+    );
 
     return promise.then(result => {
       expect(result).to.equal(operationData);

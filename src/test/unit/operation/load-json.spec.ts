@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { deepCopy } from '../../../operation/helper/deep-copy';
 import { clearCache, loadJSON } from '../../../operation/load-json';
+import { applyOperation } from './apply-operation';
 
-let result = null;
+let result: any = null;
 
 function getResult() {
   return new Promise(resolve => {
@@ -11,7 +11,7 @@ function getResult() {
 }
 
 describe('loadJSON', () => {
-  let fetch;
+  let fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
 
   beforeAll(() => {
     fetch = window.fetch;
@@ -41,7 +41,10 @@ describe('loadJSON', () => {
     };
 
     // test
-    const newData = await loadJSON(operationData, {} as any);
+    const newData = await applyOperation<Promise<{ json: any }>>(
+      loadJSON,
+      operationData
+    );
 
     // expect
     expect(newData.json).to.equal(result);
@@ -56,12 +59,18 @@ describe('loadJSON', () => {
     };
 
     // test
-    let newData: any = await loadJSON(deepCopy(operationData), {} as any);
+    let newData = await applyOperation<Promise<{ json: any }>>(
+      loadJSON,
+      operationData
+    );
 
     // expect
     expect(newData.json).to.equal(result);
     result = { test: false };
-    newData = await loadJSON(operationData, {} as any);
+    newData = await applyOperation<Promise<{ json: any }>>(
+      loadJSON,
+      operationData
+    );
     expect(newData.json).to.not.equal(result);
   });
 
@@ -73,10 +82,12 @@ describe('loadJSON', () => {
       propertyName: 'testProperty',
       cache: true,
     };
-    await loadJSON(deepCopy(operationData), {} as any);
+    await applyOperation<Promise<{ json: any }>>(loadJSON, operationData);
 
     // test
-    const newData: any = await loadJSON(operationData, {} as any);
+    const newData = await applyOperation<
+      Promise<{ testProperty: { test: boolean } }>
+    >(loadJSON, operationData);
 
     // expect
     expect(newData.testProperty.test).to.be.true;

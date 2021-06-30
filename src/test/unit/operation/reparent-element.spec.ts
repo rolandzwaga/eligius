@@ -3,12 +3,13 @@ import {
   IReparentElementOperationData,
   reparentElement,
 } from '../../../operation/reparent-element';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  selector: string;
-  calledRemove: boolean;
+  selector: string = '';
+  calledRemove: boolean = false;
 
-  appendTo(selector) {
+  appendTo(selector: string) {
     this.selector = selector;
   }
 
@@ -28,7 +29,7 @@ describe('reparentElement', () => {
     } as any) as IReparentElementOperationData;
 
     // test
-    reparentElement(operationData, {} as any);
+    applyOperation(reparentElement, operationData);
 
     // expect
     expect(mockElement.calledRemove).to.be.true;

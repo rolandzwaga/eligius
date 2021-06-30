@@ -1,13 +1,16 @@
 import { expect } from 'chai';
+import { Eventbus } from '../../../eventbus';
+import { TOperation } from '../../../operation';
 import { customFunction } from '../../../operation/custom-function';
+import { applyOperation } from './apply-operation';
 
 class MockEventbus {
   testFunction: Function;
-  constructor(testFunction) {
+  constructor(testFunction: Function) {
     this.testFunction = testFunction;
   }
 
-  broadcast(_eventName, args) {
+  broadcast(_eventName: string, ...args: any[]) {
     args[1](this.testFunction);
   }
 }
@@ -18,8 +21,9 @@ describe('customFunction', () => {
     const operationData = {
       systemName: 'testName',
     };
+
     let called = false;
-    const func = (opData, eventbus) => {
+    const func = (opData: TOperation, eventbus: Eventbus) => {
       called = true;
       expect(opData).to.equal(operationData);
       expect(eventbus).to.equal(mockEventbus);
@@ -27,10 +31,7 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const promise = customFunction(
-      operationData,
-      mockEventbus as any
-    ) as Promise<any>;
+    const promise = applyOperation<Promise<any>>(customFunction, operationData);
 
     // expect
     return promise.then(() => {
@@ -44,7 +45,7 @@ describe('customFunction', () => {
       systemName: 'testName',
     };
     let called = false;
-    const func = (opData, eventbus) => {
+    const func = (opData: TOperation, eventbus: Eventbus) => {
       return new Promise<void>(resolve => {
         called = true;
         expect(opData).to.equal(operationData);
@@ -55,10 +56,7 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const promise = customFunction(
-      operationData,
-      mockEventbus as any
-    ) as Promise<any>;
+    const promise = applyOperation<Promise<any>>(customFunction, operationData);
 
     // expect
     return promise.then(() => {

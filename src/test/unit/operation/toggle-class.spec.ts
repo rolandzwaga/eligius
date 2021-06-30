@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import { toggleClass } from '../../../operation/toggle-class';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  className: string;
-  toggleClass(className) {
+  className: string = '';
+  toggleClass(className: string) {
     this.className = className;
   }
 }
@@ -18,7 +19,7 @@ describe('toggleClass', () => {
     };
 
     // test
-    const newData = toggleClass(operationData, {} as any);
+    const newData = applyOperation(toggleClass, operationData);
 
     // expect
     expect((mockElement as any).className).to.equal(operationData.className);

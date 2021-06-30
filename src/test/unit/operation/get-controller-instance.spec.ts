@@ -1,17 +1,19 @@
 import { expect } from 'chai';
+import { IController } from '../../../controllers/types';
 import {
   getControllerInstance,
   IGetControllerInstanceOperationData,
 } from '../../../operation/get-controller-instance';
+import { applyOperation } from './apply-operation';
 
 class MockEventbus {
   controller: any;
-  eventName: string;
-  constructor(controller) {
+  eventName: string = '';
+  constructor(controller: IController<any>) {
     this.controller = controller;
   }
 
-  broadcast(_eventName, args) {
+  broadcast(_eventName: string, args: any[]) {
     this.eventName = args[0];
     args[1](this.controller);
   }
@@ -23,11 +25,14 @@ describe('getControllerInstance', () => {
     const operationData: IGetControllerInstanceOperationData = {
       systemName: 'LabelController',
     };
-    const controller = {};
+    const controller = {} as IController<any>;
     const eventbus = new MockEventbus(controller);
 
     // test
-    const newData: any = getControllerInstance(operationData, eventbus as any);
+    const newData = applyOperation<{ controllerInstance: IController<any> }>(
+      getControllerInstance,
+      operationData
+    );
 
     // expect
     expect(eventbus.eventName).to.equal('LabelController');
@@ -40,11 +45,14 @@ describe('getControllerInstance', () => {
       systemName: 'LabelController',
       propertyName: 'testProperty',
     };
-    const controller = {};
+    const controller = {} as IController<any>;
     const eventbus = new MockEventbus(controller);
 
     // test
-    const newData: any = getControllerInstance(operationData, eventbus as any);
+    const newData = applyOperation<{ testProperty: IController<any> }>(
+      getControllerInstance,
+      operationData
+    );
 
     // expect
     expect(eventbus.eventName).to.equal('LabelController');

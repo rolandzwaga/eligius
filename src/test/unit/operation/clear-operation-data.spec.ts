@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { clearOperationData } from '../../../operation/clear-operation-data';
+import { applyOperation } from './apply-operation';
 
 describe('clearOperationData', () => {
   it('should clear the given operation data', () => {
@@ -11,9 +12,9 @@ describe('clearOperationData', () => {
     };
 
     // test
-    const newOperationData: any = clearOperationData(
-      operationData as any,
-      {} as any
+    const newOperationData = applyOperation<typeof operationData>(
+      clearOperationData,
+      operationData
     );
 
     // expect
@@ -30,9 +31,9 @@ describe('clearOperationData', () => {
     };
 
     // test
-    const newOperationData: any = clearOperationData(
-      operationData as any,
-      {} as any
+    const newOperationData = applyOperation<typeof operationData>(
+      clearOperationData,
+      operationData
     );
 
     // expect

@@ -61,7 +61,7 @@ describe('Eventbus', () => {
     // given
     let called = 0;
     const interceptor = {
-      intercept: args => {
+      intercept: (args: number[]) => {
         called += args[0];
         return args;
       },
@@ -81,7 +81,7 @@ describe('Eventbus', () => {
     let called = 0;
     let topic = 'topic';
     const interceptor = {
-      intercept: args => {
+      intercept: (args: number[]) => {
         called += args[0];
         return args;
       },
@@ -102,7 +102,7 @@ describe('Eventbus', () => {
     let called2 = 0;
     let topic = 'topic';
     const interceptor = {
-      intercept: _args => {
+      intercept: (_args: unknown[]) => {
         return [10];
       },
     };
@@ -129,10 +129,10 @@ describe('Eventbus', () => {
 
   it('should register and call the specified eventlistener', () => {
     // given
-    let received = [];
+    let received:[string, string, any[]][] = [];
     const topic = 'topic';
     const listener = {
-      handleEvent: (eventName, eventTopic, args) => {
+      handleEvent: (eventName: string, eventTopic: string, args: any[]) => {
         received.push([eventName, eventTopic, args]);
       },
     };

@@ -35,7 +35,7 @@ export class ActionEditor<
     };
   }
 
-  getConfiguration(callBack: (config: T) => T) {
+  getConfiguration(callBack: (config: T) => T | undefined) {
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
@@ -73,7 +73,8 @@ export class ActionEditor<
 
   addStartOperation(
     systemName: string,
-    operationData: TOperationData
+    operationData: TOperationData,
+    id?: string
   ): OperationEditor<this> {
     if (!(operations as any)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
@@ -84,7 +85,7 @@ export class ActionEditor<
       : [];
 
     const newConfig = {
-      id: uuidv4(),
+      id: id ?? uuidv4(),
       systemName: systemName,
       operationData: operationData,
     };

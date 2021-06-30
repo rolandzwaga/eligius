@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { LabelController } from '../../../controllers/label-controller';
+import {
+  ILabelControllerMetadata,
+  LabelController,
+} from '../../../controllers/label-controller';
 import { Eventbus } from '../../../eventbus';
 import { TimelineEventNames } from '../../../timeline-event-names';
 class MockElement {
@@ -12,15 +15,16 @@ class MockElement {
 describe('LabelController', () => {
   let controller = new LabelController();
   let eventbus = new Eventbus();
-  let selectedElement = new MockElement();
-  let operationData = {};
+  let selectedElement: JQuery = (new MockElement() as unknown) as JQuery;
+  let operationData: ILabelControllerMetadata = ({} as unknown) as ILabelControllerMetadata;
 
   beforeEach(() => {
     controller = new LabelController();
     eventbus = new Eventbus();
-    selectedElement = new MockElement();
+    selectedElement = (new MockElement() as unknown) as JQuery;
     operationData = {
       selectedElement: selectedElement,
+      labelId: 'test',
     };
   });
 
@@ -72,6 +76,8 @@ describe('LabelController', () => {
     controller.attach(eventbus);
 
     // expect
-    expect(operationData.selectedElement.content).to.equal('hello');
+    expect(
+      ((operationData.selectedElement as unknown) as MockElement).content
+    ).to.equal('hello');
   });
 });

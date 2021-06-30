@@ -1,11 +1,14 @@
 import { expect } from 'chai';
+import { Eventbus } from '../../../eventbus';
+import { TOperation } from '../../../operation';
 import { addControllerToElement } from '../../../operation/add-controller-to-element';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  name: string;
-  list: any[];
+  name: string = '';
+  list: any[] = [];
 
-  data(name, list) {
+  data(name: string, list: any[]) {
     this.name = name;
     if (list) {
       this.list = list;
@@ -15,19 +18,19 @@ class MockElement {
 }
 
 class MockController {
-  returnPromise: Promise<any>;
-  initData: any;
-  eventbus: any;
+  returnPromise?: Promise<any>;
+  initData?: TOperation;
+  eventbus?: Eventbus;
 
-  constructor(returnPromise?: any) {
+  constructor(returnPromise?: Promise<any>) {
     this.returnPromise = returnPromise;
   }
 
-  init(initData) {
+  init(initData: TOperation) {
     this.initData = initData;
   }
 
-  attach(eventbus) {
+  attach(eventbus: Eventbus) {
     this.eventbus = eventbus;
     return this.returnPromise;
   }
@@ -40,10 +43,13 @@ describe('addControllerToElement', () => {
       selectedElement: new MockElement(),
       controllerInstance: new MockController(),
     };
-    const eventbus = {};
+    const eventbus = {} as any;
 
     // test
-    const data = addControllerToElement(operationData as any, eventbus as any);
+    const data = applyOperation(addControllerToElement, operationData, {
+      currentIndex: -1,
+      eventbus,
+    });
 
     // expect
     expect(data).to.equal(operationData);
@@ -63,10 +69,10 @@ describe('addControllerToElement', () => {
     };
 
     // test
-    const promiseResult = addControllerToElement(
-      operationData as any,
-      {} as any
-    ) as Promise<any>;
+    const promiseResult = applyOperation<Promise<any>>(
+      addControllerToElement,
+      operationData
+    );
 
     // expect
     return promiseResult.then(data => {

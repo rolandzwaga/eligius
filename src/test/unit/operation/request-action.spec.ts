@@ -1,13 +1,14 @@
 import { expect } from 'chai';
 import { requestAction } from '../../../operation/request-action';
 import { TimelineEventNames } from '../../../timeline-event-names';
+import { applyOperation } from './apply-operation';
 
 class MockEventbus {
   mockAction: any = {};
-  systemName: string;
-  eventName: string;
+  systemName: string = '';
+  eventName: string = '';
 
-  broadcast(eventName, args) {
+  broadcast(eventName: string, args: any[]) {
     this.systemName = args[0];
     this.eventName = eventName;
     args[1](this.mockAction);
@@ -23,7 +24,10 @@ describe('requestAction', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const newData: any = requestAction(operationData, eventbus as any);
+    const newData: any = applyOperation(requestAction, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+    });
 
     // expect
     expect(eventbus.systemName).to.equal(operationData.systemName);

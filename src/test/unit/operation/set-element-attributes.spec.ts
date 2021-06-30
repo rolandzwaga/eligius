@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import { setElementAttributes } from '../../../operation/set-element-attributes';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  names = [];
-  values = [];
+  names: string[] = [];
+  values: any[] = [];
 
-  attr(attrName, attrValue) {
+  attr(attrName: string, attrValue: any) {
     this.names.push(attrName);
     this.values.push(attrValue);
   }
@@ -24,7 +25,7 @@ describe('setElementAttributes', () => {
     };
 
     // test
-    setElementAttributes(operationData, {} as any);
+    applyOperation(setElementAttributes, operationData);
 
     // expect
     expect(mockElement.names).to.contain('testProp1');

@@ -1,12 +1,14 @@
 import { expect } from 'chai';
 import { startLoop } from '../../../operation/start-loop';
 import { IOperationContext } from '../../../operation/types';
+import { applyOperation } from './apply-operation';
 
 describe('startLoop', () => {
   it('should set the context when a valid collection is passed in', () => {
     // given
     const context: IOperationContext = {
       currentIndex: 10,
+      eventbus: {} as any,
     };
     const operationData = {
       collection: [1, 2, 3, 4],
@@ -14,7 +16,11 @@ describe('startLoop', () => {
     };
 
     // test
-    const result = startLoop.call(context, operationData);
+    const result = applyOperation<{ test: number }>(
+      startLoop,
+      operationData,
+      context
+    );
 
     // expect
     expect(context.loopIndex).to.equal(0);
@@ -27,6 +33,7 @@ describe('startLoop', () => {
     // given
     const context: IOperationContext = {
       currentIndex: 10,
+      eventbus: {} as any,
     };
     const operationData = {
       collection: [],
@@ -34,7 +41,11 @@ describe('startLoop', () => {
     };
 
     // test
-    const result = startLoop.call(context, operationData);
+    const result = applyOperation<{ test: number }>(
+      startLoop,
+      operationData,
+      context
+    );
 
     // expect
     expect(context.loopIndex).to.be.undefined;
@@ -48,6 +59,7 @@ describe('startLoop', () => {
     // given
     const context: IOperationContext = {
       currentIndex: 10,
+      eventbus: {} as any,
     };
     const operationData = {
       collection: null,
@@ -55,7 +67,11 @@ describe('startLoop', () => {
     };
 
     // test
-    const result = startLoop.call(context, operationData);
+    const result = applyOperation<{ test: number }>(
+      startLoop,
+      operationData,
+      context
+    );
 
     // expect
     expect(context.loopIndex).to.be.undefined;

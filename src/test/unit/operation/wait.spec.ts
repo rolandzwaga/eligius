@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { wait } from '../../../operation/wait';
+import { applyOperation } from './apply-operation';
 
 describe('wait', () => {
   const timeout = window.setTimeout;
@@ -7,7 +8,7 @@ describe('wait', () => {
 
   beforeAll(() => {
     mseconds = 0;
-    window.setTimeout = function(func, ms) {
+    window.setTimeout = function(func: Function, ms: number) {
       mseconds = ms;
       func();
     } as any;
@@ -24,7 +25,7 @@ describe('wait', () => {
     };
 
     // test
-    const promise = wait(operationData, {} as any) as Promise<any>;
+    const promise = applyOperation<Promise<any>>(wait, operationData);
 
     // expect
     promise.then(data => {

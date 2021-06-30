@@ -1,8 +1,11 @@
 import { expect } from 'chai';
+import { InspectOptions } from 'util';
+import { TOperationData } from '../../../operation';
 import { log } from '../../../operation/log';
+import { applyOperation } from './apply-operation';
 
 describe('log', () => {
-  let dirFunc: any;
+  let dirFunc: (obj: any, options?: InspectOptions) => void;
 
   beforeAll(() => {
     dirFunc = console.dir;
@@ -14,15 +17,15 @@ describe('log', () => {
 
   it('should log the context and operation data', () => {
     // given
-    const context = { context: true };
-    const operationData: any = { data: true };
+    const context = { currentIndex: -1, eventbus: {} as any };
+    const operationData: TOperationData = { data: true };
     const loggedLines: any[] = [];
     window.console.dir = (input: any) => {
       loggedLines.push(input);
     };
 
     // test
-    log.call(context, operationData, {} as any);
+    applyOperation(log, operationData, context);
 
     // expect
     expect(loggedLines[0]).to.eql({ context });

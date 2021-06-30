@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { clearElement } from '../../../operation/clear-element';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
   emptied = false;
@@ -17,9 +18,12 @@ describe('clearElement', () => {
     };
 
     // test
-    clearElement(operationData as any, {} as any);
+    const result = applyOperation<typeof operationData>(
+      clearElement,
+      operationData
+    );
 
     // expect
-    expect(operationData.selectedElement.emptied).to.be.true;
+    expect(result.selectedElement.emptied).to.be.true;
   });
 });

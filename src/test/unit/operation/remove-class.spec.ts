@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import { removeClass } from '../../../operation/remove-class';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  className: string;
+  removedClassName: string = '';
 
-  removeClass(className) {
-    this.className = className;
+  removeClass(className: string) {
+    this.removedClassName = className;
   }
 }
 
@@ -19,9 +20,9 @@ describe('removeClass', () => {
     };
 
     // test
-    removeClass(operationData, {} as any);
+    applyOperation(removeClass, operationData);
 
     // expect
-    expect(mockElement.className).to.equal(operationData.className);
+    expect(mockElement.removedClassName).to.equal(operationData.className);
   });
 });

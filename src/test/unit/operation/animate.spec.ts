@@ -1,13 +1,19 @@
 import { expect } from 'chai';
 import { animate } from '../../../operation/animate';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
   properties: any;
-  duration: number;
-  easing: string | Function;
-  callback: Function;
+  duration: number = -1;
+  easing: string | (() => void) = '';
+  callback: () => void = () => undefined;
 
-  animate(properties, duration, easing, callback) {
+  animate(
+    properties: any,
+    duration: number,
+    easing: string | (() => void),
+    callback: () => void
+  ) {
     this.properties = properties;
     this.duration = duration;
     if (typeof easing === 'string') {
@@ -34,7 +40,10 @@ describe('animate', () => {
     };
 
     // test
-    const data = await animate(operationData, {} as any);
+    const data = await applyOperation<Promise<typeof operationData>>(
+      animate,
+      operationData
+    );
 
     // expect
     expect(data.selectedElement).to.equal(operationData.selectedElement);
@@ -51,7 +60,10 @@ describe('animate', () => {
     };
 
     // test
-    const data = await animate(operationData, {} as any);
+    const data = await applyOperation<Promise<typeof operationData>>(
+      animate,
+      operationData
+    );
 
     // expect
     expect(data.selectedElement).to.equal(operationData.selectedElement);

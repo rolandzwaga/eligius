@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { setOperationData } from '../../../operation/set-operation-data';
+import { applyOperation } from './apply-operation';
 
 describe('setOperationData', () => {
   it('should set the specified operation data', () => {
@@ -15,7 +16,9 @@ describe('setOperationData', () => {
     };
 
     // test
-    const newData: any = setOperationData(operationData, {} as any);
+    const newData = applyOperation<
+      typeof operationData.properties & { unusedProperty: string }
+    >(setOperationData, operationData);
 
     // expect
     expect(newData.unusedProperty).to.equal('test');
@@ -38,7 +41,13 @@ describe('setOperationData', () => {
     };
 
     // test
-    const newData: any = setOperationData(operationData, {} as any);
+    const newData = applyOperation<
+      typeof operationData.properties & {
+        unusedProperty: string;
+        testProperty: string;
+        override: boolean;
+      }
+    >(setOperationData, operationData);
 
     // expect
     expect(newData.unusedProperty).to.be.undefined;

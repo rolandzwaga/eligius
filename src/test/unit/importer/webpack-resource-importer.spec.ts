@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { WebpackResourceImporter } from '../../../importer/webpack-resource-importer';
 
 describe('WebpackResourceImporter', () => {
-  let importer = null;
+  let importer: WebpackResourceImporter = new WebpackResourceImporter();
   const operations = [
     'addClass',
     'addControllerToElement',

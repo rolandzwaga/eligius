@@ -1,11 +1,12 @@
 import { expect } from 'chai';
 import { getElementDimensions } from '../../../operation/get-element-dimensions';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
   width: number;
   height: number;
 
-  constructor(width, height) {
+  constructor(width: number, height: number) {
     this.width = width;
     this.height = height;
   }
@@ -31,7 +32,9 @@ describe('getElementDimensions', () => {
     };
 
     // test
-    const newData: any = getElementDimensions(operationData, {} as any);
+    const newData = applyOperation<{
+      dimensions: { width: number; height: number };
+    }>(getElementDimensions, operationData);
 
     // expect
     expect(newData.dimensions.width).to.equal(100);
@@ -49,7 +52,9 @@ describe('getElementDimensions', () => {
     };
 
     // test
-    const newData: any = getElementDimensions(operationData, {} as any);
+    const newData = applyOperation<{
+      dimensions: { width: number; height: number };
+    }>(getElementDimensions, operationData);
 
     // expect
     expect(newData.dimensions.width).to.equal(100);
@@ -67,7 +72,9 @@ describe('getElementDimensions', () => {
     };
 
     // test
-    const newData: any = getElementDimensions(operationData, {} as any);
+    const newData = applyOperation<{
+      dimensions: { width: number; height: number };
+    }>(getElementDimensions, operationData);
 
     // expect
     expect(newData.dimensions.width).to.equal(200);

@@ -3,11 +3,11 @@ import { EventListenerController } from '../../../controllers/event-listener-con
 import { IEventbus } from '../../../eventbus';
 
 class MockAction {
-  actionName: string;
+  name: string;
   startOperationData: any;
   endOperationData: any;
   constructor(actionName: string) {
-    this.actionName = actionName;
+    this.name = actionName;
   }
 
   start(operationData: any) {
@@ -94,7 +94,7 @@ describe('EventListenerController', () => {
     controller.init(operationData);
 
     // test
-    controller.attach(eventbus as any);
+    controller.attach((eventbus as unknown) as IEventbus);
 
     // expect
     expect(controller.actionInstanceInfos?.length).to.equal(2);
@@ -138,12 +138,15 @@ describe('EventListenerController', () => {
       { targetValue: 'test' },
       controller.operationData?.actionOperationData
     );
+
     setTimeout(() => {
       expect(
-        controller.actionInstanceInfos?.[0].action.startOperationData
+        ((controller.actionInstanceInfos?.[0].action as unknown) as MockAction)
+          .startOperationData
       ).to.eql(expectedOperatonData);
       expect(
-        controller.actionInstanceInfos?.[1].action.startOperationData
+        ((controller.actionInstanceInfos?.[1].action as unknown) as MockAction)
+          .startOperationData
       ).to.eql(expectedOperatonData);
       done();
     }, 100);
@@ -166,14 +169,16 @@ describe('EventListenerController', () => {
     // expect
     const expectedOperatonData = Object.assign(
       { targetValue: 'testTextInput' },
-      controller.operationData.actionOperationData
+      controller.operationData?.actionOperationData
     );
     setTimeout(() => {
       expect(
-        controller.actionInstanceInfos[0].action.startOperationData
+        ((controller.actionInstanceInfos?.[0].action as unknown) as MockAction)
+          .startOperationData
       ).to.eql(expectedOperatonData);
       expect(
-        controller.actionInstanceInfos[1].action.startOperationData
+        ((controller.actionInstanceInfos?.[1].action as unknown) as MockAction)
+          .startOperationData
       ).to.eql(expectedOperatonData);
       done();
     }, 100);

@@ -4,26 +4,27 @@ import {
   ISelectElementOperationData,
   selectElement,
 } from '../../../operation/select-element';
+import { applyOperation } from './apply-operation';
 
 class MockEventbus {
   rootElement: any;
-  constructor(rootElement) {
+  constructor(rootElement: any) {
     this.rootElement = rootElement;
   }
 
-  broadcast(_eventName, args) {
+  broadcast(_eventName: string, args: any[]) {
     args[0](this.rootElement);
   }
 }
 
 class MockElement {
   selectedElement: any;
-  selector: string;
-  constructor(selectedElement) {
+  selector: string = '';
+  constructor(selectedElement: any) {
     this.selectedElement = selectedElement;
   }
 
-  find(selector) {
+  find(selector: string) {
     this.selector = selector;
     return this.selectedElement;
   }
@@ -42,7 +43,11 @@ describe('selectElement', () => {
     } as any) as ISelectElementOperationData;
 
     // test
-    const newData: any = selectElement(operationData, eventbus);
+    const newData = applyOperation<{ selectedElement: any }>(
+      selectElement,
+      operationData,
+      { currentIndex: -1, eventbus }
+    );
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
@@ -61,7 +66,10 @@ describe('selectElement', () => {
     } as any) as ISelectElementOperationData;
 
     // test
-    const newData: any = selectElement(operationData, {} as any);
+    const newData = applyOperation<{ selectedElement: any }>(
+      selectElement,
+      operationData
+    );
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
@@ -81,7 +89,10 @@ describe('selectElement', () => {
     };
 
     // test
-    const newData: any = selectElement(operationData, {} as any);
+    const newData = applyOperation<{ otherProperty: any }>(
+      selectElement,
+      operationData
+    );
 
     // expect
     expect(newData.otherProperty).to.equal(selectedElement);

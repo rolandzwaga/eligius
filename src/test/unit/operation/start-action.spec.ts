@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import { IAction } from '../../../action/types';
+import { TOperationData } from '../../../operation';
 import { startAction } from '../../../operation/start-action';
+import { applyOperation } from './apply-operation';
 
 class MockAction {
-  start(operationData) {
+  start(operationData: TOperationData) {
     return new Promise(resolve => {
       operationData.resolved = true;
       resolve(operationData);
@@ -25,7 +27,7 @@ describe('startAction', () => {
     };
 
     // test
-    const promise = startAction(operationData, {} as any) as Promise<any>;
+    const promise = applyOperation<Promise<any>>(startAction, operationData);
 
     // expect
     promise.then(result => {

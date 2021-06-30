@@ -3,21 +3,22 @@ import {
   ISetElementContentOperationData,
   setElementContent,
 } from '../../../operation/set-element-content';
+import { applyOperation } from './apply-operation';
 
 class MockElement {
-  htmlContent: string;
-  appendContent: string;
-  prependContent: string;
+  htmlContent: string = '';
+  appendContent: string = '';
+  prependContent: string = '';
 
-  html(content) {
+  html(content: string) {
     this.htmlContent = content;
   }
 
-  append(content) {
+  append(content: string) {
     this.appendContent = content;
   }
 
-  prepend(content) {
+  prepend(content: string) {
     this.prependContent = content;
   }
 }
@@ -32,7 +33,7 @@ describe('setElementContent', () => {
     };
 
     // test
-    setElementContent(operationData, {} as any);
+    applyOperation(setElementContent, operationData);
 
     // expect
     expect(mockElement.htmlContent).to.equal(operationData.template);
@@ -48,7 +49,7 @@ describe('setElementContent', () => {
     };
 
     // test
-    setElementContent(operationData, {} as any);
+    applyOperation(setElementContent, operationData);
 
     // expect
     expect(mockElement.appendContent).to.equal(operationData.template);
@@ -64,7 +65,7 @@ describe('setElementContent', () => {
     };
 
     // test
-    setElementContent(operationData, {} as any);
+    applyOperation(setElementContent, operationData);
 
     // expect
     expect(mockElement.prependContent).to.equal(operationData.template);

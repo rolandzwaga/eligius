@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { IController } from '../../../controllers/types';
 import { extendController } from '../../../operation/extend-controller';
+import { applyOperation } from './apply-operation';
 
 describe('extendController', () => {
   it('should extend the given controller', () => {
@@ -15,7 +16,9 @@ describe('extendController', () => {
     };
 
     // test
-    const newData: any = extendController(operationData, {} as any);
+    const newData = applyOperation<{
+      controllerInstance: { prop1: string; prop2: string };
+    }>(extendController, operationData);
 
     // expect
     expect(newData.controllerInstance.prop1).to.equal('prop1');
