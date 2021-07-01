@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import { attachControllerToElement } from '../../../../operation/helper/attach-controller-to-element';
 
 class MockElement {
-  name: string;
+  name: string = '';
   list: any;
-  data(name, list) {
+  data(name: string, list: any[]) {
     this.name = name;
     if (list) {
       this.list = list;

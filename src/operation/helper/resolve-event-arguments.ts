@@ -3,7 +3,7 @@ import { extractOperationDataArgumentValues } from './extract-operation-data-arg
 
 export function resolveEventArguments(
   operationData: TOperationData,
-  eventArgs: any[]
+  eventArgs?: any[]
 ) {
   if (!eventArgs) {
     return;

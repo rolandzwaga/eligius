@@ -6,9 +6,13 @@ import {
 } from '../../../../configuration/api/action-editor';
 import { ConfigurationFactory } from '../../../../configuration/api/configuration-factory';
 import { TimelineProvidersSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor';
+import {
+  IActionConfiguration,
+  ITimelineActionConfiguration,
+} from '../../../../configuration/types';
 
 describe('ConfigurationFactory', () => {
-  let configurationFactory;
+  let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
 
   beforeEach(() => {
     configurationFactory = new ConfigurationFactory();
@@ -85,7 +89,7 @@ describe('ConfigurationFactory', () => {
   it('addAction should add the specified action', () => {
     // given
     configurationFactory.init('nl-NL');
-    const action = {};
+    const action = {} as IActionConfiguration;
 
     // test
     configurationFactory.addAction(action);
@@ -99,7 +103,7 @@ describe('ConfigurationFactory', () => {
   it('addInitAction should add the specified initAction', () => {
     // given
     configurationFactory.init('nl-NL');
-    const action = {};
+    const action = {} as IActionConfiguration;
 
     // test
     configurationFactory.addInitAction(action);
@@ -113,15 +117,15 @@ describe('ConfigurationFactory', () => {
   it('addEventAction should add the specified eventAction', () => {
     // given
     configurationFactory.init('nl-NL');
-    const action = {};
+    const action = {} as IActionConfiguration;
 
     // test
     configurationFactory.addEventAction(action);
 
     // expect
     const { configuration } = configurationFactory;
-    expect(configuration.eventActions.length).to.equal(1);
-    expect(configuration.eventActions[0]).to.equal(action);
+    expect(configuration.eventActions?.length).to.equal(1);
+    expect(configuration.eventActions?.[0]).to.equal(action);
   });
 
   it('addTimelineAction should throw error when timeline is not found for given uri', () => {
@@ -131,7 +135,10 @@ describe('ConfigurationFactory', () => {
 
     // test
     try {
-      configurationFactory.addTimelineAction('test');
+      configurationFactory.addTimelineAction(
+        'test',
+        {} as ITimelineActionConfiguration
+      );
     } catch (e) {
       errorMessage = e.message;
     }
@@ -156,14 +163,14 @@ describe('ConfigurationFactory', () => {
     // expect
     const timeline = configurationFactory.getTimeline('test');
     expect(timeline).not.to.be.null;
-    expect(timeline.uri).to.equal('test');
-    expect(timeline.type).to.equal('animation');
-    expect(timeline.duration).to.equal(100);
-    expect(timeline.loop).to.be.false;
-    expect(timeline.selector).to.equal('selector');
+    expect(timeline?.uri).to.equal('test');
+    expect(timeline?.type).to.equal('animation');
+    expect(timeline?.duration).to.equal(100);
+    expect(timeline?.loop).to.be.false;
+    expect(timeline?.selector).to.equal('selector');
   });
 
-  it('addTimeline should throw an error when a timeline with the given uri alreayd exists', () => {
+  it('addTimeline should throw an error when a timeline with the given uri already exists', () => {
     // given
     configurationFactory.init('nl-NL');
     configurationFactory.addTimeline(
@@ -205,12 +212,15 @@ describe('ConfigurationFactory', () => {
     const action = {};
 
     // test
-    configurationFactory.addTimelineAction('test', action);
+    configurationFactory.addTimelineAction(
+      'test',
+      action as ITimelineActionConfiguration
+    );
 
     // expect
     const timeline = configurationFactory.getTimeline('test');
-    expect(timeline.timelineActions.length).to.equal(1);
-    expect(timeline.timelineActions[0]).to.equal(action);
+    expect(timeline?.timelineActions.length).to.equal(1);
+    expect(timeline?.timelineActions[0]).to.equal(action);
   });
 
   it('removeTimeline should remove the timeline for the given uri', () => {
@@ -300,8 +310,8 @@ describe('ConfigurationFactory', () => {
 
     // expect
     const { configuration } = configurationFactory;
-    expect(configuration.eventActions.length).to.equal(1);
-    expect(configuration.eventActions[0].name).to.equal('TestEventAction');
+    expect(configuration.eventActions?.length).to.equal(1);
+    expect(configuration.eventActions?.[0].name).to.equal('TestEventAction');
     expect(creator).not.to.be.null;
   });
 
@@ -325,8 +335,8 @@ describe('ConfigurationFactory', () => {
     // expect
     const timeline = configurationFactory.getTimeline('test');
 
-    expect(timeline.timelineActions.length).to.equal(1);
-    expect(timeline.timelineActions[0].name).to.equal('TestTimelineAction');
+    expect(timeline?.timelineActions.length).to.equal(1);
+    expect(timeline?.timelineActions[0].name).to.equal('TestTimelineAction');
     expect(creator).not.to.be.null;
   });
 

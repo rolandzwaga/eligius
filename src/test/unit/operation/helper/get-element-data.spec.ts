@@ -5,8 +5,8 @@ import {
 } from '../../../../operation/helper/get-element-data';
 
 class MockElement {
-  name: string;
-  data(name) {
+  name: string = '';
+  data(name: string) {
     this.name = name;
   }
 }

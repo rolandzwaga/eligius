@@ -1,16 +1,18 @@
 import { expect } from 'chai';
+import { ConfigurationFactory } from '../../../../configuration/api';
 import {
   EndableActionEditor,
   OperationEditor,
 } from '../../../../configuration/api/action-editor';
+import { IEndableActionConfiguration } from '../../../../configuration/types';
 
 describe('EndableActionEditor', () => {
-  let endableActionEditor = null;
-  let configurationFactory = null;
-  let actionConfig = null;
+  let endableActionEditor: EndableActionEditor = {} as EndableActionEditor;
+  let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
+  let actionConfig: IEndableActionConfiguration = {} as IEndableActionConfiguration;
 
   beforeEach(() => {
-    configurationFactory = {};
+    configurationFactory = {} as ConfigurationFactory;
     actionConfig = {
       id: '111-222-333',
       name: 'name',
@@ -18,6 +20,7 @@ describe('EndableActionEditor', () => {
       endOperations: [
         {
           id: 'test',
+          systemName: 'test',
           operationData: {},
         },
       ],
@@ -58,6 +61,9 @@ describe('EndableActionEditor', () => {
     endableActionEditor.removeEndOperation('test');
 
     // expect
-    expect(endableActionEditor.actionConfig.endOperations.length).to.equal(0);
+    endableActionEditor.getConfiguration(config => {
+      expect(config.endOperations.length).to.equal(0);
+      return undefined;
+    });
   });
 });

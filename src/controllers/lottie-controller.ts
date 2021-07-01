@@ -46,12 +46,15 @@ export class LottieController
       viewBox: operationData.viewBox,
       iefallback: operationData.iefallback,
     };
+
     if (operationData.url.indexOf('[') > -1) {
       this.parseFilename(operationData.url);
     }
+
     this.serializedData = this.operationData.json
       ? JSON.stringify(this.operationData.json)
       : JSON.stringify(this.operationData.animationData);
+
     if (this.operationData.iefallback) {
       this.serializedIEData = JSON.stringify(this.operationData.iefallback);
     }
@@ -62,7 +65,9 @@ export class LottieController
       name.indexOf('[') + 1,
       name.indexOf(']') - name.indexOf('[') - 1
     );
+
     const settings = params.split(',');
+
     settings.forEach(setting => {
       const values = setting.split('=');
       if (values[0] === 'freeze') {

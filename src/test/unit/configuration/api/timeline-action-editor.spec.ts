@@ -1,20 +1,24 @@
 import { expect } from 'chai';
+import { ConfigurationFactory } from '../../../../configuration/api';
 import { TimelineActionEditor } from '../../../../configuration/api/action-editor';
+import { ITimelineActionConfiguration } from '../../../../configuration/types';
 
 describe('TimelineActionEditor.', () => {
-  let timelineActionEditor = null;
-  let configurationFactory = null;
-  let actionConfig = null;
+  let timelineActionEditor: TimelineActionEditor = {} as TimelineActionEditor;
+  let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
+  let actionConfig: ITimelineActionConfiguration = {} as ITimelineActionConfiguration;
 
   beforeEach(() => {
-    configurationFactory = {};
+    configurationFactory = {} as ConfigurationFactory;
     actionConfig = {
       id: '111-222-333',
+      duration: { start: 10, end: 15 },
       name: 'name',
       startOperations: [],
       endOperations: [
         {
           id: 'test',
+          systemName: 'test',
           operationData: {},
         },
       ],
@@ -32,6 +36,7 @@ describe('TimelineActionEditor.', () => {
     timelineActionEditor.setDuration(12, 40).getConfiguration(config => {
       expect(config.duration.start).to.equal(12);
       expect(config.duration.end).to.equal(40);
+      return undefined;
     });
   });
 
@@ -42,6 +47,7 @@ describe('TimelineActionEditor.', () => {
     timelineActionEditor.setDuration(12).getConfiguration(config => {
       expect(config.duration.start).to.equal(12);
       expect(config.duration.hasOwnProperty('end')).to.be.false;
+      return undefined;
     });
   });
 

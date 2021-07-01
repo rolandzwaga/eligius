@@ -1,28 +1,32 @@
 import { expect } from 'chai';
+import { IEventbus } from '../../eventbus';
 import { LanguageManager } from '../../language-manager';
+import { ILanguageLabel } from '../../types';
 
 describe('LanguageManager', () => {
-  let eventbus = null;
+  let eventbus: IEventbus = {} as IEventbus;
   let language = 'nl-NL';
-  let labels = [];
+  let labels: ILanguageLabel[] = [];
+  let subscriptions: any = [];
 
-  function createEventbusStub() {
+  function createEventbusStub(): IEventbus {
+    subscriptions = [];
     return {
-      on: (_name, _handler) => {},
-      broadcast: (_name, _args) => {},
-    };
+      on: (name: string, handler: () => void) => {
+        subscriptions.push({ name, handler });
+      },
+      broadcast: (_name: string, _args: any[]) => {},
+    } as IEventbus;
   }
 
   beforeEach(() => {
     eventbus = createEventbusStub();
   });
 
-  it('should create an instance and set correct init properties', () => {
+  it('should create an instance and add the needed event listeners', () => {
     const languageManager = new LanguageManager(language, labels, eventbus);
-    expect(languageManager).to.be.not.null;
-    //expect(languageManager._currentLanguage).to.equal(language);
-    //expect(languageManager._eventbusListeners).to.not.equal(null);
-    //expect(languageManager._eventbusListeners.length).to.equal(4);
+    expect(languageManager).to.be.not.undefined;
+    expect(subscriptions.length).to.equal(4);
   });
 
   /*it('should return the current language', () => {

@@ -7,7 +7,7 @@ describe('resolveEventArguments', () => {
     const operationData = {};
 
     // test
-    const resolved = resolveEventArguments(operationData, null);
+    const resolved = resolveEventArguments(operationData);
 
     // expect
     expect(resolved).to.be.undefined;
@@ -26,7 +26,7 @@ describe('resolveEventArguments', () => {
     const resolved = resolveEventArguments(operationData, eventArgs);
 
     // expect
-    expect(resolved.length).to.equal(1);
-    expect(resolved[0]).to.equal('test');
+    expect(resolved?.length).to.equal(1);
+    expect(resolved?.[0]).to.equal('test');
   });
 });

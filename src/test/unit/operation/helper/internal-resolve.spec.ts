@@ -4,8 +4,8 @@ import { internalResolve } from '../../../../operation/helper/internal-resolve';
 describe('internalResolve', () => {
   it('it should call the given resolve with the given operationdata', () => {
     // given
-    let receivedData = null;
-    const resolve = data => {
+    let receivedData: any = null;
+    const resolve = (data: any) => {
       receivedData = data;
     };
     const operationData = {};
@@ -19,8 +19,8 @@ describe('internalResolve', () => {
 
   it('it should call the given resolve with the merged operationdatas', () => {
     // given
-    let receivedData = null;
-    const resolve = data => {
+    let receivedData: any = null;
+    const resolve = (data: any) => {
       receivedData = data;
     };
     const operationData = {

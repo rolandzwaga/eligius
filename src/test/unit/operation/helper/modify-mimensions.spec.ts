@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import { modifyDimensions } from '../../../../operation/helper/modify-dimensions';
+import { IDimensions } from '../../../../types';
 
 describe('modifyDimensions', () => {
   // given
-  let dimensions;
+  let dimensions: IDimensions;
 
   beforeEach(() => {
     dimensions = {
