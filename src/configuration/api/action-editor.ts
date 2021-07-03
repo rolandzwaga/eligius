@@ -1,3 +1,4 @@
+import { isDefined } from 'ts-is-present';
 import { v4 as uuidv4 } from 'uuid';
 import * as operations from '../../operation';
 import { deepCopy } from '../../operation/helper/deep-copy';
@@ -109,7 +110,7 @@ export class ActionEditor<
     const { startOperations } = this.actionConfig;
     const operation = startOperations.find(o => o.id === id);
 
-    if (operation) {
+    if (isDefined(operation)) {
       return new OperationEditor<ActionEditor<T>>(operation, this);
     }
 
