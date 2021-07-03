@@ -1,55 +1,14 @@
 import { expect } from 'chai';
+import * as controllerImports from '../../../controllers';
 import { WebpackResourceImporter } from '../../../importer/webpack-resource-importer';
+import * as operationImports from '../../../operation';
+import * as providerImports from '../../../timelineproviders';
 
 describe('WebpackResourceImporter', () => {
   let importer: WebpackResourceImporter = new WebpackResourceImporter();
-  const operations = [
-    'addClass',
-    'addControllerToElement',
-    'addOptionList',
-    'animate',
-    'animateWithClass',
-    'broadcastEvent',
-    'clearElement',
-    'clearOperationData',
-    'createElement',
-    'customFunction',
-    'endAction',
-    'endLoop',
-    'extendController',
-    'getControllerFromElement',
-    'getControllerInstance',
-    'getElementDimensions',
-    'getImport',
-    'loadJSON',
-    'log',
-    'removeClass',
-    'removeControllerFromElement',
-    'removeElement',
-    'removePropertiesFromOperationData',
-    'reparentElement',
-    'requestAction',
-    'resizeAction',
-    'selectElement',
-    'setElementAttributes',
-    'setElementContent',
-    'setOperationData',
-    'setStyle',
-    'startAction',
-    'startLoop',
-    'toggleClass',
-    'toggleElement',
-    'wait',
-  ];
-  const controllers = [
-    'EventListenerController',
-    'LabelController',
-    'LottieController',
-    'NavigationController',
-    'ProgressbarController',
-    'RoutingController',
-    'SubtitlesController',
-  ];
+  const operationImportNames = Object.keys(operationImports);
+  const controllerImportNames = Object.keys(controllerImports);
+  const providerImportNames = Object.keys(providerImports);
 
   beforeEach(() => {
     importer = new WebpackResourceImporter();
@@ -60,7 +19,7 @@ describe('WebpackResourceImporter', () => {
     expect(operationNames).to.not.be.null;
     expect(operationNames.length).to.not.equal(0);
     operationNames.forEach(name => {
-      expect(operations).to.contain(name);
+      expect(operationImportNames).to.contain(name);
     });
   });
 
@@ -69,12 +28,12 @@ describe('WebpackResourceImporter', () => {
     expect(controllerNames).to.not.be.null;
     expect(controllerNames.length).to.not.equal(0);
     controllerNames.forEach(name => {
-      expect(controllers).to.contain(name);
+      expect(controllerImportNames).to.contain(name);
     });
   });
 
   it('should return all known operations', () => {
-    operations.forEach(op => {
+    operationImportNames.forEach(op => {
       const imported = importer.import(op);
       expect(imported).to.not.equal(null);
       expect(imported[op]).to.not.equal(null);
@@ -82,23 +41,18 @@ describe('WebpackResourceImporter', () => {
   });
 
   it('should return all known controllers', () => {
-    controllers.forEach(op => {
-      const imported = importer.import(op);
+    controllerImportNames.forEach(ctrl => {
+      const imported = importer.import(ctrl);
       expect(imported).to.not.equal(null);
-      expect(imported[op]).to.not.equal(null);
+      expect(imported[ctrl]).to.not.equal(null);
     });
   });
 
   it('should return all known timeline providers', () => {
-    const providers = [
-      'JwPlayerTimelineProvider',
-      /*'MediaElementTimelineProvider',*/ 'RequestAnimationFrameTimelineProvider',
-    ];
-
-    providers.forEach(op => {
-      const imported = importer.import(op);
+    providerImportNames.forEach(provdr => {
+      const imported = importer.import(provdr);
       expect(imported).to.not.be.null;
-      expect(imported[op]).to.not.be.null;
+      expect(imported[provdr]).to.not.be.null;
     });
   });
 });

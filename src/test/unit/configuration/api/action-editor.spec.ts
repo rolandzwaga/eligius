@@ -25,7 +25,7 @@ describe('ActionEditor', () => {
     // expect
     let config = {};
     actionEditor.getConfiguration(cf => (config = cf));
-    expect(config).is.equal(actionConfig);
+    expect(config).is.eql(actionConfig);
   });
 
   it('should set the name', () => {
@@ -40,7 +40,7 @@ describe('ActionEditor', () => {
 
   it('should return an operation editor', () => {
     // given
-    actionEditor.addStartOperation('test', {}, 'test');
+    actionEditor.addStartOperation('addClass', {}, 'test');
 
     // test
     const editor = actionEditor.editStartOperation('test');
@@ -65,7 +65,7 @@ describe('ActionEditor', () => {
 
   it('should remove the operation with the given id', () => {
     // given
-    actionEditor.addStartOperation('test', {}, 'test');
+    actionEditor.addStartOperation('addClass', {}, 'test');
 
     // test
     actionEditor.removeStartOperation('test');
@@ -99,7 +99,9 @@ describe('ActionEditor', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.indexOf(op1)).to.equal(1);
+      expect(config.startOperations.findIndex(x => x.id === op1.id)).to.equal(
+        1
+      );
       return undefined;
     });
   });
@@ -126,7 +128,9 @@ describe('ActionEditor', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.indexOf(op2)).to.equal(0);
+      expect(config.startOperations.findIndex(x => x.id === op2.id)).to.equal(
+        0
+      );
       return undefined;
     });
   });
@@ -160,6 +164,9 @@ describe('ActionEditor', () => {
     actionEditor.getConfiguration(_c => config);
 
     // expect
-    expect(config).to.equal(actionEditor.next());
+    actionEditor.getConfiguration(cf => {
+      expect(config).to.eql(cf);
+      return undefined;
+    });
   });
 });

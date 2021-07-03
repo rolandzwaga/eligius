@@ -14,10 +14,10 @@ class MockAction {
 }
 
 describe('startAction', () => {
-  it('should start the specified action', () => {
+  it('should start the specified action', async done => {
     // given
 
-    const mockAction = (new MockAction() as any) as IAction;
+    const mockAction = (new MockAction() as unknown) as IAction;
 
     const operationData = {
       actionInstance: mockAction,
@@ -27,13 +27,14 @@ describe('startAction', () => {
     };
 
     // test
-    const promise = applyOperation<Promise<any>>(startAction, operationData);
+    const result = await applyOperation<Promise<any>>(
+      startAction,
+      operationData
+    );
 
     // expect
-    promise.then(result => {
-      expect(result.resolved).to.be.true;
-      expect(result.prop).to.equal('test');
-    });
-    return promise;
+    expect(result.resolved).to.be.true;
+    expect(result.prop).to.be.undefined;
+    done();
   });
 });

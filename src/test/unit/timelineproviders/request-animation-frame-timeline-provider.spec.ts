@@ -91,7 +91,6 @@ describe('RequestAnimationFrameTimelineProvider', () => {
 
     eventbus.on(TimelineEventNames.TIME, (position: number) => {
       recordedPositions.push(position);
-      console.dir(recordedPositions);
     });
 
     provider?.start();

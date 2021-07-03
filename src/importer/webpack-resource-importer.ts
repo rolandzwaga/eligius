@@ -1,4 +1,5 @@
-﻿import * as ctrls from '../controllers';
+﻿import { ChronoTriggerEngine } from '../chrono-trigger-engine';
+import * as ctrls from '../controllers';
 import * as evtb from '../eventbus';
 import * as ops from '../operation';
 import { TOperation } from '../operation/types';
@@ -11,6 +12,11 @@ const providers: Record<string, any> = prvdrs;
 const eventbus: Record<string, any> = evtb;
 
 export class WebpackResourceImporter implements IResourceImporter {
+  engines = new Map();
+  constructor() {
+    this.engines.set('ChronoTriggerEngine', ChronoTriggerEngine);
+  }
+
   getOperationNames(): string[] {
     return Object.keys(operations);
   }
@@ -28,7 +34,8 @@ export class WebpackResourceImporter implements IResourceImporter {
       operations[name] ??
       controllers[name] ??
       providers[name] ??
-      eventbus[name];
+      eventbus[name] ??
+      this.engines.get(name);
 
     return { [name]: value };
   }

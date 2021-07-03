@@ -12,6 +12,8 @@ import {
 } from '../types';
 import { ConfigurationFactory } from './configuration-factory';
 
+type TOperationName = keyof typeof operations;
+
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {
     new_index = 0;
@@ -65,14 +67,17 @@ export class ActionEditor<
     );
 
     if (entries) {
-      return this.addStartOperation(entries[0], operationData);
+      return this.addStartOperation(
+        entries[0] as TOperationName,
+        operationData
+      );
     }
 
     throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   addStartOperation(
-    systemName: string,
+    systemName: TOperationName,
     operationData: TOperationData,
     id?: string
   ): OperationEditor<this> {

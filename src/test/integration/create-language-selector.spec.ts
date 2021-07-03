@@ -107,13 +107,14 @@ describe('Create option list', () => {
     });
   });
 
-  afterEach(async () => {
-    await engine.destroy();
+  afterEach(async done => {
+    await engine?.destroy();
     eventbus.clear();
     $('[data-ct-container=true]').remove();
+    done();
   });
 
-  it('should create a selector and attach a change controller', async () => {
+  it('should create a selector and attach a change controller', async done => {
     let selectedLang = '';
     eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, languageCode => {
       selectedLang = languageCode;
@@ -133,8 +134,9 @@ describe('Create option list', () => {
         .val('en-GB')
         .trigger('change');
       expect(selectedLang).to.equal('en-GB');
+      done();
     } catch (e) {
-      throw e;
+      (done as any)(e);
     }
   });
 });

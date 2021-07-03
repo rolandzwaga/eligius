@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { IController } from '../../../controllers/types';
+import { IEventbus } from '../../../eventbus';
 import {
   getControllerInstance,
   IGetControllerInstanceOperationData,
@@ -31,7 +32,8 @@ describe('getControllerInstance', () => {
     // test
     const newData = applyOperation<{ controllerInstance: IController<any> }>(
       getControllerInstance,
-      operationData
+      operationData,
+      { currentIndex: -1, eventbus: (eventbus as unknown) as IEventbus }
     );
 
     // expect
@@ -51,7 +53,8 @@ describe('getControllerInstance', () => {
     // test
     const newData = applyOperation<{ testProperty: IController<any> }>(
       getControllerInstance,
-      operationData
+      operationData,
+      { currentIndex: -1, eventbus: (eventbus as unknown) as IEventbus }
     );
 
     // expect
