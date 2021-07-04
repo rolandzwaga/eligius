@@ -213,7 +213,7 @@ export class EndableActionEditor<
     const { endOperations } = this.actionConfig;
     const operationConfig = endOperations.find(o => o.id === id);
 
-    if (operationConfig) {
+    if (isDefined(operationConfig)) {
       return new OperationEditor<this>(operationConfig, this);
     }
 
