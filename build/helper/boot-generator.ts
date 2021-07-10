@@ -55,7 +55,7 @@ function _generateBootSource(
     'const engine = factory.createEngine((engineConfig as any) as IEngineConfiguration);'
   );
   lines.push(
-    "engine.init().then(()=> {console.log('chrono trigger engine ready for business');});"
+    "engine.init().then(()=> {console.log('Eligius engine ready for business');});"
   );
 
   return lines.join('\n');

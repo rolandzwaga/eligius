@@ -24,7 +24,7 @@ describe('getElementData', () => {
     expect(mockElement.name).to.equal(name);
   });
 
-  it('should retrieve the chronoEngineControllers data', () => {
+  it('should retrieve the eligiusEngineControllers data', () => {
     // given
     const mockElement = new MockElement();
 
@@ -32,6 +32,6 @@ describe('getElementData', () => {
     getElementControllers((mockElement as any) as JQuery);
 
     // expect
-    expect(mockElement.name).to.equal('chronoEngineControllers');
+    expect(mockElement.name).to.equal('eligiusEngineControllers');
   });
 });

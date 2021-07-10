@@ -1,5 +1,5 @@
 {
-  "version": "1.6.8",
+  "version": "1.7.0",
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -32,16 +32,16 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "name": "chronotrigger-js",
+  "name": "eligius",
   "author": "rolandzwaga",
-  "module": "dist/chronotrigger-js.esm.js",
+  "module": "dist/eligius-js.esm.js",
   "size-limit": [
     {
-      "path": "dist/chronotrigger-js.cjs.production.min.js",
+      "path": "dist/eligius-js.cjs.production.min.js",
       "limit": "150 KB"
     },
     {
-      "path": "dist/chronotrigger-js.esm.js",
+      "path": "dist/eligius-js.esm.js",
       "limit": "150 KB"
     }
   ],

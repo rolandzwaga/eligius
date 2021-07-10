@@ -12,12 +12,12 @@ import {
   setElementContent,
   startAction,
 } from '../../operation';
-import { IChronoTriggerEngine } from '../../types';
+import { IEligiusEngine } from '../../types';
 
 describe('Re-use actions to add pictures', () => {
   let configuration: IEngineConfiguration | null = null;
   let eventbus: Eventbus;
-  let engine: IChronoTriggerEngine;
+  let engine: IEligiusEngine;
 
   beforeEach(() => {
     eventbus = new Eventbus();

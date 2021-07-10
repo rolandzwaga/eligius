@@ -10,7 +10,7 @@ module.exports = (_env, params) => {
     entry: entryParam,
     output: {
       path: path.resolve(__dirname, '../', outputPath, 'dist'),
-      filename: 'chrono-trigger-bundle.js',
+      filename: 'eligius-bundle.js',
     },
     devtool: 'cheap-module-source-map',
     module: {

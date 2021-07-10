@@ -1,10 +1,10 @@
 export * from './action';
 export * from './action/types';
-export { ChronoTriggerEngine } from './chrono-trigger-engine';
 export { ConfigurationResolver } from './configuration/configuration-resolver';
 export * from './configuration/types';
 export * from './controllers';
 export * from './controllers/types';
+export { EligiusEngine } from './eligius-engine';
 export { EngineFactory } from './engine-factory';
 export * from './eventbus';
 export * from './eventbus/types';

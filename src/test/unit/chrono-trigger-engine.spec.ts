@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';
-import { ChronoTriggerEngine } from '../../chrono-trigger-engine';
+import { EligiusEngine } from '../../eligius-engine';
 
 class LanguageManagerStub {
   constructor(
@@ -11,7 +11,7 @@ class LanguageManagerStub {
   ) {}
 }
 
-describe('ChronoTriggerEngine', () => {
+describe('EligiusEngine', () => {
   let configuration: any;
   let eventbus: any;
   let providers: any;
@@ -42,7 +42,7 @@ describe('ChronoTriggerEngine', () => {
 
   it('should create an engine', () => {
     // test
-    const engine = new ChronoTriggerEngine(
+    const engine = new EligiusEngine(
       configuration,
       eventbus,
       providers,
@@ -57,7 +57,7 @@ describe('ChronoTriggerEngine', () => {
     // given
     setupLayoutInit();
 
-    const engine = new ChronoTriggerEngine(
+    const engine = new EligiusEngine(
       configuration,
       eventbus,
       providers,
@@ -73,7 +73,7 @@ describe('ChronoTriggerEngine', () => {
     // given
     configuration.containerSelector = '.test_does_not_exist';
     let error = null;
-    const engine = new ChronoTriggerEngine(
+    const engine = new EligiusEngine(
       configuration,
       eventbus,
       providers,
@@ -138,7 +138,7 @@ describe('ChronoTriggerEngine', () => {
       },
     };
 
-    const engine = new ChronoTriggerEngine(
+    const engine = new EligiusEngine(
       configuration,
       eventbus,
       providers,

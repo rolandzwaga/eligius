@@ -1,5 +1,5 @@
-﻿import { ChronoTriggerEngine } from '../chrono-trigger-engine';
-import * as ctrls from '../controllers';
+﻿import * as ctrls from '../controllers';
+import { EligiusEngine } from '../eligius-engine';
 import * as evtb from '../eventbus';
 import * as ops from '../operation';
 import { TOperation } from '../operation/types';
@@ -14,7 +14,7 @@ const eventbus: Record<string, any> = evtb;
 export class WebpackResourceImporter implements IResourceImporter {
   engines = new Map();
   constructor() {
-    this.engines.set('ChronoTriggerEngine', ChronoTriggerEngine);
+    this.engines.set('EligiusEngine', EligiusEngine);
   }
 
   getOperationNames(): string[] {

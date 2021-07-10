@@ -38,7 +38,7 @@ export class ConfigurationFactory {
     this.configuration = {
       id: uuidv4(),
       engine: {
-        systemName: 'ChronoTriggerEngine',
+        systemName: 'EligiusEngine',
       },
       containerSelector: '[data-ct-container=true]',
       timelineProviderSettings: {} as any,

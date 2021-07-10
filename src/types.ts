@@ -1,13 +1,19 @@
 import { IAction } from './action/types';
-import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
+import {
+  IEngineConfiguration,
+  IResolvedEngineConfiguration,
+} from './configuration/types';
 import { IEventbusListener } from './eventbus/types';
 import { ITimelineProvider } from './timelineproviders/types';
 
 export interface IEngineFactory {
-  createEngine(engineConfig: IEngineConfiguration, resolver?: IConfigurationResolver): IChronoTriggerEngine;
+  createEngine(
+    engineConfig: IEngineConfiguration,
+    resolver?: IConfigurationResolver
+  ): IEligiusEngine;
 }
 
-export interface IChronoTriggerEngine {
+export interface IEligiusEngine {
   init(): Promise<ITimelineProvider>;
   destroy(): void;
 }

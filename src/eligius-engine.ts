@@ -7,18 +7,18 @@ import { TOperation } from './operation/types';
 import { TimelineEventNames } from './timeline-event-names';
 import { ITimelineProvider } from './timelineproviders/types';
 import {
-  IChronoTriggerEngine,
+  IEligiusEngine,
   ITimelineProviderInfo,
   TimelineTypes,
   TResultCallback,
 } from './types';
 
 /**
- * ChronoTriggerEngine, this is where the magic happens. The engine is responsible for starting and stoppping
+ * EligiusEngine, this is where the magic happens. The engine is responsible for starting and stopping
  * the given timeline provider and triggering the actions associated with it.
  * ...
  */
-export class ChronoTriggerEngine implements IChronoTriggerEngine {
+export class EligiusEngine implements IEligiusEngine {
   private _timeLineActionsLookup: Record<string, any> = {};
   private _eventbusListeners: TEventHandlerRemover[] = [];
   private _currentTimelineUri: string = '';

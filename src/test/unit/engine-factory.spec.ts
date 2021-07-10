@@ -4,8 +4,8 @@ import { EngineFactory } from '../../engine-factory';
 
 class MockImporter {
   import(name: string) {
-    if (name === 'ChronoTriggerEngine') {
-      return { ChronoTriggerEngine: MockEngine };
+    if (name === 'EligiusEngine') {
+      return { EligiusEngine: MockEngine };
     } else if (name === 'MockTimelineProvider') {
       return { MockTimelineProvider: MockTimelineProvider };
     }
@@ -54,7 +54,7 @@ describe('EngineFactory', () => {
       layoutTemplate: 'layoutTemplate',
       availableLanguages: [],
       engine: {
-        systemName: 'ChronoTriggerEngine',
+        systemName: 'EligiusEngine',
       },
       actions: [],
       initActions: [],
@@ -63,7 +63,7 @@ describe('EngineFactory', () => {
           id: '1111',
           selector: '.test',
           poster: '',
-          vendor: 'chronotrigger',
+          vendor: 'eligius',
           systemName: 'MockTimelineProvider',
         },
       },

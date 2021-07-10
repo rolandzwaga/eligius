@@ -25,7 +25,7 @@ describe('ConfigurationFactory', () => {
     // expect
     const { configuration } = configurationFactory;
     expect(configuration.id).not.to.be.undefined;
-    expect(configuration.engine.systemName).to.equal('ChronoTriggerEngine');
+    expect(configuration.engine.systemName).to.equal('EligiusEngine');
     expect(configuration.containerSelector).to.equal(
       '[data-ct-container=true]'
     );

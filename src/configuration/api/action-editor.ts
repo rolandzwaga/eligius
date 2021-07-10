@@ -226,7 +226,7 @@ export class EndableActionEditor<
       : [];
     const operation = endOperations.find(o => o.id === id);
 
-    if (!operation) {
+    if (!isDefined(operation)) {
       throw new Error(`operation not found for id ${id}`);
     }
 
@@ -249,7 +249,7 @@ export class EndableActionEditor<
       : [];
     const operation = endOperations.find(o => o.id === id);
 
-    if (!operation) {
+    if (!isDefined(operation)) {
       throw new Error(`operation not found for id ${id}`);
     }
 
@@ -314,8 +314,8 @@ export class OperationEditor<T extends ActionEditor> {
     return this.operationConfig.systemName;
   }
 
-  setSystemName(systemName: string) {
-    if (!(operations as any)[systemName]) {
+  setSystemName(systemName: TOperationName) {
+    if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
 

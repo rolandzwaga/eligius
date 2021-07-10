@@ -1,6 +1,6 @@
 import { IController } from '../../controllers/types';
 
-const controllersName = 'chronoEngineControllers';
+const controllersName = 'eligiusEngineControllers';
 
 function getElementData(name: string, element: JQuery): IController<any>[] {
   return element.data(name);

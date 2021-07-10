@@ -64,7 +64,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
       displaytitle: false,
       displaydescription: false,
       nextUpDisplay: false,
-      abouttext: 'ChronoTriggerJS',
+      abouttext: 'Eligius',
       aboutlink: 'http://www.google.com',
       stretching: 'fill',
       repeat: false,

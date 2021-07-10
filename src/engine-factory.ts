@@ -15,8 +15,8 @@ import {
 import { LanguageManager } from './language-manager';
 import { TimelineEventNames } from './timeline-event-names';
 import {
-  IChronoTriggerEngine,
   IConfigurationResolver,
+  IEligiusEngine,
   IEngineFactory,
   ISimpleResourceImporter,
   ITimelineProviderInfo,
@@ -105,7 +105,7 @@ export class EngineFactory implements IEngineFactory {
   createEngine(
     configuration: IEngineConfiguration,
     resolver?: IConfigurationResolver
-  ): IChronoTriggerEngine {
+  ): IEligiusEngine {
     const { systemName } = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
@@ -142,7 +142,7 @@ export class EngineFactory implements IEngineFactory {
       this.eventbus
     );
 
-    const chronoTriggerEngine = new EngineClass(
+    const engineInstance = new EngineClass(
       resolvedConfiguration,
       this.eventbus,
       timelineProviders,
@@ -155,7 +155,7 @@ export class EngineFactory implements IEngineFactory {
       return false;
     });
 
-    return chronoTriggerEngine;
+    return engineInstance;
   }
 
   private _createTimelineProviders(

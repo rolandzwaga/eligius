@@ -4,7 +4,7 @@ import {
 } from './configuration/types';
 import { IEventbus } from './eventbus/types';
 
-export class ChronoTriggerFlowController {
+export class EligiusFlowController {
   timelineFlow?: ITimelineFlow;
 
   constructor(

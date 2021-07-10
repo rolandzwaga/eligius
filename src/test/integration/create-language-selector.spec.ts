@@ -18,12 +18,12 @@ import {
   startLoop,
 } from '../../operation';
 import { TimelineEventNames } from '../../timeline-event-names';
-import { IChronoTriggerEngine } from '../../types';
+import { IEligiusEngine } from '../../types';
 
 describe('Create option list', () => {
   let configuration: IEngineConfiguration | null = null;
   let eventbus: Eventbus;
-  let engine: IChronoTriggerEngine;
+  let engine: IEligiusEngine;
 
   beforeEach(() => {
     eventbus = new Eventbus();

@@ -1,11 +1,11 @@
 {
   "id": "6ac1a00a-2fcb-41de-9901-625a200e3612",
   "engine": {
-    "systemName": "ChronoTriggerEngine"
+    "systemName": "EligiusEngine"
   },
   "timelineProviderSettings": {
     "video": {
-      "vendor": "chronotrigger",
+      "vendor": "eligius",
       "systemName": "MediaElementTimelineProvider"
     }
   },
