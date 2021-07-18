@@ -20,7 +20,10 @@ import {
 } from './types';
 
 export class ConfigurationResolver implements IConfigurationResolver {
-  constructor(private importer: ISimpleResourceImporter, private eventbus: IEventbus) {}
+  constructor(
+    private importer: ISimpleResourceImporter,
+    private eventbus: IEventbus
+  ) {}
 
   process(
     configuration: IEngineConfiguration,
@@ -28,19 +31,39 @@ export class ConfigurationResolver implements IConfigurationResolver {
   ): [Record<string, IAction>, IResolvedEngineConfiguration] {
     resolvePlaceholders(configuration, configuration, this.importer);
 
+    if (!isDefined(configuration.timelineProviderSettings)) {
+      throw new Error(
+        'Configuration incomplete: it needs to have at least one timeline provider setting'
+      );
+    }
+
     const resolvedConfig: IResolvedEngineConfiguration = {
       id: configuration.id,
       engine: { ...configuration.engine },
-      timelineProviderSettings: deepCopy(configuration.timelineProviderSettings),
+      timelineProviderSettings: deepCopy(
+        configuration.timelineProviderSettings
+      ),
       containerSelector: configuration.containerSelector,
       language: configuration.language,
       layoutTemplate: configuration.layoutTemplate,
       availableLanguages: deepCopy(configuration.availableLanguages),
-      actions: resolveActions(configuration.actions, this.importer, this.eventbus),
-      initActions: resolveActions(configuration.initActions, this.importer, this.eventbus),
+      actions: resolveActions(
+        configuration.actions,
+        this.importer,
+        this.eventbus
+      ),
+      initActions: resolveActions(
+        configuration.initActions,
+        this.importer,
+        this.eventbus
+      ),
       labels: deepCopy(configuration.labels),
       timelineFlow: deepCopy(configuration.timelineFlow),
-      timelines: resolveTimelines(configuration.timelines, this.importer, this.eventbus),
+      timelines: resolveTimelines(
+        configuration.timelines,
+        this.importer,
+        this.eventbus
+      ),
     };
 
     let eventActions: IAction[] = [];
@@ -53,13 +76,15 @@ export class ConfigurationResolver implements IConfigurationResolver {
       );
     }
 
-    const actionsLookup = resolvedConfig.actions.concat(eventActions as any[]).reduce<Record<string, IAction>>(
-      (aggr, action) => ({
-        ...aggr,
-        [action.name]: action,
-      }),
-      {}
-    );
+    const actionsLookup = resolvedConfig.actions
+      .concat(eventActions as any[])
+      .reduce<Record<string, IAction>>(
+        (aggr, action) => ({
+          ...aggr,
+          [action.name]: action,
+        }),
+        {}
+      );
 
     return [actionsLookup, resolvedConfig];
   }
@@ -71,22 +96,32 @@ function resolveEventActions(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
-  const resolvedConfigs = eventActionConfigurations.map<IResolvedActionConfiguration>((config) => {
+  const resolvedConfigs = eventActionConfigurations.map<
+    IResolvedActionConfiguration
+  >(config => {
     return resolveActionConfiguration(config, importer);
   });
 
   return resolvedConfigs.map((config, index) => {
     const { eventName, eventTopic } = eventActionConfigurations[index];
-    const eventAction = new Action(config.name, config.startOperations, eventbus);
+    const eventAction = new Action(
+      config.name,
+      config.startOperations,
+      eventbus
+    );
     actionRegistryListener.registerAction(eventAction, eventName, eventTopic);
     return eventAction;
   });
 }
 
-function resolveTimelines(timelines: ITimelineConfiguration[], importer: ISimpleResourceImporter, eventbus: IEventbus) {
+function resolveTimelines(
+  timelines: ITimelineConfiguration[],
+  importer: ISimpleResourceImporter,
+  eventbus: IEventbus
+) {
   const resolve = resolveTimelineAction.bind(null, importer, eventbus);
 
-  return timelines.map<IResolvedTimelineConfiguration>((config) => ({
+  return timelines.map<IResolvedTimelineConfiguration>(config => ({
     ...config,
     timelineActions: config.timelineActions.map(resolve),
   }));
@@ -100,7 +135,9 @@ function resolveOperation(
     id: operationConfig.id,
     systemName: operationConfig.systemName,
     operationData: deepCopy(operationConfig.operationData),
-    instance: importer.import(operationConfig.systemName)[operationConfig.systemName],
+    instance: importer.import(operationConfig.systemName)[
+      operationConfig.systemName
+    ],
   };
 }
 
@@ -136,14 +173,23 @@ function resolveTimelineAction(
   eventbus: IEventbus,
   actionConfiguration: ITimelineActionConfiguration
 ) {
-  const resolvedConfig = resolveEndableActionConfiguration(actionConfiguration, importer);
+  const resolvedConfig = resolveEndableActionConfiguration(
+    actionConfiguration,
+    importer
+  );
   const duration = {
     end: actionConfiguration.duration.end ?? -1,
     start: actionConfiguration.duration.start,
   };
 
   const { id, name, endOperations, startOperations } = resolvedConfig;
-  const action = new TimelineAction(name, startOperations, endOperations, duration, eventbus);
+  const action = new TimelineAction(
+    name,
+    startOperations,
+    endOperations,
+    duration,
+    eventbus
+  );
   action.id = id;
   return action;
 }
@@ -153,35 +199,51 @@ function resolveActions(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
-  const resolvedConfigs = actionConfigurations.map<IResolvedEndableActionConfiguration>((config) => {
+  const resolvedConfigs = actionConfigurations.map<
+    IResolvedEndableActionConfiguration
+  >(config => {
     return resolveEndableActionConfiguration(config, importer);
   });
 
-  return resolvedConfigs.map<EndableAction>((resolvedConfig) => {
+  return resolvedConfigs.map<EndableAction>(resolvedConfig => {
     const { name, endOperations, startOperations } = resolvedConfig;
-    const action = new EndableAction(name, startOperations, endOperations, eventbus);
+    const action = new EndableAction(
+      name,
+      startOperations,
+      endOperations,
+      eventbus
+    );
     action.id = resolvedConfig.id;
     return action;
   });
 }
 
-function resolvePlaceholders(config: any, rootConfig: any, importer: ISimpleResourceImporter) {
+function resolvePlaceholders(
+  config: any,
+  rootConfig: any,
+  importer: ISimpleResourceImporter
+) {
   if (!isDefined(config)) {
     return;
   }
 
   if (Array.isArray(config)) {
-    config.forEach((item) => {
+    config.forEach(item => {
       resolvePlaceholders(item, rootConfig, importer);
     });
   } else {
-    Object.keys(config).forEach((key) => {
+    Object.keys(config).forEach(key => {
       resolvePlaceholder(key, config, rootConfig, importer);
     });
   }
 }
 
-function resolvePlaceholder(key: string, config: any, rootConfig: any, importer: ISimpleResourceImporter) {
+function resolvePlaceholder(
+  key: string,
+  config: any,
+  rootConfig: any,
+  importer: ISimpleResourceImporter
+) {
   const value = config[key];
   if (typeof value === 'string') {
     if (value.startsWith('config:')) {
@@ -206,11 +268,13 @@ interface IResolvedActionConfiguration {
   startOperations: IResolvedOperation[];
 }
 
-interface IResolvedEndableActionConfiguration extends IResolvedActionConfiguration {
+interface IResolvedEndableActionConfiguration
+  extends IResolvedActionConfiguration {
   endOperations: IResolvedOperation[];
 }
 
-interface IResolvedEventActionConfiguration extends IResolvedActionConfiguration {
+interface IResolvedEventActionConfiguration
+  extends IResolvedActionConfiguration {
   eventName: string;
   eventTopic?: string;
 }

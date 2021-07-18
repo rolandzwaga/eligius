@@ -71,7 +71,7 @@ export class ConfigurationFactory {
 
   editTimelineProviderSettings() {
     return new TimelineProvidersSettingsEditor(
-      this.configuration.timelineProviderSettings,
+      this.configuration.timelineProviderSettings || {},
       this
     );
   }

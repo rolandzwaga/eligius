@@ -13,7 +13,7 @@ export type TTimelineProviderSettings = Partial<
 export interface IEngineConfiguration {
   id: string;
   engine: IEngineInfo;
-  timelineProviderSettings: TTimelineProviderSettings;
+  timelineProviderSettings?: TTimelineProviderSettings;
   containerSelector: string;
   language: string;
   layoutTemplate: string;
@@ -46,9 +46,9 @@ export interface ITimelineFlow {}
 export interface ITimelineProviderSettings {
   id: string;
   vendor: string;
-  selector: string;
   systemName: string;
-  poster: string;
+  selector?: string;
+  poster?: string;
 }
 
 export interface IResolvedTimelineConfiguration {

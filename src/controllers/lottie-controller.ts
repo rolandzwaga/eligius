@@ -1,11 +1,17 @@
-import lottie, { AnimationItem } from 'lottie-web';
+import lottie, {
+  AnimationConfigWithData,
+  AnimationItem,
+  CanvasRendererConfig,
+  HTMLRendererConfig,
+  SVGRendererConfig,
+} from 'lottie-web';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
 export interface IInnerMetadata {
   selectedElement: JQuery;
-  renderer: 'svg' | 'canvas' | 'html';
+  renderer: SVGRendererConfig | CanvasRendererConfig | HTMLRendererConfig;
   loop: boolean;
   autoplay: boolean;
   animationData: any;
@@ -158,11 +164,11 @@ export class LottieController
     }
     const animationData = JSON.parse(serialized);
 
-    const animationSettings = {
+    const animationSettings: AnimationConfigWithData = {
       autoplay: this.operationData.autoplay,
       container: this.operationData.selectedElement[0],
       loop: this.operationData.loop,
-      renderer: this.operationData.renderer,
+      rendererSettings: this.operationData.renderer,
       animationData,
     };
 
