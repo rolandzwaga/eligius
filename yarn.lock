@@ -4112,6 +4112,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dom-walk@npm:^0.1.0":
+  version: 0.1.2
+  resolution: "dom-walk@npm:0.1.2"
+  checksum: 19eb0ce9c6de39d5e231530685248545d9cd2bd97b2cb3486e0bfc0f2a393a9addddfd5557463a932b52fdfcf68ad2a619020cd2c74a5fe46fbecaa8e80872f3
+  languageName: node
+  linkType: hard
+
 "domelementtype@npm:^2.0.1":
   version: 2.1.0
   resolution: "domelementtype@npm:2.1.0"
@@ -4212,6 +4219,9 @@ __metadata:
     html-webpack-plugin: 5.5.0
     husky: 7.0.4
     jest-canvas-mock: 2.3.1
+    jquery: 3.6.0
+    lottie-web: 5.8.1
+    mediaelement: 5.0.4
     mousetrap: 1.6.5
     sinon: 12.0.1
     size-limit: 7.0.5
@@ -4226,7 +4236,7 @@ __metadata:
     typescript: 4.5.5
     typescript-plugin-css-modules: 3.4.0
     uuid: 8.3.2
-    webpack: 5.67.0
+    webpack: 5.68.0
     webpack-cli: 4.9.2
   peerDependencies:
     jquery: 3.6.0
@@ -5565,6 +5575,16 @@ __metadata:
     once: ^1.3.0
     path-is-absolute: ^1.0.0
   checksum: 351d549dd90553b87c2d3f90ce11aed9e1093c74130440e7ae0592e11bbcd2ce7f0ebb8ba6bfe63aaf9b62166a7f4c80cb84490ae5d78408bb2572bf7d4ee0a6
+  languageName: node
+  linkType: hard
+
+"global@npm:^4.3.1":
+  version: 4.4.0
+  resolution: "global@npm:4.4.0"
+  dependencies:
+    min-document: ^2.19.0
+    process: ^0.11.10
+  checksum: 9c057557c8f5a5bcfbeb9378ba4fe2255d04679452be504608dd5f13b54edf79f7be1db1031ea06a4ec6edd3b9f5f17d2d172fb47e6c69dae57fd84b7e72b77f
   languageName: node
   linkType: hard
 
@@ -7016,6 +7036,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jquery@npm:3.6.0":
+  version: 3.6.0
+  resolution: "jquery@npm:3.6.0"
+  checksum: 8fd5fef4aa48fd374ec716dd1c1df1af407814a228e15c1260ca140de3a697c2a77c30c54ff1d238b6a3ab4ddc445ddeef9adce6c6d28e4869d85eb9d3951c0e
+  languageName: node
+  linkType: hard
+
 "js-tokens@npm:^3.0.0 || ^4.0.0, js-tokens@npm:^4.0.0":
   version: 4.0.0
   resolution: "js-tokens@npm:4.0.0"
@@ -7515,6 +7542,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"lottie-web@npm:5.8.1":
+  version: 5.8.1
+  resolution: "lottie-web@npm:5.8.1"
+  checksum: 48c19ea7863310150dc9e46855b0f85179f3768ac0c0cf4f3ffb18944819079d3046c31ca04f2748291f3c413a855329a12ce9c3faae056a1a869776b6ed12a9
+  languageName: node
+  linkType: hard
+
 "loupe@npm:^2.3.1":
   version: 2.3.1
   resolution: "loupe@npm:2.3.1"
@@ -7626,6 +7660,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mediaelement@npm:5.0.4":
+  version: 5.0.4
+  resolution: "mediaelement@npm:5.0.4"
+  dependencies:
+    global: ^4.3.1
+    svg4everybody: ^2.1.9
+  checksum: dd2b29b15abe8195cd0ef1f47b434727549579e6f5a0a35e40e460cf1753fcfed1ac11419bc21b6a6665b4a94fb83297bb478ff1366cdd74d45d076ea1c9bb00
+  languageName: node
+  linkType: hard
+
 "merge-stream@npm:^2.0.0":
   version: 2.0.0
   resolution: "merge-stream@npm:2.0.0"
@@ -7717,6 +7761,15 @@ __metadata:
   version: 2.1.0
   resolution: "mimic-fn@npm:2.1.0"
   checksum: d2421a3444848ce7f84bd49115ddacff29c15745db73f54041edc906c14b131a38d05298dae3081667627a59b2eb1ca4b436ff2e1b80f69679522410418b478a
+  languageName: node
+  linkType: hard
+
+"min-document@npm:^2.19.0":
+  version: 2.19.0
+  resolution: "min-document@npm:2.19.0"
+  dependencies:
+    dom-walk: ^0.1.0
+  checksum: da6437562ea2228041542a2384528e74e22d1daa1a4ec439c165abf0b9d8a63e17e3b8a6dc6e0c731845e85301198730426932a0e813d23f932ca668340c9623
   languageName: node
   linkType: hard
 
@@ -8815,6 +8868,13 @@ __metadata:
     ansi-styles: ^4.0.0
     react-is: ^16.12.0
   checksum: 76f022d2c911d9733a961467545f5aef2cae892da289fff92ba6a6868a10df4d8ef79794ff791e353f67f0edfa85765240f1e7d552e27c94029ae6af1c95174b
+  languageName: node
+  linkType: hard
+
+"process@npm:^0.11.10":
+  version: 0.11.10
+  resolution: "process@npm:0.11.10"
+  checksum: bfcce49814f7d172a6e6a14d5fa3ac92cc3d0c3b9feb1279774708a719e19acd673995226351a082a9ae99978254e320ccda4240ddc474ba31a76c79491ca7c3
   languageName: node
   linkType: hard
 
@@ -10351,6 +10411,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"svg4everybody@npm:^2.1.9":
+  version: 2.1.9
+  resolution: "svg4everybody@npm:2.1.9"
+  checksum: 11c4445517676d28fa46c3df63ee728575eb2261db1c1f36b04fcc8fb33b7f497bb0dcb37ed2a119820fb2f04f929b76f4b3a192a0ca197f08905dea31a13b06
+  languageName: node
+  linkType: hard
+
 "symbol-tree@npm:^3.2.2":
   version: 3.2.4
   resolution: "symbol-tree@npm:3.2.4"
@@ -11227,9 +11294,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:5.67.0":
-  version: 5.67.0
-  resolution: "webpack@npm:5.67.0"
+"webpack@npm:5.68.0":
+  version: 5.68.0
+  resolution: "webpack@npm:5.68.0"
   dependencies:
     "@types/eslint-scope": ^3.7.0
     "@types/estree": ^0.0.50
@@ -11260,7 +11327,7 @@ __metadata:
       optional: true
   bin:
     webpack: bin/webpack.js
-  checksum: a7f810a5e1d4d78b533ca0caf42fa889839326073cedd3ac8e59e5c4890ca864ab0265fa5b2608715746ff3e34cbfaf4f15d56a92bc3f717a2f5c13202d58b6c
+  checksum: ac6efd861a0bfb35d8a467fba0d87f905ef6e1a9a9f7e3db42ea459cf191268094cedd025d3eb36a1464e2208a0c193f3f4a92531ba58850246f3c6b8f210b03
   languageName: node
   linkType: hard
 
