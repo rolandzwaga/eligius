@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import $ from 'jquery';
 import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
@@ -101,22 +105,22 @@ describe('Create option list', () => {
       eventArgs: ['operationData.targetValue'],
     });
 
-    factory.getConfiguration(config => {
+    factory.getConfiguration((config) => {
       configuration = config;
       return undefined;
     });
   });
 
-  afterEach(async done => {
+  afterEach(async (done) => {
     await engine?.destroy();
     eventbus.clear();
     $('[data-ct-container=true]').remove();
     done();
   });
 
-  it('should create a selector and attach a change controller', async done => {
+  it('should create a selector and attach a change controller', async (done) => {
     let selectedLang = '';
-    eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, languageCode => {
+    eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode) => {
       selectedLang = languageCode;
     });
 
@@ -130,9 +134,7 @@ describe('Create option list', () => {
     try {
       const result = await engine.init();
       expect(result).to.not.be.undefined;
-      $('[data-language-selector=true]')
-        .val('en-GB')
-        .trigger('change');
+      $('[data-language-selector=true]').val('en-GB').trigger('change');
       expect(selectedLang).to.equal('en-GB');
       done();
     } catch (e) {

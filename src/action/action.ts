@@ -4,7 +4,7 @@ import { deepCopy } from '../operation/helper/deep-copy';
 import {
   IOperationContext,
   TOperationData,
-  TOperationResult,
+  TOperationResult
 } from '../operation/types';
 import { isPromise } from './is-promise';
 import { IAction } from './types';

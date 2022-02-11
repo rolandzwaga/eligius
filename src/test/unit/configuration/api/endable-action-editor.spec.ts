@@ -9,7 +9,8 @@ import { IEndableActionConfiguration } from '../../../../configuration/types';
 describe('EndableActionEditor', () => {
   let endableActionEditor: EndableActionEditor = {} as EndableActionEditor;
   let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
-  let actionConfig: IEndableActionConfiguration = {} as IEndableActionConfiguration;
+  let actionConfig: IEndableActionConfiguration =
+    {} as IEndableActionConfiguration;
 
   beforeEach(() => {
     configurationFactory = {} as ConfigurationFactory;
@@ -43,11 +44,11 @@ describe('EndableActionEditor', () => {
 
   it('should throw an operation not found error', () => {
     // given
-    let errorMessage = null;
+    let errorMessage: any = null;
     // test
     try {
       endableActionEditor.editEndOperation('test2');
-    } catch (e) {
+    } catch (e: any) {
       errorMessage = e.message;
     }
 
@@ -61,7 +62,7 @@ describe('EndableActionEditor', () => {
     endableActionEditor.removeEndOperation('test');
 
     // expect
-    endableActionEditor.getConfiguration(config => {
+    endableActionEditor.getConfiguration((config) => {
       expect(config.endOperations.length).to.equal(0);
       return undefined;
     });

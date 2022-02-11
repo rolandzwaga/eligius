@@ -106,5 +106,5 @@ export interface IResolvedOperation {
   id: string;
   systemName: string;
   operationData: TOperationData;
-  instance: TOperation;
+  instance: TOperation<any>;
 }

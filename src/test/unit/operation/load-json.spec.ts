@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import { clearCache, loadJSON } from '../../../operation/load-json';
 import { applyOperation } from './apply-operation';
@@ -5,7 +9,7 @@ import { applyOperation } from './apply-operation';
 let result: any = null;
 
 function getResult() {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     resolve(result);
   });
 }
@@ -15,8 +19,8 @@ describe('loadJSON', () => {
 
   beforeAll(() => {
     fetch = window.fetch;
-    window.fetch = function() {
-      return new Promise(resolve => {
+    window.fetch = function () {
+      return new Promise((resolve) => {
         resolve({
           json: getResult,
         } as any);

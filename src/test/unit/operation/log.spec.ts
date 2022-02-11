@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import { InspectOptions } from 'util';
 import { TOperationData } from '../../../operation';

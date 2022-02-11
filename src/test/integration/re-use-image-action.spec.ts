@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import $ from 'jquery';
 import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
@@ -74,17 +78,17 @@ describe('Re-use actions to add pictures', () => {
         },
       });
 
-    factory.getConfiguration(config => {
+    factory.getConfiguration((config) => {
       configuration = config;
       return undefined;
     });
   });
 
-  /*afterEach(async () => {
+  afterEach(async () => {
     await engine.destroy();
     eventbus.clear();
     $('[data-ct-container=true]').remove();
-  });*/
+  });
 
   it('should add the pictures to the current template', async () => {
     const engineFactory = new EngineFactory(

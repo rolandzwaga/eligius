@@ -1,5 +1,7 @@
 import { IEventbus } from '../eventbus';
 
+export type TOperationData = any;
+
 export type TOperationResult<T = TOperationData> = Promise<T> | T;
 
 export interface IOperationContext {
@@ -16,5 +18,3 @@ export type TOperation<T = TOperationData> = (
   this: IOperationContext,
   operationData: T
 ) => TOperationResult<T>;
-
-export type TOperationData = any;

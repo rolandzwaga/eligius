@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import { createElement } from '../../../operation/create-element';
 import { applyOperation } from './apply-operation';

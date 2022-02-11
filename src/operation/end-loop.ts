@@ -1,6 +1,9 @@
+import { TOperationData } from '.';
 import { TOperation } from './types';
 
-export const endLoop: TOperation<unknown> = function(operationData: unknown) {
+export const endLoop: TOperation<TOperationData> = function (
+  operationData: TOperationData
+) {
   const context = this;
 
   if (!context.skipNextOperation) {

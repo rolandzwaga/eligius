@@ -14,9 +14,8 @@ class MockAction {
 }
 
 describe('startAction', () => {
-  it('should start the specified action', async done => {
+  it('should start the specified action', async () => {
     // given
-
     const mockAction = (new MockAction() as unknown) as IAction;
 
     const operationData = {
@@ -35,6 +34,6 @@ describe('startAction', () => {
     // expect
     expect(result.resolved).to.be.true;
     expect(result.prop).to.be.undefined;
-    done();
+    return result;
   });
 });

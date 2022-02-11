@@ -131,7 +131,7 @@ describe('ConfigurationFactory', () => {
   it('addTimelineAction should throw error when timeline is not found for given uri', () => {
     // given
     configurationFactory.init('nl-NL');
-    let errorMessage = null;
+    let errorMessage: any = null;
 
     // test
     try {
@@ -139,7 +139,7 @@ describe('ConfigurationFactory', () => {
         'test',
         {} as ITimelineActionConfiguration
       );
-    } catch (e) {
+    } catch (e: any) {
       errorMessage = e.message;
     }
 
@@ -180,7 +180,7 @@ describe('ConfigurationFactory', () => {
       false,
       'selector'
     );
-    let errorMessage = null;
+    let errorMessage: any = null;
 
     // test
     try {
@@ -191,7 +191,7 @@ describe('ConfigurationFactory', () => {
         false,
         'selector'
       );
-    } catch (e) {
+    } catch (e: any) {
       errorMessage = e.message;
     }
 

@@ -6,7 +6,8 @@ import { ITimelineActionConfiguration } from '../../../../configuration/types';
 describe('TimelineActionEditor.', () => {
   let timelineActionEditor: TimelineActionEditor = {} as TimelineActionEditor;
   let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
-  let actionConfig: ITimelineActionConfiguration = {} as ITimelineActionConfiguration;
+  let actionConfig: ITimelineActionConfiguration =
+    {} as ITimelineActionConfiguration;
 
   beforeEach(() => {
     configurationFactory = {} as ConfigurationFactory;
@@ -33,7 +34,7 @@ describe('TimelineActionEditor.', () => {
     // given
 
     // test
-    timelineActionEditor.setDuration(12, 40).getConfiguration(config => {
+    timelineActionEditor.setDuration(12, 40).getConfiguration((config) => {
       expect(config.duration.start).to.equal(12);
       expect(config.duration.end).to.equal(40);
       return undefined;
@@ -44,7 +45,7 @@ describe('TimelineActionEditor.', () => {
     // given
 
     // test
-    timelineActionEditor.setDuration(12).getConfiguration(config => {
+    timelineActionEditor.setDuration(12).getConfiguration((config) => {
       expect(config.duration.start).to.equal(12);
       expect(config.duration.hasOwnProperty('end')).to.be.false;
       return undefined;
@@ -53,12 +54,12 @@ describe('TimelineActionEditor.', () => {
 
   it('should throw an error when start is higher than end', () => {
     // given
-    let errorMessage = null;
+    let errorMessage: any = null;
 
     // test
     try {
       timelineActionEditor.setDuration(12, 10);
-    } catch (e) {
+    } catch (e: any) {
       errorMessage = e.message;
     }
 

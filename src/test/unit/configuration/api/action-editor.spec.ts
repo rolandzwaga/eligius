@@ -7,12 +7,13 @@ import {
 import { IActionConfiguration } from '../../../../configuration/types';
 
 describe('ActionEditor', () => {
-  let actionEditor: ActionEditor = ({} as unknown) as ActionEditor;
-  let configurationFactory: ConfigurationFactory = ({} as unknown) as ConfigurationFactory;
+  let actionEditor: ActionEditor = {} as unknown as ActionEditor;
+  let configurationFactory: ConfigurationFactory =
+    {} as unknown as ConfigurationFactory;
   let actionConfig: any;
 
   beforeEach(() => {
-    configurationFactory = ({} as unknown) as ConfigurationFactory;
+    configurationFactory = {} as unknown as ConfigurationFactory;
     actionConfig = {
       id: '111-222-333',
       name: 'name',
@@ -24,7 +25,7 @@ describe('ActionEditor', () => {
   it('should initialize properly', () => {
     // expect
     let config = {};
-    actionEditor.getConfiguration(cf => (config = cf));
+    actionEditor.getConfiguration((cf) => (config = cf));
     expect(config).is.eql(actionConfig);
   });
 
@@ -51,11 +52,11 @@ describe('ActionEditor', () => {
 
   it('should throw an operation not found error', () => {
     // given
-    let errorMessage = null;
+    let errorMessage: any = null;
     // test
     try {
       actionEditor.editStartOperation('test');
-    } catch (e) {
+    } catch (e: any) {
       errorMessage = e.message;
     }
 
@@ -71,7 +72,7 @@ describe('ActionEditor', () => {
     actionEditor.removeStartOperation('test');
 
     // expect
-    actionEditor.getConfiguration(config => {
+    actionEditor.getConfiguration((config) => {
       expect(config.startOperations.length).to.equal(0);
       return undefined;
     });
@@ -89,7 +90,7 @@ describe('ActionEditor', () => {
       systemName: 'test2',
       operationData: {},
     };
-    actionEditor.getConfiguration(config => {
+    actionEditor.getConfiguration((config) => {
       config.startOperations.push(op1, op2);
       return config;
     });
@@ -98,8 +99,8 @@ describe('ActionEditor', () => {
     actionEditor.moveStartOperation('test', 'up');
 
     // expect
-    actionEditor.getConfiguration(config => {
-      expect(config.startOperations.findIndex(x => x.id === op1.id)).to.equal(
+    actionEditor.getConfiguration((config) => {
+      expect(config.startOperations.findIndex((x) => x.id === op1.id)).to.equal(
         1
       );
       return undefined;
@@ -118,7 +119,7 @@ describe('ActionEditor', () => {
       systemName: 'test2',
       operationData: {},
     };
-    actionEditor.getConfiguration(config => {
+    actionEditor.getConfiguration((config) => {
       config.startOperations.push(op1, op2);
       return config;
     });
@@ -127,8 +128,8 @@ describe('ActionEditor', () => {
     actionEditor.moveStartOperation('test2', 'down');
 
     // expect
-    actionEditor.getConfiguration(config => {
-      expect(config.startOperations.findIndex(x => x.id === op2.id)).to.equal(
+    actionEditor.getConfiguration((config) => {
+      expect(config.startOperations.findIndex((x) => x.id === op2.id)).to.equal(
         0
       );
       return undefined;
@@ -148,7 +149,7 @@ describe('ActionEditor', () => {
     let config = null;
 
     // test
-    actionEditor.getConfiguration(c => (config = c));
+    actionEditor.getConfiguration((c) => (config = c));
 
     // expect
     expect(config).to.not.be.null;
@@ -156,15 +157,15 @@ describe('ActionEditor', () => {
 
   it('should substitute the actionConfig with the instance returned from the getConfiguration callback', () => {
     // given
-    let config: IActionConfiguration = ({
+    let config: IActionConfiguration = {
       id: '888-777-666',
-    } as unknown) as IActionConfiguration;
+    } as unknown as IActionConfiguration;
 
     // test
-    actionEditor.getConfiguration(_c => config);
+    actionEditor.getConfiguration((_c) => config);
 
     // expect
-    actionEditor.getConfiguration(cf => {
+    actionEditor.getConfiguration((cf) => {
       expect(config).to.eql(cf);
       return undefined;
     });

@@ -3,7 +3,7 @@ import lottie, {
   AnimationItem,
   CanvasRendererConfig,
   HTMLRendererConfig,
-  SVGRendererConfig,
+  SVGRendererConfig
 } from 'lottie-web';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
@@ -206,7 +206,7 @@ export class LottieController
     const isIE = false || !!(window.document as any)['documentMode'];
 
     // Edge 20+
-    const isEdge = !isIE && !!window['StyleMedia'];
+    const isEdge = !isIE && !!(window as any)['StyleMedia'];
 
     return isEdge || isIE;
   }

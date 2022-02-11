@@ -13,7 +13,7 @@ export class EndableAction extends Action {
     super(name, startOperations, eventBus);
   }
 
-  end(initOperationData?: TOperationData): Promise<TOperationData> {
+  end(initOperationData?: TOperationData): Promise<TOperationData | undefined> {
     if (this.endOperations.length) {
       const context: IOperationContext = {
         currentIndex: -1,
@@ -29,14 +29,14 @@ export class EndableAction extends Action {
           initOperationData,
           context
         );
-      }).catch(e => {
+      }).catch((e) => {
         console.error(`Error in action end '${this.name}'`);
         throw e;
       });
       return result;
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       resolve(initOperationData);
     });
   }

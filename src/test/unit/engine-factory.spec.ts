@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import { IEngineConfiguration } from '../../configuration/types';
 import { EngineFactory } from '../../engine-factory';

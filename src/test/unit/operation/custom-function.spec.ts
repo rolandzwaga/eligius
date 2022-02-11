@@ -43,7 +43,7 @@ describe('customFunction', () => {
     });
   });
 
-  it('should resolve and execute the specified function that itself returns a promise', async done => {
+  it('should resolve and execute the specified function that itself returns a promise', async () => {
     // given
     const operationData = {
       systemName: 'testName',
@@ -60,13 +60,13 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    await applyOperation<Promise<any>>(customFunction, operationData, {
+    const result = await applyOperation<Promise<any>>(customFunction, operationData, {
       currentIndex: -1,
       eventbus: (mockEventbus as unknown) as IEventbus,
     });
 
     // expect
     expect(called).to.be.true;
-    done();
+    return result;
   });
 });

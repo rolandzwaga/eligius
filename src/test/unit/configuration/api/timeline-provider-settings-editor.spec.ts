@@ -49,12 +49,12 @@ describe('TimelineProviderSettingsEditor', () => {
   it('should throw an error when an unknown system name is given', () => {
     // given
     const systemName = 'UnknownTimelineProvider';
-    let errorMessage = null;
+    let errorMessage: any = null;
 
     // test
     try {
       editor.setSystemName(systemName);
-    } catch (e) {
+    } catch (e: any) {
       errorMessage = e.message;
     }
 

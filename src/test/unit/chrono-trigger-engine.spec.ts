@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';
@@ -72,7 +76,7 @@ describe('EligiusEngine', () => {
   it('should throw an error when container selector cannot be resolved', () => {
     // given
     configuration.containerSelector = '.test_does_not_exist';
-    let error = null;
+    let error: any = null;
     const engine = new EligiusEngine(
       configuration,
       eventbus,
@@ -131,7 +135,7 @@ describe('EligiusEngine', () => {
       animation: {
         provider: {
           init: () => {
-            return new Promise<void>(resolve => resolve());
+            return new Promise<void>((resolve) => resolve());
           },
           on: () => {},
         },

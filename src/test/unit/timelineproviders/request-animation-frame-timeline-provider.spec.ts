@@ -1,10 +1,12 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { expect } from 'chai';
 import $ from 'jquery';
 import { Eventbus } from '../../../eventbus';
 import { TimelineEventNames } from '../../../timeline-event-names';
 import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider';
-
-jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
 
 describe('RequestAnimationFrameTimelineProvider', () => {
   let provider: RequestAnimationFrameTimelineProvider | null = null;
@@ -37,7 +39,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
 
   afterEach(() => {
     provider?.destroy();
-    eventbus.clear();
+    eventbus?.clear();
     $('#selector').remove();
   });
 
@@ -95,7 +97,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
 
     provider?.start();
 
-    const result: number[] = await new Promise(resolve => {
+    const result: number[] = await new Promise((resolve) => {
       setTimeout(() => {
         resolve(recordedPositions);
       }, 5500);
