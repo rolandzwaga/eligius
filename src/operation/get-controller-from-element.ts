@@ -8,21 +8,26 @@ export interface IGetControllerFromElementOperationData {
   controllerInstance?: IController<any>;
 }
 
-export const getControllerFromElement: TOperation<IGetControllerFromElementOperationData> = function(
-  operationData: IGetControllerFromElementOperationData
-) {
-  const { selectedElement, controllerName } = operationData;
-  const controllers = getElementControllers(selectedElement);
-  const controller = controllers.find(ctrl => {
-    return ctrl.name === controllerName;
-  });
+/**
+ * This operation retrieves the controller instance with the specified name from the specified selected element.
+ *
+ * @param operationData
+ * @returns
+ */
+export const getControllerFromElement: TOperation<IGetControllerFromElementOperationData> =
+  function (operationData: IGetControllerFromElementOperationData) {
+    const { selectedElement, controllerName } = operationData;
+    const controllers = getElementControllers(selectedElement);
+    const controller = controllers.find((ctrl) => {
+      return ctrl.name === controllerName;
+    });
 
-  if (!controller) {
-    console.warn(
-      `controller for name '${controllerName}' was not found on the given element`
-    );
-  }
+    if (!controller) {
+      console.warn(
+        `controller for name '${controllerName}' was not found on the given element`
+      );
+    }
 
-  operationData.controllerInstance = controller;
-  return operationData;
-};
+    operationData.controllerInstance = controller;
+    return operationData;
+  };

@@ -8,7 +8,14 @@ export interface IAnimateOperationData {
   animationDuration: number;
 }
 
-export const animate: TOperation<IAnimateOperationData> = function(
+/**
+ * This operation animates the specified selected element with the given jQuery animation settings.
+ * It resolves after the animation completes.
+ *
+ * @param operationData
+ * @returns
+ */
+export const animate: TOperation<IAnimateOperationData> = function (
   operationData: IAnimateOperationData
 ) {
   const {

@@ -4,6 +4,9 @@ export interface IClearElementOperationData {
   selectedElement: JQuery;
 }
 
+/**
+ * This operation removes all of the children from the specified selected element.
+ */
 export const clearElement: TOperation<IClearElementOperationData> = function(
   operationData: IClearElementOperationData
 ) {

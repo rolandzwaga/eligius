@@ -5,7 +5,13 @@ export interface IToggleClassOperationData {
   className: string;
 }
 
-export const toggleClass: TOperation<IToggleClassOperationData> = function(
+/**
+ * This operation toggles the specfied class name on the specified selected element.
+ *
+ * @param operationData
+ * @returns
+ */
+export const toggleClass: TOperation<IToggleClassOperationData> = function (
   operationData: IToggleClassOperationData
 ) {
   const { selectedElement, className } = operationData;

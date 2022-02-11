@@ -8,7 +8,13 @@ export interface IEndActionOperationData {
   actionOperationData: any;
 }
 
-export const endAction: TOperation<IEndActionOperationData> = function(
+/**
+ * This operation invokes the end() method on the specified action instance.
+ *
+ * @param operationData
+ * @returns
+ */
+export const endAction: TOperation<IEndActionOperationData> = function (
   operationData: IEndActionOperationData
 ) {
   const { actionInstance, actionOperationData } = operationData;
@@ -18,7 +24,7 @@ export const endAction: TOperation<IEndActionOperationData> = function(
     operationData = mergeOperationData(operationData, actionOperationData);
 
     actionInstance.end(operationData).then(() => {
-      Object.keys(actionOperationData).forEach(key => {
+      Object.keys(actionOperationData).forEach((key) => {
         delete (operationData as any)[key];
       });
       internalResolve(resolve, operationData);

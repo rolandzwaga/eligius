@@ -3,10 +3,17 @@ import { TOperation } from './types';
 
 export interface IGetImportOperationData {
   systemName: string;
-  importedInstance: any;
+  importedInstance?: any;
 }
 
-export const getImport: TOperation<IGetImportOperationData> = function(
+/**
+ * This operation retrieves the import specified by the given system name and
+ * assigns it to the importedInstance property on the current operaton date.
+ *
+ * @param operationData
+ * @returns
+ */
+export const getImport: TOperation<IGetImportOperationData> = function (
   operationData: IGetImportOperationData
 ) {
   const { systemName } = operationData;

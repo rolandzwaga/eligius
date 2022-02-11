@@ -8,19 +8,25 @@ export interface IBroadcastEventOperationData {
   eventName: string;
 }
 
-export const broadcastEvent: TOperation<IBroadcastEventOperationData> = function(
-  operationData: IBroadcastEventOperationData
-) {
-  const { eventArgs, eventTopic, eventName } = operationData;
+/**
+ * This operation broadcasts the given event through the eventbus, along with the
+ * event argumetns and optional event topic.
+ *
+ * @param operationData
+ * @returns
+ */
+export const broadcastEvent: TOperation<IBroadcastEventOperationData> =
+  function (operationData: IBroadcastEventOperationData) {
+    const { eventArgs, eventTopic, eventName } = operationData;
 
-  const eventArguments = resolveEventArguments(operationData, eventArgs);
+    const eventArguments = resolveEventArguments(operationData, eventArgs);
 
-  if (eventTopic) {
-    this.eventbus.broadcastForTopic(eventName, eventTopic, eventArguments);
-  } else {
-    this.eventbus.broadcast(eventName, eventArguments);
-  }
+    if (eventTopic) {
+      this.eventbus.broadcastForTopic(eventName, eventTopic, eventArguments);
+    } else {
+      this.eventbus.broadcast(eventName, eventArguments);
+    }
 
-  removeEventDataFromOperationData(operationData);
-  return operationData;
-};
+    removeEventDataFromOperationData(operationData);
+    return operationData;
+  };

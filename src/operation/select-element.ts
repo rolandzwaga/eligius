@@ -23,7 +23,17 @@ export interface ISelectElementOperationData {
   useSelectedElementAsRoot?: boolean;
 }
 
-export const selectElement: TOperation<ISelectElementOperationData> = function(
+/**
+ * This operation selects one or more elements using the specified selector.
+ *
+ * If useSelectedElementAsRoot is set to true and a valid DOM element is assigned
+ * to the current operation data defined by the given property name (defaults to 'selectedElement')
+ * then the element will be looked for only in the child elements of this DOM element.
+ *
+ * @param operationData
+ * @returns
+ */
+export const selectElement: TOperation<ISelectElementOperationData> = function (
   operationData: ISelectElementOperationData
 ) {
   const {

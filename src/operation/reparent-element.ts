@@ -5,10 +5,16 @@ export interface IReparentElementOperationData {
   newParentSelector: string;
 }
 
-export const reparentElement: TOperation<IReparentElementOperationData> = function(
-  operationData: IReparentElementOperationData
-) {
-  const { selectedElement, newParentSelector } = operationData;
-  selectedElement.remove().appendTo(newParentSelector);
-  return operationData;
-};
+/**
+ * This operation moves the specified selected element to the new parent that is defined
+ * by the specified selector.
+ *
+ * @param operationData
+ * @returns
+ */
+export const reparentElement: TOperation<IReparentElementOperationData> =
+  function (operationData: IReparentElementOperationData) {
+    const { selectedElement, newParentSelector } = operationData;
+    selectedElement.remove().appendTo(newParentSelector);
+    return operationData;
+  };

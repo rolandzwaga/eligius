@@ -6,6 +6,13 @@ export interface ICustomFunctionOperationData {
   systemName: string;
 }
 
+/**
+ * This operation retrieves a custom function defined by the specified system name
+ * and invokes it with the current operation data and eventbus.
+ *
+ * @param operationData
+ * @returns
+ */
 export const customFunction: TOperation<ICustomFunctionOperationData> =
   function (operationData: ICustomFunctionOperationData) {
     const { systemName } = operationData;

@@ -7,7 +7,14 @@ export interface IRequestActionOperationData {
   actionInstance?: IAction;
 }
 
-export const requestAction: TOperation<IRequestActionOperationData> = function(
+/**
+ * This operation requests an action instance with the specified name and assigns it
+ * to the actionInstance property on the current operation data.
+ *
+ * @param operationData
+ * @returns
+ */
+export const requestAction: TOperation<IRequestActionOperationData> = function (
   operationData: IRequestActionOperationData
 ) {
   const { systemName } = operationData;

@@ -4,7 +4,13 @@ export interface IRemoveElementOperationData {
   selectedElement: JQuery;
 }
 
-export const removeElement: TOperation<IRemoveElementOperationData> = function(
+/**
+ * This operation removes the specified selected element from the DOM.
+ *
+ * @param operationData
+ * @returns
+ */
+export const removeElement: TOperation<IRemoveElementOperationData> = function (
   operationData: IRemoveElementOperationData
 ) {
   const { selectedElement } = operationData;

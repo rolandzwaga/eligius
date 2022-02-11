@@ -6,7 +6,13 @@ export interface IResizeActionOperationData {
   actionOperationData: any;
 }
 
-export const resizeAction: TOperation<IResizeActionOperationData> = function(
+/**
+ * @deprecated
+ *
+ * @param operationData
+ * @returns
+ */
+export const resizeAction: TOperation<IResizeActionOperationData> = function (
   operationData: IResizeActionOperationData
 ) {
   const { actionInstance, actionOperationData } = operationData;

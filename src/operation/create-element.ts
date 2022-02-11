@@ -12,32 +12,39 @@ export interface ICreateElementOperationData<T extends TTagNames> {
   template?: JQuery;
 }
 
-export const createElement: TOperation<ICreateElementOperationData<
-  any
->> = function<T extends TTagNames>(
-  operationData: ICreateElementOperationData<T>
-) {
-  operationData = resolvePropertyValues(operationData, operationData);
-  const {
-    elementName,
-    attributes,
-    text,
-    propertyName = 'template',
-  } = operationData;
+/**
+ * This operation creates the DOM element defined by the given properties and assigns
+ * the instance to the give property name on the current operation data.
+ * The property name defaults to 'template'.
+ *
+ * @param operationData
+ * @returns
+ */
+export const createElement: TOperation<ICreateElementOperationData<any>> =
+  function <T extends TTagNames>(
+    operationData: ICreateElementOperationData<T>
+  ) {
+    operationData = resolvePropertyValues(operationData, operationData);
+    const {
+      elementName,
+      attributes,
+      text,
+      propertyName = 'template',
+    } = operationData;
 
-  const serializedAttrs = attributes
-    ? ' ' +
-      Object.entries(attributes)
-        .map(([key, value]) => `${key}="${value}"`)
-        .join(' ')
-    : '';
+    const serializedAttrs = attributes
+      ? ' ' +
+        Object.entries(attributes)
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(' ')
+      : '';
 
-  const template = text
-    ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
-    : $(`<${elementName}${serializedAttrs}/>`);
+    const template = text
+      ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
+      : $(`<${elementName}${serializedAttrs}/>`);
 
-  (operationData as any)[propertyName] = template;
+    (operationData as any)[propertyName] = template;
 
-  delete operationData.propertyName;
-  return operationData;
-};
+    delete operationData.propertyName;
+    return operationData;
+  };

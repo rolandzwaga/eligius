@@ -1,6 +1,12 @@
 import { TOperationData } from '.';
 import { TOperation } from './types';
 
+/**
+ * This operation checks if the current loop should end or start the next iteration.
+ *
+ * @param operationData
+ * @returns
+ */
 export const endLoop: TOperation<TOperationData> = function (
   operationData: TOperationData
 ) {

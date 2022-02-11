@@ -19,7 +19,17 @@ export const addToCache = (key: string, value: any) => {
   jsonCache[key] = value;
 };
 
-export const loadJSON: TOperation<ILoadJSONOperationData> = function(
+/**
+ * This operation loads a JSON file from the specified url and assigns it to the specified
+ * property name on the current operation data. The property name defaults to 'json'.
+ *
+ * If the cache property is set to true and a cached value already exists, this is assigned
+ * instead of re-retrieving it from the url.
+ *
+ * @param operationData
+ * @returns
+ */
+export const loadJSON: TOperation<ILoadJSONOperationData> = function (
   operationData: ILoadJSONOperationData
 ) {
   const { url, cache, propertyName = 'json' } = operationData;
@@ -32,7 +42,7 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = function(
 
   return new Promise((resolve, reject) => {
     fetch(url)
-      .then(async response => {
+      .then(async (response) => {
         const json = await response.json();
         const cacheValue = ((operationData as any)[propertyName] = json);
         delete operationData.propertyName;

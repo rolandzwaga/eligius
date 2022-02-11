@@ -1,9 +1,12 @@
 import { IDimensions } from '../../types';
 
-function modifyDimensionsByRatio(ratioModifier: string, dimensions: IDimensions) {
+function modifyDimensionsByRatio(
+  ratioModifier: string,
+  dimensions: IDimensions
+) {
   //h[ar=8-1]
-  let prefix = ratioModifier.substr(0, 1);
-  let ratio = ratioModifier.substr(
+  let prefix = ratioModifier.substring(0, 1);
+  let ratio = ratioModifier.substring(
     ratioModifier.indexOf('[') + 1,
     ratioModifier.indexOf(']') - ratioModifier.indexOf('[') - 1
   );
@@ -17,14 +20,14 @@ function modifyDimensionsByRatio(ratioModifier: string, dimensions: IDimensions)
 
 function getModifierSuffix(modifier: string): [string | null, number, boolean] {
   let endIdx = 1;
-  let suffix: string | null = modifier.substr(modifier.length - 1, 1);
+  let suffix: string | null = modifier.substring(modifier.length - 1, 1);
   if (suffix !== 'h' && suffix !== 'w' && suffix !== '%') {
     suffix = null;
   }
   const isPercent = suffix === '%';
   if (isPercent) {
     endIdx = 2;
-    suffix = modifier.substr(modifier.length - endIdx, 1);
+    suffix = modifier.substring(modifier.length - endIdx, 1);
     if (suffix !== 'h' && suffix !== 'w') {
       suffix = null;
       endIdx = 1;
@@ -99,17 +102,34 @@ function _modifyDimensions(
   return dimensions;
 }
 
+/**
+ * Modifies the given dimensions using the given modifier string.
+ * The modifier string is formatted in the following way:
+ *
+ * <operator><amount><optional-side><optional-precentage>|<ratio-definition>
+ *
+ * Where the ratio modifier is formatted in the following way:
+ * <side>[ar=<ratio-left>-<ratio-right>]
+ *
+ * For example, this modifier '+100h|w[ar=8-1]' will modifiy the dimensions like this:
+ * it will add a value of 100 to the height and modify the width by a ration of 8 to 1 relative to the height.
+ *
+ * @param dimensions
+ * @param modifier
+ */
 export function modifyDimensions(dimensions: IDimensions, modifier: string) {
   let ratioModifier: string | null = null;
   if (modifier.indexOf('|') > -1) {
     [modifier, ratioModifier] = modifier.split('|');
   }
 
-  const prefix = modifier.substr(0, 1);
+  const prefix = modifier.substring(0, 1);
   let [suffix, endIdx, isPercent] = getModifierSuffix(modifier);
 
   const value = parseInt(
-    suffix !== null ? modifier.substr(1, modifier.length - endIdx - 1) : modifier.substr(1, modifier.length),
+    suffix !== null
+      ? modifier.substring(1, modifier.length - endIdx - 1)
+      : modifier.substring(1, modifier.length),
     10
   );
 
@@ -120,7 +140,13 @@ export function modifyDimensions(dimensions: IDimensions, modifier: string) {
     heightModifier = (dimensions.height / 100) * value;
   }
 
-  dimensions = _modifyDimensions(dimensions, prefix, suffix, widthModifier, heightModifier);
+  dimensions = _modifyDimensions(
+    dimensions,
+    prefix,
+    suffix,
+    widthModifier,
+    heightModifier
+  );
 
   if (ratioModifier) {
     modifyDimensionsByRatio(ratioModifier, dimensions);

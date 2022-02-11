@@ -7,21 +7,26 @@ export interface IRemoveControllerFromElementOperationData {
   controllerName: string;
 }
 
-export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData> = function(
-  operationData: IRemoveControllerFromElementOperationData
-) {
-  const { selectedElement, controllerName } = operationData;
+/**
+ * This operation removes the controller with the specified name from the specified selected element.
+ *
+ * @param operationData
+ * @returns
+ */
+export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData> =
+  function (operationData: IRemoveControllerFromElementOperationData) {
+    const { selectedElement, controllerName } = operationData;
 
-  const controllers = getElementControllers(selectedElement);
-  const controller = controllers?.find(
-    (ctrl: IController<any>) => ctrl.name === controllerName
-  );
+    const controllers = getElementControllers(selectedElement);
+    const controller = controllers?.find(
+      (ctrl: IController<any>) => ctrl.name === controllerName
+    );
 
-  if (controller) {
-    const idx = controllers.indexOf(controller);
-    controllers.splice(idx, 1);
-    controller.detach(this.eventbus);
-  }
+    if (controller) {
+      const idx = controllers.indexOf(controller);
+      controllers.splice(idx, 1);
+      controller.detach(this.eventbus);
+    }
 
-  return operationData;
-};
+    return operationData;
+  };

@@ -5,7 +5,13 @@ export interface IRemoveClassOperationData {
   className: string;
 }
 
-export const removeClass: TOperation<IRemoveClassOperationData> = function(
+/**
+ * This operation removes the spcified class name from the specified selected element.
+ *
+ * @param operationData
+ * @returns
+ */
+export const removeClass: TOperation<IRemoveClassOperationData> = function (
   operationData: IRemoveClassOperationData
 ) {
   const { selectedElement, className } = operationData;

@@ -5,7 +5,13 @@ export interface IAddClassOperationData {
   className: string;
 }
 
-export const addClass: TOperation<IAddClassOperationData> = function(
+/**
+ * This operation adds the specified class name to the specified selected element.
+ *
+ * @param operationData
+ * @returns
+ */
+export const addClass: TOperation<IAddClassOperationData> = function (
   operationData: IAddClassOperationData
 ) {
   const { selectedElement, className } = operationData;

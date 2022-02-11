@@ -4,9 +4,14 @@ export interface IToggleElementOperationData {
   selectedElement: JQuery;
 }
 
-export const toggleElement: TOperation<IToggleElementOperationData> = function toggleElement(
-  operationData: IToggleElementOperationData
-) {
-  operationData.selectedElement.toggle();
-  return operationData;
-};
+/**
+ * This operation toggles the visibility of the specified selected element
+ *
+ * @param operationData
+ * @returns
+ */
+export const toggleElement: TOperation<IToggleElementOperationData> =
+  function toggleElement(operationData: IToggleElementOperationData) {
+    operationData.selectedElement.toggle();
+    return operationData;
+  };

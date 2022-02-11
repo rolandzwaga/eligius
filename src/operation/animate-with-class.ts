@@ -7,31 +7,38 @@ export interface IAnimateWithClassOperationData {
   removeClass?: boolean;
 }
 
-export const animateWithClass: TOperation<IAnimateWithClassOperationData> = function(
-  operationData: IAnimateWithClassOperationData
-) {
-  let { selectedElement, className, removeClass } = operationData;
-  removeClass = removeClass !== undefined ? removeClass : true;
+/**
+ * This operation adds the specified class name to the specified selected element and assumes that this
+ * class triggers and animation on the selected element. It then waits for this animation to complete
+ * until it resolves.
+ *
+ * @param operationData
+ * @returns
+ */
+export const animateWithClass: TOperation<IAnimateWithClassOperationData> =
+  function (operationData: IAnimateWithClassOperationData) {
+    let { selectedElement, className, removeClass } = operationData;
+    removeClass = removeClass !== undefined ? removeClass : true;
 
-  const promise = new Promise<IAnimateWithClassOperationData>(
-    (resolve, reject) => {
-      try {
-        selectedElement.one(
-          'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
-          () => {
-            if (removeClass) {
-              selectedElement.removeClass(className);
+    const promise = new Promise<IAnimateWithClassOperationData>(
+      (resolve, reject) => {
+        try {
+          selectedElement.one(
+            'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
+            () => {
+              if (removeClass) {
+                selectedElement.removeClass(className);
+              }
+              internalResolve(resolve, {}, operationData);
             }
-            internalResolve(resolve, {}, operationData);
-          }
-        );
-      } catch (e) {
-        reject(e);
+          );
+        } catch (e) {
+          reject(e);
+        }
       }
-    }
-  );
+    );
 
-  selectedElement.addClass(className);
+    selectedElement.addClass(className);
 
-  return promise;
-};
+    return promise;
+  };

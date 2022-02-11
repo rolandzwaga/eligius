@@ -5,7 +5,17 @@ export type TStartLoopOperationData = {
   propertyName?: string;
 };
 
-export const startLoop: TOperation<TStartLoopOperationData> = function(
+/**
+ * This operation starts a loop using the given collection.
+ *
+ * Each iteration the current item from the specified collection is
+ * assigned to the property on the current operation data specified
+ * by the propertyName property which defaults to 'currentItem'.
+ *
+ * @param operationData
+ * @returns
+ */
+export const startLoop: TOperation<TStartLoopOperationData> = function (
   operationData: TStartLoopOperationData
 ) {
   const context = this;
