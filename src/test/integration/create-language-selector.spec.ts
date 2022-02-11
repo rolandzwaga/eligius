@@ -3,6 +3,7 @@
  */
 
 import { expect } from 'chai';
+import 'jest-canvas-mock';
 import $ from 'jquery';
 import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
 import { IEngineConfiguration } from '../../configuration/types';
@@ -111,14 +112,13 @@ describe('Create option list', () => {
     });
   });
 
-  afterEach(async (done) => {
+  afterEach(async () => {
     await engine?.destroy();
     eventbus.clear();
     $('[data-ct-container=true]').remove();
-    done();
   });
 
-  it('should create a selector and attach a change controller', async (done) => {
+  it('should create a selector and attach a change controller', async () => {
     let selectedLang = '';
     eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode) => {
       selectedLang = languageCode;
@@ -136,9 +136,8 @@ describe('Create option list', () => {
       expect(result).to.not.be.undefined;
       $('[data-language-selector=true]').val('en-GB').trigger('change');
       expect(selectedLang).to.equal('en-GB');
-      done();
     } catch (e) {
-      (done as any)(e);
+      throw e;
     }
   });
 });

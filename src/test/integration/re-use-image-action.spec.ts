@@ -1,8 +1,8 @@
 /**
  * @jest-environment jsdom
  */
-
 import { expect } from 'chai';
+import 'jest-canvas-mock';
 import $ from 'jquery';
 import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
 import { IEngineConfiguration } from '../../configuration/types';
