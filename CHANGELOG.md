@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.2
+
+- Fix all unit tests
+- Add documentation to all operations
+
 ## 1.0.1
 
 - Some minor bug fixes
