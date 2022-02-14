@@ -19,8 +19,7 @@
     "prepare": "dts build",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "build-example-1": "ts-node ./build/engine-pack-builder ./examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --entry ./examples/requestanimationframe/build/boot.ts --stats-children",
-    "prepublish": "yarn build"
+    "build-example-1": "ts-node ./build/engine-pack-builder ./examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --entry ./examples/requestanimationframe/build/boot.ts --stats-children"
   },
   "husky": {
     "hooks": {
