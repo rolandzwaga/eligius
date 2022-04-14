@@ -3157,7 +3157,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-jest@npm:^27.5.1":
+"babel-jest@npm:27.5.1, babel-jest@npm:^27.5.1":
   version: 27.5.1
   resolution: "babel-jest@npm:27.5.1"
   dependencies:
@@ -4533,7 +4533,7 @@ __metadata:
     acorn: 8.7.0
     ajv: 8.11.0
     astring: 1.8.1
-    babel-jest: ^27.5.1
+    babel-jest: 27.5.1
     chai: 4.3.6
     css-loader: 6.7.1
     dts-cli: 1.5.0
