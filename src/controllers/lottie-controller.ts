@@ -3,7 +3,7 @@ import lottie, {
   AnimationItem,
   CanvasRendererConfig,
   HTMLRendererConfig,
-  SVGRendererConfig
+  SVGRendererConfig,
 } from 'lottie-web';
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
@@ -26,7 +26,8 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
 }
 
 export class LottieController
-  implements IController<ILottieControllerMetadata> {
+  implements IController<ILottieControllerMetadata>
+{
   name = 'LottieController';
   currentLanguage: string | null = null;
   labelData: Record<string, Record<string, string>> = {};
@@ -74,7 +75,7 @@ export class LottieController
 
     const settings = params.split(',');
 
-    settings.forEach(setting => {
+    settings.forEach((setting) => {
       const values = setting.split('=');
       if (values[0] === 'freeze') {
         this.freezePosition = +values[1];
@@ -116,7 +117,7 @@ export class LottieController
   }
 
   detach(_eventbus: IEventbus) {
-    this.listeners.forEach(func => {
+    this.listeners.forEach((func) => {
       func();
     });
 
@@ -156,7 +157,7 @@ export class LottieController
 
     const { labelIds } = this.operationData;
     if (labelIds && labelIds.length) {
-      labelIds.forEach(id => {
+      labelIds.forEach((id) => {
         serialized = serialized
           .split(`!!${id}!!`)
           .join(this.labelData[id][this.currentLanguage ?? '']);
@@ -164,7 +165,7 @@ export class LottieController
     }
     const animationData = JSON.parse(serialized);
 
-    const animationSettings: AnimationConfigWithData = {
+    const animationSettings: AnimationConfigWithData<'svg'> = {
       autoplay: this.operationData.autoplay,
       container: this.operationData.selectedElement[0],
       loop: this.operationData.loop,

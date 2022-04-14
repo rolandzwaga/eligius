@@ -37,7 +37,7 @@
       "title": "The Containerselector Schema",
       "default": "",
       "examples": [
-        "#ivr-container"
+        "#eligius-container"
       ],
       "pattern": "^(.*)$"
     },

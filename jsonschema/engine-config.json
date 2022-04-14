@@ -1,9 +1,9 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://chronetriggerjs.com/schema/engine-config.json",
+  "$id": "http://eligius.com/schema/engine-config.json",
   "type": "object",
-  "title": "The Engien Config Schema",
+  "title": "The Engine Config Schema",
   "required": ["systemName"],
   "properties": {
     "systemName": {
