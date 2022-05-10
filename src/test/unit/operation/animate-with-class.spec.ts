@@ -40,11 +40,11 @@ AnimateWithClassSuite.skip(
     };
 
     // test
+    mockElement.handler();
     await applyOperation<Promise<typeof operationData>>(
       animateWithClass,
       operationData
     );
-    mockElement.handler();
     expect(mockElement.removedCalled).to.be.true;
   }
 );
@@ -62,11 +62,11 @@ AnimateWithClassSuite.skip(
     };
 
     // test
+    mockElement.handler();
     await applyOperation<Promise<typeof operationData>>(
       animateWithClass,
       operationData
     );
-    mockElement.handler();
     expect(mockElement.removedCalled).to.be.false;
   }
 );
