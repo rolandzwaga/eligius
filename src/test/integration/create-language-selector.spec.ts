@@ -12,7 +12,6 @@ import {
   createElement,
   endLoop,
   getControllerInstance,
-  log,
   removeControllerFromElement,
   selectElement,
   setElementContent,
@@ -21,16 +20,17 @@ import {
 import { TimelineEventNames } from '../../timeline-event-names';
 import { IEligiusEngine } from '../../types';
 
-let configuration: IEngineConfiguration | null = null;
-let eventbus: Eventbus;
-let engine: IEligiusEngine;
+const CreateOptionList = suite<{
+  configuration: IEngineConfiguration;
+  eventbus: Eventbus;
+  engine: IEligiusEngine;
+  cancelAnimationFrame: typeof global.cancelAnimationFrame;
+}>('Create option list');
 
-global.cancelAnimationFrame = () => {};
-
-const CreateOptionList = suite('Create option list');
-
-CreateOptionList.before(() => {
-  eventbus = new Eventbus();
+CreateOptionList.before((context) => {
+  context.cancelAnimationFrame = global.cancelAnimationFrame;
+  global.cancelAnimationFrame = () => {};
+  context.eventbus = new Eventbus();
 
   $('<div data-ct-container=true></div>').appendTo(document.body);
 
@@ -88,11 +88,10 @@ CreateOptionList.before(() => {
     .addStartOperationByType(addControllerToElement, {
       eventName: 'change',
       actions: ['BroadcastLanguageChange'],
-    })
+    } as any)
     .addEndOperationByType(selectElement, {
       selector: '[data-language-selector=true]',
     })
-    .addEndOperationByType(log, {})
     .addEndOperationByType(removeControllerFromElement, {
       controllerName: 'EventListenerController',
     });
@@ -106,34 +105,37 @@ CreateOptionList.before(() => {
   });
 
   factory.getConfiguration((config) => {
-    configuration = config;
+    context.configuration = config;
     return undefined;
   });
 });
 
-CreateOptionList.after(async () => {
-  await engine?.destroy();
-  eventbus.clear();
+CreateOptionList.after(async (context) => {
+  await context.engine.destroy();
+  context.eventbus.clear();
   $('[data-ct-container=true]').remove();
+  global.cancelAnimationFrame = context.cancelAnimationFrame;
 });
 
 CreateOptionList(
   'should create a selector and attach a change controller',
-  async () => {
+  async (context) => {
     let selectedLang = '';
-    eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode) => {
+    context.eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode) => {
       selectedLang = languageCode;
     });
 
     const engineFactory = new EngineFactory(
       new WebpackResourceImporter(),
       window,
-      eventbus
+      context.eventbus
     );
-    engine = engineFactory.createEngine(configuration as IEngineConfiguration);
+    context.engine = engineFactory.createEngine(
+      context.configuration as IEngineConfiguration
+    );
 
     try {
-      const result = await engine.init();
+      const result = await context.engine.init();
       assert.is.not(result, undefined);
       $('[data-language-selector=true]').val('en-GB').trigger('change');
 

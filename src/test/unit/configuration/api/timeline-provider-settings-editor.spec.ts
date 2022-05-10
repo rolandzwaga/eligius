@@ -1,75 +1,85 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { TimelineProviderSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor';
 
-describe('TimelineProviderSettingsEditor', () => {
-  let editor: any;
-  let configuration: any;
-  let factory: any;
+const TimelineProviderSettingsEditorSuite = suite<{
+  editor: TimelineProviderSettingsEditor;
+  configuration: any;
+  factory: any;
+}>('TimelineProviderSettingsEditor');
 
-  beforeEach(() => {
-    configuration = {};
-    factory = {};
-    editor = {};
-    editor = new TimelineProviderSettingsEditor(configuration, editor, factory);
-  });
+TimelineProviderSettingsEditorSuite.before.each((context) => {
+  context.configuration = {};
+  context.factory = {};
+  context.editor = new TimelineProviderSettingsEditor(
+    context.configuration,
+    {} as any,
+    context.factory
+  );
+});
 
-  it('should set the vendor', () => {
+TimelineProviderSettingsEditorSuite('should set the vendor', (context) => {
+  // given
+  const { editor, configuration } = context;
+  const vendor = 'testVendor';
+
+  // test
+  editor.setVendor(vendor);
+
+  // expect
+  expect(configuration.vendor).to.equal(vendor);
+});
+
+TimelineProviderSettingsEditorSuite('should set the selector', (context) => {
+  // given
+  const { editor, configuration } = context;
+  const selector = 'selector';
+
+  // test
+  editor.setSelector(selector);
+
+  // expect
+  expect(configuration.selector).to.equal(selector);
+});
+
+TimelineProviderSettingsEditorSuite('should set the systemName', (context) => {
+  // given
+  const { editor, configuration } = context;
+  const systemName = 'RequestAnimationFrameTimelineProvider';
+
+  // test
+  editor.setSystemName(systemName);
+
+  // expect
+  expect(configuration.systemName).to.equal(systemName);
+});
+
+TimelineProviderSettingsEditorSuite(
+  'should throw an error when an unknown system name is given',
+  (context) => {
     // given
-    const vendor = 'testVendor';
-
-    // test
-    editor.setVendor(vendor);
-
-    // expect
-    expect(configuration.vendor).to.equal(vendor);
-  });
-
-  it('should set the selector', () => {
-    // given
-    const selector = 'selector';
-
-    // test
-    editor.setSelector(selector);
-
-    // expect
-    expect(configuration.selector).to.equal(selector);
-  });
-
-  it('should set the systemName', () => {
-    // given
-    const systemName = 'RequestAnimationFrameTimelineProvider';
-
-    // test
-    editor.setSystemName(systemName);
-
-    // expect
-    expect(configuration.systemName).to.equal(systemName);
-  });
-
-  it('should throw an error when an unknown system name is given', () => {
-    // given
+    const { editor } = context;
     const systemName = 'UnknownTimelineProvider';
-    let errorMessage: any = null;
-
-    // test
-    try {
-      editor.setSystemName(systemName);
-    } catch (e: any) {
-      errorMessage = e.message;
-    }
 
     // expect
-    expect(errorMessage).to.equal(
+    expect(() => editor.setSystemName(systemName)).throws(
       'Unknown timeline provider system name: UnknownTimelineProvider'
     );
-  });
+  }
+);
 
-  it('should return the configuration factory', () => {
+TimelineProviderSettingsEditorSuite(
+  'should return the configuration factory',
+  (context) => {
     // given
+    const { editor, factory } = context;
+
     // test
     const result = editor.next();
 
     // expect
     expect(result).to.eql(factory);
-  });
-});
+  }
+);
+
+TimelineProviderSettingsEditorSuite.run();

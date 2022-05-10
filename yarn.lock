@@ -4001,7 +4001,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:^1.1.4, color-name@npm:~1.1.4":
+"color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -4242,13 +4242,6 @@ __metadata:
   bin:
     cssesc: bin/cssesc
   checksum: f8c4ababffbc5e2ddf2fa9957dda1ee4af6048e22aeda1869d0d00843223c1b13ad3f5d88b51caa46c994225eacb636b764eb807a8883e2fb6f99b4f4e8c48b2
-  languageName: node
-  linkType: hard
-
-"cssfontparser@npm:^1.2.1":
-  version: 1.2.1
-  resolution: "cssfontparser@npm:1.2.1"
-  checksum: 952d487cddab591fb944f2a4c326a7736bc963784a6d92b6ad4051f3bf5ee49a732eff62e29a52ff085197cb07f5bd66525a2245ded7fd356113ac81be9238b9
   languageName: node
   linkType: hard
 
@@ -4757,7 +4750,6 @@ __metadata:
     html-loader: 3.1.0
     html-webpack-plugin: 5.5.0
     husky: 7.0.4
-    jest-canvas-mock: 2.4.0
     jquery: 3.6.0
     jsdom: 19.0.0
     jsdom-global: 3.0.2
@@ -6899,16 +6891,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jest-canvas-mock@npm:2.4.0":
-  version: 2.4.0
-  resolution: "jest-canvas-mock@npm:2.4.0"
-  dependencies:
-    cssfontparser: ^1.2.1
-    moo-color: ^1.0.2
-  checksum: feda3c9a3301dc8f1ce3eee3d6cd944d3e2f50d713f1a3f159bdd85b88b275871c400dc0a4a50d14b36eef347dde2d7223e50d1109501b80668d87253712675e
-  languageName: node
-  linkType: hard
-
 "jest-changed-files@npm:^27.5.1":
   version: 27.5.1
   resolution: "jest-changed-files@npm:27.5.1"
@@ -8347,15 +8329,6 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
-  languageName: node
-  linkType: hard
-
-"moo-color@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "moo-color@npm:1.0.2"
-  dependencies:
-    color-name: ^1.1.4
-  checksum: 9425438cf14314ff8847fa911b3c6936cbe8550644c380733c4803719c3980a0de9324c70c3bc21c36b4aab3c181745774cc0efc4d3f5bfce009382eeeb89572
   languageName: node
   linkType: hard
 

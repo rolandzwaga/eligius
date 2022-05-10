@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { toggleElement } from '../../../operation/toggle-element';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   isToggled: boolean = false;
@@ -9,19 +10,21 @@ class MockElement {
   }
 }
 
-describe('toggleElement', () => {
-  it('should toggle the given element', () => {
-    // given
-    const mockElement: JQuery = new MockElement() as any;
-    const operationData = {
-      selectedElement: mockElement,
-    };
+const ToggleElementSuite = suite('toggleElement');
 
-    // test
-    const newData = applyOperation(toggleElement, operationData);
+ToggleElementSuite('should toggle the given element', () => {
+  // given
+  const mockElement: JQuery = new MockElement() as unknown as JQuery;
+  const operationData = {
+    selectedElement: mockElement,
+  };
 
-    // expect
-    expect(newData).to.equal(operationData);
-    expect((mockElement as any).isToggled).to.be.true;
-  });
+  // test
+  const newData = applyOperation(toggleElement, operationData);
+
+  // expect
+  expect(newData).to.equal(operationData);
+  expect((mockElement as unknown as MockElement).isToggled).to.be.true;
 });
+
+ToggleElementSuite.run();

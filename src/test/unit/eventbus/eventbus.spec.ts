@@ -1,17 +1,21 @@
 import { expect } from 'chai';
-import { Eventbus } from '../../../eventbus';
+import { suite } from 'uvu';
+import { Eventbus, IEventbus } from '../../../eventbus';
 
-describe('Eventbus', () => {
-  let eventbus = new Eventbus();
+const EventbusSuite = suite<{ eventbus: IEventbus }>('Eventbus');
 
-  beforeEach(() => {
-    eventbus = new Eventbus();
-  });
+EventbusSuite.before.each((context) => {
+  context.eventbus = new Eventbus();
+});
 
-  it('should register an event handler and let it get called', () => {
+EventbusSuite(
+  'should register an event handler and let it get called',
+  (context) => {
     // given
+    const { eventbus } = context;
+
     let called = 0;
-    eventbus.on('test', val => {
+    eventbus.on('test', (val) => {
       called += val;
     });
 
@@ -20,12 +24,16 @@ describe('Eventbus', () => {
 
     // expect
     expect(called).to.equal(1);
-  });
+  }
+);
 
-  it('should register an event handler once and let it get called only once', () => {
+EventbusSuite(
+  'should register an event handler once and let it get called only once',
+  (context) => {
     // given
+    const { eventbus } = context;
     let called = 0;
-    eventbus.once('test', val => {
+    eventbus.once('test', (val) => {
       called += val;
     });
 
@@ -35,49 +43,55 @@ describe('Eventbus', () => {
 
     // expect
     expect(called).to.be.equal(1);
-  });
+  }
+);
 
-  it('should only call handler for specified topic', () => {
+EventbusSuite('should only call handler for specified topic', (context) => {
+  // given
+  const { eventbus } = context;
+  let called = 0;
+  let topic = 'topic';
+  eventbus.on(
+    'test',
+    (val) => {
+      called += val;
+    },
+    topic
+  );
+
+  // test
+  eventbus.broadcast('test', [1]);
+  eventbus.broadcastForTopic('test', topic, [1]);
+
+  // expect
+  expect(called).to.be.equal(1);
+});
+
+EventbusSuite('should register and call the event interceptor', (context) => {
+  // given
+  const { eventbus } = context;
+  let called = 0;
+  const interceptor = {
+    intercept: (args: number[]) => {
+      called += args[0];
+      return args;
+    },
+  };
+  eventbus.registerInterceptor('test', interceptor);
+
+  // test
+  eventbus.broadcast('test', [1]);
+  eventbus.broadcast('test2', [1]);
+
+  // expect
+  expect(called).to.equal(1);
+});
+
+EventbusSuite(
+  'should register and call the event interceptor for the specified topic',
+  (context) => {
     // given
-    let called = 0;
-    let topic = 'topic';
-    eventbus.on(
-      'test',
-      val => {
-        called += val;
-      },
-      topic
-    );
-
-    // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcastForTopic('test', topic, [1]);
-
-    // expect
-    expect(called).to.be.equal(1);
-  });
-
-  it('should register and call the event interceptor', () => {
-    // given
-    let called = 0;
-    const interceptor = {
-      intercept: (args: number[]) => {
-        called += args[0];
-        return args;
-      },
-    };
-    eventbus.registerInterceptor('test', interceptor);
-
-    // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcast('test2', [1]);
-
-    // expect
-    expect(called).to.equal(1);
-  });
-
-  it('should register and call the event interceptor for the specified topic', () => {
-    // given
+    const { eventbus } = context;
     let called = 0;
     let topic = 'topic';
     const interceptor = {
@@ -94,10 +108,14 @@ describe('Eventbus', () => {
 
     // expect
     expect(called).to.be.equal(1);
-  });
+  }
+);
 
-  it('should register and call the event interceptor and pass the new args to the event handler', () => {
+EventbusSuite(
+  'should register and call the event interceptor and pass the new args to the event handler',
+  (context) => {
     // given
+    const { eventbus } = context;
     let called1 = 0;
     let called2 = 0;
     let topic = 'topic';
@@ -107,12 +125,12 @@ describe('Eventbus', () => {
       },
     };
     eventbus.registerInterceptor('test', interceptor);
-    eventbus.on('test', val => {
+    eventbus.on('test', (val) => {
       called1 += val;
     });
     eventbus.on(
       'test',
-      val => {
+      (val) => {
         called2 += val;
       },
       topic
@@ -125,11 +143,15 @@ describe('Eventbus', () => {
     // expect
     expect(called1).to.be.equal(10);
     expect(called2).to.be.equal(1);
-  });
+  }
+);
 
-  it('should register and call the specified eventlistener', () => {
+EventbusSuite(
+  'should register and call the specified eventlistener',
+  (context) => {
     // given
-    let received:[string, string, any[]][] = [];
+    const { eventbus } = context;
+    let received: [string, string, any[]][] = [];
     const topic = 'topic';
     const listener = {
       handleEvent: (eventName: string, eventTopic: string, args: any[]) => {
@@ -152,5 +174,7 @@ describe('Eventbus', () => {
     expect(received[1][0]).to.equal('test2');
     expect(received[1][1]).to.equal(topic);
     expect(received[1][2][0]).to.equal(100);
-  });
-});
+  }
+);
+
+EventbusSuite.run();

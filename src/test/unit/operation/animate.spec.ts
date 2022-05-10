@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { animate } from '../../../operation/animate';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   properties: any;
@@ -27,45 +28,47 @@ class MockElement {
   }
 }
 
-describe('animate', () => {
-  it('should animate with easing when defined', async () => {
-    // given
-    const mockElement = new MockElement();
+const AnimateSuite = suite('animate');
 
-    const operationData = {
-      animationEasing: 'slow',
-      selectedElement: (mockElement as any) as JQuery,
-      animationProperties: {},
-      animationDuration: 5,
-    };
+AnimateSuite('should animate with easing when defined', async () => {
+  // given
+  const mockElement = new MockElement();
 
-    // test
-    const data = await applyOperation<Promise<typeof operationData>>(
-      animate,
-      operationData
-    );
+  const operationData = {
+    animationEasing: 'slow',
+    selectedElement: mockElement as any as JQuery,
+    animationProperties: {},
+    animationDuration: 5,
+  };
 
-    // expect
-    expect(data.selectedElement).to.equal(operationData.selectedElement);
-  });
+  // test
+  const data = await applyOperation<Promise<typeof operationData>>(
+    animate,
+    operationData
+  );
 
-  it('should animate without easing when not defined', async () => {
-    // given
-    const mockElement = new MockElement();
-
-    const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
-      animationProperties: {},
-      animationDuration: 5,
-    };
-
-    // test
-    const data = await applyOperation<Promise<typeof operationData>>(
-      animate,
-      operationData
-    );
-
-    // expect
-    expect(data.selectedElement).to.equal(operationData.selectedElement);
-  });
+  // expect
+  expect(data.selectedElement).to.equal(operationData.selectedElement);
 });
+
+AnimateSuite('should animate without easing when not defined', async () => {
+  // given
+  const mockElement = new MockElement();
+
+  const operationData = {
+    selectedElement: mockElement as any as JQuery,
+    animationProperties: {},
+    animationDuration: 5,
+  };
+
+  // test
+  const data = await applyOperation<Promise<typeof operationData>>(
+    animate,
+    operationData
+  );
+
+  // expect
+  expect(data.selectedElement).to.equal(operationData.selectedElement);
+});
+
+AnimateSuite.run();

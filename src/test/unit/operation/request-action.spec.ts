@@ -1,7 +1,8 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { requestAction } from '../../../operation/request-action';
 import { TimelineEventNames } from '../../../timeline-event-names';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockEventbus {
   mockAction: any = {};
@@ -15,23 +16,25 @@ class MockEventbus {
   }
 }
 
-describe('requestAction', () => {
-  it('should request the specified action', () => {
-    // given
-    const operationData = {
-      systemName: 'testActionName',
-    } as any;
-    const eventbus = new MockEventbus();
+const RequestActionSuite = suite('requestAction');
 
-    // test
-    const newData: any = applyOperation(requestAction, operationData, {
-      currentIndex: -1,
-      eventbus: eventbus as any,
-    });
+RequestActionSuite('should request the specified action', () => {
+  // given
+  const operationData = {
+    systemName: 'testActionName',
+  } as any;
+  const eventbus = new MockEventbus();
 
-    // expect
-    expect(eventbus.systemName).to.equal(operationData.systemName);
-    expect(eventbus.eventName).to.equal(TimelineEventNames.REQUEST_ACTION);
-    expect(newData.actionInstance).to.equal(eventbus.mockAction);
+  // test
+  const newData: any = applyOperation(requestAction, operationData, {
+    currentIndex: -1,
+    eventbus: eventbus as any,
   });
+
+  // expect
+  expect(eventbus.systemName).to.equal(operationData.systemName);
+  expect(eventbus.eventName).to.equal(TimelineEventNames.REQUEST_ACTION);
+  expect(newData.actionInstance).to.equal(eventbus.mockAction);
 });
+
+RequestActionSuite.run();

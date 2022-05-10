@@ -1,9 +1,10 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import {
   IReparentElementOperationData,
   reparentElement,
 } from '../../../operation/reparent-element';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   selector: string = '';
@@ -19,14 +20,17 @@ class MockElement {
   }
 }
 
-describe('reparentElement', () => {
-  it('should set the parent of the given element to the new given parent', () => {
+const ReparentElementSuite = suite('reparentElement');
+
+ReparentElementSuite(
+  'should set the parent of the given element to the new given parent',
+  () => {
     // given
     const mockElement = new MockElement();
-    const operationData = ({
+    const operationData = {
       selectedElement: mockElement,
       newParentSelector: '.parent-class',
-    } as any) as IReparentElementOperationData;
+    } as any as IReparentElementOperationData;
 
     // test
     applyOperation(reparentElement, operationData);
@@ -34,5 +38,7 @@ describe('reparentElement', () => {
     // expect
     expect(mockElement.calledRemove).to.be.true;
     expect(mockElement.selector).to.equal(operationData.newParentSelector);
-  });
-});
+  }
+);
+
+ReparentElementSuite.run();

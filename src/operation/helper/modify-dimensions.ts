@@ -1,38 +1,61 @@
 import { IDimensions } from '../../types';
 
-function modifyDimensionsByRatio(
+function _modifyDimensionsByRatio(
   ratioModifier: string,
   dimensions: IDimensions
 ) {
+  const modifiedDimensions = { ...dimensions };
   //h[ar=8-1]
   let prefix = ratioModifier.substring(0, 1);
+
   let ratio = ratioModifier.substring(
     ratioModifier.indexOf('[') + 1,
-    ratioModifier.indexOf(']') - ratioModifier.indexOf('[') - 1
+    ratioModifier.indexOf(']') - (ratioModifier.indexOf('[') - 1)
   );
+
   let ratios = ratio.split('=')[1].split('-');
-  if (prefix === 'h') {
-    dimensions.height = (dimensions.width / +ratios[0]) * +ratios[1];
-  } else if (prefix === 'w') {
-    dimensions.width = (dimensions.height / +ratios[1]) * +ratios[0];
+
+  if (ratios.filter(Boolean).length !== 2) {
+    throw new Error(`Badly formatted modifier, expect two ratios: ${ratio}`);
   }
+
+  if (prefix === 'h') {
+    modifiedDimensions.height =
+      (modifiedDimensions.width / +ratios[0]) * +ratios[1];
+  } else if (prefix === 'w') {
+    modifiedDimensions.width =
+      (modifiedDimensions.height / +ratios[1]) * +ratios[0];
+  }
+
+  return modifiedDimensions;
 }
 
-function getModifierSuffix(modifier: string): [string | null, number, boolean] {
+function _getModifierSuffix(
+  modifier: string //*100h%
+): [string | null, number, boolean] {
   let endIdx = 1;
-  let suffix: string | null = modifier.substring(modifier.length - 1, 1);
+  let suffix: string | null = modifier.substring(
+    modifier.length - endIdx,
+    modifier.length
+  );
+
   if (suffix !== 'h' && suffix !== 'w' && suffix !== '%') {
     suffix = null;
   }
+
   const isPercent = suffix === '%';
+
   if (isPercent) {
-    endIdx = 2;
-    suffix = modifier.substring(modifier.length - endIdx, 1);
+    suffix = modifier.substring(
+      modifier.length - endIdx,
+      modifier.length - (endIdx + 1)
+    );
+
     if (suffix !== 'h' && suffix !== 'w') {
       suffix = null;
-      endIdx = 1;
     }
   }
+
   return [suffix, endIdx, isPercent];
 }
 
@@ -43,63 +66,64 @@ function _modifyDimensions(
   widthModifier: number,
   heightModifier: number
 ) {
+  const modifiedDimension = { ...dimensions };
   switch (prefix) {
     case '+':
       switch (suffix) {
         case 'h':
-          dimensions.height += heightModifier;
+          modifiedDimension.height += heightModifier;
           break;
         case 'w':
-          dimensions.width += widthModifier;
+          modifiedDimension.width += widthModifier;
           break;
         default:
-          dimensions.height += heightModifier;
-          dimensions.width += widthModifier;
+          modifiedDimension.height += heightModifier;
+          modifiedDimension.width += widthModifier;
       }
       break;
     case '-':
       switch (suffix) {
         case 'h':
-          dimensions.height -= heightModifier;
+          modifiedDimension.height -= heightModifier;
           break;
         case 'w':
-          dimensions.width -= widthModifier;
+          modifiedDimension.width -= widthModifier;
           break;
         default:
-          dimensions.height -= heightModifier;
-          dimensions.width -= widthModifier;
+          modifiedDimension.height -= heightModifier;
+          modifiedDimension.width -= widthModifier;
       }
       break;
     case '/':
       switch (suffix) {
         case 'h':
-          dimensions.height /= heightModifier;
+          modifiedDimension.height /= heightModifier;
           break;
         case 'w':
-          dimensions.width /= widthModifier;
+          modifiedDimension.width /= widthModifier;
           break;
         default:
-          dimensions.height /= heightModifier;
-          dimensions.width /= widthModifier;
+          modifiedDimension.height /= heightModifier;
+          modifiedDimension.width /= widthModifier;
       }
       break;
     case '*':
       switch (suffix) {
         case 'h':
-          dimensions.height *= heightModifier;
+          modifiedDimension.height *= heightModifier;
           break;
         case 'w':
-          dimensions.width *= widthModifier;
+          modifiedDimension.width *= widthModifier;
           break;
         default:
-          dimensions.height *= heightModifier;
-          dimensions.width *= widthModifier;
+          modifiedDimension.height *= heightModifier;
+          modifiedDimension.width *= widthModifier;
       }
       break;
     default:
       console.error(`Unknown operator found: ${prefix}`);
   }
-  return dimensions;
+  return modifiedDimension;
 }
 
 /**
@@ -118,30 +142,31 @@ function _modifyDimensions(
  * @param modifier
  */
 export function modifyDimensions(dimensions: IDimensions, modifier: string) {
+  const clonedDimensions = { ...dimensions };
   let ratioModifier: string | null = null;
   if (modifier.indexOf('|') > -1) {
     [modifier, ratioModifier] = modifier.split('|');
   }
 
   const prefix = modifier.substring(0, 1);
-  let [suffix, endIdx, isPercent] = getModifierSuffix(modifier);
+  let [suffix, endIdx, isPercent] = _getModifierSuffix(modifier);
 
   const value = parseInt(
     suffix !== null
-      ? modifier.substring(1, modifier.length - endIdx - 1)
-      : modifier.substring(1, modifier.length),
+      ? modifier.substring(1, modifier.length - (endIdx - 1))
+      : modifier.substring(1),
     10
   );
 
   let widthModifier = value;
   let heightModifier = value;
   if (isPercent) {
-    widthModifier = (dimensions.width / 100) * value;
-    heightModifier = (dimensions.height / 100) * value;
+    widthModifier = (clonedDimensions.width / 100) * value;
+    heightModifier = (clonedDimensions.height / 100) * value;
   }
 
-  dimensions = _modifyDimensions(
-    dimensions,
+  const modifiedDimension = _modifyDimensions(
+    clonedDimensions,
     prefix,
     suffix,
     widthModifier,
@@ -149,6 +174,8 @@ export function modifyDimensions(dimensions: IDimensions, modifier: string) {
   );
 
   if (ratioModifier) {
-    modifyDimensionsByRatio(ratioModifier, dimensions);
+    return _modifyDimensionsByRatio(ratioModifier, modifiedDimension);
   }
+
+  return modifiedDimension;
 }

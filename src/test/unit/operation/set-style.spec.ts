@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { setStyle } from '../../../operation/set-style';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   cssProps: any;
@@ -9,28 +10,31 @@ class MockElement {
   }
 }
 
-describe('setStyle', () => {
-  it('should set the style on the specified element', () => {
-    // given
-    const mockElement = new MockElement();
-    const operationData = {
-      display: 'block',
-      properties: {
-        visible: true,
-        display: 'operationdata.display',
-      },
-      selectedElement: (mockElement as any) as JQuery,
-    };
+const SetStyleSuite = suite('setStyle');
 
-    // test
-    applyOperation(setStyle, operationData);
+SetStyleSuite('should set the style on the specified element', () => {
+  // given
+  const mockElement = new MockElement();
+  const operationData = {
+    display: 'block',
+    properties: {
+      visible: true,
+      display: 'operationdata.display',
+    },
+    selectedElement: mockElement as any as JQuery,
+  };
 
-    // expect
-    expect(mockElement.cssProps.visible).to.be.true;
-    expect(mockElement.cssProps.display).to.equal('block');
-  });
+  // test
+  applyOperation(setStyle, operationData);
 
-  it('should set the style on the specified element with a custom propertyName', () => {
+  // expect
+  expect(mockElement.cssProps.visible).to.be.true;
+  expect(mockElement.cssProps.display).to.equal('block');
+});
+
+SetStyleSuite(
+  'should set the style on the specified element with a custom propertyName',
+  () => {
     // given
     const mockElement = new MockElement();
     const operationData = {
@@ -49,5 +53,7 @@ describe('setStyle', () => {
     // expect
     expect(mockElement.cssProps.visible).to.be.true;
     expect(mockElement.cssProps.display).to.equal('block');
-  });
-});
+  }
+);
+
+SetStyleSuite.run();

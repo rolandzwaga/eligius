@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { clearElement } from '../../../operation/clear-element';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   emptied = false;
@@ -10,20 +11,22 @@ class MockElement {
   }
 }
 
-describe('clearElement', () => {
-  it('should clear the given element', () => {
-    // given
-    const operationData = {
-      selectedElement: new MockElement(),
-    };
+const ClearElementSuite = suite('clearElement');
 
-    // test
-    const result = applyOperation<typeof operationData>(
-      clearElement,
-      operationData
-    );
+ClearElementSuite('should clear the given element', () => {
+  // given
+  const operationData = {
+    selectedElement: new MockElement(),
+  };
 
-    // expect
-    expect(result.selectedElement.emptied).to.be.true;
-  });
+  // test
+  const result = applyOperation<typeof operationData>(
+    clearElement,
+    operationData
+  );
+
+  // expect
+  expect(result.selectedElement.emptied).to.be.true;
 });
+
+ClearElementSuite.run();

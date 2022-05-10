@@ -1,8 +1,9 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { Eventbus, IEventbus } from '../../../eventbus';
 import { TOperation } from '../../../operation';
 import { customFunction } from '../../../operation/custom-function';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockEventbus {
   testFunction: Function;
@@ -15,8 +16,11 @@ class MockEventbus {
   }
 }
 
-describe('customFunction', () => {
-  it('should resolve and execute the specified function', () => {
+const CustomFunctionSuite = suite('customFunction');
+
+CustomFunctionSuite(
+  'should resolve and execute the specified function',
+  async () => {
     // given
     const operationData = {
       systemName: 'testName',
@@ -31,26 +35,26 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const promise = applyOperation<Promise<any>>(
-      customFunction,
-      operationData,
-      { currentIndex: -1, eventbus: (mockEventbus as unknown) as IEventbus }
-    );
+    await applyOperation<Promise<any>>(customFunction, operationData, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+    });
 
     // expect
-    return promise.then(() => {
-      expect(called).to.be.true;
-    });
-  });
+    expect(called).to.be.true;
+  }
+);
 
-  it('should resolve and execute the specified function that itself returns a promise', async () => {
+CustomFunctionSuite(
+  'should resolve and execute the specified function that itself returns a promise',
+  async () => {
     // given
     const operationData = {
       systemName: 'testName',
     };
     let called = false;
     const func = (opData: TOperation, eventbus: Eventbus) => {
-      return new Promise<void>(resolve => {
+      return new Promise<void>((resolve) => {
         called = true;
         expect(opData).to.equal(operationData);
         expect(eventbus).to.equal(mockEventbus);
@@ -60,13 +64,19 @@ describe('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const result = await applyOperation<Promise<any>>(customFunction, operationData, {
-      currentIndex: -1,
-      eventbus: (mockEventbus as unknown) as IEventbus,
-    });
+    const result = await applyOperation<Promise<any>>(
+      customFunction,
+      operationData,
+      {
+        currentIndex: -1,
+        eventbus: mockEventbus as unknown as IEventbus,
+      }
+    );
 
     // expect
     expect(called).to.be.true;
     return result;
-  });
-});
+  }
+);
+
+CustomFunctionSuite.run();

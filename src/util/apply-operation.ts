@@ -1,4 +1,4 @@
-import { IOperationContext, TOperation } from '../../../operation';
+import { IOperationContext, TOperation } from '../operation';
 
 export const defaultContext: IOperationContext = {
   currentIndex: -1,

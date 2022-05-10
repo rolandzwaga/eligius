@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { broadcastEvent } from '../../../operation/broadcast-event';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockEventbus {
   eventName: string = '';
@@ -19,8 +20,11 @@ class MockEventbus {
   }
 }
 
-describe('broadcastEvent', () => {
-  it('should broadcast the event through the given eventbus and clean up the operationdata', () => {
+const BroadcastEventSuite = suite('broadcastEvent');
+
+BroadcastEventSuite(
+  'should broadcast the event through the given eventbus and clean up the operationdata',
+  () => {
     // given
     const operationData = {
       eventArgs: null,
@@ -44,9 +48,12 @@ describe('broadcastEvent', () => {
     expect(resultOperationData.eventArgs).to.be.undefined;
     expect(resultOperationData.eventTopic).to.be.undefined;
     expect(resultOperationData.eventName).to.be.undefined;
-  });
+  }
+);
 
-  it('should broadcast the event through the given eventbus using the given topic and clean up the operationdata', () => {
+BroadcastEventSuite(
+  'should broadcast the event through the given eventbus using the given topic and clean up the operationdata',
+  () => {
     // given
     const operationData = {
       eventArgs: null,
@@ -71,9 +78,12 @@ describe('broadcastEvent', () => {
     expect(resultOperationData.eventArgs).to.be.undefined;
     expect(resultOperationData.eventTopic).to.be.undefined;
     expect(resultOperationData.eventName).to.be.undefined;
-  });
+  }
+);
 
-  it('should broadcast the event using the specified arguments', () => {
+BroadcastEventSuite(
+  'should broadcast the event using the specified arguments',
+  () => {
     // given
     const args = ['arg1', 'arg2'];
     const operationData = {
@@ -100,9 +110,12 @@ describe('broadcastEvent', () => {
     expect(resultOperationData.eventArgs).to.be.undefined;
     expect(resultOperationData.eventTopic).to.be.undefined;
     expect(resultOperationData.eventName).to.be.undefined;
-  });
+  }
+);
 
-  it('should broadcast the event using the resolved arguments', () => {
+BroadcastEventSuite(
+  'should broadcast the event using the resolved arguments',
+  () => {
     // given
     const args = ['operationdata.arg1', 'operationdata.arg2'];
     const operationData = {
@@ -131,5 +144,7 @@ describe('broadcastEvent', () => {
     expect(resultOperationData.eventArgs).to.be.undefined;
     expect(resultOperationData.eventTopic).to.be.undefined;
     expect(resultOperationData.eventName).to.be.undefined;
-  });
-});
+  }
+);
+
+BroadcastEventSuite.run();

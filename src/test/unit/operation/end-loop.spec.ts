@@ -1,40 +1,44 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { endLoop } from '../../../operation/end-loop';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('endLoop', () => {
-  it('should return the operation data', () => {
-    // given
-    const context = {
-      currentIndex: -1,
-      eventbus: {} as any,
-    };
-    const operationData = {};
+const EndLoopSuite = suite('endLoop');
 
-    // test
-    const result = applyOperation(endLoop, operationData, context);
+EndLoopSuite('should return the operation data', () => {
+  // given
+  const context = {
+    currentIndex: -1,
+    eventbus: {} as any,
+  };
+  const operationData = {};
 
-    // expect
-    expect(result).to.be.equal(operationData);
-  });
+  // test
+  const result = applyOperation(endLoop, operationData, context);
 
-  it('should reset if context.skip is true', () => {
-    // given
-    const context = {
-      skipNextOperation: true,
-      currentIndex: -1,
-      eventbus: {} as any,
-    };
-    const operationData = {};
+  // expect
+  expect(result).to.be.equal(operationData);
+});
 
-    // test
-    applyOperation(endLoop, operationData, context);
+EndLoopSuite('should reset if context.skip is true', () => {
+  // given
+  const context = {
+    skipNextOperation: true,
+    currentIndex: -1,
+    eventbus: {} as any,
+  };
+  const operationData = {};
 
-    // expect
-    expect(context.skipNextOperation).to.be.undefined;
-  });
+  // test
+  applyOperation(endLoop, operationData, context);
 
-  it('should increment loopIndex and restart the newIndex when the current is lower than the loopLength', () => {
+  // expect
+  expect(context.skipNextOperation).to.be.undefined;
+});
+
+EndLoopSuite(
+  'should increment loopIndex and restart the newIndex when the current is lower than the loopLength',
+  () => {
     // given
     const context = {
       currentIndex: -1,
@@ -54,9 +58,12 @@ describe('endLoop', () => {
     expect(context.loopLength).to.be.equal(10);
     expect(context.startIndex).to.be.equal(5);
     expect(context.newIndex).to.be.equal(5);
-  });
+  }
+);
 
-  it('should reset the context when the loopIndex is equal to the loopLength', () => {
+EndLoopSuite(
+  'should reset the context when the loopIndex is equal to the loopLength',
+  () => {
     // given
     const context = {
       currentIndex: -1,
@@ -76,5 +83,7 @@ describe('endLoop', () => {
     expect(context.loopLength).to.be.undefined;
     expect(context.startIndex).to.be.undefined;
     expect(context.newIndex).to.be.undefined;
-  });
-});
+  }
+);
+
+EndLoopSuite.run();

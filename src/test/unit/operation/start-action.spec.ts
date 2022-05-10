@@ -1,39 +1,39 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { IAction } from '../../../action/types';
 import { TOperationData } from '../../../operation';
 import { startAction } from '../../../operation/start-action';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockAction {
   start(operationData: TOperationData) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       operationData.resolved = true;
       resolve(operationData);
     });
   }
 }
 
-describe('startAction', () => {
-  it('should start the specified action', async () => {
-    // given
-    const mockAction = (new MockAction() as unknown) as IAction;
+const StartActionSuite = suite('startAction');
 
-    const operationData = {
-      actionInstance: mockAction,
-      actionOperationData: {
-        prop: 'test',
-      },
-    };
+StartActionSuite('should start the specified action', async () => {
+  // given
+  const mockAction = new MockAction() as unknown as IAction;
 
-    // test
-    const result = await applyOperation<Promise<any>>(
-      startAction,
-      operationData
-    );
+  const operationData = {
+    actionInstance: mockAction,
+    actionOperationData: {
+      prop: 'test',
+    },
+  };
 
-    // expect
-    expect(result.resolved).to.be.true;
-    expect(result.prop).to.be.undefined;
-    return result;
-  });
+  // test
+  const result = await applyOperation<Promise<any>>(startAction, operationData);
+
+  // expect
+  expect(result.resolved).to.be.true;
+  expect(result.prop).to.be.undefined;
+  return result;
 });
+
+StartActionSuite.run();

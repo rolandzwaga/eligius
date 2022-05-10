@@ -1,41 +1,39 @@
-/**
- * @jest-environment jsdom
- */
-
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { wait } from '../../../operation/wait';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('wait', () => {
-  const timeout = window.setTimeout;
-  let mseconds = 0;
+const WaitSuite =
+  suite<{ timeout: typeof window.setTimeout; mseconds: number }>('wait');
 
-  beforeAll(() => {
-    mseconds = 0;
-    window.setTimeout = function (func: Function, ms: number) {
-      mseconds = ms;
-      func();
-    } as any;
-  });
+WaitSuite.before((context) => {
+  context.mseconds = 0;
+  context.timeout = window.setTimeout;
+  global.setTimeout = function (func: Function, ms: number) {
+    context.mseconds = ms;
+    func();
+  } as any;
+});
 
-  afterAll(() => {
-    window.setTimeout = timeout;
-  });
+WaitSuite.after((context) => {
+  global.setTimeout = context.timeout;
+});
 
-  it('should wait for the specified amount of milliseconds', () => {
+WaitSuite(
+  'should wait for the specified amount of milliseconds',
+  async (context) => {
     // given
     const operationData = {
       milliseconds: 1000,
     };
 
     // test
-    const promise = applyOperation<Promise<any>>(wait, operationData);
+    const data = await applyOperation<Promise<any>>(wait, operationData);
 
     // expect
-    promise.then((data) => {
-      expect(data).to.equal(operationData);
-      expect(mseconds).to.equal(operationData.milliseconds);
-    });
-    return promise;
-  });
-});
+    expect(data).to.equal(operationData);
+    expect(context.mseconds).to.equal(operationData.milliseconds);
+  }
+);
+
+WaitSuite.run();

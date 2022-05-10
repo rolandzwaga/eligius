@@ -1,27 +1,32 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import * as operations from '../../../operation';
 import * as metadata from '../../../operation/metadata';
 // import ParameterTypes from '../../src/operation/metadata/ParameterTypes';
 // import randomstring from 'randomstring';
 // import { Eventbus } from '../../eventbus';
 
-describe('automatic input and output tests', () => {
-  it('should have equal numbers of metadata as operations', () => {
-    expect(Object.keys(operations).length).to.equal(
-      Object.keys(metadata).length
-    );
-  });
+const InputOutputSuite = suite('automatic input and output tests');
 
-  it('should have equalnames between metadata and operations', () => {
+InputOutputSuite('should have equal numbers of metadata as operations', () => {
+  expect(Object.keys(operations).length).to.equal(Object.keys(metadata).length);
+});
+
+InputOutputSuite(
+  'should have equalnames between metadata and operations',
+  () => {
     const operationNames = Object.keys(operations);
     const metadataNames = Object.keys(metadata);
-    const isEqual = operationNames.every(name => {
+    const isEqual = operationNames.every((name) => {
       return metadataNames.includes(name);
     });
     expect(isEqual).to.be.true;
-  });
+  }
+);
 
-  /*it('should have the correct in- and output for all operations based on their metadata', () => {
+InputOutputSuite.run();
+
+/*it('should have the correct in- and output for all operations based on their metadata', () => {
     Object.entries(operations).forEach(([name, operation]) => {
       testOperation(name, operation, metadata[name](), metadata);
     });
@@ -143,4 +148,3 @@ describe('automatic input and output tests', () => {
         propertyType;
     }
   }*/
-});

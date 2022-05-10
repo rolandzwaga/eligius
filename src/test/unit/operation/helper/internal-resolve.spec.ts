@@ -1,8 +1,12 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { internalResolve } from '../../../../operation/helper/internal-resolve';
 
-describe('internalResolve', () => {
-  it('it should call the given resolve with the given operationdata', () => {
+const InternalResolveSuite = suite('internalResolve');
+
+InternalResolveSuite(
+  'it should call the given resolve with the given operationdata',
+  () => {
     // given
     let receivedData: any = null;
     const resolve = (data: any) => {
@@ -15,9 +19,12 @@ describe('internalResolve', () => {
 
     // expect
     expect(receivedData).to.equal(operationData);
-  });
+  }
+);
 
-  it('it should call the given resolve with the merged operationdatas', () => {
+InternalResolveSuite(
+  'it should call the given resolve with the merged operationdatas',
+  () => {
     // given
     let receivedData: any = null;
     const resolve = (data: any) => {
@@ -38,5 +45,7 @@ describe('internalResolve', () => {
     expect(receivedData.hasOwnProperty('test2')).to.be.true;
     expect(receivedData.test1).to.be.equal(operationData.test1);
     expect(receivedData.test2).to.be.equal(newOperationData.test2);
-  });
-});
+  }
+);
+
+InternalResolveSuite.run();

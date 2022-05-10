@@ -1,27 +1,31 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { clearOperationData } from '../../../operation/clear-operation-data';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('clearOperationData', () => {
-  it('should clear the given operation data', () => {
-    // given
-    const operationData = {
-      bla: 1,
-      bla2: true,
-      bla3: 'hello',
-    };
+const ClearOperationDataSuite = suite('clearOperationData');
 
-    // test
-    const newOperationData = applyOperation<typeof operationData>(
-      clearOperationData,
-      operationData
-    );
+ClearOperationDataSuite('should clear the given operation data', () => {
+  // given
+  const operationData = {
+    bla: 1,
+    bla2: true,
+    bla3: 'hello',
+  };
 
-    // expect
-    expect(newOperationData).to.not.equal(operationData);
-  });
+  // test
+  const newOperationData = applyOperation<typeof operationData>(
+    clearOperationData,
+    operationData
+  );
 
-  it('should clear the given properties on the given operation data', () => {
+  // expect
+  expect(newOperationData).to.not.equal(operationData);
+});
+
+ClearOperationDataSuite(
+  'should clear the given properties on the given operation data',
+  () => {
     // given
     const operationData = {
       bla: 1,
@@ -41,5 +45,7 @@ describe('clearOperationData', () => {
     expect(newOperationData.bla3).to.be.undefined;
     expect(newOperationData.properties).to.be.undefined;
     expect(newOperationData.bla2).to.be.true;
-  });
-});
+  }
+);
+
+ClearOperationDataSuite.run();

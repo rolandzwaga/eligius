@@ -1,37 +1,41 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { ConfigurationFactory } from '../../../../configuration/api';
 import { TimelineActionEditor } from '../../../../configuration/api/action-editor';
 import { ITimelineActionConfiguration } from '../../../../configuration/types';
 
-describe('TimelineActionEditor.', () => {
-  let timelineActionEditor: TimelineActionEditor = {} as TimelineActionEditor;
-  let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
-  let actionConfig: ITimelineActionConfiguration =
-    {} as ITimelineActionConfiguration;
+const TimelineActionEditorSuite = suite<{
+  timelineActionEditor: TimelineActionEditor;
+  configurationFactory: ConfigurationFactory;
+  actionConfig: ITimelineActionConfiguration;
+}>('TimelineActionEditor');
 
-  beforeEach(() => {
-    configurationFactory = {} as ConfigurationFactory;
-    actionConfig = {
-      id: '111-222-333',
-      duration: { start: 10, end: 15 },
-      name: 'name',
-      startOperations: [],
-      endOperations: [
-        {
-          id: 'test',
-          systemName: 'test',
-          operationData: {},
-        },
-      ],
-    };
-    timelineActionEditor = new TimelineActionEditor(
-      actionConfig,
-      configurationFactory
-    );
-  });
+TimelineActionEditorSuite.before.each((context) => {
+  context.configurationFactory = {} as ConfigurationFactory;
+  context.actionConfig = {
+    id: '111-222-333',
+    duration: { start: 10, end: 15 },
+    name: 'name',
+    startOperations: [],
+    endOperations: [
+      {
+        id: 'test',
+        systemName: 'test',
+        operationData: {},
+      },
+    ],
+  };
+  context.timelineActionEditor = new TimelineActionEditor(
+    context.actionConfig,
+    context.configurationFactory
+  );
+});
 
-  it('should set the duration start and end', () => {
+TimelineActionEditorSuite(
+  'should set the duration start and end',
+  (context) => {
     // given
+    const { timelineActionEditor } = context;
 
     // test
     timelineActionEditor.setDuration(12, 40).getConfiguration((config) => {
@@ -39,10 +43,14 @@ describe('TimelineActionEditor.', () => {
       expect(config.duration.end).to.equal(40);
       return undefined;
     });
-  });
+  }
+);
 
-  it('should not set end property when end is undefined', () => {
+TimelineActionEditorSuite(
+  'should not set end property when end is undefined',
+  (context) => {
     // given
+    const { timelineActionEditor } = context;
 
     // test
     timelineActionEditor.setDuration(12).getConfiguration((config) => {
@@ -50,22 +58,20 @@ describe('TimelineActionEditor.', () => {
       expect(config.duration.hasOwnProperty('end')).to.be.false;
       return undefined;
     });
-  });
+  }
+);
 
-  it('should throw an error when start is higher than end', () => {
+TimelineActionEditorSuite(
+  'should throw an error when start is higher than end',
+  (context) => {
     // given
-    let errorMessage: any = null;
-
-    // test
-    try {
-      timelineActionEditor.setDuration(12, 10);
-    } catch (e: any) {
-      errorMessage = e.message;
-    }
+    const { timelineActionEditor } = context;
 
     // expect
-    expect(errorMessage).to.equal(
+    expect(() => timelineActionEditor.setDuration(12, 10)).throws(
       'start position cannot be higher than end position'
     );
-  });
-});
+  }
+);
+
+TimelineActionEditorSuite.run();

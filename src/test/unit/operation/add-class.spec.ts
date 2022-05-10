@@ -1,27 +1,30 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { addClass } from '../../../operation/add-class';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('addClass operation', () => {
-  it('should add the specified class to the element', () => {
-    // given
-    const elementMock = {
-      className: '',
-      addClass: function(className: string) {
-        this.className = className;
-      },
-    };
+const AddClassSuite = suite('addClass');
 
-    const operationData = {
-      className: 'testClass',
-      selectedElement: (elementMock as any) as JQuery,
-    };
+AddClassSuite('should add the specified class to the element', () => {
+  // given
+  const elementMock = {
+    className: '',
+    addClass: function (className: string) {
+      this.className = className;
+    },
+  };
 
-    // test
-    const data = applyOperation(addClass, operationData);
+  const operationData = {
+    className: 'testClass',
+    selectedElement: elementMock as any as JQuery,
+  };
 
-    // expect
-    expect(data).to.equal(operationData);
-    expect(elementMock.className).to.equal(operationData.className);
-  });
+  // test
+  const data = applyOperation(addClass, operationData);
+
+  // expect
+  expect(data).to.equal(operationData);
+  expect(elementMock.className).to.equal(operationData.className);
 });
+
+AddClassSuite.run();

@@ -1,10 +1,14 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { startLoop } from '../../../operation/start-loop';
 import { IOperationContext } from '../../../operation/types';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('startLoop', () => {
-  it('should set the context when a valid collection is passed in', () => {
+const StartLoopSuite = suite('startLoop');
+
+StartLoopSuite(
+  'should set the context when a valid collection is passed in',
+  () => {
     // given
     const context: IOperationContext = {
       currentIndex: 10,
@@ -27,9 +31,12 @@ describe('startLoop', () => {
     expect(context.loopLength).to.equal(3);
     expect(context.startIndex).to.equal(10);
     expect(result.test).to.equal(1);
-  });
+  }
+);
 
-  it('should set the context when an empty collection is passed in', () => {
+StartLoopSuite(
+  'should set the context when an empty collection is passed in',
+  () => {
     // given
     const context: IOperationContext = {
       currentIndex: 10,
@@ -53,9 +60,12 @@ describe('startLoop', () => {
     expect(context.startIndex).to.be.undefined;
     expect(context.skipNextOperation).to.be.true;
     expect(result.test).to.be.undefined;
-  });
+  }
+);
 
-  it('should set the context when a null collection is passed in', () => {
+StartLoopSuite(
+  'should set the context when a null collection is passed in',
+  () => {
     // given
     const context: IOperationContext = {
       currentIndex: 10,
@@ -79,5 +89,7 @@ describe('startLoop', () => {
     expect(context.startIndex).to.be.undefined;
     expect(context.skipNextOperation).to.be.true;
     expect(result.test).to.be.undefined;
-  });
-});
+  }
+);
+
+StartLoopSuite.run();

@@ -13,7 +13,11 @@ export interface IEventbus {
     eventHandler: TEventHandler,
     eventTopic?: string
   ): void;
-  once(eventName: string, eventHandler: Function, eventTopic?: string): void;
+  once(
+    eventName: string,
+    eventHandler: TEventHandler,
+    eventTopic?: string
+  ): void;
   broadcast(eventName: string, args?: any[]): void;
   broadcastForTopic(eventName: string, eventTopic: string, args?: any[]): void;
   registerEventlistener(eventbusListener: IEventbusListener): void;

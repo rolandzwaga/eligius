@@ -1,35 +1,42 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { IEventbus } from '../../eventbus';
 import { LanguageManager } from '../../language-manager';
 import { ILanguageLabel } from '../../types';
 
-describe('LanguageManager', () => {
-  let eventbus: IEventbus = {} as IEventbus;
-  let language = 'nl-NL';
-  let labels: ILanguageLabel[] = [];
-  let subscriptions: any = [];
+const LanguageManagerSuite = suite<{
+  eventbus: IEventbus;
+  language: string;
+  labels: ILanguageLabel[];
+  subscriptions: any[];
+}>('LanguageManager');
 
-  function createEventbusStub(): IEventbus {
-    subscriptions = [];
-    return {
-      on: (name: string, handler: () => void) => {
-        subscriptions.push({ name, handler });
-      },
-      broadcast: (_name: string, _args: any[]) => {},
-    } as IEventbus;
-  }
+LanguageManagerSuite.before.each((context) => {
+  context.language = 'nl-NL';
+  context.labels = [];
+  context.subscriptions = [];
 
-  beforeEach(() => {
-    eventbus = createEventbusStub();
-  });
+  context.eventbus = {
+    on: (name: string, handler: () => void) => {
+      context.subscriptions.push({ name, handler });
+    },
+    broadcast: (_name: string, _args: any[]) => {},
+  } as IEventbus;
+});
 
-  it('should create an instance and add the needed event listeners', () => {
+LanguageManagerSuite(
+  'should create an instance and add the needed event listeners',
+  (context) => {
+    const { language, labels, eventbus, subscriptions } = context;
     const languageManager = new LanguageManager(language, labels, eventbus);
     expect(languageManager).to.be.not.undefined;
     expect(subscriptions.length).to.equal(4);
-  });
+  }
+);
 
-  /*it('should return the current language', () => {
+LanguageManagerSuite.run();
+
+/*it('should return the current language', () => {
     const languageManager = new LanguageManager(language, labels, eventbus);
     languageManager._handleRequestCurrentLanguage((current) => {
       expect(current).to.equal(language);
@@ -114,4 +121,3 @@ describe('LanguageManager', () => {
     expect(error).to.not.equal(null);
   });
   */
-});

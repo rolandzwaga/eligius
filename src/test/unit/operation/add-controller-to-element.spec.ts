@@ -1,8 +1,9 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { Eventbus } from '../../../eventbus';
 import { TOperation } from '../../../operation';
 import { addControllerToElement } from '../../../operation/add-controller-to-element';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   name: string = '';
@@ -36,8 +37,11 @@ class MockController {
   }
 }
 
-describe('addControllerToElement', () => {
-  it('should attach the controller without a promise result', () => {
+const AddControllerToElementSuite = suite('addControllerToElement');
+
+AddControllerToElementSuite(
+  'should attach the controller without a promise result',
+  () => {
     // given
     const operationData = {
       selectedElement: new MockElement(),
@@ -54,12 +58,14 @@ describe('addControllerToElement', () => {
     // expect
     expect(data).to.equal(operationData);
     expect(operationData.controllerInstance.eventbus).to.equal(eventbus);
-  });
+  }
+);
 
-  it('should attach the controller with a promise result', () => {
+AddControllerToElementSuite(
+  'should attach the controller with a promise result',
+  async () => {
     // given
-    //let outerResolve;
-    const promise = new Promise<void>(resolve => {
+    const promise = new Promise<void>((resolve) => {
       resolve();
     });
 
@@ -69,14 +75,14 @@ describe('addControllerToElement', () => {
     };
 
     // test
-    const promiseResult = applyOperation<Promise<any>>(
+    const data = await applyOperation<Promise<any>>(
       addControllerToElement,
       operationData
     );
 
     // expect
-    return promiseResult.then(data => {
-      expect(data).to.equal(operationData);
-    });
-  });
-});
+    expect(data).to.equal(operationData);
+  }
+);
+
+AddControllerToElementSuite.run();

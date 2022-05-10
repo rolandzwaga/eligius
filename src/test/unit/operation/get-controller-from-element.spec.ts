@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { getControllerFromElement } from '../../../operation/get-controller-from-element';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   controllers: any[];
@@ -13,8 +14,11 @@ class MockElement {
   }
 }
 
-describe('getControllerFromElement', () => {
-  it('should get the specified controller from the given element', () => {
+const GetControllerFromElementSuite = suite('getControllerFromElement');
+
+GetControllerFromElementSuite(
+  'should get the specified controller from the given element',
+  () => {
     // given
 
     const controllers = [
@@ -28,7 +32,7 @@ describe('getControllerFromElement', () => {
     const mockElement = new MockElement(controllers);
 
     const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       controllerName: 'testControllerName2',
     };
 
@@ -40,5 +44,7 @@ describe('getControllerFromElement', () => {
 
     // expect
     expect(newData.controllerInstance).to.equal(controllers[1]);
-  });
-});
+  }
+);
+
+GetControllerFromElementSuite.run();

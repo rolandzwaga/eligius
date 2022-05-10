@@ -1,10 +1,11 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { IEventbus } from '../../../eventbus/types';
 import {
   ISelectElementOperationData,
   selectElement,
 } from '../../../operation/select-element';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockEventbus {
   rootElement: any;
@@ -30,17 +31,20 @@ class MockElement {
   }
 }
 
-describe('selectElement', () => {
-  it('should select the element based on the specified selector', () => {
+const SelectElementSuite = suite('selectElement');
+
+SelectElementSuite(
+  'should select the element based on the specified selector',
+  () => {
     // given
     const selectedElement = {
       length: 1,
     };
     const mockElement = new MockElement(selectedElement);
-    const eventbus = (new MockEventbus(mockElement) as any) as IEventbus;
-    const operationData = ({
+    const eventbus = new MockEventbus(mockElement) as any as IEventbus;
+    const operationData = {
       selector: '.testClass',
-    } as any) as ISelectElementOperationData;
+    } as any as ISelectElementOperationData;
 
     // test
     const newData = applyOperation<{ selectedElement: any }>(
@@ -51,19 +55,22 @@ describe('selectElement', () => {
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
-  });
+  }
+);
 
-  it('should select the element based on the specified selector from the existing root', () => {
+SelectElementSuite(
+  'should select the element based on the specified selector from the existing root',
+  () => {
     // given
     const selectedElement = {
       length: 1,
     };
     const mockElement = new MockElement(selectedElement);
-    const operationData = ({
+    const operationData = {
       selector: '.testClass',
       useSelectedElementAsRoot: true,
-      selectedElement: (mockElement as any) as JQuery,
-    } as any) as ISelectElementOperationData;
+      selectedElement: mockElement as any as JQuery,
+    } as any as ISelectElementOperationData;
 
     // test
     const newData = applyOperation<{ selectedElement: any }>(
@@ -73,9 +80,12 @@ describe('selectElement', () => {
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
-  });
+  }
+);
 
-  it('should select the element based on the specified selector from the existing root that is assigned to a specified property on the operationdata', () => {
+SelectElementSuite(
+  'should select the element based on the specified selector from the existing root that is assigned to a specified property on the operationdata',
+  () => {
     // given
     const selectedElement = {
       length: 1,
@@ -96,5 +106,7 @@ describe('selectElement', () => {
 
     // expect
     expect(newData.otherProperty).to.equal(selectedElement);
-  });
-});
+  }
+);
+
+SelectElementSuite.run();

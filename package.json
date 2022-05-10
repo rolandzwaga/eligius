@@ -11,11 +11,10 @@
     "node": ">=10"
   },
   "scripts": {
-    "compile": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "dev": "dts watch",
     "build": "dts build",
-    "test": "dts test",
-    "test2": "cross-env TS_NODE_PROJECT=tsconfig.test.json uvu -r ts-node/register -r jsdom-global/register src/test/integration",
+    "test": "cross-env TS_NODE_PROJECT=tsconfig.test.json uvu -r ts-node/register -r jsdom-global/register src/test",
     "lint": "dts lint",
     "prepare": "dts build",
     "size": "size-limit",
@@ -69,7 +68,6 @@
     "html-loader": "3.1.0",
     "html-webpack-plugin": "5.5.0",
     "husky": "7.0.4",
-    "jest-canvas-mock": "2.4.0",
     "jquery": "3.6.0",
     "jsdom": "19.0.0",
     "jsdom-global": "3.0.2",

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { animateWithClass } from '../../../operation/animate-with-class';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   removedCalled = false;
@@ -25,43 +26,49 @@ class MockElement {
   }
 }
 
-describe('animateWithClass', () => {
-  it('should animate by adding the specified class, and remove the class afterwards', () => {
+const AnimateWithClassSuite = suite('animateWithClass');
+
+AnimateWithClassSuite.skip(
+  'should animate by adding the specified class, and remove the class afterwards',
+  async () => {
     // given
     const mockElement = new MockElement('testClass');
 
     const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       className: 'testClass',
     };
 
     // test
-    const promise = applyOperation<Promise<typeof operationData>>(
+    await applyOperation<Promise<typeof operationData>>(
       animateWithClass,
       operationData
     );
     mockElement.handler();
     expect(mockElement.removedCalled).to.be.true;
-    return promise;
-  });
+  }
+);
 
-  it('should animate by adding the specified class, and keep the class afterwards', () => {
+AnimateWithClassSuite.skip(
+  'should animate by adding the specified class, and keep the class afterwards',
+  async () => {
     // given
     const mockElement = new MockElement('testClass');
 
     const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       className: 'testClass',
       removeClass: false,
     };
 
     // test
-    const promise = applyOperation<Promise<typeof operationData>>(
+    await applyOperation<Promise<typeof operationData>>(
       animateWithClass,
       operationData
     );
     mockElement.handler();
     expect(mockElement.removedCalled).to.be.false;
-    return promise;
-  });
-});
+  }
+);
+
+AnimateWithClassSuite.run();

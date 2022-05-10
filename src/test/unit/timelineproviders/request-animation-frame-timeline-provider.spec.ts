@@ -1,101 +1,122 @@
-/**
- * @jest-environment jsdom
- */
-
 import { expect } from 'chai';
 import $ from 'jquery';
-import { Eventbus } from '../../../eventbus';
+import { suite } from 'uvu';
+import { Eventbus, IEventbus } from '../../../eventbus';
 import { TimelineEventNames } from '../../../timeline-event-names';
 import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider';
 
-describe('RequestAnimationFrameTimelineProvider', () => {
-  let provider: RequestAnimationFrameTimelineProvider | null = null;
-  let configuration: any = null;
-  let eventbus: any = null;
+const RequestAnimationFrameTimelineProviderSuite = suite<{
+  provider: RequestAnimationFrameTimelineProvider;
+  configuration: any;
+  eventbus: IEventbus;
+  requestAnimationFrame: any;
+  cancelAnimationFrame: any;
+}>('RequestAnimationFrameTimelineProvider');
 
-  beforeEach(() => {
-    $('<div id="selector"/>').appendTo(document.body);
-    configuration = {
-      timelines: [
-        {
-          type: 'animation',
-          duration: 5,
-          selector: '#selector',
-        },
-      ],
-    };
-    if (eventbus) {
-      eventbus.clear();
-    }
-    eventbus = new Eventbus();
-    if (provider) {
-      provider.destroy();
-    }
-    provider = new RequestAnimationFrameTimelineProvider(
-      eventbus,
-      configuration
-    );
-  });
+RequestAnimationFrameTimelineProviderSuite.before((context) => {
+  context.requestAnimationFrame = global.requestAnimationFrame;
+  context.cancelAnimationFrame = global.cancelAnimationFrame;
+  global.requestAnimationFrame = (fn) => setTimeout(fn, 16);
+  global.cancelAnimationFrame = () => {};
+});
 
-  afterEach(() => {
-    provider?.destroy();
-    eventbus?.clear();
-    $('#selector').remove();
-  });
+RequestAnimationFrameTimelineProviderSuite.after((context) => {
+  global.requestAnimationFrame = context.requestAnimationFrame;
+  global.cancelAnimationFrame = context.cancelAnimationFrame;
+});
 
-  it('should start and dispatch event', () => {
-    provider?.init();
+RequestAnimationFrameTimelineProviderSuite.before.each((context) => {
+  $('<div id="selector"/>').appendTo(document.body);
+  context.configuration = {
+    timelines: [
+      {
+        type: 'animation',
+        duration: 5,
+        selector: '#selector',
+      },
+    ],
+  };
+  context.eventbus = new Eventbus();
+  context.provider = new RequestAnimationFrameTimelineProvider(
+    context.eventbus,
+    context.configuration
+  );
+});
+
+RequestAnimationFrameTimelineProviderSuite.after.each((context) => {
+  context.provider.destroy();
+  context.eventbus.clear();
+  $('#selector').remove();
+});
+
+RequestAnimationFrameTimelineProviderSuite(
+  'should start and dispatch event',
+  (context) => {
+    const { provider } = context;
+
+    provider.init();
     let started = false;
-    eventbus.on(TimelineEventNames.PLAY, () => {
+    context.eventbus.on(TimelineEventNames.PLAY, () => {
       started = true;
     });
 
-    provider?.start();
-    expect(provider?.playState).to.equal('running');
+    provider.start();
+    expect(provider.playState).to.equal('running');
     expect(started).to.be.true;
-  });
+  }
+);
 
-  it('should pause and dispatch event', () => {
-    provider?.init();
+RequestAnimationFrameTimelineProviderSuite(
+  'should pause and dispatch event',
+  (context) => {
+    const { provider } = context;
+
+    provider.init();
     let paused = false;
-    eventbus.on(TimelineEventNames.PAUSE, () => {
+    context.eventbus.on(TimelineEventNames.PAUSE, () => {
       paused = true;
     });
 
-    provider?.start();
-    expect(provider?.playState).to.equal('running');
-    provider?.pause();
-    expect(provider?.playState).to.equal('paused');
+    provider.start();
+    expect(provider.playState).to.equal('running');
+    provider.pause();
+    expect(provider.playState).to.equal('paused');
     expect(paused).to.be.true;
-  });
+  }
+);
 
-  it('should stop and dispatch event', () => {
-    provider?.init();
+RequestAnimationFrameTimelineProviderSuite(
+  'should stop and dispatch event',
+  (context) => {
+    const { provider } = context;
+
+    provider.init();
     let stopped = false;
-    eventbus.on(TimelineEventNames.STOP, () => {
+    context.eventbus.on(TimelineEventNames.STOP, () => {
       stopped = true;
     });
 
-    provider?.start();
-    expect(provider?.playState).to.equal('running');
-    provider?.stop();
-    expect(provider?.playState).to.equal('stopped');
+    provider.start();
+    expect(provider.playState).to.equal('running');
+    provider.stop();
+    expect(provider.playState).to.equal('stopped');
     expect(stopped).to.be.true;
-  });
+  }
+);
 
-  /**
-   * Disabled for now, testing requestAnimationframe async stuff seems to be
-   * extremely brittle
-   */
-  xit('should dispatch TimelineEventNames.TIME 5 times', async () => {
-    provider?.init();
+RequestAnimationFrameTimelineProviderSuite(
+  'should dispatch TimelineEventNames.TIME 5 times',
+  async (context) => {
+    const { provider } = context;
+
+    provider.init();
     const recordedPositions: number[] = [];
 
-    eventbus.on(TimelineEventNames.TIME, (position: number) => {
+    context.eventbus.on(TimelineEventNames.TIME, (position: number) => {
       recordedPositions.push(position);
     });
 
-    provider?.start();
+    provider.start();
 
     const result: number[] = await new Promise((resolve) => {
       setTimeout(() => {
@@ -104,5 +125,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     });
 
     expect(result.length).to.equal(5);
-  });
-});
+  }
+);
+
+//RequestAnimationFrameTimelineProviderSuite.run();

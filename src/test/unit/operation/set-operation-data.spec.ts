@@ -1,33 +1,37 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { setOperationData } from '../../../operation/set-operation-data';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('setOperationData', () => {
-  it('should set the specified operation data', () => {
-    // given
-    const operationData = {
-      unusedProperty: 'test',
-      testProperty: 'testProperty1',
-      properties: {
-        prop1: 'prop1',
-        prop2: 'prop2',
-        prop3: 'operationdata.testProperty',
-      },
-    };
+const SetOperationDataSuite = suite('setOperationData');
 
-    // test
-    const newData = applyOperation<
-      typeof operationData.properties & { unusedProperty: string }
-    >(setOperationData, operationData);
+SetOperationDataSuite('should set the specified operation data', () => {
+  // given
+  const operationData = {
+    unusedProperty: 'test',
+    testProperty: 'testProperty1',
+    properties: {
+      prop1: 'prop1',
+      prop2: 'prop2',
+      prop3: 'operationdata.testProperty',
+    },
+  };
 
-    // expect
-    expect(newData.unusedProperty).to.equal('test');
-    expect(newData.prop1).to.equal('prop1');
-    expect(newData.prop2).to.equal('prop2');
-    expect(newData.prop3).to.equal('testProperty1');
-  });
+  // test
+  const newData = applyOperation<
+    typeof operationData.properties & { unusedProperty: string }
+  >(setOperationData, operationData);
 
-  it('should override all the existing operationdata with the specified data', () => {
+  // expect
+  expect(newData.unusedProperty).to.equal('test');
+  expect(newData.prop1).to.equal('prop1');
+  expect(newData.prop2).to.equal('prop2');
+  expect(newData.prop3).to.equal('testProperty1');
+});
+
+SetOperationDataSuite(
+  'should override all the existing operationdata with the specified data',
+  () => {
     // given
     const operationData = {
       unusedProperty: 'test',
@@ -56,5 +60,7 @@ describe('setOperationData', () => {
     expect(newData.prop1).to.equal('prop1');
     expect(newData.prop2).to.equal('prop2');
     expect(newData.prop3).to.equal('testProperty1');
-  });
-});
+  }
+);
+
+SetOperationDataSuite.run();

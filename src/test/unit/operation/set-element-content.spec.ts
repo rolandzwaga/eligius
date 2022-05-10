@@ -1,9 +1,10 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import {
   ISetElementContentOperationData,
   setElementContent,
 } from '../../../operation/set-element-content';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   htmlContent: string = '';
@@ -23,13 +24,17 @@ class MockElement {
   }
 }
 
-describe('setElementContent', () => {
-  it('should set the given element with the specified content', () => {
+const SetElementContentSuite = suite('setElementContent');
+
+SetElementContentSuite(
+  'should set the given element with the specified content',
+  () => {
     // given
     const mockElement = new MockElement();
     const operationData: ISetElementContentOperationData = {
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       template: '<div/>',
+      insertionType: 'overwrite',
     };
 
     // test
@@ -37,14 +42,17 @@ describe('setElementContent', () => {
 
     // expect
     expect(mockElement.htmlContent).to.equal(operationData.template);
-  });
+  }
+);
 
-  it('should append the given element with the specified content', () => {
+SetElementContentSuite(
+  'should append the given element with the specified content',
+  () => {
     // given
     const mockElement = new MockElement();
     const operationData: ISetElementContentOperationData = {
       insertionType: 'append',
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       template: '<div/>',
     };
 
@@ -53,14 +61,17 @@ describe('setElementContent', () => {
 
     // expect
     expect(mockElement.appendContent).to.equal(operationData.template);
-  });
+  }
+);
 
-  it('should prepend the given element with the specified content', () => {
+SetElementContentSuite(
+  'should prepend the given element with the specified content',
+  () => {
     // given
     const mockElement = new MockElement();
     const operationData: ISetElementContentOperationData = {
       insertionType: 'prepend',
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       template: '<div/>',
     };
 
@@ -69,5 +80,7 @@ describe('setElementContent', () => {
 
     // expect
     expect(mockElement.prependContent).to.equal(operationData.template);
-  });
-});
+  }
+);
+
+SetElementContentSuite.run();

@@ -1,8 +1,14 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { extractOperationDataArgumentValues } from '../../../../operation/helper/extract-operation-data-argument-values';
 
-describe('extractOperationDataArgumentValues', () => {
-  it('should extract the operation data argument values', () => {
+const ExtractOperationDataArgumentValuesSuite = suite(
+  'extractOperationDataArgumentValues'
+);
+
+ExtractOperationDataArgumentValuesSuite(
+  'should extract the operation data argument values',
+  () => {
     // given
     const operationData = {
       extractedValue: 'test',
@@ -17,9 +23,12 @@ describe('extractOperationDataArgumentValues', () => {
 
     // expect
     expect(value).to.equal(operationData.extractedValue);
-  });
+  }
+);
 
-  it('should return null if argumentValue is null', () => {
+ExtractOperationDataArgumentValuesSuite(
+  'should return null if argumentValue is null',
+  () => {
     // given
     const operationData = {};
 
@@ -28,9 +37,12 @@ describe('extractOperationDataArgumentValues', () => {
 
     // expect
     expect(value).to.be.null;
-  });
+  }
+);
 
-  it('should return argumentValue when argumentValue is complex value', () => {
+ExtractOperationDataArgumentValuesSuite(
+  'should return argumentValue when argumentValue is complex value',
+  () => {
     // given
     const operationData = {};
     const arg = {};
@@ -40,5 +52,7 @@ describe('extractOperationDataArgumentValues', () => {
 
     // expect
     expect(value).to.equal(arg);
-  });
-});
+  }
+);
+
+ExtractOperationDataArgumentValuesSuite.run();

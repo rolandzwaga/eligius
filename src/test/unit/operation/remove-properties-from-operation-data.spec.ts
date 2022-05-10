@@ -1,9 +1,15 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { removePropertiesFromOperationData } from '../../../operation/remove-properties-from-operation-data';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
-describe('removePropertiesFromOperationData', () => {
-  it('should remove the specified properties from the given operationData', () => {
+const RemovePropertiesFromOperationDataSuite = suite(
+  'removePropertiesFromOperationData'
+);
+
+RemovePropertiesFromOperationDataSuite(
+  'should remove the specified properties from the given operationData',
+  () => {
     // given
     const operationData = {
       testProp1: 'test1',
@@ -24,5 +30,7 @@ describe('removePropertiesFromOperationData', () => {
     expect(newData.hasOwnProperty('testProp2')).to.be.false;
     expect(newData.hasOwnProperty('propertyNames')).to.be.false;
     expect(newData.testProp3).to.equal('test3');
-  });
-});
+  }
+);
+
+RemovePropertiesFromOperationDataSuite.run();

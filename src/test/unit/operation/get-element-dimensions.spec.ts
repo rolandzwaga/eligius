@@ -1,6 +1,7 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { getElementDimensions } from '../../../operation/get-element-dimensions';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockElement {
   width: number;
@@ -20,34 +21,37 @@ class MockElement {
   }
 }
 
-describe('getElementDimensions', () => {
-  it("should get the given element's dimensions", () => {
-    // given
+const GetElementDimensionsSuite = suite('getElementDimensions');
 
-    const mockElement = new MockElement(100, 200);
+GetElementDimensionsSuite("should get the given element's dimensions", () => {
+  // given
 
-    const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
-      modifier: '',
-    };
+  const mockElement = new MockElement(100, 200);
 
-    // test
-    const newData = applyOperation<{
-      dimensions: { width: number; height: number };
-    }>(getElementDimensions, operationData);
+  const operationData = {
+    selectedElement: mockElement as any as JQuery,
+    modifier: '',
+  };
 
-    // expect
-    expect(newData.dimensions.width).to.equal(100);
-    expect(newData.dimensions.height).to.equal(200);
-  });
+  // test
+  const newData = applyOperation<{
+    dimensions: { width: number; height: number };
+  }>(getElementDimensions, operationData);
 
-  it("should get the given element's dimensions and set the height to the width if the height is 0", () => {
+  // expect
+  expect(newData.dimensions.width).to.equal(100);
+  expect(newData.dimensions.height).to.equal(200);
+});
+
+GetElementDimensionsSuite(
+  "should get the given element's dimensions and set the height to the width if the height is 0",
+  () => {
     // given
 
     const mockElement = new MockElement(100, 0);
 
     const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       modifier: '',
     };
 
@@ -59,15 +63,18 @@ describe('getElementDimensions', () => {
     // expect
     expect(newData.dimensions.width).to.equal(100);
     expect(newData.dimensions.height).to.equal(100);
-  });
+  }
+);
 
-  it("should get the given element's dimensions and use the given modifier", () => {
+GetElementDimensionsSuite(
+  "should get the given element's dimensions and use the given modifier",
+  () => {
     // given
 
     const mockElement = new MockElement(100, 0);
 
     const operationData = {
-      selectedElement: (mockElement as any) as JQuery,
+      selectedElement: mockElement as any as JQuery,
       modifier: '+100',
     };
 
@@ -79,5 +86,7 @@ describe('getElementDimensions', () => {
     // expect
     expect(newData.dimensions.width).to.equal(200);
     expect(newData.dimensions.height).to.equal(200);
-  });
-});
+  }
+);
+
+GetElementDimensionsSuite.run();

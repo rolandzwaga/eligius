@@ -12,7 +12,8 @@ type TUpdateMethod = (now: number) => void;
 type TPlayState = 'stopped' | 'running' | 'paused';
 
 export class RequestAnimationFrameTimelineProvider
-  implements ITimelineProvider {
+  implements ITimelineProvider
+{
   private _requestID: number = -1;
   private _last: number = 0;
   private _currentPosition: number = 0;
@@ -41,7 +42,7 @@ export class RequestAnimationFrameTimelineProvider
     configuration: IResolvedEngineConfiguration
   ): IResolvedTimelineConfiguration[] {
     const playlist = configuration.timelines.filter(
-      timeline => timeline.type === 'animation'
+      (timeline) => timeline.type === 'animation'
     );
     return playlist;
   }
@@ -51,7 +52,7 @@ export class RequestAnimationFrameTimelineProvider
       return;
     }
 
-    const item = this._playlist.find(item => {
+    const item = this._playlist.find((item) => {
       return item.uri === uri;
     });
 
@@ -183,7 +184,7 @@ export class RequestAnimationFrameTimelineProvider
       );
     }
 
-    const promise = new Promise<void>(resolve => {
+    const promise = new Promise<void>((resolve) => {
       resolve();
     });
 
@@ -192,7 +193,7 @@ export class RequestAnimationFrameTimelineProvider
 
   destroy() {
     this.stop();
-    this._eventbusListeners.forEach(func => func());
+    this._eventbusListeners.forEach((func) => func());
     this._containerElement = undefined;
   }
 

@@ -1,18 +1,22 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { TOperation } from '../../../operation';
 import { endAction } from '../../../operation/end-action';
-import { applyOperation } from './apply-operation';
+import { applyOperation } from '../../../util/apply-operation';
 
 class MockAction {
   end(operationData: TOperation) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       resolve(operationData);
     });
   }
 }
 
-describe('endAction', () => {
-  it('should call the end() method on the given action with the given operationdata', () => {
+const EndActionSuite = suite('endAction');
+
+EndActionSuite(
+  'should call the end() method on the given action with the given operationdata',
+  async () => {
     // given
     const mockAction = new MockAction();
 
@@ -24,13 +28,13 @@ describe('endAction', () => {
     };
 
     // test
-    const promise = applyOperation<Promise<typeof operationData>>(
+    const result = await applyOperation<Promise<typeof operationData>>(
       endAction,
       operationData
     );
 
-    return promise.then(result => {
-      expect(result).to.equal(operationData);
-    });
-  });
-});
+    expect(result).to.equal(operationData);
+  }
+);
+
+EndActionSuite.run();

@@ -1,28 +1,32 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { getNestedValue } from '../../../../operation/helper/get-nested-value';
 
-describe('getNestedValue', () => {
-  it('should get the nested value', () => {
-    // given
-    const operationData = {
-      complexProperty: {
-        anotherComplexProperty: {
-          value: 'test',
-        },
+const GetNestedValueSuite = suite('getNestedValue');
+
+GetNestedValueSuite('should get the nested value', () => {
+  // given
+  const operationData = {
+    complexProperty: {
+      anotherComplexProperty: {
+        value: 'test',
       },
-    };
+    },
+  };
 
-    // test
-    const value = getNestedValue(
-      ['complexProperty', 'anotherComplexProperty', 'value'],
-      operationData
-    );
+  // test
+  const value = getNestedValue(
+    ['complexProperty', 'anotherComplexProperty', 'value'],
+    operationData
+  );
 
-    // expect
-    expect(value).to.equal('test');
-  });
+  // expect
+  expect(value).to.equal('test');
+});
 
-  it('should get the nested value and suffix it with the given value', () => {
+GetNestedValueSuite(
+  'should get the nested value and suffix it with the given value',
+  () => {
     // given
     const operationData = {
       complexProperty: {
@@ -40,5 +44,7 @@ describe('getNestedValue', () => {
 
     // expect
     expect(value).to.equal('100px');
-  });
-});
+  }
+);
+
+GetNestedValueSuite.run();

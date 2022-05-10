@@ -1,63 +1,66 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { ConfigurationFactory } from '../../../../configuration/api';
 import {
   EndableActionEditor,
   OperationEditor,
 } from '../../../../configuration/api/action-editor';
-import { IEndableActionConfiguration } from '../../../../configuration/types';
 
-describe('EndableActionEditor', () => {
-  let endableActionEditor: EndableActionEditor = {} as EndableActionEditor;
-  let configurationFactory: ConfigurationFactory = {} as ConfigurationFactory;
-  let actionConfig: IEndableActionConfiguration =
-    {} as IEndableActionConfiguration;
+const EndableActionEditorSuite = suite<{
+  configurationFactory: ConfigurationFactory;
+  actionConfig: any;
+  endableActionEditor: EndableActionEditor;
+}>('EndableActionEditor');
 
-  beforeEach(() => {
-    configurationFactory = {} as ConfigurationFactory;
-    actionConfig = {
-      id: '111-222-333',
-      name: 'name',
-      startOperations: [],
-      endOperations: [
-        {
-          id: 'test',
-          systemName: 'test',
-          operationData: {},
-        },
-      ],
-    };
-    endableActionEditor = new EndableActionEditor(
-      actionConfig,
-      configurationFactory
+EndableActionEditorSuite.before.each((context) => {
+  context.configurationFactory = {} as ConfigurationFactory;
+  context.actionConfig = {
+    id: '111-222-333',
+    name: 'name',
+    startOperations: [],
+    endOperations: [
+      {
+        id: 'test',
+        systemName: 'test',
+        operationData: {},
+      },
+    ],
+  };
+  context.endableActionEditor = new EndableActionEditor(
+    context.actionConfig,
+    context.configurationFactory
+  );
+});
+
+EndableActionEditorSuite('should return an operation editor', (context) => {
+  // given
+  const { endableActionEditor } = context;
+
+  // test
+  const editor = endableActionEditor.editEndOperation('test');
+
+  // expect
+  expect(editor).to.be.an.instanceOf(OperationEditor);
+});
+
+EndableActionEditorSuite(
+  'should throw an operation not found error',
+  (context) => {
+    // given
+    const { endableActionEditor } = context;
+
+    // expect
+    expect(() => endableActionEditor.editEndOperation('test2')).throws(
+      'operation not found for id test2'
     );
-  });
+  }
+);
 
-  it('should return an operation editor', () => {
+EndableActionEditorSuite(
+  'should remove the operation with the given id',
+  (context) => {
     // given
-
-    // test
-    const editor = endableActionEditor.editEndOperation('test');
-
-    // expect
-    expect(editor).to.be.an.instanceOf(OperationEditor);
-  });
-
-  it('should throw an operation not found error', () => {
-    // given
-    let errorMessage: any = null;
-    // test
-    try {
-      endableActionEditor.editEndOperation('test2');
-    } catch (e: any) {
-      errorMessage = e.message;
-    }
-
-    // expect
-    expect(errorMessage).to.equal('operation not found for id test2');
-  });
-
-  it('should remove the operation with the given id', () => {
-    // given
+    const { endableActionEditor } = context;
     // test
     endableActionEditor.removeEndOperation('test');
 
@@ -66,5 +69,7 @@ describe('EndableActionEditor', () => {
       expect(config.endOperations.length).to.equal(0);
       return undefined;
     });
-  });
-});
+  }
+);
+
+EndableActionEditorSuite.run();

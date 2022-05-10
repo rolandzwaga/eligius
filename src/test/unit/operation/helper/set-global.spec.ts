@@ -1,11 +1,12 @@
 import { expect } from 'chai';
+import { suite } from 'uvu';
 import { getGlobals } from '../../../../operation/helper/get-globals';
 import { setGlobal } from '../../../../operation/helper/set-global';
 
-describe('getGlobals', () => {
-  it('should set the global', () => {
-    setGlobal('test', 'testing');
-    const value = getGlobals('test');
-    expect(value).to.equal('testing');
-  });
+const SetGlobalSuite = suite('setGlobal');
+
+SetGlobalSuite('should set the global', () => {
+  setGlobal('test', 'testing');
+  const value = getGlobals('test');
+  expect(value).to.equal('testing');
 });

@@ -28,7 +28,7 @@ export interface IGetElementDimensionsOperationData {
 export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> =
   function (operationData: IGetElementDimensionsOperationData) {
     const { selectedElement, modifier } = operationData;
-    const dimensions = {
+    let dimensions = {
       width: selectedElement.innerWidth() ?? 0,
       height: selectedElement.innerHeight() ?? 0,
     };
@@ -36,7 +36,7 @@ export const getElementDimensions: TOperation<IGetElementDimensionsOperationData
       dimensions.height = dimensions.width;
     }
     if (modifier) {
-      modifyDimensions(dimensions, modifier);
+      dimensions = modifyDimensions(dimensions, modifier);
     }
     operationData.dimensions = dimensions;
     return operationData;
