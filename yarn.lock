@@ -2390,10 +2390,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:17.0.31":
-  version: 17.0.31
-  resolution: "@types/node@npm:17.0.31"
-  checksum: 704618350f8420d5c47db0f7778398e821b7724369946f5c441a7e6b9343295553936400eb8309f0b07d5e39c240988ab3456b983712ca86265dabc9aee4ad3d
+"@types/node@npm:17.0.34":
+  version: 17.0.34
+  resolution: "@types/node@npm:17.0.34"
+  checksum: eb9a640ab85b62e8f7b9db1f19b674cc4ff49b94d55085ab6c28c997dbe90356631c4df484fe686082c938bfc6fb02c9e85eb805d1415dfe6de7e31f47a09a70
   languageName: node
   linkType: hard
 
@@ -4734,7 +4734,7 @@ __metadata:
     "@types/jquery": 3.5.14
     "@types/jsdom": ^16.2.14
     "@types/mousetrap": 1.6.9
-    "@types/node": 17.0.31
+    "@types/node": 17.0.34
     "@types/sinon": 10.0.11
     "@types/uuid": 8.3.4
     acorn: 8.7.1
