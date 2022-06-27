@@ -7,8 +7,14 @@ import {
 } from './types';
 
 export class Eventbus implements IEventbus {
-  private eventHandlers: Record<string, TEventHandler[]> = {};
-  private eventInterceptors: Record<string, IEventbusInterceptor[]> = {};
+  private eventHandlers: Map<string, TEventHandler[]> = new Map<
+    string,
+    TEventHandler[]
+  >();
+  private eventInterceptors: Map<string, IEventbusInterceptor[]> = new Map<
+    string,
+    IEventbusInterceptor[]
+  >();
   private eventListeners: IEventbusListener[] = [];
 
   constructor() {
@@ -16,32 +22,32 @@ export class Eventbus implements IEventbus {
   }
 
   clear() {
-    this.eventHandlers = {};
+    this.eventHandlers = new Map<string, TEventHandler[]>();
     this.eventListeners = [];
-    this.eventInterceptors = {};
+    this.eventInterceptors = new Map<string, IEventbusInterceptor[]>();
   }
 
   _getEventInterceptors(
     eventName: string,
     eventTopic?: string
   ): IEventbusInterceptor[] {
-    if (eventTopic && eventTopic.length) {
+    if (eventTopic) {
       eventName = `${eventName}:${eventTopic}`;
     }
-    if (!this.eventInterceptors[eventName]) {
-      this.eventInterceptors[eventName] = [];
+    if (!this.eventInterceptors.has(eventName)) {
+      this.eventInterceptors.set(eventName, []);
     }
-    return this.eventInterceptors[eventName];
+    return this.eventInterceptors.get(eventName) as IEventbusInterceptor[];
   }
 
   _getEventHandlers(eventName: string, eventTopic?: string): TEventHandler[] {
-    if (eventTopic && eventTopic.length) {
+    if (eventTopic) {
       eventName = `${eventName}:${eventTopic}`;
     }
-    if (!this.eventHandlers[eventName]) {
-      this.eventHandlers[eventName] = [];
+    if (!this.eventHandlers.has(eventName)) {
+      this.eventHandlers.set(eventName, []);
     }
-    return this.eventHandlers[eventName];
+    return this.eventHandlers.get(eventName) as TEventHandler[];
   }
 
   on(
@@ -112,7 +118,7 @@ export class Eventbus implements IEventbus {
     if (handlers) {
       const interceptors = this._getEventInterceptors(eventName, eventTopic);
 
-      interceptors.forEach(interceptor => {
+      interceptors.forEach((interceptor) => {
         args = interceptor.intercept(args);
       });
 
