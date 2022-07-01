@@ -1745,13 +1745,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/transform@npm:^28.1.1":
-  version: 28.1.1
-  resolution: "@jest/transform@npm:28.1.1"
+"@jest/transform@npm:^28.1.2":
+  version: 28.1.2
+  resolution: "@jest/transform@npm:28.1.2"
   dependencies:
     "@babel/core": ^7.11.6
     "@jest/types": ^28.1.1
-    "@jridgewell/trace-mapping": ^0.3.7
+    "@jridgewell/trace-mapping": ^0.3.13
     babel-plugin-istanbul: ^6.1.1
     chalk: ^4.0.0
     convert-source-map: ^1.4.0
@@ -1764,7 +1764,7 @@ __metadata:
     pirates: ^4.0.4
     slash: ^3.0.0
     write-file-atomic: ^4.0.1
-  checksum: 24bac4cba40f7b27de7a9082be1586e235848c74f6509e87ca3eaeaa548573215d0e6e68f515cdf10cacdc8364d0df4b5760f4c608a267a82f9c290eb40f360d
+  checksum: cd8d1bdf1a5831cdf91934dd0af1d29d4d2bcad92feb9bf7555fc0e1152cb01a9206410380af0f6221a623ffc9b6f6e6dded429d01d87b85b0777cf9d4425127
   languageName: node
   linkType: hard
 
@@ -1809,7 +1809,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jridgewell/trace-mapping@npm:0.3.9, @jridgewell/trace-mapping@npm:^0.3.7":
+"@jridgewell/trace-mapping@npm:0.3.9":
   version: 0.3.9
   resolution: "@jridgewell/trace-mapping@npm:0.3.9"
   dependencies:
@@ -1826,6 +1826,16 @@ __metadata:
     "@jridgewell/resolve-uri": ^3.0.3
     "@jridgewell/sourcemap-codec": ^1.4.10
   checksum: ab8bce84bbbc8c34f3ba8325ed926f8f2d3098983c10442a80c55764c4eb6e47d5b92d8ff20a0dd868c3e76a3535651fd8a0138182c290dbfc8396195685c37b
+  languageName: node
+  linkType: hard
+
+"@jridgewell/trace-mapping@npm:^0.3.13":
+  version: 0.3.14
+  resolution: "@jridgewell/trace-mapping@npm:0.3.14"
+  dependencies:
+    "@jridgewell/resolve-uri": ^3.0.3
+    "@jridgewell/sourcemap-codec": ^1.4.10
+  checksum: b9537b9630ffb631aef9651a085fe361881cde1772cd482c257fe3c78c8fd5388d681f504a9c9fe1081b1c05e8f75edf55ee10fdb58d92bbaa8dbf6a7bd6b18c
   languageName: node
   linkType: hard
 
@@ -2443,12 +2453,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:10.0.11":
-  version: 10.0.11
-  resolution: "@types/sinon@npm:10.0.11"
+"@types/sinon@npm:10.0.12":
+  version: 10.0.12
+  resolution: "@types/sinon@npm:10.0.12"
   dependencies:
     "@types/sinonjs__fake-timers": "*"
-  checksum: 196f3e26985dca5dfb593592e4b64463e536c047a9f43aa2b328b16024a3b0e3fb27b7a3f3972c6ef75749f55012737eb6c63a1c2e9782b7fe5cbbd25f75fd62
+  checksum: a37cac3f53d989140c1655488d7afa8f04ea1977337f5475671f5bce1eb0530fced7927ca0493a7ba3b79696ea3dd19e6e8918c8676180386c32a2bb2d1ae0b5
   languageName: node
   linkType: hard
 
@@ -3298,11 +3308,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-jest@npm:28.1.1":
-  version: 28.1.1
-  resolution: "babel-jest@npm:28.1.1"
+"babel-jest@npm:28.1.2":
+  version: 28.1.2
+  resolution: "babel-jest@npm:28.1.2"
   dependencies:
-    "@jest/transform": ^28.1.1
+    "@jest/transform": ^28.1.2
     "@types/babel__core": ^7.1.14
     babel-plugin-istanbul: ^6.1.1
     babel-preset-jest: ^28.1.1
@@ -3311,7 +3321,7 @@ __metadata:
     slash: ^3.0.0
   peerDependencies:
     "@babel/core": ^7.8.0
-  checksum: 9c7c7f600685d51873bf1faee223a8720d73c0cc6d551dcf0cabd452cd5295d17adcef4c3f9baa1dba22d4c057bc4519bed096a1bb3e24cb2d066ba67b8f615a
+  checksum: 1aa605ef4dfae3a557fbed8b9d1ba1c2678ba910d0ff3931fad8dc2a150a8ef220a456a86f3b441f5cd4f97f973c2f721fc74ea6a26432766c5ab501a967f8c8
   languageName: node
   linkType: hard
 
@@ -4751,12 +4761,12 @@ __metadata:
     "@types/jsdom": ^16.2.14
     "@types/mousetrap": 1.6.9
     "@types/node": 18.0.0
-    "@types/sinon": 10.0.11
+    "@types/sinon": 10.0.12
     "@types/uuid": 8.3.4
     acorn: 8.7.1
     ajv: 8.11.0
     astring: 1.8.3
-    babel-jest: 28.1.1
+    babel-jest: 28.1.2
     canvas: ^2.9.3
     chai: 4.3.6
     cross-env: 7.0.3
@@ -4769,7 +4779,7 @@ __metadata:
     jquery: 3.6.0
     jsdom: 20.0.0
     jsdom-global: 3.0.2
-    lottie-web: 5.9.4
+    lottie-web: 5.9.5
     mediaelement: 5.0.5
     mousetrap: 1.6.5
     sinon: 14.0.0
@@ -8012,10 +8022,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lottie-web@npm:5.9.4":
-  version: 5.9.4
-  resolution: "lottie-web@npm:5.9.4"
-  checksum: b7da159779791c92dc45bd7861bf37babef43a7139a6b12d0c1596773fbc338562e4547df766a42ce73516fe82ec790e8ddcebe7d4c9d7fa2ee4d42e0072904c
+"lottie-web@npm:5.9.5":
+  version: 5.9.5
+  resolution: "lottie-web@npm:5.9.5"
+  checksum: f1d4ecade3611ffbca8fa918bc5de21392e99bac9bc0182d229954e05f9597f7e2c2c70ff6a4434f2b3653a75f4caa0a228a236dba076a4b79456740695c54ad
   languageName: node
   linkType: hard
 

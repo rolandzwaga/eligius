@@ -7,14 +7,8 @@ import {
 } from './types';
 
 export class Eventbus implements IEventbus {
-  private eventHandlers: Map<string, TEventHandler[]> = new Map<
-    string,
-    TEventHandler[]
-  >();
-  private eventInterceptors: Map<string, IEventbusInterceptor[]> = new Map<
-    string,
-    IEventbusInterceptor[]
-  >();
+  private eventHandlers = new Map<string, TEventHandler[]>();
+  private eventInterceptors = new Map<string, IEventbusInterceptor[]>();
   private eventListeners: IEventbusListener[] = [];
 
   constructor() {

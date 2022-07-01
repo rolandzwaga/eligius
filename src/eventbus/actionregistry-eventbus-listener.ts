@@ -2,7 +2,7 @@ import { IAction } from '../action/types';
 import { IEventbusListener } from './types';
 
 export class ActionRegistryEventbusListener implements IEventbusListener {
-  private _actionRegistry: Record<string, IAction[]> = {};
+  private _actionRegistry = new Map<string, IAction[]>();
 
   registerAction(
     action: IAction,
@@ -12,10 +12,10 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
     if (eventTopic && eventTopic.length) {
       eventName = `${eventName}:${eventTopic}`;
     }
-    if (!this._actionRegistry[eventName]) {
-      this._actionRegistry[eventName] = [];
+    if (!this._actionRegistry.has(eventName)) {
+      this._actionRegistry.set(eventName, []);
     }
-    this._actionRegistry[eventName].push(action);
+    this._actionRegistry.get(eventName)?.push(action);
   }
 
   handleEvent(
@@ -23,15 +23,15 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
     eventTopic: string | undefined,
     args: any[]
   ): void {
-    if (eventTopic && eventTopic.length) {
+    if (eventTopic) {
       eventName = `${eventName}:${eventTopic}`;
     }
-    const actions = this._actionRegistry[eventName];
+    const actions = this._actionRegistry.get(eventName);
     if (actions) {
       const operationData = {
         eventArgs: args,
       };
-      actions.forEach(action => {
+      actions.forEach((action) => {
         action.start(operationData);
       });
     }
