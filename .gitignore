@@ -3,3 +3,5 @@
 node_modules
 dist
 /.yarn
+/examples/mediaelement/build/*
+/examples/requestanimationframe/build/*
