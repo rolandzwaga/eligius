@@ -23,7 +23,7 @@ module.exports = (_env, params) => {
             compilerOptions: {
               plugins: [{ name: 'typescript-plugin-css-modules' }],
               include: ['./**/*'],
-              exclude: ['./src/test'],
+              exclude: ['./src/test/**/*'],
               noUnusedLocals: false,
               noUnusedParameters: true,
               allowSyntheticDefaultImports: true,

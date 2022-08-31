@@ -38,7 +38,7 @@ LoadJSONSuite.before.each(() => {
 });
 
 LoadJSONSuite.after((context) => {
-  global.fetch = context.fetch;
+  (global as any).fetch = context.fetch;
 });
 
 LoadJSONSuite('should load the specified json', async (context) => {

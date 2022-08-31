@@ -97,7 +97,9 @@ EventListenerControllerSuite(
       operationData.eventName
     );
     expect(controller.operationData?.actions.length).to.equal(2);
-    expect(controller.operationData?.actionOperationData.test).to.equal('test');
+    expect(controller.operationData?.actionOperationData?.test).to.equal(
+      'test'
+    );
   }
 );
 

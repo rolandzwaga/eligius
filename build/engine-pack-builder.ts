@@ -14,7 +14,6 @@ function buildEnginePack(configurationPath: string) {
 
   const importerSource = generateImporterSourceCode(
     config,
-    relativeImportPath,
     path.dirname(configurationPath)
   );
   saveSource(

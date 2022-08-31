@@ -1,15 +1,19 @@
 import fs from 'fs';
 import path from 'path';
-import camelCaseToDash from './camelCaseToDash';
 import dashToCamelCase from './dashToCamelCase';
 import formatTypescript from './format-typescript';
 
+interface ImportInfo {
+  systemName: string;
+  path?: string;
+  defaultImport?: boolean;
+}
+
 export default function generateImporterSourceCode(
   config: any,
-  basePath: string,
   configPath: string
 ) {
-  const importPaths = _gatherImportPaths(config, basePath, configPath);
+  const importPaths = _gatherImportPaths(config, configPath);
 
   const importerSourceCode = _generateSourceCode(importPaths);
 
@@ -17,21 +21,21 @@ export default function generateImporterSourceCode(
 }
 
 function _generateSourceCode(importPaths: any[]) {
-  const result = importPaths.map(imp => {
-    const p = imp.path.split('\\').join('/');
+  const result = importPaths.map((imp) => {
+    const importPath = imp.path ? imp.path : '../../../dist';
     if (imp.defaultImport) {
-      return `import ${imp.systemName} from '${p}';`;
+      return `import ${imp.systemName} from '${importPath}';`;
     }
-    return `import { ${imp.systemName} } from '${p}';`;
+    return `import { ${imp.systemName} } from '${importPath}';`;
   });
-  result.push(`import { ISimpleResourceImporter } from '../../../src';`);
+  result.push(`import { ISimpleResourceImporter } from '../../../dist';`);
   result.push(
     'class WebpackResourceImporter implements ISimpleResourceImporter {'
   );
   result.push('import(name: string): Record<string, any> {');
   result.push('switch(true) {');
   result.push(
-    ...importPaths.map(imp => {
+    ...importPaths.map((imp) => {
       return `case name === '${imp.systemName}': return { [name]: ${imp.systemName} };`;
     })
   );
@@ -41,20 +45,19 @@ function _generateSourceCode(importPaths: any[]) {
   return result.join('\n');
 }
 
-function _gatherImportPaths(config: any, basePath: string, configPath: string) {
-  const importPaths = [];
-  importPaths.push(..._gatherOperations(config, basePath));
-  importPaths.push(..._gatherAssets(configPath, 'template', '.html'));
-  importPaths.push(..._gatherAssets(configPath, 'json', '.json'));
-  importPaths.push(..._gatherControllers(config, basePath));
-  importPaths.push(..._gatherProviders(config, basePath));
-  importPaths.push(..._gatherEngines(config, basePath));
-  return importPaths;
+function _gatherImportPaths(config: any, configPath: string): ImportInfo[] {
+  return ([] as ImportInfo[])
+    .concat(_gatherOperations(config))
+    .concat(_gatherAssets(configPath, 'template', '.html'))
+    .concat(_gatherAssets(configPath, 'json', '.json'))
+    .concat(_gatherControllers(config))
+    .concat(_gatherProviders(config))
+    .concat(_gatherEngines(config));
 }
 
 function _gatherAssets(assetPath: string, subdir: string, extension: string) {
   const entries = fs.readdirSync(path.join(assetPath, subdir));
-  return entries.map(file => {
+  return entries.map((file) => {
     const importName = `${dashToCamelCase(path.basename(file, extension))}`;
     return {
       systemName: importName,
@@ -64,178 +67,136 @@ function _gatherAssets(assetPath: string, subdir: string, extension: string) {
   });
 }
 
-function _gatherControllers(config: any, basePath: string) {
-  let importPaths = [];
+function _gatherControllers(config: any) {
+  let importPaths = [] as [] as ImportInfo[];
   importPaths.push(
-    ..._gatherControllerImportPathsFromActions(config.initActions, basePath)
+    ..._gatherControllerImportPathsFromActions(config.initActions)
+  );
+  importPaths.push(..._gatherControllerImportPathsFromActions(config.actions));
+  importPaths.push(
+    ..._gatherControllerImportPathsFromActions(config.timelineActions)
   );
   importPaths.push(
-    ..._gatherControllerImportPathsFromActions(config.actions, basePath)
-  );
-  importPaths.push(
-    ..._gatherControllerImportPathsFromActions(config.timelineActions, basePath)
-  );
-  importPaths.push(
-    ..._gatherControllerImportPathsFromActions(config.eventActions, basePath)
+    ..._gatherControllerImportPathsFromActions(config.eventActions)
   );
   importPaths = dedupe(importPaths);
   return importPaths;
 }
 
-function _gatherProviders(config: any, basePath: string) {
+function _gatherProviders(config: any) {
   if (config.timelineProviderSettings) {
-    basePath = path.join(basePath, 'timelineproviders');
-    return Object.values(config.timelineProviderSettings).map(
+    return Object.values(config.timelineProviderSettings).map<ImportInfo>(
       (settings: any) => {
         return {
           systemName: settings.systemName,
-          path: path.join(basePath, camelCaseToDash(settings.systemName)),
         };
       }
     );
   }
-  return [];
+  return [] as ImportInfo[];
 }
 
-function _gatherEngines(config: any, basePath: string) {
+function _gatherEngines(config: any) {
   if (config.engine) {
     const { systemName } = config.engine;
     return [
       {
-        systemName: systemName,
-        path: path.join(basePath, camelCaseToDash(systemName)),
+        systemName,
       },
     ];
   }
   return [];
 }
 
-function _gatherOperations(config: any, basePath: string) {
-  let importPaths = [];
-  importPaths.push(
-    ..._gatherOperationImportPathsFromActions(config.initActions, basePath)
-  );
-  importPaths.push(
-    ..._gatherOperationImportPathsFromActions(config.actions, basePath)
-  );
+function _gatherOperations(config: any): ImportInfo[] {
+  let importPaths = ([] as [] as ImportInfo[])
+    .concat(_gatherOperationImportPathsFromActions(config.initActions))
+    .concat(_gatherOperationImportPathsFromActions(config.actions));
+
   if (config.timelines) {
-    config.timelines.forEach((timeline: any) => {
-      importPaths.push(
-        ..._gatherOperationImportPathsFromActions(
-          timeline.timelineActions,
-          basePath
-        )
-      );
-    });
+    importPaths = config.timelines.reduce(
+      (imports: ImportInfo[], timeline: any) => {
+        return imports.concat(
+          _gatherOperationImportPathsFromActions(timeline.timelineActions)
+        );
+      },
+      importPaths
+    );
   }
-  importPaths.push(
-    ..._gatherOperationImportPathsFromActions(config.eventActions, basePath)
+
+  return dedupe(
+    importPaths.concat(
+      _gatherOperationImportPathsFromActions(config.eventActions)
+    )
   );
-  importPaths = dedupe(importPaths);
-  return importPaths;
 }
 
-function dedupe(importPaths: any[]) {
+function _gatherControllerImportPathsFromActions(actionsConfig: any[]): any[] {
+  if (!actionsConfig) {
+    return [];
+  }
+
+  return actionsConfig.reduce((importPaths, actionConfig) => {
+    return importPaths
+      .concat(_gatherControllerImportPaths(actionConfig.startOperations))
+      .concat(_gatherControllerImportPaths(actionConfig.endOperations));
+  }, []);
+}
+
+function _gatherOperationImportPathsFromActions(
+  actionsConfig: any[]
+): ImportInfo[] {
+  if (!actionsConfig) {
+    return [];
+  }
+
+  return actionsConfig.reduce((importPaths, actionConfig) => {
+    return importPaths
+      .concat(_gatherOperationImportPaths(actionConfig.startOperations))
+      .concat(_gatherOperationImportPaths(actionConfig.endOperations));
+  }, []) as ImportInfo[];
+}
+
+function _gatherControllerImportPaths(operationConfigs: any[]): ImportInfo[] {
+  if (!operationConfigs) {
+    return [];
+  }
+
+  return operationConfigs
+    .filter((operationConfig) => {
+      if (operationConfig.operationData?.hasOwnProperty('systemName')) {
+        return operationConfig.operationData.systemName.endsWith('Controller');
+      }
+      return false;
+    })
+    .map((operationConfig) => {
+      const { systemName } = operationConfig.operationData;
+      return {
+        systemName,
+      };
+    });
+}
+
+function _gatherOperationImportPaths(operationConfigs: any[]): ImportInfo[] {
+  if (!operationConfigs) {
+    return [];
+  }
+
+  return operationConfigs.map((operationConfig) => {
+    const { systemName } = operationConfig;
+    return {
+      systemName,
+    };
+  });
+}
+
+function dedupe(importPaths: ImportInfo[]): ImportInfo[] {
   const lookup: Record<string, true> = {};
-  return importPaths.filter(imp => {
+  return importPaths.filter((imp) => {
     if (lookup[imp.systemName]) {
       return false;
     }
     lookup[imp.systemName] = true;
     return true;
-  });
-}
-
-function _gatherControllerImportPathsFromActions(
-  actionsConfig: any[],
-  basePath: string
-) {
-  if (!actionsConfig) {
-    return [];
-  }
-
-  const controllerPath = path.join(basePath, 'controllers');
-  const importPaths: any[] = [];
-  actionsConfig.forEach(actionConfig => {
-    importPaths.push(
-      ..._gatherControllerImportPaths(
-        actionConfig.startOperations,
-        controllerPath
-      )
-    );
-    importPaths.push(
-      ..._gatherControllerImportPaths(
-        actionConfig.endOperations,
-        controllerPath
-      )
-    );
-  });
-  return importPaths;
-}
-
-function _gatherOperationImportPathsFromActions(
-  actionsConfig: any[],
-  basePath: string
-) {
-  if (!actionsConfig) {
-    return [];
-  }
-
-  const operationPath = path.join(basePath, 'operation');
-  const importPaths: any[] = [];
-  actionsConfig.forEach(actionConfig => {
-    importPaths.push(
-      ..._gatherOperationImportPaths(
-        actionConfig.startOperations,
-        operationPath
-      )
-    );
-    importPaths.push(
-      ..._gatherOperationImportPaths(actionConfig.endOperations, operationPath)
-    );
-  });
-  return importPaths;
-}
-
-function _gatherControllerImportPaths(
-  operationConfigs: any[],
-  basePath: string
-) {
-  if (!operationConfigs) {
-    return [];
-  }
-  return operationConfigs
-    .filter(operationConfig => {
-      if (
-        operationConfig.operationData &&
-        operationConfig.operationData.hasOwnProperty('systemName')
-      ) {
-        return operationConfig.operationData.systemName.endsWith('Controller');
-      }
-      return false;
-    })
-    .map(operationConfig => {
-      const { systemName } = operationConfig.operationData;
-      return {
-        systemName: systemName,
-        path: path.join(basePath, camelCaseToDash(systemName)),
-      };
-    });
-}
-
-function _gatherOperationImportPaths(
-  operationConfigs: any[],
-  basePath: string
-) {
-  if (!operationConfigs) {
-    return [];
-  }
-
-  return operationConfigs.map(operationConfig => {
-    const { systemName } = operationConfig;
-    return {
-      systemName: systemName,
-      path: path.join(basePath, camelCaseToDash(systemName)),
-    };
   });
 }
