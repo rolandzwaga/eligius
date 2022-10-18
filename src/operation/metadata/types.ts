@@ -15,11 +15,13 @@ export type TPropertyMetadata =
   | TArrayProperyMetadata
   | TParameterTypes;
 
+export type TPropertiesMetadata<T> = { [P in keyof T]?: TPropertyMetadata };
+
 export interface IOperationMetadata<T> {
   description: string;
   dependentProperties?: (keyof T)[];
-  properties?: Record<string, TPropertyMetadata>;
-  outputProperties?: Record<string, TParameterTypes>;
+  properties?: TPropertiesMetadata<T>;
+  outputProperties?: TPropertiesMetadata<T>;
 }
 
 export type TParameterTypes =
