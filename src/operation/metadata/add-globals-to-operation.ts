@@ -1,12 +1,9 @@
-import { IAddControllerToElementOperationData } from '../../operation/add-controller-to-element';
+import { IAddGlobalsToOperationData } from '../add-globals-to-operation';
 import { IOperationMetadata } from './types';
 
-function addGlobalsToOperation(): IOperationMetadata<
-  IAddControllerToElementOperationData
-> {
+function addGlobalsToOperation(): IOperationMetadata<IAddGlobalsToOperationData> {
   return {
     description: 'Add global properties to the current operation data.',
-    dependentProperties: ['selectedElement'],
     properties: {
       globalProperties: {
         type: 'ParameterType:array',

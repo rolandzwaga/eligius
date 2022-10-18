@@ -1,4 +1,5 @@
 import * as controllers from '../controllers';
+import { IController } from '../controllers/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TOperation } from './types';
 
@@ -6,6 +7,7 @@ type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {
   systemName: TSystemName;
   propertyName?: string;
+  controllerInstance?: IController<unknown>;
 }
 
 /**

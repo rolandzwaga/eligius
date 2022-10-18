@@ -21,6 +21,7 @@ export interface ISelectElementOperationData {
   selector: string;
   propertyName?: string;
   useSelectedElementAsRoot?: boolean;
+  selectedElement?: JQuery;
 }
 
 /**

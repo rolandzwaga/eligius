@@ -74,7 +74,7 @@ EligiusEngineSuite('should create the layout template', (context) => {
   );
 
   // test
-  engine._createLayoutTemplate();
+  (engine as any)._createLayoutTemplate();
   expect($('.layout').length).to.equal(1);
 });
 
@@ -93,7 +93,7 @@ EligiusEngineSuite(
 
     // test
     try {
-      engine._createLayoutTemplate();
+      (engine as any)._createLayoutTemplate();
     } catch (e) {
       error = e;
     }

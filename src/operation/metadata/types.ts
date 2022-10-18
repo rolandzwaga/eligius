@@ -10,10 +10,17 @@ export type TArrayProperyMetadata = {
   required?: boolean;
 };
 
+export type TConstantParametersTypes = {
+  value: string;
+  description: string;
+  default?: boolean;
+};
+
 export type TPropertyMetadata =
   | TComplexProperyMetadata
   | TArrayProperyMetadata
-  | TParameterTypes;
+  | TParameterTypes
+  | TConstantParametersTypes[];
 
 export type TPropertiesMetadata<T> = { [P in keyof T]?: TPropertyMetadata };
 
