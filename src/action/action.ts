@@ -78,13 +78,13 @@ export class Action implements IAction {
         : {};
       const mergedOperationData = Object.assign(previousOperationData, copy);
 
-      const result: TOperationResult = operationInfo.instance.call(
+      const operationResult: TOperationResult = operationInfo.instance.call(
         context,
         mergedOperationData
       );
 
-      if (isPromise(result)) {
-        result
+      if (isPromise(operationResult)) {
+        operationResult
           .then((resultOperationData: TOperationData) => {
             this.executeOperation(
               operations,
@@ -104,7 +104,7 @@ export class Action implements IAction {
           ++idx,
           resolve,
           reject,
-          result,
+          operationResult,
           context
         );
       }
