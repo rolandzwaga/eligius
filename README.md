@@ -230,7 +230,7 @@ This a list of actions that can be triggered by an event broadcast. Since an eve
 ### labels
 
 A list of label information that describes all of the textual content for the presentation. 
-Labels can be rendered by the [`LabelController`](https://github.com/rolandzwaga/eligius/blob/dev/src/controllers/label-controller.ts). This controller listen for the appropriate language change events as well, and will change the contents of the element it controls accordingly.
+Labels can be rendered by the [`LabelController`](https://github.com/rolandzwaga/eligius/blob/dev/src/controllers/label-controller.ts). This controller listens for the appropriate language change events as well, and will change the contents of the element it controls accordingly.
 
 ```json
 {
@@ -250,6 +250,21 @@ Labels can be rendered by the [`LabelController`](https://github.com/rolandzwaga
         }
     ]
 }
+```
+
+## Running the engine
+
+Running the engine is a matter of loading the configuration and feeding it to an engine instance.
+
+```javascript
+import { IEngineConfiguration, EngineFactory, WebpackResourceImporter } from 'eligius';
+import * as engineConfig from './my-eligius-config.json';
+
+const factory = new EngineFactory(new WebpackResourceImporter(), window);
+
+const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
+
+engine.init().then(()=> {console.log('Eligius engine ready for business');});
 ```
 
 ## installation
