@@ -19,7 +19,7 @@
     "prepare": "dts build",
     "size": "size-limit",
     "build-example-1": "ts-node ./build/engine-pack-builder ./examples/requestanimationframe/config-data.json && webpack --config build/webpack.config.js --entry ./examples/requestanimationframe/build/boot.ts --stats-children --stats-error-details",
-    "docs": "typedoc src/index.ts --exclude \"src/+(test)/**/*.*\""
+    "docs": "typedoc --options typedoc.json"
   },
   "husky": {
     "hooks": {
@@ -83,6 +83,7 @@
     "tsconfig-paths": "^4.1.0",
     "tslib": "2.4.0",
     "typedoc": "0.23.17",
+    "typedoc-plugin-missing-exports": "1.0.0",
     "typescript": "4.8.4",
     "typescript-plugin-css-modules": "3.4.0",
     "uvu": "^0.5.6",

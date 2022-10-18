@@ -4167,7 +4167,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"canvas@npm:^2.10.1":
+"canvas@npm:2.10.1":
   version: 2.10.1
   resolution: "canvas@npm:2.10.1"
   dependencies:
@@ -5239,7 +5239,7 @@ __metadata:
     ajv: 8.11.0
     astring: 1.8.3
     babel-jest: 29.2.1
-    canvas: ^2.10.1
+    canvas: 2.10.1
     chai: 4.3.6
     cross-env: 7.0.3
     css-loader: 6.7.1
@@ -5265,6 +5265,7 @@ __metadata:
     tsconfig-paths: ^4.1.0
     tslib: 2.4.0
     typedoc: 0.23.17
+    typedoc-plugin-missing-exports: ^1.0.0
     typescript: 4.8.4
     typescript-plugin-css-modules: 3.4.0
     uuid: 9.0.0
@@ -11710,6 +11711,15 @@ __metadata:
   dependencies:
     is-typedarray: ^1.0.0
   checksum: 99c11aaa8f45189fcfba6b8a4825fd684a321caa9bd7a76a27cf0c7732c174d198b99f449c52c3818107430b5f41c0ccbbfb75cb2ee3ca4a9451710986d61a60
+  languageName: node
+  linkType: hard
+
+"typedoc-plugin-missing-exports@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "typedoc-plugin-missing-exports@npm:1.0.0"
+  peerDependencies:
+    typedoc: 0.22.x || 0.23.x
+  checksum: 11ef3ba347a88924397f2f2f84216e5d41f9714baba671e4f9a86dd4de22d5e5e47477a295776c4f489be91065a152fedcbfa9aa6cba90499894e6670441ce31
   languageName: node
   linkType: hard
 
