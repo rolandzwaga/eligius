@@ -11,8 +11,10 @@ export * from './eventbus/types';
 export { WebpackResourceImporter } from './importer';
 export { LanguageManager } from './language-manager';
 export * from './operation';
+export * as metadata from './operation/metadata';
 export * from './operation/types';
 export { TimelineEventNames } from './timeline-event-names';
 export * from './timelineproviders';
 export * from './timelineproviders/types';
 export * from './types';
+
