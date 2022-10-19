@@ -10,6 +10,11 @@ jobs:
       image: chearon/canvas-prebuilt:7
 
     steps:
+      - name: Install node canvas deps
+        run: |
+          sudo apt update
+          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev pkgconfig
+
       - name: Checkout repo
         uses: actions/checkout@v2
 
