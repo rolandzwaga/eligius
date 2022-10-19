@@ -3,7 +3,6 @@
 node_modules
 dist
 /.yarn/cache
-/.yarn/plugins
 /.yarn/install-state.gz
 /examples/mediaelement/build/*
 /examples/requestanimationframe/build/*
