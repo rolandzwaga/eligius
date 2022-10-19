@@ -4167,15 +4167,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"canvas@npm:2.10.1":
-  version: 2.10.1
-  resolution: "canvas@npm:2.10.1"
+"canvas@npm:2.9.3":
+  version: 2.9.3
+  resolution: "canvas@npm:2.9.3"
   dependencies:
     "@mapbox/node-pre-gyp": ^1.0.0
     nan: ^2.15.0
     node-gyp: latest
     simple-get: ^3.0.3
-  checksum: 29b162a59df8c63e5591cae62711ab3cc3b0a078f260b39b4594b51c5bcb9baa597eff40b52f25bd788aceb81756a41097c2dd0c01cbc17ae4a15e873da44cdf
+  checksum: 368112ba4b16f54ce6dfac1ccbc45ddd1eb0b76dc09509c2601c2a26459bb4449d259a7aa8664fd94153aad13b48557535f3b9eb7fad9a97929b9eb962e50f09
   languageName: node
   linkType: hard
 
@@ -5239,7 +5239,7 @@ __metadata:
     ajv: 8.11.0
     astring: 1.8.3
     babel-jest: 29.2.1
-    canvas: 2.10.1
+    canvas: 2.9.3
     chai: 4.3.6
     cross-env: 7.0.3
     css-loader: 6.7.1

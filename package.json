@@ -59,7 +59,7 @@
     "ajv": "8.11.0",
     "astring": "1.8.3",
     "babel-jest": "29.2.1",
-    "canvas": "2.10.1",
+    "canvas": "2.9.3",
     "chai": "4.3.6",
     "cross-env": "7.0.3",
     "css-loader": "6.7.1",
