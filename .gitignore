@@ -2,6 +2,8 @@
 .DS_Store
 node_modules
 dist
-/.yarn
+/.yarn/cache
+/.yarn/plugins
+/.yarn/install-state.gz
 /examples/mediaelement/build/*
 /examples/requestanimationframe/build/*
