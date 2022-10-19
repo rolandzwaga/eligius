@@ -20,6 +20,11 @@ jobs:
         run: |
           pkg-config --version
           echo $PKG_CONFIG_PATH
+          ls /usr/lib/pkgconfig
+          ls /usr/share/pkgconfig
+          ls /usr/local/lib/pkgconfig
+          ls /usr/local/share/pkgconfig
+
 
       - name: Checkout repo
         uses: actions/checkout@v2
