@@ -13,7 +13,13 @@ jobs:
       - name: Install node canvas deps
         run: |
           sudo apt update -y
-          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev pkg-config
+          sudo apt install -y libpango1.0-dev libgif-dev
+
+      - name: Display information about build environment
+        continue-on-error: true
+        run: |
+          env
+          pkg-config --version
 
       - name: Checkout repo
         uses: actions/checkout@v2
