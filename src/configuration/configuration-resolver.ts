@@ -76,8 +76,8 @@ export class ConfigurationResolver implements IConfigurationResolver {
       );
     }
 
-    const actionsLookup = resolvedConfig.actions
-      .concat(eventActions as any[])
+    const actionsLookup = (resolvedConfig.actions as IAction[])
+      .concat(eventActions)
       .reduce<Record<string, IAction>>(
         (aggr, action) => ({
           ...aggr,
@@ -96,11 +96,10 @@ function resolveEventActions(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
-  const resolvedConfigs = eventActionConfigurations.map<
-    IResolvedActionConfiguration
-  >(config => {
-    return resolveActionConfiguration(config, importer);
-  });
+  const resolvedConfigs =
+    eventActionConfigurations.map<IResolvedActionConfiguration>((config) => {
+      return resolveActionConfiguration(config, importer);
+    });
 
   return resolvedConfigs.map((config, index) => {
     const { eventName, eventTopic } = eventActionConfigurations[index];
@@ -121,7 +120,7 @@ function resolveTimelines(
 ) {
   const resolve = resolveTimelineAction.bind(null, importer, eventbus);
 
-  return timelines.map<IResolvedTimelineConfiguration>(config => ({
+  return timelines.map<IResolvedTimelineConfiguration>((config) => ({
     ...config,
     timelineActions: config.timelineActions.map(resolve),
   }));
@@ -199,13 +198,12 @@ function resolveActions(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
-  const resolvedConfigs = actionConfigurations.map<
-    IResolvedEndableActionConfiguration
-  >(config => {
-    return resolveEndableActionConfiguration(config, importer);
-  });
+  const resolvedConfigs =
+    actionConfigurations.map<IResolvedEndableActionConfiguration>((config) => {
+      return resolveEndableActionConfiguration(config, importer);
+    });
 
-  return resolvedConfigs.map<EndableAction>(resolvedConfig => {
+  return resolvedConfigs.map<EndableAction>((resolvedConfig) => {
     const { name, endOperations, startOperations } = resolvedConfig;
     const action = new EndableAction(
       name,
@@ -219,7 +217,7 @@ function resolveActions(
 }
 
 function resolvePlaceholders(
-  config: any,
+  config: Record<string, any> | any[],
   rootConfig: any,
   importer: ISimpleResourceImporter
 ) {
@@ -228,11 +226,11 @@ function resolvePlaceholders(
   }
 
   if (Array.isArray(config)) {
-    config.forEach(item => {
+    config.forEach((item) => {
       resolvePlaceholders(item, rootConfig, importer);
     });
   } else {
-    Object.keys(config).forEach(key => {
+    Object.keys(config).forEach((key) => {
       resolvePlaceholder(key, config, rootConfig, importer);
     });
   }
@@ -247,18 +245,19 @@ function resolvePlaceholder(
   const value = config[key];
   if (typeof value === 'string') {
     if (value.startsWith('config:')) {
-      const configProperty = value.substr(7, value.length);
+      const configProperty = value.substring(7, value.length);
       config[key] = getNestedPropertyValue(configProperty, rootConfig);
     } else if (value.startsWith('template:')) {
-      const templateKey = value.substr(9, value.length);
-      config[key] = importer.import(templateKey)[templateKey];
+      const templateKey = value.substring(9, value.length);
+      const template = importer.import(templateKey)[templateKey];
+      config[key] = template;
     } else if (value.startsWith('json:')) {
-      const jsonKey = value.substr(5, value.length);
+      const jsonKey = value.substring(5, value.length);
       const json = importer.import(jsonKey)[jsonKey];
       config[key] = json;
     }
   } else if (typeof value === 'object') {
-    resolvePlaceholders(config[key], rootConfig, importer);
+    resolvePlaceholders(value, rootConfig, importer);
   }
 }
 
