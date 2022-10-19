@@ -33,7 +33,7 @@ EndActionSuite(
       operationData
     );
 
-    expect(result).to.equal(operationData);
+    expect(result).to.eql(operationData);
   }
 );
 
