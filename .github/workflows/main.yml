@@ -21,6 +21,11 @@ jobs:
 
       - name: Install dependencies
         uses: borales/actions-yarn@v3.0.0
+        with:
+          cmd: version
+
+      - name: Install dependencies
+        uses: borales/actions-yarn@v3.0.0
 
       - name: Lint
         run: yarn lint
