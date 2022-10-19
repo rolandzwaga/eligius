@@ -4,22 +4,23 @@ jobs:
   build:
     name: Build, lint, and test on Node 16 and ubuntu-latest
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     # container:
     #  image: chearon/canvas-prebuilt:7
 
     steps:
-      - name: Install node canvas deps
+      - name: Install Cairo dependencies
         run: |
-          sudo apt update -y
-          sudo apt install build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
+          Invoke-WebRequest "http://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "gtk.zip"
+          Expand-Archive gtk.zip -DestinationPath "C:\GTK"
+          Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "libjpeg.exe" -UserAgent NativeHost
+          .\libjpeg.exe /S
 
-      - name: Display information about build environment
-        continue-on-error: true
-        run: |
-          pkg-config --version
-
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: '15.0'
 
       - name: Checkout repo
         uses: actions/checkout@v2
