@@ -18,12 +18,9 @@ jobs:
       - name: Display information about build environment
         continue-on-error: true
         run: |
+          export PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig:$PATH"
           pkg-config --version
-          echo $PKG_CONFIG_PATH
-          ls /usr/lib/pkgconfig
-          ls /usr/share/pkgconfig
-          ls /usr/local/lib/pkgconfig
-          ls /usr/local/share/pkgconfig
+          echo $PATH
 
 
       - name: Checkout repo
