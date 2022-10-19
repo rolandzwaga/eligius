@@ -19,12 +19,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Remove File
-        uses: JesseTG/rm@v1.0.3
+      - name: Install latest yarn
+        uses: borales/actions-yarn@v3.0.0
         with:
-          path: /.yarn
+          cmd: set version 3.2.4
 
-      - name: Install deps and build (with cache)
+      - name: Install dependencies
         uses: borales/actions-yarn@v3.0.0
 
       - name: Lint
