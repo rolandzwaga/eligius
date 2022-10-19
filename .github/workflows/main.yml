@@ -2,26 +2,21 @@ name: CI
 on: [push]
 jobs:
   build:
-    name: Build, lint, and test on Node ${{ matrix.node }} and ubuntu-latest
+    name: Build, lint, and test on Node 16 and ubuntu-latest
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: ['16']
+
+    container:
+      image: chearon/canvas-prebuilt:7
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Install node canvas deps
-        run: |
-          sudo apt update
-          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev
-
-      - name: Use Node ${{ matrix.node }}
+      - name: Use Node 16
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 16
 
       - name: Install dependencies
         uses: borales/actions-yarn@v3.0.0
