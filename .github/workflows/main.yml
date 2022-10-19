@@ -15,18 +15,11 @@ jobs:
           sudo apt update -y
           sudo apt install -y libpango1.0-dev libgif-dev
 
-      - name: Setup paths and env
-        run: |
-          mkdir -p $HOME/.local/bin
-          mkdir -p $HOME/.local/lib/pkgconfig
-          echo "PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
-          echo "PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
       - name: Display information about build environment
         continue-on-error: true
         run: |
-          env
           pkg-config --version
+          echo $PKG_CONFIG_PATH
 
       - name: Checkout repo
         uses: actions/checkout@v2
