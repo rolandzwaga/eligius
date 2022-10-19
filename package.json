@@ -52,7 +52,7 @@
     "@types/jquery": "3.5.14",
     "@types/jsdom": "^20.0.0",
     "@types/mousetrap": "1.6.9",
-    "@types/node": "18.11.0",
+    "@types/node": "18.11.2",
     "@types/sinon": "10.0.13",
     "@types/uuid": "8.3.4",
     "acorn": "8.8.0",
