@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Remove File
+        uses: JesseTG/rm@v1.0.3
+        with:
+          path: /.yarn
+
       - name: Install deps and build (with cache)
         uses: borales/actions-yarn@v3.0.0
 
