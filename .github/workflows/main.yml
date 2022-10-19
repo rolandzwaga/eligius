@@ -13,14 +13,12 @@ jobs:
       - name: Install node canvas deps
         run: |
           sudo apt update -y
-          sudo apt install -y libpango1.0-dev libgif-dev
+          sudo apt install -y libpango1.0-dev libgif-dev zeromq
 
       - name: Display information about build environment
         continue-on-error: true
         run: |
-          export PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig:$PATH"
           pkg-config --version
-          echo $PATH
 
 
       - name: Checkout repo
