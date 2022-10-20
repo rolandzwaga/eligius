@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.3
+
+- Add github actions for CI and NPM publish
+- Add elaborate README and typedoc github pages
+- Export metadata functions
+- Several bugfixes
+
 ## 1.0.2
 
 - Fix all unit tests
