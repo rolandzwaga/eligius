@@ -74,7 +74,7 @@ export interface ITimelineConfiguration {
 export interface IOperationConfiguration {
   id: string;
   systemName: string;
-  operationData: TOperationData;
+  operationData?: TOperationData;
 }
 
 export interface IEventActionConfiguration extends IActionConfiguration {

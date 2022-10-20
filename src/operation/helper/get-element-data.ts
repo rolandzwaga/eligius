@@ -1,11 +1,12 @@
 import { IController } from '../../controllers/types';
 
-const controllersName = 'eligiusEngineControllers';
+export const controllersDataName = 'eligiusEngineControllers';
 
 function getElementData(name: string, element: JQuery): IController<any>[] {
   return element.data(name);
 }
 
-const getElementControllers = getElementData.bind(null, controllersName);
+const getElementControllers = getElementData.bind(null, controllersDataName);
 
 export { getElementData, getElementControllers };
+
