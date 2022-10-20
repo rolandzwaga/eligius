@@ -6,6 +6,7 @@
 - Add elaborate README and typedoc github pages
 - Export metadata functions
 - Several bugfixes
+- Move examples to separate github repository
 
 ## 1.0.2
 
