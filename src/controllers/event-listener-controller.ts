@@ -69,15 +69,13 @@ export class EventListenerController implements IController<IEventListenerContro
       return;
     }
 
-    const actionOperationData = this.operationData.actionOperationData
-      ? deepCopy(this.operationData.actionOperationData)
-      : {};
+    const copy = this.operationData.actionOperationData ? deepCopy(this.operationData.actionOperationData) : {};
 
     if (event.target) {
-      actionOperationData.targetValue = event.target.value;
+      copy.targetValue = event.target.value;
     }
 
-    this._executeAction(this.actionInstanceInfos, actionOperationData, 0);
+    this._executeAction(this.actionInstanceInfos, copy, 0);
   }
 
   async _executeAction(actions: IActionInstanceInfo[], operationData: TOperationData, idx: number) {

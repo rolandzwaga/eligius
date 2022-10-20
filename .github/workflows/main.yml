@@ -6,6 +6,9 @@ jobs:
 
     runs-on: windows-latest
 
+    # container:
+    #  image: chearon/canvas-prebuilt:7
+
     steps:
       - name: Install Cairo dependencies
         run: |

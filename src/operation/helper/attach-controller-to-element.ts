@@ -1,11 +1,9 @@
-import { controllersDataName, getElementControllers } from './get-element-data';
+import { getElementControllers } from './get-element-data';
 
 export function attachControllerToElement(element: JQuery, controller: any) {
-  if (!element.data(controllersDataName)) {
-    element.data(controllersDataName, []);
+  if (!element.data('eligiusEngineControllers')) {
+    element.data('eligiusEngineControllers', []);
   }
   const controllers = getElementControllers(element);
-  if (controllers) {
-    controllers.push(controller);
-  }
+  controllers.push(controller);
 }

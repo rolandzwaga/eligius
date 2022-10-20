@@ -76,8 +76,8 @@ export class ConfigurationResolver implements IConfigurationResolver {
       );
     }
 
-    const actionsLookup = (resolvedConfig.actions as IAction[])
-      .concat(eventActions)
+    const actionsLookup = resolvedConfig.actions
+      .concat(eventActions as any[])
       .reduce<Record<string, IAction>>(
         (aggr, action) => ({
           ...aggr,
@@ -96,10 +96,11 @@ function resolveEventActions(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
-  const resolvedConfigs =
-    eventActionConfigurations.map<IResolvedActionConfiguration>((config) => {
-      return resolveActionConfiguration(config, importer);
-    });
+  const resolvedConfigs = eventActionConfigurations.map<
+    IResolvedActionConfiguration
+  >(config => {
+    return resolveActionConfiguration(config, importer);
+  });
 
   return resolvedConfigs.map((config, index) => {
     const { eventName, eventTopic } = eventActionConfigurations[index];
@@ -120,7 +121,7 @@ function resolveTimelines(
 ) {
   const resolve = resolveTimelineAction.bind(null, importer, eventbus);
 
-  return timelines.map<IResolvedTimelineConfiguration>((config) => ({
+  return timelines.map<IResolvedTimelineConfiguration>(config => ({
     ...config,
     timelineActions: config.timelineActions.map(resolve),
   }));
@@ -198,12 +199,13 @@ function resolveActions(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus
 ) {
-  const resolvedConfigs =
-    actionConfigurations.map<IResolvedEndableActionConfiguration>((config) => {
-      return resolveEndableActionConfiguration(config, importer);
-    });
+  const resolvedConfigs = actionConfigurations.map<
+    IResolvedEndableActionConfiguration
+  >(config => {
+    return resolveEndableActionConfiguration(config, importer);
+  });
 
-  return resolvedConfigs.map<EndableAction>((resolvedConfig) => {
+  return resolvedConfigs.map<EndableAction>(resolvedConfig => {
     const { name, endOperations, startOperations } = resolvedConfig;
     const action = new EndableAction(
       name,
@@ -217,47 +219,46 @@ function resolveActions(
 }
 
 function resolvePlaceholders(
-  configFragment: Record<string, any> | any[],
+  config: any,
   rootConfig: any,
   importer: ISimpleResourceImporter
 ) {
-  if (!isDefined(configFragment)) {
+  if (!isDefined(config)) {
     return;
   }
 
-  if (Array.isArray(configFragment)) {
-    configFragment.forEach((item) => {
+  if (Array.isArray(config)) {
+    config.forEach(item => {
       resolvePlaceholders(item, rootConfig, importer);
     });
   } else {
-    Object.keys(configFragment).forEach((key) => {
-      resolvePlaceholder(key, configFragment, rootConfig, importer);
+    Object.keys(config).forEach(key => {
+      resolvePlaceholder(key, config, rootConfig, importer);
     });
   }
 }
 
 function resolvePlaceholder(
   key: string,
-  configFragment: any,
+  config: any,
   rootConfig: any,
   importer: ISimpleResourceImporter
 ) {
-  const configValue = configFragment[key];
-  if (typeof configValue === 'string') {
-    if (configValue.startsWith('config:')) {
-      const configProperty = configValue.substring(7, configValue.length);
-      configFragment[key] = getNestedPropertyValue(configProperty, rootConfig);
-    } else if (configValue.startsWith('template:')) {
-      const templateKey = configValue.substring(9, configValue.length);
-      const template = importer.import(templateKey)[templateKey];
-      configFragment[key] = template;
-    } else if (configValue.startsWith('json:')) {
-      const jsonKey = configValue.substring(5, configValue.length);
+  const value = config[key];
+  if (typeof value === 'string') {
+    if (value.startsWith('config:')) {
+      const configProperty = value.substr(7, value.length);
+      config[key] = getNestedPropertyValue(configProperty, rootConfig);
+    } else if (value.startsWith('template:')) {
+      const templateKey = value.substr(9, value.length);
+      config[key] = importer.import(templateKey)[templateKey];
+    } else if (value.startsWith('json:')) {
+      const jsonKey = value.substr(5, value.length);
       const json = importer.import(jsonKey)[jsonKey];
-      configFragment[key] = json;
+      config[key] = json;
     }
-  } else if (typeof configValue === 'object') {
-    resolvePlaceholders(configValue, rootConfig, importer);
+  } else if (typeof value === 'object') {
+    resolvePlaceholders(config[key], rootConfig, importer);
   }
 }
 
