@@ -15,6 +15,7 @@
     "dev": "dts watch",
     "build": "dts build",
     "test": "cross-env TS_NODE_PROJECT=tsconfig.test.json uvu -r ts-node/register -r jsdom-global/register src/test",
+    "check": "tsc --pretty --noEmit",
     "lint": "dts lint",
     "prepare": "dts build",
     "size": "size-limit",
