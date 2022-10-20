@@ -38,7 +38,7 @@ jobs:
         run: yarn build
 
       - name: Publish
-      - uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v1
         with:
           token: ${{ secrets.NPM_TOKEN }}
           greater-version-only: true
