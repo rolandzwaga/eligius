@@ -1,15 +1,9 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
-  "include": ["src", "types"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS",
-      "target": "es5",
-      "noEmit": false
-    }
-  },
+  "include": ["src"],
   "compilerOptions": {
     "module": "esnext",
+    "target": "ES6",
     "lib": ["dom", "esnext"],
     "importHelpers": true,
     // output .d.ts declaration files for consumers

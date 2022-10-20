@@ -217,47 +217,47 @@ function resolveActions(
 }
 
 function resolvePlaceholders(
-  config: Record<string, any> | any[],
+  configFragment: Record<string, any> | any[],
   rootConfig: any,
   importer: ISimpleResourceImporter
 ) {
-  if (!isDefined(config)) {
+  if (!isDefined(configFragment)) {
     return;
   }
 
-  if (Array.isArray(config)) {
-    config.forEach((item) => {
+  if (Array.isArray(configFragment)) {
+    configFragment.forEach((item) => {
       resolvePlaceholders(item, rootConfig, importer);
     });
   } else {
-    Object.keys(config).forEach((key) => {
-      resolvePlaceholder(key, config, rootConfig, importer);
+    Object.keys(configFragment).forEach((key) => {
+      resolvePlaceholder(key, configFragment, rootConfig, importer);
     });
   }
 }
 
 function resolvePlaceholder(
   key: string,
-  config: any,
+  configFragment: any,
   rootConfig: any,
   importer: ISimpleResourceImporter
 ) {
-  const value = config[key];
-  if (typeof value === 'string') {
-    if (value.startsWith('config:')) {
-      const configProperty = value.substring(7, value.length);
-      config[key] = getNestedPropertyValue(configProperty, rootConfig);
-    } else if (value.startsWith('template:')) {
-      const templateKey = value.substring(9, value.length);
+  const configValue = configFragment[key];
+  if (typeof configValue === 'string') {
+    if (configValue.startsWith('config:')) {
+      const configProperty = configValue.substring(7, configValue.length);
+      configFragment[key] = getNestedPropertyValue(configProperty, rootConfig);
+    } else if (configValue.startsWith('template:')) {
+      const templateKey = configValue.substring(9, configValue.length);
       const template = importer.import(templateKey)[templateKey];
-      config[key] = template;
-    } else if (value.startsWith('json:')) {
-      const jsonKey = value.substring(5, value.length);
+      configFragment[key] = template;
+    } else if (configValue.startsWith('json:')) {
+      const jsonKey = configValue.substring(5, configValue.length);
       const json = importer.import(jsonKey)[jsonKey];
-      config[key] = json;
+      configFragment[key] = json;
     }
-  } else if (typeof value === 'object') {
-    resolvePlaceholders(value, rootConfig, importer);
+  } else if (typeof configValue === 'object') {
+    resolvePlaceholders(configValue, rootConfig, importer);
   }
 }
 
