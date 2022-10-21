@@ -7,6 +7,7 @@ function requestAction(): IOperationMetadata<IRequestActionOperationData> {
     properties: {
       systemName: {
         type: 'ParameterType:actionName',
+        required: true,
       },
     },
     outputProperties: {

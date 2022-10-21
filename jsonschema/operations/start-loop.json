@@ -1,0 +1,45 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/operation.json",
+  "type": "object",
+  "title": "The startLoop schema",
+  "description": "Starts a loop over the given collection",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "startLoop"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "required": [
+        "collection"
+      ],
+      "properties": {
+        "collection": {
+          "$id": "#/properties/operationData/collection",
+          "type": "array"
+        },
+        "propertyName": {
+          "$id": "#/properties/operationData/propertyName",
+          "type": "string"
+        }
+      }
+    }
+  }
+}
