@@ -15,7 +15,7 @@ export interface IEngineFactory {
 
 export interface IEligiusEngine {
   init(): Promise<ITimelineProvider>;
-  destroy(): void;
+  destroy(): Promise<void>;
 }
 
 export interface ISimpleResourceImporter {
