@@ -19,7 +19,7 @@
     "lint": "dts lint",
     "prepare": "dts build",
     "size": "size-limit",
-    "docs": "typedoc --options typedoc.json"
+    "docs": "typedoc --options typedoc.json && node copy-schema"
   },
   "prettier": {
     "printWidth": 80,

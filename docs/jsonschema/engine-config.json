@@ -1,0 +1,18 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/engine-config.json",
+  "type": "object",
+  "title": "The Engine Config Schema",
+  "required": ["systemName"],
+  "properties": {
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "type": "string",
+      "title": "The SystemName Schema",
+      "default": "",
+      "examples": ["EligiusEngine"],
+      "pattern": "^(.*)$"
+    }
+  }
+}
