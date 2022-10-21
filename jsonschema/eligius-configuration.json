@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/eligius-configuration.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json",
   "type": "object",
   "title": "The Eligius Configuration Schema",
   "required": [
@@ -19,26 +19,21 @@
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "default": "",
-      "examples": [
-        "6291bf4c-07fb-49c6-9005-2dca98d1b3af"
-      ],
-      "pattern": "^(.*)$"
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "pattern": "^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$"
     },
     "engine": {
-      "$ref": "file:engine-config.json"
+      "$ref": "/engine-config.json"
     },
     "timelineProviderSettings": {
-      "$ref": "file:timeline-provider-settings.json"
+      "$ref": "/timeline-provider-settings.json"
     },
     "containerSelector": {
       "$id": "#/properties/containerSelector",
       "type": "string",
       "title": "The Containerselector Schema",
       "default": "",
-      "examples": [
-        "#eligius-container"
-      ],
+      "examples": ["#eligius-container"],
       "pattern": "^(.*)$"
     },
     "language": {
@@ -46,9 +41,7 @@
       "type": "string",
       "title": "The Language Schema",
       "default": "",
-      "examples": [
-        "en-US"
-      ],
+      "examples": ["en-US"],
       "pattern": "^(.*)$"
     },
     "layoutTemplate": {
@@ -56,9 +49,7 @@
       "type": "string",
       "title": "The Layouttemplate Schema",
       "default": "",
-      "examples": [
-        "template:layoutTemplate"
-      ],
+      "examples": ["template:layoutTemplate"],
       "pattern": "^(.*)$"
     },
     "availableLanguages": {
@@ -69,19 +60,14 @@
         "$id": "#/properties/availableLanguages/items",
         "type": "object",
         "title": "The Items Schema",
-        "required": [
-          "code",
-          "label"
-        ],
+        "required": ["code", "label"],
         "properties": {
           "code": {
             "$id": "#/properties/availableLanguages/items/properties/code",
             "type": "string",
             "title": "The Code Schema",
             "default": "",
-            "examples": [
-              "en-US"
-            ],
+            "examples": ["en-US"],
             "pattern": "^(.*)$"
           },
           "label": {
@@ -89,9 +75,7 @@
             "type": "string",
             "title": "The Label Schema",
             "default": "",
-            "examples": [
-              "English"
-            ],
+            "examples": ["English"],
             "pattern": "^(.*)$"
           }
         }
@@ -102,275 +86,37 @@
       "type": "array",
       "title": "The Initactions Schema",
       "items": {
-        "$ref": "file:endable-action.json"
-      },
-      "actions": {
-        "$id": "#/properties/actions",
-        "type": "array",
-        "title": "The Actions Schema",
-        "items": {
-          "$id": "#/properties/actions/items",
-          "type": "object",
-          "title": "The Items Schema",
-          "required": [
-            "name",
-            "startOperations"
-          ],
-          "properties": {
-            "name": {
-              "$id": "#/properties/actions/items/properties/name",
-              "type": "string",
-              "title": "The Name Schema",
-              "default": "",
-              "examples": [
-                "BroadcastLanguageChange"
-              ],
-              "pattern": "^(.*)$"
-            },
-            "startOperations": {
-              "$id": "#/properties/actions/items/properties/startOperations",
-              "type": "array",
-              "title": "The Startoperations Schema",
-              "items": {
-                "$id": "#/properties/actions/items/properties/startOperations/items",
-                "type": "object",
-                "title": "The Items Schema",
-                "required": [
-                  "systemName",
-                  "operationData"
-                ],
-                "properties": {
-                  "systemName": {
-                    "$id": "#/properties/actions/items/properties/startOperations/items/properties/systemName",
-                    "type": "string",
-                    "title": "The Systemname Schema",
-                    "default": "",
-                    "examples": [
-                      "BroadcastEventOperation"
-                    ],
-                    "pattern": "^(.*)$"
-                  },
-                  "operationData": {
-                    "$id": "#/properties/actions/items/properties/startOperations/items/properties/operationData",
-                    "type": "object",
-                    "title": "The Operationdata Schema",
-                    "required": [
-                      "eventName"
-                    ],
-                    "properties": {
-                      "eventName": {
-                        "$id": "#/properties/actions/items/properties/startOperations/items/properties/operationData/properties/eventName",
-                        "type": "string",
-                        "title": "The Eventname Schema",
-                        "default": "",
-                        "examples": [
-                          "language-change"
-                        ],
-                        "pattern": "^(.*)$"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "timelines": {
-        "$id": "#/properties/timelines",
-        "type": "array",
-        "title": "The Timelines Schema",
-        "items": {
-          "$id": "#/properties/timelines/items",
-          "type": "object",
-          "title": "The Items Schema",
-          "required": [
-            "type",
-            "url",
-            "loop",
-            "timelineActions"
-          ],
-          "properties": {
-            "type": {
-              "$id": "#/properties/timelines/items/properties/type",
-              "type": "string",
-              "title": "The Type Schema",
-              "default": "",
-              "examples": [
-                "video"
-              ],
-              "pattern": "^(.*)$"
-            },
-            "url": {
-              "$id": "#/properties/timelines/items/properties/url",
-              "type": "string",
-              "title": "The Url Schema",
-              "default": "",
-              "examples": [
-                "Q4FY_2013_EN [CROPPED 341x389]_1.mp4"
-              ],
-              "pattern": "^(.*)$"
-            },
-            "loop": {
-              "$id": "#/properties/timelines/items/properties/loop",
-              "type": "boolean",
-              "title": "The Loop Schema",
-              "default": false,
-              "examples": [
-                false
-              ]
-            },
-            "timelineActions": {
-              "$id": "#/properties/timelines/items/properties/timelineActions",
-              "type": "array",
-              "title": "The Timelineactions Schema",
-              "items": {
-                "$id": "#/properties/timelines/items/properties/timelineActions/items",
-                "type": "object",
-                "title": "The Items Schema",
-                "required": [
-                  "name",
-                  "duration",
-                  "startOperations",
-                  "endOperations"
-                ],
-                "properties": {
-                  "name": {
-                    "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/name",
-                    "type": "string",
-                    "title": "The Name Schema",
-                    "default": "",
-                    "examples": [
-                      "ShowChartHistoryItem"
-                    ],
-                    "pattern": "^(.*)$"
-                  },
-                  "duration": {
-                    "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/duration",
-                    "type": "object",
-                    "title": "The Duration Schema",
-                    "required": [
-                      "start"
-                    ],
-                    "properties": {
-                      "start": {
-                        "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/duration/properties/start",
-                        "type": "integer",
-                        "title": "The Start Schema",
-                        "default": 0,
-                        "examples": [
-                          7
-                        ]
-                      }
-                    }
-                  },
-                  "startOperations": {
-                    "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/startOperations",
-                    "type": "array",
-                    "title": "The Startoperations Schema",
-                    "items": {
-                      "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/startOperations/items",
-                      "type": "object",
-                      "title": "The Items Schema",
-                      "required": [
-                        "systemName",
-                        "operationData"
-                      ],
-                      "properties": {
-                        "systemName": {
-                          "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/startOperations/items/properties/systemName",
-                          "type": "string",
-                          "title": "The Systemname Schema",
-                          "default": "",
-                          "examples": [
-                            "SelectElementOperation"
-                          ],
-                          "pattern": "^(.*)$"
-                        },
-                        "operationData": {
-                          "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/startOperations/items/properties/operationData",
-                          "type": "object",
-                          "title": "The Operationdata Schema",
-                          "required": [
-                            "selector"
-                          ],
-                          "properties": {
-                            "selector": {
-                              "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/startOperations/items/properties/operationData/properties/selector",
-                              "type": "string",
-                              "title": "The Selector Schema",
-                              "default": "",
-                              "examples": [
-                                ".view-history-container"
-                              ],
-                              "pattern": "^(.*)$"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  "endOperations": {
-                    "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/endOperations",
-                    "type": "array",
-                    "title": "The Endoperations Schema",
-                    "items": {
-                      "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/endOperations/items",
-                      "type": "object",
-                      "title": "The Items Schema",
-                      "required": [
-                        "systemName",
-                        "operationData"
-                      ],
-                      "properties": {
-                        "systemName": {
-                          "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/endOperations/items/properties/systemName",
-                          "type": "string",
-                          "title": "The Systemname Schema",
-                          "default": "",
-                          "examples": [
-                            "SelectElementOperation"
-                          ],
-                          "pattern": "^(.*)$"
-                        },
-                        "operationData": {
-                          "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/endOperations/items/properties/operationData",
-                          "type": "object",
-                          "title": "The Operationdata Schema",
-                          "required": [
-                            "selector"
-                          ],
-                          "properties": {
-                            "selector": {
-                              "$id": "#/properties/timelines/items/properties/timelineActions/items/properties/endOperations/items/properties/operationData/properties/selector",
-                              "type": "string",
-                              "title": "The Selector Schema",
-                              "default": "",
-                              "examples": [
-                                "#view-history-item-1"
-                              ],
-                              "pattern": "^(.*)$"
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "eventActions": {
-        "$id": "#/properties/eventActions",
-        "type": "array",
-        "title": "The Eventactions Schema"
-      },
-      "labels": {
-        "$id": "#/properties/labels",
-        "type": "array",
-        "title": "The Labels Schema"
+        "$ref": "/endable-action.json"
       }
+    },
+    "actions": {
+      "$id": "#/properties/initActions",
+      "type": "array",
+      "title": "The Initactions Schema",
+      "items": {
+        "$ref": "/endable-action.json"
+      }
+    },
+    "eventActions": {
+      "$id": "#/properties/initActions",
+      "type": "array",
+      "title": "The Initactions Schema",
+      "items": {
+        "$ref": "/event-action.json"
+      }
+    },
+    "timelines": {
+      "$id": "#/properties/timelines",
+      "type": "array",
+      "title": "The timelines schema",
+      "items": {
+        "$ref": "/timeline.json"
+      }
+    },
+    "labels": {
+      "$id": "#/properties/labels",
+      "type": "array",
+      "title": "The Labels Schema"
     }
   }
+}

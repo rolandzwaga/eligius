@@ -1,20 +1,28 @@
+export type THasRequired = {
+  required?: boolean;
+};
+
+export type THasDescription = {
+  description?: string;
+};
+
 export type TComplexProperyMetadata = {
   type: TParameterTypes;
   defaultValue?: any;
-  required?: boolean;
-};
+} & THasRequired &
+  THasDescription;
 
 export type TArrayProperyMetadata = {
   type: 'ParameterType:array';
   itemType: TParameterTypes;
-  required?: boolean;
-};
+} & THasRequired &
+  THasDescription;
 
 export type TConstantParametersTypes = {
   value: string;
-  description: string;
   default?: boolean;
-};
+} & THasRequired &
+  THasDescription;
 
 export type TPropertyMetadata =
   | TComplexProperyMetadata

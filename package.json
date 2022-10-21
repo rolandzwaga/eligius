@@ -19,7 +19,9 @@
     "lint": "dts lint",
     "prepare": "dts build",
     "size": "size-limit",
-    "docs": "typedoc --options typedoc.json && node copy-schema"
+    "generate-schema": "ts-node ./src/schema-tools/generate-operation-schemas",
+    "typedoc": "typedoc --options typedoc.json",
+    "docs": "yarn generate-schema && yarn typedoc && node copy-schema"
   },
   "prettier": {
     "printWidth": 80,
@@ -58,6 +60,7 @@
     "chai": "4.3.6",
     "cross-env": "7.0.3",
     "dts-cli": "1.6.0",
+    "fs-extra": "^10.1.0",
     "husky": "8.0.1",
     "jquery": "3.6.1",
     "jsdom": "20.0.1",
