@@ -1,15 +1,41 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { calc, ICalcOperationData } from '../../../operation/calc';
+import {
+  calc,
+  ICalcOperationData,
+  TCalculationOperator,
+} from '../../../operation/calc';
 import { applyOperation } from '../../../util/apply-operation';
 
 const CalcSuite = suite('calc');
 
-CalcSuite('should add the given operands', () => {
-  // given
+CalcSuite('should perform the calculations', () => {
+  (['+', '-', '*', '/', '%', '**'] as TCalculationOperator[]).forEach(
+    (operator) => {
+      // given
+      const left = Math.floor(Math.random() * 100) + 1;
+      const right = Math.floor(Math.random() * 100) + 1;
+      const operationData: ICalcOperationData = {
+        left,
+        right,
+        operator,
+      };
+
+      // test
+      const result = applyOperation<typeof operationData>(calc, operationData);
+
+      // expect
+      expect((result as any).calculationResult).to.equal(
+        eval(`${left} ${operator} ${right}`)
+      );
+    }
+  );
+});
+
+CalcSuite('should perform calculation with resolved properties', () => {
   const operationData: ICalcOperationData = {
-    left: 2,
-    right: 2,
+    left: 100,
+    right: 'operationData.left',
     operator: '+',
   };
 
@@ -17,97 +43,7 @@ CalcSuite('should add the given operands', () => {
   const result = applyOperation<typeof operationData>(calc, operationData);
 
   // expect
-  expect((result as any).calculationResult).to.equal(4);
-});
-
-CalcSuite('should subtract the given operands', () => {
-  // given
-  const operationData: ICalcOperationData = {
-    left: 2,
-    right: 2,
-    operator: '-',
-  };
-
-  // test
-  const result = applyOperation<typeof operationData>(calc, operationData);
-
-  // expect
-  expect((result as any).calculationResult).to.equal(0);
-});
-
-CalcSuite('should multiply the given operands', () => {
-  // given
-  const operationData: ICalcOperationData = {
-    left: 4,
-    right: 4,
-    operator: '*',
-  };
-
-  // test
-  const result = applyOperation<typeof operationData>(calc, operationData);
-
-  // expect
-  expect((result as any).calculationResult).to.equal(16);
-});
-
-CalcSuite('should divide the given operands', () => {
-  // given
-  const operationData: ICalcOperationData = {
-    left: 10,
-    right: 2,
-    operator: '/',
-  };
-
-  // test
-  const result = applyOperation<typeof operationData>(calc, operationData);
-
-  // expect
-  expect((result as any).calculationResult).to.equal(5);
-});
-
-CalcSuite('should calculate the modulo of the two operands', () => {
-  // given
-  const operationData: ICalcOperationData = {
-    left: 10,
-    right: 2,
-    operator: '%',
-  };
-
-  // test
-  const result = applyOperation<typeof operationData>(calc, operationData);
-
-  // expect
-  expect((result as any).calculationResult).to.equal(0);
-});
-
-CalcSuite('should calculate the modulo of the two operands', () => {
-  // given
-  const operationData: ICalcOperationData = {
-    left: 11,
-    right: 2,
-    operator: '%',
-  };
-
-  // test
-  const result = applyOperation<typeof operationData>(calc, operationData);
-
-  // expect
-  expect((result as any).calculationResult).to.equal(1);
-});
-
-CalcSuite('should calculate the exponent of the two operands', () => {
-  // given
-  const operationData: ICalcOperationData = {
-    left: 5,
-    right: 2,
-    operator: '**',
-  };
-
-  // test
-  const result = applyOperation<typeof operationData>(calc, operationData);
-
-  // expect
-  expect((result as any).calculationResult).to.equal(25);
+  expect((result as any).calculationResult).to.equal(200);
 });
 
 CalcSuite.run();
