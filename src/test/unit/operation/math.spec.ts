@@ -19,9 +19,32 @@ MathSuite('should perform all the math calculations', () => {
       args,
       functionName,
     };
+
+    // test
     const result = applyOperation<typeof operationData>(math, operationData);
 
+    // expect
     expect(isNaN((result as any).mathResult)).to.equal(false);
+  });
+});
+
+MathSuite('Should resolve Math constants in args', () => {
+  const intProperties: (keyof Math)[] = Object.getOwnPropertyNames(Math).filter(
+    (x) => typeof Math[x as keyof Math] === 'number'
+  ) as (keyof Math)[];
+
+  intProperties.forEach((propName) => {
+    //given
+    const operationData: IMathOperationData = {
+      args: [0, propName],
+      functionName: 'max',
+    };
+
+    // test
+    const result = applyOperation<typeof operationData>(math, operationData);
+
+    // expect
+    expect((result as any).mathResult).to.equal(Math[propName]);
   });
 });
 
