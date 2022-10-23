@@ -17,6 +17,7 @@ export { default as getElementDimensions } from './get-element-dimensions';
 export { default as getImport } from './get-import';
 export { default as loadJSON } from './load-json';
 export { default as log } from './log';
+export { default as math } from './math';
 export { default as removeClass } from './remove-class';
 export { default as removeControllerFromElement } from './remove-controller-from-element';
 export { default as removeElement } from './remove-element';

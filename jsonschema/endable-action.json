@@ -51,6 +51,9 @@
             "$ref": "/operations/broadcast-event.json"
           },
           {
+            "$ref": "/operations/calc.json"
+          },
+          {
             "$ref": "/operations/clear-element.json"
           },
           {
@@ -88,6 +91,9 @@
           },
           {
             "$ref": "/operations/log.json"
+          },
+          {
+            "$ref": "/operations/math.json"
           },
           {
             "$ref": "/operations/remove-class.json"
@@ -165,6 +171,9 @@
             "$ref": "/operations/broadcast-event.json"
           },
           {
+            "$ref": "/operations/calc.json"
+          },
+          {
             "$ref": "/operations/clear-element.json"
           },
           {
@@ -202,6 +211,9 @@
           },
           {
             "$ref": "/operations/log.json"
+          },
+          {
+            "$ref": "/operations/math.json"
           },
           {
             "$ref": "/operations/remove-class.json"

@@ -40,7 +40,9 @@ The end operations would be: <code>select-element</code>(to select the parent ag
   <h3>systemName property</h3>
 </a>
 <p>In the rest of this section the property name <code>systemName</code> will be shown often. The value of this property describes a named import.
-Currently one resource importer is supported: <a href="https://github.com/rolandzwaga/eligius/blob/dev/src/importer/webpack-resource-importer.ts"><code>WebpackResourceImporter</code></a></p>
+Currently one resource importer is supported by default: <a href="https://github.com/rolandzwaga/eligius/blob/dev/src/importer/eligius-resource-importer.ts"><code>EligiusResourceImporter</code></a>.
+However, this importer contains all of Eligius classes, function, providers, etc. So, bundling this with a presentation will bloat the bundle.
+Eligius offers a generator function for this: <a href="https://github.com/rolandzwaga/eligius/blob/dev/src/build/generate-importer-source-code.ts"><code>generateImporterSourceCode</code></a>. This function is able to generate source code (Typescript) for a custom resource importer based on a given Eligius configuration. This will result in an importer that only includes the code that is referenced in the configuration.</p>
 
 <a href="#engine" id="engine" style="color: inherit; text-decoration: none;">
   <h3>engine</h3>
