@@ -5,7 +5,7 @@ import { ConfigurationFactory } from '../../configuration/api/configuration-fact
 import { IEngineConfiguration } from '../../configuration/types';
 import { EngineFactory } from '../../engine-factory';
 import { Eventbus } from '../../eventbus';
-import { WebpackResourceImporter } from '../../importer';
+import { EligiusResourceImporter } from '../../importer';
 import {
   addControllerToElement,
   broadcastEvent,
@@ -126,7 +126,7 @@ CreateOptionList(
     });
 
     const engineFactory = new EngineFactory(
-      new WebpackResourceImporter(),
+      new EligiusResourceImporter(),
       window,
       context.eventbus
     );

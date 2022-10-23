@@ -2435,18 +2435,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.17.0":
-  version: 0.17.0
-  resolution: "@ts-morph/common@npm:0.17.0"
-  dependencies:
-    fast-glob: ^3.2.11
-    minimatch: ^5.1.0
-    mkdirp: ^1.0.4
-    path-browserify: ^1.0.1
-  checksum: f588c0acabcc6ca9463ac09b343d67a73f6e7bf47f674aaff11542b95b58342556b05241610b9e6dffc2966db529e7261b6860577786f919a835c22488ec9260
-  languageName: node
-  linkType: hard
-
 "@tsconfig/node10@npm:^1.0.7":
   version: 1.0.7
   resolution: "@tsconfig/node10@npm:1.0.7"
@@ -2662,10 +2650,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:18.11.2":
-  version: 18.11.2
-  resolution: "@types/node@npm:18.11.2"
-  checksum: 0ff5c90fb9ab653e018b858479aea4d2f763b07b31f9502383d408936f525ca37cac82ea27774a0dd0356ff9badba2792a6a3fff94f79fd7c82ee2a892c43ed5
+"@types/node@npm:18.11.3":
+  version: 18.11.3
+  resolution: "@types/node@npm:18.11.3"
+  checksum: 3a2a9142d891a90a195c296149bf64a69cc0abcc42f543be911ab22b2e0ead85ff077f90af92f0f13f6e3e5e72501469200fd753dfd1101825d4646a89d3ee47
   languageName: node
   linkType: hard
 
@@ -3814,15 +3802,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"canvas@npm:2.9.3":
-  version: 2.9.3
-  resolution: "canvas@npm:2.9.3"
+"canvas@npm:2.10.1":
+  version: 2.10.1
+  resolution: "canvas@npm:2.10.1"
   dependencies:
     "@mapbox/node-pre-gyp": ^1.0.0
     nan: ^2.15.0
     node-gyp: latest
     simple-get: ^3.0.3
-  checksum: 368112ba4b16f54ce6dfac1ccbc45ddd1eb0b76dc09509c2601c2a26459bb4449d259a7aa8664fd94153aad13b48557535f3b9eb7fad9a97929b9eb962e50f09
+  checksum: 29b162a59df8c63e5591cae62711ab3cc3b0a078f260b39b4594b51c5bcb9baa597eff40b52f25bd788aceb81756a41097c2dd0c01cbc17ae4a15e873da44cdf
   languageName: node
   linkType: hard
 
@@ -3994,13 +3982,6 @@ __metadata:
   version: 4.6.0
   resolution: "co@npm:4.6.0"
   checksum: 5210d9223010eb95b29df06a91116f2cf7c8e0748a9013ed853b53f362ea0e822f1e5bb054fb3cefc645239a4cf966af1f6133a3b43f40d591f3b68ed6cf0510
-  languageName: node
-  linkType: hard
-
-"code-block-writer@npm:^11.0.3":
-  version: 11.0.3
-  resolution: "code-block-writer@npm:11.0.3"
-  checksum: f0a2605f19963d7087267c9b0fd0b05a6638a50e7b29b70f97aa01a514f59475b0626f8aa092188df853ee6d96745426dfa132d6a677795df462c6ce32c21639
   languageName: node
   linkType: hard
 
@@ -4613,18 +4594,18 @@ __metadata:
     "@types/jquery": 3.5.14
     "@types/jsdom": ^20.0.0
     "@types/mousetrap": 1.6.9
-    "@types/node": 18.11.2
+    "@types/node": 18.11.3
     "@types/sinon": 10.0.13
     "@types/uuid": 8.3.4
     acorn: 8.8.0
     ajv: 8.11.0
     astring: 1.8.3
     babel-jest: 29.2.1
-    canvas: 2.9.3
+    canvas: 2.10.1
     chai: 4.3.6
     cross-env: 7.0.3
     dts-cli: 1.6.0
-    fs-extra: ^10.1.0
+    fs-extra: 10.1.0
     husky: 8.0.1
     jquery: 3.6.1
     jsdom: 20.0.1
@@ -4635,7 +4616,6 @@ __metadata:
     sinon: 14.0.1
     size-limit: 8.1.0
     ts-is-present: 1.2.2
-    ts-morph: 16.0.0
     ts-node: 10.9.1
     tsconfig-paths: ^4.1.0
     tslib: 2.4.0
@@ -4643,7 +4623,7 @@ __metadata:
     typedoc-plugin-missing-exports: 1.0.0
     typescript: 4.8.4
     uuid: 9.0.0
-    uvu: ^0.5.6
+    uvu: 0.5.6
   peerDependencies:
     jquery: 3.6.0
     lottie-web: 5.8.1
@@ -5491,7 +5471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.0.3, fast-glob@npm:^3.2.11, fast-glob@npm:^3.2.9":
+"fast-glob@npm:^3.0.3, fast-glob@npm:^3.2.9":
   version: 3.2.11
   resolution: "fast-glob@npm:3.2.11"
   dependencies:
@@ -5630,6 +5610,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:10.1.0, fs-extra@npm:^10.1.0":
+  version: 10.1.0
+  resolution: "fs-extra@npm:10.1.0"
+  dependencies:
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: dc94ab37096f813cc3ca12f0f1b5ad6744dfed9ed21e953d72530d103cea193c2f81584a39e9dee1bea36de5ee66805678c0dddc048e8af1427ac19c00fffc50
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^10.0.0":
   version: 10.0.0
   resolution: "fs-extra@npm:10.0.0"
@@ -5638,17 +5629,6 @@ __metadata:
     jsonfile: ^6.0.1
     universalify: ^2.0.0
   checksum: 5285a3d8f34b917cf2b66af8c231a40c1623626e9d701a20051d3337be16c6d7cac94441c8b3732d47a92a2a027886ca93c69b6a4ae6aee3c89650d2a8880c0a
-  languageName: node
-  linkType: hard
-
-"fs-extra@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "fs-extra@npm:10.1.0"
-  dependencies:
-    graceful-fs: ^4.2.0
-    jsonfile: ^6.0.1
-    universalify: ^2.0.0
-  checksum: dc94ab37096f813cc3ca12f0f1b5ad6744dfed9ed21e953d72530d103cea193c2f81584a39e9dee1bea36de5ee66805678c0dddc048e8af1427ac19c00fffc50
   languageName: node
   linkType: hard
 
@@ -8433,13 +8413,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-browserify@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "path-browserify@npm:1.0.1"
-  checksum: c6d7fa376423fe35b95b2d67990060c3ee304fc815ff0a2dc1c6c3cfaff2bd0d572ee67e18f19d0ea3bbe32e8add2a05021132ac40509416459fffee35200699
-  languageName: node
-  linkType: hard
-
 "path-exists@npm:^3.0.0":
   version: 3.0.0
   resolution: "path-exists@npm:3.0.0"
@@ -9879,16 +9852,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:16.0.0":
-  version: 16.0.0
-  resolution: "ts-morph@npm:16.0.0"
-  dependencies:
-    "@ts-morph/common": ~0.17.0
-    code-block-writer: ^11.0.3
-  checksum: a45ee1a2da09b06ac45a468c1cb9b00cc1b335224afddb22c30e4ad8a747b71c8a7c6cea29a6309ebf68d69f5dc8d3650d381891b77da5e2ad3e301dc3de40d5
-  languageName: node
-  linkType: hard
-
 "ts-node@npm:10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
@@ -10283,7 +10246,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uvu@npm:^0.5.6":
+"uvu@npm:0.5.6":
   version: 0.5.6
   resolution: "uvu@npm:0.5.6"
   dependencies:

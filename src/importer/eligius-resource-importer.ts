@@ -11,7 +11,7 @@ const controllers: Record<string, any> = ctrls;
 const providers: Record<string, any> = prvdrs;
 const eventbus: Record<string, any> = evtb;
 
-export class WebpackResourceImporter implements IResourceImporter {
+export class EligiusResourceImporter implements IResourceImporter {
   engines = new Map();
   constructor() {
     this.engines.set('EligiusEngine', EligiusEngine);

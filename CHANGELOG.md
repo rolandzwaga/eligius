@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.4
+
+- Add source code generator for resource importers
+- Add calc and math operations
+- Fix container cleanup on engine destroy
+- Improve JSON schema by generating parts of it from the sources and publish it to the github pages
+
 ## 1.0.3
 
 - Add github actions for CI and NPM publish

@@ -1,5 +1,5 @@
 import fs from 'fs';
-import * as fsExtra from 'fs-extra';
+import { emptyDirSync } from 'fs-extra';
 import path from 'path';
 import * as controllers from '../controllers';
 import * as metadata from '../operation/metadata';
@@ -12,13 +12,13 @@ import {
   TPropertiesMetadata,
   TPropertyMetadata,
 } from '../operation/metadata/types';
-import camelCaseToDash from './camel-case-to-dash';
-import dashToCamelCase from './dash-to-camel-case';
+import camelCaseToDash from '../util/camel-case-to-dash';
+import dashToCamelCase from '../util/dash-to-camel-case';
 import { htmlTagNames } from './html-tag-names';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const outputDirectory = path.join(schemaDirectory, 'operations');
-fsExtra.emptyDirSync(outputDirectory);
+emptyDirSync(outputDirectory);
 
 const operationSchemas = Object.entries(metadata).map(generateOperationSchema);
 operationSchemas.forEach(([name, schema]) => {

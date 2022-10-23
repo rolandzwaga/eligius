@@ -8,12 +8,17 @@ import * as metadata from '../../../operation/metadata';
 
 const InputOutputSuite = suite('automatic input and output tests');
 
-InputOutputSuite('should have equal numbers of metadata as operations', () => {
-  expect(Object.keys(operations).length).to.equal(Object.keys(metadata).length);
-});
+InputOutputSuite(
+  'should have equal amount of metadata and operation functions',
+  () => {
+    expect(Object.keys(operations).length).to.equal(
+      Object.keys(metadata).length
+    );
+  }
+);
 
 InputOutputSuite(
-  'should have equalnames between metadata and operations',
+  'should have equal names between metadata and operations',
   () => {
     const operationNames = Object.keys(operations);
     const metadataNames = Object.keys(metadata);

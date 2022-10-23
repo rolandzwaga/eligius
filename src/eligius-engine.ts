@@ -91,10 +91,7 @@ export class EligiusEngine implements IEligiusEngine {
       );
     }
 
-    if (this._activeTimelineProvider) {
-      this._activeTimelineProvider.destroy();
-    }
-
+    this._activeTimelineProvider?.destroy();
     this._activeTimelineProvider = providerSettings.provider;
 
     return new Promise(async resolve => {
@@ -115,13 +112,19 @@ export class EligiusEngine implements IEligiusEngine {
 
   async destroy() {
     await this._cleanUp();
+    
     this._activeTimelineProvider = undefined;
-    this._eventbusListeners.forEach(remover => remover());
+    this._eventbusListeners.forEach((remover) => remover());
+
     if (this.timelineProviders) {
-      Object.values(this.timelineProviders).forEach(info =>
-        info.provider.destroy()
+      Object.values(this.timelineProviders).forEach((providerInfo) =>
+        providerInfo.provider.destroy()
       );
     }
+
+    const { containerSelector } = this.configuration;
+    const container = $(containerSelector);
+    container.empty();
   }
 
   private _addInitialisationListeners() {

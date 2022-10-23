@@ -1,1 +1,1 @@
-export { WebpackResourceImporter } from './webpack-resource-importer';
+export { EligiusResourceImporter } from './eligius-resource-importer';
