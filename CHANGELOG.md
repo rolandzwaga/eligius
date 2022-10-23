@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.5
+
+- Fix import in resource importer source generator
+
 ## 1.0.4
 
 - Add source code generator for resource importers
