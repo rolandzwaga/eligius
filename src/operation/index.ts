@@ -17,6 +17,7 @@ export { getElementDimensions } from './get-element-dimensions';
 export { getImport } from './get-import';
 export { loadJSON } from './load-json';
 export { log } from './log';
+export { math } from './math';
 export { removeClass } from './remove-class';
 export { removeControllerFromElement } from './remove-controller-from-element';
 export { removeElement } from './remove-element';
