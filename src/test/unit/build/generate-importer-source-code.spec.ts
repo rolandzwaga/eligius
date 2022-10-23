@@ -1,3 +1,4 @@
+import { createProject, ts } from '@ts-morph/bootstrap';
 import { expect } from 'chai';
 import fs, { PathLike } from 'fs';
 import { suite } from 'uvu';
@@ -22,19 +23,26 @@ GenerateImporterSourceCodeSuite.after((context) => {
 });
 
 // TODO: create some actual useful unit tests for this...
-GenerateImporterSourceCodeSuite('should generate source code', () => {
+GenerateImporterSourceCodeSuite('should generate source code', async () => {
   const factory = new ConfigurationFactory().init('nl-NL');
 
   let config: IEngineConfiguration | undefined;
   factory.getConfiguration((cfg) => (config = cfg));
 
-  const source = generateImporterSourceCode(
+  const tsSource = generateImporterSourceCode(
     config as IEngineConfiguration,
     './mypath',
     [{ path: 'html', extension: '.html' }]
   );
 
-  expect(source).not.to.be.null;
+  const project = await createProject({ useInMemoryFileSystem: true });
+  project.createSourceFile('importer.ts', tsSource);
+  const program = project.createProgram();
+  const diagnostics = ts
+    .getPreEmitDiagnostics(program)
+    .filter((x) => x.code !== 2307); //Filter out the cannot find module errors
+
+  expect(diagnostics.length).to.equal(0);
 });
 
 GenerateImporterSourceCodeSuite.run();

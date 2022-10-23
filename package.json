@@ -43,6 +43,7 @@
   ],
   "devDependencies": {
     "@size-limit/preset-small-lib": "8.1.0",
+    "@ts-morph/bootstrap": "^0.17.0",
     "@types/chai": "4.3.3",
     "@types/fs-extra": "9.0.13",
     "@types/jasmine": "4.3.0",
@@ -69,6 +70,7 @@
     "mediaelement": "5.1.0",
     "sinon": "14.0.1",
     "size-limit": "8.1.0",
+    "ts-morph": "^16.0.0",
     "ts-node": "10.9.1",
     "tsconfig-paths": "^4.1.0",
     "tslib": "2.4.0",
