@@ -3,6 +3,7 @@ export { addControllerToElement } from './add-controller-to-element';
 export { animate } from './animate';
 export { animateWithClass } from './animate-with-class';
 export { broadcastEvent } from './broadcast-event';
+export { calc } from './calc';
 export { clearElement } from './clear-element';
 export { clearOperationData } from './clear-operation-data';
 export { createElement } from './create-element';
@@ -34,3 +35,4 @@ export { toggleClass } from './toggle-class';
 export { toggleElement } from './toggle-element';
 export * from './types';
 export { wait } from './wait';
+

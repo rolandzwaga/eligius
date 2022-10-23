@@ -13,7 +13,6 @@ export interface IBroadcastEventOperationData {
  * event argumetns and optional event topic.
  *
  * @param operationData
- * @returns
  */
 export const broadcastEvent: TOperation<IBroadcastEventOperationData> =
   function (operationData: IBroadcastEventOperationData) {

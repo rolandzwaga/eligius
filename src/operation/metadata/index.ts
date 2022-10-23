@@ -3,6 +3,7 @@ export { default as addControllerToElement } from './add-controller-to-element';
 export { default as animate } from './animate';
 export { default as animateWithClass } from './animate-with-class';
 export { default as broadcastEvent } from './broadcast-event';
+export { default as calc } from './calc';
 export { default as clearElement } from './clear-element';
 export { default as clearOperationData } from './clear-operation-data';
 export { default as createElement } from './create-element';
