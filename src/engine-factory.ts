@@ -6,6 +6,13 @@ import {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
 } from './configuration/types';
+import { DevToolEventListener } from './diagnostics/devtool-event-lister';
+import { Diagnostics } from './diagnostics/diagnostics';
+import {
+  DEV_TOOLS_KEY,
+  IDiagnosticsInfo,
+  TDiagnosticType,
+} from './diagnostics/types';
 import {
   ActionRegistryEventbusListener,
   Eventbus,
@@ -37,6 +44,9 @@ export class EngineFactory implements IEngineFactory {
   ) {
     this.importer = importer;
     this.eventbus = eventbus || new Eventbus();
+
+    this._initializeDevtools(this.eventbus);
+
     this.eventbus.on(
       TimelineEventNames.REQUEST_INSTANCE,
       this._requestInstanceHandler.bind(this)
@@ -51,6 +61,18 @@ export class EngineFactory implements IEngineFactory {
     );
 
     $(windowRef).resize(this._resizeHandler.bind(this));
+  }
+
+  private _initializeDevtools(eventbus: IEventbus) {
+    const diagnosticInfo = (window as any)[DEV_TOOLS_KEY] as IDiagnosticsInfo | undefined;
+    if (diagnosticInfo) {
+      const {agent} = diagnosticInfo;
+      const eventbusListener = new DevToolEventListener(agent);
+      eventbus.registerEventlistener(eventbusListener);
+      Diagnostics.send = (name: TDiagnosticType, data: any) => {
+        agent.postMessage(name, data);
+      };
+    }
   }
 
   destroy() {

@@ -32,7 +32,7 @@ export class Action implements IAction {
         initOperationData,
         context
       );
-    }).catch(e => {
+    }).catch((e) => {
       console.error(`Error in action start '${this.name}'`);
       console.error(e);
       throw e;

@@ -1,23 +1,23 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import * as controllerImports from '../../../controllers';
-import { WebpackResourceImporter } from '../../../importer/webpack-resource-importer';
+import { EligiusResourceImporter } from '../../../importer/eligius-resource-importer';
 import * as operationImports from '../../../operation';
 import * as providerImports from '../../../timelineproviders';
 
-const WebpackResourceImporterSuite = suite<{
-  importer: WebpackResourceImporter;
-}>('WebpackResourceImporter');
+const EligiusResourceImporterSuite = suite<{
+  importer: EligiusResourceImporter;
+}>('EligiusResourceImporter');
 
 const operationImportNames = Object.keys(operationImports);
 const controllerImportNames = Object.keys(controllerImports);
 const providerImportNames = Object.keys(providerImports);
 
-WebpackResourceImporterSuite.before.each((context) => {
-  context.importer = new WebpackResourceImporter();
+EligiusResourceImporterSuite.before.each((context) => {
+  context.importer = new EligiusResourceImporter();
 });
 
-WebpackResourceImporterSuite(
+EligiusResourceImporterSuite(
   'should return all the operation names',
   (context) => {
     // given
@@ -32,7 +32,7 @@ WebpackResourceImporterSuite(
   }
 );
 
-WebpackResourceImporterSuite(
+EligiusResourceImporterSuite(
   'should return all the controller names',
   (context) => {
     // given
@@ -46,7 +46,7 @@ WebpackResourceImporterSuite(
   }
 );
 
-WebpackResourceImporterSuite(
+EligiusResourceImporterSuite(
   'should return all known operations',
   (context) => {
     // given
@@ -60,7 +60,7 @@ WebpackResourceImporterSuite(
   }
 );
 
-WebpackResourceImporterSuite(
+EligiusResourceImporterSuite(
   'should return all known controllers',
   (context) => {
     // given
@@ -74,7 +74,7 @@ WebpackResourceImporterSuite(
   }
 );
 
-WebpackResourceImporterSuite(
+EligiusResourceImporterSuite(
   'should return all known timeline providers',
   (context) => {
     providerImportNames.forEach((provdr) => {
@@ -88,4 +88,4 @@ WebpackResourceImporterSuite(
   }
 );
 
-WebpackResourceImporterSuite.run();
+EligiusResourceImporterSuite.run();
