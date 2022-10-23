@@ -51,6 +51,8 @@ function _generateSourceCode(importPaths: ImportInfo[]) {
           (imp) => `import {${imp.systemName}} from '${imp.path ?? 'eligius'}';`
         )
     );
+  result.push(`import { ISimpleResourceImporter } from 'eligius';`);
+  result.push('');
 
   result.push('const imports: Record<string, any> = {');
   result.push(
@@ -59,7 +61,7 @@ function _generateSourceCode(importPaths: ImportInfo[]) {
     )
   );
   result.push('};');
-
+  result.push('');
   result.push(
     'class EligiusResourceImporter implements ISimpleResourceImporter {'
   );
@@ -67,6 +69,7 @@ function _generateSourceCode(importPaths: ImportInfo[]) {
   result.push('if (imports.hasOwnProperty(name)) { return imports[name]; }');
   result.push('throw Error(`Unknown systemName: ${name}`);');
   result.push('}}');
+  result.push('');
   result.push('export default EligiusResourceImporter;');
 
   return result.join('\n');
