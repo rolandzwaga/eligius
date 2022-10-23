@@ -6,6 +6,7 @@ import {
 import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TResultCallback } from '../types';
+import { animationInterval } from '../util/animation-interval';
 import { ITimelineProvider } from './types';
 
 type TUpdateMethod = (now: number) => void;
@@ -14,16 +15,15 @@ type TPlayState = 'stopped' | 'running' | 'paused';
 export class RequestAnimationFrameTimelineProvider
   implements ITimelineProvider
 {
-  private _requestID: number = -1;
-  private _last: number = 0;
   private _currentPosition: number = 0;
   private _updateBound: TUpdateMethod = this._update.bind(this);
   private _eventbusListeners: TEventHandlerRemover[] = [];
   private _firstFrame = true;
   private _currentPlaylistItem: IResolvedTimelineConfiguration;
-  private _granularity = 1000;
+  private _tickInterval = 1000;
   private _playlist: IResolvedTimelineConfiguration[];
   private _containerElement: JQuery<HTMLElement> | undefined;
+  private _abortController: AbortController | undefined;
   public playState: TPlayState = 'stopped';
 
   loop: boolean = false;
@@ -103,56 +103,57 @@ export class RequestAnimationFrameTimelineProvider
     );
   }
 
-  private _update(now: number): void {
+  private _update(_now: number): void {
     if (this.playState !== 'running') {
       return;
     }
 
-    if (!this._last || now - this._last >= this._granularity) {
-      if (!this._last && this._firstFrame) {
-        this._firstFrame = false;
-        this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
-      }
-
-      this._last = now;
-      this._currentPosition++;
-
-      if (this._currentPosition > this._currentPlaylistItem.duration) {
-        if (this.loop) {
-          this._reset();
-        } else {
-          this.stop();
-          this.eventbus.broadcast(TimelineEventNames.COMPLETE);
-          return;
-        }
-      }
-
-      this.eventbus.broadcast(TimelineEventNames.TIME, [
-        { position: this._currentPosition },
-      ]);
-      this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-        {
-          position: this._currentPosition,
-          duration: this._currentPlaylistItem.duration,
-        },
-      ]);
+    if (this._firstFrame) {
+      this._firstFrame = false;
+      this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
     }
 
-    this._requestID = requestAnimationFrame(this._updateBound);
+    this._currentPosition++;
+
+    if (this._currentPosition > this._currentPlaylistItem.duration) {
+      if (this.loop) {
+        this._resetToStartPosition();
+        this.eventbus.broadcast(TimelineEventNames.RESTART);
+      } else {
+        this.stop();
+        this.eventbus.broadcast(TimelineEventNames.COMPLETE);
+        return;
+      }
+    }
+
+    this.eventbus.broadcast(TimelineEventNames.TIME, [
+      { position: this._currentPosition },
+    ]);
+    this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
+      {
+        position: this._currentPosition,
+        duration: this._currentPlaylistItem.duration,
+      },
+    ]);
   }
 
   private _start() {
-    if (this._requestID && this.playState === 'running') {
+    if (this.playState === 'running') {
       return;
     }
 
     this.playState = 'running';
-    this._requestID = requestAnimationFrame(this._updateBound);
+    this._abortController?.abort();
+    this._abortController = new AbortController();
+
+    animationInterval(
+      this._tickInterval,
+      this._abortController.signal,
+      this._updateBound
+    );
   }
 
-  private _reset() {
-    this._cancelAnimationFrame();
-    this._last = 0;
+  private _resetToStartPosition() {
     this._currentPosition = 0;
   }
 
@@ -164,12 +165,12 @@ export class RequestAnimationFrameTimelineProvider
     callBack(this._containerElement);
   }
 
-  private _cancelAnimationFrame() {
-    if (this._requestID) {
-      cancelAnimationFrame(this._requestID);
-      this._requestID = -1;
-      this._last = 0;
-      this._currentPosition = 0;
+  private _stopAnimationInterval(resetPosition: boolean = true) {
+    this._abortController?.abort();
+    this._abortController = undefined;
+
+    if (resetPosition) {
+      this._resetToStartPosition();
     }
   }
 
@@ -211,12 +212,13 @@ export class RequestAnimationFrameTimelineProvider
   }
 
   stop() {
-    this._cancelAnimationFrame();
+    this._stopAnimationInterval();
     this.playState = 'stopped';
     this.eventbus.broadcast(TimelineEventNames.STOP);
   }
 
   pause() {
+    this._stopAnimationInterval(false);
     this.playState = 'paused';
     this.eventbus.broadcast(TimelineEventNames.PAUSE);
   }
@@ -231,7 +233,9 @@ export class RequestAnimationFrameTimelineProvider
       this._currentPosition,
       this.getDuration(),
     ]);
+
     this._currentPosition = position;
+
     this.eventbus.broadcast(TimelineEventNames.SEEKED, [
       this._currentPosition,
       this.getDuration(),

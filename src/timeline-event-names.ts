@@ -15,6 +15,7 @@ export class TimelineEventNames {
   static TIME = 'timeline-time';
   static SEEKED = 'timeline-seeked';
   static COMPLETE = 'timeline-complete';
+  static RESTART = 'timeline-restart';
   static PLAY = 'timeline-play';
   static STOP = 'timeline-stop';
   static PAUSE = 'timeline-pause';
