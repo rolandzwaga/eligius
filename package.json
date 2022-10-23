@@ -78,9 +78,9 @@
     "uvu": "0.5.6"
   },
   "peerDependencies": {
-    "jquery": "3.6.0",
-    "lottie-web": "5.8.1",
-    "mediaelement": "5.0.4"
+    "jquery": "3.6.1",
+    "lottie-web": "5.9.6",
+    "mediaelement": "5.1.0"
   },
   "dependencies": {
     "mousetrap": "1.6.5",
