@@ -25,10 +25,12 @@ export class Action implements IAction {
         'eligius-diagnostics-action',
         `${this.name ?? 'Action'} begins executing start operations`
       );
+
     const context: IOperationContext = {
       currentIndex: -1,
       eventbus: this.eventbus,
     };
+
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
         this.startOperations,
@@ -50,12 +52,12 @@ export class Action implements IAction {
     });
     return !Diagnostics.active
       ? result
-      : result.then((result) => {
+      : result.then((operationsResult) => {
           Diagnostics.send(
             'eligius-diagnostics-action',
             `${this.name ?? 'Action'} finished executing start operations`
           );
-          return result;
+          return operationsResult;
         });
   }
 
@@ -103,6 +105,7 @@ export class Action implements IAction {
           operationData: operationInfo.operationData,
           context,
         });
+
       const operationResult: TOperationResult = operationInfo.instance.call(
         context,
         mergedOperationData
