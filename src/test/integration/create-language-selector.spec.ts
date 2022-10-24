@@ -128,7 +128,9 @@ CreateOptionList(
     const engineFactory = new EngineFactory(
       new EligiusResourceImporter(),
       window,
-      context.eventbus
+      {
+        eventbus: context.eventbus,
+      }
     );
     context.engine = engineFactory.createEngine(
       context.configuration as IEngineConfiguration

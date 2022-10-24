@@ -1,10 +1,11 @@
 import { IResolvedOperation } from '../configuration/types';
+import { Diagnostics } from '../diagnostics';
 import { IEventbus } from '../eventbus/types';
 import { deepCopy } from '../operation/helper/deep-copy';
 import {
   IOperationContext,
   TOperationData,
-  TOperationResult
+  TOperationResult,
 } from '../operation/types';
 import { isPromise } from './is-promise';
 import { IAction } from './types';
@@ -19,6 +20,11 @@ export class Action implements IAction {
   ) {}
 
   start(initOperationData?: TOperationData): Promise<TOperationData> {
+    Diagnostics.active &&
+      Diagnostics.send(
+        'eligius-diagnostics-action',
+        `${this.name ?? 'Action'} begins executing start operations`
+      );
     const context: IOperationContext = {
       currentIndex: -1,
       eventbus: this.eventbus,
@@ -33,11 +39,24 @@ export class Action implements IAction {
         context
       );
     }).catch((e) => {
+      Diagnostics.active &&
+        Diagnostics.send('eligius-diagnostics-action-error', {
+          name,
+          error: e,
+        });
       console.error(`Error in action start '${this.name}'`);
       console.error(e);
       throw e;
     });
-    return result;
+    return !Diagnostics.active
+      ? result
+      : result.then((result) => {
+          Diagnostics.send(
+            'eligius-diagnostics-action',
+            `${this.name ?? 'Action'} finished executing start operations`
+          );
+          return result;
+        });
   }
 
   executeOperation(
@@ -78,6 +97,12 @@ export class Action implements IAction {
         : {};
       const mergedOperationData = Object.assign(previousOperationData, copy);
 
+      Diagnostics.active &&
+        Diagnostics.send('eligius-diagnostics-operation', {
+          systemName: operationInfo.systemName,
+          operationData: operationInfo.operationData,
+          context,
+        });
       const operationResult: TOperationResult = operationInfo.instance.call(
         context,
         mergedOperationData

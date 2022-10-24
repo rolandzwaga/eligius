@@ -3,7 +3,7 @@ import {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
 } from './configuration/types';
-import { IEventbusListener } from './eventbus/types';
+import { IEventbus, IEventbusListener } from './eventbus/types';
 import { ITimelineProvider } from './timelineproviders/types';
 
 export interface IEngineFactory {
@@ -11,6 +11,11 @@ export interface IEngineFactory {
     engineConfig: IEngineConfiguration,
     resolver?: IConfigurationResolver
   ): IEligiusEngine;
+}
+
+export interface IEngineFactoryOptions {
+  eventbus?: IEventbus;
+  devtools?: boolean;
 }
 
 export interface IEligiusEngine {

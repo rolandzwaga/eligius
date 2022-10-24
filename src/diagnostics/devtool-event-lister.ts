@@ -1,4 +1,5 @@
 import { IEventbusListener } from '../eventbus';
+import { prepareValueForSerialization } from '../util/prepare-value-for-serialization';
 import { IDiagnosticsAgent } from './types';
 
 export class DevToolEventListener implements IEventbusListener {
@@ -12,6 +13,7 @@ export class DevToolEventListener implements IEventbusListener {
     this.agent.postMessage('eligius-diagnostics-event', {
       eventName,
       eventTopic,
+      args: prepareValueForSerialization(args),
     });
   }
 }

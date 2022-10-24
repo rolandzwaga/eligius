@@ -25,6 +25,7 @@ import {
   IConfigurationResolver,
   IEligiusEngine,
   IEngineFactory,
+  IEngineFactoryOptions,
   ISimpleResourceImporter,
   ITimelineProviderInfo,
   TimelineTypes,
@@ -40,12 +41,13 @@ export class EngineFactory implements IEngineFactory {
   constructor(
     importer: ISimpleResourceImporter,
     windowRef: any,
-    eventbus?: IEventbus
+    options?: IEngineFactoryOptions
   ) {
     this.importer = importer;
-    this.eventbus = eventbus || new Eventbus();
+    this.eventbus = options?.eventbus || new Eventbus();
 
-    this._initializeDevtools(this.eventbus);
+    Diagnostics.active = options?.devtools ?? false;
+    this._initializeDevtools(this.eventbus, options?.devtools ?? false);
 
     this.eventbus.on(
       TimelineEventNames.REQUEST_INSTANCE,
@@ -63,15 +65,23 @@ export class EngineFactory implements IEngineFactory {
     $(windowRef).resize(this._resizeHandler.bind(this));
   }
 
-  private _initializeDevtools(eventbus: IEventbus) {
-    const diagnosticInfo = (window as any)[DEV_TOOLS_KEY] as IDiagnosticsInfo | undefined;
-    if (diagnosticInfo) {
-      const {agent} = diagnosticInfo;
-      const eventbusListener = new DevToolEventListener(agent);
-      eventbus.registerEventlistener(eventbusListener);
-      Diagnostics.send = (name: TDiagnosticType, data: any) => {
-        agent.postMessage(name, data);
-      };
+  private _initializeDevtools(eventbus: IEventbus, useDevtools: boolean) {
+    if (useDevtools) {
+      const diagnosticInfo = (window as any)[DEV_TOOLS_KEY] as
+        | IDiagnosticsInfo
+        | undefined;
+      if (diagnosticInfo) {
+        const { agent } = diagnosticInfo;
+        const eventbusListener = new DevToolEventListener(agent);
+        eventbus.registerEventlistener(eventbusListener);
+        Diagnostics.send = (name: TDiagnosticType, data: any) => {
+          agent.postMessage(name, data);
+        };
+      } else {
+        console.warn(
+          `${DEV_TOOLS_KEY} property not found on window, please install the chrome extension.`
+        );
+      }
     }
   }
 
@@ -131,9 +141,8 @@ export class EngineFactory implements IEngineFactory {
     const { systemName } = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
-    let actionRegistryListener:
-      | ActionRegistryEventbusListener
-      | undefined = undefined;
+    let actionRegistryListener: ActionRegistryEventbusListener | undefined =
+      undefined;
     if (configuration.eventActions?.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
       this.eventbus.registerEventlistener(actionRegistryListener);
@@ -171,7 +180,7 @@ export class EngineFactory implements IEngineFactory {
       languageManager
     );
 
-    Mousetrap.bind('space', event => {
+    Mousetrap.bind('space', (event) => {
       event.preventDefault();
       this.eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
       return false;
