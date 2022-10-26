@@ -7,7 +7,11 @@ export interface IDiagnosticsInfo {
 }
 
 export type TDiagnosticType =
+  | 'eligius-diagnostics-factory'
+  | 'eligius-diagnostics-engine'
   | 'eligius-diagnostics-event'
-  | 'eligius-diagnostics-action';
+  | 'eligius-diagnostics-action'
+  | 'eligius-diagnostics-action-error'
+  | 'eligius-diagnostics-operation';
 
 export const DEV_TOOLS_KEY = '__ELIGIUS_DEV_TOOLS__';

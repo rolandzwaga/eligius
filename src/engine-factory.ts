@@ -1,5 +1,5 @@
+import hotkeys, { HotkeysEvent } from 'hotkeys-js';
 import $ from 'jquery';
-import Mousetrap from 'mousetrap';
 import { IAction } from './action/types';
 import { ConfigurationResolver } from './configuration/configuration-resolver';
 import {
@@ -25,6 +25,7 @@ import {
   IConfigurationResolver,
   IEligiusEngine,
   IEngineFactory,
+  IEngineFactoryOptions,
   ISimpleResourceImporter,
   ITimelineProviderInfo,
   TimelineTypes,
@@ -36,16 +37,20 @@ export class EngineFactory implements IEngineFactory {
   private actionsLookup: Record<string, IAction> = {};
   private importer: ISimpleResourceImporter;
   private eventbus: IEventbus;
+  private _handleSpaceBound: any;
 
   constructor(
     importer: ISimpleResourceImporter,
-    windowRef: any,
-    eventbus?: IEventbus
+    windowRef: Window,
+    options?: IEngineFactoryOptions
   ) {
     this.importer = importer;
-    this.eventbus = eventbus || new Eventbus();
+    this.eventbus = options?.eventbus || new Eventbus();
 
-    this._initializeDevtools(this.eventbus);
+    Diagnostics.active = options?.devtools ?? false;
+    if (Diagnostics.active) {
+      this._initializeDevtools(this.eventbus);
+    }
 
     this.eventbus.on(
       TimelineEventNames.REQUEST_INSTANCE,
@@ -60,23 +65,46 @@ export class EngineFactory implements IEngineFactory {
       this._requestFunctionHandler.bind(this)
     );
 
+    this._handleSpaceBound = this._handleSpacePress.bind(this);
+    hotkeys('space', this._handleSpaceBound);
+
     $(windowRef).resize(this._resizeHandler.bind(this));
   }
 
+  private _handleSpacePress(
+    keyboardEvent: KeyboardEvent,
+    _hotkeysEvent: HotkeysEvent
+  ): void | boolean {
+    keyboardEvent.preventDefault();
+    this.eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
+    return false;
+  }
+
   private _initializeDevtools(eventbus: IEventbus) {
-    const diagnosticInfo = (window as any)[DEV_TOOLS_KEY] as IDiagnosticsInfo | undefined;
+    const diagnosticInfo = (window as any)[DEV_TOOLS_KEY] as
+      | IDiagnosticsInfo
+      | undefined;
     if (diagnosticInfo) {
-      const {agent} = diagnosticInfo;
+      const { agent } = diagnosticInfo;
       const eventbusListener = new DevToolEventListener(agent);
       eventbus.registerEventlistener(eventbusListener);
       Diagnostics.send = (name: TDiagnosticType, data: any) => {
         agent.postMessage(name, data);
       };
+      Diagnostics.send(
+        'eligius-diagnostics-factory',
+        'Diagnostics initialized'
+      );
+    } else {
+      console.warn(
+        `${DEV_TOOLS_KEY} property not found on window, please install the extension.`
+      );
     }
   }
 
   destroy() {
     this.eventbus.clear();
+    hotkeys.unbind('space', this._handleSpaceBound);
   }
 
   private _resizeHandler() {
@@ -131,9 +159,8 @@ export class EngineFactory implements IEngineFactory {
     const { systemName } = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
-    let actionRegistryListener:
-      | ActionRegistryEventbusListener
-      | undefined = undefined;
+    let actionRegistryListener: ActionRegistryEventbusListener | undefined =
+      undefined;
     if (configuration.eventActions?.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
       this.eventbus.registerEventlistener(actionRegistryListener);
@@ -170,12 +197,6 @@ export class EngineFactory implements IEngineFactory {
       timelineProviders,
       languageManager
     );
-
-    Mousetrap.bind('space', event => {
-      event.preventDefault();
-      this.eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
-      return false;
-    });
 
     return engineInstance;
   }

@@ -94,7 +94,9 @@ ReuseActions('should add the pictures to the current template', async () => {
   const engineFactory = new EngineFactory(
     new EligiusResourceImporter(),
     window,
-    eventbus
+    {
+      eventbus,
+    }
   );
   engine = engineFactory.createEngine(configuration as IEngineConfiguration);
 

@@ -1,4 +1,5 @@
 import { IResolvedOperation } from '../configuration/types';
+import { Diagnostics } from '../diagnostics';
 import { IEventbus } from '../eventbus/types';
 import { IOperationContext, TOperationData } from '../operation/types';
 import { Action } from './action';
@@ -14,30 +15,43 @@ export class EndableAction extends Action {
   }
 
   end(initOperationData?: TOperationData): Promise<TOperationData | undefined> {
-    if (this.endOperations.length) {
-      const context: IOperationContext = {
-        currentIndex: -1,
-        eventbus: this.eventbus,
-      };
+    Diagnostics.active &&
+      Diagnostics.send(
+        'eligius-diagnostics-action',
+        `${this.name ?? 'Action'} begins executing end operations`
+      );
 
-      const result = new Promise<TOperationData>((resolve, reject) => {
-        this.executeOperation(
-          this.endOperations,
-          0,
-          resolve,
-          reject,
-          initOperationData,
-          context
-        );
-      }).catch((e) => {
-        console.error(`Error in action end '${this.name}'`);
-        throw e;
-      });
-      return result;
+    if (!this.endOperations.length) {
+      return Promise.resolve(initOperationData);
     }
 
-    return new Promise((resolve) => {
-      resolve(initOperationData);
+    const context: IOperationContext = {
+      currentIndex: -1,
+      eventbus: this.eventbus,
+    };
+
+    const result = new Promise<TOperationData>((resolve, reject) => {
+      this.executeOperation(
+        this.endOperations,
+        0,
+        resolve,
+        reject,
+        initOperationData,
+        context
+      );
+    }).catch((e) => {
+      console.error(`Error in action end '${this.name}'`);
+      throw e;
     });
+
+    return !Diagnostics.active
+      ? result
+      : result.then((operationsResult) => {
+          Diagnostics.send(
+            'eligius-diagnostics-action',
+            `${this.name ?? 'Action'} finished executing start operations`
+          );
+          return operationsResult;
+        });
   }
 }

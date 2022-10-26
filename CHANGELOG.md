@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.0.6
+
+- Switch from mousetrap to hotkeys (mousetrap is a dead project)
+- Add diagnostic messages to the engine factory and actions (Preparations for the upcoming devtools browser extension)
+- Add space press binding in factory startup and clean up in destroy (Was incorrectly added at each engine creation) 
+- Improve the RAF based timeline loop (Thank you Jake Archibald: https://gist.github.com/jakearchibald/cb03f15670817001b1157e62a076fe95)
+
 ## 1.0.5
 
 - Fix import in resource importer source generator
