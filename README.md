@@ -4,6 +4,8 @@ A Javascript engine that allows arbitrary functionality to be triggered accordin
 
 The engine can be the basis for video annotations, presentation software or interactive infographics, for example.
 
+Eligius is NOT a game or animation engine.
+
 ## description
 
 The main concepts in Eligius are timelines, actions and operations. A timeline can be played, paused, stopped and scrubbed through.
