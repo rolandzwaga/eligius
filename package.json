@@ -2,6 +2,7 @@
   "version": "1.0.71",
   "license": "MIT",
   "main": "dist/index.js",
+  "homepage": "https://rolandzwaga.github.io/eligius/",
   "module": "dist/eligius.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
