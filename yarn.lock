@@ -2032,9 +2032,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jest/transform@npm:^29.2.1":
-  version: 29.2.1
-  resolution: "@jest/transform@npm:29.2.1"
+"@jest/transform@npm:^29.2.2":
+  version: 29.2.2
+  resolution: "@jest/transform@npm:29.2.2"
   dependencies:
     "@babel/core": ^7.11.6
     "@jest/types": ^29.2.1
@@ -2051,7 +2051,7 @@ __metadata:
     pirates: ^4.0.4
     slash: ^3.0.0
     write-file-atomic: ^4.0.1
-  checksum: bb50bfce34d8c648475a7d65e91787a0232cdcc0445331dba8d3d80180dff1b43d97872568be795c8f92d419b3f0e6114297349cc892fdf50e8471cb227f674a
+  checksum: ac12069100c260d1c46e5048bbad35bf0b5408592b918692b87a52c1c0c0e189c9f37ecf48dbcaa6f00ef083e1bc68201844999e1c0f66cd4d9b70127bf77537
   languageName: node
   linkType: hard
 
@@ -2435,7 +2435,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/bootstrap@npm:^0.17.0":
+"@ts-morph/bootstrap@npm:0.17.0":
   version: 0.17.0
   resolution: "@ts-morph/bootstrap@npm:0.17.0"
   dependencies:
@@ -2657,13 +2657,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mousetrap@npm:1.6.9":
-  version: 1.6.9
-  resolution: "@types/mousetrap@npm:1.6.9"
-  checksum: 9362f0aadf4b66deb39e506159248592ec422583fe8c1b3e6e98a6ba193828b4221b50b832829333089e577729d967423165c692a995b1deafa85934b2b63125
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:*":
   version: 14.14.37
   resolution: "@types/node@npm:14.14.37"
@@ -2671,10 +2664,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:18.11.3":
-  version: 18.11.3
-  resolution: "@types/node@npm:18.11.3"
-  checksum: 3a2a9142d891a90a195c296149bf64a69cc0abcc42f543be911ab22b2e0ead85ff077f90af92f0f13f6e3e5e72501469200fd753dfd1101825d4646a89d3ee47
+"@types/node@npm:18.11.5":
+  version: 18.11.5
+  resolution: "@types/node@npm:18.11.5"
+  checksum: ac54e9287dd4549ea3dc8aabc0cf7bfa04c52f02925d7fd68414789617ec770f034c8ae2e111e8bd00d446a46fcac42587b5a316a1303e2f6ea094854248c9ff
   languageName: node
   linkType: hard
 
@@ -3080,12 +3073,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:8.8.0, acorn@npm:^8.1.0, acorn@npm:^8.8.0":
-  version: 8.8.0
-  resolution: "acorn@npm:8.8.0"
+"acorn@npm:8.8.1":
+  version: 8.8.1
+  resolution: "acorn@npm:8.8.1"
   bin:
     acorn: bin/acorn
-  checksum: 7270ca82b242eafe5687a11fea6e088c960af712683756abf0791b68855ea9cace3057bd5e998ffcef50c944810c1e0ca1da526d02b32110e13c722aa959afdc
+  checksum: 4079b67283b94935157698831967642f24a075c52ce3feaaaafe095776dfbe15d86a1b33b1e53860fc0d062ed6c83f4284a5c87c85b9ad51853a01173da6097f
   languageName: node
   linkType: hard
 
@@ -3095,6 +3088,15 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: 1860f23c2107c910c6177b7b7be71be350db9e1080d814493fae143ae37605189504152d1ba8743ba3178d0b37269ce1ffc42b101547fdc1827078f82671e407
+  languageName: node
+  linkType: hard
+
+"acorn@npm:^8.1.0, acorn@npm:^8.8.0":
+  version: 8.8.0
+  resolution: "acorn@npm:8.8.0"
+  bin:
+    acorn: bin/acorn
+  checksum: 7270ca82b242eafe5687a11fea6e088c960af712683756abf0791b68855ea9cace3057bd5e998ffcef50c944810c1e0ca1da526d02b32110e13c722aa959afdc
   languageName: node
   linkType: hard
 
@@ -3408,11 +3410,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-jest@npm:29.2.1":
-  version: 29.2.1
-  resolution: "babel-jest@npm:29.2.1"
+"babel-jest@npm:29.2.2":
+  version: 29.2.2
+  resolution: "babel-jest@npm:29.2.2"
   dependencies:
-    "@jest/transform": ^29.2.1
+    "@jest/transform": ^29.2.2
     "@types/babel__core": ^7.1.14
     babel-plugin-istanbul: ^6.1.1
     babel-preset-jest: ^29.2.0
@@ -3421,7 +3423,7 @@ __metadata:
     slash: ^3.0.0
   peerDependencies:
     "@babel/core": ^7.8.0
-  checksum: c340c10d8cee4b3ef5990443627b5f70dbe2649faa1fef671c8b4fd4a9f8d559b78e5644e18de8063974cd6606033caf1afcaa52744309f6e3176c0b37c2e8f9
+  checksum: 35f0eb895ab9218b55cacedbfe62dd94c99924d89a0a8096354c4fbb4c8465c0a2c4aba82e5bedf367def6c89635f4f134c7ebc22f07b6f9c930f7b43b7bbdde
   languageName: node
   linkType: hard
 
@@ -4616,40 +4618,39 @@ __metadata:
   resolution: "eligius@workspace:."
   dependencies:
     "@size-limit/preset-small-lib": 8.1.0
-    "@ts-morph/bootstrap": ^0.17.0
+    "@ts-morph/bootstrap": 0.17.0
     "@types/chai": 4.3.3
     "@types/fs-extra": 9.0.13
     "@types/jasmine": 4.3.0
     "@types/jquery": 3.5.14
     "@types/jsdom": ^20.0.0
-    "@types/mousetrap": 1.6.9
-    "@types/node": 18.11.3
+    "@types/node": 18.11.5
     "@types/sinon": 10.0.13
     "@types/uuid": 8.3.4
-    acorn: 8.8.0
+    acorn: 8.8.1
     ajv: 8.11.0
     astring: 1.8.3
-    babel-jest: 29.2.1
+    babel-jest: 29.2.2
     canvas: 2.10.1
     chai: 4.3.6
     cross-env: 7.0.3
     dts-cli: 1.6.0
     fs-extra: 10.1.0
+    hotkeys-js: 3.10.0
     husky: 8.0.1
     jquery: 3.6.1
     jsdom: 20.0.1
     jsdom-global: 3.0.2
     lottie-web: 5.9.6
     mediaelement: 5.1.0
-    mousetrap: 1.6.5
     sinon: 14.0.1
     size-limit: 8.1.0
     ts-is-present: 1.2.2
-    ts-morph: ^16.0.0
+    ts-morph: 16.0.0
     ts-node: 10.9.1
     tsconfig-paths: ^4.1.0
     tslib: 2.4.0
-    typedoc: 0.23.17
+    typedoc: 0.23.18
     typedoc-plugin-missing-exports: 1.0.0
     typescript: 4.8.4
     uuid: 9.0.0
@@ -6061,6 +6062,13 @@ __metadata:
   dependencies:
     function-bind: ^1.1.1
   checksum: b9ad53d53be4af90ce5d1c38331e712522417d017d5ef1ebd0507e07c2fbad8686fffb8e12ddecd4c39ca9b9b47431afbb975b8abf7f3c3b82c98e9aad052792
+  languageName: node
+  linkType: hard
+
+"hotkeys-js@npm:3.10.0":
+  version: 3.10.0
+  resolution: "hotkeys-js@npm:3.10.0"
+  checksum: 4bb3db45514a18b8dd17a7544d4db3f31a4da08ef918671bc552be828f323796fcaf7f616d8530a2839c9dd04739047090ea106210b2b4da520c7db5cf63744c
   languageName: node
   linkType: hard
 
@@ -7955,13 +7963,6 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: a96865108c6c3b1b8e1d5e9f11843de1e077e57737602de1b82030815f311be11f96f09cce59bd5b903d0b29834733e5313f9301e3ed6d6f6fba2eae0df4298f
-  languageName: node
-  linkType: hard
-
-"mousetrap@npm:1.6.5":
-  version: 1.6.5
-  resolution: "mousetrap@npm:1.6.5"
-  checksum: 1ce36af5ac57e1fab687e3da004cc18914275f8ceef33f16d01110edc5126a5dbaace578b1e61179f93a506e71a88fe886f305db537a3673cf9f73affd1dffa6
   languageName: node
   linkType: hard
 
@@ -9902,7 +9903,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:^16.0.0":
+"ts-morph@npm:16.0.0":
   version: 16.0.0
   resolution: "ts-morph@npm:16.0.0"
   dependencies:
@@ -10107,9 +10108,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:0.23.17":
-  version: 0.23.17
-  resolution: "typedoc@npm:0.23.17"
+"typedoc@npm:0.23.18":
+  version: 0.23.18
+  resolution: "typedoc@npm:0.23.18"
   dependencies:
     lunr: ^2.3.9
     marked: ^4.0.19
@@ -10119,7 +10120,7 @@ __metadata:
     typescript: 4.6.x || 4.7.x || 4.8.x
   bin:
     typedoc: bin/typedoc
-  checksum: 9bfcfa762205f42645a5c545cf75399346663209e1f91f3e630880a6f48a5676a2efab23305df7aca69c6fe19bd4b1c42470bf39b95a369811f6eb4d5a8549e8
+  checksum: 2cf1ae57865e53545ba4cbdd8a441870b7a4ad74e421d43f4b731e4643adc82c3a2e89fa9cf1f600f908d9d12da818bcd1d26970c9dce9493a8d8ec5b649b594
   languageName: node
   linkType: hard
 
