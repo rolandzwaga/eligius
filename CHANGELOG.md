@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.7
+
+- try/catch postMessage calls
+- Don't fully serialize jQuery objects in postmessage, simply return 'jQuery object' string instead
+- Properly serialize message in Diagnostics.send instance
+
 ## 1.0.6
 
 - Switch from mousetrap to hotkeys (mousetrap is a dead project)

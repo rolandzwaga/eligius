@@ -31,6 +31,7 @@ import {
   TimelineTypes,
   TResultCallback,
 } from './types';
+import { prepareValueForSerialization } from './util/prepare-value-for-serialization';
 
 export class EngineFactory implements IEngineFactory {
   private resizeTimeout: any = -1;
@@ -89,7 +90,14 @@ export class EngineFactory implements IEngineFactory {
       const eventbusListener = new DevToolEventListener(agent);
       eventbus.registerEventlistener(eventbusListener);
       Diagnostics.send = (name: TDiagnosticType, data: any) => {
-        agent.postMessage(name, data);
+        const message = prepareValueForSerialization(data);
+        try {
+          agent.postMessage(name, message);
+        } catch (e) {
+          console.error('postmessage failed');
+          console.error(e);
+          console.log('message', message);
+        }
       };
       Diagnostics.send(
         'eligius-diagnostics-factory',

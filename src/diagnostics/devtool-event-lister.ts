@@ -10,10 +10,17 @@ export class DevToolEventListener implements IEventbusListener {
     eventTopic: string | undefined,
     args: any[]
   ): void {
-    this.agent.postMessage('eligius-diagnostics-event', {
+    const message = {
       eventName,
       eventTopic,
       args: prepareValueForSerialization(args),
-    });
+    };
+    try {
+      this.agent.postMessage('eligius-diagnostics-event', message);
+    } catch (e) {
+      console.error('postmessage failed');
+      console.error(e);
+      console.log('message', message);
+    }
   }
 }
