@@ -116,13 +116,13 @@ export class Action implements IAction {
 
       if (isPromise(operationResult)) {
         operationResult
-          .then((resultOperationData: TOperationData) => {
+          .then((promisedOperationResult: TOperationData) => {
             this.executeOperation(
               operations,
               ++idx,
               resolve,
               reject,
-              resultOperationData,
+              promisedOperationResult,
               context
             );
           })
