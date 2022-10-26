@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.71
+
+- Fix postMessage serializations
 ## 1.0.7
 
 - try/catch postMessage calls
