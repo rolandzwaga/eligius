@@ -31,7 +31,7 @@
     "trailingComma": "es5"
   },
   "name": "eligius",
-  "author": "rolandzwaga",
+  "author": "Roland Zwaga <rbzwaga@gmail.com>",
   "size-limit": [
     {
       "path": "dist/eligius.cjs.production.min.js",
