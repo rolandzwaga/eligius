@@ -5,7 +5,7 @@ export function prepareValueForSerialization(value: any): any {
     return (value as Array<any>).map(prepareValueForSerialization);
   } else if (value instanceof jQuery) {
     return 'jQuery object';
-  } else if (typeof value === 'object') {
+  } else if (value !== null && typeof value === 'object') {
     return Object.fromEntries(
       Object.entries(value).map(([propName, propValue]) => [
         propName,
