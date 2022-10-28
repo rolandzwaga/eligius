@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.81
+- Add null check in prepareValueForSerialization
+
 ## 1.0.8
 - Eventbus registerListener, registerInterceptor and once methods now return remove functions.
 - Add more typings for diagnostics
