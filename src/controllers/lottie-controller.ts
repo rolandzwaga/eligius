@@ -5,7 +5,7 @@ import lottie, {
   HTMLRendererConfig,
   SVGRendererConfig,
 } from 'lottie-web';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
 
@@ -31,7 +31,7 @@ export class LottieController
   name = 'LottieController';
   currentLanguage: string | null = null;
   labelData: Record<string, Record<string, string>> = {};
-  listeners: TEventHandlerRemover[] = [];
+  listeners: TEventbusRemover[] = [];
   animationItem: AnimationItem | null = null;
   operationData: IInnerMetadata | null = null;
   serializedData: string | null = null;

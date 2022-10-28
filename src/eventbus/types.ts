@@ -1,5 +1,5 @@
 export type TEventHandler = (...args: any[]) => void;
-export type TEventHandlerRemover = () => void;
+export type TEventbusRemover = () => void;
 
 export interface IEventbus {
   clear(): void;
@@ -7,7 +7,7 @@ export interface IEventbus {
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
-  ): TEventHandlerRemover;
+  ): TEventbusRemover;
   off(
     eventName: string,
     eventHandler: TEventHandler,
@@ -17,15 +17,15 @@ export interface IEventbus {
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
-  ): void;
+  ): TEventbusRemover;
   broadcast(eventName: string, args?: any[]): void;
   broadcastForTopic(eventName: string, eventTopic: string, args?: any[]): void;
-  registerEventlistener(eventbusListener: IEventbusListener): void;
+  registerEventlistener(eventbusListener: IEventbusListener): TEventbusRemover;
   registerInterceptor(
     eventName: string,
     interceptor: IEventbusInterceptor,
     eventTopic?: string
-  ): void;
+  ): TEventbusRemover;
 }
 
 export interface IEventbusListener {

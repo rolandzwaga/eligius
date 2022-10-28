@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.8
+- Eventbus registerListener, registerInterceptor and once methods now return remove functions.
+- Add more typings for diagnostics
+- Add agent listeners for devtools playcontrol events
 ## 1.0.71
 
 - Fix postMessage serializations

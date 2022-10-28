@@ -1,4 +1,4 @@
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TOperationData } from '../operation/types';
 import { IController } from './types';
 
@@ -7,12 +7,13 @@ export interface IRoutingControllerOperationData {
 }
 
 export class RoutingController
-  implements IController<IRoutingControllerOperationData> {
+  implements IController<IRoutingControllerOperationData>
+{
   name = 'RoutingController';
   navLookup: Record<string, any> = {};
   navVidIdLookup: Record<string, any> = {};
   navigation: any = null;
-  eventhandlers: TEventHandlerRemover[] = [];
+  eventhandlers: TEventbusRemover[] = [];
   eventbus: IEventbus | null = null;
 
   constructor() {}
@@ -68,7 +69,7 @@ export class RoutingController
 
   detach(_eventbus: IEventbus) {
     if (this.eventhandlers) {
-      this.eventhandlers.forEach(handler => {
+      this.eventhandlers.forEach((handler) => {
         handler();
       });
     }

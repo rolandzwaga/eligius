@@ -3,7 +3,7 @@ import {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
 } from '../configuration/types';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TResultCallback } from '../types';
 import { animationInterval } from '../util/animation-interval';
@@ -17,7 +17,7 @@ export class RequestAnimationFrameTimelineProvider
 {
   private _currentPosition: number = 0;
   private _updateBound: TUpdateMethod = this._update.bind(this);
-  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _eventbusListeners: TEventbusRemover[] = [];
   private _firstFrame = true;
   private _currentPlaylistItem: IResolvedTimelineConfiguration;
   private _tickInterval = 1000;

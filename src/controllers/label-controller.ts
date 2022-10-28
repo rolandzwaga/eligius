@@ -1,4 +1,4 @@
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { ILabel } from '../types';
 import { IController } from './types';
@@ -9,7 +9,7 @@ export interface ILabelControllerMetadata {
 }
 
 export class LabelController implements IController<ILabelControllerMetadata> {
-  listeners: TEventHandlerRemover[] = [];
+  listeners: TEventbusRemover[] = [];
   currentLanguage: string | null = null;
   operationData: ILabelControllerMetadata | null = null;
   labelData: Record<string, string> = {};
@@ -55,7 +55,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
   }
 
   detach(_eventbus: IEventbus) {
-    this.listeners.forEach(func => {
+    this.listeners.forEach((func) => {
       func();
     });
   }
@@ -66,7 +66,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
   }
 
   createTextDataLookup(data: ILabel[]) {
-    data.forEach(d => {
+    data.forEach((d) => {
       this.labelData[d.languageCode] = d.label;
     });
   }

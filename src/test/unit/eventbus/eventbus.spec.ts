@@ -46,6 +46,25 @@ EventbusSuite(
   }
 );
 
+EventbusSuite(
+  'should register an event handler once, but not be called after it was removed',
+  (context) => {
+    // given
+    const { eventbus } = context;
+    let called = 0;
+    const remover = eventbus.once('test', (val) => {
+      called += val;
+    });
+
+    // test
+    remover();
+    eventbus.broadcast('test', [1]);
+
+    // expect
+    expect(called).to.be.equal(0);
+  }
+);
+
 EventbusSuite('should only call handler for specified topic', (context) => {
   // given
   const { eventbus } = context;
@@ -86,6 +105,29 @@ EventbusSuite('should register and call the event interceptor', (context) => {
   // expect
   expect(called).to.equal(1);
 });
+
+EventbusSuite(
+  'should register and not call the event interceptor after it was removed',
+  (context) => {
+    // given
+    const { eventbus } = context;
+    let called = 0;
+    const interceptor = {
+      intercept: (args: number[]) => {
+        called += args[0];
+        return args;
+      },
+    };
+    const remover = eventbus.registerInterceptor('test', interceptor);
+
+    // test
+    remover();
+    eventbus.broadcast('test', [1]);
+
+    // expect
+    expect(called).to.equal(0);
+  }
+);
 
 EventbusSuite(
   'should register and call the event interceptor for the specified topic',
@@ -174,6 +216,29 @@ EventbusSuite(
     expect(received[1][0]).to.equal('test2');
     expect(received[1][1]).to.equal(topic);
     expect(received[1][2][0]).to.equal(100);
+  }
+);
+
+EventbusSuite(
+  'should register and not call the specified eventlistener after it was removed',
+  (context) => {
+    // given
+    const { eventbus } = context;
+    let received: [string, string, any[]][] = [];
+    const topic = 'topic';
+    const listener = {
+      handleEvent: (eventName: string, eventTopic: string, args: any[]) => {
+        received.push([eventName, eventTopic, args]);
+      },
+    };
+    const remover = eventbus.registerEventlistener(listener);
+
+    // test
+    remover();
+    eventbus.broadcast('test', [1]);
+
+    // expect
+    expect(received.length).to.be.equal(0);
   }
 );
 

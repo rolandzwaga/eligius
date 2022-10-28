@@ -1,11 +1,11 @@
 import $ from 'jquery';
-import { IEventbus, TEventHandlerRemover } from './eventbus/types';
+import { IEventbus, TEventbusRemover } from './eventbus/types';
 import { TimelineEventNames } from './timeline-event-names';
 import { ILabel, ILanguageLabel, TResultCallback } from './types';
 
 export class LanguageManager {
   private _labelLookup: Record<string, ILabel[]> = {};
-  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _eventbusListeners: TEventbusRemover[] = [];
 
   constructor(
     private _currentLanguage: string,
@@ -68,7 +68,7 @@ export class LanguageManager {
     labelIds: string[],
     resultCallback: TResultCallback
   ) {
-    const labelCollections = labelIds.map(labelId => {
+    const labelCollections = labelIds.map((labelId) => {
       return this._labelLookup[labelId];
     });
     resultCallback(labelCollections);
@@ -101,7 +101,7 @@ export class LanguageManager {
   }
 
   _createLabelLookup(labels: ILanguageLabel[]) {
-    labels.forEach(label => {
+    labels.forEach((label) => {
       this._labelLookup[label.id] = label.labels;
     });
   }

@@ -1,4 +1,4 @@
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TOperationData } from '../operation/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
@@ -10,7 +10,8 @@ export interface ISubtitlesControllerOperationData {
 }
 
 export class SubtitlesController
-  implements IController<ISubtitlesControllerOperationData> {
+  implements IController<ISubtitlesControllerOperationData>
+{
   actionLookup: Record<string, any> = {};
   currentLanguage: string | null = null;
   lastFunc: Function | null = null;
@@ -40,9 +41,9 @@ export class SubtitlesController
     this.internalDetach();
   }
 
-  internalDetach(detachMethods?: TEventHandlerRemover[]) {
+  internalDetach(detachMethods?: TEventbusRemover[]) {
     if (detachMethods) {
-      detachMethods.forEach(f => {
+      detachMethods.forEach((f) => {
         f();
       });
     }

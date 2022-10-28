@@ -1,4 +1,4 @@
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TOperationData } from '../operation/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { IController } from './types';
@@ -9,11 +9,12 @@ export interface IProgressbarControllerOperationData {
 }
 
 export class ProgressbarController
-  implements IController<IProgressbarControllerOperationData> {
+  implements IController<IProgressbarControllerOperationData>
+{
   name: string = 'ProgressbarController';
   selectedElement: JQuery | null = null;
   textElement: JQuery | null = null;
-  detachers: TEventHandlerRemover[] = [];
+  detachers: TEventbusRemover[] = [];
 
   init(operationData: TOperationData) {
     this.selectedElement = operationData.selectedElement;
