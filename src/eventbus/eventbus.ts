@@ -2,8 +2,8 @@ import {
   IEventbus,
   IEventbusInterceptor,
   IEventbusListener,
+  TEventbusRemover,
   TEventHandler,
-  TEventHandlerRemover,
 } from './types';
 
 export class Eventbus implements IEventbus {
@@ -48,7 +48,7 @@ export class Eventbus implements IEventbus {
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
-  ): TEventHandlerRemover {
+  ): TEventbusRemover {
     this._getEventHandlers(eventName, eventTopic).push(eventHandler);
     return () => {
       this.off(eventName, eventHandler, eventTopic);
@@ -59,12 +59,15 @@ export class Eventbus implements IEventbus {
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
-  ): void {
+  ): TEventbusRemover {
     const eventHandlerDecorator = (...args: any[]) => {
       eventHandler(...args);
       this.off(eventName, eventHandlerDecorator, eventTopic);
     };
     this.on(eventName, eventHandlerDecorator, eventTopic);
+    return () => {
+      this.off(eventName, eventHandlerDecorator, eventTopic);
+    };
   }
 
   off(
@@ -89,17 +92,29 @@ export class Eventbus implements IEventbus {
     this._callHandlers(eventName, eventTopic, args);
   }
 
-  registerEventlistener(eventbusListener: IEventbusListener): void {
+  registerEventlistener(eventbusListener: IEventbusListener): TEventbusRemover {
     this.eventListeners.push(eventbusListener);
+    return () => {
+      const index = this.eventListeners.indexOf(eventbusListener);
+      if (index > -1) {
+        this.eventListeners.splice(index, 1);
+      }
+    };
   }
 
   registerInterceptor(
     eventName: string,
     interceptor: IEventbusInterceptor,
     eventTopic?: string
-  ): void {
+  ): TEventbusRemover {
     const interceptors = this._getEventInterceptors(eventName, eventTopic);
     interceptors.push(interceptor);
+    return () => {
+      const index = interceptors.indexOf(interceptor);
+      if (index > -1) {
+        interceptors.splice(index, 1);
+      }
+    };
   }
 
   _callHandlers(

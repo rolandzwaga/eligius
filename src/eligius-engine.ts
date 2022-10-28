@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { IEndableAction, ITimelineAction } from './action/types';
 import { IResolvedEngineConfiguration } from './configuration/types';
-import { IEventbus, TEventHandlerRemover } from './eventbus/types';
+import { IEventbus, TEventbusRemover, TEventHandler } from './eventbus/types';
 import { LanguageManager } from './language-manager';
 import { TOperation } from './operation/types';
 import { TimelineEventNames } from './timeline-event-names';
@@ -10,7 +10,7 @@ import {
   IEligiusEngine,
   ITimelineProviderInfo,
   TimelineTypes,
-  TResultCallback
+  TResultCallback,
 } from './types';
 
 /**
@@ -20,7 +20,7 @@ import {
  */
 export class EligiusEngine implements IEligiusEngine {
   private _timeLineActionsLookup: Record<string, any> = {};
-  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _eventbusRemovers: TEventbusRemover[] = [];
   private _currentTimelineUri: string = '';
   private _activeTimelineProvider: ITimelineProvider | undefined = undefined;
   private _lastPosition: number = -1;
@@ -29,7 +29,7 @@ export class EligiusEngine implements IEligiusEngine {
     private configuration: IResolvedEngineConfiguration,
     private eventbus: IEventbus,
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
-    private _languageManager: LanguageManager
+    private languageManager: LanguageManager
   ) {}
 
   init(): Promise<ITimelineProvider> {
@@ -39,23 +39,9 @@ export class EligiusEngine implements IEligiusEngine {
 
     const { timelines } = this.configuration;
 
-    this._currentTimelineUri =
-      timelines && timelines.length ? timelines[0].uri : '';
+    this._currentTimelineUri = timelines?.[0].uri ?? '';
 
     this._createTimelineLookup();
-
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.TIME,
-        this._onTimeHandler.bind(this, Math.floor)
-      )
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.SEEK,
-        this._onSeekHandler.bind(this, Math.floor)
-      )
-    );
 
     return this._initializeTimelineProvider();
   }
@@ -94,7 +80,7 @@ export class EligiusEngine implements IEligiusEngine {
     this._activeTimelineProvider?.destroy();
     this._activeTimelineProvider = providerSettings.provider;
 
-    return new Promise(async resolve => {
+    return new Promise(async (resolve) => {
       if (this._activeTimelineProvider) {
         await this._activeTimelineProvider.init();
         await this._executeActions(this.configuration.initActions, 'start');
@@ -112,9 +98,11 @@ export class EligiusEngine implements IEligiusEngine {
 
   async destroy() {
     await this._cleanUp();
-    
+
+    this.languageManager.destroy();
+
     this._activeTimelineProvider = undefined;
-    this._eventbusListeners.forEach((remover) => remover());
+    this._eventbusRemovers.forEach((remover) => remover());
 
     if (this.timelineProviders) {
       Object.values(this.timelineProviders).forEach((providerInfo) =>
@@ -127,51 +115,55 @@ export class EligiusEngine implements IEligiusEngine {
     container.empty();
   }
 
+  private _addEventListener(
+    eventName: string,
+    eventHandler: TEventHandler,
+    eventTopic?: string
+  ) {
+    this._eventbusRemovers.push(
+      this.eventbus.on(eventName, eventHandler, eventTopic)
+    );
+  }
+
   private _addInitialisationListeners() {
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.REQUEST_ENGINE_ROOT,
-        this._handleRequestEngineRoot.bind(
-          this,
-          this.configuration.containerSelector
-        )
+    this._addEventListener(
+      TimelineEventNames.REQUEST_ENGINE_ROOT,
+      this._handleRequestEngineRoot.bind(
+        this,
+        this.configuration.containerSelector
       )
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.REQUEST_TIMELINE_URI,
-        this._handleRequestTimelineUri.bind(this)
-      )
+    this._addEventListener(
+      TimelineEventNames.REQUEST_TIMELINE_URI,
+      this._handleRequestTimelineUri.bind(this)
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION,
-        this._handleRequestTimelinePosition.bind(this, Math.floor)
-      )
+    this._addEventListener(
+      TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION,
+      this._handleRequestTimelinePosition.bind(this, Math.floor)
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.REQUEST_TIMELINE_CLEANUP,
-        this._handleTimelineComplete.bind(this)
-      )
+    this._addEventListener(
+      TimelineEventNames.REQUEST_TIMELINE_CLEANUP,
+      this._handleTimelineComplete.bind(this)
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.EXECUTE_TIMELINEACTION,
-        this._handleExecuteTimelineAction.bind(this)
-      )
+    this._addEventListener(
+      TimelineEventNames.EXECUTE_TIMELINEACTION,
+      this._handleExecuteTimelineAction.bind(this)
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.RESIZE_TIMELINEACTION,
-        this._resizeTimelineAction.bind(this)
-      )
+    this._addEventListener(
+      TimelineEventNames.RESIZE_TIMELINEACTION,
+      this._resizeTimelineAction.bind(this)
     );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.REQUEST_CURRENT_TIMELINE,
-        this._requestCurrentTimeline.bind(this)
-      )
+    this._addEventListener(
+      TimelineEventNames.REQUEST_CURRENT_TIMELINE,
+      this._requestCurrentTimeline.bind(this)
+    );
+    this._addEventListener(
+      TimelineEventNames.TIME,
+      this._onTimeHandler.bind(this, Math.floor)
+    );
+    this._addEventListener(
+      TimelineEventNames.SEEK,
+      this._onSeekHandler.bind(this, Math.floor)
     );
   }
 
@@ -179,7 +171,7 @@ export class EligiusEngine implements IEligiusEngine {
     if (!this.configuration.timelines) {
       return;
     }
-    this.configuration.timelines.forEach(timelineInfo => {
+    this.configuration.timelines.forEach((timelineInfo) => {
       timelineInfo.timelineActions.forEach(
         this._addTimelineAction.bind(this, timelineInfo.uri)
       );
@@ -255,7 +247,7 @@ export class EligiusEngine implements IEligiusEngine {
       return this._executeActions(actions, methodName, ++idx);
     }
 
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
       resolve();
     });
   }
@@ -282,7 +274,7 @@ export class EligiusEngine implements IEligiusEngine {
     await this._cleanUpTimeline();
 
     const timelineConfig = this.configuration.timelines.find(
-      timeline => timeline.uri === uri
+      (timeline) => timeline.uri === uri
     );
     if (
       !timelineConfig ||
@@ -341,8 +333,11 @@ export class EligiusEngine implements IEligiusEngine {
     );
   }
 
-  private _getActionsForPosition(position: number, allActions: ITimelineAction[]) {
-    return allActions.filter(action => {
+  private _getActionsForPosition(
+    position: number,
+    allActions: ITimelineAction[]
+  ) {
+    return allActions.filter((action) => {
       return (
         !action.active &&
         action.duration.start <= position &&
@@ -352,7 +347,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _getActiveActions(allActions: ITimelineAction[]) {
-    const actions = allActions.filter(action => action.active);
+    const actions = allActions.filter((action) => action.active);
     return actions.sort((a, b) => {
       if (b.duration.start < a.duration.start) {
         return -1;
@@ -384,7 +379,11 @@ export class EligiusEngine implements IEligiusEngine {
     this._cleanUpTimeline();
   }
 
-  private _handleExecuteTimelineAction(uri: string, index: number, start: boolean) {
+  private _handleExecuteTimelineAction(
+    uri: string,
+    index: number,
+    start: boolean
+  ) {
     const actions = this._getTimelineActionsForUri(uri);
     const action = actions?.[index];
     if (action) {
@@ -409,7 +408,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _getTimelineActionsForUri(uri: string): ITimelineAction[] {
-    const info = this.configuration.timelines.find(timelineInfo => {
+    const info = this.configuration.timelines.find((timelineInfo) => {
       return timelineInfo.uri === uri;
     });
     return info?.timelineActions ?? [];
@@ -469,7 +468,7 @@ export class EligiusEngine implements IEligiusEngine {
     const newActions = this._getActionsForPosition(pos, timelineActions);
     const promise = this._executeActions(currentActions, 'end', 0);
 
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
       promise.then(() => {
         this._executeActions(newActions, 'start', 0).then(() => {
           resolve();

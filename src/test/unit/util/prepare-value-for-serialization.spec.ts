@@ -19,8 +19,6 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
   // test
   const result = prepareValueForSerialization(object);
 
-  console.log('result', result);
-
   // expect
   expect(result.a).to.equal(1);
   expect(result.b).to.equal('jQuery object');

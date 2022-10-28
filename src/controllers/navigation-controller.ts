@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TOperationData } from '../operation/types';
 import { TResultCallback } from '../types';
 import { LabelController } from './label-controller';
@@ -11,7 +11,8 @@ export interface INavigationControllerOperationData {
 }
 
 export class NavigationController
-  implements IController<INavigationControllerOperationData> {
+  implements IController<INavigationControllerOperationData>
+{
   name: string = 'NavigationController';
   navigation: any[] = [];
   navLookup: Record<string, any> = {};
@@ -19,7 +20,7 @@ export class NavigationController
   ctrlLookup: Record<string, LabelController> = {};
   activeNavigationPoint: any | null = null;
   labelControllers: LabelController[] = [];
-  eventhandlers: TEventHandlerRemover[] = [];
+  eventhandlers: TEventbusRemover[] = [];
   eventbus: IEventbus | null = null;
   container: JQuery | null = null;
 
@@ -97,11 +98,11 @@ export class NavigationController
   }
 
   detach(eventbus: IEventbus) {
-    this.eventhandlers.forEach(handler => {
+    this.eventhandlers.forEach((handler) => {
       handler();
     });
 
-    this.labelControllers.forEach(ctrl => {
+    this.labelControllers.forEach((ctrl) => {
       ctrl.detach(eventbus);
     });
 
@@ -115,9 +116,8 @@ export class NavigationController
     if (!this.activeNavigationPoint) {
       return;
     }
-    const labelCtrl: LabelController = this.ctrlLookup[
-      this.activeNavigationPoint.labelId
-    ];
+    const labelCtrl: LabelController =
+      this.ctrlLookup[this.activeNavigationPoint.labelId];
 
     if (!labelCtrl) {
       return;

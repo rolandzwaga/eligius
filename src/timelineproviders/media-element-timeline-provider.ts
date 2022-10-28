@@ -5,7 +5,7 @@ import {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
 } from '../configuration/types';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TResultCallback } from '../types';
 import { ITimelineProvider } from './types';
@@ -14,7 +14,7 @@ const { MediaElementPlayer } = window as any;
 
 export class MediaElementTimelineProvider implements ITimelineProvider {
   private _videoElementId: string = uuidv4();
-  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _eventbusListeners: TEventbusRemover[] = [];
   private _playlist: IResolvedTimelineConfiguration[] = [];
   private _length: number = 0;
   private _urls: string[] = [];
@@ -65,8 +65,8 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
 
   _extractUrls(configuration: IResolvedEngineConfiguration) {
     const urls = configuration.timelines
-      .filter(timeline => timeline.type === 'mediaplayer')
-      .map(timeline => timeline.uri);
+      .filter((timeline) => timeline.type === 'mediaplayer')
+      .map((timeline) => timeline.uri);
     return urls;
   }
 
@@ -76,7 +76,7 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
     this._addVideoElements(selector, this._urls);
     const self = this;
 
-    const promise = new Promise<void>(resolve => {
+    const promise = new Promise<void>((resolve) => {
       const videoElement = document.getElementById(this._videoElementId);
       self.player = new MediaElementPlayer(videoElement, {
         success: (
@@ -114,7 +114,7 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
     const videoElm = [
       `<video class='mejs__player' id=${this._videoElementId} data-mejsoptions='{"preload": "true"}'>`,
     ];
-    urls.forEach(url => {
+    urls.forEach((url) => {
       videoElm.push(
         `<source src='${url}' type='${this._extractFileType(url)}'/>`
       );
@@ -147,7 +147,7 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
 
     this.player?.remove();
     $(`#${this._videoElementId}`).remove();
-    this._eventbusListeners.forEach(func => func());
+    this._eventbusListeners.forEach((func) => func());
   }
 
   pause() {

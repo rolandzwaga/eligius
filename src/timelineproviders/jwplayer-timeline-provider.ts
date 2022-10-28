@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { v4 as uuidv4 } from 'uuid';
 import { IResolvedEngineConfiguration } from '../configuration/types';
-import { IEventbus, TEventHandlerRemover } from '../eventbus/types';
+import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
 import { TResultCallback } from '../types';
 import { ITimelineProvider } from './types';
@@ -10,7 +10,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   private _paused: boolean = false;
   private _player: any = null;
   private _currentLoopHandler: Function | null = null;
-  private _eventbusListeners: TEventHandlerRemover[] = [];
+  private _eventbusListeners: TEventbusRemover[] = [];
   private _playlist: any[] = [];
   private _videoElementId: string = uuidv4();
 
@@ -25,8 +25,8 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
 
   _extractUrls(configuration: IResolvedEngineConfiguration) {
     const urls = configuration.timelines
-      .filter(timeline => timeline.type === 'mediaplayer')
-      .map(timeline => {
+      .filter((timeline) => timeline.type === 'mediaplayer')
+      .map((timeline) => {
         return timeline.uri;
       });
     return urls;
@@ -70,7 +70,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
       repeat: false,
     });
     this._playlist.length = 0;
-    urls.forEach(url => {
+    urls.forEach((url) => {
       const item = {
         file: url,
         title: url,
@@ -78,7 +78,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
       };
       this._playlist.push(item);
     });
-    const promise = new Promise(resolve => {
+    const promise = new Promise((resolve) => {
       this._player.once('ready', () => {
         this._handlePlayerReady(resolve);
       });
@@ -127,7 +127,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
 
   destroy() {
     this._player.remove();
-    this._eventbusListeners.forEach(func => func());
+    this._eventbusListeners.forEach((func) => func());
   }
 
   _loopHandler(floor: (x: number) => number, jwplayerEvent: any) {
@@ -237,7 +237,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
   }
 
   playlistItem(uri: string) {
-    const index = this._playlist.findIndex(item => item.file === uri);
+    const index = this._playlist.findIndex((item) => item.file === uri);
     if (index > -1) {
       this._player.playlistItem(index);
     }

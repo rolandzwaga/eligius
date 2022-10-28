@@ -102,8 +102,11 @@ export class Action implements IAction {
       Diagnostics.active &&
         Diagnostics.send('eligius-diagnostics-operation', {
           systemName: operationInfo.systemName,
-          operationData: operationInfo.operationData,
-          context,
+          operationData: mergedOperationData,
+          context: {
+            ...context,
+            eventbus: undefined,
+          },
         });
 
       const operationResult: TOperationResult = operationInfo.instance.call(
@@ -113,13 +116,13 @@ export class Action implements IAction {
 
       if (isPromise(operationResult)) {
         operationResult
-          .then((resultOperationData: TOperationData) => {
+          .then((promisedOperationResult: TOperationData) => {
             this.executeOperation(
               operations,
               ++idx,
               resolve,
               reject,
-              resultOperationData,
+              promisedOperationResult,
               context
             );
           })
