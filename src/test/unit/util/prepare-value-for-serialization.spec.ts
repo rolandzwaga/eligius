@@ -14,6 +14,8 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
       return i;
     },
     d: [1, 'a', $('body'), (i: number) => i],
+    e: null,
+    f: undefined,
   };
 
   // test
@@ -24,6 +26,8 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
   expect(result.b).to.equal('jQuery object');
   expect(result.c).to.equal('function (i) {');
   expect(result.d).to.eql([1, 'a', 'jQuery object', '(i) => i']);
+  expect(result.e).to.be.null;
+  expect(result.f).to.be.undefined;
 });
 
 PrepareValueForSerializationSuite.run();
