@@ -4,48 +4,46 @@ import { TimelineEventNames } from './timeline-event-names';
 import { ILabel, ILanguageLabel, TResultCallback } from './types';
 
 export class LanguageManager {
-  private _labelLookup: Record<string, ILabel[]> = {};
-  private _eventbusListeners: TEventbusRemover[] = [];
+  private _labelLookup: Record<string, ILabel[]>;
+  private _eventbusRemovers: TEventbusRemover[] = [];
 
   constructor(
     private _currentLanguage: string,
     labels: ILanguageLabel[],
     private _eventbus: IEventbus
   ) {
-    if (!_currentLanguage || !_currentLanguage.length) {
-      throw new Error('language ctor arg cannot be null or have zero length');
-    }
-    if (!labels) {
-      throw new Error('labels ctor arg cannot be null');
-    }
-    if (!_eventbus) {
-      throw new Error('eventbus ctor arg cannot be null');
+    if (!_currentLanguage) {
+      throw new Error('language ctor arg cannot have zero length');
     }
     this._setRootElementLang(_currentLanguage);
-    this._createLabelLookup(labels);
+    this._labelLookup = this._createLabelLookup(labels);
     this._addEventbusListeners(_eventbus);
   }
 
+  destroy() {
+    this._eventbusRemovers.forEach((x) => x());
+  }
+
   _addEventbusListeners(eventbus: IEventbus) {
-    this._eventbusListeners.push(
+    this._eventbusRemovers.push(
       eventbus.on(
         TimelineEventNames.REQUEST_LABEL_COLLECTION,
         this._handleRequestLabelCollection.bind(this)
       )
     );
-    this._eventbusListeners.push(
+    this._eventbusRemovers.push(
       eventbus.on(
         TimelineEventNames.REQUEST_LABEL_COLLECTIONS,
         this._handleRequestLabelCollections.bind(this)
       )
     );
-    this._eventbusListeners.push(
+    this._eventbusRemovers.push(
       eventbus.on(
         TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
         this._handleRequestCurrentLanguage.bind(this)
       )
     );
-    this._eventbusListeners.push(
+    this._eventbusRemovers.push(
       eventbus.on(
         TimelineEventNames.LANGUAGE_CHANGE,
         this._handleLanguageChange.bind(this)
@@ -101,8 +99,9 @@ export class LanguageManager {
   }
 
   _createLabelLookup(labels: ILanguageLabel[]) {
-    labels.forEach((label) => {
-      this._labelLookup[label.id] = label.labels;
-    });
+    return labels.reduce<Record<string, ILabel[]>>((acc, label) => {
+      acc[label.id] = label.labels;
+      return acc;
+    }, {});
   }
 }

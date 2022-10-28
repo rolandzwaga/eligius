@@ -29,7 +29,7 @@ export class EligiusEngine implements IEligiusEngine {
     private configuration: IResolvedEngineConfiguration,
     private eventbus: IEventbus,
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
-    private _languageManager: LanguageManager
+    private languageManager: LanguageManager
   ) {}
 
   init(): Promise<ITimelineProvider> {
@@ -98,6 +98,8 @@ export class EligiusEngine implements IEligiusEngine {
 
   async destroy() {
     await this._cleanUp();
+
+    this.languageManager.destroy();
 
     this._activeTimelineProvider = undefined;
     this._eventbusRemovers.forEach((remover) => remover());

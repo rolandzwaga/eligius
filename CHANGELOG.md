@@ -4,6 +4,8 @@
 - Eventbus registerListener, registerInterceptor and once methods now return remove functions.
 - Add more typings for diagnostics
 - Add agent listeners for devtools playcontrol events
+- Add destroy method to LanguageManager implmentation
+  
 ## 1.0.71
 
 - Fix postMessage serializations
