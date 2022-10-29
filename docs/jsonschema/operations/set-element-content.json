@@ -30,8 +30,15 @@
       "required": [],
       "properties": {
         "insertionType": {
-          "$id": "#/properties/operationData/insertionType",
-          "type": "unknown"
+          "type": "string",
+          "enum": [
+            "overwrite",
+            "append",
+            "prepend",
+            null
+          ],
+          "default": "overwrite",
+          "$id": "#/properties/operationData/insertionType"
         }
       }
     }

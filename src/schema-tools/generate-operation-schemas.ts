@@ -6,6 +6,7 @@ import * as metadata from '../operation/metadata';
 import {
   IOperationMetadata,
   TComplexProperyMetadata,
+  TConstantParametersTypes,
   THasDescription,
   THasRequired,
   TParameterTypes,
@@ -174,6 +175,27 @@ function generateSchemaType(metadata: TPropertyMetadata) {
   if (isString(metadata)) {
     return metadataType2SchemaType(metadata);
   }
+
+  if (isConstantList(metadata)) {
+    const defaultValue = metadata.find((x) => x.default)?.value;
+    const enums = metadata.map<string | null>((x) => x.value);
+
+    if (defaultValue) {
+      enums.push(null);
+    }
+
+    const result: any = {
+      type: 'string',
+      enum: enums,
+    };
+
+    if (defaultValue) {
+      result.default = defaultValue;
+    }
+
+    return result;
+  }
+
   if (isComplex(metadata)) {
     return metadataType2SchemaType(metadata.type);
   }
@@ -188,6 +210,10 @@ function generateSchemaPattern(metadata: TPropertyMetadata) {
     return metadataType2SchemaPattern(metadata.type);
   }
   return undefined;
+}
+
+function isConstantList(value: any): value is TConstantParametersTypes[] {
+  return Array.isArray(value);
 }
 
 function hasRequired(value: any): value is THasRequired {

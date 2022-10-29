@@ -43,8 +43,16 @@
           "type": "number"
         },
         "operator": {
-          "$id": "#/properties/operationData/operator",
-          "type": "unknown"
+          "type": "string",
+          "enum": [
+            "+",
+            "-",
+            "*",
+            "/",
+            "%",
+            "**"
+          ],
+          "$id": "#/properties/operationData/operator"
         }
       }
     }
