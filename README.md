@@ -12,7 +12,7 @@ The main concepts in Eligius are timelines, actions and operations. A timeline c
 
 Actions can be called on specified points on such a timeline. An action consists of a list of start and end operations.
 
-An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `select-element`, `create-element` or `add-class`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/dev/src/operation)
+An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `select-element`, `create-element` or `add-class`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/main/src/operation)
 By composing these atomic operations complex functionality can be achieved.
 
 An example of an action is adding an removing an image from the stage at specific times. This action would consist of these start operations: `select-element`(to select the image parent), `create-element`(to create the img element with the required src attribute) and `set-element-contents`(to add the img element to the previously selected parent).
@@ -29,9 +29,9 @@ This section describes the different parts of this configuration.
 ### systemName property
 
 In the rest of this section the property name `systemName` will be shown often. The value of this property describes a named import.
-Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://github.com/rolandzwaga/eligius/blob/dev/src/importer/eligius-resource-importer.ts).
+Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://rolandzwaga.github.io/eligius/classes/EligiusResourceImporter.html).
 However, this importer contains all of Eligius classes, function, providers, etc. So, bundling this with a presentation will bloat the bundle.
-Eligius offers a generator function for this: [`generateImporterSourceCode`](https://github.com/rolandzwaga/eligius/blob/dev/src/build/generate-importer-source-code.ts). This function is able to generate source code (Typescript) for a custom resource importer based on a given Eligius configuration. This will result in an importer that only includes the code that is referenced in the configuration.
+Eligius offers a generator function for this: [`generateImporterSourceCode`](https://rolandzwaga.github.io/eligius/functions/generateImporterSourceCode.html). This function is able to generate source code (Typescript) for a custom resource importer based on a given Eligius configuration. This will result in an importer that only includes the code that is referenced in the configuration.
 
 ### engine
 
@@ -234,7 +234,7 @@ This a list of actions that can be triggered by an event broadcast. Since an eve
 ### labels
 
 A list of label information that describes all of the textual content for the presentation. 
-Labels can be rendered by the [`LabelController`](https://github.com/rolandzwaga/eligius/blob/dev/src/controllers/label-controller.ts). This controller listens for the appropriate language change events as well, and will change the contents of the element it controls accordingly.
+Labels can be rendered by the [`LabelController`](https://rolandzwaga.github.io/eligius/classes/LabelController.html). This controller listens for the appropriate language change events as well, and will change the contents of the element it controls accordingly.
 
 ```json
 {
@@ -270,6 +270,10 @@ const engine = factory.createEngine((engineConfig as unknown) as IEngineConfigur
 
 engine.init().then(()=> {console.log('Eligius engine ready for business');});
 ```
+
+## Source documentation
+
+[Check out this link for the full type docs](https://rolandzwaga.github.io/eligius/)
 
 ## installation
 
