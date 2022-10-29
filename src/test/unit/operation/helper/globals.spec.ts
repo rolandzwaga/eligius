@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getGlobals } from '../../../../operation/helper/get-globals';
+import { getGlobals, setGlobals } from '../../../../operation/helper/globals';
 
 const GetGlobalsSuite = suite('getGlobals');
 
@@ -15,6 +15,17 @@ GetGlobalsSuite('should get the global by name', () => {
   cache['test'] = value;
   cache = getGlobals('test');
   expect(cache).to.equal(value);
+});
+
+const SetGlobalsSuite = suite('setGlobals');
+
+SetGlobalsSuite('should set the given globals', () => {
+  setGlobals({ foo: 'bar', bar: 'foo' });
+
+  const cache = getGlobals();
+
+  expect(cache['foo']).to.equal('bar');
+  expect(cache['bar']).to.equal('foo');
 });
 
 GetGlobalsSuite.run();

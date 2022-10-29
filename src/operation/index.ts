@@ -30,6 +30,7 @@ export { resizeAction } from './resize-action';
 export { selectElement } from './select-element';
 export { setElementAttributes } from './set-element-attributes';
 export { setElementContent } from './set-element-content';
+export { setGlobalData } from './set-global-data';
 export { setOperationData } from './set-operation-data';
 export { setStyle } from './set-style';
 export { startAction } from './start-action';
@@ -38,4 +39,3 @@ export { toggleClass } from './toggle-class';
 export { toggleElement } from './toggle-element';
 export * from './types';
 export { wait } from './wait';
-

@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.12
+- Add setGlobalData operation with unit tests and metadata
+- property values can now also resolve to global data. I.e. the value 'globaldata.foo' will be resolved from the globals.
 ## 1.0.11
 - Extra check for controller instance serialization
   

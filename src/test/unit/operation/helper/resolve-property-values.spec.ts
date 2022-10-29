@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import { resolvePropertyValues } from '../../../../operation/helper/resolve-property-values';
+import { setGlobal } from '../../../../operation/helper/set-global';
 
 const ResolvePropertyValuesSuite = suite('resolvePropertyValues');
 
@@ -45,5 +46,27 @@ ResolvePropertyValuesSuite(
     expect(resolved.resolvedItem).to.equal('test');
   }
 );
+
+ResolvePropertyValuesSuite(
+  'should resolve the given property values on the global data',
+  () => {
+    // given
+    const operationData = {
+      test1: 'test1',
+      test2: 100,
+      test3: true,
+      currentItem: { title: 'test' },
+      resolvedItem: 'globaldata.globalTitle',
+    };
+    setGlobal('globalTitle', 'global title');
+
+    // test
+    const resolved = resolvePropertyValues(operationData, operationData);
+
+    // expect
+    expect(resolved.resolvedItem).to.equal('global title');
+  }
+);
+
 
 ResolvePropertyValuesSuite.run();

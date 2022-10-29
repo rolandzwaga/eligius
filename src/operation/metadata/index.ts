@@ -30,6 +30,7 @@ export { default as resizeAction } from './resize-action';
 export { default as selectElement } from './select-element';
 export { default as setElementAttributes } from './set-element-attributes';
 export { default as setElementContent } from './set-element-content';
+export { default as setGlobalData } from './set-global-data';
 export { default as setOperationData } from './set-operation-data';
 export { default as setStyle } from './set-style';
 export { default as startAction } from './start-action';
@@ -37,4 +38,3 @@ export { default as startLoop } from './start-loop';
 export { default as toggleClass } from './toggle-class';
 export { default as toggleElement } from './toggle-element';
 export { default as wait } from './wait';
-
