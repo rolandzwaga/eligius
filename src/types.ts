@@ -6,6 +6,18 @@ import {
 import { IEventbus, IEventbusListener } from './eventbus/types';
 import { ITimelineProvider } from './timelineproviders/types';
 
+export type KeysOfType<T, U, B = false> = {
+  [P in keyof T]: B extends true
+    ? T[P] extends U
+      ? U extends T[P]
+        ? P
+        : never
+      : never
+    : T[P] extends U
+    ? P
+    : never;
+}[keyof T];
+
 /**
  * Describes an object that is capable of processing the given configuration and constructing an IEligiusEngine
  * based on this configuration.

@@ -31,7 +31,7 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
   const { selector, useSelectedElementAsRoot = false } = operationData;
 
   if (!selector) {
-    throw new Error('selector is undefined!');
+    throw new Error('selectElement: selector is either empty or not defined.');
   }
 
   if (useSelectedElementAsRoot && operationData.selectedElement) {
