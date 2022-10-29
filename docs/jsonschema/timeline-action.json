@@ -136,6 +136,9 @@
             "$ref": "operations/set-element-content.json"
           },
           {
+            "$ref": "operations/set-global-data.json"
+          },
+          {
             "$ref": "operations/set-operation-data.json"
           },
           {
@@ -260,6 +263,9 @@
           },
           {
             "$ref": "operations/set-element-content.json"
+          },
+          {
+            "$ref": "operations/set-global-data.json"
           },
           {
             "$ref": "operations/set-operation-data.json"
