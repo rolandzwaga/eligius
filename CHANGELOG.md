@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.9
+- Add invokeObjectMethod operation
+- Add getQueryParams operation
+- Remove propertyName operationData properties from several operations, this needlessly complicated a lot of functionality.
+
 ## 1.0.81
 - Add null check in prepareValueForSerialization
 
