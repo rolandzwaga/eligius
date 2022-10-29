@@ -6,8 +6,7 @@
   "title": "The endLoop schema",
   "description": "Ends the current loop",
   "required": [
-    "systemName",
-    "operationData"
+    "systemName"
   ],
   "properties": {
     "id": {

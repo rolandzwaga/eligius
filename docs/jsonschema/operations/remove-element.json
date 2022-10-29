@@ -6,8 +6,7 @@
   "title": "The removeElement schema",
   "description": "Removes the selected element from the DOM",
   "required": [
-    "systemName",
-    "operationData"
+    "systemName"
   ],
   "properties": {
     "id": {

@@ -6,8 +6,7 @@
   "title": "The toggleElement schema",
   "description": "Toggles the selected element",
   "required": [
-    "systemName",
-    "operationData"
+    "systemName"
   ],
   "properties": {
     "id": {

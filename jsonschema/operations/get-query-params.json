@@ -6,8 +6,7 @@
   "title": "The getQueryParams schema",
   "description": "Retrieves the current query parameters from the browser's address bar",
   "required": [
-    "systemName",
-    "operationData"
+    "systemName"
   ],
   "properties": {
     "id": {

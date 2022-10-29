@@ -6,8 +6,7 @@
   "title": "The log schema",
   "description": "Logs the current context and operation data to the console",
   "required": [
-    "systemName",
-    "operationData"
+    "systemName"
   ],
   "properties": {
     "id": {

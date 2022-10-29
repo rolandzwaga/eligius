@@ -122,6 +122,10 @@ function generateOperationSchema([name, getMetadata]: [
       generateRequiredPropertyNames(metadata.properties);
   } else {
     delete (schemaTemplate.properties as any).operationData;
+    const index = schemaTemplate.required.indexOf('operationData');
+    if (index > -1) {
+      schemaTemplate.required.splice(index, 1);
+    }
   }
 
   return [camelCaseToDash(name), schemaTemplate];

@@ -6,8 +6,7 @@
   "title": "The clearElement schema",
   "description": "clears the given element",
   "required": [
-    "systemName",
-    "operationData"
+    "systemName"
   ],
   "properties": {
     "id": {
