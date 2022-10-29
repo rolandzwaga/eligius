@@ -1,16 +1,12 @@
 import { TimelineEventNames } from '../timeline-event-names';
 import { TOperation } from './types';
 
-function findElementBySelector(
-  root: JQuery,
-  selector: string,
-  operationData: ISelectElementOperationData
-) {
+function findElementBySelector(root: JQuery, selector: string) {
   const element = root.find(selector);
   if (!element.length) {
     console.warn(`selector '${selector}' wasn't found!`);
   }
-  operationData.selectedElement = element;
+  return element;
 }
 
 export interface ISelectElementOperationData {
@@ -40,12 +36,15 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
 
   if (useSelectedElementAsRoot && operationData.selectedElement) {
     const currentRoot = operationData.selectedElement;
-    findElementBySelector(currentRoot, selector, operationData);
+    operationData.selectedElement = findElementBySelector(
+      currentRoot,
+      selector
+    );
     return operationData;
   }
 
   const rootCallback = (root: JQuery) => {
-    findElementBySelector(root, selector, operationData);
+    operationData.selectedElement = findElementBySelector(root, selector);
   };
   this.eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [
     rootCallback,
