@@ -23,10 +23,10 @@
       "pattern": "^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$"
     },
     "engine": {
-      "$ref": "/engine-config.json"
+      "$ref": "engine-config.json"
     },
     "timelineProviderSettings": {
-      "$ref": "/timeline-provider-settings.json"
+      "$ref": "timeline-provider-settings.json"
     },
     "containerSelector": {
       "$id": "#/properties/containerSelector",
@@ -86,7 +86,7 @@
       "type": "array",
       "title": "The Initactions Schema",
       "items": {
-        "$ref": "/endable-action.json"
+        "$ref": "endable-action.json"
       }
     },
     "actions": {
@@ -94,7 +94,7 @@
       "type": "array",
       "title": "The Initactions Schema",
       "items": {
-        "$ref": "/endable-action.json"
+        "$ref": "endable-action.json"
       }
     },
     "eventActions": {
@@ -102,7 +102,7 @@
       "type": "array",
       "title": "The Initactions Schema",
       "items": {
-        "$ref": "/event-action.json"
+        "$ref": "event-action.json"
       }
     },
     "timelines": {
@@ -110,7 +110,7 @@
       "type": "array",
       "title": "The timelines schema",
       "items": {
-        "$ref": "/timeline.json"
+        "$ref": "timeline.json"
       }
     },
     "labels": {

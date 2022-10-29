@@ -31,7 +31,7 @@ operationSchemas.forEach(([name, schema]) => {
 
 const operationSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map((name) => ({ $ref: `/operations/${name}.json` }));
+  .map((name) => ({ $ref: `operations/${name}.json` }));
 
 ['endable-action.json', 'event-action.json', 'timeline-action.json'].forEach(
   (x) => saveOperations(x, operationSchemaPaths)

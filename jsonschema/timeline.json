@@ -45,7 +45,7 @@
       "type": "array",
       "title": "The timelineActions schema",
       "items": {
-        "$ref": "/timeline-action.json"
+        "$ref": "timeline-action.json"
       }
     }
   }
