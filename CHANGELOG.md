@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.11
+- Extra check for controller instance serialization
+  
 ## 1.0.10
 - Don't serialize controllers in diagnostic messages.
 - Several fixes in json schema generator
