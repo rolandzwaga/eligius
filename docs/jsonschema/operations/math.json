@@ -39,9 +39,9 @@
           "$id": "#/properties/operationData/functionName",
           "type": "unknown"
         },
-        "propertyName": {
-          "$id": "#/properties/operationData/propertyName",
-          "type": "string"
+        "mathResult": {
+          "$id": "#/properties/operationData/mathResult",
+          "type": "number"
         }
       }
     }

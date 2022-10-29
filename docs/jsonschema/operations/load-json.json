@@ -38,10 +38,6 @@
         "cache": {
           "$id": "#/properties/operationData/cache",
           "type": "boolean"
-        },
-        "propertyName": {
-          "$id": "#/properties/operationData/propertyName",
-          "type": "string"
         }
       }
     }

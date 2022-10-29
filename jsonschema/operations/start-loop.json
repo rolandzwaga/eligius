@@ -35,9 +35,9 @@
           "$id": "#/properties/operationData/collection",
           "type": "array"
         },
-        "propertyName": {
-          "$id": "#/properties/operationData/propertyName",
-          "type": "string"
+        "currentItem": {
+          "$id": "#/properties/operationData/currentItem",
+          "type": "object"
         }
       }
     }
