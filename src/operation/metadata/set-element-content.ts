@@ -6,7 +6,7 @@ function setElementContent(): IOperationMetadata<
 > {
   return {
     description: 'Sets the given HTML content in the selected element',
-    dependentProperties: ['selectedElement'],
+    dependentProperties: ['selectedElement', 'template'],
     properties: {
       insertionType: [
         {
@@ -26,10 +26,6 @@ function setElementContent(): IOperationMetadata<
             'the new content will be inserted before the current content',
         },
       ],
-      template: {
-        type: 'ParameterType:htmlContent',
-        required: true,
-      },
     },
   };
 }
