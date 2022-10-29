@@ -87,6 +87,12 @@
             "$ref": "/operations/get-import.json"
           },
           {
+            "$ref": "/operations/get-query-params.json"
+          },
+          {
+            "$ref": "/operations/invoke-object-method.json"
+          },
+          {
             "$ref": "/operations/load-json.json"
           },
           {
@@ -205,6 +211,12 @@
           },
           {
             "$ref": "/operations/get-import.json"
+          },
+          {
+            "$ref": "/operations/get-query-params.json"
+          },
+          {
+            "$ref": "/operations/invoke-object-method.json"
           },
           {
             "$ref": "/operations/load-json.json"

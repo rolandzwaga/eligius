@@ -9,10 +9,7 @@ function setStyle(): IOperationMetadata<ISetStyleOperationData> {
         type: 'ParameterType:object',
         required: true,
       },
-      propertyName: {
-        type: 'ParameterType:string',
-        required: false,
-      },
+      selectedElement: 'ParameterType:jQuery',
     },
   };
 }

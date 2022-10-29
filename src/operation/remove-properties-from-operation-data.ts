@@ -6,6 +6,7 @@ export interface IRemovePropertiesFromOperationDataOperationData {
 
 /**
  * This operation removes the given list of properties from the current operation data.
+ * It will also omit the property 'propertyNames' from the result.
  *
  * @param operationData
  * @returns
@@ -13,10 +14,13 @@ export interface IRemovePropertiesFromOperationDataOperationData {
 export const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperationDataOperationData> =
   function (operationData: IRemovePropertiesFromOperationDataOperationData) {
     const { propertyNames } = operationData;
+    if (propertyNames.indexOf('propertyNames') < 0) {
+      propertyNames.push('propertyNames');
+    }
 
-    propertyNames.forEach((name) => {
-      delete (operationData as any)[name];
-    });
-    delete (operationData as any).propertyNames;
-    return operationData;
+    return Object.fromEntries(
+      Object.entries(operationData).filter(
+        ([name, _value]) => !propertyNames.includes(name)
+      )
+    ) as any;
   };

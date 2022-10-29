@@ -43,10 +43,6 @@
             "SubtitlesController"
           ],
           "$id": "#/properties/operationData/systemName"
-        },
-        "propertyName": {
-          "$id": "#/properties/operationData/propertyName",
-          "type": "string"
         }
       }
     }

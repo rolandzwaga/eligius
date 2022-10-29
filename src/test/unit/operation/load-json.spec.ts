@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import { clearCache, loadJSON } from '../../../operation/load-json';
@@ -83,28 +79,6 @@ LoadJSONSuite(
       operationData
     );
     expect(newData.json).to.not.equal(context.result);
-  }
-);
-
-LoadJSONSuite(
-  'should assign the json to the given propertyName',
-  async (context) => {
-    // given
-    context.result = { test: true };
-    const operationData = {
-      url: '/test.json',
-      propertyName: 'testProperty',
-      cache: true,
-    };
-    await applyOperation<Promise<{ json: any }>>(loadJSON, operationData);
-
-    // test
-    const newData = await applyOperation<
-      Promise<{ testProperty: { test: boolean } }>
-    >(loadJSON, operationData);
-
-    // expect
-    expect(newData.testProperty.test).to.be.true;
   }
 );
 

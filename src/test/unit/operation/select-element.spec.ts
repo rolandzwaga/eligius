@@ -83,30 +83,4 @@ SelectElementSuite(
   }
 );
 
-SelectElementSuite(
-  'should select the element based on the specified selector from the existing root that is assigned to a specified property on the operationdata',
-  () => {
-    // given
-    const selectedElement = {
-      length: 1,
-    };
-    const mockElement = new MockElement(selectedElement);
-    const operationData = {
-      selector: '.testClass',
-      useSelectedElementAsRoot: true,
-      otherProperty: mockElement,
-      propertyName: 'otherProperty',
-    };
-
-    // test
-    const newData = applyOperation<{ otherProperty: any }>(
-      selectElement,
-      operationData
-    );
-
-    // expect
-    expect(newData.otherProperty).to.equal(selectedElement);
-  }
-);
-
 SelectElementSuite.run();

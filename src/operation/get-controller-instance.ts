@@ -6,30 +6,27 @@ import { TOperation } from './types';
 type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {
   systemName: TSystemName;
-  propertyName?: string;
   controllerInstance?: IController<unknown>;
 }
 
 /**
  * This operation retrieves an instance of the given controller name.
- * It assigns this instance to the property on the current operation data
- * defined by the propertyName property which defaults to 'controllerInstance'.
+ * It assigns this instance to the `controllerInstance` property on the current operation data
  *
  * @param operationData
  * @returns
  */
 export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> =
   function (operationData: IGetControllerInstanceOperationData) {
-    const { systemName, propertyName = 'controllerInstance' } = operationData;
+    const { systemName } = operationData;
 
-    (operationData as any)[propertyName] = null;
-    const resultCallback = (instance: any) => {
-      (operationData as any)[propertyName as string] = instance;
+    operationData.controllerInstance = undefined;
+    const resultCallback = (instance: IController<unknown>) => {
+      operationData.controllerInstance = instance;
     };
     this.eventbus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [
       systemName,
       resultCallback,
     ]);
-    delete operationData.propertyName;
     return operationData;
   };

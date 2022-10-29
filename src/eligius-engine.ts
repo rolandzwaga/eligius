@@ -14,9 +14,8 @@ import {
 } from './types';
 
 /**
- * EligiusEngine, this is where the magic happens. The engine is responsible for starting and stopping
- * the given timeline provider and triggering the actions associated with it.
- * ...
+ * This is where the magic happens. The engine is responsible for starting and stopping
+ * the given timeline provider and triggering the actions associated with the positions along the timeline.
  */
 export class EligiusEngine implements IEligiusEngine {
   private _timeLineActionsLookup: Record<string, any> = {};
@@ -32,6 +31,10 @@ export class EligiusEngine implements IEligiusEngine {
     private languageManager: LanguageManager
   ) {}
 
+  /**
+   * Initializes the engine by creating the HTML layout and the first time line
+   * by executing its initActions.
+   */
   init(): Promise<ITimelineProvider> {
     this._createLayoutTemplate();
 
@@ -96,6 +99,14 @@ export class EligiusEngine implements IEligiusEngine {
     await this._executeActions(this.configuration.initActions, 'end');
   }
 
+  /**
+   * Cleans up all the necessary parts that the engine initialized.
+   * - It ends the currently active operations and the init actions.
+   * - It removes all its eventbus listeners, handlers and interceptors.
+   * - It destroys all of its timeline providers
+   * - It empties the HTML element indicated by the containerSelector configuration property.
+   *
+   */
   async destroy() {
     await this._cleanUp();
 
@@ -205,7 +216,7 @@ export class EligiusEngine implements IEligiusEngine {
       );
       const endMethod = timeLineAction.end.bind(timeLineAction);
 
-      if (timeLineAction.id?.length) {
+      if (!timeLineAction.id) {
         (endMethod as any).id = timeLineAction.id;
       }
 
@@ -259,7 +270,7 @@ export class EligiusEngine implements IEligiusEngine {
     resultCallback($(engineRootSelector));
   }
 
-  async _handleRequestTimelineUri(
+  private async _handleRequestTimelineUri(
     uri: string,
     position?: number,
     previousVideoPosition?: number

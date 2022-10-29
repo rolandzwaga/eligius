@@ -7,7 +7,7 @@ function wait(): IOperationMetadata<IWaitOperationData> {
       'Waits the given amount of milliseconds before the action continues',
     properties: {
       milliseconds: {
-        type: 'ParameterType:integer',
+        type: 'ParameterType:number',
         required: true,
       },
     },

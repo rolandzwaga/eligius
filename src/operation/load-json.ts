@@ -5,7 +5,6 @@ const jsonCache: Record<string, any> = {};
 export interface ILoadJSONOperationData {
   url: string;
   cache: boolean;
-  propertyName?: string;
   json?: any;
 }
 
@@ -20,8 +19,8 @@ export const addToCache = (key: string, value: any) => {
 };
 
 /**
- * This operation loads a JSON file from the specified url and assigns it to the specified
- * property name on the current operation data. The property name defaults to 'json'.
+ * This operation loads a JSON file from the specified url and assigns it to the json
+ * property on the current operation data.
  *
  * If the cache property is set to true and a cached value already exists, this is assigned
  * instead of re-retrieving it from the url.
@@ -32,23 +31,17 @@ export const addToCache = (key: string, value: any) => {
 export const loadJSON: TOperation<ILoadJSONOperationData> = function (
   operationData: ILoadJSONOperationData
 ) {
-  const { url, cache, propertyName = 'json' } = operationData;
+  const { url, cache } = operationData;
 
   if (cache && jsonCache[url]) {
-    (operationData as any)[propertyName] = jsonCache[url];
-    delete operationData.propertyName;
+    operationData.json = jsonCache[url];
     return operationData;
   }
 
-  return new Promise((resolve, reject) => {
-    fetch(url)
-      .then(async (response) => {
-        const json = await response.json();
-        const cacheValue = ((operationData as any)[propertyName] = json);
-        delete operationData.propertyName;
-        addToCache(url, cacheValue);
-        resolve(operationData);
-      })
-      .catch(reject);
+  return fetch(url).then(async (response) => {
+    const json = await response.json();
+    const cacheValue = (operationData.json = json);
+    addToCache(url, cacheValue);
+    return operationData;
   });
 };

@@ -86,4 +86,53 @@ LabelControllerSuite('should attach properly', (context) => {
   ).to.equal('hello');
 });
 
+LabelControllerSuite('should set the text based on the new id', (context) => {
+  // given
+  const { controller, operationData, eventbus } = context;
+  controller.init(operationData);
+  eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
+    args[0]('en-GB');
+  });
+
+  const firstLabels = (...args: any[]) => {
+    args[1]([
+      {
+        id: '1111',
+        languageCode: 'nl-NL',
+        label: 'hallo',
+      },
+      {
+        id: '2222',
+        languageCode: 'en-GB',
+        label: 'hello',
+      },
+    ]);
+  };
+  eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
+
+  // test
+  controller.attach(eventbus);
+  eventbus.off(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
+  eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
+    args[1]([
+      {
+        id: '3333',
+        languageCode: 'nl-NL',
+        label: 'tot ziens',
+      },
+      {
+        id: '4444',
+        languageCode: 'en-GB',
+        label: 'goodbye',
+      },
+    ]);
+  });
+  controller.setLabelId('test2');
+
+  // expect
+  expect(
+    (operationData.selectedElement as unknown as MockElement).content
+  ).to.equal('goodbye');
+});
+
 LabelControllerSuite.run();

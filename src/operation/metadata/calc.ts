@@ -3,15 +3,16 @@ import { IOperationMetadata } from './types';
 
 function calc(): IOperationMetadata<ICalcOperationData> {
   return {
-    description: 'clears the given element',
+    description:
+      'Calculates the given left and right hand sides using the specified operator',
     properties: {
       left: {
-        type: 'ParameterType:integer',
+        type: 'ParameterType:number',
         description: 'The left operand',
         required: true,
       },
       right: {
-        type: 'ParameterType:integer',
+        type: 'ParameterType:number',
         description: 'The right operand',
         required: true,
       },
@@ -43,16 +44,10 @@ function calc(): IOperationMetadata<ICalcOperationData> {
             'Exponent: Raises a base number to the exponent power, that is, the base number multiplied by itself, exponent times.',
         },
       ],
-      propertyName: {
-        type: 'ParameterType:string',
-        defaultValue: 'calculationResult',
-      },
     },
-    /*outputProperties: {
-      propertyName: {
-        type: 'ParameterType:integer',
-      },
-    },*/
+    outputProperties: {
+      calculationResult: 'ParameterType:number',
+    },
   };
 }
 

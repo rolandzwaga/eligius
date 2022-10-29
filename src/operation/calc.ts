@@ -7,7 +7,7 @@ export interface ICalcOperationData {
   left: string | number;
   right: string | number;
   operator: TCalculationOperator;
-  propertyName?: string;
+  calculationResult?: number;
 }
 
 const calcFunctions: Record<
@@ -32,14 +32,9 @@ export const calc: TOperation<ICalcOperationData> = function (
 ) {
   operationData = resolvePropertyValues(operationData, operationData);
 
-  const {
-    left,
-    right,
-    operator,
-    propertyName = 'calculationResult',
-  } = operationData;
+  const { left, right, operator } = operationData;
 
-  (operationData as any)[propertyName] = calcFunctions[operator](+left, +right);
+  operationData.calculationResult = calcFunctions[operator](+left, +right);
 
   return operationData;
 };

@@ -13,7 +13,7 @@ function animate(): IOperationMetadata<IAnimateOperationData> {
         required: true,
       },
       animationDuration: {
-        type: 'ParameterType:integer',
+        type: 'ParameterType:number',
         required: true,
       },
     },

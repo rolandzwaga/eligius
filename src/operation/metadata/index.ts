@@ -15,6 +15,8 @@ export { default as getControllerFromElement } from './get-controller-from-eleme
 export { default as getControllerInstance } from './get-controller-instance';
 export { default as getElementDimensions } from './get-element-dimensions';
 export { default as getImport } from './get-import';
+export { default as getQueryParams } from './get-query-params';
+export { default as invokeObjectMethod } from './invoke-object-method';
 export { default as loadJSON } from './load-json';
 export { default as log } from './log';
 export { default as math } from './math';
@@ -35,3 +37,4 @@ export { default as startLoop } from './start-loop';
 export { default as toggleClass } from './toggle-class';
 export { default as toggleElement } from './toggle-element';
 export { default as wait } from './wait';
+

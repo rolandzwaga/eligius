@@ -35,10 +35,6 @@
           "$id": "#/properties/operationData/selector",
           "type": "string"
         },
-        "propertyName": {
-          "$id": "#/properties/operationData/propertyName",
-          "type": "string"
-        },
         "useSelectedElementAsRoot": {
           "$id": "#/properties/operationData/useSelectedElementAsRoot",
           "type": "boolean"

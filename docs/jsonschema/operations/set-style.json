@@ -35,9 +35,9 @@
           "$id": "#/properties/operationData/properties",
           "type": "object"
         },
-        "propertyName": {
-          "$id": "#/properties/operationData/propertyName",
-          "type": "string"
+        "selectedElement": {
+          "$id": "#/properties/operationData/selectedElement",
+          "type": "object"
         }
       }
     }

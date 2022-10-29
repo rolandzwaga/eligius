@@ -9,11 +9,10 @@ function selectElement(): IOperationMetadata<ISelectElementOperationData> {
         type: 'ParameterType:selector',
         required: true,
       },
-      propertyName: 'ParameterType:string',
       useSelectedElementAsRoot: 'ParameterType:boolean',
     },
     outputProperties: {
-      selectedElement: 'ParameterType:object',
+      selectedElement: 'ParameterType:jQuery',
     },
   };
 }
