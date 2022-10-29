@@ -16,11 +16,10 @@ StartLoopSuite(
     };
     const operationData = {
       collection: [1, 2, 3, 4],
-      propertyName: 'test',
     };
 
     // test
-    const result = applyOperation<{ test: number }>(
+    const result = applyOperation<{ currentItem: number }>(
       startLoop,
       operationData,
       context
@@ -30,7 +29,7 @@ StartLoopSuite(
     expect(context.loopIndex).to.equal(0);
     expect(context.loopLength).to.equal(3);
     expect(context.startIndex).to.equal(10);
-    expect(result.test).to.equal(1);
+    expect(result.currentItem).to.equal(1);
   }
 );
 
@@ -44,11 +43,10 @@ StartLoopSuite(
     };
     const operationData = {
       collection: [],
-      propertyName: 'test',
     };
 
     // test
-    const result = applyOperation<{ test: number }>(
+    const result = applyOperation<{ currentItem: number }>(
       startLoop,
       operationData,
       context
@@ -59,7 +57,7 @@ StartLoopSuite(
     expect(context.loopLength).to.be.undefined;
     expect(context.startIndex).to.be.undefined;
     expect(context.skipNextOperation).to.be.true;
-    expect(result.test).to.be.undefined;
+    expect(result.currentItem).to.be.undefined;
   }
 );
 
@@ -73,11 +71,10 @@ StartLoopSuite(
     };
     const operationData = {
       collection: null,
-      propertyName: 'test',
     };
 
     // test
-    const result = applyOperation<{ test: number }>(
+    const result = applyOperation<{ currentItem: number }>(
       startLoop,
       operationData,
       context
@@ -88,7 +85,7 @@ StartLoopSuite(
     expect(context.loopLength).to.be.undefined;
     expect(context.startIndex).to.be.undefined;
     expect(context.skipNextOperation).to.be.true;
-    expect(result.test).to.be.undefined;
+    expect(result.currentItem).to.be.undefined;
   }
 );
 

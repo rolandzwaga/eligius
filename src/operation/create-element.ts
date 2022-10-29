@@ -8,7 +8,6 @@ export interface ICreateElementOperationData<T extends TTagNames> {
   elementName: T;
   text?: string;
   attributes?: Partial<HTMLElementTagNameMap[T]>;
-  propertyName?: string;
   template?: JQuery;
 }
 
@@ -25,12 +24,7 @@ export const createElement: TOperation<ICreateElementOperationData<any>> =
     operationData: ICreateElementOperationData<T>
   ) {
     operationData = resolvePropertyValues(operationData, operationData);
-    const {
-      elementName,
-      attributes,
-      text,
-      propertyName = 'template',
-    } = operationData;
+    const { elementName, attributes, text } = operationData;
 
     const serializedAttrs = attributes
       ? ' ' +
@@ -43,8 +37,7 @@ export const createElement: TOperation<ICreateElementOperationData<any>> =
       ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
       : $(`<${elementName}${serializedAttrs}/>`);
 
-    (operationData as any)[propertyName] = template;
+    operationData.template = template;
 
-    delete operationData.propertyName;
     return operationData;
   };

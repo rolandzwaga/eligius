@@ -11,10 +11,6 @@ function getControllerInstance(): IOperationMetadata<
         type: 'ParameterType:controllerName',
         required: true,
       },
-      propertyName: {
-        type: 'ParameterType:string',
-        defaultValue: 'controllerInstance',
-      },
     },
     outputProperties: {
       controllerInstance: 'ParameterType:object',

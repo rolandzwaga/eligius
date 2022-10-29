@@ -225,10 +225,11 @@ function metadataType2SchemaType(value: TParameterTypes) {
     case 'ParameterType:ImagePath':
     case 'ParameterType:dimensionsModifier':
       return 'string';
-    case 'ParameterType:integer':
+    case 'ParameterType:number':
       return 'number';
     case 'ParameterType:object':
     case 'ParameterType:dimensions':
+    case 'ParameterType:jQuery':
       return 'object';
     case 'ParameterType:boolean':
       return 'boolean';

@@ -22,8 +22,7 @@
     "selector": {
       "$id": "#/properties/selector",
       "type": "string",
-      "title": "The Selector Schema",
-      "examples": ["jwplayer"]
+      "title": "The Selector Schema"
     },
     "systemName": {
       "$id": "#/properties/systemName",

@@ -2,8 +2,8 @@ import { TOperation } from './types';
 
 export interface IGetQueryParamsOperationData {
   /**
-   * The query params will be add as property/values to this object.
-   * So, the query string ?foo=bar&bar=foo will result in:
+   * The query params will be added as property/values to this object.
+   * So, the query string `?foo=bar&bar=foo` will result in:
    * ```json
    * {
    *    foo: "bar",

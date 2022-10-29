@@ -15,6 +15,7 @@ export { getControllerFromElement } from './get-controller-from-element';
 export { getControllerInstance } from './get-controller-instance';
 export { getElementDimensions } from './get-element-dimensions';
 export { getImport } from './get-import';
+export { getQueryParams } from './get-query-params';
 export { loadJSON } from './load-json';
 export { log } from './log';
 export { math } from './math';
@@ -36,4 +37,3 @@ export { toggleClass } from './toggle-class';
 export { toggleElement } from './toggle-element';
 export * from './types';
 export { wait } from './wait';
-

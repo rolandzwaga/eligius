@@ -9,10 +9,7 @@ function startLoop(): IOperationMetadata<TStartLoopOperationData> {
         type: 'ParameterType:array',
         required: true,
       },
-      propertyName: {
-        type: 'ParameterType:string',
-        defaultValue: 'currentItem',
-      },
+      currentItem: 'ParameterType:object',
     },
   };
 }

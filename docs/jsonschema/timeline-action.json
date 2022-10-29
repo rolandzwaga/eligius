@@ -3,7 +3,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
   "type": "object",
-  "title": "The Endable Action Schema",
+  "title": "The Timeline Action Schema",
   "required": [
     "name",
     "startOperations",
@@ -89,6 +89,9 @@
           },
           {
             "$ref": "/operations/get-import.json"
+          },
+          {
+            "$ref": "/operations/get-query-params.json"
           },
           {
             "$ref": "/operations/load-json.json"
@@ -209,6 +212,9 @@
           },
           {
             "$ref": "/operations/get-import.json"
+          },
+          {
+            "$ref": "/operations/get-query-params.json"
           },
           {
             "$ref": "/operations/load-json.json"

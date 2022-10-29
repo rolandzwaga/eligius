@@ -4,7 +4,7 @@ import { TOperation } from './types';
 export interface IMathOperationData {
   args: (number | string | keyof Math)[];
   functionName: keyof Math;
-  propertyName?: string;
+  mathResult?: number;
 }
 
 /**
@@ -18,12 +18,9 @@ export const math: TOperation<IMathOperationData> = function (
   operationData = resolvePropertyValues(operationData, operationData);
   operationData.args = resolveMathConstants(operationData.args);
 
-  const { args, functionName, propertyName = 'mathResult' } = operationData;
+  const { args, functionName } = operationData;
 
-  (operationData as any)[propertyName] = (Math[functionName] as Function).apply(
-    null,
-    args
-  );
+  operationData.mathResult = (Math[functionName] as Function).apply(null, args);
 
   return operationData;
 };

@@ -25,7 +25,6 @@ RemovePropertiesFromOperationDataSuite(
     );
 
     // expect
-    expect(newData).to.equal(operationData);
     expect(newData.hasOwnProperty('testProp1')).to.be.false;
     expect(newData.hasOwnProperty('testProp2')).to.be.false;
     expect(newData.hasOwnProperty('propertyNames')).to.be.false;

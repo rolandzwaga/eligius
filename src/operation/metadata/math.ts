@@ -11,10 +11,7 @@ function math(): IOperationMetadata<IMathOperationData> {
         required: true,
       },
       functionName: createMathFunctionNames(),
-      propertyName: {
-        type: 'ParameterType:string',
-        defaultValue: 'mathResult',
-      },
+      mathResult: 'ParameterType:number',
     },
   };
 }

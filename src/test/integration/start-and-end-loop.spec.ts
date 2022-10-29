@@ -24,7 +24,6 @@ StartEndLoop('should loop the given operation 10 times', async (context) => {
     systemName: 'systemNam1',
     operationData: {
       collection: testCollection,
-      propertyName: 'value',
     },
     instance: startLoop,
   };
@@ -36,7 +35,7 @@ StartEndLoop('should loop the given operation 10 times', async (context) => {
       if (!op.newCollection) {
         op.newCollection = [];
       }
-      op.newCollection.push(op.value);
+      op.newCollection.push(op.currentItem);
       return op;
     },
   };
@@ -70,7 +69,6 @@ StartEndLoop(
       systemName: 'systemNam1',
       operationData: {
         collection: testCollection,
-        propertyName: 'value',
       },
       instance: startLoop,
     };
@@ -82,7 +80,7 @@ StartEndLoop(
         if (!op.newCollection) {
           op.newCollection = [];
         }
-        op.newCollection.push(op.value);
+        op.newCollection.push(op.currentItem);
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(op);
@@ -121,7 +119,6 @@ StartEndLoop(
       systemName: 'systemName1',
       operationData: {
         collection: testCollection,
-        propertyName: 'value',
       },
       instance: startLoop,
     };
@@ -133,7 +130,7 @@ StartEndLoop(
         if (!op.newCollection) {
           op.newCollection = [];
         }
-        op.newCollection.push(op.value);
+        op.newCollection.push(op.currentItem);
         return op;
       },
     };
@@ -171,7 +168,6 @@ StartEndLoop('should skip the loop for a null collection', async (context) => {
     systemName: 'systemNam1',
     operationData: {
       collection: testCollection,
-      propertyName: 'value',
     } as unknown as TStartLoopOperationData,
     instance: startLoop,
   };
@@ -183,7 +179,7 @@ StartEndLoop('should skip the loop for a null collection', async (context) => {
       if (!op.newCollection) {
         op.newCollection = [];
       }
-      op.newCollection.push(op.value);
+      op.newCollection.push(op.currentItem);
       return op;
     },
   };

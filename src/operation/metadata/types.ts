@@ -44,7 +44,7 @@ export type TParameterTypes =
   | 'ParameterType:className'
   | 'ParameterType:selector'
   | 'ParameterType:string'
-  | 'ParameterType:integer'
+  | 'ParameterType:number'
   | 'ParameterType:object'
   | 'ParameterType:boolean'
   | 'ParameterType:array'
@@ -59,4 +59,5 @@ export type TParameterTypes =
   | 'ParameterType:htmlContent'
   | 'ParameterType:labelId'
   | 'ParameterType:ImagePath'
-  | 'ParameterType:QuadrantPosition';
+  | 'ParameterType:QuadrantPosition'
+  | 'ParameterType:jQuery';

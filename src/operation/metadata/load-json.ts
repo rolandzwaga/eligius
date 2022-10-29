@@ -10,10 +10,6 @@ function loadJSON(): IOperationMetadata<ILoadJSONOperationData> {
         required: true,
       },
       cache: 'ParameterType:boolean',
-      propertyName: {
-        type: 'ParameterType:string',
-        defaultValue: 'json',
-      },
     },
     outputProperties: {
       json: 'ParameterType:object',

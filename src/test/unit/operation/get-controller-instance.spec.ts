@@ -46,26 +46,4 @@ GetControllerInstanceSuite(
   }
 );
 
-GetControllerInstanceSuite(
-  'should get the controller instance for the given systemName and assign it to the given property name',
-  () => {
-    // given
-    const operationData: IGetControllerInstanceOperationData = {
-      systemName: 'LabelController',
-      propertyName: 'testProperty',
-    };
-    const controller = {} as IController<any>;
-    const eventbus = new MockEventbus(controller);
-
-    // test
-    const newData = applyOperation<{ testProperty: IController<any> }>(
-      getControllerInstance,
-      operationData,
-      { currentIndex: -1, eventbus: eventbus as unknown as IEventbus }
-    );
-
-    // expect
-    expect(eventbus.eventName).to.equal('LabelController');
-    expect(newData.testProperty).to.equal(controller);
-  }
-);
+GetControllerInstanceSuite.run();

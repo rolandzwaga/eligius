@@ -87,6 +87,9 @@
             "$ref": "/operations/get-import.json"
           },
           {
+            "$ref": "/operations/get-query-params.json"
+          },
+          {
             "$ref": "/operations/load-json.json"
           },
           {
@@ -205,6 +208,9 @@
           },
           {
             "$ref": "/operations/get-import.json"
+          },
+          {
+            "$ref": "/operations/get-query-params.json"
           },
           {
             "$ref": "/operations/load-json.json"
