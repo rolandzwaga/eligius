@@ -28,8 +28,6 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
     simpleClass: new (SimpleClass as any)(),
   };
 
-  console.log('simpleClass', object.simpleClass.constructor.toString());
-
   // test
   const result = prepareValueForSerialization(object);
 
