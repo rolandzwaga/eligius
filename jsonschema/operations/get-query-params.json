@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/get-query-params-operation.json",
   "type": "object",
   "title": "The getQueryParams schema",
   "description": "Retrieves the current query parameters from the browser's address bar",

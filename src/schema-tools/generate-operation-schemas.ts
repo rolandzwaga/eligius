@@ -64,7 +64,7 @@ function getTemplate() {
   return {
     definitions: {},
     $schema: 'http://json-schema.org/draft-07/schema#',
-    $id: 'http://eligius.com/schema/operation.json',
+    $id: 'http://eligius.com/schema/{name}-operation.json',
     type: 'object',
     title: '',
     description: '',
@@ -102,6 +102,10 @@ function generateOperationSchema([name, getMetadata]: [
   schemaTemplate.title = `The ${name} schema`;
   schemaTemplate.properties.systemName.const = name;
   schemaTemplate.description = metadata.description;
+  schemaTemplate.$id = schemaTemplate.$id.replace(
+    '{name}',
+    camelCaseToDash(name)
+  );
 
   if (metadata.properties) {
     schemaTemplate.properties.operationData.properties = Object.entries(

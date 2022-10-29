@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/remove-element-operation.json",
   "type": "object",
   "title": "The removeElement schema",
   "description": "Removes the selected element from the DOM",

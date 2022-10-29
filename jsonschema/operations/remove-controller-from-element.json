@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/remove-controller-from-element-operation.json",
   "type": "object",
   "title": "The removeControllerFromElement schema",
   "description": "Removes the specified controller from the selected element",

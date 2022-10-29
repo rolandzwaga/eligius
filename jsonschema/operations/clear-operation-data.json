@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/clear-operation-data-operation.json",
   "type": "object",
   "title": "The clearOperationData schema",
   "description": "clears the current operation data",

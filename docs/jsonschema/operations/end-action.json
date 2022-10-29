@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/end-action-operation.json",
   "type": "object",
   "title": "The endAction schema",
   "description": "Ends the current action",

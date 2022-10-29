@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/set-style-operation.json",
   "type": "object",
   "title": "The setStyle schema",
   "description": "Sets the given style properties on the selected element",

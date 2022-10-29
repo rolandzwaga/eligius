@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/remove-properties-from-operation-data-operation.json",
   "type": "object",
   "title": "The removePropertiesFromOperationData schema",
   "description": "Removes the specified properties from the current operation data",

@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/invoke-object-method-operation.json",
   "type": "object",
   "title": "The invokeObjectMethod schema",
   "description": "Invokes the specified method on the given object with the optional specified arguments",

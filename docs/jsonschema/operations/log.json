@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/log-operation.json",
   "type": "object",
   "title": "The log schema",
   "description": "Logs the current context and operation data to the console",

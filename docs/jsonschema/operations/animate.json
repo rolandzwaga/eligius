@@ -1,7 +1,7 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/operation.json",
+  "$id": "http://eligius.com/schema/animate-operation.json",
   "type": "object",
   "title": "The animate schema",
   "description": "Animates the selected element with the given animation settings.",
