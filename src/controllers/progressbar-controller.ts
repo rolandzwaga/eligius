@@ -15,6 +15,7 @@ export class ProgressbarController
   selectedElement: JQuery | null = null;
   textElement: JQuery | null = null;
   detachers: TEventbusRemover[] = [];
+  duration: number = 0;
 
   init(operationData: TOperationData) {
     this.selectedElement = operationData.selectedElement;
@@ -28,10 +29,13 @@ export class ProgressbarController
         this.positionUpdateHandler.bind(this)
       )
     );
+    eventbus.broadcast(TimelineEventNames.DURATION_REQUEST, [
+      (duration: number) => (this.duration = duration),
+    ]);
 
-    const clickHandler = this.clickHandler.bind(this);
+    const clickHandler = this.clickHandler.bind(this, eventbus);
     this.selectedElement?.on('click', clickHandler);
-    this.detachers.push(() => this.selectedElement?.off('click'), clickHandler);
+    this.detachers.push(() => this.selectedElement?.off('click', clickHandler));
   }
 
   detach(_eventbus: IEventbus) {
@@ -52,5 +56,13 @@ export class ProgressbarController
     this.textElement?.text(`${Math.floor(percentage)}%`);
   }
 
-  clickHandler() {}
+  clickHandler(eventbus: IEventbus, event: any) {
+    const element = event.target as HTMLElement;
+    const rect = element.getBoundingClientRect();
+    const x = event.clientX - rect.left; //x position within the element.
+    const percentage = (100 / rect.width) * x;
+    eventbus.broadcast(TimelineEventNames.SEEK_REQUEST, [
+      Math.floor((this.duration / 100) * percentage),
+    ]);
+  }
 }
