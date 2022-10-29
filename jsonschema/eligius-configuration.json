@@ -90,7 +90,7 @@
       }
     },
     "actions": {
-      "$id": "#/properties/initActions",
+      "$id": "#/properties/actions",
       "type": "array",
       "title": "The Initactions Schema",
       "items": {
@@ -98,7 +98,7 @@
       }
     },
     "eventActions": {
-      "$id": "#/properties/initActions",
+      "$id": "#/properties/eventActions",
       "type": "array",
       "title": "The Initactions Schema",
       "items": {

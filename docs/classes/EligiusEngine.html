@@ -16,9 +16,8 @@
 <li><a href="EligiusEngine.html">EligiusEngine</a></li></ul>
 <h1>Class EligiusEngine</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>EligiusEngine, this is where the magic happens. The engine is responsible for starting and stopping
-the given timeline provider and triggering the actions associated with it.
-...</p>
+<div class="tsd-comment tsd-typography"><p>This is where the magic happens. The engine is responsible for starting and stopping
+the given timeline provider and triggering the actions associated with the positions along the timeline.</p>
 </div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
@@ -29,7 +28,7 @@ the given timeline provider and triggering the actions associated with it.
 <ul class="tsd-hierarchy">
 <li><a href="../interfaces/IEligiusEngine.html" class="tsd-signature-type" data-tsd-kind="Interface">IEligiusEngine</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L21">eligius-engine.ts:21</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L20">eligius-engine.ts:20</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -44,11 +43,11 @@ the given timeline provider and triggering the actions associated with it.
 <div class="tsd-index-list"><a href="EligiusEngine.html#_activeTimelineProvider" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12" id="icon-1024-path"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)" id="icon-1024-text"></path></svg><span>_active<wbr/>Timeline<wbr/>Provider</span></a>
 <a href="EligiusEngine.html#_currentTimelineUri" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_current<wbr/>Timeline<wbr/>Uri</span></a>
 <a href="EligiusEngine.html#_eventbusRemovers" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_eventbus<wbr/>Removers</span></a>
-<a href="EligiusEngine.html#_languageManager" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_language<wbr/>Manager</span></a>
 <a href="EligiusEngine.html#_lastPosition" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_last<wbr/>Position</span></a>
 <a href="EligiusEngine.html#_timeLineActionsLookup" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_time<wbr/>Line<wbr/>Actions<wbr/>Lookup</span></a>
 <a href="EligiusEngine.html#configuration" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>configuration</span></a>
 <a href="EligiusEngine.html#eventbus" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>eventbus</span></a>
+<a href="EligiusEngine.html#languageManager" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>language<wbr/>Manager</span></a>
 <a href="EligiusEngine.html#timelineProviders" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>timeline<wbr/>Providers</span></a>
 </div></section>
 <section class="tsd-index-section">
@@ -72,7 +71,7 @@ the given timeline provider and triggering the actions associated with it.
 <a href="EligiusEngine.html#_handleExecuteTimelineAction" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_handle<wbr/>Execute<wbr/>Timeline<wbr/>Action</span></a>
 <a href="EligiusEngine.html#_handleRequestEngineRoot" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_handle<wbr/>Request<wbr/>Engine<wbr/>Root</span></a>
 <a href="EligiusEngine.html#_handleRequestTimelinePosition" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_handle<wbr/>Request<wbr/>Timeline<wbr/>Position</span></a>
-<a href="EligiusEngine.html#_handleRequestTimelineUri" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri</span></a>
+<a href="EligiusEngine.html#_handleRequestTimelineUri" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri</span></a>
 <a href="EligiusEngine.html#_handleTimelineComplete" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_handle<wbr/>Timeline<wbr/>Complete</span></a>
 <a href="EligiusEngine.html#_initializeTimelinePosition" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_initialize<wbr/>Timeline<wbr/>Position</span></a>
 <a href="EligiusEngine.html#_initializeTimelineProvider" class="tsd-index-link tsd-kind-method tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>_initialize<wbr/>Timeline<wbr/>Provider</span></a>
@@ -89,7 +88,7 @@ the given timeline provider and triggering the actions associated with it.
 <section class="tsd-panel tsd-member tsd-kind-constructor tsd-parent-kind-class"><a id="constructor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>constructor</span><a href="#constructor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-constructor tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="constructor.new_EligiusEngine">new <wbr/>Eligius<wbr/>Engine<span class="tsd-signature-symbol">(</span>configuration<span class="tsd-signature-symbol">: </span><a href="../interfaces/IResolvedEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IResolvedEngineConfiguration</a>, eventbus<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEventbus.html" class="tsd-signature-type" data-tsd-kind="Interface">IEventbus</a>, timelineProviders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/TimelineTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">TimelineTypes</a><span class="tsd-signature-symbol">, </span><a href="../interfaces/ITimelineProviderInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProviderInfo</a><span class="tsd-signature-symbol">&gt;</span>, _languageManager<span class="tsd-signature-symbol">: </span><a href="LanguageManager.html" class="tsd-signature-type" data-tsd-kind="Class">LanguageManager</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="EligiusEngine.html" class="tsd-signature-type" data-tsd-kind="Class">EligiusEngine</a><a href="#constructor.new_EligiusEngine" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="constructor.new_EligiusEngine">new <wbr/>Eligius<wbr/>Engine<span class="tsd-signature-symbol">(</span>configuration<span class="tsd-signature-symbol">: </span><a href="../interfaces/IResolvedEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IResolvedEngineConfiguration</a>, eventbus<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEventbus.html" class="tsd-signature-type" data-tsd-kind="Interface">IEventbus</a>, timelineProviders<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/TimelineTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">TimelineTypes</a><span class="tsd-signature-symbol">, </span><a href="../interfaces/ITimelineProviderInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProviderInfo</a><span class="tsd-signature-symbol">&gt;</span>, languageManager<span class="tsd-signature-symbol">: </span><a href="LanguageManager.html" class="tsd-signature-type" data-tsd-kind="Class">LanguageManager</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="EligiusEngine.html" class="tsd-signature-type" data-tsd-kind="Class">EligiusEngine</a><a href="#constructor.new_EligiusEngine" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -101,57 +100,57 @@ the given timeline provider and triggering the actions associated with it.
 <li>
 <h5>timelineProviders: <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/TimelineTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">TimelineTypes</a><span class="tsd-signature-symbol">, </span><a href="../interfaces/ITimelineProviderInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProviderInfo</a><span class="tsd-signature-symbol">&gt;</span></h5></li>
 <li>
-<h5>_languageManager: <a href="LanguageManager.html" class="tsd-signature-type" data-tsd-kind="Class">LanguageManager</a></h5></li></ul></div>
+<h5>languageManager: <a href="LanguageManager.html" class="tsd-signature-type" data-tsd-kind="Class">LanguageManager</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="EligiusEngine.html" class="tsd-signature-type" data-tsd-kind="Class">EligiusEngine</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L28">eligius-engine.ts:28</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L27">eligius-engine.ts:27</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_activeTimelineProvider" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_active<wbr/>Timeline<wbr/>Provider</span><a href="#_activeTimelineProvider" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_active<wbr/>Timeline<wbr/>Provider<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/ITimelineProvider.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProvider</a><span class="tsd-signature-symbol"> = undefined</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L25">eligius-engine.ts:25</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L24">eligius-engine.ts:24</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_currentTimelineUri" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_current<wbr/>Timeline<wbr/>Uri</span><a href="#_currentTimelineUri" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_current<wbr/>Timeline<wbr/>Uri<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &#39;&#39;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L24">eligius-engine.ts:24</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L23">eligius-engine.ts:23</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_eventbusRemovers" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_eventbus<wbr/>Removers</span><a href="#_eventbusRemovers" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_eventbus<wbr/>Removers<span class="tsd-signature-symbol">:</span> <a href="../types/TEventbusRemover.html" class="tsd-signature-type" data-tsd-kind="Type alias">TEventbusRemover</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L23">eligius-engine.ts:23</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_languageManager" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_language<wbr/>Manager</span><a href="#_languageManager" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<div class="tsd-signature">_language<wbr/>Manager<span class="tsd-signature-symbol">:</span> <a href="LanguageManager.html" class="tsd-signature-type" data-tsd-kind="Class">LanguageManager</a></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L32">eligius-engine.ts:32</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L22">eligius-engine.ts:22</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_lastPosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_last<wbr/>Position</span><a href="#_lastPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_last<wbr/>Position<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = -1</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L26">eligius-engine.ts:26</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L25">eligius-engine.ts:25</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_timeLineActionsLookup" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_time<wbr/>Line<wbr/>Actions<wbr/>Lookup</span><a href="#_timeLineActionsLookup" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_time<wbr/>Line<wbr/>Actions<wbr/>Lookup<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = {}</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L22">eligius-engine.ts:22</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L21">eligius-engine.ts:21</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="configuration" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>configuration</span><a href="#configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">configuration<span class="tsd-signature-symbol">:</span> <a href="../interfaces/IResolvedEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IResolvedEngineConfiguration</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L29">eligius-engine.ts:29</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L28">eligius-engine.ts:28</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="eventbus" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>eventbus</span><a href="#eventbus" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">eventbus<span class="tsd-signature-symbol">:</span> <a href="../interfaces/IEventbus.html" class="tsd-signature-type" data-tsd-kind="Interface">IEventbus</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L30">eligius-engine.ts:30</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L29">eligius-engine.ts:29</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="languageManager" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>language<wbr/>Manager</span><a href="#languageManager" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">language<wbr/>Manager<span class="tsd-signature-symbol">:</span> <a href="LanguageManager.html" class="tsd-signature-type" data-tsd-kind="Class">LanguageManager</a></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L31">eligius-engine.ts:31</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="timelineProviders" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>timeline<wbr/>Providers</span><a href="#timelineProviders" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">timeline<wbr/>Providers<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><a href="../types/TimelineTypes.html" class="tsd-signature-type" data-tsd-kind="Type alias">TimelineTypes</a><span class="tsd-signature-symbol">, </span><a href="../interfaces/ITimelineProviderInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProviderInfo</a><span class="tsd-signature-symbol">&gt;</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L31">eligius-engine.ts:31</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L30">eligius-engine.ts:30</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_addEventListener" class="tsd-anchor"></a>
@@ -170,7 +169,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> eventTopic: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L116">eligius-engine.ts:116</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L129">eligius-engine.ts:129</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_addInitialisationListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_add<wbr/>Initialisation<wbr/>Listeners</span><a href="#_addInitialisationListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -178,7 +177,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L126">eligius-engine.ts:126</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L139">eligius-engine.ts:139</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_addTimelineAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_add<wbr/>Timeline<wbr/>Action</span><a href="#_addTimelineAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -193,7 +192,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>timeLineAction: <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L179">eligius-engine.ts:179</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L192">eligius-engine.ts:192</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_cleanUp" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_clean<wbr/>Up</span><a href="#_cleanUp" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -201,7 +200,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L94">eligius-engine.ts:94</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L97">eligius-engine.ts:97</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_cleanUpTimeline" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_clean<wbr/>Up<wbr/>Timeline</span><a href="#_cleanUpTimeline" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -209,7 +208,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L323">eligius-engine.ts:323</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L336">eligius-engine.ts:336</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_createLayoutTemplate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_create<wbr/>Layout<wbr/>Template</span><a href="#_createLayoutTemplate" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -217,7 +216,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L49">eligius-engine.ts:49</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L52">eligius-engine.ts:52</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_createTimelineLookup" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_create<wbr/>Timeline<wbr/>Lookup</span><a href="#_createTimelineLookup" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -225,7 +224,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L168">eligius-engine.ts:168</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L181">eligius-engine.ts:181</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_executeActions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_execute<wbr/>Actions</span><a href="#_executeActions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -242,7 +241,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>idx: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L236">eligius-engine.ts:236</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L249">eligius-engine.ts:249</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_executeActionsForPosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_execute<wbr/>Actions<wbr/>For<wbr/>Position</span><a href="#_executeActionsForPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -255,7 +254,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>position: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L446">eligius-engine.ts:446</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L459">eligius-engine.ts:459</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_executeRelevantActions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_execute<wbr/>Relevant<wbr/>Actions</span><a href="#_executeRelevantActions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -281,7 +280,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>executionType: <span class="tsd-signature-type">&quot;start&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;end&quot;</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L360">eligius-engine.ts:360</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L373">eligius-engine.ts:373</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_executeSeekActions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_execute<wbr/>Seek<wbr/>Actions</span><a href="#_executeSeekActions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -294,7 +293,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>pos: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L458">eligius-engine.ts:458</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L471">eligius-engine.ts:471</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_executeStartActions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_execute<wbr/>Start<wbr/>Actions</span><a href="#_executeStartActions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -302,7 +301,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L327">eligius-engine.ts:327</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L340">eligius-engine.ts:340</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_getActionsForPosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_get<wbr/>Actions<wbr/>For<wbr/>Position</span><a href="#_getActionsForPosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -317,7 +316,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>allActions: <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L334">eligius-engine.ts:334</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L347">eligius-engine.ts:347</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_getActiveActions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_get<wbr/>Active<wbr/>Actions</span><a href="#_getActiveActions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -330,7 +329,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>allActions: <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L347">eligius-engine.ts:347</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L360">eligius-engine.ts:360</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_getRelevantTimelineActions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_get<wbr/>Relevant<wbr/>Timeline<wbr/>Actions</span><a href="#_getRelevantTimelineActions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -338,7 +337,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L400">eligius-engine.ts:400</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L413">eligius-engine.ts:413</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_getTimelineActionsForUri" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_get<wbr/>Timeline<wbr/>Actions<wbr/>For<wbr/>Uri</span><a href="#_getTimelineActionsForUri" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -351,7 +350,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>uri: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ITimelineAction.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineAction</a><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L408">eligius-engine.ts:408</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L421">eligius-engine.ts:421</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_handleExecuteTimelineAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_handle<wbr/>Execute<wbr/>Timeline<wbr/>Action</span><a href="#_handleExecuteTimelineAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -368,7 +367,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>start: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L380">eligius-engine.ts:380</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L393">eligius-engine.ts:393</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_handleRequestEngineRoot" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_handle<wbr/>Request<wbr/>Engine<wbr/>Root</span><a href="#_handleRequestEngineRoot" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -383,7 +382,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>resultCallback: <a href="../types/TResultCallback.html" class="tsd-signature-type" data-tsd-kind="Type alias">TResultCallback</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L253">eligius-engine.ts:253</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L266">eligius-engine.ts:266</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_handleRequestTimelinePosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_handle<wbr/>Request<wbr/>Timeline<wbr/>Position</span><a href="#_handleRequestTimelinePosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -398,10 +397,10 @@ the given timeline provider and triggering the actions associated with it.
 <h5>resultCallback: <a href="../types/TResultCallback.html" class="tsd-signature-type" data-tsd-kind="Type alias">TResultCallback</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L369">eligius-engine.ts:369</a></li></ul></aside></li></ul></section>
-<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_handleRequestTimelineUri" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><span>_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri</span><a href="#_handleRequestTimelineUri" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
-<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L382">eligius-engine.ts:382</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_handleRequestTimelineUri" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri</span><a href="#_handleRequestTimelineUri" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
 <li class="tsd-signature tsd-anchor-link" id="_handleRequestTimelineUri._handleRequestTimelineUri-1">_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri<span class="tsd-signature-symbol">(</span>uri<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, position<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, previousVideoPosition<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#_handleRequestTimelineUri._handleRequestTimelineUri-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
@@ -415,7 +414,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> previousVideoPosition: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L260">eligius-engine.ts:260</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L273">eligius-engine.ts:273</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_handleTimelineComplete" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_handle<wbr/>Timeline<wbr/>Complete</span><a href="#_handleTimelineComplete" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -423,7 +422,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L376">eligius-engine.ts:376</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L389">eligius-engine.ts:389</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_initializeTimelinePosition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_initialize<wbr/>Timeline<wbr/>Position</span><a href="#_initializeTimelinePosition" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -438,7 +437,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>position: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../types/TOperation.html" class="tsd-signature-type" data-tsd-kind="Type alias">TOperation</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L225">eligius-engine.ts:225</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L238">eligius-engine.ts:238</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_initializeTimelineProvider" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_initialize<wbr/>Timeline<wbr/>Provider</span><a href="#_initializeTimelineProvider" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -446,7 +445,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ITimelineProvider.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProvider</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L66">eligius-engine.ts:66</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L69">eligius-engine.ts:69</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_initializeUriLookup" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_initialize<wbr/>Uri<wbr/>Lookup</span><a href="#_initializeUriLookup" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -461,7 +460,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>uri: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L214">eligius-engine.ts:214</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L227">eligius-engine.ts:227</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_onSeekHandler" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_on<wbr/>Seek<wbr/>Handler</span><a href="#_onSeekHandler" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -479,7 +478,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>offset<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5></li></ul></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L434">eligius-engine.ts:434</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L447">eligius-engine.ts:447</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_onTimeHandler" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_on<wbr/>Time<wbr/>Handler</span><a href="#_onTimeHandler" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -494,7 +493,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>event: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L415">eligius-engine.ts:415</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L428">eligius-engine.ts:428</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_requestCurrentTimeline" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_request<wbr/>Current<wbr/>Timeline</span><a href="#_requestCurrentTimeline" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -507,7 +506,7 @@ the given timeline provider and triggering the actions associated with it.
 <h5>resultCallback: <a href="../types/TResultCallback.html" class="tsd-signature-type" data-tsd-kind="Type alias">TResultCallback</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L404">eligius-engine.ts:404</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L417">eligius-engine.ts:417</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_resizeTimelineAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_resize<wbr/>Timeline<wbr/>Action</span><a href="#_resizeTimelineAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -515,25 +514,36 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L396">eligius-engine.ts:396</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L409">eligius-engine.ts:409</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="destroy" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="destroy.destroy-1">destroy<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span><a href="#destroy.destroy-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Cleans up all the necessary parts that the engine initialized.</p>
+<ul>
+<li>It ends the currently active operations and the init actions.</li>
+<li>It removes all its eventbus listeners, handlers and interceptors.</li>
+<li>It destroys all of its timeline providers</li>
+<li>It empties the HTML element indicated by the containerSelector configuration property.</li>
+</ul>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IEligiusEngine.html">IEligiusEngine</a>.<a href="../interfaces/IEligiusEngine.html#destroy">destroy</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L99">eligius-engine.ts:99</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L110">eligius-engine.ts:110</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="init" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>init</span><a href="#init" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
 <li class="tsd-signature tsd-anchor-link" id="init.init-1">init<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ITimelineProvider.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProvider</a><span class="tsd-signature-symbol">&gt;</span><a href="#init.init-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Initializes the engine by creating the HTML layout and the first time line
+by executing its initActions.</p>
+</div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/ITimelineProvider.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineProvider</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IEligiusEngine.html">IEligiusEngine</a>.<a href="../interfaces/IEligiusEngine.html#init">init</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5a23812/src/eligius-engine.ts#L35">eligius-engine.ts:35</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/07cf9a3/src/eligius-engine.ts#L38">eligius-engine.ts:38</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -564,11 +574,11 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_activeTimelineProvider" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_active<wbr/>Timeline<wbr/>Provider</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_currentTimelineUri" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_current<wbr/>Timeline<wbr/>Uri</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_eventbusRemovers" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_eventbus<wbr/>Removers</a></li>
-<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_languageManager" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_language<wbr/>Manager</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_lastPosition" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_last<wbr/>Position</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_timeLineActionsLookup" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_time<wbr/>Line<wbr/>Actions<wbr/>Lookup</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#configuration" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>configuration</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#eventbus" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>eventbus</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#languageManager" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>language<wbr/>Manager</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#timelineProviders" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>timeline<wbr/>Providers</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_addEventListener" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_add<wbr/>Event<wbr/>Listener</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_addInitialisationListeners" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_add<wbr/>Initialisation<wbr/>Listeners</a></li>
@@ -589,7 +599,7 @@ the given timeline provider and triggering the actions associated with it.
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_handleExecuteTimelineAction" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_handle<wbr/>Execute<wbr/>Timeline<wbr/>Action</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_handleRequestEngineRoot" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_handle<wbr/>Request<wbr/>Engine<wbr/>Root</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_handleRequestTimelinePosition" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_handle<wbr/>Request<wbr/>Timeline<wbr/>Position</a></li>
-<li class="tsd-kind-method tsd-parent-kind-class"><a href="EligiusEngine.html#_handleRequestTimelineUri" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_handleRequestTimelineUri" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_handle<wbr/>Request<wbr/>Timeline<wbr/>Uri</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_handleTimelineComplete" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_handle<wbr/>Timeline<wbr/>Complete</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_initializeTimelinePosition" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_initialize<wbr/>Timeline<wbr/>Position</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="EligiusEngine.html#_initializeTimelineProvider" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>_initialize<wbr/>Timeline<wbr/>Provider</a></li>

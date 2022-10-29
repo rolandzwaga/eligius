@@ -4,7 +4,7 @@ A Javascript engine that allows arbitrary functionality to be triggered accordin
 
 The engine can be the basis for video annotations, presentation software or interactive infographics, for example.
 
-Eligius is NOT a game or animation engine.
+Eligius is NOT a game or animation engine, instead, it is a Story Telling Engine.
 
 ## description
 
@@ -22,7 +22,7 @@ A more comprehensive example could be, for example, a rich subtitling system for
 
 ## configuration
 
-The Eligius engine is populated by a JSON configuration. Think of this JSON as its file format. This configuration contains all of the timelines, actions, operations and other data for the engine to run. A JSON schema for this configuration can be found [here](https://github.com/rolandzwaga/eligius/blob/dev/jsonschema/eligius-configuration.json).
+The Eligius engine is populated by a JSON configuration. Think of this JSON as its file format. This configuration contains all of the timelines, actions, operations and other data for the engine to run. A JSON schema for this configuration can be found [here](https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json).
 
 This section describes the different parts of this configuration.
 
