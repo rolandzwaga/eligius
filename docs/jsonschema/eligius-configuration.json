@@ -62,8 +62,8 @@
         "title": "The Items Schema",
         "required": ["code", "label"],
         "properties": {
-          "code": {
-            "$id": "#/properties/availableLanguages/items/properties/code",
+          "languageCode": {
+            "$id": "#/properties/availableLanguages/items/properties/languageCode",
             "type": "string",
             "title": "The Code Schema",
             "default": "",
