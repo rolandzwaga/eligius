@@ -6,8 +6,12 @@ export function prepareValueForSerialization(value: any): any {
   } else if (value instanceof jQuery) {
     return 'jQuery object';
   } else if (value !== null && typeof value === 'object') {
-    if (value.constructor.toString().substring(0, 5) === 'class') {
-      return 'Complex object';
+    if (
+      value.constructor.toString().substring(0, 5) === 'class' ||
+      !value.constructor.toString().startsWith('function Object()')
+    ) {
+      const funcString: string = value.constructor.toString();
+      return funcString.substring(0, funcString.indexOf('{') + 1);
     } 
     return Object.fromEntries(
       Object.entries(value).map(([propName, propValue]) => [

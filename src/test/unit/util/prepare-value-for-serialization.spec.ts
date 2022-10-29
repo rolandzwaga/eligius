@@ -6,8 +6,14 @@ import { prepareValueForSerialization } from '../../../util/prepare-value-for-se
 
 const PrepareValueForSerializationSuite = suite('prepareValueForSerialization');
 
+function SimpleClass(this: any) {
+  this.i = 0;
+  return this;
+}
+
 PrepareValueForSerializationSuite('should seriaize the given object', () => {
   // given
+
   const object = {
     a: 1,
     b: $('body'),
@@ -19,6 +25,7 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
     f: undefined,
     controllerInstance: new LabelController(),
     someObject: { prop: true },
+    simpleClass: new (SimpleClass as any)(),
   };
 
   // test
@@ -31,8 +38,9 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
   expect(result.d).to.eql([1, 'a', 'jQuery object', '(i) => i']);
   expect(result.e).to.be.null;
   expect(result.f).to.be.undefined;
-  expect(result.controllerInstance).to.equal('Complex object');
+  expect(result.controllerInstance).to.equal('class LabelController {');
   expect(result.someObject.prop).to.be.true;
+  expect(result.simpleClass).to.equal('function SimpleClass() {');
 });
 
 PrepareValueForSerializationSuite.run();
