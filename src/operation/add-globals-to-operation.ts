@@ -1,4 +1,4 @@
-import { getGlobals } from './helper/get-globals';
+import { getGlobals } from './helper/globals';
 import { TOperation } from './types';
 
 export interface IAddGlobalsToOperationData {
@@ -15,6 +15,7 @@ export interface IAddGlobalsToOperationData {
 export const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> =
   function (operationData: IAddGlobalsToOperationData) {
     const { globalProperties } = operationData;
+
     const globalValues = globalProperties.reduce(
       (prev: Record<string, any>, current: string) => {
         prev[current] = getGlobals(current);
@@ -23,5 +24,6 @@ export const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> =
       {}
     );
     delete (operationData as any).globalProperties;
+
     return Object.assign(operationData, globalValues);
   };
