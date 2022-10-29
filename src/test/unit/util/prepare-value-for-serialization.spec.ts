@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import { suite } from 'uvu';
+import { LabelController } from '../../../controllers';
 import { prepareValueForSerialization } from '../../../util/prepare-value-for-serialization';
 
 const PrepareValueForSerializationSuite = suite('prepareValueForSerialization');
@@ -16,6 +17,8 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
     d: [1, 'a', $('body'), (i: number) => i],
     e: null,
     f: undefined,
+    controllerInstance: new LabelController(),
+    someObject: { prop: true },
   };
 
   // test
@@ -28,6 +31,8 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
   expect(result.d).to.eql([1, 'a', 'jQuery object', '(i) => i']);
   expect(result.e).to.be.null;
   expect(result.f).to.be.undefined;
+  expect(result.controllerInstance).to.equal('Complex object');
+  expect(result.someObject.prop).to.be.true;
 });
 
 PrepareValueForSerializationSuite.run();

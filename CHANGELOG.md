@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.10
+- Don't serialize controllers in diagnostic messages.
+- Several fixes in json schema generator
+- Add click handler to Progressbar controller to support scrubbing
+
 ## 1.0.9
 - Add invokeObjectMethod operation
 - Add getQueryParams operation
