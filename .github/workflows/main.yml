@@ -1,5 +1,8 @@
 name: CI
-on: [push]
+on:
+  push:
+    tags-ignore:
+      - '**'
 jobs:
   build:
     name: Build, lint, and test on Node 16 and ubuntu-latest
