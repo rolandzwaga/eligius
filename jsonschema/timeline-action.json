@@ -22,8 +22,13 @@
     },
     "duration": {
       "$id": "#/properties/duration",
-      "type": "integer",
-      "title": "The duration Schema"
+      "type": "object",
+      "title": "The duration Schema",
+      "required": ["start"],
+      "properties": {
+        "start": { "type": "number" },
+        "end": { "type": "number" }
+      }
     },
     "name": {
       "$id": "#/properties/name",
