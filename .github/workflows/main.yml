@@ -13,8 +13,8 @@ jobs:
         with:
           key: ${{ runner.os }}-cairo-deps-
           path: |
-            ~/gtk.zip
-            ~/libjpeg.exe
+            gtk.zip
+            libjpeg.exe
 
       - name: Install Cairo dependencies
         if: steps.cache-cairo-deps.outputs.cache-hit != 'true'
