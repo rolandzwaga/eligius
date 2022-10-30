@@ -14,7 +14,6 @@ function _setGlobals(
   newValues: Record<string, any>
 ): void {
   Object.entries(newValues).forEach(([name, value]) => (cache[name] = value));
-  console.log('cache', cache);
 }
 
 function _clearGlobals(cache: Record<string, any>): void {
