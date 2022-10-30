@@ -27,7 +27,7 @@
     },
     "duration": {
       "$id": "#/properties/duration",
-      "type": "integer",
+      "type": "number",
       "title": "The duration schema"
     },
     "loop": {
