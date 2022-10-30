@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The getElementDimensions schema",
   "description": "Calculates the dimensions for the current element",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,7 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
       "properties": {
         "modifier": {
           "$id": "#/properties/operationData/modifier",

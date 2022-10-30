@@ -24,6 +24,7 @@ const templateOutputDirectory = path.join(
   'operation-templates'
 );
 emptyDirSync(outputDirectory);
+emptyDirSync(templateOutputDirectory);
 
 const operationSchemas = Object.entries(metadata).map(generateOperationSchema);
 operationSchemas.forEach(([name, schema]) => {
@@ -80,7 +81,16 @@ function saveOperations(filename: string, schemaPaths: any[]) {
 
 function templatize(operationSchema: any) {
   const templateSchema = JSON.parse(JSON.stringify(operationSchema));
-  delete templateSchema.required;
+
+  const index = templateSchema.required.indexOf('operationData');
+  if (index > -1) {
+    templateSchema.required.splice(index, 1);
+  }
+
+  if (templateSchema.properties?.operationData?.required) {
+    delete templateSchema.properties.operationData.required;
+  }
+
   return templateSchema;
 }
 

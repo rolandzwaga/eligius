@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The setElementContent schema",
   "description": "Sets the given HTML content in the selected element",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,7 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
       "properties": {
         "insertionType": {
           "type": "string",

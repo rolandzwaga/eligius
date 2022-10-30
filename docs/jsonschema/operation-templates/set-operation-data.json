@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The setOperationData schema",
   "description": "Sets the given properties on the current operation data",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "properties"
-      ],
       "properties": {
         "properties": {
           "$id": "#/properties/operationData/properties",

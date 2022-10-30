@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The endLoop schema",
   "description": "Ends the current loop",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",

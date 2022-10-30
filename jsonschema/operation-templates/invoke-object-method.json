@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The invokeObjectMethod schema",
   "description": "Invokes the specified method on the given object with the optional specified arguments",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,10 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "instance",
-        "methodName"
-      ],
       "properties": {
         "instance": {
           "$id": "#/properties/operationData/instance",

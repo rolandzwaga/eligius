@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The broadcastEvent schema",
   "description": "Broadcasts an eventbus event with the given type, topic and optional arguments",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "eventName"
-      ],
       "properties": {
         "eventArgs": {
           "$id": "#/properties/operationData/eventArgs",

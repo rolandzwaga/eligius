@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The reparentElement schema",
   "description": "Moves the selected element to the new location described by the given selector",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "newParentSelector"
-      ],
       "properties": {
         "newParentSelector": {
           "$id": "#/properties/operationData/newParentSelector",

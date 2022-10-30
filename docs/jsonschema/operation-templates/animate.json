@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The animate schema",
   "description": "Animates the selected element with the given animation settings.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,10 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "animationProperties",
-        "animationDuration"
-      ],
       "properties": {
         "animationEasing": {
           "$id": "#/properties/operationData/animationEasing",

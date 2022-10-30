@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The math schema",
   "description": "This operation performs the given math function of the specified arguments.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "args"
-      ],
       "properties": {
         "args": {
           "$id": "#/properties/operationData/args",

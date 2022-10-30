@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The removePropertiesFromOperationData schema",
   "description": "Removes the specified properties from the current operation data",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,7 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
       "properties": {
         "propertyNames": {
           "$id": "#/properties/operationData/propertyNames",

@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The clearElement schema",
   "description": "clears the given element",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",

@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The addControllerToElement schema",
   "description": "Adds the current controller to the selected element(s)",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",

@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The createElement schema",
   "description": "Creates an HTML element with the given name and optionally adds the given attributes",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "elementName"
-      ],
       "properties": {
         "elementName": {
           "type": "string",

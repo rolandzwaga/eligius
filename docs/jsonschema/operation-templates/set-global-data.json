@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The setGlobalData schema",
   "description": "Copies the specified values from the operationData to the global data",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "properties"
-      ],
       "properties": {
         "properties": {
           "$id": "#/properties/operationData/properties",

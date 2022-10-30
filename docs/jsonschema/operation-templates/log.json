@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The log schema",
   "description": "Logs the current context and operation data to the console",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",

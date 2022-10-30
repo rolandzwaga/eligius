@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The addClass schema",
   "description": "Add a class to the selected element.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "className"
-      ],
       "properties": {
         "className": {
           "$id": "#/properties/operationData/className",

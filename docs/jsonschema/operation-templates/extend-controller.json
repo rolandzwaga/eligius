@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The extendController schema",
   "description": "Extends the current controller",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,7 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
       "properties": {
         "controllerExtension": {
           "$id": "#/properties/operationData/controllerExtension",

@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The calc schema",
   "description": "Calculates the given left and right hand sides using the specified operator",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,10 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "left",
-        "right"
-      ],
       "properties": {
         "left": {
           "$id": "#/properties/operationData/left",

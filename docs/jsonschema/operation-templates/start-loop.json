@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The startLoop schema",
   "description": "Starts a loop over the given collection",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "collection"
-      ],
       "properties": {
         "collection": {
           "$id": "#/properties/operationData/collection",

@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The toggleElement schema",
   "description": "Toggles the selected element",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",

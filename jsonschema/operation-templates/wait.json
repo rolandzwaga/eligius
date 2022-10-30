@@ -5,6 +5,9 @@
   "type": "object",
   "title": "The wait schema",
   "description": "Waits the given amount of milliseconds before the action continues",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
@@ -23,9 +26,6 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "milliseconds"
-      ],
       "properties": {
         "milliseconds": {
           "$id": "#/properties/operationData/milliseconds",
