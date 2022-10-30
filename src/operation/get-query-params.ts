@@ -33,12 +33,12 @@ export const getQueryParams: TOperation<IGetQueryParamsOperationData> =
     const queryParams = Object.fromEntries(searchParams.entries());
 
     const { defaultValues = {} } = operationData;
+    delete (operationData as any).defaultValues;
 
     operationData.queryParams = {
       ...defaultValues,
       ...queryParams,
     };
 
-    operationData.queryParams = queryParams;
     return operationData;
   };
