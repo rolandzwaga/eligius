@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.0.13
+- Fix RAF timeline provider broadcast of position zero on the timeline
+- Make all operationData properties optional for 'actions' collection in JSON schema
+- Add caching of GTK and libjpg dependencies in github build and publish actions
+
 ## 1.0.12
 - Add setGlobalData operation with unit tests and metadata
 - property values can now also resolve to global data. I.e. the value 'globaldata.foo' will be resolved from the globals.
