@@ -94,7 +94,7 @@
       "type": "array",
       "title": "The Initactions Schema",
       "items": {
-        "$ref": "endable-action.json"
+        "$ref": "endable-action-template.json"
       }
     },
     "eventActions": {

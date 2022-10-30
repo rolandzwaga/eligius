@@ -1,0 +1,291 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
+  "type": "object",
+  "title": "The Endable Action Schema",
+  "required": [
+    "name",
+    "startOperations",
+    "endOperations"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The Name Schema",
+      "default": "",
+      "examples": [
+        "ProgressbarSetup"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "startOperations": {
+      "$id": "#/properties/startOperations",
+      "type": "array",
+      "title": "The Startoperations Schema",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "operation-templates/add-class.json"
+          },
+          {
+            "$ref": "operation-templates/add-controller-to-element.json"
+          },
+          {
+            "$ref": "operation-templates/animate.json"
+          },
+          {
+            "$ref": "operation-templates/animate-with-class.json"
+          },
+          {
+            "$ref": "operation-templates/broadcast-event.json"
+          },
+          {
+            "$ref": "operation-templates/calc.json"
+          },
+          {
+            "$ref": "operation-templates/clear-element.json"
+          },
+          {
+            "$ref": "operation-templates/clear-operation-data.json"
+          },
+          {
+            "$ref": "operation-templates/create-element.json"
+          },
+          {
+            "$ref": "operation-templates/custom-function.json"
+          },
+          {
+            "$ref": "operation-templates/end-action.json"
+          },
+          {
+            "$ref": "operation-templates/end-loop.json"
+          },
+          {
+            "$ref": "operation-templates/extend-controller.json"
+          },
+          {
+            "$ref": "operation-templates/get-controller-from-element.json"
+          },
+          {
+            "$ref": "operation-templates/get-controller-instance.json"
+          },
+          {
+            "$ref": "operation-templates/get-element-dimensions.json"
+          },
+          {
+            "$ref": "operation-templates/get-import.json"
+          },
+          {
+            "$ref": "operation-templates/get-query-params.json"
+          },
+          {
+            "$ref": "operation-templates/invoke-object-method.json"
+          },
+          {
+            "$ref": "operation-templates/load-json.json"
+          },
+          {
+            "$ref": "operation-templates/log.json"
+          },
+          {
+            "$ref": "operation-templates/math.json"
+          },
+          {
+            "$ref": "operation-templates/remove-class.json"
+          },
+          {
+            "$ref": "operation-templates/remove-controller-from-element.json"
+          },
+          {
+            "$ref": "operation-templates/remove-element.json"
+          },
+          {
+            "$ref": "operation-templates/remove-properties-from-operation-data.json"
+          },
+          {
+            "$ref": "operation-templates/reparent-element.json"
+          },
+          {
+            "$ref": "operation-templates/request-action.json"
+          },
+          {
+            "$ref": "operation-templates/resize-action.json"
+          },
+          {
+            "$ref": "operation-templates/select-element.json"
+          },
+          {
+            "$ref": "operation-templates/set-element-attributes.json"
+          },
+          {
+            "$ref": "operation-templates/set-element-content.json"
+          },
+          {
+            "$ref": "operation-templates/set-global-data.json"
+          },
+          {
+            "$ref": "operation-templates/set-operation-data.json"
+          },
+          {
+            "$ref": "operation-templates/set-style.json"
+          },
+          {
+            "$ref": "operation-templates/start-action.json"
+          },
+          {
+            "$ref": "operation-templates/start-loop.json"
+          },
+          {
+            "$ref": "operation-templates/toggle-class.json"
+          },
+          {
+            "$ref": "operation-templates/toggle-element.json"
+          },
+          {
+            "$ref": "operation-templates/wait.json"
+          }
+        ]
+      }
+    },
+    "endOperations": {
+      "$id": "#/properties/endOperations",
+      "type": "array",
+      "title": "The Endoperations Schema",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "operation-templates/add-class.json"
+          },
+          {
+            "$ref": "operation-templates/add-controller-to-element.json"
+          },
+          {
+            "$ref": "operation-templates/animate.json"
+          },
+          {
+            "$ref": "operation-templates/animate-with-class.json"
+          },
+          {
+            "$ref": "operation-templates/broadcast-event.json"
+          },
+          {
+            "$ref": "operation-templates/calc.json"
+          },
+          {
+            "$ref": "operation-templates/clear-element.json"
+          },
+          {
+            "$ref": "operation-templates/clear-operation-data.json"
+          },
+          {
+            "$ref": "operation-templates/create-element.json"
+          },
+          {
+            "$ref": "operation-templates/custom-function.json"
+          },
+          {
+            "$ref": "operation-templates/end-action.json"
+          },
+          {
+            "$ref": "operation-templates/end-loop.json"
+          },
+          {
+            "$ref": "operation-templates/extend-controller.json"
+          },
+          {
+            "$ref": "operation-templates/get-controller-from-element.json"
+          },
+          {
+            "$ref": "operation-templates/get-controller-instance.json"
+          },
+          {
+            "$ref": "operation-templates/get-element-dimensions.json"
+          },
+          {
+            "$ref": "operation-templates/get-import.json"
+          },
+          {
+            "$ref": "operation-templates/get-query-params.json"
+          },
+          {
+            "$ref": "operation-templates/invoke-object-method.json"
+          },
+          {
+            "$ref": "operation-templates/load-json.json"
+          },
+          {
+            "$ref": "operation-templates/log.json"
+          },
+          {
+            "$ref": "operation-templates/math.json"
+          },
+          {
+            "$ref": "operation-templates/remove-class.json"
+          },
+          {
+            "$ref": "operation-templates/remove-controller-from-element.json"
+          },
+          {
+            "$ref": "operation-templates/remove-element.json"
+          },
+          {
+            "$ref": "operation-templates/remove-properties-from-operation-data.json"
+          },
+          {
+            "$ref": "operation-templates/reparent-element.json"
+          },
+          {
+            "$ref": "operation-templates/request-action.json"
+          },
+          {
+            "$ref": "operation-templates/resize-action.json"
+          },
+          {
+            "$ref": "operation-templates/select-element.json"
+          },
+          {
+            "$ref": "operation-templates/set-element-attributes.json"
+          },
+          {
+            "$ref": "operation-templates/set-element-content.json"
+          },
+          {
+            "$ref": "operation-templates/set-global-data.json"
+          },
+          {
+            "$ref": "operation-templates/set-operation-data.json"
+          },
+          {
+            "$ref": "operation-templates/set-style.json"
+          },
+          {
+            "$ref": "operation-templates/start-action.json"
+          },
+          {
+            "$ref": "operation-templates/start-loop.json"
+          },
+          {
+            "$ref": "operation-templates/toggle-class.json"
+          },
+          {
+            "$ref": "operation-templates/toggle-element.json"
+          },
+          {
+            "$ref": "operation-templates/wait.json"
+          }
+        ]
+      }
+    }
+  }
+}

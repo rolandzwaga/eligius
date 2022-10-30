@@ -84,7 +84,7 @@
     "initActions": {
       "$id": "#/properties/initActions",
       "type": "array",
-      "title": "The Initactions Schema",
+      "title": "The init actions Schema",
       "items": {
         "$ref": "endable-action.json"
       }
@@ -92,15 +92,15 @@
     "actions": {
       "$id": "#/properties/actions",
       "type": "array",
-      "title": "The Initactions Schema",
+      "title": "The actions Schema",
       "items": {
-        "$ref": "endable-action.json"
+        "$ref": "endable-action-template.json"
       }
     },
     "eventActions": {
       "$id": "#/properties/eventActions",
       "type": "array",
-      "title": "The Initactions Schema",
+      "title": "The event actions Schema",
       "items": {
         "$ref": "event-action.json"
       }

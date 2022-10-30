@@ -19,6 +19,10 @@ import { htmlTagNames } from './html-tag-names';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const outputDirectory = path.join(schemaDirectory, 'operations');
+const templateOutputDirectory = path.join(
+  schemaDirectory,
+  'operation-templates'
+);
 emptyDirSync(outputDirectory);
 
 const operationSchemas = Object.entries(metadata).map(generateOperationSchema);
@@ -28,15 +32,28 @@ operationSchemas.forEach(([name, schema]) => {
     JSON.stringify(schema, null, 2)
   );
   console.log(`${name}.json was written`);
+
+  fs.writeFileSync(
+    path.join(templateOutputDirectory, `${name}.json`),
+    JSON.stringify(templatize(schema), null, 2)
+  );
+
+  console.log(`template ${name}.json was written`);
 });
 
 const operationSchemaPaths = operationSchemas
   .map(([name]) => name)
   .map((name) => ({ $ref: `operations/${name}.json` }));
 
+const operationTemplateSchemaPaths = operationSchemas
+  .map(([name]) => name)
+  .map((name) => ({ $ref: `operation-templates/${name}.json` }));
+
 ['endable-action.json', 'event-action.json', 'timeline-action.json'].forEach(
   (x) => saveOperations(x, operationSchemaPaths)
 );
+
+saveOperations('endable-action-template.json', operationTemplateSchemaPaths);
 
 function saveOperations(filename: string, schemaPaths: any[]) {
   const actionSchema = JSON.parse(
@@ -60,6 +77,12 @@ function saveOperations(filename: string, schemaPaths: any[]) {
 }
 
 /* ---------- functions ------------*/
+
+function templatize(operationSchema: any) {
+  const templateSchema = JSON.parse(JSON.stringify(operationSchema));
+  delete templateSchema.required;
+  return templateSchema;
+}
 
 function getTemplate() {
   return {
