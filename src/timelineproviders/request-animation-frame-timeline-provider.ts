@@ -147,13 +147,13 @@ export class RequestAnimationFrameTimelineProvider
       return;
     }
 
-    if (this._currentPosition == 0) {
-      this._broadCastPosition();
-    }
-
     this.playState = 'running';
     this._abortController?.abort();
     this._abortController = new AbortController();
+
+    if (this._currentPosition == 0) {
+      this._broadCastPosition();
+    }
 
     animationInterval(
       this._tickInterval,
