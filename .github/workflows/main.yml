@@ -11,6 +11,7 @@ jobs:
         id: cache-cairo-deps
         uses: actions/cache@v3
         with:
+          key: ${{ runner.os }}-cairo-deps-
           path: |
             ~/gtk.zip
             ~/libjpeg.exe
