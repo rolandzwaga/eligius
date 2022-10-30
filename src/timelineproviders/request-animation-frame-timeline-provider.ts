@@ -119,6 +119,7 @@ export class RequestAnimationFrameTimelineProvider
       if (this.loop) {
         this._resetToStartPosition();
         this.eventbus.broadcast(TimelineEventNames.RESTART);
+        this._broadCastPosition();
       } else {
         this.stop();
         this.eventbus.broadcast(TimelineEventNames.COMPLETE);
@@ -126,6 +127,10 @@ export class RequestAnimationFrameTimelineProvider
       }
     }
 
+    this._broadCastPosition();
+  }
+
+  private _broadCastPosition() {
     this.eventbus.broadcast(TimelineEventNames.TIME, [
       { position: this._currentPosition },
     ]);
@@ -140,6 +145,10 @@ export class RequestAnimationFrameTimelineProvider
   private _start() {
     if (this.playState === 'running') {
       return;
+    }
+
+    if (this._currentPosition == 0) {
+      this._broadCastPosition();
     }
 
     this.playState = 'running';
