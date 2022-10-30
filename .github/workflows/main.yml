@@ -7,7 +7,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
+      - name: Cache gtk and libjpg downloads
+        id: cache-cairo-deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/gtk.zip
+            ~/libjpeg.exe
+
       - name: Install Cairo dependencies
+        if: steps.cache-cairo-deps.outputs.cache-hit != 'true'
         run: |
           Invoke-WebRequest "http://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "gtk.zip" -MaximumRetryCount 3
           Expand-Archive gtk.zip -DestinationPath "C:\GTK"
