@@ -24,10 +24,16 @@
       "$id": "#/properties/duration",
       "type": "object",
       "title": "The duration Schema",
-      "required": ["start"],
+      "required": [
+        "start"
+      ],
       "properties": {
-        "start": { "type": "number" },
-        "end": { "type": "number" }
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        }
       }
     },
     "name": {
