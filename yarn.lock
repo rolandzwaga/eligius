@@ -2664,10 +2664,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:18.11.5":
-  version: 18.11.5
-  resolution: "@types/node@npm:18.11.5"
-  checksum: ac54e9287dd4549ea3dc8aabc0cf7bfa04c52f02925d7fd68414789617ec770f034c8ae2e111e8bd00d446a46fcac42587b5a316a1303e2f6ea094854248c9ff
+"@types/node@npm:18.11.7":
+  version: 18.11.7
+  resolution: "@types/node@npm:18.11.7"
+  checksum: 69d630825cf6fbf580d08d76a4d4836ef8c34ed4fe0842221ade87d275f517099cbfabe8e22397208e564bd24926db97699ab9db5c091383269a432b336665e2
   languageName: node
   linkType: hard
 
@@ -3825,15 +3825,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"canvas@npm:2.10.1":
-  version: 2.10.1
-  resolution: "canvas@npm:2.10.1"
+"canvas@npm:2.10.2":
+  version: 2.10.2
+  resolution: "canvas@npm:2.10.2"
   dependencies:
     "@mapbox/node-pre-gyp": ^1.0.0
-    nan: ^2.15.0
+    nan: ^2.17.0
     node-gyp: latest
     simple-get: ^3.0.3
-  checksum: 29b162a59df8c63e5591cae62711ab3cc3b0a078f260b39b4594b51c5bcb9baa597eff40b52f25bd788aceb81756a41097c2dd0c01cbc17ae4a15e873da44cdf
+  checksum: b2e3eb4c3635fa2f67857619621c3d314f935a9e51904536dadf4908ab580dff4f5bcbaafe6eb0255247fa027ca494d5cd97c33376a49a0f994997263fa9944b
   languageName: node
   linkType: hard
 
@@ -4624,14 +4624,14 @@ __metadata:
     "@types/jasmine": 4.3.0
     "@types/jquery": 3.5.14
     "@types/jsdom": ^20.0.0
-    "@types/node": 18.11.5
+    "@types/node": 18.11.7
     "@types/sinon": 10.0.13
     "@types/uuid": 8.3.4
     acorn: 8.8.1
     ajv: 8.11.0
     astring: 1.8.3
     babel-jest: 29.2.2
-    canvas: 2.10.1
+    canvas: 2.10.2
     chai: 4.3.6
     cross-env: 7.0.3
     dts-cli: 1.6.0
@@ -4650,7 +4650,7 @@ __metadata:
     ts-node: 10.9.1
     tsconfig-paths: ^4.1.0
     tslib: 2.4.0
-    typedoc: 0.23.18
+    typedoc: 0.23.19
     typedoc-plugin-missing-exports: 1.0.0
     typescript: 4.8.4
     uuid: 9.0.0
@@ -7994,12 +7994,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nan@npm:^2.15.0":
-  version: 2.15.0
-  resolution: "nan@npm:2.15.0"
+"nan@npm:^2.17.0":
+  version: 2.17.0
+  resolution: "nan@npm:2.17.0"
   dependencies:
     node-gyp: latest
-  checksum: 33e1bb4dfca447fe37d4bb5889be55de154828632c8d38646db67293a21afd61ed9909cdf1b886214a64707d935926c4e60e2b09de9edfc2ad58de31d6ce8f39
+  checksum: ec609aeaf7e68b76592a3ba96b372aa7f5df5b056c1e37410b0f1deefbab5a57a922061e2c5b369bae9c7c6b5e6eecf4ad2dac8833a1a7d3a751e0a7c7f849ed
   languageName: node
   linkType: hard
 
@@ -10108,9 +10108,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:0.23.18":
-  version: 0.23.18
-  resolution: "typedoc@npm:0.23.18"
+"typedoc@npm:0.23.19":
+  version: 0.23.19
+  resolution: "typedoc@npm:0.23.19"
   dependencies:
     lunr: ^2.3.9
     marked: ^4.0.19
@@ -10120,7 +10120,7 @@ __metadata:
     typescript: 4.6.x || 4.7.x || 4.8.x
   bin:
     typedoc: bin/typedoc
-  checksum: 2cf1ae57865e53545ba4cbdd8a441870b7a4ad74e421d43f4b731e4643adc82c3a2e89fa9cf1f600f908d9d12da818bcd1d26970c9dce9493a8d8ec5b649b594
+  checksum: 4659dce4e8550a3f0d4739b6c9c583d8f2afba9c37e2fe38325e3cff781a50daf57afe10cbcc27f11b56da0623d502628e0713c55f30eae619c4427d18ce1064
   languageName: node
   linkType: hard
 

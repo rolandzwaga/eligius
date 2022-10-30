@@ -32,14 +32,12 @@ export const getQueryParams: TOperation<IGetQueryParamsOperationData> =
     const searchParams = new URLSearchParams(window.location.search);
     const queryParams = Object.fromEntries(searchParams.entries());
 
-    const { defaultValues } = operationData;
-    if (defaultValues) {
-      const defaultEntries = Object.entries(defaultValues).filter(
-        ([name, _value]) => !(name in queryParams)
-      );
-      defaultEntries.forEach(([name, value]) => (queryParams[name] = value));
-      delete operationData.defaultValues;
-    }
+    const { defaultValues = {} } = operationData;
+
+    operationData.queryParams = {
+      ...defaultValues,
+      ...queryParams,
+    };
 
     operationData.queryParams = queryParams;
     return operationData;
