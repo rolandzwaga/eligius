@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { Eventbus, IEventbus } from '../../../eventbus';
-import { TOperation } from '../../../operation';
+import { IEventbus } from '../../../eventbus';
+import { IOperationContext, TOperation } from '../../../operation';
 import { customFunction } from '../../../operation/custom-function';
 import { applyOperation } from '../../../util/apply-operation';
 
@@ -27,10 +27,10 @@ CustomFunctionSuite(
     };
 
     let called = false;
-    const func = (opData: TOperation, eventbus: Eventbus) => {
+    const func = function (this: IOperationContext, opData: TOperation) {
       called = true;
       expect(opData).to.equal(operationData);
-      expect(eventbus).to.equal(mockEventbus);
+      expect(this.eventbus).to.equal(mockEventbus);
     };
     const mockEventbus = new MockEventbus(func);
 
@@ -53,11 +53,11 @@ CustomFunctionSuite(
       systemName: 'testName',
     };
     let called = false;
-    const func = (opData: TOperation, eventbus: Eventbus) => {
+    const func = function (this: IOperationContext, opData: TOperation) {
       return new Promise<void>((resolve) => {
         called = true;
         expect(opData).to.equal(operationData);
-        expect(eventbus).to.equal(mockEventbus);
+        expect(this.eventbus).to.equal(mockEventbus);
         resolve();
       });
     };

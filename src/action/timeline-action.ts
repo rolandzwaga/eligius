@@ -23,9 +23,7 @@ export class TimelineAction extends EndableAction {
       return super.start(initOperationData);
     }
 
-    return new Promise<void>((resolve) => {
-      resolve();
-    });
+    return Promise.resolve();
   }
 
   end(initOperationData: TOperationData): Promise<TOperationData> {

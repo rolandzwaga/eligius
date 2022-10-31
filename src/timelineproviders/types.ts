@@ -1,6 +1,6 @@
 export interface ITimelineProvider {
   loop: boolean;
-  init(): Promise<any>;
+  init(): Promise<void>;
   start(): void;
   stop(): void;
   pause(): void;
