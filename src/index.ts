@@ -1,6 +1,7 @@
 export * from './action';
 export * from './action/types';
 export * from './build';
+export * from './configuration/api';
 export { ConfigurationResolver } from './configuration/configuration-resolver';
 export * from './configuration/types';
 export * from './controllers';
