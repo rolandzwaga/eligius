@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.14
+- Fix reversed execution of actions in the end phase
+- Some internal refactoring, renaming and type narrowing
+
 ## 1.0.13
 - Fix RAF timeline provider broadcast of position zero on the timeline
 - Make all operationData properties optional for 'actions' collection in JSON schema
