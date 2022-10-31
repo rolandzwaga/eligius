@@ -1,3 +1,5 @@
+import { isFunction } from '../util/guards/is-function';
+import { isString } from '../util/guards/is-string';
 import { resolvePropertyValues } from './helper/resolve-property-values';
 import { TOperation } from './types';
 
@@ -15,10 +17,7 @@ export interface IMathOperationData {
 export const math: TOperation<IMathOperationData> = function (
   operationData: IMathOperationData
 ) {
-  operationData = resolvePropertyValues(
-    operationData,
-    operationData
-  );
+  operationData = resolvePropertyValues(operationData, operationData);
   operationData.args = resolveMathConstants(operationData.args);
 
   const { args, functionName } = operationData;
@@ -39,8 +38,6 @@ function resolveMathConstants(args: any[]) {
 
 function isMathProperty(value: string | Symbol): value is keyof Math {
   return (
-    typeof value === 'string' &&
-    value in Math &&
-    typeof Math[value as keyof Math] !== 'function'
+    isString(value) && value in Math && !isFunction(Math[value as keyof Math])
   );
 }

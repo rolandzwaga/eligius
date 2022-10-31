@@ -6,6 +6,8 @@ import { IEventbus } from '../eventbus/types';
 import { deepCopy } from '../operation/helper/deep-copy';
 import { resolvePropertyChain } from '../operation/helper/resolve-property-chain';
 import { IConfigurationResolver, ISimpleResourceImporter } from '../types';
+import { isObject } from '../util/guards/is-object';
+import { isString } from '../util/guards/is-string';
 import {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -243,7 +245,7 @@ function resolvePlaceholder(
   importer: ISimpleResourceImporter
 ) {
   const configValue = configFragment[key];
-  if (typeof configValue === 'string') {
+  if (isString(configValue)) {
     if (configValue.startsWith('config:')) {
       const configProperty = configValue.substring(7, configValue.length);
       configFragment[key] = resolvePropertyChain(configProperty, rootConfig);
@@ -256,7 +258,7 @@ function resolvePlaceholder(
       const json = importer.import(jsonKey)[jsonKey];
       configFragment[key] = json;
     }
-  } else if (typeof configValue === 'object') {
+  } else if (isObject(configValue)) {
     resolvePlaceholders(configValue, rootConfig, importer);
   }
 }
