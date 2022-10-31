@@ -98,7 +98,10 @@ export class EligiusEngine implements IEligiusEngine {
 
   private async _cleanUp() {
     await this._cleanUpTimeline();
-    await this._executeActions(this.configuration.initActions, 'end');
+    await this._executeActions(
+      [...this.configuration.initActions].reverse(),
+      'end'
+    );
   }
 
   /**
@@ -187,12 +190,23 @@ export class EligiusEngine implements IEligiusEngine {
 
     this.configuration.timelines.forEach((timelineInfo) => {
       timelineInfo.timelineActions.forEach(
-        this._addTimelineAction.bind(this, timelineInfo.uri)
+        this._addTimelineActionStart.bind(this, timelineInfo.uri)
       );
+    });
+
+    this.configuration.timelines.forEach((timelineInfo) => {
+      // actions ends need to be in reversed order, otherwise, for example,
+      // elements that were created before dependent actions will already have been
+      // removed in the end phase.
+      const reversed = [...timelineInfo.timelineActions].reverse();
+      reversed.forEach(this._addTimelineActionEnd.bind(this, timelineInfo.uri));
     });
   }
 
-  private _addTimelineAction(uri: string, timeLineAction: ITimelineAction) {
+  private _addTimelineActionStart(
+    uri: string,
+    timeLineAction: ITimelineAction
+  ) {
     const startPosition = timeLineAction.duration.start;
     const timelineStartPositions = this._initializeTimelinePosition(
       this._initializeUriLookup(this._timeLineActionsLookup, uri),
@@ -206,7 +220,9 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     timelineStartPositions.push(startMethod);
+  }
 
+  private _addTimelineActionEnd(uri: string, timeLineAction: ITimelineAction) {
     let end = timeLineAction.duration.end;
     if (end < 0) {
       end = timeLineAction.duration.end = Infinity;
