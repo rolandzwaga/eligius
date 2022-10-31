@@ -3,14 +3,13 @@ import { IEndableAction, ITimelineAction } from './action/types';
 import { IResolvedEngineConfiguration } from './configuration/types';
 import { IEventbus, TEventbusRemover, TEventHandler } from './eventbus/types';
 import { LanguageManager } from './language-manager';
-import { TOperationData } from './operation/types';
 import { TimelineEventNames } from './timeline-event-names';
 import { ITimelineProvider } from './timelineproviders/types';
 import {
   IEligiusEngine,
   ITimelineProviderInfo,
   TimelineTypes,
-  TResultCallback
+  TResultCallback,
 } from './types';
 
 type ActionMethod = IEndableAction['start'] | IEndableAction['end'];
@@ -229,13 +228,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _initializeUriLookup(
-    lookup: Record<
-      string,
-      Record<
-        string | number,
-        ((initOperationData?: TOperationData) => Promise<TOperationData>)[]
-      >
-    >,
+    lookup: Record<string, Record<number, ActionMethod[]>>,
     uri: string
   ): Record<number, any> {
     if (!lookup[uri]) {

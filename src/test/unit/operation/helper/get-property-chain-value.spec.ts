@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getNestedValue } from '../../../../operation/helper/get-nested-value';
+import { getPropertyChainValue } from '../../../../operation/helper/get-property-chain-value';
 
 const GetNestedValueSuite = suite('getNestedValue');
 
@@ -15,7 +15,7 @@ GetNestedValueSuite('should get the nested value', () => {
   };
 
   // test
-  const value = getNestedValue(
+  const value = getPropertyChainValue(
     ['complexProperty', 'anotherComplexProperty', 'value'],
     operationData
   );
@@ -37,7 +37,7 @@ GetNestedValueSuite(
     };
 
     // test
-    const value = getNestedValue(
+    const value = getPropertyChainValue(
       ['complexProperty', 'anotherComplexProperty', 'value+px'],
       operationData
     );

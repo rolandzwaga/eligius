@@ -17,16 +17,18 @@ export class TimelineAction extends EndableAction {
     super(name, startOperations, endOperations, eventBus);
   }
 
-  start(initOperationData: TOperationData): Promise<TOperationData> {
+  start(
+    initOperationData?: TOperationData
+  ): Promise<TOperationData | undefined> {
     if (!this.active || this.duration.end < 0) {
       this.active = this.duration.end > -1;
       return super.start(initOperationData);
     }
 
-    return Promise.resolve();
+    return Promise.resolve(undefined);
   }
 
-  end(initOperationData: TOperationData): Promise<TOperationData> {
+  end(initOperationData: TOperationData): Promise<TOperationData | undefined> {
     this.active = false;
     return super.end(initOperationData);
   }

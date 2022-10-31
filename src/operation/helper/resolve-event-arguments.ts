@@ -1,5 +1,5 @@
 import { TOperationData } from '../../operation/types';
-import { extractOperationDataArgumentValues } from './extract-operation-data-argument-values';
+import { resolveOperationOrGlobalDataPropertyChain } from './resolve-operation-or-global-data-property-chain';
 
 export function resolveEventArguments(
   operationData: TOperationData,
@@ -8,6 +8,9 @@ export function resolveEventArguments(
   if (!eventArgs) {
     return;
   }
-  const extract = extractOperationDataArgumentValues.bind(null, operationData);
+  const extract = resolveOperationOrGlobalDataPropertyChain.bind(
+    null,
+    operationData
+  );
   return eventArgs.map(extract);
 }

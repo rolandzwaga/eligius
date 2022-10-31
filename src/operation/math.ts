@@ -8,14 +8,17 @@ export interface IMathOperationData {
 }
 
 /**
- * This operation performs the given math function of the specified arguments.
+ * This operation performs the given math function with the specified arguments.
  *
  * @param operationData
  */
 export const math: TOperation<IMathOperationData> = function (
   operationData: IMathOperationData
 ) {
-  operationData = resolvePropertyValues(operationData, operationData);
+  operationData = resolvePropertyValues(
+    operationData,
+    operationData
+  );
   operationData.args = resolveMathConstants(operationData.args);
 
   const { args, functionName } = operationData;

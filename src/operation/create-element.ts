@@ -23,14 +23,16 @@ export const createElement: TOperation<ICreateElementOperationData<any>> =
   function <T extends TTagNames>(
     operationData: ICreateElementOperationData<T>
   ) {
-    operationData = resolvePropertyValues(operationData, operationData);
+    operationData = resolvePropertyValues(
+      operationData,
+      operationData
+    ) as ICreateElementOperationData<T>;
     const { elementName, attributes, text } = operationData;
 
     const serializedAttrs = attributes
-      ? ' ' +
-        Object.entries(attributes)
+      ? ` ${Object.entries(attributes)
           .map(([key, value]) => `${key}="${value}"`)
-          .join(' ')
+          .join(' ')}`
       : '';
 
     const template = text

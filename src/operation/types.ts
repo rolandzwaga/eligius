@@ -1,6 +1,6 @@
 import { IEventbus } from '../eventbus';
 
-export type TOperationData = any;
+export type TOperationData = Record<string, any>;
 
 export type TOperationResult<T = TOperationData> = Promise<T> | T;
 

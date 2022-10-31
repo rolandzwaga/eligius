@@ -2,12 +2,8 @@ import { IResolvedOperation } from '../configuration/types';
 import { Diagnostics } from '../diagnostics';
 import { IEventbus } from '../eventbus/types';
 import { deepCopy } from '../operation/helper/deep-copy';
-import {
-  IOperationContext,
-  TOperationData,
-  TOperationResult,
-} from '../operation/types';
-import { isPromise } from './is-promise';
+import { IOperationContext, TOperationData } from '../operation/types';
+import { isPromise } from '../util/guards/is-promise';
 import { IAction } from './types';
 
 export class Action implements IAction {
@@ -19,7 +15,9 @@ export class Action implements IAction {
     protected eventbus: IEventbus
   ) {}
 
-  start(initOperationData?: TOperationData): Promise<TOperationData> {
+  start(
+    initOperationData?: TOperationData
+  ): Promise<TOperationData | undefined> {
     Diagnostics.active &&
       Diagnostics.send(
         'eligius-diagnostics-action',
@@ -109,14 +107,14 @@ export class Action implements IAction {
           },
         });
 
-      const operationResult: TOperationResult = operationInfo.instance.call(
+      const operationResult = operationInfo.instance.call(
         context,
         mergedOperationData
       );
 
       if (isPromise(operationResult)) {
         operationResult
-          .then((promisedOperationResult: TOperationData) => {
+          .then((promisedOperationResult) =>
             this.executeOperation(
               operations,
               ++idx,
@@ -124,8 +122,8 @@ export class Action implements IAction {
               reject,
               promisedOperationResult,
               context
-            );
-          })
+            )
+          )
           .catch((error: any) => {
             reject(error);
           });

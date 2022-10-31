@@ -4,7 +4,7 @@ import { IAction } from '../action/types';
 import { ActionRegistryEventbusListener } from '../eventbus';
 import { IEventbus } from '../eventbus/types';
 import { deepCopy } from '../operation/helper/deep-copy';
-import { getNestedPropertyValue } from '../operation/helper/get-nested-property-value';
+import { resolvePropertyChain } from '../operation/helper/resolve-property-chain';
 import { IConfigurationResolver, ISimpleResourceImporter } from '../types';
 import {
   IActionConfiguration,
@@ -133,7 +133,7 @@ function resolveOperation(
   return {
     id: operationConfig.id,
     systemName: operationConfig.systemName,
-    operationData: deepCopy(operationConfig.operationData),
+    operationData: deepCopy(operationConfig.operationData) ?? {},
     instance: importer.import(operationConfig.systemName)[
       operationConfig.systemName
     ],
@@ -246,7 +246,7 @@ function resolvePlaceholder(
   if (typeof configValue === 'string') {
     if (configValue.startsWith('config:')) {
       const configProperty = configValue.substring(7, configValue.length);
-      configFragment[key] = getNestedPropertyValue(configProperty, rootConfig);
+      configFragment[key] = resolvePropertyChain(configProperty, rootConfig);
     } else if (configValue.startsWith('template:')) {
       const templateKey = configValue.substring(9, configValue.length);
       const template = importer.import(templateKey)[templateKey];

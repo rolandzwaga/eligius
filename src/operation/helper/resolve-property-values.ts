@@ -1,31 +1,37 @@
 import $ from 'jquery';
 import { TOperationData } from '../../operation/types';
 import { deepCopy } from './deep-copy';
-import { extractOperationDataArgumentValues } from './extract-operation-data-argument-values';
+import { resolveOperationOrGlobalDataPropertyChain } from './resolve-operation-or-global-data-property-chain';
 
 const cache: any[] = [];
 
-export function resolvePropertyValues(
-  operationData: TOperationData,
-  properties: any
-) {
+export function resolvePropertyValues<T extends TOperationData>(
+  operationData: T,
+  properties: Record<string, any>
+): T {
   const copy = properties !== operationData ? deepCopy(properties) : properties;
-  const extract = extractOperationDataArgumentValues.bind(null, operationData);
+  const resolvePropertyChain = resolveOperationOrGlobalDataPropertyChain.bind(
+    null,
+    operationData
+  );
 
-  resolveProperties(properties, copy, extract);
+  resolveProperties(properties, copy, resolvePropertyChain);
 
-  return copy;
+  return copy as T;
 }
 
 function resolveProperties(
-  properties: any,
-  copy: any,
-  extract: (input: string) => any
+  properties: Record<string, any>,
+  copy: Record<string, any>,
+  resolvePropertyChain: (propertyChain: string) => any
 ) {
+  // Prevent recursive looping
   if (cache.indexOf(properties) > -1) {
     return;
   }
+
   cache.push(properties);
+
   try {
     Object.entries(properties).forEach(([key, value]) => {
       if (value instanceof $) {
@@ -33,17 +39,17 @@ function resolveProperties(
       }
 
       if (typeof value === 'string') {
-        copy[key] = extract(value);
+        copy[key] = resolvePropertyChain(value);
       } else if (Array.isArray(value)) {
         value.forEach((item, index, arr) => {
           if (typeof item === 'string') {
-            arr[index] = extract(item);
+            arr[index] = resolvePropertyChain(item);
           } else {
-            resolveProperties(item, item, extract);
+            resolveProperties(item, item, resolvePropertyChain);
           }
         });
       } else if (typeof value === 'object') {
-        resolveProperties(value, value, extract);
+        resolveProperties(value, value, resolvePropertyChain);
       }
     });
   } finally {
