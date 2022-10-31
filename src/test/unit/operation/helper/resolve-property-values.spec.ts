@@ -19,7 +19,9 @@ ResolvePropertyValuesSuite('should resolve the given property values', () => {
   };
 
   // test
-  const resolved = resolvePropertyValues(operationData, properties);
+  const resolved = resolvePropertyValues<
+    typeof operationData & typeof properties
+  >(operationData as any, properties);
 
   // expect
   expect(resolved.testValue1).to.equal('test1');

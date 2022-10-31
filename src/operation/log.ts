@@ -1,4 +1,4 @@
-import { TOperation } from './types';
+import { TOperation, TOperationData } from './types';
 
 /**
  * This operation logs the current operation data and context.
@@ -6,7 +6,9 @@ import { TOperation } from './types';
  * @param operationData
  * @returns
  */
-export const log: TOperation = function (operationData: unknown) {
+export const log: TOperation<TOperationData> = function (
+  operationData: TOperationData
+) {
   console.group('Operation info');
   console.dir({ context: this });
   console.dir({ operationData });

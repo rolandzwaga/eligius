@@ -32,7 +32,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
     return urls;
   }
 
-  init(): Promise<any> {
+  init(): Promise<void> {
     const settings = this.config.timelineProviderSettings['mediaplayer'];
     if (!settings) {
       throw new Error(`No settings found for 'mediaplayer' timeline provider`);
@@ -78,7 +78,7 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
       };
       this._playlist.push(item);
     });
-    const promise = new Promise((resolve) => {
+    const promise = new Promise<void>((resolve) => {
       this._player.once('ready', () => {
         this._handlePlayerReady(resolve);
       });
@@ -87,13 +87,13 @@ export class JwPlayerTimelineProvider implements ITimelineProvider {
     return promise;
   }
 
-  _handlePlayerReady(resolve: (value: any | PromiseLike<any>) => void) {
+  _handlePlayerReady(resolve: (value: void | PromiseLike<void>) => void) {
     this._player.once('firstFrame', () => {
       this._player.pause();
       this.eventbus.broadcast(TimelineEventNames.DURATION, [
         this.getDuration(),
       ]);
-      resolve(this);
+      resolve();
     });
     this._player.on(
       TimelineEventNames.TIME,

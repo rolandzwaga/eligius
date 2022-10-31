@@ -144,9 +144,7 @@ EligiusEngineSuite(
     context.providers = {
       animation: {
         provider: {
-          init: () => {
-            return new Promise<void>((resolve) => resolve());
-          },
+          init: () => Promise.resolve(),
           on: () => {},
         },
       },

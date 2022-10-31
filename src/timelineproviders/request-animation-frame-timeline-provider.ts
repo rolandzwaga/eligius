@@ -108,11 +108,6 @@ export class RequestAnimationFrameTimelineProvider
       return;
     }
 
-    if (this._firstFrame) {
-      this._firstFrame = false;
-      this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
-    }
-
     this._currentPosition++;
 
     if (this._currentPosition > this._currentPlaylistItem.duration) {
@@ -151,6 +146,10 @@ export class RequestAnimationFrameTimelineProvider
     this._abortController?.abort();
     this._abortController = new AbortController();
 
+    if (this._firstFrame) {
+      this._firstFrame = false;
+      this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
+    }
     if (this._currentPosition == 0) {
       this._broadCastPosition();
     }
@@ -167,7 +166,9 @@ export class RequestAnimationFrameTimelineProvider
   }
 
   private _resize() {
-    console.error('Not implemented yet');
+    console.error(
+      'Not implemented yet, not even sure this needs to be implemented...'
+    );
   }
 
   private _container(callBack: TResultCallback) {
@@ -183,7 +184,7 @@ export class RequestAnimationFrameTimelineProvider
     }
   }
 
-  init(): Promise<any> {
+  init(): Promise<void> {
     this._addEventListeners();
     this._currentPlaylistItem = this._playlist[0];
     this._containerElement = $(this._currentPlaylistItem.selector);
@@ -194,11 +195,7 @@ export class RequestAnimationFrameTimelineProvider
       );
     }
 
-    const promise = new Promise<void>((resolve) => {
-      resolve();
-    });
-
-    return promise;
+    return Promise.resolve();
   }
 
   destroy() {

@@ -18,7 +18,7 @@ export const customFunction: TOperation<ICustomFunctionOperationData> =
     const { systemName } = operationData;
     return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
       const resultCallback = (func: Function) => {
-        const promise = func(operationData, this.eventbus);
+        const promise = func.apply(this, [operationData]);
         if (promise) {
           promise.then(() => {
             internalResolve(resolve, {}, operationData);

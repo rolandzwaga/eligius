@@ -209,7 +209,7 @@ function _gatherControllerImportPaths(
       return false;
     })
     .map((operationConfig) => {
-      const { systemName } = operationConfig.operationData;
+      const { systemName } = operationConfig.operationData ?? {};
       return {
         systemName,
       };

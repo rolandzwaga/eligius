@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { extractOperationDataArgumentValues } from '../../../../operation/helper/extract-operation-data-argument-values';
+import { resolveOperationOrGlobalDataPropertyChain } from '../../../../operation/helper/resolve-operation-or-global-data-property-chain';
 
 const ExtractOperationDataArgumentValuesSuite = suite(
   'extractOperationDataArgumentValues'
@@ -16,7 +16,7 @@ ExtractOperationDataArgumentValuesSuite(
     };
 
     // test
-    const value = extractOperationDataArgumentValues(
+    const value = resolveOperationOrGlobalDataPropertyChain(
       operationData,
       operationData.operationDataArgument
     );
@@ -33,7 +33,10 @@ ExtractOperationDataArgumentValuesSuite(
     const operationData = {};
 
     // test
-    const value = extractOperationDataArgumentValues(operationData, null);
+    const value = resolveOperationOrGlobalDataPropertyChain(
+      operationData,
+      null
+    );
 
     // expect
     expect(value).to.be.null;
@@ -48,7 +51,7 @@ ExtractOperationDataArgumentValuesSuite(
     const arg = {};
 
     // test
-    const value = extractOperationDataArgumentValues(operationData, arg);
+    const value = resolveOperationOrGlobalDataPropertyChain(operationData, arg);
 
     // expect
     expect(value).to.equal(arg);

@@ -4,8 +4,10 @@ import { IAction } from '../action/types';
 import { ActionRegistryEventbusListener } from '../eventbus';
 import { IEventbus } from '../eventbus/types';
 import { deepCopy } from '../operation/helper/deep-copy';
-import { getNestedPropertyValue } from '../operation/helper/get-nested-property-value';
+import { resolvePropertyChain } from '../operation/helper/resolve-property-chain';
 import { IConfigurationResolver, ISimpleResourceImporter } from '../types';
+import { isObject } from '../util/guards/is-object';
+import { isString } from '../util/guards/is-string';
 import {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -133,7 +135,7 @@ function resolveOperation(
   return {
     id: operationConfig.id,
     systemName: operationConfig.systemName,
-    operationData: deepCopy(operationConfig.operationData),
+    operationData: deepCopy(operationConfig.operationData) ?? {},
     instance: importer.import(operationConfig.systemName)[
       operationConfig.systemName
     ],
@@ -243,10 +245,10 @@ function resolvePlaceholder(
   importer: ISimpleResourceImporter
 ) {
   const configValue = configFragment[key];
-  if (typeof configValue === 'string') {
+  if (isString(configValue)) {
     if (configValue.startsWith('config:')) {
       const configProperty = configValue.substring(7, configValue.length);
-      configFragment[key] = getNestedPropertyValue(configProperty, rootConfig);
+      configFragment[key] = resolvePropertyChain(configProperty, rootConfig);
     } else if (configValue.startsWith('template:')) {
       const templateKey = configValue.substring(9, configValue.length);
       const template = importer.import(templateKey)[templateKey];
@@ -256,7 +258,7 @@ function resolvePlaceholder(
       const json = importer.import(jsonKey)[jsonKey];
       configFragment[key] = json;
     }
-  } else if (typeof configValue === 'object') {
+  } else if (isObject(configValue)) {
     resolvePlaceholders(configValue, rootConfig, importer);
   }
 }

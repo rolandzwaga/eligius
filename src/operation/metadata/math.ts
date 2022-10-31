@@ -1,3 +1,4 @@
+import { isFunction } from '../../util/guards/is-function';
 import { IMathOperationData } from '../math';
 import { IOperationMetadata } from './types';
 
@@ -18,7 +19,7 @@ function math(): IOperationMetadata<IMathOperationData> {
 
 function createMathFunctionNames() {
   return Object.getOwnPropertyNames(Math)
-    .filter((x) => typeof Math[x as keyof Math] === 'function')
+    .filter((x) => isFunction(Math[x as keyof Math]))
     .map((functionName) => ({
       value: functionName,
     }));
