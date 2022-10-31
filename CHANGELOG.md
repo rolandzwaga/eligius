@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.0.15
+- Export configuration factory API
+
 ## 1.0.14
 - Fix reversed execution of actions in the end phase
 - Some internal refactoring, renaming and type narrowing
