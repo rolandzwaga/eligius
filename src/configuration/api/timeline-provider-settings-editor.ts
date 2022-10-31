@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import * as timelineProviders from '../../timelineproviders';
 import { TimelineTypes } from '../../types';
 import { ITimelineProviderSettings, TTimelineProviderSettings } from '../types';
@@ -15,10 +16,10 @@ export class TimelineProvidersSettingsEditor {
         `Settings for a '${timelineType}' provider already exist`
       );
     }
-    const settings = {
-      id: '',
-      poster: '',
-      selector: '',
+    const settings: ITimelineProviderSettings = {
+      id: uuidv4(),
+      poster: undefined,
+      selector: undefined,
       systemName: '',
       vendor: '',
     };

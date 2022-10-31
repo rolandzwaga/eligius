@@ -92,7 +92,9 @@ export class ConfigurationFactory {
       this.configuration,
       'availableLanguages'
     );
-    const existing = languages.find(lang => lang.languageCode === languageCode);
+    const existing = languages.find(
+      (lang) => lang.languageCode === languageCode
+    );
 
     if (existing) {
       throw new Error(`Language code '${languageCode}' already exists`);
@@ -194,7 +196,7 @@ export class ConfigurationFactory {
   }
 
   getTimeline(uri: string) {
-    return this.configuration.timelines.find(t => t.uri === uri);
+    return this.configuration.timelines.find((t) => t.uri === uri);
   }
 
   removeTimeline(uri: string) {
@@ -209,7 +211,7 @@ export class ConfigurationFactory {
   }
 
   _initializeLabel(id: string, labels: ILanguageLabel[]) {
-    let label = labels.find(l => l.id === id);
+    let label = labels.find((l) => l.id === id);
     if (!label) {
       labels.push({
         id: id,
@@ -222,7 +224,7 @@ export class ConfigurationFactory {
 
   _getLabelTranslation(labelTranslations: ILabel[], languageCode: string) {
     let translation = labelTranslations.find(
-      l => l.languageCode === languageCode
+      (l) => l.languageCode === languageCode
     );
     if (!translation) {
       translation = {
@@ -247,16 +249,16 @@ export class ConfigurationFactory {
   }
 
   editAction(id: string) {
-    const actionConfig = this.configuration.actions.find(a => a.id === id);
+    const actionConfig = this.configuration.actions.find((a) => a.id === id);
     if (actionConfig) {
-      return new ActionEditor(actionConfig, this);
+      return new EndableActionEditor(actionConfig, this);
     }
     throw new Error(`Action not found for id ${id}`);
   }
 
   editEventAction(id: string) {
     const actionConfig = this.configuration.eventActions?.find(
-      a => a.id === id
+      (a) => a.id === id
     );
     if (actionConfig) {
       return new ActionEditor(actionConfig, this);
@@ -265,7 +267,9 @@ export class ConfigurationFactory {
   }
 
   editInitAction(id: string) {
-    const actionConfig = this.configuration.initActions.find(a => a.id === id);
+    const actionConfig = this.configuration.initActions.find(
+      (a) => a.id === id
+    );
     if (actionConfig) {
       return new EndableActionEditor(actionConfig, this);
     }
@@ -277,7 +281,7 @@ export class ConfigurationFactory {
     if (!timeline) {
       throw new Error(`Timeline not found for id ${id}`);
     }
-    const actionConfig = timeline.timelineActions.find(a => a.id === id);
+    const actionConfig = timeline.timelineActions.find((a) => a.id === id);
     if (actionConfig) {
       return new TimelineActionEditor(actionConfig, this);
     }
