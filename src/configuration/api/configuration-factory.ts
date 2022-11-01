@@ -25,6 +25,11 @@ export type TEngineConfigurationLists = Pick<
   | 'labels'
 >;
 
+type ConfigurationFactoryExtension = (
+  this: ConfigurationFactory,
+  ...rest: any[]
+) => void;
+
 export class ConfigurationFactory {
   actionCreatorFactory: ActionCreatorFactory;
   configuration: IEngineConfiguration;
@@ -32,6 +37,26 @@ export class ConfigurationFactory {
   constructor(config?: IEngineConfiguration) {
     this.configuration = config || ({} as any);
     this.actionCreatorFactory = new ActionCreatorFactory(this);
+  }
+
+  static extend<
+    T extends ConfigurationFactory,
+    K extends string | number | symbol,
+    C extends ConfigurationFactoryExtension
+  >(factory: T, extensionMethodName: K, extensionMethod: C) {
+    (factory as any)[extensionMethodName] = extensionMethod.bind(factory);
+    return factory as T & { [k in K]: typeof extensionMethod };
+  }
+
+  static extendMultiple<
+    T extends ConfigurationFactory,
+    C extends ConfigurationFactoryExtension,
+    D extends { [name: string]: C }
+  >(factory: T, extensions: D) {
+    Object.entries(extensions).forEach(([name, method]) =>
+      ConfigurationFactory.extend(factory, name, method)
+    );
+    return factory as T & typeof extensions;
   }
 
   init(defaultLanguage: string) {
