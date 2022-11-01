@@ -1,12 +1,14 @@
 import { IController } from '../controllers/types';
 import { attachControllerToElement } from './helper/attach-controller-to-element';
 import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import { IOperationContext, TOperation, TOperationData } from './types';
 
-export interface IAddControllerToElementOperationData {
+export type IAddControllerToElementOperationData<
+  T extends TOperationData = TOperationData
+> = {
   selectedElement: JQuery;
-  controllerInstance: IController<any>;
-}
+  controllerInstance: IController<T>;
+} & T;
 
 /**
  * This operation adds the specified controller instance to the specified selected element.
@@ -15,7 +17,10 @@ export interface IAddControllerToElementOperationData {
  * @returns
  */
 export const addControllerToElement: TOperation<IAddControllerToElementOperationData> =
-  function (operationData: IAddControllerToElementOperationData) {
+  function <T extends TOperationData = TOperationData>(
+    this: IOperationContext,
+    operationData: IAddControllerToElementOperationData<T>
+  ) {
     const { selectedElement, controllerInstance } = operationData;
 
     attachControllerToElement(selectedElement, controllerInstance);
@@ -26,7 +31,7 @@ export const addControllerToElement: TOperation<IAddControllerToElementOperation
 
     if (promise) {
       return new Promise((resolve, reject) => {
-        promise.then((newOperationData: any) => {
+        promise.then((newOperationData: TOperationData) => {
           internalResolve(resolve, operationData, newOperationData);
         }, reject);
       });

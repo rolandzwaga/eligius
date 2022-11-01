@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.0.16
+- Add static `extend` and `extendMultiple` methods to ConfigurationFactory
+- ActionCreatorFactory.ActionCreator now correctly returns an EndableActionCreator
+- Correctly initialize TimelineProviderSettings in the editor
+- Narrow typing in add-controller-to-element
+
 ## 1.0.15
 - Export configuration factory API
 
@@ -14,7 +20,7 @@
 
 ## 1.0.12
 - Add setGlobalData operation with unit tests and metadata
-- property values can now also resolve to global data. I.e. the value 'globaldata.foo' will be resolved from the globals.
+- property values can now also resolve to global data. I.e. the value `globaldata.foo` will be resolved from the globals.
 ## 1.0.11
 - Extra check for controller instance serialization
   
@@ -28,7 +34,7 @@
 - Add getQueryParams operation
 - Remove propertyName operationData properties from several operations, this needlessly complicated a lot of functionality.
 
-## 1.0.81
+## 1.0.8.1
 - Add null check in prepareValueForSerialization
 
 ## 1.0.8
@@ -37,7 +43,7 @@
 - Add agent listeners for devtools playcontrol events
 - Add destroy method to LanguageManager implmentation
   
-## 1.0.71
+## 1.0.7.1
 
 - Fix postMessage serializations
 ## 1.0.7

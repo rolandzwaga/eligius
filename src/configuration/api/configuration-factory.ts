@@ -25,6 +25,11 @@ export type TEngineConfigurationLists = Pick<
   | 'labels'
 >;
 
+type ConfigurationFactoryExtension = (
+  this: ConfigurationFactory,
+  ...rest: any[]
+) => void;
+
 export class ConfigurationFactory {
   actionCreatorFactory: ActionCreatorFactory;
   configuration: IEngineConfiguration;
@@ -32,6 +37,26 @@ export class ConfigurationFactory {
   constructor(config?: IEngineConfiguration) {
     this.configuration = config || ({} as any);
     this.actionCreatorFactory = new ActionCreatorFactory(this);
+  }
+
+  static extend<
+    T extends ConfigurationFactory,
+    K extends string | number | symbol,
+    C extends ConfigurationFactoryExtension
+  >(factory: T, extensionMethodName: K, extensionMethod: C) {
+    (factory as any)[extensionMethodName] = extensionMethod.bind(factory);
+    return factory as T & { [k in K]: typeof extensionMethod };
+  }
+
+  static extendMultiple<
+    T extends ConfigurationFactory,
+    C extends ConfigurationFactoryExtension,
+    D extends { [name: string]: C }
+  >(factory: T, extensions: D) {
+    Object.entries(extensions).forEach(([name, method]) =>
+      ConfigurationFactory.extend(factory, name, method)
+    );
+    return factory as T & typeof extensions;
   }
 
   init(defaultLanguage: string) {
@@ -92,7 +117,9 @@ export class ConfigurationFactory {
       this.configuration,
       'availableLanguages'
     );
-    const existing = languages.find(lang => lang.languageCode === languageCode);
+    const existing = languages.find(
+      (lang) => lang.languageCode === languageCode
+    );
 
     if (existing) {
       throw new Error(`Language code '${languageCode}' already exists`);
@@ -194,7 +221,7 @@ export class ConfigurationFactory {
   }
 
   getTimeline(uri: string) {
-    return this.configuration.timelines.find(t => t.uri === uri);
+    return this.configuration.timelines.find((t) => t.uri === uri);
   }
 
   removeTimeline(uri: string) {
@@ -209,7 +236,7 @@ export class ConfigurationFactory {
   }
 
   _initializeLabel(id: string, labels: ILanguageLabel[]) {
-    let label = labels.find(l => l.id === id);
+    let label = labels.find((l) => l.id === id);
     if (!label) {
       labels.push({
         id: id,
@@ -222,7 +249,7 @@ export class ConfigurationFactory {
 
   _getLabelTranslation(labelTranslations: ILabel[], languageCode: string) {
     let translation = labelTranslations.find(
-      l => l.languageCode === languageCode
+      (l) => l.languageCode === languageCode
     );
     if (!translation) {
       translation = {
@@ -247,16 +274,16 @@ export class ConfigurationFactory {
   }
 
   editAction(id: string) {
-    const actionConfig = this.configuration.actions.find(a => a.id === id);
+    const actionConfig = this.configuration.actions.find((a) => a.id === id);
     if (actionConfig) {
-      return new ActionEditor(actionConfig, this);
+      return new EndableActionEditor(actionConfig, this);
     }
     throw new Error(`Action not found for id ${id}`);
   }
 
   editEventAction(id: string) {
     const actionConfig = this.configuration.eventActions?.find(
-      a => a.id === id
+      (a) => a.id === id
     );
     if (actionConfig) {
       return new ActionEditor(actionConfig, this);
@@ -265,7 +292,9 @@ export class ConfigurationFactory {
   }
 
   editInitAction(id: string) {
-    const actionConfig = this.configuration.initActions.find(a => a.id === id);
+    const actionConfig = this.configuration.initActions.find(
+      (a) => a.id === id
+    );
     if (actionConfig) {
       return new EndableActionEditor(actionConfig, this);
     }
@@ -277,7 +306,7 @@ export class ConfigurationFactory {
     if (!timeline) {
       throw new Error(`Timeline not found for id ${id}`);
     }
-    const actionConfig = timeline.timelineActions.find(a => a.id === id);
+    const actionConfig = timeline.timelineActions.find((a) => a.id === id);
     if (actionConfig) {
       return new TimelineActionEditor(actionConfig, this);
     }

@@ -13,7 +13,7 @@ import { ConfigurationFactory } from './configuration-factory';
 export class ActionCreatorFactory {
   constructor(private readonly configurationfactory: ConfigurationFactory) {}
 
-  createAction(name: string): ActionCreator {
+  createAction(name: string): EndableActionCreator {
     const creator = new EndableActionCreator(name, this);
     this.configurationfactory.addAction(creator.actionConfig);
     return creator;
