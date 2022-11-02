@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import { Action } from '../../action';
 import { IResolvedOperation } from '../../configuration/types';
 import { Eventbus } from '../../eventbus';
-import { TOperationData } from '../../operation';
+import { IOperationContext, TOperationData } from '../../operation';
 import { endLoop } from '../../operation/end-loop';
 import { startLoop, TStartLoopOperationData } from '../../operation/start-loop';
 
@@ -32,11 +32,11 @@ StartEndLoop('should loop the given operation 10 times', async (context) => {
     id: 'id2',
     systemName: 'systemNam2',
     operationData: {},
-    instance: function (op: any) {
+    instance: function (this: IOperationContext, op: any) {
       if (!op.newCollection) {
         op.newCollection = [];
       }
-      op.newCollection.push(op.currentItem);
+      op.newCollection.push(this.currentItem);
       return op;
     },
   };
@@ -77,11 +77,11 @@ StartEndLoop(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
-        op.newCollection.push(op.currentItem);
+        op.newCollection.push(this.currentItem);
         return new Promise((resolve) => {
           setTimeout(() => {
             resolve(op);
@@ -127,11 +127,11 @@ StartEndLoop(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
-        op.newCollection.push(op.currentItem);
+        op.newCollection.push(this.currentItem);
         return op;
       },
     };
@@ -176,11 +176,11 @@ StartEndLoop('should skip the loop for a null collection', async (context) => {
     id: 'id2',
     systemName: 'systemNam2',
     operationData: {} as any,
-    instance: function (op) {
+    instance: function (this: IOperationContext, op) {
       if (!op.newCollection) {
         op.newCollection = [];
       }
-      op.newCollection.push(op.currentItem);
+      op.newCollection.push(this.currentItem);
       return op;
     },
   };
@@ -225,11 +225,11 @@ StartEndLoop('should correctly handle nested loops', async (context) => {
     id: 'id2',
     systemName: 'systemNam2',
     operationData: {},
-    instance: function (op: any) {
+    instance: function (this: IOperationContext, op: any) {
       if (!op.newCollection) {
         op.newCollection = [];
       }
-      op.newCollection.push(op.currentItem);
+      op.newCollection.push(this.currentItem);
       return op;
     },
   };
@@ -245,11 +245,11 @@ StartEndLoop('should correctly handle nested loops', async (context) => {
     id: 'id4',
     systemName: 'systemNam2',
     operationData: {},
-    instance: function (op: any) {
+    instance: function (this: IOperationContext, op: any) {
       if (!op.newNestedCollection) {
         op.newNestedCollection = [];
       }
-      op.newNestedCollection.push(op.currentItem);
+      op.newNestedCollection.push(this.currentItem);
       return op;
     },
   };
