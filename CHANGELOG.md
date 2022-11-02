@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.17
+- Add `when`, `otherwise` and `endWhen` operations to support if/else control flows
+- Add `defaultLanguage` to global data
+
 ## 1.0.16
 - Add static `extend` and `extendMultiple` methods to ConfigurationFactory
 - ActionCreatorFactory.ActionCreator now correctly returns an EndableActionCreator

@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import { IEventbus, TEventbusRemover } from './eventbus/types';
+import { setGlobal } from './operation/helper/set-global';
 import { TimelineEventNames } from './timeline-event-names';
 import { ILabel, ILanguageLabel, TResultCallback } from './types';
 
@@ -15,6 +16,7 @@ export class LanguageManager {
     if (!_currentLanguage) {
       throw new Error('language ctor arg cannot have zero length');
     }
+    setGlobal('defaultLanguage', _currentLanguage);
     this._setRootElementLang(_currentLanguage);
     this._labelLookup = this._createLabelLookup(labels);
     this._addEventbusListeners(_eventbus);

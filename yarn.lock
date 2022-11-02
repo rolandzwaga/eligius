@@ -2664,10 +2664,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:18.11.7":
-  version: 18.11.7
-  resolution: "@types/node@npm:18.11.7"
-  checksum: 69d630825cf6fbf580d08d76a4d4836ef8c34ed4fe0842221ade87d275f517099cbfabe8e22397208e564bd24926db97699ab9db5c091383269a432b336665e2
+"@types/node@npm:18.11.9":
+  version: 18.11.9
+  resolution: "@types/node@npm:18.11.9"
+  checksum: cc0aae109e9b7adefc32eecb838d6fad931663bb06484b5e9cbbbf74865c721b03d16fd8d74ad90e31dbe093d956a7c2c306ba5429ba0c00f3f7505103d7a496
   languageName: node
   linkType: hard
 
@@ -4624,7 +4624,7 @@ __metadata:
     "@types/jasmine": 4.3.0
     "@types/jquery": 3.5.14
     "@types/jsdom": ^20.0.0
-    "@types/node": 18.11.7
+    "@types/node": 18.11.9
     "@types/sinon": 10.0.13
     "@types/uuid": 8.3.4
     acorn: 8.8.1
@@ -4639,7 +4639,7 @@ __metadata:
     hotkeys-js: 3.10.0
     husky: 8.0.1
     jquery: 3.6.1
-    jsdom: 20.0.1
+    jsdom: 20.0.2
     jsdom-global: 3.0.2
     lottie-web: 5.9.6
     mediaelement: 5.1.0
@@ -4649,12 +4649,13 @@ __metadata:
     ts-morph: 16.0.0
     ts-node: 10.9.1
     tsconfig-paths: 4.1.0
-    tslib: 2.4.0
+    tslib: 2.4.1
     typedoc: 0.23.19
     typedoc-plugin-missing-exports: 1.0.0
     typescript: 4.8.4
     uuid: 9.0.0
     uvu: 0.5.6
+    watchlist: 0.3.1
   peerDependencies:
     jquery: 3.6.1
     lottie-web: 5.9.6
@@ -7289,9 +7290,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsdom@npm:20.0.1":
-  version: 20.0.1
-  resolution: "jsdom@npm:20.0.1"
+"jsdom@npm:20.0.2":
+  version: 20.0.2
+  resolution: "jsdom@npm:20.0.2"
   dependencies:
     abab: ^2.0.6
     acorn: ^8.8.0
@@ -7324,7 +7325,7 @@ __metadata:
   peerDependenciesMeta:
     canvas:
       optional: true
-  checksum: 9fc0b66a866f58a28e95f5a39b167ea663dc01c9754a019c356cc517d27ff0216055f37ace69e0f4414c51084adca8d5ec71c1e6faee3b8df0941a494167c3a0
+  checksum: 1912e73ecbc7cb1e458b63c4976a1f1dd40c1cdb9f91559cfeccb08c68ad1b9918c6260bd021559ecb1a7c233fae0d0c3fdcbd2ce82df597ef9373d67c8934c0
   languageName: node
   linkType: hard
 
@@ -7966,7 +7967,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mri@npm:^1.1.0":
+"mri@npm:^1.1.0, mri@npm:^1.1.5":
   version: 1.2.0
   resolution: "mri@npm:1.2.0"
   checksum: 83f515abbcff60150873e424894a2f65d68037e5a7fcde8a9e2b285ee9c13ac581b63cfc1e6826c4732de3aeb84902f7c1e16b7aff46cd3f897a0f757a894e85
@@ -10012,10 +10013,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:2.4.0, tslib@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "tslib@npm:2.4.0"
-  checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
+"tslib@npm:2.4.1":
+  version: 2.4.1
+  resolution: "tslib@npm:2.4.1"
+  checksum: 19480d6e0313292bd6505d4efe096a6b31c70e21cf08b5febf4da62e95c265c8f571f7b36fcc3d1a17e068032f59c269fab3459d6cd3ed6949eafecf64315fca
   languageName: node
   linkType: hard
 
@@ -10030,6 +10031,13 @@ __metadata:
   version: 2.1.0
   resolution: "tslib@npm:2.1.0"
   checksum: aa189c8179de0427b0906da30926fd53c59d96ec239dff87d6e6bc831f608df0cbd6f77c61dabc074408bd0aa0b9ae4ec35cb2c15f729e32f37274db5730cb78
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "tslib@npm:2.4.0"
+  checksum: 8c4aa6a3c5a754bf76aefc38026134180c053b7bd2f81338cb5e5ebf96fefa0f417bff221592bf801077f5bf990562f6264fecbc42cd3309b33872cb6fc3b113
   languageName: node
   linkType: hard
 
@@ -10393,6 +10401,17 @@ __metadata:
   dependencies:
     makeerror: 1.0.12
   checksum: ad7a257ea1e662e57ef2e018f97b3c02a7240ad5093c392186ce0bcf1f1a60bbadd520d073b9beb921ed99f64f065efb63dfc8eec689a80e569f93c1c5d5e16c
+  languageName: node
+  linkType: hard
+
+"watchlist@npm:0.3.1":
+  version: 0.3.1
+  resolution: "watchlist@npm:0.3.1"
+  dependencies:
+    mri: ^1.1.5
+  bin:
+    watchlist: bin.js
+  checksum: dd37609744ff890d025bbc9e34990ae48f986c7254b50e0ae163326bab81d578802194f7e601e621d826bdd75d684efbc678901df1af6601448c9d56ab387552
   languageName: node
   linkType: hard
 

@@ -4,3 +4,5 @@ node_modules
 dist
 /.yarn/cache
 /.yarn/install-state.gz
+jsonschema/operations
+jsonschema/operation-templates
