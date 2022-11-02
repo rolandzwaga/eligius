@@ -1,5 +1,5 @@
-import { resolveOperationOrGlobalDataPropertyChain } from './helper/resolve-operation-or-global-data-property-chain';
-import { TOperation } from './types';
+import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
+import { IOperationContext, TOperation } from './types';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =
@@ -27,7 +27,8 @@ export const when: TOperation<IWhenOperationData> = function (
 ) {
   const [left, operator, right] = parseExpression(
     operationData.expression,
-    operationData
+    operationData,
+    this
   );
 
   const evaluationResult = evaluations[operator](left, right);
@@ -41,7 +42,8 @@ export const when: TOperation<IWhenOperationData> = function (
 
 function parseExpression(
   expression: TExpression,
-  operationData: IWhenOperationData
+  operationData: IWhenOperationData,
+  operationContext: IOperationContext
 ): [TValue, TOperator, TValue] {
   let [left, right] = expression.split(/!=|==|>=|<=|>|</);
   const operator = expression.substring(
@@ -52,11 +54,11 @@ function parseExpression(
   const rightNr = +right;
   return [
     (isNaN(leftNr)
-      ? resolveOperationOrGlobalDataPropertyChain(operationData, left)
+      ? resolveExternalPropertyChain(operationData, operationContext, left)
       : leftNr) as TValue,
     operator,
     (isNaN(rightNr)
-      ? resolveOperationOrGlobalDataPropertyChain(operationData, right)
+      ? resolveExternalPropertyChain(operationData, operationContext, right)
       : rightNr) as TValue,
   ];
 }

@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
+import { IOperationContext } from '../../../../operation';
 import { resolvePropertyValues } from '../../../../operation/helper/resolve-property-values';
 import { setGlobal } from '../../../../operation/helper/set-global';
 
@@ -7,11 +8,12 @@ const ResolvePropertyValuesSuite = suite('resolvePropertyValues');
 
 ResolvePropertyValuesSuite('should resolve the given property values', () => {
   // given
-  const operationData = {
+  const operationData: any = {
     test1: 'test1',
     test2: 100,
     test3: true,
   };
+  const operationContext = {} as IOperationContext;
   const properties = {
     testValue1: 'operationdata.test1',
     testValue2: 'operationdata.test2',
@@ -21,7 +23,7 @@ ResolvePropertyValuesSuite('should resolve the given property values', () => {
   // test
   const resolved = resolvePropertyValues<
     typeof operationData & typeof properties
-  >(operationData as any, properties);
+  >(operationData, operationContext, properties);
 
   // expect
   expect(resolved.testValue1).to.equal('test1');
@@ -40,9 +42,14 @@ ResolvePropertyValuesSuite(
       currentItem: { title: 'test' },
       resolvedItem: 'operationdata.currentItem.title',
     };
+    const operationContext = {} as IOperationContext;
 
     // test
-    const resolved = resolvePropertyValues(operationData, operationData);
+    const resolved = resolvePropertyValues(
+      operationData,
+      operationContext,
+      operationData
+    );
 
     // expect
     expect(resolved.resolvedItem).to.equal('test');
@@ -60,13 +67,43 @@ ResolvePropertyValuesSuite(
       currentItem: { title: 'test' },
       resolvedItem: 'globaldata.globalTitle',
     };
+    const operationContext = {} as IOperationContext;
     setGlobal('globalTitle', 'global title');
 
     // test
-    const resolved = resolvePropertyValues(operationData, operationData);
+    const resolved = resolvePropertyValues(
+      operationData,
+      operationContext,
+      operationData
+    );
 
     // expect
     expect(resolved.resolvedItem).to.equal('global title');
+  }
+);
+
+ResolvePropertyValuesSuite(
+  'should resolve the given property values on the context',
+  () => {
+    // given
+    const operationData = {
+      test1: 'test1',
+      test2: 100,
+      test3: true,
+      currentItem: { title: 'test' },
+      resolvedItem: 'context.currentIndex',
+    };
+    const operationContext = { currentIndex: 100 } as IOperationContext;
+
+    // test
+    const resolved = resolvePropertyValues(
+      operationData,
+      operationContext,
+      operationData
+    );
+
+    // expect
+    expect(resolved.resolvedItem).to.equal(100);
   }
 );
 

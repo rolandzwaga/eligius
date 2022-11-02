@@ -26,11 +26,12 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
     );
   }
 
+  // First iteration of the loop
   if (context.loopIndex === undefined) {
     if (collection?.length) {
       context.loopIndex = 0;
       context.loopLength = collection.length - 1;
-      context.startIndex = context.currentIndex;
+      context.loopStartIndex = context.currentIndex;
     } else {
       context.skipNextOperation = true;
     }

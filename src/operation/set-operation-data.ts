@@ -20,7 +20,11 @@ export const setOperationData: TOperation<ISetOperationData> = function (
   delete operationData.properties;
   delete operationData.override;
 
-  const resolvedProperties = resolvePropertyValues(operationData, properties);
+  const resolvedProperties = resolvePropertyValues(
+    operationData,
+    this,
+    properties
+  );
 
   if (override) {
     operationData = resolvedProperties;

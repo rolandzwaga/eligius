@@ -1,16 +1,18 @@
-import { TOperationData } from '../../operation/types';
-import { resolveOperationOrGlobalDataPropertyChain } from './resolve-operation-or-global-data-property-chain';
+import { IOperationContext, TOperationData } from '../../operation/types';
+import { resolveExternalPropertyChain } from './resolve-external-property-chain';
 
 export function resolveEventArguments(
   operationData: TOperationData,
+  operationContext: IOperationContext,
   eventArgs?: any[]
 ) {
   if (!eventArgs) {
     return;
   }
-  const extract = resolveOperationOrGlobalDataPropertyChain.bind(
+  const resolve = resolveExternalPropertyChain.bind(
     null,
-    operationData
+    operationData,
+    operationContext
   );
-  return eventArgs.map(extract);
+  return eventArgs.map(resolve);
 }

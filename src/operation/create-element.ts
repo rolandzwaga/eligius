@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { resolvePropertyValues } from './helper/resolve-property-values';
-import { TOperation } from './types';
+import { IOperationContext, TOperation } from './types';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
@@ -21,12 +21,15 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  */
 export const createElement: TOperation<ICreateElementOperationData<any>> =
   function <T extends TTagNames>(
+    this: IOperationContext,
     operationData: ICreateElementOperationData<T>
   ) {
     operationData = resolvePropertyValues(
       operationData,
+      this,
       operationData
     ) as ICreateElementOperationData<T>;
+
     const { elementName, attributes, text } = operationData;
 
     const serializedAttrs = attributes

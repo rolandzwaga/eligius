@@ -28,7 +28,7 @@ StartLoopSuite(
     // expect
     expect(context.loopIndex).to.equal(0);
     expect(context.loopLength).to.equal(3);
-    expect(context.startIndex).to.equal(10);
+    expect(context.loopStartIndex).to.equal(10);
     expect(result.currentItem).to.equal(1);
   }
 );
@@ -55,7 +55,7 @@ StartLoopSuite(
     // expect
     expect(context.loopIndex).to.be.undefined;
     expect(context.loopLength).to.be.undefined;
-    expect(context.startIndex).to.be.undefined;
+    expect(context.loopStartIndex).to.be.undefined;
     expect(context.skipNextOperation).to.be.true;
     expect(result.currentItem).to.be.undefined;
   }
@@ -83,7 +83,7 @@ StartLoopSuite(
     // expect
     expect(context.loopIndex).to.be.undefined;
     expect(context.loopLength).to.be.undefined;
-    expect(context.startIndex).to.be.undefined;
+    expect(context.loopStartIndex).to.be.undefined;
     expect(context.skipNextOperation).to.be.true;
     expect(result.currentItem).to.be.undefined;
   }

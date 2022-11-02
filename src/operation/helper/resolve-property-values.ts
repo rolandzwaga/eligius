@@ -1,20 +1,22 @@
 import $ from 'jquery';
-import { TOperationData } from '../../operation/types';
+import { IOperationContext, TOperationData } from '../../operation/types';
 import { isObject } from '../../util/guards/is-object';
 import { isString } from '../../util/guards/is-string';
 import { deepCopy } from './deep-copy';
-import { resolveOperationOrGlobalDataPropertyChain } from './resolve-operation-or-global-data-property-chain';
+import { resolveExternalPropertyChain } from './resolve-external-property-chain';
 
 const cache: any[] = [];
 
 export function resolvePropertyValues<T extends TOperationData>(
   operationData: T,
+  operationContext: IOperationContext,
   properties: Record<string, any>
 ): T {
   const copy = properties !== operationData ? deepCopy(properties) : properties;
-  const resolvePropertyChain = resolveOperationOrGlobalDataPropertyChain.bind(
+  const resolvePropertyChain = resolveExternalPropertyChain.bind(
     null,
-    operationData
+    operationData,
+    operationContext
   );
 
   resolveProperties(properties, copy, resolvePropertyChain);

@@ -18,6 +18,7 @@ export const setStyle: TOperation<ISetStyleOperationData> = function (
 ) {
   const properties = resolvePropertyValues(
     operationData,
+    this,
     operationData.properties
   );
   operationData.selectedElement.css(properties as JQuery.PlainObject);

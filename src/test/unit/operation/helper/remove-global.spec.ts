@@ -4,17 +4,18 @@ import { getGlobals } from '../../../../operation/helper/globals';
 import { removeGlobal } from '../../../../operation/helper/remove-global';
 import { setGlobal } from '../../../../operation/helper/set-global';
 
-const SetGlobalSuite = suite('setGlobal');
+const RemoveGlobalSuite = suite('removeGlobal');
 
-SetGlobalSuite.before(() => {
+RemoveGlobalSuite.before(() => {
   setGlobal('foo', 'bar');
 });
 
-SetGlobalSuite.after(() => {
+RemoveGlobalSuite.after(() => {
   removeGlobal('foo');
 });
 
-SetGlobalSuite('should set the global', () => {
+RemoveGlobalSuite('should set the global', () => {
+  removeGlobal('foo');
   const value = getGlobals('foo');
-  expect(value).to.equal('bar');
+  expect(value).to.be.undefined;
 });

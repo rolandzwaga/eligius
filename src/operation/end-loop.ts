@@ -19,11 +19,11 @@ export const endLoop: TOperation<TOperationData> = function (
       context.loopIndex < context.loopLength
     ) {
       context.loopIndex = context.loopIndex + 1;
-      context.newIndex = context.startIndex;
+      context.newIndex = context.loopStartIndex;
     } else {
       delete context.loopIndex;
       delete context.loopLength;
-      delete context.startIndex;
+      delete context.loopStartIndex;
       delete context.newIndex;
     }
   } else {

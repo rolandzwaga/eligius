@@ -1,4 +1,5 @@
 import { isString } from '../../util/guards/is-string';
+import { IOperationContext } from '../types';
 import { getPropertyChainValue } from './get-property-chain-value';
 import { getGlobals } from './globals';
 
@@ -14,8 +15,9 @@ import { getGlobals } from './globals';
  * @param propertyChainOrRegularObject A period delimited string, or just a regular object
  * @returns
  */
-export function resolveOperationOrGlobalDataPropertyChain(
+export function resolveExternalPropertyChain(
   sourceObject: any,
+  operationContext: IOperationContext,
   propertyChainOrRegularObject: any
 ) {
   if (isString(propertyChainOrRegularObject)) {
@@ -26,6 +28,8 @@ export function resolveOperationOrGlobalDataPropertyChain(
         return getPropertyChainValue(propNames, sourceObject);
       case 'globaldata':
         return getPropertyChainValue(propNames, getGlobals());
+      case 'context':
+        return getPropertyChainValue(propNames, operationContext);
     }
   }
 

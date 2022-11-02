@@ -18,7 +18,11 @@ export const broadcastEvent: TOperation<IBroadcastEventOperationData> =
   function (operationData: IBroadcastEventOperationData) {
     const { eventArgs, eventTopic, eventName } = operationData;
 
-    const eventArguments = resolveEventArguments(operationData, eventArgs);
+    const eventArguments = resolveEventArguments(
+      operationData,
+      this,
+      eventArgs
+    );
 
     if (eventTopic) {
       this.eventbus.broadcastForTopic(eventName, eventTopic, eventArguments);

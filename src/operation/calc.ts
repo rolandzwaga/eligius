@@ -30,7 +30,7 @@ const calcFunctions: Record<
 export const calc: TOperation<ICalcOperationData> = function (
   operationData: ICalcOperationData
 ) {
-  operationData = resolvePropertyValues(operationData, operationData);
+  operationData = resolvePropertyValues(operationData, this, operationData);
 
   const { left, right, operator } = operationData;
 

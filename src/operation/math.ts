@@ -17,7 +17,7 @@ export interface IMathOperationData {
 export const math: TOperation<IMathOperationData> = function (
   operationData: IMathOperationData
 ) {
-  operationData = resolvePropertyValues(operationData, operationData);
+  operationData = resolvePropertyValues(operationData, this, operationData);
   operationData.args = resolveMathConstants(operationData.args);
 
   const { args, functionName } = operationData;
