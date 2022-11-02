@@ -63,7 +63,6 @@ CreateOptionList.before((context) => {
       elementName: 'select',
       attributes: {
         'data-language-selector': 'true',
-        defaultValue: 'nl-NL',
       },
     })
     .addStartOperationByType(setElementContent, { insertionType: 'prepend' })

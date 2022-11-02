@@ -87,6 +87,9 @@
             "$ref": "operations/end-loop.json"
           },
           {
+            "$ref": "operations/end-when.json"
+          },
+          {
             "$ref": "operations/extend-controller.json"
           },
           {
@@ -115,6 +118,9 @@
           },
           {
             "$ref": "operations/math.json"
+          },
+          {
+            "$ref": "operations/otherwise.json"
           },
           {
             "$ref": "operations/remove-class.json"
@@ -169,6 +175,9 @@
           },
           {
             "$ref": "operations/wait.json"
+          },
+          {
+            "$ref": "operations/when.json"
           }
         ]
       }
@@ -216,6 +225,9 @@
             "$ref": "operations/end-loop.json"
           },
           {
+            "$ref": "operations/end-when.json"
+          },
+          {
             "$ref": "operations/extend-controller.json"
           },
           {
@@ -244,6 +256,9 @@
           },
           {
             "$ref": "operations/math.json"
+          },
+          {
+            "$ref": "operations/otherwise.json"
           },
           {
             "$ref": "operations/remove-class.json"
@@ -298,6 +313,9 @@
           },
           {
             "$ref": "operations/wait.json"
+          },
+          {
+            "$ref": "operations/when.json"
           }
         ]
       }

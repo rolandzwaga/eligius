@@ -60,4 +60,5 @@ export type TParameterTypes =
   | 'ParameterType:labelId'
   | 'ParameterType:ImagePath'
   | 'ParameterType:QuadrantPosition'
-  | 'ParameterType:jQuery';
+  | 'ParameterType:jQuery'
+  | 'ParameterType:expression';

@@ -291,6 +291,7 @@ function metadataType2SchemaType(value: TParameterTypes) {
     case 'ParameterType:labelId':
     case 'ParameterType:ImagePath':
     case 'ParameterType:dimensionsModifier':
+    case 'ParameterType:expression':
       return 'string';
     case 'ParameterType:number':
       return 'number';

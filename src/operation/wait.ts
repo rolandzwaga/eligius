@@ -1,10 +1,10 @@
 import { internalResolve } from './helper/internal-resolve';
 import { TOperation } from './types';
 
-/**
- * 
- */
 export interface IWaitOperationData {
+  /**
+   * The amount of milliseconds the operation will wait for.
+   */
   milliseconds: number;
 }
 

@@ -16,16 +16,16 @@ import { getGlobals } from './globals';
  */
 export function resolveOperationOrGlobalDataPropertyChain(
   sourceObject: any,
-  propertyChainOrRegularObject: string | any
+  propertyChainOrRegularObject: any
 ) {
   if (isString(propertyChainOrRegularObject)) {
     const propNames = propertyChainOrRegularObject.split('.');
     const prefix = propNames.shift()?.toLowerCase();
-    if (prefix == 'operationdata') {
-      return getPropertyChainValue(propNames, sourceObject);
-    }
-    if (prefix == 'globaldata') {
-      return getPropertyChainValue(propNames, getGlobals());
+    switch (prefix) {
+      case 'operationdata':
+        return getPropertyChainValue(propNames, sourceObject);
+      case 'globaldata':
+        return getPropertyChainValue(propNames, getGlobals());
     }
   }
 
