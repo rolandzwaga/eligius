@@ -3,6 +3,7 @@ import { IOperationContext, TOperation } from '../operation';
 export const defaultContext: IOperationContext = {
   currentIndex: -1,
   eventbus: {} as any,
+  operations: [],
 };
 
 export function applyOperation<T = TOperation>(

@@ -37,7 +37,11 @@ GetControllerInstanceSuite(
     const newData = applyOperation<{ controllerInstance: IController<any> }>(
       getControllerInstance,
       operationData,
-      { currentIndex: -1, eventbus: eventbus as unknown as IEventbus }
+      {
+        currentIndex: -1,
+        eventbus: eventbus as unknown as IEventbus,
+        operations: [],
+      }
     );
 
     // expect

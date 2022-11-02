@@ -5,7 +5,7 @@
 import { expect } from 'chai';
 import { InspectOptions } from 'util';
 import { suite } from 'uvu';
-import { TOperationData } from '../../../operation';
+import { IOperationContext, TOperationData } from '../../../operation';
 import { log } from '../../../operation/log';
 import { applyOperation } from '../../../util/apply-operation';
 
@@ -22,7 +22,11 @@ LogSuite.after((context) => {
 
 LogSuite('should log the context and operation data', () => {
   // given
-  const context = { currentIndex: -1, eventbus: {} as any };
+  const context: IOperationContext = {
+    currentIndex: -1,
+    eventbus: {} as any,
+    operations: [],
+  };
   const operationData: TOperationData = { data: true };
   const loggedLines: any[] = [];
   window.console.dir = (input: any) => {

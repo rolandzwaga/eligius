@@ -8,6 +8,7 @@ import { IAction } from './types';
 
 export class Action implements IAction {
   public id = '';
+  protected _contextStack: IOperationContext[] = [];
 
   constructor(
     public name: string,
@@ -15,19 +16,19 @@ export class Action implements IAction {
     protected eventbus: IEventbus
   ) {}
 
-  start(
-    initOperationData?: TOperationData
-  ): Promise<TOperationData | undefined> {
+  start(initOperationData?: TOperationData): Promise<TOperationData> {
     Diagnostics.active &&
       Diagnostics.send(
         'eligius-diagnostics-action',
         `${this.name ?? 'Action'} begins executing start operations`
       );
 
-    const context: IOperationContext = {
+    this._contextStack = [];
+    this._contextStack.push({
       currentIndex: -1,
       eventbus: this.eventbus,
-    };
+      operations: this.startOperations,
+    });
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
@@ -35,8 +36,7 @@ export class Action implements IAction {
         0,
         resolve,
         reject,
-        initOperationData,
-        context
+        initOperationData
       );
     }).catch((e) => {
       Diagnostics.active &&
@@ -59,14 +59,30 @@ export class Action implements IAction {
         });
   }
 
+  private _pushContext(parentContext: IOperationContext): IOperationContext {
+    const newContext = {
+      currentIndex: parentContext.currentIndex,
+      eventbus: parentContext.eventbus,
+      operations: parentContext.operations,
+    };
+    this._contextStack.push(newContext);
+    return newContext;
+  }
+
+  private _popContext() {
+    const previousContext = this._contextStack.pop() as IOperationContext;
+    const newCurrentContext = this._contextStack[this._contextStack.length - 1];
+    newCurrentContext.currentIndex = previousContext.currentIndex;
+  }
+
   executeOperation(
     operations: IResolvedOperation[],
     idx: number,
     resolve: (value?: any | PromiseLike<any>) => void,
     reject: (reason?: any) => void,
-    previousOperationData: TOperationData | undefined = {},
-    context: IOperationContext
+    previousOperationData: TOperationData | undefined = {}
   ): void {
+    let context = this._contextStack[this._contextStack.length - 1];
     if (context.newIndex !== undefined) {
       idx = context.newIndex;
       delete context.newIndex;
@@ -74,28 +90,24 @@ export class Action implements IAction {
 
     context.currentIndex = idx;
 
-    if (context.skipNextOperation) {
-      if (idx < operations.length) {
-        this.executeOperation(
-          operations,
-          ++idx,
-          resolve,
-          reject,
-          previousOperationData,
-          context
-        );
-      } else {
-        resolve(previousOperationData);
-      }
-    }
-
     if (idx < operations.length) {
       const operationInfo = operations[idx];
 
-      const copy = operationInfo.operationData
-        ? deepCopy(operationInfo.operationData)
-        : {};
+      const copy = deepCopy(operationInfo.operationData ?? {});
+
       const mergedOperationData = Object.assign(previousOperationData, copy);
+
+      if (operationInfo.systemName === 'when') {
+        context = this._pushContext(context);
+      }
+
+      if (
+        operationInfo.systemName === 'startLoop' &&
+        context.owner !== operationInfo.instance
+      ) {
+        context = this._pushContext(context);
+        context.owner = operationInfo.instance;
+      }
 
       Diagnostics.active &&
         Diagnostics.send('eligius-diagnostics-operation', {
@@ -112,6 +124,14 @@ export class Action implements IAction {
         mergedOperationData
       );
 
+      if (
+        operationInfo.systemName === 'endWhen' ||
+        (operationInfo.systemName === 'endLoop' &&
+          context.newIndex === undefined)
+      ) {
+        this._popContext();
+      }
+
       if (isPromise(operationResult)) {
         operationResult
           .then((promisedOperationResult) =>
@@ -120,8 +140,7 @@ export class Action implements IAction {
               ++idx,
               resolve,
               reject,
-              promisedOperationResult,
-              context
+              promisedOperationResult
             )
           )
           .catch((error: any) => {
@@ -133,8 +152,7 @@ export class Action implements IAction {
           ++idx,
           resolve,
           reject,
-          operationResult,
-          context
+          operationResult
         );
       }
     } else {

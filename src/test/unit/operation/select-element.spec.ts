@@ -50,7 +50,7 @@ SelectElementSuite(
     const newData = applyOperation<{ selectedElement: any }>(
       selectElement,
       operationData,
-      { currentIndex: -1, eventbus }
+      { currentIndex: -1, eventbus, operations: [] }
     );
 
     // expect

@@ -1,8 +1,8 @@
-import { TOperation } from './types';
+import { IResolvedOperation } from '../configuration/types';
+import { IOperationContext, TOperation } from './types';
 
 export type TStartLoopOperationData = {
   collection: any[] | string;
-  currentItem: any;
 };
 
 /**
@@ -28,18 +28,47 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
 
   // First iteration of the loop
   if (context.loopIndex === undefined) {
+    context.loopEndIndex = findLoopEndIndex(context);
     if (collection?.length) {
       context.loopIndex = 0;
       context.loopLength = collection.length - 1;
       context.loopStartIndex = context.currentIndex;
     } else {
-      context.skipNextOperation = true;
+      context.newIndex = context.loopEndIndex;
+
+      delete context.loopIndex;
+      delete context.loopLength;
+      delete context.loopStartIndex;
+      delete context.loopEndIndex;
     }
   }
 
   if (collection?.length && context.loopIndex !== undefined) {
-    operationData.currentItem = collection[context.loopIndex];
+    this.currentItem = collection[context.loopIndex];
   }
 
   return operationData;
 };
+
+function findLoopEndIndex(context: IOperationContext) {
+  const list = context.operations.slice(context.currentIndex + 1);
+
+  const index = list.findIndex(checkLoop.bind({ counter: 0 }));
+  const endLoopIndex =
+    index > -1 ? index + (context.currentIndex + 1) : context.operations.length;
+
+  return endLoopIndex;
+}
+
+function checkLoop(this: { counter: number }, operation: IResolvedOperation) {
+  if (operation.systemName === 'startLoop') {
+    this.counter = this.counter + 1;
+  }
+  if (operation.systemName === 'endLoop' && this.counter === 0) {
+    return true;
+  }
+  if (operation.systemName === 'endLoop' && this.counter > 0) {
+    this.counter = this.counter - 1;
+  }
+  return false;
+}

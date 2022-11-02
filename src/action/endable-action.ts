@@ -1,7 +1,7 @@
 import { IResolvedOperation } from '../configuration/types';
 import { Diagnostics } from '../diagnostics';
 import { IEventbus } from '../eventbus/types';
-import { IOperationContext, TOperationData } from '../operation/types';
+import { TOperationData } from '../operation/types';
 import { Action } from './action';
 
 export class EndableAction extends Action {
@@ -14,7 +14,7 @@ export class EndableAction extends Action {
     super(name, startOperations, eventBus);
   }
 
-  end(initOperationData?: TOperationData): Promise<TOperationData | undefined> {
+  end(initOperationData?: TOperationData): Promise<TOperationData> {
     Diagnostics.active &&
       Diagnostics.send(
         'eligius-diagnostics-action',
@@ -22,13 +22,15 @@ export class EndableAction extends Action {
       );
 
     if (!this.endOperations.length) {
-      return Promise.resolve(initOperationData);
+      return Promise.resolve(initOperationData ?? {});
     }
 
-    const context: IOperationContext = {
+    this._contextStack = [];
+    this._contextStack.push({
       currentIndex: -1,
       eventbus: this.eventbus,
-    };
+      operations: this.startOperations,
+    });
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
@@ -36,8 +38,7 @@ export class EndableAction extends Action {
         0,
         resolve,
         reject,
-        initOperationData,
-        context
+        initOperationData
       );
     }).catch((e) => {
       console.error(`Error in action end '${this.name}'`);

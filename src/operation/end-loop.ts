@@ -1,5 +1,4 @@
-import { TOperationData } from '.';
-import { TOperation } from './types';
+import { TOperation, TOperationData } from './types';
 
 /**
  * This operation checks if the current loop should end or start the next iteration.
@@ -10,24 +9,14 @@ import { TOperation } from './types';
 export const endLoop: TOperation<TOperationData> = function (
   operationData: TOperationData
 ) {
-  const context = this;
-
-  if (!context.skipNextOperation) {
-    if (
-      context.loopIndex !== undefined &&
-      context.loopLength !== undefined &&
-      context.loopIndex < context.loopLength
-    ) {
-      context.loopIndex = context.loopIndex + 1;
-      context.newIndex = context.loopStartIndex;
-    } else {
-      delete context.loopIndex;
-      delete context.loopLength;
-      delete context.loopStartIndex;
-      delete context.newIndex;
-    }
-  } else {
-    delete context.skipNextOperation;
+  if (
+    this.loopIndex !== undefined &&
+    this.loopLength !== undefined &&
+    this.loopIndex < this.loopLength
+  ) {
+    this.loopIndex = this.loopIndex + 1;
+    this.newIndex = this.loopStartIndex;
+    delete this.currentItem;
   }
 
   return operationData;

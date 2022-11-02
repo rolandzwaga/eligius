@@ -13,23 +13,20 @@ StartLoopSuite(
     const context: IOperationContext = {
       currentIndex: 10,
       eventbus: {} as any,
+      operations: [],
     };
     const operationData = {
       collection: [1, 2, 3, 4],
     };
 
     // test
-    const result = applyOperation<{ currentItem: number }>(
-      startLoop,
-      operationData,
-      context
-    );
+    applyOperation<{ currentItem: number }>(startLoop, operationData, context);
 
     // expect
     expect(context.loopIndex).to.equal(0);
     expect(context.loopLength).to.equal(3);
     expect(context.loopStartIndex).to.equal(10);
-    expect(result.currentItem).to.equal(1);
+    expect(context.currentItem).to.equal(1);
   }
 );
 
@@ -40,24 +37,20 @@ StartLoopSuite(
     const context: IOperationContext = {
       currentIndex: 10,
       eventbus: {} as any,
+      operations: [],
     };
     const operationData = {
       collection: [],
     };
 
     // test
-    const result = applyOperation<{ currentItem: number }>(
-      startLoop,
-      operationData,
-      context
-    );
+    applyOperation<{ currentItem: number }>(startLoop, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.undefined;
     expect(context.loopLength).to.be.undefined;
     expect(context.loopStartIndex).to.be.undefined;
-    expect(context.skipNextOperation).to.be.true;
-    expect(result.currentItem).to.be.undefined;
+    expect(context.currentItem).to.be.undefined;
   }
 );
 
@@ -68,24 +61,20 @@ StartLoopSuite(
     const context: IOperationContext = {
       currentIndex: 10,
       eventbus: {} as any,
+      operations: [],
     };
     const operationData = {
       collection: null,
     };
 
     // test
-    const result = applyOperation<{ currentItem: number }>(
-      startLoop,
-      operationData,
-      context
-    );
+    applyOperation<{ currentItem: number }>(startLoop, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.undefined;
     expect(context.loopLength).to.be.undefined;
     expect(context.loopStartIndex).to.be.undefined;
-    expect(context.skipNextOperation).to.be.true;
-    expect(result.currentItem).to.be.undefined;
+    expect(context.currentItem).to.be.undefined;
   }
 );
 

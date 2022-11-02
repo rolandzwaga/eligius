@@ -20,7 +20,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==1',
       } as IWhenOperationData,
@@ -32,13 +32,12 @@ WhenConstruction(
       operationData: {},
       instance: function (op: any) {
         op.foo = true;
-        console.log('op.foo', op.foo);
         return op;
       },
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -61,7 +60,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
@@ -79,7 +78,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -102,7 +101,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
@@ -119,7 +118,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -153,7 +152,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
@@ -170,7 +169,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'otherwise',
       operationData: {},
       instance: otherwise,
     };
@@ -185,7 +184,7 @@ WhenConstruction(
     };
     const op5 = {
       id: 'id5',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -222,7 +221,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==1',
       } as IWhenOperationData,
@@ -239,7 +238,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'otherwise',
       operationData: {},
       instance: otherwise,
     };
@@ -254,7 +253,7 @@ WhenConstruction(
     };
     const op5 = {
       id: 'id5',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };

@@ -31,9 +31,11 @@ export const when: TOperation<IWhenOperationData> = function (
     this
   );
 
-  const evaluationResult = evaluations[operator](left, right);
+  this.whenEvaluation = evaluations[operator](left, right);
 
-  this.skipNextOperation = !evaluationResult;
+  if (!this.whenEvaluation) {
+    this.newIndex = findNextFlowControlIndex(this);
+  }
 
   delete (operationData as any).expression;
 
@@ -74,3 +76,22 @@ const evaluations: Record<
   '>': (left: string | number, right: string | number) => left > right,
   '<': (left: string | number, right: string | number) => left < right,
 };
+
+function findNextFlowControlIndex(context: IOperationContext) {
+  const list =
+    context.currentIndex > 0
+      ? context.operations.slice(context.currentIndex)
+      : context.operations;
+
+  const otherWiseIndex = list.findIndex((x) => x.systemName === 'otherwise');
+  if (otherWiseIndex > -1) {
+    return otherWiseIndex + context.currentIndex;
+  }
+
+  const endWhenIndex = list.findIndex((x) => x.systemName === 'endWhen');
+  if (endWhenIndex > -1) {
+    return endWhenIndex + context.currentIndex;
+  }
+
+  return context.operations.length;
+}
