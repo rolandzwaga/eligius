@@ -23,12 +23,13 @@ export class Action implements IAction {
         `${this.name ?? 'Action'} begins executing start operations`
       );
 
-    this._contextStack = [];
-    this._contextStack.push({
-      currentIndex: -1,
-      eventbus: this.eventbus,
-      operations: this.startOperations,
-    });
+    this._contextStack = [
+      {
+        currentIndex: -1,
+        eventbus: this.eventbus,
+        operations: this.startOperations,
+      },
+    ];
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
@@ -99,14 +100,12 @@ export class Action implements IAction {
 
       if (operationInfo.systemName === 'when') {
         context = this._pushContext(context);
-      }
-
-      if (
+      } else if (
         operationInfo.systemName === 'startLoop' &&
-        context.owner !== operationInfo.instance
+        context.owner !== operationInfo
       ) {
         context = this._pushContext(context);
-        context.owner = operationInfo.instance;
+        context.owner = operationInfo;
       }
 
       Diagnostics.active &&
