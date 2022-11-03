@@ -30,6 +30,91 @@ type ConfigurationFactoryExtension = (
   ...rest: any[]
 ) => void;
 
+/**
+ * This class offers a fluent and strongly typed DSL for creating Eligius configurations.
+ *
+ * To initialize a basic configuration to start off of:
+ * ```ts
+ * const factory = new ConfigurationFactory()
+ * .init("en-US")                                               // Define the default language
+ * .addLanguage("en-US", "English")                             // Add English as a supported language
+ * .addLanguage("nl-NL", "Nederlands")                          // Add Dutch as a supported language
+ * .setLayoutTemplate("<div class=\"main.container\"></div>")   // Add the main container for the presentation
+ * .setContainerSelector("#ct-container")                       // Selector for the element in the body that will contain the presentation
+ * .addTimeline(                                                // Add a first timeline
+ *   'timeline-1',          // Give it a name
+ *   "animation",           // This is RAF based timeline
+ *   200,                   // The duration of the timeline in seconds
+ *   false,                 // The presentation does NOT play in a loop
+ *   ".timeline-container"  // The element within the main layout (defined by the layoutTemplate) in which the timeline will be rendered
+ * )
+ * .editTimelineProviderSettings()                          // Add a timeline provider
+ * .addProvider("animation")                                // One that provides timelines for type 'animation'
+ * .setSystemName("RequestAnimationFrameTimelineProvider")  // The system name of the provider
+ * .setVendor("eligius")                                    // Eligius is the vendor in this case
+ * .end();                                                  // This finally returns the ConfigurationFactory instance
+ * ```
+ *
+ * Then to add an init action:
+ * ```ts
+ * factory
+ *  .createInitAction("GetUserName")
+ *  .addStartOperationByType(getQueryParams, {
+ *   defaultValues: { username: "guest" },
+ *  })
+ *  .addStartOperationByType(setGlobalData, { properties: ["queryParams"] });
+ * ```
+ *
+ * After that, add a timeline action:
+ * ```ts
+ * factory.createTimelineAction("timeline-1", "AddIntroContainer")
+ *  .addDuration(0, 10)
+ *  .addStartOperationByType(selectElement, { selector: ".timeline-container" })
+ *  .addStartOperationByType(setElementContent, {
+ *    template: '<div class="intro-text"></div>',
+ *  })
+ *  .addEndOperationByType(selectElement, { selector: ".intro-text" })
+ *  .addEndOperationByType(removeElement, {});
+ * ```
+ *
+ * It also possible to extend the factory with specialized creation methods for the particular
+ * configuration you are building:
+ * ```ts
+ * function addImage(this: ConfigurationFactory, actionName: string, imageSrc: string, imageId: string) {
+ *  this.createInitAction(actionName)
+ *      .addStartOperationByType(selectElement, { selector: ".timeline-container" })
+ *      .addStartOperationByType(createElement, { element: 'img', attributes: {src: imageSrc, imageId} })
+ *      .addStartOperationByType(setElementContent, { insertionType: "append" })
+ *      .addEndOperationByType(selectElement, { selector: `#${imageId}` })
+ *      .addEndOperationByType(removeElement, {});
+ * }
+ *
+ * const customFactory = ConfigurationFactory.extend(factory, "addImage", addImage);
+ *
+ * customFactory.addImage("MyImageActionName", "my-image.png", "my-image-id");
+ * ```
+ *
+ * Finally, retrieve the configuration and save it:
+ * ```ts
+ * import fs from "fs";
+ *
+ * const configuration = customFactory.getConfiguration();
+ *
+ * fs.writeFileSync("/my/path/configuration.json", JSON.stringify(configuration), {encoding:'utf-8'})
+ * ```
+ *
+ * The `ConfigurationFactory` can also be used to edit an existing configuration. In this case, simply
+ * pass the JSON configuration to the `ConfigurationFactory`'s constructor:
+ * ```ts
+ * import myConfiguration from './my-configuration.json';
+ *
+ * const factory = new ConfigurationFactory(myConfiguration);
+ *
+ * factory.editInitAction("existingActionName")
+ *        .removeEndOperation("475fd0ab-5755-4e60-8f7c-e1988a109678");
+ * ```
+ *
+ */
 export class ConfigurationFactory {
   actionCreatorFactory: ActionCreatorFactory;
   configuration: IEngineConfiguration;
@@ -102,14 +187,16 @@ export class ConfigurationFactory {
   }
 
   getConfiguration(
-    callBack: (copy: IEngineConfiguration) => IEngineConfiguration | undefined
+    callBack?: (copy: IEngineConfiguration) => IEngineConfiguration | undefined
   ) {
     const copy = deepCopy<IEngineConfiguration>(this.configuration);
-    const newConfig = callBack.call(this, copy);
-    if (newConfig) {
-      this.configuration = newConfig;
+    if (callBack) {
+      const newConfig = callBack.call(this, copy);
+      if (newConfig) {
+        this.configuration = newConfig;
+      }
     }
-    return this;
+    return copy;
   }
 
   addLanguage(languageCode: string, languageLabel: string) {
@@ -270,6 +357,16 @@ export class ConfigurationFactory {
       code
     );
     labelTranslation.label = translation;
+    return this;
+  }
+
+  removeLabel(id: string) {
+    const idx = this.configuration.labels.findIndex((x) => x.id === id);
+    if (idx > -1) {
+      this.configuration.labels.splice(idx, 1);
+    } else {
+      throw new Error(`Label with id '${id}' not found!`);
+    }
     return this;
   }
 

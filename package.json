@@ -21,9 +21,10 @@
     "lint": "dts lint",
     "prepare": "dts build",
     "size": "size-limit",
+    "generate-operations-readme": "ts-node ./src/doc-tools/generate-operations-readme",
     "generate-schema": "ts-node ./src/schema-tools/generate-operation-schemas",
     "typedoc": "typedoc --options typedoc.json",
-    "docs": "yarn generate-schema && yarn typedoc && node copy-schema"
+    "docs": "yarn generate-schema && yarn typedoc && node copy-schema && yarn generate-operations-readme"
   },
   "prettier": {
     "printWidth": 80,
