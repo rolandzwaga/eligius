@@ -50,6 +50,10 @@ export interface IOperationContext {
    *
    */
   currentItem?: any;
+  /**
+   *
+   */
+  parent?: IOperationContext;
 }
 
 export type TOperation<T = TOperationData> = (

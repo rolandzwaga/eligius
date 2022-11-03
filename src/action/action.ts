@@ -66,18 +66,22 @@ export class Action implements IAction {
 
   private _pushContext(parentContext: IOperationContext): IOperationContext {
     const newContext = {
-      currentIndex: parentContext.currentIndex,
+      get currentIndex() {
+        return parentContext.currentIndex;
+      },
+      set currentIndex(value: number) {
+        parentContext.currentIndex = value;
+      },
       eventbus: parentContext.eventbus,
       operations: parentContext.operations,
+      parent: parentContext,
     };
     this._contextStack.push(newContext);
     return newContext;
   }
 
   private _popContext() {
-    const previousContext = this._contextStack.pop() as IOperationContext;
-    const newCurrentContext = this._contextStack[this._contextStack.length - 1];
-    newCurrentContext.currentIndex = previousContext.currentIndex;
+    this._contextStack.pop() as IOperationContext;
   }
 
   executeOperation(
