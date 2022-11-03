@@ -260,6 +260,25 @@ WhenSuite(
 );
 
 WhenSuite(
+  'should set newIndex to zero when left globaldata value is not equal to right globaldata value',
+  ({ operationContext, operationData }) => {
+    // given
+    operationContext.currentItem = {
+      left: 'foo',
+      right: 'bar',
+    };
+    operationData.expression =
+      'context.currentItem.left==context.currentItem.right';
+
+    // test
+    applyOperation(when, operationData, operationContext);
+
+    // expect
+    expect(operationContext.newIndex).to.equal(0);
+  }
+);
+
+WhenSuite(
   'should set newIndex to endWhen index when left globaldata value is not equal to right globaldata value',
   ({ operationContext, operationData }) => {
     // given

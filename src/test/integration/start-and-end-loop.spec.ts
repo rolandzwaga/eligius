@@ -331,6 +331,7 @@ StartEndLoop(
           op.newNestedCollection = [];
         }
         op.newNestedCollection.push(this.currentItem);
+        op.parentItem = this.parent?.currentItem;
         return op;
       },
     };
@@ -386,6 +387,10 @@ StartEndLoop(
     });
     assert.is(operationData.newNestedCollection.length, 20);
     assert.is(operationData.nestedWhen, true);
+    assert.is(
+      operationData.parentItem,
+      testCollection[testCollection.length - 1]
+    );
   }
 );
 

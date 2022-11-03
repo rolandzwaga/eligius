@@ -1,7 +1,12 @@
 # Change Log
 
+## 1.0.19
+- Assign parent context to each nested context.
+- Fix expression typing for context values.
+
 ## 1.0.18
 - Add support for nested control flow logic. I.e. Nested `for` loops, `when`/`otherwise` and a combination of these.
+
 ## 1.0.17
 - Add `when`, `otherwise` and `endWhen` operations to support if/else control flows
 - Add `defaultLanguage` to global data

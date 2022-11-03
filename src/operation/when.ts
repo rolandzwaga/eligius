@@ -7,7 +7,8 @@ type TValue =
   | `'${string}'`
   | number
   | `operationdata.${string}`
-  | `globaldata.${string}`;
+  | `globaldata.${string}`
+  | `context.${string}`;
 
 type TExpression = `${TValue}${TOperator}${TValue}`;
 
