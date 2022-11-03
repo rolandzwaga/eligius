@@ -7,24 +7,34 @@ import { resolveExternalPropertyChain } from './resolve-external-property-chain'
 
 const cache: any[] = [];
 
+/**
+ * This takes a `newProperties` instance, resolves all of the properties on this object and then
+ * assigns these properties to the given operationData.
+ * 
+ * @param operationData 
+ * @param operationContext 
+ * @param newProperties 
+ * @returns 
+ */
 export function resolvePropertyValues<T extends TOperationData>(
   operationData: T,
   operationContext: IOperationContext,
-  properties: Record<string, any>
+  newProperties: Record<string, any>
 ): T {
-  const copy = properties !== operationData ? deepCopy(properties) : properties;
+  const copy =
+    newProperties !== operationData ? deepCopy(newProperties) : newProperties;
   const resolvePropertyChain = resolveExternalPropertyChain.bind(
     null,
     operationData,
     operationContext
   );
 
-  resolveProperties(properties, copy, resolvePropertyChain);
+  resolveNewProperties(newProperties, copy, resolvePropertyChain);
 
   return copy as T;
 }
 
-function resolveProperties(
+function resolveNewProperties(
   properties: Record<string, any>,
   copy: Record<string, any>,
   resolvePropertyChain: (propertyChain: string) => any
@@ -49,11 +59,11 @@ function resolveProperties(
           if (isString(item)) {
             arr[index] = resolvePropertyChain(item);
           } else {
-            resolveProperties(item, item, resolvePropertyChain);
+            resolveNewProperties(item, item, resolvePropertyChain);
           }
         });
       } else if (isObject(value)) {
-        resolveProperties(value, value, resolvePropertyChain);
+        resolveNewProperties(value, value, resolvePropertyChain);
       }
     });
   } finally {
