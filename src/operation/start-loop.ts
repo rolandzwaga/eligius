@@ -1,4 +1,4 @@
-import { IResolvedOperation } from '../configuration/types';
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { IOperationContext, TOperation } from './types';
 
 export type TStartLoopOperationData = {
@@ -53,22 +53,15 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
 function findLoopEndIndex(context: IOperationContext) {
   const list = context.operations.slice(context.currentIndex + 1);
 
-  const index = list.findIndex(checkLoop.bind({ counter: 0 }));
+  const index = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'startLoop',
+      matchingName: 'endLoop',
+    })
+  );
   const endLoopIndex =
     index > -1 ? index + (context.currentIndex + 1) : context.operations.length;
 
   return endLoopIndex;
-}
-
-function checkLoop(this: { counter: number }, operation: IResolvedOperation) {
-  if (operation.systemName === 'startLoop') {
-    this.counter = this.counter + 1;
-  }
-  if (operation.systemName === 'endLoop' && this.counter === 0) {
-    return true;
-  }
-  if (operation.systemName === 'endLoop' && this.counter > 0) {
-    this.counter = this.counter - 1;
-  }
-  return false;
 }
