@@ -34,6 +34,7 @@ export const createElement: TOperation<ICreateElementOperationData<any>> =
 
     const serializedAttrs = attributes
       ? ` ${Object.entries(attributes)
+          .filter(([_, value]) => Boolean(value))
           .map(([key, value]) => `${key}="${value}"`)
           .join(' ')}`
       : '';

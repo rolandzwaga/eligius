@@ -58,33 +58,29 @@ WhenConstruction(
   async (context) => {
     const { action } = context;
 
-    const op1 = {
+    action.startOperations.push({
       id: 'id1',
       systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
       instance: when,
-    };
-    const op2 = {
+    });
+    action.startOperations.push({
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
       instance: function (op: any) {
         op.foo = true;
-        console.log('op.foo', op.foo);
         return op;
       },
-    };
-    const op3 = {
+    });
+    action.startOperations.push({
       id: 'id3',
       systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
-    };
-    action.startOperations.push(op1);
-    action.startOperations.push(op2);
-    action.startOperations.push(op3);
+    });
 
     // test
     const operationData = await action.start();

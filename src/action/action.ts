@@ -72,8 +72,12 @@ export class Action implements IAction {
       set currentIndex(value: number) {
         parentContext.currentIndex = value;
       },
-      eventbus: parentContext.eventbus,
-      operations: parentContext.operations,
+      get eventbus() {
+        return parentContext.eventbus;
+      },
+      get operations() {
+        return parentContext.operations;
+      },
       parent: parentContext,
     };
     this._contextStack.push(newContext);
@@ -81,26 +85,26 @@ export class Action implements IAction {
   }
 
   private _popContext() {
-    this._contextStack.pop() as IOperationContext;
+    this._contextStack.pop();
   }
 
   executeOperation(
     operations: IResolvedOperation[],
-    idx: number,
+    operationIndex: number,
     resolve: (value?: any | PromiseLike<any>) => void,
     reject: (reason?: any) => void,
     previousOperationData: TOperationData | undefined = {}
   ): void {
     let context = this._contextStack[this._contextStack.length - 1];
     if (context.newIndex !== undefined) {
-      idx = context.newIndex;
+      operationIndex = context.newIndex;
       delete context.newIndex;
     }
 
-    context.currentIndex = idx;
+    context.currentIndex = operationIndex;
 
-    if (idx < operations.length) {
-      const operationInfo = operations[idx];
+    if (operationIndex < operations.length) {
+      const operationInfo = operations[operationIndex];
 
       const copy = deepCopy(operationInfo.operationData ?? {});
 
@@ -144,7 +148,7 @@ export class Action implements IAction {
           .then((promisedOperationResult) =>
             this.executeOperation(
               operations,
-              ++idx,
+              ++operationIndex,
               resolve,
               reject,
               promisedOperationResult
@@ -156,7 +160,7 @@ export class Action implements IAction {
       } else {
         this.executeOperation(
           operations,
-          ++idx,
+          ++operationIndex,
           resolve,
           reject,
           operationResult
