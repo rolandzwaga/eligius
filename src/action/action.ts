@@ -36,7 +36,7 @@ export class Action implements IAction {
     }).catch((e) => {
       Diagnostics.active &&
         Diagnostics.send('eligius-diagnostics-action-error', {
-          name,
+          name: this.name,
           error: e,
         });
       console.error(`Error in action start '${this.name}'`);

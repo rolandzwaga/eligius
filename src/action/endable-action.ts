@@ -36,6 +36,11 @@ export class EndableAction extends Action {
         initOperationData
       );
     }).catch((e) => {
+      Diagnostics.active &&
+        Diagnostics.send('eligius-diagnostics-action-error', {
+          name: this.name,
+          error: e,
+        });
       console.error(`Error in action end '${this.name}'`);
       throw e;
     });
