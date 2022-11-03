@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { EOL } from 'os';
 import path from 'path';
 
 const docsJsonPath = path.resolve(__dirname, '../../docs.json');
@@ -55,7 +56,7 @@ function getFirstCommentLine(operationInfo: any) {
       (x: any) => x.kind === 'text'
     );
     if (line) {
-      return ` "${line.text.replaceAll('\r\n', ' ')}"`;
+      return ` "${line.text.replaceAll(EOL, ' ')}"`;
     }
   }
   return '';
