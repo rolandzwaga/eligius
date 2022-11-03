@@ -29,6 +29,7 @@ RequestActionSuite('should request the specified action', () => {
   const newData: any = applyOperation(requestAction, operationData, {
     currentIndex: -1,
     eventbus: eventbus as any,
+    operations: [],
   });
 
   // expect

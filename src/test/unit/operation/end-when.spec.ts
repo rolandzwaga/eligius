@@ -5,10 +5,10 @@ import { applyOperation } from '../../../util/apply-operation';
 
 const EndWhenSuite = suite('endWhen');
 
-EndWhenSuite('should delete skipNextOperation from context', () => {
+EndWhenSuite('should delete whenEvaluation from context', () => {
   // given
   const context = {
-    skipNextOperation: true,
+    whenEvaluation: true,
   } as any;
   const operationData = {};
 
@@ -16,7 +16,7 @@ EndWhenSuite('should delete skipNextOperation from context', () => {
   const result = applyOperation(endWhen, operationData, context);
 
   // expect
-  expect(context.skipNextOperation).to.be.undefined;
+  expect(context.whenEvaluation).to.be.undefined;
   expect(result).to.be.equal(operationData);
 });
 

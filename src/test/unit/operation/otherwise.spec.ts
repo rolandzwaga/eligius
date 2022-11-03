@@ -5,10 +5,11 @@ import { applyOperation } from '../../../util/apply-operation';
 
 const OtherwiseSuite = suite('otherwise');
 
-OtherwiseSuite('should set skipNextOperation to true when it is false', () => {
+OtherwiseSuite('should set newIndex to undefined when it is false', () => {
   // given
   const context = {
-    skipNextOperation: false,
+    whenEvaluation: false,
+    operations: [],
   } as any;
   const operationData = {};
 
@@ -16,14 +17,15 @@ OtherwiseSuite('should set skipNextOperation to true when it is false', () => {
   const result = applyOperation(otherwise, operationData, context);
 
   // expect
-  expect(context.skipNextOperation).to.be.true;
+  expect(context.newIndex).to.be.undefined;
   expect(result).to.be.equal(operationData);
 });
 
-OtherwiseSuite('should do nothing when skipNextOperation is undefined', () => {
+OtherwiseSuite('should do nothing when whenEvaluation is true', () => {
   // given
   const context = {
-    skipNextOperation: undefined,
+    whenEvaluation: true,
+    operations: [],
   } as any;
   const operationData = {};
 
@@ -31,7 +33,7 @@ OtherwiseSuite('should do nothing when skipNextOperation is undefined', () => {
   const result = applyOperation(otherwise, operationData, context);
 
   // expect
-  expect(context.skipNextOperation).to.be.undefined;
+  expect(context.newIndex).to.equal(0);
   expect(result).to.be.equal(operationData);
 });
 

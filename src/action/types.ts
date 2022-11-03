@@ -6,14 +6,12 @@ export interface IAction {
   id: string;
   name: string;
   startOperations: IResolvedOperation[];
-  start(
-    initOperationData?: TOperationData
-  ): Promise<TOperationData | undefined>;
+  start(initOperationData?: TOperationData): Promise<TOperationData>;
 }
 
 export interface IEndableAction extends IAction {
   endOperations: IResolvedOperation[];
-  end(initOperationData?: TOperationData): Promise<TOperationData | undefined>;
+  end(initOperationData?: TOperationData): Promise<TOperationData>;
 }
 
 export interface ITimelineAction extends IEndableAction {

@@ -1,15 +1,15 @@
-import { TOperation } from './types';
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
+import { IOperationContext, TOperation } from './types';
 
 export type TStartLoopOperationData = {
   collection: any[] | string;
-  currentItem: any;
 };
 
 /**
  * This operation starts a loop using the given collection.
  *
  * Each iteration the current item from the specified collection is
- * assigned to the `currentItem` property on the current operation data.
+ * assigned to the `currentItem` property on the operation context.
  *
  * @param operationData
  * @returns
@@ -17,7 +17,6 @@ export type TStartLoopOperationData = {
 export const startLoop: TOperation<TStartLoopOperationData> = function (
   operationData: TStartLoopOperationData
 ) {
-  const context = this;
   const { collection } = operationData;
 
   if (collection !== null && !Array.isArray(collection)) {
@@ -27,19 +26,41 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
   }
 
   // First iteration of the loop
-  if (context.loopIndex === undefined) {
+  if (this.loopIndex === undefined) {
+    this.loopEndIndex = findLoopEndIndex(this);
     if (collection?.length) {
-      context.loopIndex = 0;
-      context.loopLength = collection.length - 1;
-      context.loopStartIndex = context.currentIndex;
+      this.loopIndex = 0;
+      this.loopLength = collection.length - 1;
+      this.loopStartIndex = this.currentIndex;
     } else {
-      context.skipNextOperation = true;
+      this.newIndex = this.loopEndIndex;
+
+      delete this.loopIndex;
+      delete this.loopLength;
+      delete this.loopStartIndex;
+      delete this.loopEndIndex;
     }
   }
 
-  if (collection?.length && context.loopIndex !== undefined) {
-    operationData.currentItem = collection[context.loopIndex];
+  if (collection?.length && this.loopIndex !== undefined) {
+    this.currentItem = collection[this.loopIndex];
   }
 
   return operationData;
 };
+
+function findLoopEndIndex(context: IOperationContext) {
+  const list = context.operations.slice(context.currentIndex + 1);
+
+  const index = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'startLoop',
+      matchingName: 'endLoop',
+    })
+  );
+  const endLoopIndex =
+    index > -1 ? index + (context.currentIndex + 1) : context.operations.length;
+
+  return endLoopIndex;
+}

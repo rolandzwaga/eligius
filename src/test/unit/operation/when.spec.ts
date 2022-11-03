@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
+import { IResolvedOperation } from '../../../configuration/types';
 import { IOperationContext } from '../../../operation';
 import { setGlobals } from '../../../operation/helper/globals';
 import { IWhenOperationData, when } from '../../../operation/when';
@@ -10,9 +11,10 @@ const WhenSuite = suite<{
   operationData: IWhenOperationData & { left?: any; right?: any };
 }>('when');
 
-WhenSuite.before((context) => {
+WhenSuite.before.each((context) => {
   context.operationContext = {
-    skipNextOperation: false,
+    currentIndex: 0,
+    operations: [],
   } as any;
   context.operationData = {
     expression: '' as any,
@@ -20,7 +22,7 @@ WhenSuite.before((context) => {
 });
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left and right numbers are equal',
+  'should leave newIndex undefined when left and right numbers are equal',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '1==1';
@@ -28,12 +30,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left and right numbers are not equal',
+  'should set newIndex to zero when left and right numbers are not equal',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '1==2';
@@ -42,12 +44,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left and right numbers are not equal and check is for inequality',
+  'should set newIndex to undefined when left and right numbers are not equal and check is for inequality',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '1!=2';
@@ -56,12 +58,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left and right numbers are equal and check is for inequality',
+  'should set newIndex to zero when left and right numbers are equal and check is for inequality',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '1!=1';
@@ -70,12 +72,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left number is greater than right',
+  'should set newIndex to undefined when left number is greater than right',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '2>1';
@@ -84,12 +86,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left number is not greater than right',
+  'should set newIndex to zero when left number is not greater than right',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '2<1';
@@ -98,12 +100,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left number is greater or equal than right',
+  'should set newIndex to undefined when left number is greater or equal than right',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '2>=2';
@@ -112,12 +114,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left number is not greater or equal than right',
+  'should set newIndex to zero when left number is not greater or equal than right',
   ({ operationContext, operationData }) => {
     // given
     operationData.expression = '1>=2';
@@ -126,12 +128,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left operationdata value is equal to right operationdata value',
+  'should set newIndex to undefined when left operationdata value is equal to right operationdata value',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = 'foo';
@@ -142,12 +144,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left operationdata value is not equal to right operationdata value',
+  'should set newIndex to zero when left operationdata value is not equal to right operationdata value',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = 'foo';
@@ -158,12 +160,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left operationdata value is equal to right operationdata value and the check is for inequality',
+  'should set newIndex to zero when left operationdata value is equal to right operationdata value and the check is for inequality',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = 'foo';
@@ -174,12 +176,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left operationdata value is not equal to right operationdata value and the check is for inequality',
+  'should set newIndex to undefined when left operationdata value is not equal to right operationdata value and the check is for inequality',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = 'foo';
@@ -190,12 +192,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to false when left operationdata value is greater than right operationdata value',
+  'should set newIndex to undefined when left operationdata value is greater than right operationdata value',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = 2;
@@ -206,12 +208,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.false;
+    expect(operationContext.newIndex).to.be.undefined;
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left operationdata value is not greater than right operationdata value',
+  'should set newIndex to zero when left operationdata value is not greater than right operationdata value',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = 1;
@@ -222,12 +224,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left operationdata complex value is not greater than right operationdata value',
+  'should set newIndex to zero when left operationdata complex value is not greater than right operationdata value',
   ({ operationContext, operationData }) => {
     // given
     operationData.left = [];
@@ -238,12 +240,12 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
   }
 );
 
 WhenSuite(
-  'should set context.skipNextOperation to true when left globaldata value is not equal to right globaldata value',
+  'should set newIndex to zero when left globaldata value is not equal to right globaldata value',
   ({ operationContext, operationData }) => {
     // given
     setGlobals({ left: 'foo', right: 'bar' });
@@ -253,7 +255,28 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.skipNextOperation).to.be.true;
+    expect(operationContext.newIndex).to.equal(0);
+  }
+);
+
+WhenSuite(
+  'should set newIndex to endWhen index when left globaldata value is not equal to right globaldata value',
+  ({ operationContext, operationData }) => {
+    // given
+    setGlobals({ left: 'foo', right: 'bar' });
+    operationData.expression = 'globaldata.left==globaldata.right';
+    operationContext.operations.push({
+      systemName: 'selectElement',
+    } as IResolvedOperation);
+    operationContext.operations.push({
+      systemName: 'endWhen',
+    } as IResolvedOperation);
+
+    // test
+    applyOperation(when, operationData, operationContext);
+
+    // expect
+    expect(operationContext.newIndex).to.equal(1);
   }
 );
 

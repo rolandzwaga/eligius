@@ -20,7 +20,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==1',
       } as IWhenOperationData,
@@ -32,13 +32,12 @@ WhenConstruction(
       operationData: {},
       instance: function (op: any) {
         op.foo = true;
-        console.log('op.foo', op.foo);
         return op;
       },
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -61,7 +60,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
@@ -79,7 +78,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -102,7 +101,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
@@ -119,7 +118,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -153,7 +152,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==2',
       } as IWhenOperationData,
@@ -170,7 +169,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'otherwise',
       operationData: {},
       instance: otherwise,
     };
@@ -185,7 +184,7 @@ WhenConstruction(
     };
     const op5 = {
       id: 'id5',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -222,7 +221,7 @@ WhenConstruction(
 
     const op1 = {
       id: 'id1',
-      systemName: 'systemNam1',
+      systemName: 'when',
       operationData: {
         expression: '1==1',
       } as IWhenOperationData,
@@ -239,7 +238,7 @@ WhenConstruction(
     };
     const op3 = {
       id: 'id3',
-      systemName: 'systemNam3',
+      systemName: 'otherwise',
       operationData: {},
       instance: otherwise,
     };
@@ -254,7 +253,7 @@ WhenConstruction(
     };
     const op5 = {
       id: 'id5',
-      systemName: 'systemNam3',
+      systemName: 'endWhen',
       operationData: {},
       instance: endWhen,
     };
@@ -281,6 +280,159 @@ WhenConstruction(
     expect(operationData?.foo).to.be.true;
     expect(operationData?.bar).to.be.undefined;
     expect(operationData?.continued).to.be.true;
+  }
+);
+
+WhenConstruction(
+  'should support nested when/otherwises with nested when evaluating to false',
+  async (context) => {
+    const { action } = context;
+
+    action.startOperations.push({
+      id: 'id1',
+      systemName: 'when',
+      operationData: {
+        expression: '1==1',
+      } as IWhenOperationData,
+      instance: when,
+    });
+    action.startOperations.push({
+      id: 'id2',
+      systemName: 'when',
+      operationData: {
+        expression: '1==0',
+      } as IWhenOperationData,
+      instance: when,
+    });
+    action.startOperations.push({
+      id: 'id3',
+      systemName: 'when',
+      operationData: {},
+      instance: function (op: any) {
+        op.notSet = true;
+        return op;
+      },
+    });
+    action.startOperations.push({
+      id: 'id4',
+      systemName: 'when',
+      operationData: {},
+      instance: endWhen,
+    });
+    action.startOperations.push({
+      id: 'id5',
+      systemName: 'when',
+      operationData: {},
+      instance: endWhen,
+    });
+
+    // test
+    const operationData = await action.start();
+
+    // expect
+    expect(operationData?.notSet).to.be.undefined;
+  }
+);
+
+WhenConstruction(
+  "should support nested when/otherwises with inner 'when' evaluating to true",
+  async (context) => {
+    const { action } = context;
+
+    action.startOperations.push({
+      id: 'id1',
+      systemName: 'when',
+      operationData: {
+        expression: '1==1',
+      } as IWhenOperationData,
+      instance: when,
+    });
+    action.startOperations.push({
+      id: 'id2',
+      systemName: 'when',
+      operationData: {
+        expression: '2==2',
+      } as IWhenOperationData,
+      instance: when,
+    });
+    action.startOperations.push({
+      id: 'id3',
+      systemName: 'when',
+      operationData: {},
+      instance: function (op: any) {
+        op.notSet = true;
+        return op;
+      },
+    });
+    action.startOperations.push({
+      id: 'id4',
+      systemName: 'when',
+      operationData: {},
+      instance: endWhen,
+    });
+    action.startOperations.push({
+      id: 'id5',
+      systemName: 'when',
+      operationData: {},
+      instance: endWhen,
+    });
+
+    // test
+    const operationData = await action.start();
+
+    // expect
+    expect(operationData?.notSet).to.be.true;
+  }
+);
+
+WhenConstruction(
+  "should support nested when/otherwises with outer 'when' evaluating to false",
+  async (context) => {
+    const { action } = context;
+
+    action.startOperations.push({
+      id: 'id1',
+      systemName: 'when',
+      operationData: {
+        expression: '1==3',
+      } as IWhenOperationData,
+      instance: when,
+    });
+    action.startOperations.push({
+      id: 'id2',
+      systemName: 'when',
+      operationData: {
+        expression: '2==2',
+      } as IWhenOperationData,
+      instance: when,
+    });
+    action.startOperations.push({
+      id: 'id3',
+      systemName: 'when',
+      operationData: {},
+      instance: function (op: any) {
+        op.notSet = true;
+        return op;
+      },
+    });
+    action.startOperations.push({
+      id: 'id4',
+      systemName: 'when',
+      operationData: {},
+      instance: endWhen,
+    });
+    action.startOperations.push({
+      id: 'id5',
+      systemName: 'when',
+      operationData: {},
+      instance: endWhen,
+    });
+
+    // test
+    const operationData = await action.start();
+
+    // expect
+    expect(operationData?.notSet).to.be.undefined;
   }
 );
 

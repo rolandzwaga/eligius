@@ -34,10 +34,6 @@
         "collection": {
           "$id": "#/properties/operationData/collection",
           "type": "array"
-        },
-        "currentItem": {
-          "$id": "#/properties/operationData/currentItem",
-          "type": "object"
         }
       }
     }

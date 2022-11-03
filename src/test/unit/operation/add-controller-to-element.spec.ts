@@ -53,6 +53,7 @@ AddControllerToElementSuite(
     const data = applyOperation(addControllerToElement, operationData, {
       currentIndex: -1,
       eventbus,
+      operations: [],
     });
 
     // expect

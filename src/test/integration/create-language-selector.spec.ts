@@ -75,9 +75,9 @@ CreateOptionList.before((context) => {
     .addStartOperationByType(createElement, {
       elementName: 'option',
       attributes: {
-        value: 'operationdata.currentItem.languageCode',
+        value: 'context.currentItem.languageCode',
       },
-      text: 'operationdata.currentItem.label',
+      text: 'context.currentItem.label',
     })
     .addStartOperationByType(setElementContent, { insertionType: 'append' })
     .addStartOperationByType(endLoop, {})

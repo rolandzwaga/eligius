@@ -38,6 +38,7 @@ CustomFunctionSuite(
     await applyOperation<Promise<any>>(customFunction, operationData, {
       currentIndex: -1,
       eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
     });
 
     // expect
@@ -70,6 +71,7 @@ CustomFunctionSuite(
       {
         currentIndex: -1,
         eventbus: mockEventbus as unknown as IEventbus,
+        operations: [],
       }
     );
 

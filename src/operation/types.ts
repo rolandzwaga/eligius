@@ -1,3 +1,4 @@
+import { IResolvedOperation } from '../configuration/types';
 import { IEventbus } from '../eventbus';
 
 export type TOperationData = Record<string, any>;
@@ -14,9 +15,13 @@ export interface IOperationContext {
    */
   loopLength?: number;
   /**
-   * The start index of the llop within the total number of operations
+   * The start index of the loop within the total number of operations
    */
   loopStartIndex?: number;
+  /**
+   * The end index of the loop within the total number of operations
+   */
+  loopEndIndex?: number;
   /**
    * Set this index to change the current item in the main operations loop
    */
@@ -26,10 +31,25 @@ export interface IOperationContext {
    */
   currentIndex: number;
   /**
-   * While this is true, each subsequent operation in the loop will be skipped
+   * The eventbus instance shared amongst actions and operations
    */
-  skipNextOperation?: boolean;
   eventbus: IEventbus;
+  /**
+   * The list of operations that is currently being executed
+   */
+  operations: IResolvedOperation[];
+  /**
+   * The result of the last when evaluation, if any
+   */
+  whenEvaluation?: boolean;
+  /**
+   *
+   */
+  owner?: any;
+  /**
+   *
+   */
+  currentItem?: any;
 }
 
 export type TOperation<T = TOperationData> = (

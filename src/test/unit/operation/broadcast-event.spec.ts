@@ -40,6 +40,7 @@ BroadcastEventSuite(
       {
         currentIndex: -1,
         eventbus: eventbus as any,
+        operations: [],
       }
     );
 
@@ -69,6 +70,7 @@ BroadcastEventSuite(
       {
         currentIndex: -1,
         eventbus: eventbus as any,
+        operations: [],
       }
     );
 
@@ -100,6 +102,7 @@ BroadcastEventSuite(
       {
         currentIndex: -1,
         eventbus: eventbus as any,
+        operations: [],
       }
     );
 
@@ -134,6 +137,7 @@ BroadcastEventSuite(
       {
         currentIndex: -1,
         eventbus: eventbus as any,
+        operations: [],
       }
     );
 

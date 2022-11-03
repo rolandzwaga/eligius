@@ -1,3 +1,4 @@
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
 import { IOperationContext, TOperation } from './types';
 
@@ -31,9 +32,11 @@ export const when: TOperation<IWhenOperationData> = function (
     this
   );
 
-  const evaluationResult = evaluations[operator](left, right);
+  this.whenEvaluation = evaluations[operator](left, right);
 
-  this.skipNextOperation = !evaluationResult;
+  if (!this.whenEvaluation) {
+    this.newIndex = findNextFlowControlIndex(this);
+  }
 
   delete (operationData as any).expression;
 
@@ -74,3 +77,30 @@ const evaluations: Record<
   '>': (left: string | number, right: string | number) => left > right,
   '<': (left: string | number, right: string | number) => left < right,
 };
+
+function findNextFlowControlIndex(context: IOperationContext) {
+  const list = context.operations.slice(context.currentIndex + 1);
+
+  const otherWiseIndex = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'when',
+      matchingName: 'otherwise',
+    })
+  );
+  if (otherWiseIndex > -1) {
+    return otherWiseIndex + context.currentIndex + 1;
+  }
+
+  const endWhenIndex = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'when',
+      matchingName: 'endWhen',
+    })
+  );
+
+  return endWhenIndex > -1
+    ? endWhenIndex + (context.currentIndex + 1)
+    : context.operations.length;
+}
