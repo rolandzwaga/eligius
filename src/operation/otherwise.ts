@@ -9,7 +9,8 @@ export const otherwise: TOperation<{}> = function (operationData: {}) {
 };
 
 function findEndWhenIndex(context: IOperationContext) {
-  const list = context.operations.slice(context.currentIndex);
+  const currentIndex = context.currentIndex + 1;
+  const list = context.operations.slice(currentIndex);
 
   const endWhenIndex = list.findIndex(
     findMatchingOperationIndex.bind({
@@ -20,6 +21,6 @@ function findEndWhenIndex(context: IOperationContext) {
   );
 
   return endWhenIndex > -1
-    ? endWhenIndex + (context.currentIndex + 1)
+    ? endWhenIndex + currentIndex
     : context.operations.length;
 }

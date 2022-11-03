@@ -283,7 +283,12 @@ WhenSuite(
   ({ operationContext, operationData }) => {
     // given
     setGlobals({ left: 'foo', right: 'bar' });
+
     operationData.expression = 'globaldata.left==globaldata.right';
+
+    operationContext.operations.push({
+      systemName: 'when',
+    } as IResolvedOperation);
     operationContext.operations.push({
       systemName: 'selectElement',
     } as IResolvedOperation);
@@ -295,7 +300,7 @@ WhenSuite(
     applyOperation(when, operationData, operationContext);
 
     // expect
-    expect(operationContext.newIndex).to.equal(1);
+    expect(operationContext.newIndex).to.equal(2);
   }
 );
 

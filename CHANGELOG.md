@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.0.20
+- Fix `otherwise` operation properly finding its matching `endWhen` instance
+- `createElement` now ignores attribute values that are undefined
+
 ## 1.0.19
 - Assign parent context to each nested context.
 - Fix expression typing for context values.

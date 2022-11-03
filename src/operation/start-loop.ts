@@ -50,7 +50,8 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
 };
 
 function findLoopEndIndex(context: IOperationContext) {
-  const list = context.operations.slice(context.currentIndex + 1);
+  const currentIndex = context.currentIndex + 1;
+  const list = context.operations.slice(currentIndex);
 
   const index = list.findIndex(
     findMatchingOperationIndex.bind({
@@ -60,7 +61,7 @@ function findLoopEndIndex(context: IOperationContext) {
     })
   );
   const endLoopIndex =
-    index > -1 ? index + (context.currentIndex + 1) : context.operations.length;
+    index > -1 ? index + currentIndex : context.operations.length;
 
   return endLoopIndex;
 }

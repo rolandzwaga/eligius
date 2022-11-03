@@ -4,6 +4,8 @@
 
 import { expect } from 'chai';
 import { suite } from 'uvu';
+import { IEventbus } from '../../../eventbus';
+import { IOperationContext } from '../../../operation';
 import { createElement } from '../../../operation/create-element';
 import { applyOperation } from '../../../util/apply-operation';
 
@@ -77,5 +79,65 @@ CreateElementSuite('should create an element with attributes and text', () => {
     '<div class="testClass" id="testId">test text</div>'
   );
 });
+
+CreateElementSuite(
+  'should create an element with resolved attributes and text',
+  () => {
+    // given
+    const operationData = {
+      elementName: 'div',
+      className: 'resolved-class',
+      attributes: {
+        class: 'operationdata.className',
+        id: 'testId',
+      },
+      text: 'context.currentItem.label',
+    };
+
+    const context: IOperationContext = {
+      currentIndex: 0,
+      eventbus: {} as IEventbus,
+      operations: [],
+      currentItem: {
+        label: 'foo bar',
+      },
+    };
+
+    // test
+    const newData = applyOperation<{
+      template: { prop: (name: string) => string };
+    }>(createElement, operationData, context);
+
+    // expect
+    expect(newData.template.prop('outerHTML')).to.equal(
+      '<div class="resolved-class" id="testId">foo bar</div>'
+    );
+  }
+);
+
+CreateElementSuite(
+  'should create an element with attributes but ignore attribute values that are undefined',
+  () => {
+    // given
+    const operationData = {
+      elementName: 'div',
+      attributes: {
+        class: undefined,
+        id: 'testId',
+      },
+      text: 'test text',
+    };
+
+    // test
+    const newData = applyOperation<{
+      template: { prop: (name: string) => string };
+    }>(createElement, operationData);
+
+    // expect
+    expect(newData.template.prop('outerHTML')).to.equal(
+      '<div id="testId">test text</div>'
+    );
+  }
+);
 
 CreateElementSuite.run();

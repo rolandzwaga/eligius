@@ -80,7 +80,8 @@ const evaluations: Record<
 };
 
 function findNextFlowControlIndex(context: IOperationContext) {
-  const list = context.operations.slice(context.currentIndex + 1);
+  const currentIndex = context.currentIndex + 1;
+  const list = context.operations.slice(currentIndex);
 
   const otherWiseIndex = list.findIndex(
     findMatchingOperationIndex.bind({
@@ -90,7 +91,7 @@ function findNextFlowControlIndex(context: IOperationContext) {
     })
   );
   if (otherWiseIndex > -1) {
-    return otherWiseIndex + context.currentIndex + 1;
+    return otherWiseIndex + currentIndex;
   }
 
   const endWhenIndex = list.findIndex(
@@ -102,6 +103,6 @@ function findNextFlowControlIndex(context: IOperationContext) {
   );
 
   return endWhenIndex > -1
-    ? endWhenIndex + (context.currentIndex + 1)
+    ? endWhenIndex + currentIndex
     : context.operations.length;
 }

@@ -11,11 +11,15 @@ import {
   broadcastEvent,
   createElement,
   endLoop,
+  endWhen,
   getControllerInstance,
+  otherwise,
   removeControllerFromElement,
   selectElement,
   setElementContent,
+  setOperationData,
   startLoop,
+  when,
 } from '../../operation';
 import { TimelineEventNames } from '../../timeline-event-names';
 import { IEligiusEngine } from '../../types';
@@ -72,10 +76,27 @@ CreateOptionList.before((context) => {
     .addStartOperationByType(startLoop, {
       collection: 'config:availableLanguages',
     })
+    .addStartOperationByType(when, {
+      expression:
+        'context.parent.currentItem.languageCode==globaldata.defaultLanguage',
+    } as any)
+    .addStartOperationByType(setOperationData, {
+      properties: {
+        isSelectedItem: true,
+      },
+    })
+    .addStartOperationByType(otherwise, {})
+    .addStartOperationByType(setOperationData, {
+      properties: {
+        isSelectedItem: undefined,
+      },
+    })
+    .addStartOperationByType(endWhen, {})
     .addStartOperationByType(createElement, {
       elementName: 'option',
       attributes: {
         value: 'context.currentItem.languageCode',
+        selected: 'operationData.isSelectedItem',
       },
       text: 'context.currentItem.label',
     })
