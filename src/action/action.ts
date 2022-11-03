@@ -23,13 +23,7 @@ export class Action implements IAction {
         `${this.name ?? 'Action'} begins executing start operations`
       );
 
-    this._contextStack = [
-      {
-        currentIndex: -1,
-        eventbus: this.eventbus,
-        operations: this.startOperations,
-      },
-    ];
+    this._initializeContextStack();
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
@@ -58,6 +52,16 @@ export class Action implements IAction {
           );
           return operationsResult;
         });
+  }
+
+  protected _initializeContextStack() {
+    this._contextStack = [
+      {
+        currentIndex: -1,
+        eventbus: this.eventbus,
+        operations: this.startOperations,
+      },
+    ];
   }
 
   private _pushContext(parentContext: IOperationContext): IOperationContext {

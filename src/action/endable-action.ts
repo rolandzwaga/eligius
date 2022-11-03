@@ -25,13 +25,7 @@ export class EndableAction extends Action {
       return Promise.resolve(initOperationData ?? {});
     }
 
-    this._contextStack = [
-      {
-        currentIndex: -1,
-        eventbus: this.eventbus,
-        operations: this.startOperations,
-      },
-    ];
+    this._initializeContextStack();
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
