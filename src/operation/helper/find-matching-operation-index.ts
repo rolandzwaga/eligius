@@ -1,7 +1,29 @@
 import { IResolvedOperation } from '../../configuration/types';
 
 /**
- *
+ * This function can be used to find the index of a matching operation within a list of operations.
+ * 
+ * Given the array of operations:
+ * ```ts
+ * [
+ *  {systemName:'name1'},       // index 0
+ *  {systemName:'startLoop'},   // index 1
+ *    {systemName:'name2'},     // index 2
+ *    {systemName:'startLoop'}  // index 3
+ *      {systemName:'name3'}    // index 4
+ *    {systemName:'endLoop'}    // index 5
+ *  {systemName:'endLoop'}      // index 6
+ *  {systemName:'name3'}        // index 7
+ * ]
+ * ```
+ * 
+ * Given the startLoop instance at index 1, this function will return index 6. Given the startLoop at index 3, it will yield index 5.
+ * 
+ * Returns true when the given operation.systemName equals the specified matchingName and the current counter value is zero.
+ * 
+ * If the matchingName matches operation.systemName but the counter is greater than zero, the counter is decremented.
+ * 
+ * If the operation.systemName equal self (the name of the operation that requires to find its match), then counter is incremented.
  *
  * @param this
  * @param operation
@@ -13,6 +35,7 @@ export function findMatchingOperationIndex(
 ) {
   if (operation.systemName === this.self) {
     this.counter = this.counter + 1;
+    return false;
   }
 
   if (operation.systemName === this.matchingName && this.counter === 0) {

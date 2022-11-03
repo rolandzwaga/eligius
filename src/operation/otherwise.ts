@@ -1,3 +1,4 @@
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { IOperationContext, TOperation } from './types';
 
 export const otherwise: TOperation<{}> = function (operationData: {}) {
@@ -10,10 +11,15 @@ export const otherwise: TOperation<{}> = function (operationData: {}) {
 function findEndWhenIndex(context: IOperationContext) {
   const list = context.operations.slice(context.currentIndex);
 
-  const endWhenIndex = list.findIndex((x) => x.systemName === 'endWhen');
-  if (endWhenIndex > -1) {
-    return endWhenIndex + context.currentIndex;
-  }
+  const endWhenIndex = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'when',
+      matchingName: 'endWhen',
+    })
+  );
 
-  return context.operations.length;
+  return endWhenIndex > -1
+    ? endWhenIndex + (context.currentIndex + 1)
+    : context.operations.length;
 }

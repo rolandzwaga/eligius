@@ -9,7 +9,7 @@ export type TStartLoopOperationData = {
  * This operation starts a loop using the given collection.
  *
  * Each iteration the current item from the specified collection is
- * assigned to the `currentItem` property on the current operation data.
+ * assigned to the `currentItem` property on the operation context.
  *
  * @param operationData
  * @returns
@@ -17,7 +17,6 @@ export type TStartLoopOperationData = {
 export const startLoop: TOperation<TStartLoopOperationData> = function (
   operationData: TStartLoopOperationData
 ) {
-  const context = this;
   const { collection } = operationData;
 
   if (collection !== null && !Array.isArray(collection)) {
@@ -27,24 +26,24 @@ export const startLoop: TOperation<TStartLoopOperationData> = function (
   }
 
   // First iteration of the loop
-  if (context.loopIndex === undefined) {
-    context.loopEndIndex = findLoopEndIndex(context);
+  if (this.loopIndex === undefined) {
+    this.loopEndIndex = findLoopEndIndex(this);
     if (collection?.length) {
-      context.loopIndex = 0;
-      context.loopLength = collection.length - 1;
-      context.loopStartIndex = context.currentIndex;
+      this.loopIndex = 0;
+      this.loopLength = collection.length - 1;
+      this.loopStartIndex = this.currentIndex;
     } else {
-      context.newIndex = context.loopEndIndex;
+      this.newIndex = this.loopEndIndex;
 
-      delete context.loopIndex;
-      delete context.loopLength;
-      delete context.loopStartIndex;
-      delete context.loopEndIndex;
+      delete this.loopIndex;
+      delete this.loopLength;
+      delete this.loopStartIndex;
+      delete this.loopEndIndex;
     }
   }
 
-  if (collection?.length && context.loopIndex !== undefined) {
-    this.currentItem = collection[context.loopIndex];
+  if (collection?.length && this.loopIndex !== undefined) {
+    this.currentItem = collection[this.loopIndex];
   }
 
   return operationData;

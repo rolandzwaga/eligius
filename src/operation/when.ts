@@ -1,3 +1,4 @@
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
 import { IOperationContext, TOperation } from './types';
 
@@ -78,20 +79,28 @@ const evaluations: Record<
 };
 
 function findNextFlowControlIndex(context: IOperationContext) {
-  const list =
-    context.currentIndex > 0
-      ? context.operations.slice(context.currentIndex)
-      : context.operations;
+  const list = context.operations.slice(context.currentIndex + 1);
 
-  const otherWiseIndex = list.findIndex((x) => x.systemName === 'otherwise');
+  const otherWiseIndex = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'when',
+      matchingName: 'otherwise',
+    })
+  );
   if (otherWiseIndex > -1) {
-    return otherWiseIndex + context.currentIndex;
+    return otherWiseIndex + context.currentIndex + 1;
   }
 
-  const endWhenIndex = list.findIndex((x) => x.systemName === 'endWhen');
-  if (endWhenIndex > -1) {
-    return endWhenIndex + context.currentIndex;
-  }
+  const endWhenIndex = list.findIndex(
+    findMatchingOperationIndex.bind({
+      counter: 0,
+      self: 'when',
+      matchingName: 'endWhen',
+    })
+  );
 
-  return context.operations.length;
+  return endWhenIndex > -1
+    ? endWhenIndex + (context.currentIndex + 1)
+    : context.operations.length;
 }
