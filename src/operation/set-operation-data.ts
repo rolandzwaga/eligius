@@ -29,7 +29,10 @@ export const setOperationData: TOperation<ISetOperationData> = function (
   if (override) {
     operationData = resolvedProperties;
   } else {
-    operationData = Object.assign(operationData, resolvedProperties);
+    operationData = {
+      ...operationData,
+      ...resolvedProperties,
+    };
   }
 
   return operationData;
