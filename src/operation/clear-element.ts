@@ -5,7 +5,8 @@ export interface IClearElementOperationData {
 }
 
 /**
- * This operation removes all of the children from the specified selected element.
+ * This operation removes all of the children from the given selected element.
+ * 
  */
 export const clearElement: TOperation<IClearElementOperationData> = function(
   operationData: IClearElementOperationData

@@ -3,7 +3,7 @@ import { TOperation } from './types';
 
 export interface ISetOperationData {
   override?: boolean;
-  properties: any;
+  properties: Record<string, any>;
 }
 
 /**
@@ -17,7 +17,7 @@ export const setOperationData: TOperation<ISetOperationData> = function (
   operationData: ISetOperationData
 ) {
   const { override = false, properties } = operationData;
-  delete operationData.properties;
+  delete (operationData as any).properties;
   delete operationData.override;
 
   const resolvedProperties = resolvePropertyValues(

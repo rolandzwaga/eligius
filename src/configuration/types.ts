@@ -41,6 +41,17 @@ export interface IResolvedEngineConfiguration {
   labels: ILanguageLabel[];
 }
 
+export interface IResolvedActionConfiguration {
+  id: string;
+  name: string;
+  startOperations: IResolvedOperation[];
+}
+
+export interface IResolvedEndableActionConfiguration
+  extends IResolvedActionConfiguration {
+  endOperations: IResolvedOperation[];
+}
+
 export interface ITimelineFlow {}
 
 export interface ITimelineProviderSettings {

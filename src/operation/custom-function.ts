@@ -7,7 +7,7 @@ export interface ICustomFunctionOperationData {
 }
 
 /**
- * This operation retrieves a custom function defined by the specified system name
+ * This operation retrieves a custom function defined by the given system name
  * and invokes it with the current operation data and eventbus.
  *
  * @param operationData

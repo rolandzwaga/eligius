@@ -8,13 +8,18 @@ export interface IProgressbarControllerOperationData {
   textElement: JQuery;
 }
 
+/**
+ * This controller renders a progressbar that displays the progress of the current timeline in the given selected element.
+ * 
+ * The current progress as a percentage is rendered in the given text element.
+ */
 export class ProgressbarController
   implements IController<IProgressbarControllerOperationData>
 {
   name: string = 'ProgressbarController';
   selectedElement: JQuery | null = null;
   textElement: JQuery | null = null;
-  detachers: TEventbusRemover[] = [];
+  eventbusRemovers: TEventbusRemover[] = [];
   duration: number = 0;
 
   init(operationData: TOperationData) {
@@ -23,28 +28,28 @@ export class ProgressbarController
   }
 
   attach(eventbus: IEventbus) {
-    this.detachers.push(
+    this.eventbusRemovers.push(
       eventbus.on(
         TimelineEventNames.POSITION_UPDATE,
-        this.positionUpdateHandler.bind(this)
+        this._positionUpdateHandler.bind(this)
       )
     );
     eventbus.broadcast(TimelineEventNames.DURATION_REQUEST, [
       (duration: number) => (this.duration = duration),
     ]);
 
-    const clickHandler = this.clickHandler.bind(this, eventbus);
+    const clickHandler = this._clickHandler.bind(this, eventbus);
     this.selectedElement?.on('click', clickHandler);
-    this.detachers.push(() => this.selectedElement?.off('click', clickHandler));
+    this.eventbusRemovers.push(() => this.selectedElement?.off('click', clickHandler));
   }
 
   detach(_eventbus: IEventbus) {
-    this.detachers.forEach((func: () => void) => {
+    this.eventbusRemovers.forEach((func: () => void) => {
       func();
     });
   }
 
-  positionUpdateHandler({
+  private _positionUpdateHandler({
     position,
     duration,
   }: {
@@ -56,7 +61,7 @@ export class ProgressbarController
     this.textElement?.text(`${Math.floor(percentage)}%`);
   }
 
-  clickHandler(eventbus: IEventbus, event: any) {
+  private _clickHandler(eventbus: IEventbus, event: any) {
     const element = event.target as HTMLElement;
     const rect = element.getBoundingClientRect();
     const x = event.clientX - rect.left; //x position within the element.

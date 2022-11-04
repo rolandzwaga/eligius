@@ -6,7 +6,7 @@ export interface IRemoveClassOperationData {
 }
 
 /**
- * This operation removes the spcified class name from the specified selected element.
+ * This operation removes the spcified class name from the given selected element.
  *
  * @param operationData
  * @returns

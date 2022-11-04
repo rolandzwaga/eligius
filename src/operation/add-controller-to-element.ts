@@ -11,7 +11,7 @@ export type IAddControllerToElementOperationData<
 } & T;
 
 /**
- * This operation adds the specified controller instance to the specified selected element.
+ * This operation adds the specified controller instance to the given selected element.
  *
  * @param operationData
  * @returns

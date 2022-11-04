@@ -1,6 +1,13 @@
 import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { IOperationContext, TOperation } from './types';
 
+/**
+ * If the preceeding `when` operation evaluates to `true` subsequent operations will
+ * be skipped until an `endWhen` operation is encountered.
+ * 
+ * @param operationData 
+ * @returns 
+ */
 export const otherwise: TOperation<{}> = function (operationData: {}) {
   if (this.whenEvaluation) {
     this.newIndex = findEndWhenIndex(this);

@@ -18,7 +18,7 @@ export interface ISelectElementOperationData {
 /**
  * This operation selects one or more elements using the specified selector.
  *
- * If useSelectedElementAsRoot is set to true and a valid DOM element is assigned
+ * If `useSelectedElementAsRoot` is set to true and a valid DOM element is assigned
  * to the current operation data's `selectedElement` property
  * then the element will be looked for only in the descendant elements of this DOM element.
  *

@@ -3,8 +3,17 @@ import { TOperation } from './types';
 const jsonCache: Record<string, any> = {};
 
 export interface ILoadJSONOperationData {
+  /**
+   * The URL where the JSON will be retrieved from
+   */
   url: string;
+  /**
+   * If true, the results will be added to the cache and any subsequent call will use this cache
+   */
   cache: boolean;
+  /**
+   * The JSON retrieved from the given URL
+   */
   json?: any;
 }
 
@@ -28,7 +37,7 @@ export const addToCache = (key: string, value: any) => {
  * @param operationData
  * @returns
  */
-export const loadJSON: TOperation<ILoadJSONOperationData> = function (
+export const loadJSON: TOperation<ILoadJSONOperationData> = async function (
   operationData: ILoadJSONOperationData
 ) {
   const { url, cache } = operationData;
@@ -38,10 +47,13 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = function (
     return operationData;
   }
 
-  return fetch(url).then(async (response) => {
-    const json = await response.json();
-    const cacheValue = (operationData.json = json);
+  const response = await fetch(url);
+  const json = await response.json();
+  const cacheValue = (operationData.json = json);
+
+  if (cache) {
     addToCache(url, cacheValue);
-    return operationData;
-  });
+  }
+
+  return operationData;
 };

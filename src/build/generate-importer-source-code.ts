@@ -4,7 +4,7 @@ import {
   IActionConfiguration,
   IEndableActionConfiguration,
   IEngineConfiguration,
-  IOperationConfiguration,
+  IOperationConfiguration
 } from '../configuration/types';
 import dashToCamelCase from '../util/dash-to-camel-case';
 
@@ -20,7 +20,7 @@ export interface IAssetInfo {
 }
 
 /**
- * This function takes an Eligius engine configuration, a root path for the config and an arbitrary list of asset info.
+ * This function takes an Eligius engine configuration, a root path for the configuration file and an arbitrary list of asset info.
  * The asset info determines a number of subdirectories in the root path that contain the different assets used by the presentation.
  * I.e. html, json, etc.
  *

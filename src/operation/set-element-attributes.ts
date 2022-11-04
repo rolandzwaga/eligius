@@ -6,7 +6,7 @@ export interface ISetElementAttributesOperationData {
 }
 
 /**
- * This operation sets the given set of attributes on the specified selected element.
+ * This operation sets the specified set of attributes on the given selected element.
  *
  * @param operationData
  * @returns
@@ -14,8 +14,6 @@ export interface ISetElementAttributesOperationData {
 export const setElementAttributes: TOperation<ISetElementAttributesOperationData> =
   function (operationData: ISetElementAttributesOperationData) {
     const { attributes, selectedElement } = operationData;
-    Object.entries(attributes).forEach(([attrName, attrValue]) => {
-      selectedElement.attr(attrName, attrValue);
-    });
+    selectedElement.attr(attributes);
     return operationData;
   };

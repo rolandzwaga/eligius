@@ -25,13 +25,19 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
   url: string;
 }
 
+/**
+ * This controller renders a [lottie-web](https://github.com/airbnb/lottie-web) animation inside the given selected element.
+ *
+ * The url may encode freeze and end positions like this: my-url/filename[freeze=10,end=21].json
+ *
+ */
 export class LottieController
   implements IController<ILottieControllerMetadata>
 {
   name = 'LottieController';
-  currentLanguage: string | null = null;
+  currentLanguage: string = 'nl-NL';
   labelData: Record<string, Record<string, string>> = {};
-  listeners: TEventbusRemover[] = [];
+  eventbusRemovers: TEventbusRemover[] = [];
   animationItem: AnimationItem | null = null;
   operationData: IInnerMetadata | null = null;
   serializedData: string | null = null;
@@ -42,20 +48,10 @@ export class LottieController
   constructor() {}
 
   init(operationData: ILottieControllerMetadata) {
-    this.operationData = {
-      selectedElement: operationData.selectedElement,
-      renderer: operationData.renderer,
-      loop: operationData.loop,
-      autoplay: operationData.autoplay,
-      animationData: operationData.animationData,
-      json: operationData.json,
-      labelIds: operationData.labelIds,
-      viewBox: operationData.viewBox,
-      iefallback: operationData.iefallback,
-    };
+    this.operationData = { ...operationData };
 
     if (operationData.url.indexOf('[') > -1) {
-      this.parseFilename(operationData.url);
+      this._parseFilename(operationData.url);
     }
 
     this.serializedData = this.operationData.json
@@ -67,8 +63,8 @@ export class LottieController
     }
   }
 
-  parseFilename(name: string) {
-    const params = name.substr(
+  private _parseFilename(name: string) {
+    const params = name.substring(
       name.indexOf('[') + 1,
       name.indexOf(']') - name.indexOf('[') - 1
     );
@@ -101,23 +97,23 @@ export class LottieController
         resultHolder,
       ]);
       this.currentLanguage = resultHolder.language;
-      this.listeners.push(
+      this.eventbusRemovers.push(
         eventbus.on(
           TimelineEventNames.LANGUAGE_CHANGE,
-          this.handleLanguageChange.bind(this)
+          this._handleLanguageChange.bind(this)
         )
       );
       eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [
         this.operationData.labelIds,
         resultHolder,
       ]);
-      this.createTextDataLookup(resultHolder.labelCollections);
+      this._createTextDataLookup(resultHolder.labelCollections);
     }
-    this.createAnimation();
+    this._createAnimation();
   }
 
   detach(_eventbus: IEventbus) {
-    this.listeners.forEach((func) => {
+    this.eventbusRemovers.forEach((func) => {
       func();
     });
 
@@ -125,7 +121,7 @@ export class LottieController
       if (this.endPosition > -1) {
         this.animationItem.addEventListener(
           'complete',
-          this.destroy.bind(this)
+          this._destroy.bind(this)
         );
         this.animationItem.playSegments(
           [this.freezePosition, this.endPosition],
@@ -137,21 +133,21 @@ export class LottieController
     }
   }
 
-  destroy() {
+  private _destroy() {
     if (this.animationItem) {
       this.animationItem.destroy();
       this.animationItem = null;
     }
   }
 
-  createAnimation() {
+  private _createAnimation() {
     if (!this.operationData || !this.serializedData) {
       return;
     }
 
     this.animationItem?.destroy();
     let serialized =
-      this.isIE() && this.serializedIEData
+      this._isIE() && this.serializedIEData
         ? this.serializedIEData
         : this.serializedData;
 
@@ -160,7 +156,7 @@ export class LottieController
       labelIds.forEach((id) => {
         serialized = serialized
           .split(`!!${id}!!`)
-          .join(this.labelData[id][this.currentLanguage ?? '']);
+          .join(this.labelData[id][this.currentLanguage]);
       });
     }
     const animationData = JSON.parse(serialized);
@@ -188,7 +184,7 @@ export class LottieController
     }
   }
 
-  createTextDataLookup(data: any[]) {
+  private _createTextDataLookup(data: any[]) {
     data.forEach((infos, index) => {
       infos.forEach((d: any) => {
         if (this.operationData) {
@@ -198,12 +194,12 @@ export class LottieController
     });
   }
 
-  handleLanguageChange(code: string) {
+  private _handleLanguageChange(code: string) {
     this.currentLanguage = code;
-    this.createAnimation();
+    this._createAnimation();
   }
 
-  isIE() {
+  private _isIE() {
     const isIE = false || !!(window.document as any)['documentMode'];
 
     // Edge 20+

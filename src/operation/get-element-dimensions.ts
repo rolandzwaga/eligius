@@ -8,9 +8,9 @@ export interface IGetElementDimensionsOperationData {
 }
 
 /**
- * This operation calculates the width and height of the specified selected element.
+ * This operation calculates the width and height of the given selected element.
  * It assigns this struct to the dimensions property on the current operation data.
- * Optionally the width and height can be tweaked using the given modifier string.
+ * Optionally the width and height can be modified using the given modifier string.
  *
  * The modifier string is formatted in the following way:
  *

@@ -2,7 +2,7 @@ import { deepCopy } from './helper/deep-copy';
 import { TOperation, TOperationData } from './types';
 
 /**
- * This operation logs the current operation data and context.
+ * This operation logs the current operation data and context to the console.
  *
  * @param operationData
  * @returns
