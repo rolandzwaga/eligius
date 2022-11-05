@@ -23,6 +23,7 @@ export function resolvePropertyValues<T extends TOperationData>(
 ): T {
   const copy =
     newProperties !== operationData ? deepCopy(newProperties) : newProperties;
+
   const resolvePropertyChain = resolveExternalPropertyChain.bind(
     null,
     operationData,
@@ -64,6 +65,8 @@ function resolveNewProperties(
         });
       } else if (isObject(value)) {
         resolveNewProperties(value, value, resolvePropertyChain);
+      } else {
+        copy[key] = value;
       }
     });
   } finally {

@@ -18,18 +18,18 @@ jobs:
         with:
           key: ${{ runner.os }}-cairo-deps-
           path: |
-            C:\gtk.zip
             C:\libjpeg.exe
+            C:\GTK
 
       - name: Download Cairo dependencies
         if: steps.cache-cairo-deps.outputs.cache-hit != 'true'
         run: |
           Invoke-WebRequest "http://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "C:\gtk.zip" -MaximumRetryCount 3 -UserAgent NativeHost
+          Expand-Archive C:\gtk.zip -DestinationPath "C:\GTK"
           Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "C:\libjpeg.exe" -MaximumRetryCount 3 -UserAgent NativeHost
 
       - name: Install Cairo dependencies
         run: |
-          Expand-Archive C:\gtk.zip -DestinationPath "C:\GTK"
           C:\libjpeg.exe /S
 
       - name: Add msbuild to PATH
