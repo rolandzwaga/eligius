@@ -1,11 +1,11 @@
 import { IAction } from '../action/types';
 import { internalResolve } from './helper/internal-resolve';
 import { mergeOperationData } from './helper/merge-operation-data';
-import { TOperation } from './types';
+import { TOperation, TOperationData } from './types';
 
 export interface IStartActionOperationData {
   actionInstance: IAction;
-  actionOperationData: any;
+  actionOperationData: TOperationData;
 }
 
 /**
@@ -22,7 +22,7 @@ export const startAction: TOperation<IStartActionOperationData> = function (
   operationData: IStartActionOperationData
 ) {
   const { actionInstance, actionOperationData } = operationData;
-  delete operationData.actionOperationData;
+  delete (operationData as any).actionOperationData;
 
   return new Promise((resolve, reject) => {
     operationData = mergeOperationData(operationData, actionOperationData);

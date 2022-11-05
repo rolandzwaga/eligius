@@ -10,7 +10,7 @@ import {
   when,
 } from '../../operation';
 import { endLoop } from '../../operation/end-loop';
-import { startLoop, TStartLoopOperationData } from '../../operation/start-loop';
+import { IStartLoopOperationData, startLoop } from '../../operation/start-loop';
 
 global.cancelAnimationFrame = () => {};
 
@@ -174,7 +174,7 @@ StartEndLoop('should skip the loop for a null collection', async (context) => {
     systemName: 'startLoop',
     operationData: {
       collection: testCollection,
-    } as unknown as TStartLoopOperationData,
+    } as unknown as IStartLoopOperationData,
     instance: startLoop,
   };
   const op2: IResolvedOperation = {

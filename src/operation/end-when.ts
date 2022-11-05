@@ -1,7 +1,7 @@
 import { TOperation } from './types';
 
 /**
- * This operation cleans up after the `when`/`otherwose`/`endWhen` control flow ends.
+ * This operation cleans up after the {@link when}/{@link otherwise}/{@link endWhen} control flow ends.
  * 
  * @param operationData 
  * @returns 

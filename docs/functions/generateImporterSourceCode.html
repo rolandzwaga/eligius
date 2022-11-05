@@ -19,7 +19,7 @@
 <ul class="tsd-signatures tsd-kind-function">
 <li class="tsd-signature tsd-anchor-link" id="generateImporterSourceCode">generate<wbr/>Importer<wbr/>Source<wbr/>Code<span class="tsd-signature-symbol">(</span>config<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a>, configPath<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, assetInfo<span class="tsd-signature-symbol">: </span><a href="../interfaces/_internal_.IAssetInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">IAssetInfo</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#generateImporterSourceCode" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" id="icon-anchor-a"></path><path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" id="icon-anchor-b"></path><path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" id="icon-anchor-c"></path></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>This function takes an Eligius engine configuration, a root path for the config and an arbitrary list of asset info.
+<div class="tsd-comment tsd-typography"><p>This function takes an Eligius engine configuration, a root path for the configuration file and an arbitrary list of asset info.
 The asset info determines a number of subdirectories in the root path that contain the different assets used by the presentation.
 I.e. html, json, etc.</p>
 </div>
@@ -34,7 +34,7 @@ I.e. html, json, etc.</p>
 <h5>assetInfo: <a href="../interfaces/_internal_.IAssetInfo.html" class="tsd-signature-type" data-tsd-kind="Interface">IAssetInfo</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/build/generate-importer-source-code.ts#L31">build/generate-importer-source-code.ts:31</a></li></ul></aside></li></ul></section></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/f024757/src/build/generate-importer-source-code.ts#L31">build/generate-importer-source-code.ts:31</a></li></ul></aside></li></ul></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -121,6 +121,8 @@ I.e. html, json, etc.</p>
 <li class="tsd-kind-interface"><a href="../interfaces/IOperationConfiguration.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IOperation<wbr/>Configuration</a></li>
 <li class="tsd-kind-interface"><a href="../interfaces/IOperationContext.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IOperation<wbr/>Context</a></li>
 <li class="tsd-kind-interface"><a href="../interfaces/IPlayControlEvent.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IPlay<wbr/>Control<wbr/>Event</a></li>
+<li class="tsd-kind-interface"><a href="../interfaces/IResolvedActionConfiguration.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IResolved<wbr/>Action<wbr/>Configuration</a></li>
+<li class="tsd-kind-interface"><a href="../interfaces/IResolvedEndableActionConfiguration.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IResolved<wbr/>Endable<wbr/>Action<wbr/>Configuration</a></li>
 <li class="tsd-kind-interface"><a href="../interfaces/IResolvedEngineConfiguration.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IResolved<wbr/>Engine<wbr/>Configuration</a></li>
 <li class="tsd-kind-interface"><a href="../interfaces/IResolvedOperation.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IResolved<wbr/>Operation</a></li>
 <li class="tsd-kind-interface"><a href="../interfaces/IResolvedTimelineConfiguration.html" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg>IResolved<wbr/>Timeline<wbr/>Configuration</a></li>
