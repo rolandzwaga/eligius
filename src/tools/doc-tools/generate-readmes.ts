@@ -98,15 +98,24 @@ function writeControllersReadMe() {
 }
 
 function generateLink(linkSuffix: string, itemInfo: any) {
+  if (linkSuffix === 'functions') {
+    return `- [${
+      itemInfo.name
+    }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
+      itemInfo.name
+    }.html${getFirstCommentLine(
+      itemInfo
+    )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
+      itemInfo.name
+    )}.json))`;
+  }
+
   return `- [${
     itemInfo.name
   }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
     itemInfo.name
-  }.html${getFirstCommentLine(
-    itemInfo
-  )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
-    itemInfo.name
-  )}.json))`;
+  }.html${getFirstCommentLine(itemInfo)})`;
+
 }
 
 function getFirstCommentLine(itemInfo: any) {
