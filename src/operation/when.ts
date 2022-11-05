@@ -18,8 +18,9 @@ export interface IWhenOperationData {
 
 /**
  * When the given expression evaluates to false, subsequent operations will be skipped
- * until an `endWhen` operation is encountered.
- * Practically, this mean an `if` statement control flow implementation in a list of operations.
+ * until an `endWhen` or `otherwise` operation is encountered.
+ * 
+ * Practically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.
  *
  * @param operationData
  * @returns

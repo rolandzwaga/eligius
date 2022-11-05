@@ -10,10 +10,17 @@ SetOperationDataSuite('should set the specified operation data', () => {
   const operationData = {
     unusedProperty: 'test',
     testProperty: 'testProperty1',
+    prop5: false,
+    prop6: 'foo',
+    prop7: 'bar',
     properties: {
       prop1: 'prop1',
       prop2: 'prop2',
       prop3: 'operationdata.testProperty',
+      prop4: 100,
+      prop5: true,
+      prop6: null,
+      prop7: undefined,
     },
   };
 
@@ -27,6 +34,11 @@ SetOperationDataSuite('should set the specified operation data', () => {
   expect(newData.prop1).to.equal('prop1');
   expect(newData.prop2).to.equal('prop2');
   expect(newData.prop3).to.equal('testProperty1');
+  expect(newData.prop4).to.equal(100);
+  expect(newData.prop5).to.equal(true);
+  expect(newData.prop6).to.equal(null);
+  expect(newData.prop7).to.equal(undefined);
+  expect('properties' in newData).to.be.false;
 });
 
 SetOperationDataSuite(

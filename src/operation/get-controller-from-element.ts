@@ -9,7 +9,7 @@ export interface IGetControllerFromElementOperationData {
 }
 
 /**
- * This operation retrieves the controller instance with the specified name from the specified selected element.
+ * This operation retrieves the controller instance with the specified name that is assigned to the given selected element.
  *
  * @param operationData
  * @returns

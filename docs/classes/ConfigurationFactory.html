@@ -15,12 +15,35 @@
 <li><a href="../modules.html">eligius</a></li>
 <li><a href="ConfigurationFactory.html">ConfigurationFactory</a></li></ul>
 <h1>Class ConfigurationFactory</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>This class offers a fluent and strongly typed DSL for creating Eligius configurations.</p>
+<p>To initialize a basic configuration to start off of:</p>
+<pre><code class="language-ts"><span class="hl-6">const</span><span class="hl-0"> </span><span class="hl-9">factory</span><span class="hl-0"> = </span><span class="hl-6">new</span><span class="hl-0"> </span><span class="hl-10">ConfigurationFactory</span><span class="hl-0">()</span><br/><span class="hl-0">.</span><span class="hl-10">init</span><span class="hl-0">(</span><span class="hl-3">&quot;en-US&quot;</span><span class="hl-0">)                                               </span><span class="hl-12">// Define the default language</span><br/><span class="hl-0">.</span><span class="hl-10">addLanguage</span><span class="hl-0">(</span><span class="hl-3">&quot;en-US&quot;</span><span class="hl-0">, </span><span class="hl-3">&quot;English&quot;</span><span class="hl-0">)                             </span><span class="hl-12">// Add English as a supported language</span><br/><span class="hl-0">.</span><span class="hl-10">addLanguage</span><span class="hl-0">(</span><span class="hl-3">&quot;nl-NL&quot;</span><span class="hl-0">, </span><span class="hl-3">&quot;Nederlands&quot;</span><span class="hl-0">)                          </span><span class="hl-12">// Add Dutch as a supported language</span><br/><span class="hl-0">.</span><span class="hl-10">setLayoutTemplate</span><span class="hl-0">(</span><span class="hl-3">&quot;&lt;div class=</span><span class="hl-4">\&quot;</span><span class="hl-3">main.container</span><span class="hl-4">\&quot;</span><span class="hl-3">&gt;&lt;/div&gt;&quot;</span><span class="hl-0">)   </span><span class="hl-12">// Add the main container for the presentation</span><br/><span class="hl-0">.</span><span class="hl-10">setContainerSelector</span><span class="hl-0">(</span><span class="hl-3">&quot;#ct-container&quot;</span><span class="hl-0">)                       </span><span class="hl-12">// Add the selector for the element in the document body that will contain the presentation</span><br/><span class="hl-0">.</span><span class="hl-10">addTimeline</span><span class="hl-0">(                                                </span><span class="hl-12">// Add a first timeline</span><br/><span class="hl-0">  </span><span class="hl-3">&#39;timeline-1&#39;</span><span class="hl-0">,          </span><span class="hl-12">// Give it a name</span><br/><span class="hl-0">  </span><span class="hl-3">&quot;animation&quot;</span><span class="hl-0">,           </span><span class="hl-12">// This is RAF based timeline</span><br/><span class="hl-0">  </span><span class="hl-5">200</span><span class="hl-0">,                   </span><span class="hl-12">// The duration of the timeline in seconds</span><br/><span class="hl-0">  </span><span class="hl-6">false</span><span class="hl-0">,                 </span><span class="hl-12">// The presentation does NOT play in a loop</span><br/><span class="hl-0">  </span><span class="hl-3">&quot;.timeline-container&quot;</span><span class="hl-0">  </span><span class="hl-12">// The element within the main layout (defined by the layoutTemplate) in which the timeline will be rendered</span><br/><span class="hl-0">)</span><br/><span class="hl-0">.</span><span class="hl-10">editTimelineProviderSettings</span><span class="hl-0">()                          </span><span class="hl-12">// Add a timeline provider</span><br/><span class="hl-0">.</span><span class="hl-10">addProvider</span><span class="hl-0">(</span><span class="hl-3">&quot;animation&quot;</span><span class="hl-0">)                                </span><span class="hl-12">// One that provides timelines for type &#39;animation&#39;</span><br/><span class="hl-0">.</span><span class="hl-10">setSystemName</span><span class="hl-0">(</span><span class="hl-3">&quot;RequestAnimationFrameTimelineProvider&quot;</span><span class="hl-0">)  </span><span class="hl-12">// The system name of the provider</span><br/><span class="hl-0">.</span><span class="hl-10">setVendor</span><span class="hl-0">(</span><span class="hl-3">&quot;eligius&quot;</span><span class="hl-0">)                                    </span><span class="hl-12">// Eligius is the vendor in this case</span><br/><span class="hl-0">.</span><span class="hl-10">end</span><span class="hl-0">();                                                  </span><span class="hl-12">// This finally returns the ConfigurationFactory instance</span>
+</code></pre>
+<p>Then to add an init action:</p>
+<pre><code class="language-ts"><span class="hl-8">factory</span><br/><span class="hl-0"> .</span><span class="hl-10">createInitAction</span><span class="hl-0">(</span><span class="hl-3">&quot;GetUserName&quot;</span><span class="hl-0">)</span><br/><span class="hl-0"> .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">getQueryParams</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-8">defaultValues:</span><span class="hl-0"> { </span><span class="hl-8">username:</span><span class="hl-0"> </span><span class="hl-3">&quot;guest&quot;</span><span class="hl-0"> },</span><br/><span class="hl-0"> })</span><br/><span class="hl-0"> .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">setGlobalData</span><span class="hl-0">, { </span><span class="hl-8">properties:</span><span class="hl-0"> [</span><span class="hl-3">&quot;queryParams&quot;</span><span class="hl-0">] });</span>
+</code></pre>
+<p>After that, add a timeline action:</p>
+<pre><code class="language-ts"><span class="hl-8">factory</span><span class="hl-0">.</span><span class="hl-10">createTimelineAction</span><span class="hl-0">(</span><span class="hl-3">&quot;timeline-1&quot;</span><span class="hl-0">, </span><span class="hl-3">&quot;AddIntroContainer&quot;</span><span class="hl-0">)</span><br/><span class="hl-0"> .</span><span class="hl-10">addDuration</span><span class="hl-0">(</span><span class="hl-5">0</span><span class="hl-0">, </span><span class="hl-5">10</span><span class="hl-0">)</span><br/><span class="hl-0"> .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">selectElement</span><span class="hl-0">, { </span><span class="hl-8">selector:</span><span class="hl-0"> </span><span class="hl-3">&quot;.timeline-container&quot;</span><span class="hl-0"> })</span><br/><span class="hl-0"> .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">setElementContent</span><span class="hl-0">, {</span><br/><span class="hl-0">   </span><span class="hl-8">template:</span><span class="hl-0"> </span><span class="hl-3">&#39;&lt;div class=&quot;intro-text&quot;&gt;&lt;/div&gt;&#39;</span><span class="hl-0">,</span><br/><span class="hl-0"> })</span><br/><span class="hl-0"> .</span><span class="hl-10">addEndOperationByType</span><span class="hl-0">(</span><span class="hl-8">selectElement</span><span class="hl-0">, { </span><span class="hl-8">selector:</span><span class="hl-0"> </span><span class="hl-3">&quot;.intro-text&quot;</span><span class="hl-0"> })</span><br/><span class="hl-0"> .</span><span class="hl-10">addEndOperationByType</span><span class="hl-0">(</span><span class="hl-8">removeElement</span><span class="hl-0">, {});</span>
+</code></pre>
+<p>It also possible to extend the factory with specialized creation methods for the particular
+configuration you are building:</p>
+<pre><code class="language-ts"><span class="hl-6">function</span><span class="hl-0"> </span><span class="hl-10">addImage</span><span class="hl-0">(</span><span class="hl-6">this</span><span class="hl-0">: </span><span class="hl-11">ConfigurationFactory</span><span class="hl-0">, </span><span class="hl-8">actionName</span><span class="hl-0">: </span><span class="hl-11">string</span><span class="hl-0">, </span><span class="hl-8">imageSrc</span><span class="hl-0">: </span><span class="hl-11">string</span><span class="hl-0">, </span><span class="hl-8">imageId</span><span class="hl-0">: </span><span class="hl-11">string</span><span class="hl-0">) {</span><br/><span class="hl-0"> </span><span class="hl-6">this</span><span class="hl-0">.</span><span class="hl-10">createInitAction</span><span class="hl-0">(</span><span class="hl-8">actionName</span><span class="hl-0">)</span><br/><span class="hl-0">     .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">selectElement</span><span class="hl-0">, { </span><span class="hl-8">selector:</span><span class="hl-0"> </span><span class="hl-3">&quot;.timeline-container&quot;</span><span class="hl-0"> })</span><br/><span class="hl-0">     .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">createElement</span><span class="hl-0">, { </span><span class="hl-8">element:</span><span class="hl-0"> </span><span class="hl-3">&#39;img&#39;</span><span class="hl-0">, </span><span class="hl-8">attributes:</span><span class="hl-0"> {</span><span class="hl-8">src:</span><span class="hl-0"> </span><span class="hl-8">imageSrc</span><span class="hl-0">, </span><span class="hl-8">imageId</span><span class="hl-0">} })</span><br/><span class="hl-0">     .</span><span class="hl-10">addStartOperationByType</span><span class="hl-0">(</span><span class="hl-8">setElementContent</span><span class="hl-0">, { </span><span class="hl-8">insertionType:</span><span class="hl-0"> </span><span class="hl-3">&quot;append&quot;</span><span class="hl-0"> })</span><br/><span class="hl-0">     .</span><span class="hl-10">addEndOperationByType</span><span class="hl-0">(</span><span class="hl-8">selectElement</span><span class="hl-0">, { </span><span class="hl-8">selector:</span><span class="hl-0"> </span><span class="hl-3">`#</span><span class="hl-6">${</span><span class="hl-8">imageId</span><span class="hl-6">}</span><span class="hl-3">`</span><span class="hl-0"> })</span><br/><span class="hl-0">     .</span><span class="hl-10">addEndOperationByType</span><span class="hl-0">(</span><span class="hl-8">removeElement</span><span class="hl-0">, {});</span><br/><span class="hl-0">}</span><br/><br/><span class="hl-6">const</span><span class="hl-0"> </span><span class="hl-9">customFactory</span><span class="hl-0"> = </span><span class="hl-8">ConfigurationFactory</span><span class="hl-0">.</span><span class="hl-10">extend</span><span class="hl-0">(</span><span class="hl-8">factory</span><span class="hl-0">, </span><span class="hl-3">&quot;addImage&quot;</span><span class="hl-0">, </span><span class="hl-8">addImage</span><span class="hl-0">);</span><br/><br/><span class="hl-8">customFactory</span><span class="hl-0">.</span><span class="hl-10">addImage</span><span class="hl-0">(</span><span class="hl-3">&quot;MyImageActionName&quot;</span><span class="hl-0">, </span><span class="hl-3">&quot;my-image.png&quot;</span><span class="hl-0">, </span><span class="hl-3">&quot;my-image-id&quot;</span><span class="hl-0">);</span>
+</code></pre>
+<p>Finally, retrieve the configuration and save it:</p>
+<pre><code class="language-ts"><span class="hl-7">import</span><span class="hl-0"> </span><span class="hl-8">fs</span><span class="hl-0"> </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-3">&quot;fs&quot;</span><span class="hl-0">;</span><br/><br/><span class="hl-6">const</span><span class="hl-0"> </span><span class="hl-9">configuration</span><span class="hl-0"> = </span><span class="hl-8">customFactory</span><span class="hl-0">.</span><span class="hl-10">getConfiguration</span><span class="hl-0">();</span><br/><br/><span class="hl-8">fs</span><span class="hl-0">.</span><span class="hl-10">writeFileSync</span><span class="hl-0">(</span><span class="hl-3">&quot;/my/path/configuration.json&quot;</span><span class="hl-0">, </span><span class="hl-9">JSON</span><span class="hl-0">.</span><span class="hl-10">stringify</span><span class="hl-0">(</span><span class="hl-8">configuration</span><span class="hl-0">), {</span><span class="hl-8">encoding:</span><span class="hl-3">&#39;utf-8&#39;</span><span class="hl-0">})</span>
+</code></pre>
+<p>The <code>ConfigurationFactory</code> can also be used to edit an existing configuration. In this case, simply
+pass the JSON configuration to the <code>ConfigurationFactory</code>&#39;s constructor:</p>
+<pre><code class="language-ts"><span class="hl-7">import</span><span class="hl-0"> </span><span class="hl-8">myConfiguration</span><span class="hl-0"> </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-3">&#39;./my-configuration.json&#39;</span><span class="hl-0">;</span><br/><br/><span class="hl-6">const</span><span class="hl-0"> </span><span class="hl-9">factory</span><span class="hl-0"> = </span><span class="hl-6">new</span><span class="hl-0"> </span><span class="hl-10">ConfigurationFactory</span><span class="hl-0">(</span><span class="hl-8">myConfiguration</span><span class="hl-0">);</span><br/><br/><span class="hl-8">factory</span><span class="hl-0">.</span><span class="hl-10">editInitAction</span><span class="hl-0">(</span><span class="hl-3">&quot;existingActionName&quot;</span><span class="hl-0">)</span><br/><span class="hl-0">       .</span><span class="hl-10">removeEndOperation</span><span class="hl-0">(</span><span class="hl-3">&quot;475fd0ab-5755-4e60-8f7c-e1988a109678&quot;</span><span class="hl-0">);</span>
+</code></pre>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
 <li><span class="target">ConfigurationFactory</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L33">configuration/api/configuration-factory.ts:33</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L118">configuration/api/configuration-factory.ts:118</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -60,6 +83,7 @@
 <a href="ConfigurationFactory.html#getConfiguration" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Configuration</span></a>
 <a href="ConfigurationFactory.html#getTimeline" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Timeline</span></a>
 <a href="ConfigurationFactory.html#init" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>init</span></a>
+<a href="ConfigurationFactory.html#removeLabel" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>remove<wbr/>Label</span></a>
 <a href="ConfigurationFactory.html#removeTimeline" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>remove<wbr/>Timeline</span></a>
 <a href="ConfigurationFactory.html#setContainerSelector" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>set<wbr/>Container<wbr/>Selector</span></a>
 <a href="ConfigurationFactory.html#setDefaultLanguage" class="tsd-index-link tsd-kind-method tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>set<wbr/>Default<wbr/>Language</span></a>
@@ -81,19 +105,19 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> config: <a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L37">configuration/api/configuration-factory.ts:37</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L122">configuration/api/configuration-factory.ts:122</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="actionCreatorFactory" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>action<wbr/>Creator<wbr/>Factory</span><a href="#actionCreatorFactory" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">action<wbr/>Creator<wbr/>Factory<span class="tsd-signature-symbol">:</span> <a href="ActionCreatorFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ActionCreatorFactory</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L34">configuration/api/configuration-factory.ts:34</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L119">configuration/api/configuration-factory.ts:119</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="configuration" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>configuration</span><a href="#configuration" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">configuration<span class="tsd-signature-symbol">:</span> <a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L35">configuration/api/configuration-factory.ts:35</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L120">configuration/api/configuration-factory.ts:120</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_getLabelTranslation" class="tsd-anchor"></a>
@@ -110,7 +134,7 @@
 <h5>languageCode: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ILabel.html" class="tsd-signature-type" data-tsd-kind="Interface">ILabel</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L250">configuration/api/configuration-factory.ts:250</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L337">configuration/api/configuration-factory.ts:337</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_initializeCollection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_initialize<wbr/>Collection</span><a href="#_initializeCollection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -132,7 +156,7 @@
 <h5>name: <span class="tsd-signature-type" data-tsd-kind="Type parameter">K</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type" data-tsd-kind="Type parameter">K</span><span class="tsd-signature-symbol">]</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L147">configuration/api/configuration-factory.ts:147</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L234">configuration/api/configuration-factory.ts:234</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_initializeLabel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_initialize<wbr/>Label</span><a href="#_initializeLabel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -147,7 +171,7 @@
 <h5>labels: <a href="../interfaces/ILanguageLabel.html" class="tsd-signature-type" data-tsd-kind="Interface">ILanguageLabel</a><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="../interfaces/ILanguageLabel.html" class="tsd-signature-type" data-tsd-kind="Interface">ILanguageLabel</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L238">configuration/api/configuration-factory.ts:238</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L325">configuration/api/configuration-factory.ts:325</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="_internalAddAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_internal<wbr/>Add<wbr/>Action</span><a href="#_internalAddAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -162,7 +186,7 @@
 <h5>action: <a href="../interfaces/IActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IActionConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L136">configuration/api/configuration-factory.ts:136</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L223">configuration/api/configuration-factory.ts:223</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Action</span><a href="#addAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -175,7 +199,7 @@
 <h5>action: <a href="../interfaces/IActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IActionConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L154">configuration/api/configuration-factory.ts:154</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L241">configuration/api/configuration-factory.ts:241</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addEventAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Event<wbr/>Action</span><a href="#addEventAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -188,7 +212,7 @@
 <h5>action: <a href="../interfaces/IActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IActionConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L162">configuration/api/configuration-factory.ts:162</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L249">configuration/api/configuration-factory.ts:249</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addInitAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Init<wbr/>Action</span><a href="#addInitAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -201,7 +225,7 @@
 <h5>action: <a href="../interfaces/IActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IActionConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L158">configuration/api/configuration-factory.ts:158</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L245">configuration/api/configuration-factory.ts:245</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addLabel" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Label</span><a href="#addLabel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -218,7 +242,7 @@
 <h5>translation: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L265">configuration/api/configuration-factory.ts:265</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L352">configuration/api/configuration-factory.ts:352</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addLanguage" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Language</span><a href="#addLanguage" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -233,7 +257,7 @@
 <h5>languageLabel: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L115">configuration/api/configuration-factory.ts:115</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L202">configuration/api/configuration-factory.ts:202</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addTimeline" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Timeline</span><a href="#addTimeline" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -254,7 +278,7 @@
 <h5>selector: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L195">configuration/api/configuration-factory.ts:195</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L282">configuration/api/configuration-factory.ts:282</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="addTimelineAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Timeline<wbr/>Action</span><a href="#addTimelineAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -269,7 +293,7 @@
 <h5>action: <a href="../interfaces/ITimelineActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineActionConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L166">configuration/api/configuration-factory.ts:166</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L253">configuration/api/configuration-factory.ts:253</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="createAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Action</span><a href="#createAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -282,7 +306,7 @@
 <h5>name: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="EndableActionCreator.html" class="tsd-signature-type" data-tsd-kind="Class">EndableActionCreator</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/IEndableActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEndableActionConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L179">configuration/api/configuration-factory.ts:179</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L266">configuration/api/configuration-factory.ts:266</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="createEventAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Event<wbr/>Action</span><a href="#createEventAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -295,7 +319,7 @@
 <h5>name: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ActionCreator.html" class="tsd-signature-type" data-tsd-kind="Class">ActionCreator</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/IActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IActionConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L187">configuration/api/configuration-factory.ts:187</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L274">configuration/api/configuration-factory.ts:274</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="createInitAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Init<wbr/>Action</span><a href="#createInitAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -308,7 +332,7 @@
 <h5>name: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="EndableActionCreator.html" class="tsd-signature-type" data-tsd-kind="Class">EndableActionCreator</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/IEndableActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEndableActionConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L183">configuration/api/configuration-factory.ts:183</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L270">configuration/api/configuration-factory.ts:270</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="createTimelineAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>create<wbr/>Timeline<wbr/>Action</span><a href="#createTimelineAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -323,7 +347,7 @@
 <h5>name: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="TimelineActionCreator.html" class="tsd-signature-type" data-tsd-kind="Class">TimelineActionCreator</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L191">configuration/api/configuration-factory.ts:191</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L278">configuration/api/configuration-factory.ts:278</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="editAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>edit<wbr/>Action</span><a href="#editAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -336,7 +360,7 @@
 <h5>id: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="EndableActionEditor.html" class="tsd-signature-type" data-tsd-kind="Class">EndableActionEditor</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/IEndableActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEndableActionConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L276">configuration/api/configuration-factory.ts:276</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L373">configuration/api/configuration-factory.ts:373</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="editEventAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>edit<wbr/>Event<wbr/>Action</span><a href="#editEventAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -349,7 +373,7 @@
 <h5>id: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ActionEditor.html" class="tsd-signature-type" data-tsd-kind="Class">ActionEditor</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/IEventActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEventActionConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L284">configuration/api/configuration-factory.ts:284</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L381">configuration/api/configuration-factory.ts:381</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="editInitAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>edit<wbr/>Init<wbr/>Action</span><a href="#editInitAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -362,7 +386,7 @@
 <h5>id: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="EndableActionEditor.html" class="tsd-signature-type" data-tsd-kind="Class">EndableActionEditor</a><span class="tsd-signature-symbol">&lt;</span><a href="../interfaces/IEndableActionConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEndableActionConfiguration</a><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L294">configuration/api/configuration-factory.ts:294</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L391">configuration/api/configuration-factory.ts:391</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="editTimelineAction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>edit<wbr/>Timeline<wbr/>Action</span><a href="#editTimelineAction" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -377,7 +401,7 @@
 <h5>id: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="TimelineActionEditor.html" class="tsd-signature-type" data-tsd-kind="Class">TimelineActionEditor</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L304">configuration/api/configuration-factory.ts:304</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L401">configuration/api/configuration-factory.ts:401</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="editTimelineProviderSettings" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>edit<wbr/>Timeline<wbr/>Provider<wbr/>Settings</span><a href="#editTimelineProviderSettings" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -385,17 +409,17 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="TimelineProvidersSettingsEditor.html" class="tsd-signature-type" data-tsd-kind="Class">TimelineProvidersSettingsEditor</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L97">configuration/api/configuration-factory.ts:97</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L182">configuration/api/configuration-factory.ts:182</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getConfiguration" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Configuration</span><a href="#getConfiguration" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-<li class="tsd-signature tsd-anchor-link" id="getConfiguration.getConfiguration-1">get<wbr/>Configuration<span class="tsd-signature-symbol">(</span>callBack<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>copy<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a><a href="#getConfiguration.getConfiguration-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getConfiguration.getConfiguration-1">get<wbr/>Configuration<span class="tsd-signature-symbol">(</span>callBack<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>copy<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><a href="#getConfiguration.getConfiguration-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>callBack: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>copy<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span></h5>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> callBack: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>copy<span class="tsd-signature-symbol">: </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a><span class="tsd-signature-symbol">)</span></h5>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
 <ul class="tsd-signatures tsd-kind-type-literal">
@@ -407,9 +431,9 @@
 <li>
 <h5>copy: <a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a></h4></li></ul></li></ul></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <a href="../interfaces/IEngineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">IEngineConfiguration</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L104">configuration/api/configuration-factory.ts:104</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L189">configuration/api/configuration-factory.ts:189</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getTimeline" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Timeline</span><a href="#getTimeline" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -422,7 +446,7 @@
 <h5>uri: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="../interfaces/ITimelineConfiguration.html" class="tsd-signature-type" data-tsd-kind="Interface">ITimelineConfiguration</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L223">configuration/api/configuration-factory.ts:223</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L310">configuration/api/configuration-factory.ts:310</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="init" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>init</span><a href="#init" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -435,7 +459,20 @@
 <h5>defaultLanguage: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L62">configuration/api/configuration-factory.ts:62</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L147">configuration/api/configuration-factory.ts:147</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="removeLabel" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>remove<wbr/>Label</span><a href="#removeLabel" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+<li class="tsd-signature tsd-anchor-link" id="removeLabel.removeLabel-1">remove<wbr/>Label<span class="tsd-signature-symbol">(</span>id<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a><a href="#removeLabel.removeLabel-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5>id: <span class="tsd-signature-type">string</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L363">configuration/api/configuration-factory.ts:363</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="removeTimeline" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Timeline</span><a href="#removeTimeline" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -448,7 +485,7 @@
 <h5>uri: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L227">configuration/api/configuration-factory.ts:227</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L314">configuration/api/configuration-factory.ts:314</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setContainerSelector" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Container<wbr/>Selector</span><a href="#setContainerSelector" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -461,7 +498,7 @@
 <h5>selector: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L92">configuration/api/configuration-factory.ts:92</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L177">configuration/api/configuration-factory.ts:177</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setDefaultLanguage" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Default<wbr/>Language</span><a href="#setDefaultLanguage" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -474,7 +511,7 @@
 <h5>defaultLanguage: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L87">configuration/api/configuration-factory.ts:87</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L172">configuration/api/configuration-factory.ts:172</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setLayoutTemplate" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Layout<wbr/>Template</span><a href="#setLayoutTemplate" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -487,7 +524,7 @@
 <h5>layoutTemplate: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="ConfigurationFactory.html" class="tsd-signature-type" data-tsd-kind="Class">ConfigurationFactory</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L82">configuration/api/configuration-factory.ts:82</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L167">configuration/api/configuration-factory.ts:167</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="extend" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>extend</span><a href="#extend" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -513,7 +550,7 @@
 <h5>extensionMethod: <span class="tsd-signature-type" data-tsd-kind="Type parameter">C</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{</span> <span class="tsd-signature-symbol">[ </span><span class="tsd-signature-type">k</span><span class="tsd-signature-symbol"> in </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">C</span> <span class="tsd-signature-symbol">}</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L42">configuration/api/configuration-factory.ts:42</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L127">configuration/api/configuration-factory.ts:127</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="extendMultiple" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>extend<wbr/>Multiple</span><a href="#extendMultiple" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -537,7 +574,7 @@
 <h5>extensions: <span class="tsd-signature-type" data-tsd-kind="Type parameter">D</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type" data-tsd-kind="Type parameter">T</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-type" data-tsd-kind="Type parameter">D</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/48786f3/src/configuration/api/configuration-factory.ts#L51">configuration/api/configuration-factory.ts:51</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/5362523/src/configuration/api/configuration-factory.ts#L136">configuration/api/configuration-factory.ts:136</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -590,6 +627,7 @@
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#getConfiguration" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Configuration</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#getTimeline" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>get<wbr/>Timeline</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#init" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>init</a></li>
+<li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#removeLabel" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>remove<wbr/>Label</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#removeTimeline" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>remove<wbr/>Timeline</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#setContainerSelector" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>set<wbr/>Container<wbr/>Selector</a></li>
 <li class="tsd-kind-method tsd-parent-kind-class"><a href="ConfigurationFactory.html#setDefaultLanguage" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg>set<wbr/>Default<wbr/>Language</a></li>

@@ -271,6 +271,10 @@ const engine = factory.createEngine((engineConfig as unknown) as IEngineConfigur
 engine.init().then(()=> {console.log('Eligius engine ready for business');});
 ```
 
+## Configuration API
+
+Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the [ConfigurationFactory](https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html) for a strongly typed, fluent API to construct a configuration programmatically.
+
 ## Source documentation
 
 [Check out this link for the full type docs](https://rolandzwaga.github.io/eligius/)

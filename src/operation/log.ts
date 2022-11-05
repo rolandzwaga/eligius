@@ -1,7 +1,8 @@
+import { deepCopy } from './helper/deep-copy';
 import { TOperation, TOperationData } from './types';
 
 /**
- * This operation logs the current operation data and context.
+ * This operation logs the current operation data and context to the console.
  *
  * @param operationData
  * @returns
@@ -10,8 +11,8 @@ export const log: TOperation<TOperationData> = function (
   operationData: TOperationData
 ) {
   console.group('Operation info');
-  console.dir({ context: this });
-  console.dir({ operationData });
+  console.dir({ context: deepCopy(this) });
+  console.dir({ operationData: deepCopy(operationData) });
   console.groupEnd();
   return operationData;
 };

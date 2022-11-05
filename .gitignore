@@ -6,3 +6,4 @@ dist
 /.yarn/install-state.gz
 jsonschema/operations
 jsonschema/operation-templates
+docs.json

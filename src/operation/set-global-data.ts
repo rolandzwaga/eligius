@@ -6,7 +6,7 @@ export interface ISetGlobalDataOperationData {
 }
 
 /**
- * This operation copies the specified values from the operationData to the global data.
+ * This operation copies the specified property values from the operationData to the global data.
  *
  * @param operationData
  * @returns

@@ -8,12 +8,12 @@ export interface ISetElementContentOperationData {
 
 /**
  * This operation sets the specified content defined by the value assigned to the template property
- * to the specified selected element.
+ * to the given selected element.
  *
- * When the insertionType is set to 'overwrite' the contents of the selected element are replaced
+ * When the `insertionType` is set to `overwrite` the contents of the selected element are replaced
  * by the given template.
- * When set to 'append' the new content will be inserted after the current content.
- * When set to 'prepend' the new content will be inserted before the current content.
+ * When set to `append` the new content will be inserted after the current content.
+ * When set to `prepend` the new content will be inserted before the current content.
  *
  * @param operationData
  * @returns

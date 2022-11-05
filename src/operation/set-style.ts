@@ -8,7 +8,7 @@ export interface ISetStyleOperationData {
 
 /**
  * This operation assigns the specified CSS style properties to the
- * specified selected element.
+ * given selected element.
  *
  * @param operationData
  * @returns

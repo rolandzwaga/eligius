@@ -12,9 +12,8 @@ export interface ICreateElementOperationData<T extends TTagNames> {
 }
 
 /**
- * This operation creates the DOM element defined by the given properties and assigns
- * the instance to the give property name on the current operation data.
- * The property name defaults to 'template'.
+ * This operation creates the DOM element described by the given elementName and attributes and assigns
+ * the instance to the `template` property on the current operation data.
  *
  * @param operationData
  * @returns

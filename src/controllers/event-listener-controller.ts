@@ -17,7 +17,16 @@ export interface IEventListenerControllerOperationData {
   actionOperationData?: TOperationData;
 }
 
-export class EventListenerController implements IController<IEventListenerControllerOperationData> {
+/**
+ * This controller attaches to the given selected element and adds an event listener for the specified event name that
+ * executes the given actions with the given operation data.
+ * 
+ * By default the `start` operations of the specified actions are executed. To execute the `end` operations instead, 
+ * prefix the action name with `end:`.
+ */
+export class EventListenerController
+  implements IController<IEventListenerControllerOperationData>
+{
   operationData?: IEventListenerControllerOperationData;
   actionInstanceInfos?: IActionInstanceInfo[];
   name = 'EventListenerController';
@@ -29,7 +38,7 @@ export class EventListenerController implements IController<IEventListenerContro
       selectedElement: operationData.selectedElement,
       eventName: operationData.eventName,
       actions: operationData.actions.slice(),
-      actionOperationData: operationData.actionOperationData ? deepCopy(operationData.actionOperationData) : undefined,
+      actionOperationData: deepCopy(operationData.actionOperationData),
     };
   }
 
@@ -42,29 +51,36 @@ export class EventListenerController implements IController<IEventListenerContro
     if (!this.actionInstanceInfos) {
       this.actionInstanceInfos = [];
 
-      const resultCallback = (isStart: boolean) => (actionInstance: IEndableAction) => {
-        this.actionInstanceInfos?.push({ start: isStart, action: actionInstance });
-      };
+      const resultCallback =
+        (isStart: boolean) => (actionInstance: IEndableAction) => {
+          this.actionInstanceInfos?.push({
+            start: isStart,
+            action: actionInstance,
+          });
+        };
 
       actions.forEach((actionName: string) => {
         const [isStart, name] = this._isStartAction(actionName);
-        eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [name, resultCallback(isStart)]);
+        eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [
+          name,
+          resultCallback(isStart),
+        ]);
       });
 
       selectedElement.on(eventName, this._eventHandler.bind(this));
     }
   }
 
-  _isStartAction(actionName: string): [boolean, string] {
-    const prefix = actionName.substr(0, 'end:'.length);
+  private _isStartAction(actionName: string): [boolean, string] {
+    const prefix = actionName.substring(0, 'end:'.length);
     if (prefix === 'end:') {
-      return [false, actionName.substr('end:'.length)];
+      return [false, actionName.substring('end:'.length)];
     } else {
       return [true, actionName];
     }
   }
 
-  _eventHandler(event: any) {
+  private _eventHandler(event: any) {
     if (!this.operationData || !this.actionInstanceInfos) {
       return;
     }
@@ -80,13 +96,23 @@ export class EventListenerController implements IController<IEventListenerContro
     this._executeAction(this.actionInstanceInfos, actionOperationData, 0);
   }
 
-  async _executeAction(actions: IActionInstanceInfo[], operationData: TOperationData, idx: number) {
+  private async _executeAction(
+    actions: IActionInstanceInfo[],
+    operationData: TOperationData,
+    idx: number
+  ) {
     if (idx < actions.length) {
       const actionInfo = actions[idx];
       const { action } = actionInfo;
-      const method = actionInfo.start ? action.start.bind(action) : action.end.bind(action);
+      const method = actionInfo.start
+        ? action.start.bind(action)
+        : action.end.bind(action);
       const resultOperationData = await method(operationData);
-      this._executeAction(actions, Object.assign(operationData, resultOperationData), ++idx);
+      this._executeAction(
+        actions,
+        Object.assign(operationData, resultOperationData),
+        ++idx
+      );
     }
   }
 

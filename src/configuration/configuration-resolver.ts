@@ -14,6 +14,8 @@ import {
   IEngineConfiguration,
   IEventActionConfiguration,
   IOperationConfiguration,
+  IResolvedActionConfiguration,
+  IResolvedEndableActionConfiguration,
   IResolvedEngineConfiguration,
   IResolvedOperation,
   IResolvedTimelineConfiguration,
@@ -21,6 +23,13 @@ import {
   ITimelineConfiguration,
 } from './types';
 
+/**
+ * Takes an `IEngineConfiguration` instance and return an `IResolvedEngineConfiguration`.
+ * This means all system names within the configuration will be resolved to their associated instances.
+ *
+ * If the given configuration includes event actions, then those will be registered in the given `ActionRegistryEventbusListener`.
+ *
+ */
 export class ConfigurationResolver implements IConfigurationResolver {
   constructor(
     private importer: ISimpleResourceImporter,
@@ -69,7 +78,7 @@ export class ConfigurationResolver implements IConfigurationResolver {
     };
 
     let eventActions: IAction[] = [];
-    if (configuration.eventActions && actionRegistryListener) {
+    if (configuration.eventActions?.length && actionRegistryListener) {
       eventActions = resolveEventActions(
         configuration.eventActions,
         actionRegistryListener,
@@ -99,9 +108,9 @@ function resolveEventActions(
   eventbus: IEventbus
 ) {
   const resolvedConfigs =
-    eventActionConfigurations.map<IResolvedActionConfiguration>((config) => {
-      return resolveActionConfiguration(config, importer);
-    });
+    eventActionConfigurations.map<IResolvedActionConfiguration>((config) =>
+      resolveActionConfiguration(config, importer)
+    );
 
   return resolvedConfigs.map((config, index) => {
     const { eventName, eventTopic } = eventActionConfigurations[index];
@@ -261,21 +270,4 @@ function resolvePlaceholder(
   } else if (isObject(configValue)) {
     resolvePlaceholders(configValue, rootConfig, importer);
   }
-}
-
-interface IResolvedActionConfiguration {
-  id: string;
-  name: string;
-  startOperations: IResolvedOperation[];
-}
-
-interface IResolvedEndableActionConfiguration
-  extends IResolvedActionConfiguration {
-  endOperations: IResolvedOperation[];
-}
-
-interface IResolvedEventActionConfiguration
-  extends IResolvedActionConfiguration {
-  eventName: string;
-  eventTopic?: string;
 }

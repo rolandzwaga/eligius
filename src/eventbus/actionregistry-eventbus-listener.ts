@@ -1,6 +1,10 @@
 import { IAction } from '../action/types';
 import { IEventbusListener } from './types';
 
+/**
+ * The `IEventbusListener` first registers a number of actions that are then
+ * executed when the specified event is broadcast.
+ */
 export class ActionRegistryEventbusListener implements IEventbusListener {
   private _actionRegistry = new Map<string, IAction[]>();
 

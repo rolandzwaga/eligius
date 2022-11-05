@@ -9,7 +9,7 @@ export interface IStartActionOperationData {
 }
 
 /**
- * This operation starts the specified action instance using the specified action operation data.
+ * This operation starts the specified action instance using the given action operation data.
  *
  * The action operation data is first merged with the current operation data before it is
  * passed on to the action. After the action has completed the action operation data properties

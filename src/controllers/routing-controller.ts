@@ -6,6 +6,9 @@ export interface IRoutingControllerOperationData {
   json: any;
 }
 
+/**
+ * This is a work in progress, do not use this yet please....
+ */
 export class RoutingController
   implements IController<IRoutingControllerOperationData>
 {
@@ -19,26 +22,26 @@ export class RoutingController
   constructor() {}
 
   init(operationData: TOperationData) {
-    this.navigation = this.buildNavigationData(operationData.json);
+    this.navigation = this._buildNavigationData(operationData.json);
   }
 
   attach(eventbus: IEventbus) {
     this.eventhandlers.push(
       eventbus.on(
         'before-request-video-url',
-        this.handleBeforeRequestVideoUrl.bind(this)
+        this._handleBeforeRequestVideoUrl.bind(this)
       )
     );
     this.eventhandlers.push(
-      eventbus.on('push-history-state', this.handlePushHistoryState.bind(this))
+      eventbus.on('push-history-state', this._handlePushHistoryState.bind(this))
     );
     this.eventbus = eventbus;
-    window.onpopstate = this.handlePopstate.bind(this);
+    window.onpopstate = this._handlePopstate.bind(this);
 
-    const navId = this.getQueryVariable(0);
+    const navId = this._getQueryVariable(0);
     if (navId) {
       const nav = this.navLookup[navId];
-      const pos = +this.getQueryVariable(1);
+      const pos = +this._getQueryVariable(1);
       this.eventbus.broadcast('request-video-url', [
         nav.videoUrlIndex,
         pos,
@@ -53,7 +56,7 @@ export class RoutingController
     }
   }
 
-  handlePopstate(event: any) {
+  private _handlePopstate(event: any) {
     const navigationId = event.state
       ? event.state.navigationId
       : this.navigation[0].id;
@@ -76,7 +79,7 @@ export class RoutingController
     this.eventbus = null;
   }
 
-  handleBeforeRequestVideoUrl(
+  private _handleBeforeRequestVideoUrl(
     _index: number,
     _requestedVideoPosition: number = 0,
     isHistoryRequest: boolean = false
@@ -85,13 +88,13 @@ export class RoutingController
       isHistoryRequest !== undefined ? isHistoryRequest : false;
     if (!isHistoryRequest) {
       const resultCallback = (item: any) => {
-        this.pushState(item);
+        this._pushState(item);
       };
       this.eventbus?.broadcast('request-current-navigation', [resultCallback]);
     }
   }
 
-  getQueryVariable(variableIdx: number) {
+  private _getQueryVariable(variableIdx: number) {
     const href = window.location.href;
     const hashIndex = href.indexOf('#');
     if (hashIndex > -1) {
@@ -104,11 +107,11 @@ export class RoutingController
     return '';
   }
 
-  handlePushHistoryState(state: any) {
-    this.pushState(state);
+  private _handlePushHistoryState(state: any) {
+    this._pushState(state);
   }
 
-  pushState(state: any) {
+  private _pushState(state: any) {
     if (state && state.navigationData && state.navigationData.visible) {
       let currentPosition = state.position !== undefined ? state.position : -1;
       if (currentPosition < 0) {
@@ -153,7 +156,7 @@ export class RoutingController
     }
   }
 
-  buildNavigationData(data: any) {
+  private _buildNavigationData(data: any) {
     const result: any[] = [];
     data.navigationData.forEach((nav: any, index: any) => {
       this.navLookup[nav.id] = nav;

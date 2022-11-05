@@ -8,7 +8,7 @@ export interface IRemoveControllerFromElementOperationData {
 }
 
 /**
- * This operation removes the controller with the specified name from the specified selected element.
+ * This operation removes the controller with the specified name from the given selected element.
  *
  * @param operationData
  * @returns

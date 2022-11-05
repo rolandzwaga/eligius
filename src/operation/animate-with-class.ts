@@ -10,7 +10,7 @@ export interface IAnimateWithClassOperationData {
 /**
  * This operation adds the specified class name to the specified selected element and assumes that this
  * class triggers and animation on the selected element. It then waits for this animation to complete
- * until it resolves.
+ * before it resolves.
  *
  * @param operationData
  * @returns

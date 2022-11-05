@@ -1,14 +1,27 @@
 import { TOperation } from './types';
 
 export interface IInvokeObjectMethodOperationData {
+  /**
+   *  The given object instance
+   * 
+   */
   instance: any;
+  /**
+   * The method name on the given object that will be invoked
+   */
   methodName: string;
+  /**
+   * Arguments that will be passed to the specified method
+   */
   methodArguments?: any[];
+  /**
+   * If any, the results of the method invocation are assigned to the property
+   */
   methodResult?: any;
 }
 
 /**
- * This operation invokes the specified method on the given object with the optional specified arguments
+ * This operation invokes the specified method on the given object with the given optional arguments
  * and assigns the result to the `methodResult` property.
  *
  * @param operationData

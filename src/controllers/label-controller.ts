@@ -8,6 +8,12 @@ export interface ILabelControllerMetadata {
   labelId: string;
 }
 
+/**
+ * This controller attaches to the given selected element and renders the text associated with the given label id in it.
+ * 
+ * The controller also listen for the `LANGUAGE_CHANGE` event and re-renders the text with the new language after such an event.
+ * 
+ */
 export class LabelController implements IController<ILabelControllerMetadata> {
   listeners: TEventbusRemover[] = [];
   currentLanguage: string | null = null;
@@ -23,7 +29,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
   setLabelId(newLabelId: string) {
     if (this.requestLabelDataBound) {
       this.requestLabelDataBound(newLabelId);
-      this.setLabel();
+      this._setLabel();
     }
   }
 
@@ -38,28 +44,28 @@ export class LabelController implements IController<ILabelControllerMetadata> {
       },
     ]);
 
-    this.requestLabelDataBound = this.requestLabelData.bind(this, eventbus);
+    this.requestLabelDataBound = this._requestLabelData.bind(this, eventbus);
     this.requestLabelDataBound(this.operationData.labelId);
 
-    this.setLabel();
+    this._setLabel();
     this.listeners.push(
       eventbus.on(
         TimelineEventNames.LANGUAGE_CHANGE,
-        this.handleLanguageChange.bind(this)
+        this._handleLanguageChange.bind(this)
       )
     );
   }
 
-  requestLabelData(eventbus: IEventbus, labelId: string) {
+  private _requestLabelData(eventbus: IEventbus, labelId: string) {
     eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTION, [
       labelId,
       (labelCollection: ILabel[]) => {
-        this.createTextDataLookup(labelCollection);
+        this._createTextDataLookup(labelCollection);
       },
     ]);
   }
 
-  setLabel() {
+  private _setLabel() {
     if (this.currentLanguage) {
       this.operationData?.selectedElement.html(
         this.labelData[this.currentLanguage]
@@ -72,12 +78,12 @@ export class LabelController implements IController<ILabelControllerMetadata> {
     this.requestLabelDataBound = undefined;
   }
 
-  handleLanguageChange(code: string) {
+  private _handleLanguageChange(code: string) {
     this.currentLanguage = code;
-    this.setLabel();
+    this._setLabel();
   }
 
-  createTextDataLookup(data: ILabel[]) {
+  private _createTextDataLookup(data: ILabel[]) {
     data.forEach((d) => {
       this.labelData[d.languageCode] = d.label;
     });

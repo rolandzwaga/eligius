@@ -1,8 +1,8 @@
 import fs from 'fs';
 import { emptyDirSync } from 'fs-extra';
 import path from 'path';
-import * as controllers from '../controllers';
-import * as metadata from '../operation/metadata';
+import * as controllers from '../../controllers';
+import * as metadata from '../../operation/metadata';
 import {
   IOperationMetadata,
   TComplexProperyMetadata,
@@ -12,9 +12,9 @@ import {
   TParameterTypes,
   TPropertiesMetadata,
   TPropertyMetadata,
-} from '../operation/metadata/types';
-import camelCaseToDash from '../util/camel-case-to-dash';
-import dashToCamelCase from '../util/dash-to-camel-case';
+} from '../../operation/metadata/types';
+import camelCaseToDash from '../../util/camel-case-to-dash';
+import dashToCamelCase from '../../util/dash-to-camel-case';
 import { htmlTagNames } from './html-tag-names';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');

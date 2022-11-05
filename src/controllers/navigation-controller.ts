@@ -28,7 +28,7 @@ export class NavigationController
 
   init(operationData: TOperationData) {
     this.container = operationData.selectedElement;
-    this.navigation = this.buildNavigationData(operationData.json);
+    this.navigation = this._buildNavigationData(operationData.json);
   }
 
   attach(eventbus: IEventbus) {
@@ -41,38 +41,38 @@ export class NavigationController
     this.eventhandlers.push(
       eventbus.on(
         'navigate-to-video-url',
-        this.handleNavigateVideoUrl.bind(this)
+        this._handleNavigateVideoUrl.bind(this)
       )
     );
     this.eventhandlers.push(
-      eventbus.on('highlight-navigation', this.highlightMenu.bind(this))
+      eventbus.on('highlight-navigation', this._highlightMenu.bind(this))
     );
     this.eventhandlers.push(
       eventbus.on(
         'request-current-navigation',
-        this.handleRequestCurrentNavigation.bind(this)
+        this._handleRequestCurrentNavigation.bind(this)
       )
     );
     this.eventhandlers.push(
-      eventbus.on('video-complete', this.handleVideoComplete.bind(this))
+      eventbus.on('video-complete', this._handleVideoComplete.bind(this))
     );
 
-    this.buildHtml(this.container, this.navigation);
-    this.initHistory.bind(this);
+    this._buildHtml(this.container, this.navigation);
+    this._initHistory.bind(this);
   }
 
-  initHistory() {
+  private _initHistory() {
     this.activeNavigationPoint = this.navVidIdLookup[0];
-    const navId = this.getQueryVariable(0);
+    const navId = this._getQueryVariable(0);
     let videoIndex = 0;
     if (navId) {
       const nav = this.navLookup[navId];
       videoIndex = nav.videoUrlIndex;
     }
-    this.highlightMenu(videoIndex);
+    this._highlightMenu(videoIndex);
   }
 
-  getQueryVariable(variableIdx: number) {
+  private _getQueryVariable(variableIdx: number) {
     const href = window.location.href;
     const hashIndex = href.indexOf('#');
     if (hashIndex > -1) {
@@ -85,7 +85,7 @@ export class NavigationController
     return null;
   }
 
-  handleRequestCurrentNavigation(resultCallback: TResultCallback) {
+  private _handleRequestCurrentNavigation(resultCallback: TResultCallback) {
     if (this.activeNavigationPoint) {
       const labelCtrl = this.ctrlLookup[this.activeNavigationPoint.labelId];
       resultCallback({
@@ -112,7 +112,7 @@ export class NavigationController
     window.onpopstate = null;
   }
 
-  pushCurrentState(position = -1) {
+  private _pushCurrentState(position = -1) {
     if (!this.activeNavigationPoint) {
       return;
     }
@@ -134,23 +134,23 @@ export class NavigationController
     this.eventbus?.broadcast('push-history-state', [state]);
   }
 
-  buildHtml(parentElm: JQuery, data: any) {
+  private _buildHtml(parentElm: JQuery, data: any) {
     const ul = $('<ul/>');
-    data.forEach(this.addNavElement.bind(this, ul));
+    data.forEach(this._addNavElement.bind(this, ul));
     parentElm.append(ul);
   }
 
-  addNavElement(parentElm: JQuery, data: any) {
+  private _addNavElement(parentElm: JQuery, data: any) {
     if (data.visible) {
       const li = $('<li/>');
       const a = $(`<a href='javascript:;' id='nav_${data.videoUrlIndex}'/>`);
       li.append(a);
-      this.addLabel(a, data.labelId);
-      this.addClickHandler(a, data.videoUrlIndex);
+      this._addLabel(a, data.labelId);
+      this._addClickHandler(a, data.videoUrlIndex);
 
       if (data.children) {
         const ul = $('<ul/>');
-        data.children.forEach(this.addNavElement.bind(this, ul));
+        data.children.forEach(this._addNavElement.bind(this, ul));
         li.append(ul);
       }
 
@@ -158,29 +158,32 @@ export class NavigationController
     }
   }
 
-  addClickHandler(parentElm: JQuery, videoIndex: number) {
-    parentElm.mouseup(this.menuMouseupHandler.bind(this, videoIndex));
+  private _addClickHandler(parentElm: JQuery, videoIndex: number) {
+    parentElm.mouseup(this._menuMouseupHandler.bind(this, videoIndex));
   }
 
-  menuMouseupHandler(videoIndex: number) {
+  private _menuMouseupHandler(videoIndex: number) {
     const navdata = this.navVidIdLookup[videoIndex];
     if (navdata) {
       this.eventbus?.broadcast('request-video-url', [navdata.videoUrlIndex]);
-      this.handleNavigateVideoUrl(navdata.videoUrlIndex);
+      this._handleNavigateVideoUrl(navdata.videoUrlIndex);
     }
   }
 
-  handleNavigateVideoUrl(index: number, requestedVideoPosition: number = 0) {
-    this.highlightMenu(index);
+  private _handleNavigateVideoUrl(
+    index: number,
+    requestedVideoPosition: number = 0
+  ) {
+    this._highlightMenu(index);
     this.eventbus?.broadcast('request-video-url', [
       index,
       requestedVideoPosition,
     ]);
     this.activeNavigationPoint = this.navVidIdLookup[index];
-    this.pushCurrentState(requestedVideoPosition);
+    this._pushCurrentState(requestedVideoPosition);
   }
 
-  highlightMenu(index: number) {
+  private _highlightMenu(index: number) {
     const navElm = $(`#nav_${index}`);
 
     if (navElm.length) {
@@ -189,7 +192,7 @@ export class NavigationController
     }
   }
 
-  handleVideoComplete(index: number) {
+  private _handleVideoComplete(index: number) {
     const navData = this.navVidIdLookup[index];
     if (navData.autoNext) {
       this.eventbus?.broadcast('request-video-url', [
@@ -200,7 +203,7 @@ export class NavigationController
     }
   }
 
-  addLabel(parentElm: JQuery, labelId: string) {
+  private _addLabel(parentElm: JQuery, labelId: string) {
     const data = {
       selectedElement: parentElm,
       labelId: labelId,
@@ -217,7 +220,7 @@ export class NavigationController
     ]);
   }
 
-  buildNavigationData(data: any) {
+  private _buildNavigationData(data: any) {
     const result: any[] = [];
     data.navigationData.forEach((nav: any, index: number) => {
       this.navLookup[nav.id] = nav;

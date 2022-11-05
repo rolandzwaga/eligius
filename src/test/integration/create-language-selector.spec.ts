@@ -15,6 +15,7 @@ import {
   getControllerInstance,
   otherwise,
   removeControllerFromElement,
+  removePropertiesFromOperationData,
   selectElement,
   setElementContent,
   setOperationData,
@@ -79,17 +80,15 @@ CreateOptionList.before((context) => {
     .addStartOperationByType(when, {
       expression:
         'context.parent.currentItem.languageCode==globaldata.defaultLanguage',
-    } as any)
+    })
     .addStartOperationByType(setOperationData, {
       properties: {
         isSelectedItem: true,
       },
     })
     .addStartOperationByType(otherwise, {})
-    .addStartOperationByType(setOperationData, {
-      properties: {
-        isSelectedItem: undefined,
-      },
+    .addStartOperationByType(removePropertiesFromOperationData, {
+      propertyNames: ['isSelectedItem'],
     })
     .addStartOperationByType(endWhen, {})
     .addStartOperationByType(createElement, {
@@ -160,6 +159,7 @@ CreateOptionList(
       const result = await context.engine.init();
       assert.is.not(result, undefined);
       $('[data-language-selector=true]').val('en-GB').trigger('change');
+      console.log('html', $('[data-language-selector=true]').prop('outerHTML'));
 
       assert.is(selectedLang, 'en-GB');
     } catch (e) {

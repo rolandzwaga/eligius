@@ -2,5 +2,6 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["./src/index.ts"],
   "exclude": ["src/+(test|@types)/**/*.*"],
-  "excludeExternals": true
+  "excludeExternals": true,
+  "json": "./docs.json"
 }
