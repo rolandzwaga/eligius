@@ -22,7 +22,7 @@ export interface IInvokeObjectMethodOperationData {
 
 /**
  * This operation invokes the specified method on the given object with the given optional arguments
- * and assigns the result to the `methodResult` property.
+ * and assigns the result to the `methodResult` operationdata property.
  *
  * @param operationData
  * @returns

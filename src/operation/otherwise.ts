@@ -2,8 +2,8 @@ import { findMatchingOperationIndex } from './helper/find-matching-operation-ind
 import { IOperationContext, TOperation } from './types';
 
 /**
- * If the preceeding `when` operation evaluates to `true` subsequent operations will
- * be skipped until an `endWhen` operation is encountered.
+ * If the preceeding {@link when} operation evaluates to `true` subsequent operations will
+ * be skipped until an {@link endWhen} operation is encountered.
  * 
  * @param operationData 
  * @returns 

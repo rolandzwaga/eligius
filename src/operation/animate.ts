@@ -5,11 +5,11 @@ export interface IAnimateOperationData {
   animationEasing?: string;
   selectedElement: JQuery;
   animationProperties: any;
-  animationDuration: number;
+  animationDuration: JQuery.Duration;
 }
 
 /**
- * This operation animates the specified selected element with the given jQuery animation settings.
+ * This operation animates the specified selected element with the given [jQuery animation](https://api.jquery.com/animate/) properties, duration and easing.
  * It resolves after the animation completes.
  *
  * @param operationData

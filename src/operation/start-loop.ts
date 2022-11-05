@@ -1,21 +1,24 @@
 import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { IOperationContext, TOperation } from './types';
 
-export type TStartLoopOperationData = {
+export interface IStartLoopOperationData {
   collection: any[] | string;
-};
+}
 
 /**
  * This operation starts a loop using the given collection.
  *
  * Each iteration the current item from the specified collection is
- * assigned to the `currentItem` property on the operation context.
+ * assigned to the {@link IOperationContext.currentItem} property on the operation context.
+ *
+ * At the start of the loop, the associated {@link endLoop} operation is determined and when
+ * the last iteration is completed the flow control is set to the index of that operation.
  *
  * @param operationData
  * @returns
  */
-export const startLoop: TOperation<TStartLoopOperationData> = function (
-  operationData: TStartLoopOperationData
+export const startLoop: TOperation<IStartLoopOperationData> = function (
+  operationData: IStartLoopOperationData
 ) {
   const { collection } = operationData;
 

@@ -23,7 +23,7 @@
     "size": "size-limit",
     "generate-readmes": "ts-node ./src/tools/doc-tools/generate-readmes",
     "generate-schema": "ts-node ./src/tools/schema-tools/generate-operation-schemas",
-    "typedoc": "typedoc --options typedoc.json",
+    "typedoc": "typedoc --options typedoc-metadata.json & typedoc --options typedoc.json",
     "docs": "yarn generate-schema && yarn typedoc && node copy-schema && yarn generate-readmes"
   },
   "prettier": {

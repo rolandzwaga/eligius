@@ -7,7 +7,7 @@ export interface IReparentElementOperationData {
 
 /**
  * This operation moves the given selected element to the new parent that is defined
- * by the specified selector.
+ * by the specified `newParentSelector`.
  *
  * @param operationData
  * @returns
