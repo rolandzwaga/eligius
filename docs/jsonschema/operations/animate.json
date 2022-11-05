@@ -1,0 +1,50 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/animate-operation.json",
+  "type": "object",
+  "title": "The animate schema",
+  "description": "Animates the selected element with the given animation settings.",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "animate"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "required": [
+        "animationProperties",
+        "animationDuration"
+      ],
+      "properties": {
+        "animationEasing": {
+          "$id": "#/properties/operationData/animationEasing",
+          "type": "boolean"
+        },
+        "animationProperties": {
+          "$id": "#/properties/operationData/animationProperties",
+          "type": "object"
+        },
+        "animationDuration": {
+          "$id": "#/properties/operationData/animationDuration",
+          "type": "number"
+        }
+      }
+    }
+  }
+}

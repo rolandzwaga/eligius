@@ -1,0 +1,41 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/set-operation-data-operation.json",
+  "type": "object",
+  "title": "The setOperationData schema",
+  "description": "Sets the given properties on the current operation data",
+  "required": [
+    "systemName"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "setOperationData"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "properties": {
+        "properties": {
+          "$id": "#/properties/operationData/properties",
+          "type": "object"
+        },
+        "override": {
+          "$id": "#/properties/operationData/override",
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

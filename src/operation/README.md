@@ -6,7 +6,7 @@ This is a list of all the available operations with links to their respective do
 
 - [addControllerToElement](https://rolandzwaga.github.io/eligius/functions/addControllerToElement.html "This operation adds the specified controller instance to the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/add-controller-to-element.json))
 
-- [animate](https://rolandzwaga.github.io/eligius/functions/animate.html "This operation animates the specified selected element with the given jQuery animation settings. It resolves after the animation completes.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/animate.json))
+- [animate](https://rolandzwaga.github.io/eligius/functions/animate.html "This operation animates the specified selected element with the given [jQuery animation](https://api.jquery.com/animate/) properties, duration and easing. It resolves after the animation completes.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/animate.json))
 
 - [animateWithClass](https://rolandzwaga.github.io/eligius/functions/animateWithClass.html "This operation adds the specified class name to the specified selected element and assumes that this class triggers and animation on the selected element. It then waits for this animation to complete before it resolves.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/animate-with-class.json))
 
@@ -22,7 +22,7 @@ This is a list of all the available operations with links to their respective do
 
 - [customFunction](https://rolandzwaga.github.io/eligius/functions/customFunction.html "This operation retrieves a custom function defined by the given system name and invokes it with the current operation data and eventbus.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/custom-function.json))
 
-- [endAction](https://rolandzwaga.github.io/eligius/functions/endAction.html "This operation invokes the end() method on the specified action instance.  The action operation data is first merged with the current operation data before it is passed on to the action. After the action has completed the action operation data properties are removed from the current operation data.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-action.json))
+- [endAction](https://rolandzwaga.github.io/eligius/functions/endAction.html "This operation invokes the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-action.json))
 
 - [endLoop](https://rolandzwaga.github.io/eligius/functions/endLoop.html "This operation checks if the current loop should end or start the next iteration.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-loop.json))
 
@@ -58,7 +58,7 @@ This is a list of all the available operations with links to their respective do
 
 - [removePropertiesFromOperationData](https://rolandzwaga.github.io/eligius/functions/removePropertiesFromOperationData.html "This operation removes the given list of properties from the current operation data. It will also omit the property 'propertyNames' from the result.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/remove-properties-from-operation-data.json))
 
-- [reparentElement](https://rolandzwaga.github.io/eligius/functions/reparentElement.html "This operation moves the given selected element to the new parent that is defined by the specified selector.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/reparent-element.json))
+- [reparentElement](https://rolandzwaga.github.io/eligius/functions/reparentElement.html "This operation moves the given selected element to the new parent that is defined by the specified ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/reparent-element.json))
 
 - [requestAction](https://rolandzwaga.github.io/eligius/functions/requestAction.html "This operation requests an action instance with the specified name and assigns it to the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/request-action.json))
 
