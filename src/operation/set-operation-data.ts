@@ -27,13 +27,30 @@ export const setOperationData: TOperation<ISetOperationData> = function (
   );
 
   if (override) {
-    operationData = resolvedProperties;
-  } else {
-    operationData = {
-      ...operationData,
-      ...resolvedProperties,
-    };
+    return resolvedProperties;
   }
+
+  const undefinedValues = Object.entries(resolvedProperties).filter(
+    ([_, value]) => value === undefined
+  );
+
+  operationData = {
+    ...operationData,
+    ...resolvedProperties,
+  };
+
+  /**
+   * For some reason merging of objects doesn't seem to be deterministic across environments
+   * when it comes to undefined property values.
+   *
+   * So, it seems that {...{foo:'bar'}, ...{foo: undefined}} sometimes yields {foo:'bar'}, but
+   * {foo: undefined} in other cases.
+   *
+   * Therefore, for now we just set the undefined properties explicitly.
+   */
+  undefinedValues.forEach(
+    ([name]) => ((operationData as any)[name] = undefined)
+  );
 
   return operationData;
 };
