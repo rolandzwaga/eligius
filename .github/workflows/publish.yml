@@ -6,7 +6,10 @@ on:
     types: [created]
 jobs:
   build:
+    name: Build, lint, test on Node 16 and ubuntu-latest and publish to NPM registry
+
     runs-on: windows-latest
+    
     steps:
       - name: Cache gtk and libjpg downloads
         id: cache-cairo-deps
