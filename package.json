@@ -1,8 +1,11 @@
 {
-  "version": "1.0.20",
+  "version": "1.1.0",
   "license": "MIT",
   "main": "dist/index.js",
   "homepage": "https://rolandzwaga.github.io/eligius/",
+  "bugs": {
+    "url": "https://github.com/rolandzwaga/eligius/issues?q=is%3Aissue+is%3Aopen+label%3ABug"
+  },
   "module": "dist/eligius.esm.js",
   "typings": "dist/index.d.ts",
   "files": [

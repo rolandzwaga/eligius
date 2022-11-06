@@ -5,63 +5,29 @@ import {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
 } from '../configuration/types';
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { TResultCallback } from '../types';
-import { ITimelineProvider } from './types';
+import { ITimelineProvider, TPlayState } from './types';
 
 const { MediaElementPlayer } = window as any;
 
 export class MediaElementTimelineProvider implements ITimelineProvider {
   private _videoElementId: string = uuidv4();
-  private _eventbusListeners: TEventbusRemover[] = [];
+  private _firstFramePending = true;
   private _playlist: IResolvedTimelineConfiguration[] = [];
   private _length: number = 0;
   private _urls: string[] = [];
-
-  player: mediaelementjs.MediaElementPlayer | undefined;
-
+  private _onTime: ((position: number) => void) | undefined;
+  private _onComplete: (() => void) | undefined;
+  private _onRestart: (() => void) | undefined;
+  private _onFirstFrame: (() => void) | undefined;
+  private _player: mediaelementjs.MediaElementPlayer | undefined;
   loop = false;
 
-  constructor(
-    private eventbus: IEventbus,
-    private config: IResolvedEngineConfiguration
-  ) {
-    this._addEventListeners();
+  private _playState: TPlayState = 'stopped';
+  public get playState(): TPlayState {
+    return this._playState;
   }
 
-  _addEventListeners() {
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.PLAY_REQUEST, this.start.bind(this))
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.STOP_REQUEST, this.stop.bind(this))
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.PAUSE_REQUEST, this.pause.bind(this))
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(TimelineEventNames.SEEK_REQUEST, this.seek.bind(this))
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.RESIZE_REQUEST,
-        this.resize.bind(this)
-      )
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.CONTAINER_REQUEST,
-        this._container.bind(this)
-      )
-    );
-    this._eventbusListeners.push(
-      this.eventbus.on(
-        TimelineEventNames.DURATION_REQUEST,
-        this.duration.bind(this)
-      )
-    );
-  }
+  constructor(private config: IResolvedEngineConfiguration) {}
 
   _extractUrls(configuration: IResolvedEngineConfiguration) {
     const urls = configuration.timelines
@@ -78,7 +44,11 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
 
     const promise = new Promise<void>((resolve) => {
       const videoElement = document.getElementById(this._videoElementId);
-      self.player = new MediaElementPlayer(videoElement, {
+      if (!videoElement) {
+        throw new Error(`Element with id '${this._videoElementId}' not found`);
+      }
+      self._player = new MediaElementPlayer(videoElement, {
+        stretching: 'responsive',
         success: (
           mediaElement: any,
           _originalNode: any,
@@ -88,6 +58,13 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
             'timeupdate',
             this._timeUpdateHandler.bind(this)
           );
+          mediaElement.addEventListener(
+            'playing',
+            this._playingHandler.bind(this)
+          );
+          mediaElement.addEventListener('ended', this._endedHandler.bind(this));
+          mediaElement.addEventListener('pause', this._pauseHandler.bind(this));
+          instance.controls = false;
           instance.loop = this.loop;
           instance.controlsAreVisible = false;
           instance.controlsEnabled = false;
@@ -99,15 +76,44 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
     return promise;
   }
 
-  private _timeUpdateHandler() {
-    if (this.player) {
-      this.eventbus.broadcast(TimelineEventNames.TIME, [
-        { position: this.player.currentTime },
-      ]);
-      this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-        { position: this.player.currentTime, duration: this.player.duration },
-      ]);
+  private _endedHandler() {
+    if (this.loop) {
+      this._onRestart?.();
+    } else {
+      this._onComplete?.();
     }
+  }
+
+  private _playingHandler() {
+    this._playState = 'running';
+  }
+
+  private _pauseHandler() {
+    this._playState = 'stopped';
+  }
+
+  onTime(callback: (position: number) => void) {
+    this._onTime = callback;
+  }
+
+  onComplete(callback: () => void) {
+    this._onComplete = callback;
+  }
+
+  onRestart(callback: () => void) {
+    this._onRestart = callback;
+  }
+
+  onFirstFrame(callback: () => void) {
+    this._onFirstFrame = callback;
+  }
+
+  private _timeUpdateHandler() {
+    if (this._firstFramePending) {
+      this._firstFramePending = false;
+      this._onFirstFrame?.();
+    }
+    this._onTime?.(this._player?.currentTime ?? 0);
   }
 
   private _addVideoElements(selector: string, urls: string[]) {
@@ -129,50 +135,55 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
   }
 
   playlistItem(uri: string) {
-    this.player?.setSrc(uri);
+    this._player?.setSrc(uri);
   }
 
   start() {
-    this.player?.play();
+    if (this._player?.currentTime === 0) {
+      this._onTime?.(0);
+    }
+    if (this._player?.paused) {
+      this._player?.play();
+    }
   }
 
   stop() {
-    this.player?.stop();
+    this._player?.stop();
   }
 
   destroy() {
-    if (!this.player?.paused) {
-      this.player?.pause();
+    if (!this._player?.paused) {
+      this._player?.pause();
     }
 
-    this.player?.remove();
+    this._player?.remove();
     $(`#${this._videoElementId}`).remove();
-    this._eventbusListeners.forEach((func) => func());
   }
 
   pause() {
-    this.player?.pause();
+    this._player?.pause();
   }
 
-  seek(position: number) {
-    this.player?.setCurrentTime(position);
-  }
-
-  resize() {}
-
-  duration(resultCallback: TResultCallback) {
-    resultCallback(this.getDuration());
+  async seek(position: number) {
+    return new Promise<number>((resolve: (value: number) => void) => {
+      const handler = () => {
+        this._player?.removeEventListener('seeked', handler);
+        resolve(this._player?.getCurrentTime() ?? 0);
+      };
+      this._player?.addEventListener('seeked', handler);
+      this._player?.setCurrentTime(position);
+    });
   }
 
   getDuration() {
-    return this.player?.duration || -1;
+    return this._player?.duration ?? -1;
   }
 
   getPosition() {
-    return this.player?.getCurrentTime() || -1;
+    return this._player?.getCurrentTime() ?? -1;
   }
 
-  _container(resultCallback: TResultCallback) {
-    resultCallback($(`#${this._videoElementId}`));
+  getContainer(): JQuery<HTMLElement> | undefined {
+    return $(`#${this._videoElementId}`);
   }
 }

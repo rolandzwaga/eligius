@@ -4,6 +4,12 @@ import { setGlobal } from './operation/helper/set-global';
 import { TimelineEventNames } from './timeline-event-names';
 import { ILabel, ILanguageLabel, TResultCallback } from './types';
 
+/**
+ * This class manages the labels for an {@link IEligiusEngine} instance.
+ * 
+ * It handles the {@link TimelineEventNames.REQUEST_LABEL_COLLECTION}, {@link TimelineEventNames.REQUEST_LABEL_COLLECTIONS}, {@link TimelineEventNames.REQUEST_CURRENT_LANGUAGE} and {@link TimelineEventNames.LANGUAGE_CHANGE} events.
+ * 
+ */
 export class LanguageManager {
   private _labelLookup: Record<string, ILabel[]>;
   private _eventbusRemovers: TEventbusRemover[] = [];

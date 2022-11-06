@@ -42,7 +42,7 @@ export class EligiusEngine implements IEligiusEngine {
   init(): Promise<ITimelineProvider> {
     this._createLayoutTemplate();
 
-    this._addInitialisationListeners();
+    this._addEventbusListeners();
 
     const { timelines } = this.configuration;
 
@@ -91,9 +91,35 @@ export class EligiusEngine implements IEligiusEngine {
       throw new Error('NO ACTIVE TIMELINE PROVIDER');
     }
 
+    this._activeTimelineProvider.onTime(
+      this._onTimeHandler.bind(this, Math.floor)
+    );
+    this._activeTimelineProvider.onComplete(
+      this._onCompleteCallback.bind(this)
+    );
+    this._activeTimelineProvider.onFirstFrame(
+      this._onFirstFrameCallback.bind(this)
+    );
+    this._activeTimelineProvider.onRestart(this._onRestartCallback.bind(this));
+
     await this._activeTimelineProvider.init();
     await this._executeActions(this.configuration.initActions, 'start');
     return this._activeTimelineProvider;
+  }
+
+  private _onCompleteCallback() {
+    this.eventbus.broadcast(TimelineEventNames.COMPLETE);
+  }
+
+  private _onFirstFrameCallback() {
+    this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
+    this.eventbus.broadcast(TimelineEventNames.DURATION, [
+      this._activeTimelineProvider?.getDuration,
+    ]);
+  }
+
+  private _onRestartCallback() {
+    this.eventbus.broadcast(TimelineEventNames.RESTART);
   }
 
   private async _cleanUp() {
@@ -141,7 +167,7 @@ export class EligiusEngine implements IEligiusEngine {
     );
   }
 
-  private _addInitialisationListeners() {
+  private _addEventbusListeners() {
     this._addEventListener(
       TimelineEventNames.REQUEST_ENGINE_ROOT,
       this._handleRequestEngineRoot.bind(
@@ -174,13 +200,122 @@ export class EligiusEngine implements IEligiusEngine {
       this._requestCurrentTimeline.bind(this)
     );
     this._addEventListener(
-      TimelineEventNames.TIME,
-      this._onTimeHandler.bind(this, Math.floor)
+      TimelineEventNames.PLAY_TOGGLE_REQUEST,
+      this._toggleplay.bind(this)
     );
+
     this._addEventListener(
-      TimelineEventNames.SEEK,
-      this._onSeekHandler.bind(this, Math.floor)
+      TimelineEventNames.PLAY_REQUEST,
+      this._playRequest.bind(this)
     );
+
+    this._addEventListener(
+      TimelineEventNames.STOP_REQUEST,
+      this._stopRequest.bind(this)
+    );
+
+    this._addEventListener(
+      TimelineEventNames.PAUSE_REQUEST,
+      this._pauseRequest.bind(this)
+    );
+
+    this._addEventListener(
+      TimelineEventNames.CONTAINER_REQUEST,
+      this.containerRequest.bind(this)
+    );
+
+    this._addEventListener(
+      TimelineEventNames.DURATION_REQUEST,
+      this.durationRequest.bind(this)
+    );
+
+    this._addEventListener(
+      TimelineEventNames.SEEK_REQUEST,
+      this.seekRequest.bind(this)
+    );
+  }
+
+  private async seekRequest(offset: number) {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+    const seekPosition = Math.floor(offset);
+
+    const duration = this._activeTimelineProvider.getDuration();
+    const currentPosition = this._activeTimelineProvider.getPosition();
+
+    if (seekPosition < 0 || seekPosition > duration) {
+      return;
+    }
+
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [
+      seekPosition,
+      currentPosition,
+      duration,
+    ]);
+
+    await this._activeTimelineProvider.seek(seekPosition);
+    await this._executeSeekActions(seekPosition);
+
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [
+      this._activeTimelineProvider.getPosition(),
+      duration,
+    ]);
+
+    this.eventbus.broadcast(TimelineEventNames.TIME, [
+      this._activeTimelineProvider.getPosition(),
+    ]);
+
+    if (this._activeTimelineProvider?.playState === 'running') {
+      this._activeTimelineProvider?.start();
+    }
+  }
+
+  private durationRequest(callBack: TResultCallback) {
+    callBack(this._activeTimelineProvider?.getDuration());
+  }
+
+  private containerRequest(callBack: TResultCallback) {
+    callBack(this._activeTimelineProvider?.getContainer());
+  }
+
+  private _pauseRequest() {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    this._activeTimelineProvider.pause();
+    this.eventbus.broadcast(TimelineEventNames.PAUSE);
+  }
+
+  private _stopRequest() {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    this._activeTimelineProvider.stop();
+    this.eventbus.broadcast(TimelineEventNames.STOP);
+  }
+
+  private _playRequest() {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    this._activeTimelineProvider.start();
+    this.eventbus.broadcast(TimelineEventNames.PLAY);
+  }
+
+  private _toggleplay() {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    if (this._activeTimelineProvider.playState === 'running') {
+      this._activeTimelineProvider.start();
+    } else {
+      this._activeTimelineProvider.pause();
+    }
   }
 
   private _createTimelineLookup() {
@@ -334,10 +469,8 @@ export class EligiusEngine implements IEligiusEngine {
 
         await this._executeStartActions();
 
-        this._activeTimelineProvider.seek(position);
-        this._onSeekHandler(Math.floor, {
-          offset: position,
-        });
+        const seekPosition = await this._activeTimelineProvider.seek(position);
+        this.seekRequest(seekPosition);
       });
     }
 
@@ -431,35 +564,15 @@ export class EligiusEngine implements IEligiusEngine {
     return info?.timelineActions ?? [];
   }
 
-  private _onTimeHandler(floor: Function, event: any) {
-    if (!isNaN(event.position)) {
-      const pos = floor(event.position);
+  private _onTimeHandler(floor: (x: number) => number, position: number) {
+    if (!isNaN(position)) {
+      const pos = floor(position);
 
       if (this._lastPosition !== pos) {
         this._executeActionsForPosition(pos);
-        this.eventbus.broadcast(TimelineEventNames.POSITION_UPDATE, [
-          pos,
-          this._activeTimelineProvider?.getDuration(),
-        ]);
+        this.eventbus.broadcast(TimelineEventNames.TIME, [pos]);
       }
-
-      this.eventbus.broadcast(TimelineEventNames.TIME_UPDATE, [
-        event.position,
-        this._activeTimelineProvider?.getDuration(),
-      ]);
     }
-  }
-
-  private async _onSeekHandler(floor: Function, event: { offset: number }) {
-    if (isNaN(event.offset)) {
-      return;
-    }
-
-    const pos = floor(event.offset);
-
-    await this._executeSeekActions(pos);
-
-    this._activeTimelineProvider?.start();
   }
 
   private _executeActionsForPosition(position: number) {
@@ -481,7 +594,7 @@ export class EligiusEngine implements IEligiusEngine {
       return Promise.resolve();
     }
 
-    const currentActions = this._getActiveActions(timelineActions).reverse();
+    const currentActions = this._getActiveActions(timelineActions);
     const newActions = this._getActionsForPosition(pos, timelineActions);
     const currentActionsEnd = this._executeActions(currentActions, 'end', 0);
 

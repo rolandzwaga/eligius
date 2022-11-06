@@ -34,6 +34,23 @@ import {
 } from './types';
 import { prepareValueForSerialization } from './util/prepare-value-for-serialization';
 
+/**
+ * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.
+ *
+ * It prepares a resolved configuration and creates the engine based on the class defined in the configuration.
+ *
+ * @example Loading a configuration and creating an IEligiusEngine instance
+ * ```ts
+ * import { IEngineConfiguration, EngineFactory, WebpackResourceImporter } from 'eligius';
+ * import * as engineConfig from './my-eligius-config.json';
+ *
+ * const factory = new EngineFactory(new WebpackResourceImporter(), window);
+ *
+ * const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
+ *
+ * engine.init().then(()=> {console.log('Eligius engine ready for business');});
+ * ```
+ */
 export class EngineFactory implements IEngineFactory {
   private _actionsLookup: Record<string, IAction> = {};
   private _eventbus: IEventbus;
@@ -231,8 +248,7 @@ export class EngineFactory implements IEngineFactory {
     this._actionsLookup = actionLookup;
 
     const timelineProviders = this._createTimelineProviders(
-      resolvedConfiguration,
-      this._eventbus
+      resolvedConfiguration
     );
 
     const { language, labels } = configuration;
@@ -253,8 +269,7 @@ export class EngineFactory implements IEngineFactory {
   }
 
   private _createTimelineProviders(
-    configuration: IResolvedEngineConfiguration,
-    eventbus: IEventbus
+    configuration: IResolvedEngineConfiguration
   ): Record<TimelineTypes, ITimelineProviderInfo> {
     const { timelineProviderSettings } = configuration;
 
@@ -265,13 +280,13 @@ export class EngineFactory implements IEngineFactory {
         return acc;
       }
 
-      const timelineProviderClass = this._importSystemEntry(
+      const TimelineProviderClass = this._importSystemEntry(
         settings.systemName
       );
       acc[timelineType as TimelineTypes] = {
         id: settings.id,
         vendor: settings.vendor,
-        provider: new timelineProviderClass(eventbus, configuration),
+        provider: new TimelineProviderClass(configuration),
       };
       return acc;
     }, {} as Record<TimelineTypes, ITimelineProviderInfo>);
