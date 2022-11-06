@@ -29,7 +29,6 @@ jobs:
 
       - name: Install Cairo dependencies
         run: |
-          Expand-Archive C:\gtk.zip -DestinationPath "C:\GTK"
           C:\libjpeg.exe /S
 
       - name: Add msbuild to PATH
