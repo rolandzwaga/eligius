@@ -61,8 +61,7 @@ export class SubtitlesController
     this.lastFunc = null;
   }
 
-  onTimeHandler(arg: any) {
-    const position = arg.position;
+  onTimeHandler(position: number) {
     const func = this.actionLookup[position];
     if (func) {
       func();

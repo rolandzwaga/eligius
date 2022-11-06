@@ -5,13 +5,13 @@ import {
   IActionConfiguration,
   IEngineConfiguration,
   ITimelineActionConfiguration,
-  ITimelineConfiguration,
+  ITimelineConfiguration
 } from '../types';
 import { ActionCreatorFactory } from './action-creator-factory';
 import {
   ActionEditor,
   EndableActionEditor,
-  TimelineActionEditor,
+  TimelineActionEditor
 } from './action-editor';
 import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
 
@@ -33,6 +33,7 @@ type ConfigurationFactoryExtension = (
 /**
  * This class offers a fluent and strongly typed DSL for creating Eligius configurations.
  *
+ * @example Building a configuration using the factory
  * To initialize a basic configuration to start off of:
  * ```ts
  * const factory = new ConfigurationFactory()

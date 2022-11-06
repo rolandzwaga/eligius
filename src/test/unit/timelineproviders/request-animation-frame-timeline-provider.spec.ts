@@ -1,14 +1,11 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import { suite } from 'uvu';
-import { Eventbus, IEventbus } from '../../../eventbus';
-import { TimelineEventNames } from '../../../timeline-event-names';
 import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider';
 
 const RequestAnimationFrameTimelineProviderSuite = suite<{
   provider: RequestAnimationFrameTimelineProvider;
   configuration: any;
-  eventbus: IEventbus;
   requestAnimationFrame: any;
   cancelAnimationFrame: any;
 }>('RequestAnimationFrameTimelineProvider');
@@ -36,71 +33,54 @@ RequestAnimationFrameTimelineProviderSuite.before.each((context) => {
       },
     ],
   };
-  context.eventbus = new Eventbus();
   context.provider = new RequestAnimationFrameTimelineProvider(
-    context.eventbus,
     context.configuration
   );
 });
 
 RequestAnimationFrameTimelineProviderSuite.after.each((context) => {
   context.provider.destroy();
-  context.eventbus.clear();
   $('#selector').remove();
 });
 
 RequestAnimationFrameTimelineProviderSuite(
-  'should start and dispatch event',
+  'should start and set correct play state',
   (context) => {
     const { provider } = context;
 
     provider.init();
-    let started = false;
-    context.eventbus.on(TimelineEventNames.PLAY, () => {
-      started = true;
-    });
 
     provider.start();
     expect(provider.playState).to.equal('running');
-    expect(started).to.be.true;
   }
 );
 
 RequestAnimationFrameTimelineProviderSuite(
-  'should pause and dispatch event',
+  'should pause and set correct play state',
   (context) => {
     const { provider } = context;
 
     provider.init();
-    let paused = false;
-    context.eventbus.on(TimelineEventNames.PAUSE, () => {
-      paused = true;
-    });
 
     provider.start();
     expect(provider.playState).to.equal('running');
     provider.pause();
-    expect(provider.playState).to.equal('paused');
-    expect(paused).to.be.true;
+    expect(provider.playState).to.equal('stopped');
   }
 );
 
 RequestAnimationFrameTimelineProviderSuite(
-  'should stop and dispatch event',
+  'should stop, set correct play state and reset position to zero',
   (context) => {
     const { provider } = context;
 
     provider.init();
-    let stopped = false;
-    context.eventbus.on(TimelineEventNames.STOP, () => {
-      stopped = true;
-    });
 
     provider.start();
     expect(provider.playState).to.equal('running');
     provider.stop();
     expect(provider.playState).to.equal('stopped');
-    expect(stopped).to.be.true;
+    expect(provider.getPosition()).to.equal(0);
   }
 );
 
@@ -112,9 +92,7 @@ RequestAnimationFrameTimelineProviderSuite(
     provider.init();
     const recordedPositions: number[] = [];
 
-    context.eventbus.on(TimelineEventNames.TIME, (position: number) => {
-      recordedPositions.push(position);
-    });
+    provider.onTime((position: number) => recordedPositions.push(position));
 
     provider.start();
 

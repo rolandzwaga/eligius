@@ -146,6 +146,10 @@ EligiusEngineSuite(
         provider: {
           init: () => Promise.resolve(),
           on: () => {},
+          onTime: () => {},
+          onComplete: () => {},
+          onFirstFrame: () => {},
+          onRestart: () => {},
         },
       },
     };

@@ -30,7 +30,7 @@ export class ProgressbarController
   attach(eventbus: IEventbus) {
     this.eventbusRemovers.push(
       eventbus.on(
-        TimelineEventNames.POSITION_UPDATE,
+        TimelineEventNames.TIME,
         this._positionUpdateHandler.bind(this)
       )
     );
@@ -38,9 +38,15 @@ export class ProgressbarController
       (duration: number) => (this.duration = duration),
     ]);
 
-    const clickHandler = this._clickHandler.bind(this, eventbus);
-    this.selectedElement?.on('click', clickHandler);
-    this.eventbusRemovers.push(() => this.selectedElement?.off('click', clickHandler));
+    this.selectedElement?.css({'pointer-events': 'none'});
+
+    const container = this.selectedElement?.parent();
+
+    if (container) {
+      const clickHandler = this._clickHandler.bind(this, eventbus);
+      container.on('click', clickHandler);
+      this.eventbusRemovers.push(() => container.off('click', clickHandler));
+    }
   }
 
   detach(_eventbus: IEventbus) {
@@ -49,14 +55,8 @@ export class ProgressbarController
     });
   }
 
-  private _positionUpdateHandler({
-    position,
-    duration,
-  }: {
-    position: number;
-    duration: number;
-  }) {
-    const percentage = (100 / duration) * position;
+  private _positionUpdateHandler(position: number) {
+    const percentage = (100 / this.duration) * position;
     this.selectedElement?.css('width', `${percentage}%`);
     this.textElement?.text(`${Math.floor(percentage)}%`);
   }
@@ -64,10 +64,13 @@ export class ProgressbarController
   private _clickHandler(eventbus: IEventbus, event: any) {
     const element = event.target as HTMLElement;
     const rect = element.getBoundingClientRect();
+
     const x = event.clientX - rect.left; //x position within the element.
+
     const percentage = (100 / rect.width) * x;
+
     eventbus.broadcast(TimelineEventNames.SEEK_REQUEST, [
-      Math.floor((this.duration / 100) * percentage),
+      Math.round((this.duration / 100) * percentage),
     ]);
   }
 }

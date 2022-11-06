@@ -64,7 +64,8 @@ The engine setting defines the engine for which this configuration is written. C
 
 These settings describe the providers that are availab;e for the different kinds of timelines.
 There are three kinds: `audio`, `video` and `animation`.
-For `audio` and `video` either the `JwPlayerTimelineProvider` or `MediaElementTimelineProvider` can be used, for `animation` there is `RequestAnimationFrameTimelineProvider`.
+For `animation` there is `RequestAnimationFrameTimelineProvider`.
+For `audio` and `video` the `MediaElementTimelineProvider` can be used, but unfortunately that class is disabled for now.
 
 ### container selector
 

@@ -1,12 +1,20 @@
+export type TPlayState = 'stopped' | 'running';
+
 export interface ITimelineProvider {
   loop: boolean;
   init(): Promise<void>;
   start(): void;
   stop(): void;
   pause(): void;
-  seek(position: number): void;
+  seek(position: number): Promise<number>;
   playlistItem(uri: string): void;
   getPosition(): number;
   getDuration(): number;
+  getContainer(): JQuery<HTMLElement> | undefined;
   destroy(): void;
+  onTime(callback: (position: number) => void): void;
+  onComplete(callback: () => void): void;
+  onRestart(callback: () => void): void;
+  onFirstFrame(callback: () => void): void;
+  playState: TPlayState;
 }
