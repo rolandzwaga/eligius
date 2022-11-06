@@ -350,6 +350,10 @@ export class ConfigurationFactory {
     return translation;
   }
 
+  editLabel(id: string) {
+    return this.configuration.labels?.find((x) => x.id === id);
+  }
+
   addLabel(id: string, code: string, translation: string) {
     const labels = this._initializeCollection(this.configuration, 'labels');
     const labelConfig = this._initializeLabel(id, labels);
@@ -358,6 +362,13 @@ export class ConfigurationFactory {
       code
     );
     labelTranslation.label = translation;
+    return this;
+  }
+
+  addLabels(id: string, translations: Record<string, string>) {
+    Object.entries(translations).forEach(([code, translation]) =>
+      this.addLabel(id, code, translation)
+    );
     return this;
   }
 
