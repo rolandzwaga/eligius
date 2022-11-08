@@ -6,6 +6,7 @@
 - Add `setData` operation.
 - `LabelController` can now also optionally assign its label to an element attribute.
 - Fix ending actions that are already active within the seek range.
+- `EventListenerController`: Add entire event target to operation data instead of the `target.value`.
 
 ## 1.1.0
 - Refactor of the `ITimelineProviders`. Providers no longer have access to the eventbus, all of that logic is now handled from within the `EligiusENgine`.
