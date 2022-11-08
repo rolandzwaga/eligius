@@ -12,7 +12,15 @@ import {
   TResultCallback,
 } from './types';
 
-type ActionMethod = IEndableAction['start'] | IEndableAction['end'];
+type ActionMethod =
+  | (IEndableAction['start'] & ActionMethodMetadata)
+  | (IEndableAction['end'] & ActionMethodMetadata);
+
+interface ActionMethodMetadata {
+  id: string;
+  isStart: boolean;
+  startPosition?: number;
+}
 
 /**
  * This is where the magic happens. The engine is responsible for starting and stopping
@@ -188,14 +196,6 @@ export class EligiusEngine implements IEligiusEngine {
       this._handleTimelineComplete.bind(this)
     );
     this._addEventListener(
-      TimelineEventNames.EXECUTE_TIMELINEACTION,
-      this._handleExecuteTimelineAction.bind(this)
-    );
-    this._addEventListener(
-      TimelineEventNames.RESIZE_TIMELINEACTION,
-      this._resizeTimelineAction.bind(this)
-    );
-    this._addEventListener(
       TimelineEventNames.REQUEST_CURRENT_TIMELINE,
       this._requestCurrentTimeline.bind(this)
     );
@@ -333,9 +333,41 @@ export class EligiusEngine implements IEligiusEngine {
       // actions ends need to be in reversed order, otherwise, for example,
       // elements that were created before dependent actions will already have been
       // removed in the end phase.
-      const reversed = [...timelineInfo.timelineActions].reverse();
-      reversed.forEach(this._addTimelineActionEnd.bind(this, timelineInfo.uri));
+      timelineInfo.timelineActions.forEach(
+        this._addTimelineActionEnd.bind(this, timelineInfo.uri)
+      );
     });
+
+    EligiusEngine.sortTimelines(Object.values(this._timeLineActionsLookup));
+  }
+
+  static sortTimelines(timelines: Record<number, ActionMethod[]>[]) {
+    timelines.forEach((timelineActions) => {
+      Object.keys(timelineActions).forEach(
+        (key) =>
+          ((timelineActions as any)[key] = EligiusEngine.sortActionsPerPosition(
+            (timelineActions as any)[key]
+          ))
+      );
+    });
+  }
+
+  static sortActionsPerPosition(actions: ActionMethod[]) {
+    const [startMethods, endMethods] = actions.reduce(
+      (acc, item) => {
+        if (item.isStart) {
+          acc[0].push(item);
+        } else {
+          acc[1].push(item);
+        }
+        return acc;
+      },
+      [[], []] as [ActionMethod[], ActionMethod[]]
+    );
+    return [
+      ...endMethods.sort(sortActionMethodsHighestStartPositionFirst),
+      ...startMethods,
+    ];
   }
 
   private _addTimelineActionStart(
@@ -347,12 +379,14 @@ export class EligiusEngine implements IEligiusEngine {
       this._initializeUriLookup(this._timeLineActionsLookup, uri),
       startPosition
     );
-    const startMethod = timeLineAction.start.bind(timeLineAction);
+    const startMethod = timeLineAction.start.bind(
+      timeLineAction
+    ) as ActionMethod;
 
     if (timeLineAction.id?.length) {
-      (startMethod as any).id = timeLineAction.id;
-      (startMethod as any).isStart = true;
+      startMethod.id = timeLineAction.id;
     }
+    startMethod.isStart = true;
 
     timelineStartPositions.push(startMethod);
   }
@@ -368,11 +402,13 @@ export class EligiusEngine implements IEligiusEngine {
         this._timeLineActionsLookup[uri],
         end
       );
-      const endMethod = timeLineAction.end.bind(timeLineAction);
+      const endMethod = timeLineAction.end.bind(timeLineAction) as ActionMethod;
 
-      if (!timeLineAction.id) {
-        (endMethod as any).id = timeLineAction.id;
+      if (timeLineAction.id?.length) {
+        endMethod.id = timeLineAction.id;
+        endMethod.startPosition = timeLineAction.duration.start;
       }
+      endMethod.isStart = false;
 
       timelineEndPositions.push(endMethod);
     }
@@ -506,14 +542,14 @@ export class EligiusEngine implements IEligiusEngine {
 
   private _getActiveActions(allActions: ITimelineAction[]) {
     const actions = allActions.filter((action) => action.active);
-    return actions.sort(sortActions);
+    return actions.sort(sortActionsHighestStartPositionFirst);
   }
 
   private _executeRelevantActions(
     filter: (actions: ITimelineAction[]) => ITimelineAction[],
     executionType: 'start' | 'end'
   ) {
-    const timelineActions = this._getRelevantTimelineActions();
+    const timelineActions = this._getTimelineActionsForCurrentTimeline();
     const currentActions = filter.apply(this, [timelineActions]);
     return this._executeActions(currentActions, executionType, 0);
   }
@@ -529,27 +565,7 @@ export class EligiusEngine implements IEligiusEngine {
     this._cleanUpTimeline();
   }
 
-  private _handleExecuteTimelineAction(
-    uri: string,
-    index: number,
-    start: boolean
-  ) {
-    const actions = this._getTimelineActionsForUri(uri);
-    const action = actions?.[index];
-    if (action) {
-      if (start) {
-        action.start();
-      } else {
-        action.end();
-      }
-    }
-  }
-
-  private _resizeTimelineAction(/*uri: string, index: number*/) {
-    console.error('no resizing implemented');
-  }
-
-  private _getRelevantTimelineActions() {
+  private _getTimelineActionsForCurrentTimeline() {
     return this._getTimelineActionsForUri(this._currentTimelineUri);
   }
 
@@ -581,14 +597,12 @@ export class EligiusEngine implements IEligiusEngine {
 
     if (actions) {
       const executions = actions[position];
-      executions?.forEach((exec) => {
-        exec();
-      });
+      executions?.forEach((exec) => exec());
     }
   }
 
   private async _executeSeekActions(position: number) {
-    const timelineActions = this._getRelevantTimelineActions();
+    const timelineActions = this._getTimelineActionsForCurrentTimeline();
 
     if (!timelineActions) {
       return Promise.resolve();
@@ -607,10 +621,29 @@ export class EligiusEngine implements IEligiusEngine {
   }
 }
 
-const sortActions = (a: ITimelineAction, b: ITimelineAction) => {
+const sortActionsHighestStartPositionFirst = (
+  a: ITimelineAction,
+  b: ITimelineAction
+) => {
   if (b.duration.start < a.duration.start) {
     return -1;
   } else if (b.duration.start > a.duration.start) {
+    return 1;
+  } else {
+    return 0;
+  }
+};
+
+const sortActionMethodsHighestStartPositionFirst = (
+  a: ActionMethod,
+  b: ActionMethod
+) => {
+  if (b.startPosition === undefined || a.startPosition === undefined) {
+    return 0;
+  }
+  if (b.startPosition < a.startPosition) {
+    return -1;
+  } else if (b.startPosition > a.startPosition) {
     return 1;
   } else {
     return 0;
