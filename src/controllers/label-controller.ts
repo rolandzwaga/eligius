@@ -6,13 +6,14 @@ import { IController } from './types';
 export interface ILabelControllerMetadata {
   selectedElement: JQuery;
   labelId: string;
+  attributeName?: string;
 }
 
 /**
  * This controller attaches to the given selected element and renders the text associated with the given label id in it.
- * 
+ *
  * The controller also listen for the `LANGUAGE_CHANGE` event and re-renders the text with the new language after such an event.
- * 
+ *
  */
 export class LabelController implements IController<ILabelControllerMetadata> {
   listeners: TEventbusRemover[] = [];
@@ -60,16 +61,26 @@ export class LabelController implements IController<ILabelControllerMetadata> {
     eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTION, [
       labelId,
       (labelCollection: ILabel[]) => {
-        this._createTextDataLookup(labelCollection);
+        if (labelCollection) {
+          this._createTextDataLookup(labelCollection);
+        } else {
+          throw new Error(`Label id '${labelId}' does not exist!`);
+        }
       },
     ]);
   }
 
   private _setLabel() {
     if (this.currentLanguage) {
-      this.operationData?.selectedElement.html(
-        this.labelData[this.currentLanguage]
-      );
+      const text = this.labelData[this.currentLanguage];
+      if (!this.operationData?.attributeName) {
+        this.operationData?.selectedElement.html(text);
+      } else {
+        this.operationData?.selectedElement.attr(
+          this.operationData?.attributeName,
+          text
+        );
+      }
     }
   }
 
