@@ -1,4 +1,5 @@
 import { TimelineEventNames } from '../timeline-event-names';
+import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
 import { TOperation } from './types';
 
 function findElementBySelector(root: JQuery, selector: string) {
@@ -28,6 +29,11 @@ export interface ISelectElementOperationData {
 export const selectElement: TOperation<ISelectElementOperationData> = function (
   operationData: ISelectElementOperationData
 ) {
+  operationData.selector = resolveExternalPropertyChain(
+    operationData,
+    this,
+    operationData.selector
+  );
   const { selector, useSelectedElementAsRoot = false } = operationData;
 
   if (!selector) {

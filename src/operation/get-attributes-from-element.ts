@@ -23,7 +23,11 @@ export const getAttributesFromElement: TOperation<IGetAttributesFromElementOpera
     const { selectedElement, attributeNames } = operationData;
 
     operationData.attributeValues = attributeNames.reduce((acc, attrName) => {
-      acc[attrName] = selectedElement?.attr(attrName);
+      if (attrName !== 'value') {
+        acc[attrName] = selectedElement?.attr(attrName);
+      } else {
+        acc[attrName] = selectedElement?.val();
+      }
       return acc;
     }, {} as Record<string, any>);
 

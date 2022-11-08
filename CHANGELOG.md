@@ -5,10 +5,11 @@
 - Add `addLabels`, `removeLabel` and `editLabel` methods to `ConfigurationFactory`.
 - Add `setData` operation.
 - `LabelController` can now also optionally assign its label to an element attribute.
+- Fix ending actions that are already active within the seek range.
 
 ## 1.1.0
 - Refactor of the `ITimelineProviders`. Providers no longer have access to the eventbus, all of that logic is now handled from within the `EligiusENgine`.
-- Remove JWPlayer timeline provider. This was very old code, based on an old version of JWPlayer. It'll be revisited when necesary.
+- Remove JWPlayer timeline provider. This was very old code, based on an old version of JWPlayer. It'll be revisited when necessary.
 - Disable `MediaElementTimelineProvider` for now. There are some bugs while bundling mediaelement which needs some thorough seeing to. For now, focus lies with the `RequestAnimationFrameTimelineProvider`
 
 ## 1.0.20

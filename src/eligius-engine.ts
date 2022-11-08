@@ -587,15 +587,18 @@ export class EligiusEngine implements IEligiusEngine {
     }
   }
 
-  private async _executeSeekActions(pos: number) {
+  private async _executeSeekActions(position: number) {
     const timelineActions = this._getRelevantTimelineActions();
 
     if (!timelineActions) {
       return Promise.resolve();
     }
 
-    const currentActions = this._getActiveActions(timelineActions);
-    const newActions = this._getActionsForPosition(pos, timelineActions);
+    const currentActions = this._getActiveActions(timelineActions).filter(
+      (action) =>
+        !(action.duration.start <= position && action.duration.end >= position)
+    );
+    const newActions = this._getActionsForPosition(position, timelineActions);
     const currentActionsEnd = this._executeActions(currentActions, 'end', 0);
 
     await currentActionsEnd;

@@ -127,7 +127,7 @@ CreateOptionList.before((context) => {
 });
 
 CreateOptionList.after(async (context) => {
-  await context.engine.destroy();
+  await context.engine?.destroy();
   context.eventbus.clear();
   $('[data-ct-container=true]').remove();
   global.cancelAnimationFrame = context.cancelAnimationFrame;

@@ -29,6 +29,12 @@ export function getPropertyChainValue(
   let suffix = null;
 
   propertyChain.forEach((prop: string, index: number) => {
+    if (!currentInstance) {
+      throw new Error(
+        `Property chain '${propertyChain.join('.')}' cannot be resolved.`
+      );
+    }
+
     if (index === propertyChain.length - 1) {
       const parts = prop.split('+');
       if (parts.length > 1) {
