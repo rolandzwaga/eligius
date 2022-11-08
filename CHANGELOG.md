@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.1.1
+- Add `label-editor` to the configuration API.
+- Add `addLabels`, `removeLabel` and `editLabel` methods to `ConfigurationFactory`.
+- Add `setData` operation.
+
 ## 1.1.0
 - Refactor of the `ITimelineProviders`. Providers no longer have access to the eventbus, all of that logic is now handled from within the `EligiusENgine`.
 - Remove JWPlayer timeline provider. This was very old code, based on an old version of JWPlayer. It'll be revisited when necesary.
@@ -21,10 +26,10 @@
 - Add `defaultLanguage` to global data
 
 ## 1.0.16
-- Add static `extend` and `extendMultiple` methods to ConfigurationFactory
-- ActionCreatorFactory.ActionCreator now correctly returns an EndableActionCreator
-- Correctly initialize TimelineProviderSettings in the editor
-- Narrow typing in add-controller-to-element
+- Add static `extend` and `extendMultiple` methods to `ConfigurationFactory`
+- `ActionCreatorFactory.ActionCreator` now correctly returns an `EndableActionCreator`
+- Correctly initialize `TimelineProviderSettings` in the editor
+- Narrow typing in `addControllerToElement`
 
 ## 1.0.15
 - Export configuration factory API

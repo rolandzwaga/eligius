@@ -30,6 +30,8 @@ This is a list of all the available operations with links to their respective do
 
 - [extendController](https://rolandzwaga.github.io/eligius/functions/extendController.html) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/extend-controller.json))
 
+- [getAttributesFromElement](https://rolandzwaga.github.io/eligius/functions/getAttributesFromElement.html "This operation retrieves the values for the specified attribute names from  the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/get-attributes-from-element.json))
+
 - [getControllerFromElement](https://rolandzwaga.github.io/eligius/functions/getControllerFromElement.html "This operation retrieves the controller instance with the specified name that is assigned to the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/get-controller-from-element.json))
 
 - [getControllerInstance](https://rolandzwaga.github.io/eligius/functions/getControllerInstance.html "This operation retrieves an instance of the given controller name. It assigns this instance to the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/get-controller-instance.json))
@@ -44,7 +46,7 @@ This is a list of all the available operations with links to their respective do
 
 - [loadJSON](https://rolandzwaga.github.io/eligius/functions/loadJSON.html "This operation loads a JSON file from the specified url and assigns it to the json property on the current operation data.  If the cache property is set to true and a cached value already exists, this is assigned instead of re-retrieving it from the url.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/load-json.json))
 
-- [log](https://rolandzwaga.github.io/eligius/functions/log.html "This operation logs the current operation data and context to the console.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/log.json))
+- [log](https://rolandzwaga.github.io/eligius/functions/log.html "This operation logs the current operation data, global data and context to the console.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/log.json))
 
 - [math](https://rolandzwaga.github.io/eligius/functions/math.html "This operation performs the given math function with the specified arguments.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/math.json))
 
@@ -65,6 +67,8 @@ This is a list of all the available operations with links to their respective do
 - [resizeAction](https://rolandzwaga.github.io/eligius/functions/resizeAction.html) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/resize-action.json))
 
 - [selectElement](https://rolandzwaga.github.io/eligius/functions/selectElement.html "This operation selects one or more elements using the specified selector.  If ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/select-element.json))
+
+- [setData](https://rolandzwaga.github.io/eligius/functions/setData.html "This operation assigns the specified properties to the specified data.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/set-data.json))
 
 - [setElementAttributes](https://rolandzwaga.github.io/eligius/functions/setElementAttributes.html "This operation sets the specified set of attributes on the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/set-element-attributes.json))
 

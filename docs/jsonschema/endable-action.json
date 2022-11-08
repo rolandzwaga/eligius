@@ -78,6 +78,9 @@
             "$ref": "operations/extend-controller.json"
           },
           {
+            "$ref": "operations/get-attributes-from-element.json"
+          },
+          {
             "$ref": "operations/get-controller-from-element.json"
           },
           {
@@ -130,6 +133,9 @@
           },
           {
             "$ref": "operations/select-element.json"
+          },
+          {
+            "$ref": "operations/set-data.json"
           },
           {
             "$ref": "operations/set-element-attributes.json"
@@ -216,6 +222,9 @@
             "$ref": "operations/extend-controller.json"
           },
           {
+            "$ref": "operations/get-attributes-from-element.json"
+          },
+          {
             "$ref": "operations/get-controller-from-element.json"
           },
           {
@@ -268,6 +277,9 @@
           },
           {
             "$ref": "operations/select-element.json"
+          },
+          {
+            "$ref": "operations/set-data.json"
           },
           {
             "$ref": "operations/set-element-attributes.json"

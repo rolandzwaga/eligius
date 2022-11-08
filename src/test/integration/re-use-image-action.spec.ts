@@ -4,7 +4,7 @@ import * as assert from 'uvu/assert';
 import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
 import { IEngineConfiguration } from '../../configuration/types';
 import { EngineFactory } from '../../engine-factory';
-import { Eventbus } from '../../eventbus';
+import { Eventbus, IEventbus } from '../../eventbus';
 import { EligiusResourceImporter } from '../../importer';
 import {
   createElement,
@@ -15,16 +15,16 @@ import {
 } from '../../operation';
 import { IEligiusEngine } from '../../types';
 
-let configuration: IEngineConfiguration | null = null;
-let eventbus: Eventbus;
-let engine: IEligiusEngine;
-
 global.cancelAnimationFrame = () => {};
 
-const ReuseActions = suite('Re-use actions to add pictures');
+const ReuseActions = suite<{
+  configuration: IEngineConfiguration;
+  eventbus: IEventbus;
+  engine?: IEligiusEngine;
+}>('Re-use actions to add pictures');
 
-ReuseActions.before(() => {
-  eventbus = new Eventbus();
+ReuseActions.before((context) => {
+  context.eventbus = new Eventbus();
 
   $('<div data-ct-container=true></div>').appendTo(document.body);
 
@@ -78,34 +78,34 @@ ReuseActions.before(() => {
       },
     });
 
-  factory.getConfiguration((config) => {
-    configuration = config;
-    return undefined;
-  });
+  context.configuration = factory.getConfiguration();
 });
 
-ReuseActions.after(async () => {
-  await engine.destroy();
-  eventbus.clear();
+ReuseActions.after(async (context) => {
+  await context.engine?.destroy();
+  context.eventbus.clear();
   $('[data-ct-container=true]').remove();
 });
 
-ReuseActions('should add the pictures to the current template', async () => {
-  const engineFactory = new EngineFactory(
-    new EligiusResourceImporter(),
-    window,
-    {
-      eventbus,
-    }
-  );
-  engine = engineFactory.createEngine(configuration as IEngineConfiguration);
+ReuseActions(
+  'should add the pictures to the current template',
+  async (context) => {
+    const engineFactory = new EngineFactory(
+      new EligiusResourceImporter(),
+      window,
+      {
+        eventbus: context.eventbus,
+      }
+    );
+    context.engine = engineFactory.createEngine(context.configuration);
 
-  try {
-    const result = await engine.init();
-    assert.is.not(result, undefined);
-  } catch (e) {
-    throw e;
+    try {
+      const result = await context.engine.init();
+      assert.is.not(result, undefined);
+    } catch (e) {
+      throw e;
+    }
   }
-});
+);
 
 ReuseActions.run();

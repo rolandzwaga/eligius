@@ -13,6 +13,7 @@ import {
   EndableActionEditor,
   TimelineActionEditor
 } from './action-editor';
+import { LabelEditor } from './label-editor';
 import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
 
 export type TEngineConfigurationLists = Pick<
@@ -188,14 +189,12 @@ export class ConfigurationFactory {
   }
 
   getConfiguration(
-    callBack?: (copy: IEngineConfiguration) => IEngineConfiguration | undefined
+    callBack?: (copy: IEngineConfiguration) => IEngineConfiguration
   ) {
     const copy = deepCopy<IEngineConfiguration>(this.configuration);
     if (callBack) {
       const newConfig = callBack.call(this, copy);
-      if (newConfig) {
-        this.configuration = newConfig;
-      }
+      this.configuration = deepCopy<IEngineConfiguration>(newConfig);
     }
     return copy;
   }
@@ -221,7 +220,7 @@ export class ConfigurationFactory {
     return this;
   }
 
-  _internalAddAction(
+  private _internalAddAction(
     collectionName: keyof TEngineConfigurationLists,
     action: IActionConfiguration
   ) {
@@ -232,7 +231,10 @@ export class ConfigurationFactory {
     actions?.push(action as any);
   }
 
-  _initializeCollection<T, K extends keyof T>(parent: T, name: K): T[K] {
+  private _initializeCollection<T, K extends keyof T>(
+    parent: T,
+    name: K
+  ): T[K] {
     if (!parent[name]) {
       (parent[name] as any) = [];
     }
@@ -323,7 +325,7 @@ export class ConfigurationFactory {
     return this;
   }
 
-  _initializeLabel(id: string, labels: ILanguageLabel[]) {
+  private _initializeLabel(id: string, labels: ILanguageLabel[]) {
     let label = labels.find((l) => l.id === id);
     if (!label) {
       labels.push({
@@ -335,7 +337,10 @@ export class ConfigurationFactory {
     return label;
   }
 
-  _getLabelTranslation(labelTranslations: ILabel[], languageCode: string) {
+  private _getLabelTranslation(
+    labelTranslations: ILabel[],
+    languageCode: string
+  ) {
     let translation = labelTranslations.find(
       (l) => l.languageCode === languageCode
     );
@@ -351,7 +356,12 @@ export class ConfigurationFactory {
   }
 
   editLabel(id: string) {
-    return this.configuration.labels?.find((x) => x.id === id);
+    const label = this.configuration.labels?.find((x) => x.id === id);
+    if (label) {
+      return new LabelEditor(this, label);
+    } else {
+      throw new Error(`Language label with id '${id}' not found`);
+    }
   }
 
   addLabel(id: string, code: string, translation: string) {
