@@ -120,7 +120,7 @@ CreateOptionList.before((context) => {
   );
   eventActionCreator.addStartOperationByType(broadcastEvent, {
     eventName: TimelineEventNames.LANGUAGE_CHANGE,
-    eventArgs: ['operationData.targetValue'],
+    eventArgs: ['operationData.eventTarget.value'],
   });
 
   context.configuration = factory.getConfiguration();

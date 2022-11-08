@@ -90,7 +90,7 @@ export class EventListenerController
       : {};
 
     if (event.target) {
-      actionOperationData.targetValue = event.target.value;
+      actionOperationData.eventTarget = event.target;
     }
 
     this._executeAction(this.actionInstanceInfos, actionOperationData, 0);
