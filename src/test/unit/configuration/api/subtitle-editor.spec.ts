@@ -44,4 +44,13 @@ SubtitleEditorSuite(
   }
 );
 
+SubtitleEditorSuite(
+  'Should throw when duplicate language is added',
+  ({ subtitleEditor }) => {
+    expect(() =>
+      subtitleEditor.addLanguage('nl-NL').addLanguage('nl-NL')
+    ).to.throw('Language nl-NL already exists.');
+  }
+);
+  
 SubtitleEditorSuite.run();
