@@ -15,6 +15,6 @@ export interface IEndableAction extends IAction {
 }
 
 export interface ITimelineAction extends IEndableAction {
-  active: boolean;
+  get active(): boolean;
   duration: IStrictDuration;
 }

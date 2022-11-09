@@ -80,8 +80,6 @@ export class TimelineEventNames {
   static REQUEST_CURRENT_TIMELINE_POSITION =
     'request-current-timeline-position';
   static REQUEST_TIMELINE_CLEANUP = 'request-timeline-cleanup';
-  static EXECUTE_TIMELINEACTION = 'execute-timelineaction';
-  static RESIZE_TIMELINEACTION = 'resize-timelineaction';
 
   //language manager events
   static REQUEST_LABEL_COLLECTION = 'request-label-collection';

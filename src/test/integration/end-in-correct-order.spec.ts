@@ -2,7 +2,6 @@ import $ from 'jquery';
 
 import { suite } from 'uvu';
 import { ConfigurationFactory } from '../../configuration/api';
-import { IEngineConfiguration } from '../../configuration/types';
 import { EngineFactory } from '../../engine-factory';
 import { Eventbus } from '../../eventbus';
 import { EligiusResourceImporter } from '../../importer';
@@ -62,11 +61,7 @@ EndInCorrectOrder(
       .addEndOperationByType(selectElement, { selector: '.sub-container' })
       .addEndOperationByType(removeElement, {});
 
-    let configuration: IEngineConfiguration | undefined;
-    factory.getConfiguration((config) => {
-      configuration = config;
-      return undefined;
-    });
+    const configuration = factory.getConfiguration();
 
     const engineFactory = new EngineFactory(
       new EligiusResourceImporter(),
@@ -75,9 +70,7 @@ EndInCorrectOrder(
         eventbus: new Eventbus(),
       }
     );
-    const engine = engineFactory.createEngine(
-      configuration as IEngineConfiguration
-    );
+    const engine = engineFactory.createEngine(configuration);
 
     await engine.init();
 

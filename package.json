@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "main": "dist/index.js",
   "homepage": "https://rolandzwaga.github.io/eligius/",
@@ -12,7 +12,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=16"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

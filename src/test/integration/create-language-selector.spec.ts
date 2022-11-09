@@ -120,17 +120,14 @@ CreateOptionList.before((context) => {
   );
   eventActionCreator.addStartOperationByType(broadcastEvent, {
     eventName: TimelineEventNames.LANGUAGE_CHANGE,
-    eventArgs: ['operationData.targetValue'],
+    eventArgs: ['operationData.eventTarget.value'],
   });
 
-  factory.getConfiguration((config) => {
-    context.configuration = config;
-    return undefined;
-  });
+  context.configuration = factory.getConfiguration();
 });
 
 CreateOptionList.after(async (context) => {
-  await context.engine.destroy();
+  await context.engine?.destroy();
   context.eventbus.clear();
   $('[data-ct-container=true]').remove();
   global.cancelAnimationFrame = context.cancelAnimationFrame;
@@ -159,7 +156,6 @@ CreateOptionList(
       const result = await context.engine.init();
       assert.is.not(result, undefined);
       $('[data-language-selector=true]').val('en-GB').trigger('change');
-      console.log('html', $('[data-language-selector=true]').prop('outerHTML'));
 
       assert.is(selectedLang, 'en-GB');
     } catch (e) {

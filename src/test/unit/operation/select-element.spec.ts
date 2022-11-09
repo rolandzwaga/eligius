@@ -55,6 +55,33 @@ SelectElementSuite(
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
+    expect(mockElement.selector).to.equal('.testClass');
+  }
+);
+
+SelectElementSuite(
+  'should select the element based on the resolved selector',
+  () => {
+    // given
+    const selectedElement = {
+      length: 1,
+    };
+    const mockElement = new MockElement(selectedElement);
+    const eventbus = new MockEventbus(mockElement) as any as IEventbus;
+    const operationData = {
+      selector: 'operationdata.customSelector',
+      customSelector: '.testClass',
+    } as any as ISelectElementOperationData;
+
+    // test
+    const newData = applyOperation<{ selectedElement: any }>(
+      selectElement,
+      operationData,
+      { currentIndex: -1, eventbus, operations: [] }
+    );
+
+    // expect
+    expect(newData.selectedElement).to.equal(selectedElement);
   }
 );
 

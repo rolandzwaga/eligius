@@ -157,7 +157,11 @@ EventListenerControllerSuite(
 
     // expect
     const expectedOperatonData = Object.assign(
-      { targetValue: 'test' },
+      {
+        eventTarget: {
+          value: 'test',
+        },
+      },
       controller.operationData?.actionOperationData
     );
 
@@ -198,7 +202,11 @@ EventListenerControllerSuite(
 
     // expect
     const expectedOperatonData = Object.assign(
-      { targetValue: 'testTextInput' },
+      {
+        eventTarget: {
+          value: 'testTextInput',
+        },
+      },
       controller.operationData?.actionOperationData
     );
 
