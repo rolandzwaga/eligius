@@ -114,7 +114,7 @@ export interface ILanguageLabel {
 
 export interface ILabel {
   id: string;
-  languageCode: string;
+  languageCode: TLanguageCode;
   label: string;
 }
 
@@ -123,8 +123,10 @@ export interface IDimensions {
   height: number;
 }
 
+export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
+
 export interface ISubtitleCollection {
-  languageCode: string;
+  languageCode: TLanguageCode;
   titles: ISubtitle[];
 }
 
