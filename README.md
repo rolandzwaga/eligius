@@ -274,7 +274,9 @@ engine.init().then(()=> {console.log('Eligius engine ready for business');});
 
 ## Configuration API
 
-Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the [ConfigurationFactory](https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html) for a strongly typed, fluent API to construct a configuration programmatically.
+Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the [ConfigurationFactory](https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html) for a strongly typed, fluent and extensible API to construct a configuration programmatically.
+
+It is encouraged to use this API to build specialized DSL's for specific presentations.
 
 ## Source documentation
 

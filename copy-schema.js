@@ -1,6 +1,11 @@
 var fs = require('fs');
 var path = require('path');
 
+/**
+ * This script copies the static JSON schema and the generated schema parts
+ * to the docs directory.
+ */
+
 function copyFileSync(source, target) {
   var targetFile = target;
 

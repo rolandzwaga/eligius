@@ -122,3 +122,14 @@ export interface IDimensions {
   width: number;
   height: number;
 }
+
+export interface ISubtitleCollection {
+  languageCode: string;
+  titles: ISubtitle[];
+}
+
+export interface ISubtitle {
+  id: string;
+  duration: IStrictDuration;
+  text: string;
+}

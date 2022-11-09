@@ -32,7 +32,7 @@ type ConfigurationFactoryExtension = (
 ) => void;
 
 /**
- * This class offers a fluent and strongly typed DSL for creating Eligius configurations.
+ * This class offers a fluent, extensible and strongly typed DSL for creating Eligius configurations.
  *
  * @example Building a configuration using the factory
  * To initialize a basic configuration to start off of:

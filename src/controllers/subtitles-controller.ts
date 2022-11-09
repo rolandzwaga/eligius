@@ -1,12 +1,12 @@
 import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
 import { TimelineEventNames } from '../timeline-event-names';
+import { ISubtitleCollection } from '../types';
 import { IController } from './types';
 
 export interface ISubtitlesControllerOperationData {
   selectedElement: JQuery;
   language: string;
-  subtitleData: any;
+  subtitleData: ISubtitleCollection[];
 }
 
 export class SubtitlesController
@@ -89,7 +89,10 @@ export class SubtitlesController
     }
   }
 
-  createActionLookup(operationData: TOperationData, container: JQuery) {
+  createActionLookup(
+    operationData: ISubtitlesControllerOperationData,
+    container: JQuery
+  ) {
     const subtitleData = operationData.subtitleData;
     const titles = subtitleData[0].titles;
     const subtitleTimeLookup: Record<number, () => void> = {};
@@ -99,7 +102,7 @@ export class SubtitlesController
 
       for (let j = 0, jj = subtitleData.length; j < jj; j++) {
         const subs = subtitleData[j];
-        titleLanguageLookup[subs.lang] = subs.titles[i].text;
+        titleLanguageLookup[subs.languageCode] = subs.titles[i].text;
       }
 
       subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(
