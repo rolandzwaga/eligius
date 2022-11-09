@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.1.2
+- Add `SubtitleEditor` to configuration API.
+
 ## 1.1.1
 - Add `label-editor` to the configuration API.
 - Add `addLabels`, `removeLabel` and `editLabel` methods to `ConfigurationFactory`.
