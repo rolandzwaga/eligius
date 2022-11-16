@@ -57,7 +57,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        uses: mskelton/setup-yarn@v1
+        run: yarn --immutable --immutable-cache
 
       - name: Test
         run: yarn test --ci --coverage --maxWorkers=2

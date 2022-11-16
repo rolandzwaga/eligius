@@ -59,7 +59,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --immutable --immutable-cache
 
       - name: Test
         run: yarn test --ci --coverage --maxWorkers=2
