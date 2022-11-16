@@ -4,7 +4,6 @@ import fs, { PathLike } from 'fs';
 import { suite } from 'uvu';
 import { generateImporterSourceCode } from '../../../build';
 import { ConfigurationFactory } from '../../../configuration/api';
-import { IEngineConfiguration } from '../../../configuration/types';
 
 const GenerateImporterSourceCodeSuite = suite('generateImporterSourceCode');
 
@@ -26,14 +25,11 @@ GenerateImporterSourceCodeSuite.after((context) => {
 GenerateImporterSourceCodeSuite('should generate source code', async () => {
   const factory = new ConfigurationFactory().init('nl-NL');
 
-  let config: IEngineConfiguration | undefined;
-  factory.getConfiguration((cfg) => (config = cfg));
+  const config = factory.getConfiguration();
 
-  const tsSource = generateImporterSourceCode(
-    config as IEngineConfiguration,
-    './mypath',
-    [{ path: 'html', extension: '.html' }]
-  );
+  const tsSource = generateImporterSourceCode(config, './mypath', [
+    { path: 'html', extension: '.html' },
+  ]);
 
   const project = await createProject({ useInMemoryFileSystem: true });
   project.createSourceFile('importer.ts', tsSource);

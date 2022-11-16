@@ -1,6 +1,6 @@
 import { IEventbus, TEventbusRemover } from '../eventbus/types';
 import { TimelineEventNames } from '../timeline-event-names';
-import { ISubtitleCollection } from '../types';
+import { IStrictDuration, ISubtitleCollection } from '../types';
 import { IController } from './types';
 
 export interface ISubtitlesControllerOperationData {
@@ -16,6 +16,7 @@ export class SubtitlesController
   currentLanguage: string | null = null;
   lastFunc: Function | null = null;
   name = 'SubtitlesController';
+  subtitleDurations: IStrictDuration[] | null = null;
 
   attach(eventbus: IEventbus) {
     const detachTime = eventbus.on(
@@ -69,12 +70,15 @@ export class SubtitlesController
     }
   }
 
-  onSeekedHandler(arg: any) {
-    let position = arg.position;
-    let func = this.actionLookup[position];
-    while (!func && --position >= 0) {
-      func = this.actionLookup[position];
-    }
+  onSeekedHandler(args: any[]) {
+    console.log('args', args);
+    let position = args[0];
+
+    const duration = this.subtitleDurations?.find(
+      (x) => x.start <= position || x.end >= position
+    );
+
+    let func = duration ? this.actionLookup[duration.start ?? -1] : undefined;
     if (func) {
       func();
       this.lastFunc = func;
@@ -121,5 +125,8 @@ export class SubtitlesController
     this.removeTitle = this.removeTitle.bind(this, container);
     this.currentLanguage = operationData.language;
     this.actionLookup = this.createActionLookup(operationData, container);
+    this.subtitleDurations = operationData.subtitleData?.[0].titles.map(
+      (x) => x.duration
+    );
   }
 }

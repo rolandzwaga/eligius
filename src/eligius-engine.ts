@@ -235,11 +235,11 @@ export class EligiusEngine implements IEligiusEngine {
     );
   }
 
-  private async seekRequest(offset: number) {
+  private async seekRequest(position: number) {
     if (!this._activeTimelineProvider) {
       return;
     }
-    const seekPosition = Math.floor(offset);
+    const seekPosition = Math.floor(position);
 
     const duration = this._activeTimelineProvider.getDuration();
     const currentPosition = this._activeTimelineProvider.getPosition();

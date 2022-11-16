@@ -80,6 +80,7 @@ export class MediaElementTimelineProvider implements ITimelineProvider {
     if (this.loop) {
       this._onRestart?.();
     } else {
+      this._playState = 'stopped';
       this._onComplete?.();
     }
   }

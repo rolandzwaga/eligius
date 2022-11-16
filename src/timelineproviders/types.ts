@@ -1,6 +1,7 @@
 export type TPlayState = 'stopped' | 'running';
 
 export interface ITimelineProvider {
+  playState: TPlayState;
   loop: boolean;
   init(): Promise<void>;
   start(): void;
@@ -16,5 +17,4 @@ export interface ITimelineProvider {
   onComplete(callback: () => void): void;
   onRestart(callback: () => void): void;
   onFirstFrame(callback: () => void): void;
-  playState: TPlayState;
 }

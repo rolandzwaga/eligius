@@ -1,17 +1,22 @@
 import { v4 as uuidv4 } from 'uuid';
 import { deepCopy } from '../../operation/helper/deep-copy';
-import { ILabel, ILanguageLabel, TimelineTypes } from '../../types';
+import {
+  ILabel,
+  ILanguageLabel,
+  TimelineTypes,
+  TLanguageCode,
+} from '../../types';
 import {
   IActionConfiguration,
   IEngineConfiguration,
   ITimelineActionConfiguration,
-  ITimelineConfiguration
+  ITimelineConfiguration,
 } from '../types';
 import { ActionCreatorFactory } from './action-creator-factory';
 import {
   ActionEditor,
   EndableActionEditor,
-  TimelineActionEditor
+  TimelineActionEditor,
 } from './action-editor';
 import { LabelEditor } from './label-editor';
 import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
@@ -199,7 +204,7 @@ export class ConfigurationFactory {
     return copy;
   }
 
-  addLanguage(languageCode: string, languageLabel: string) {
+  addLanguage(languageCode: TLanguageCode, languageLabel: string) {
     const languages = this._initializeCollection(
       this.configuration,
       'availableLanguages'
@@ -339,7 +344,7 @@ export class ConfigurationFactory {
 
   private _getLabelTranslation(
     labelTranslations: ILabel[],
-    languageCode: string
+    languageCode: TLanguageCode
   ) {
     let translation = labelTranslations.find(
       (l) => l.languageCode === languageCode
@@ -364,7 +369,7 @@ export class ConfigurationFactory {
     }
   }
 
-  addLabel(id: string, code: string, translation: string) {
+  addLabel(id: string, code: TLanguageCode, translation: string) {
     const labels = this._initializeCollection(this.configuration, 'labels');
     const labelConfig = this._initializeLabel(id, labels);
     const labelTranslation = this._getLabelTranslation(
@@ -375,9 +380,9 @@ export class ConfigurationFactory {
     return this;
   }
 
-  addLabels(id: string, translations: Record<string, string>) {
+  addLabels(id: string, translations: Record<TLanguageCode, string>) {
     Object.entries(translations).forEach(([code, translation]) =>
-      this.addLabel(id, code, translation)
+      this.addLabel(id, code as TLanguageCode, translation)
     );
     return this;
   }

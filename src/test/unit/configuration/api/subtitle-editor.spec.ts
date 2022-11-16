@@ -35,8 +35,6 @@ SubtitleEditorSuite(
 
     const collection = subtitleEditor.export();
 
-    console.log('collection', collection);
-
     expect(collection[0].titles[0].duration).to.eql({ start: 0, end: 5 });
     expect(collection[1].titles[0].duration).to.eql({ start: 0, end: 5 });
     expect(collection[0].titles[0].text).to.equal('Foe');

@@ -117,7 +117,7 @@ function _gatherControllers(config: IEngineConfiguration) {
   importPaths.push(
     ..._gatherControllerImportPathsFromActions(config.eventActions)
   );
-  importPaths = dedupe(importPaths);
+  importPaths = _deduplicate(importPaths);
   return importPaths;
 }
 
@@ -161,7 +161,7 @@ function _gatherOperations(config: IEngineConfiguration): ImportInfo[] {
     );
   }
 
-  return dedupe(importPaths);
+  return _deduplicate(importPaths);
 }
 
 function _gatherControllerImportPathsFromActions(
@@ -229,7 +229,7 @@ function _gatherOperationImportPaths(operationConfigs: any[]): ImportInfo[] {
   });
 }
 
-function dedupe(importPaths: ImportInfo[]): ImportInfo[] {
+function _deduplicate(importPaths: ImportInfo[]): ImportInfo[] {
   const lookup: Record<string, true> = {};
   return importPaths.filter((imp) => {
     if (lookup[imp.systemName]) {
