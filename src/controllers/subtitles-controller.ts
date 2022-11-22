@@ -9,9 +9,7 @@ export interface ISubtitlesControllerOperationData {
   subtitleData: ISubtitleCollection[];
 }
 
-export class SubtitlesController
-  implements IController<ISubtitlesControllerOperationData>
-{
+export class SubtitlesController implements IController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
   currentLanguage: string | null = null;
   lastFunc: Function | null = null;
@@ -19,23 +17,10 @@ export class SubtitlesController
   subtitleDurations: IStrictDuration[] | null = null;
 
   attach(eventbus: IEventbus) {
-    const detachTime = eventbus.on(
-      TimelineEventNames.TIME,
-      this.onTimeHandler.bind(this)
-    );
-    const detachSeek = eventbus.on(
-      TimelineEventNames.SEEKED,
-      this.onSeekedHandler.bind(this)
-    );
-    const detachLangChange = eventbus.on(
-      TimelineEventNames.LANGUAGE_CHANGE,
-      this.languageChangeHandler.bind(this)
-    );
-    this.internalDetach = this.internalDetach.bind(this, [
-      detachTime,
-      detachLangChange,
-      detachSeek,
-    ]);
+    const detachTime = eventbus.on(TimelineEventNames.TIME, this.onTimeHandler.bind(this));
+    const detachSeek = eventbus.on(TimelineEventNames.SEEKED, this.onSeekedHandler.bind(this));
+    const detachLangChange = eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler.bind(this));
+    this.internalDetach = this.internalDetach.bind(this, [detachTime, detachLangChange, detachSeek]);
   }
 
   detach(_eventbus: IEventbus) {
@@ -64,25 +49,22 @@ export class SubtitlesController
 
   onTimeHandler(position: number) {
     const func = this.actionLookup[position];
-    if (func) {
-      func();
+    if (func && this.lastFunc !== func) {
       this.lastFunc = func;
+      func();
     }
   }
 
   onSeekedHandler(args: any[]) {
-    console.log('args', args);
-    let position = args[0];
+    const position = args[0];
 
-    const duration = this.subtitleDurations?.find(
-      (x) => x.start <= position || x.end >= position
-    );
+    const duration = this.subtitleDurations?.find((x) => x.start <= position || x.end >= position);
 
-    let func = duration ? this.actionLookup[duration.start ?? -1] : undefined;
-    if (func) {
-      func();
+    const func = duration ? this.actionLookup[duration.start ?? -1] : undefined;
+    if (func && this.lastFunc !== func) {
       this.lastFunc = func;
-    } else {
+      func();
+    } else if (!func) {
       this.removeTitle();
     }
   }
@@ -93,10 +75,7 @@ export class SubtitlesController
     }
   }
 
-  createActionLookup(
-    operationData: ISubtitlesControllerOperationData,
-    container: JQuery
-  ) {
+  createActionLookup(operationData: ISubtitlesControllerOperationData, container: JQuery) {
     const subtitleData = operationData.subtitleData;
     const titles = subtitleData[0].titles;
     const subtitleTimeLookup: Record<number, () => void> = {};
@@ -109,12 +88,8 @@ export class SubtitlesController
         titleLanguageLookup[subs.languageCode] = subs.titles[i].text;
       }
 
-      subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(
-        this,
-        container,
-        titleLanguageLookup
-      );
-      subtitleTimeLookup[titles[i].duration.end] = this.removeTitle;
+      subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(this, container, titleLanguageLookup);
+      subtitleTimeLookup[titles[i].duration.end] = this.removeTitle.bind(this, container);
     }
 
     return subtitleTimeLookup;
@@ -125,8 +100,6 @@ export class SubtitlesController
     this.removeTitle = this.removeTitle.bind(this, container);
     this.currentLanguage = operationData.language;
     this.actionLookup = this.createActionLookup(operationData, container);
-    this.subtitleDurations = operationData.subtitleData?.[0].titles.map(
-      (x) => x.duration
-    );
+    this.subtitleDurations = operationData.subtitleData?.[0].titles.map((x) => x.duration);
   }
 }

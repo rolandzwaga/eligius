@@ -15,10 +15,12 @@ Actions can be called on specified points on such a timeline. An action consists
 An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `select-element`, `create-element` or `add-class`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/main/src/operation)
 By composing these atomic operations complex functionality can be achieved.
 
-An example of an action is adding an removing an image from the stage at specific times. This action would consist of these start operations: `select-element`(to select the image parent), `create-element`(to create the img element with the required src attribute) and `set-element-contents`(to add the img element to the previously selected parent).
+An example of an action is adding and removing an image from the DOM at specific times. This action would consist of these start operations: `select-element`(to select the element that will act as the image's parent), `create-element`(to create the img element with the required src attribute) and `set-element-contents`(to add the img element to the previously selected parent).
 The end operations would be: `select-element`(to select the parent again) and `clear-element`(to remove the img element).
 
 A more comprehensive example could be, for example, a rich subtitling system for a videoplayer where the videoplayer acts as the timeline provider and Eligius is used to render the subtitles on top of it.
+
+The final two puzzle pieces are the `EngineFactory` and `EligiusEngine`. The Factory will create instances of the engine and the engine orchestrates the timelines and executes the actions at the specified times.
 
 ## configuration
 
