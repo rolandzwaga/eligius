@@ -24,7 +24,7 @@ const cjsDevConfig = {
   ...baseConfig,
   minify: false,
   format: 'cjs',
-  outfile: `${outDir}/index.cjs.js`,
+  outfile: `${outDir}/index.cjs`,
 };
 
 const cjsProdConfig = {
