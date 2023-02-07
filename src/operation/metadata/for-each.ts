@@ -1,7 +1,7 @@
-import { IStartLoopOperationData } from '../for-each';
+import { IForEachOperationData } from '../for-each';
 import { IOperationMetadata } from './types';
 
-function forEach(): IOperationMetadata<IStartLoopOperationData> {
+function forEach(): IOperationMetadata<IForEachOperationData> {
   return {
     description: 'Starts a loop over the given collection',
     properties: {

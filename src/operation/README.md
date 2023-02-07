@@ -24,11 +24,13 @@ This is a list of all the available operations with links to their respective do
 
 - [endAction](https://rolandzwaga.github.io/eligius/functions/endAction.html "This operation invokes the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-action.json))
 
-- [endLoop](https://rolandzwaga.github.io/eligius/functions/endLoop.html "This operation checks if the current loop should end or start the next iteration.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-loop.json))
+- [endForEach](https://rolandzwaga.github.io/eligius/functions/endForEach.html "This operation checks if the current loop should end or start the next iteration.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-for-each.json))
 
 - [endWhen](https://rolandzwaga.github.io/eligius/functions/endWhen.html "This operation cleans up after the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/end-when.json))
 
 - [extendController](https://rolandzwaga.github.io/eligius/functions/extendController.html) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/extend-controller.json))
+
+- [forEach](https://rolandzwaga.github.io/eligius/functions/forEach.html "This operation iterates over the given collection.  Each iteration the current item from the specified collection is assigned to the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/for-each.json))
 
 - [getAttributesFromElement](https://rolandzwaga.github.io/eligius/functions/getAttributesFromElement.html "This operation retrieves the values for the specified attribute names from  the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/get-attributes-from-element.json))
 
@@ -68,7 +70,7 @@ This is a list of all the available operations with links to their respective do
 
 - [selectElement](https://rolandzwaga.github.io/eligius/functions/selectElement.html "This operation selects one or more elements using the specified selector.  If ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/select-element.json))
 
-- [setData](https://rolandzwaga.github.io/eligius/functions/setData.html "This operation assigns the specified properties to the specified data.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/set-data.json))
+- [setData](https://rolandzwaga.github.io/eligius/functions/setData.html "This operation assigns the specified properties to the specified data targets.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/set-data.json))
 
 - [setElementAttributes](https://rolandzwaga.github.io/eligius/functions/setElementAttributes.html "This operation sets the specified set of attributes on the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/set-element-attributes.json))
 
@@ -81,8 +83,6 @@ This is a list of all the available operations with links to their respective do
 - [setStyle](https://rolandzwaga.github.io/eligius/functions/setStyle.html "This operation assigns the specified CSS style properties to the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/set-style.json))
 
 - [startAction](https://rolandzwaga.github.io/eligius/functions/startAction.html "This operation starts the specified action instance using the given action operation data.  The action operation data is first merged with the current operation data before it is passed on to the action. After the action has completed the action operation data properties are removed from the current operation data.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/start-action.json))
-
-- [startLoop](https://rolandzwaga.github.io/eligius/functions/startLoop.html "This operation starts a loop using the given collection.  Each iteration the current item from the specified collection is assigned to the ") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/start-loop.json))
 
 - [toggleClass](https://rolandzwaga.github.io/eligius/functions/toggleClass.html "This operation toggles the specfied class name on the given selected element.  Meaning, if the specified class name exists on the given element it will be removed, otherwise it will be added.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/toggle-class.json))
 

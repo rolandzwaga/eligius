@@ -1,9 +1,9 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/start-loop-operation.json",
+  "$id": "http://eligius.com/schema/for-each-operation.json",
   "type": "object",
-  "title": "The startLoop schema",
+  "title": "The forEach schema",
   "description": "Starts a loop over the given collection",
   "required": [
     "systemName"
@@ -20,7 +20,7 @@
     },
     "systemName": {
       "$id": "#/properties/systemName",
-      "const": "startLoop"
+      "const": "forEach"
     },
     "operationData": {
       "$id": "#/properties/operationData",

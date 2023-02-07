@@ -27,9 +27,10 @@
 <p>Actions can be called on specified points on such a timeline. An action consists of a list of start and end operations.</p>
 <p>An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are <code>select-element</code>, <code>create-element</code> or <code>add-class</code>. <a href="https://github.com/rolandzwaga/eligius/tree/main/src/operation">Here is a complete list of all available operations.</a>
 By composing these atomic operations complex functionality can be achieved.</p>
-<p>An example of an action is adding an removing an image from the stage at specific times. This action would consist of these start operations: <code>select-element</code>(to select the image parent), <code>create-element</code>(to create the img element with the required src attribute) and <code>set-element-contents</code>(to add the img element to the previously selected parent).
+<p>An example of an action is adding and removing an image from the DOM at specific times. This action would consist of these start operations: <code>select-element</code>(to select the element that will act as the image&#39;s parent), <code>create-element</code>(to create the img element with the required src attribute) and <code>set-element-contents</code>(to add the img element to the previously selected parent).
 The end operations would be: <code>select-element</code>(to select the parent again) and <code>clear-element</code>(to remove the img element).</p>
 <p>A more comprehensive example could be, for example, a rich subtitling system for a videoplayer where the videoplayer acts as the timeline provider and Eligius is used to render the subtitles on top of it.</p>
+<p>The final two puzzle pieces are the <code>EngineFactory</code> and <code>EligiusEngine</code>. The Factory will create instances of the engine and the engine orchestrates the timelines and executes the actions at the specified times.</p>
 
 <a href="#configuration" id="configuration" style="color: inherit; text-decoration: none;">
   <h2>configuration</h2>
@@ -137,7 +138,8 @@ Labels can be rendered by the <a href="https://rolandzwaga.github.io/eligius/cla
 <a href="#configuration-api" id="configuration-api" style="color: inherit; text-decoration: none;">
   <h2>Configuration API</h2>
 </a>
-<p>Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the <a href="https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html">ConfigurationFactory</a> for a strongly typed, fluent API to construct a configuration programmatically.</p>
+<p>Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the <a href="https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html">ConfigurationFactory</a> for a strongly typed, fluent and extensible API to construct a configuration programmatically.</p>
+<p>It is encouraged to use this API to build specialized DSL&#39;s for specific presentations.</p>
 
 <a href="#source-documentation" id="source-documentation" style="color: inherit; text-decoration: none;">
   <h2>Source documentation</h2>
@@ -147,10 +149,10 @@ Labels can be rendered by the <a href="https://rolandzwaga.github.io/eligius/cla
 <a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
   <h2>installation</h2>
 </a>
-<pre><code class="language-sh"><span class="hl-0">npm install eligius</span>
+<pre><code class="language-sh"><span class="hl-0">npm </span><span class="hl-3">install</span><span class="hl-0"> </span><span class="hl-3">eligius</span>
 </code></pre>
 <p>or</p>
-<pre><code class="language-sh"><span class="hl-0">yarn add eligius</span>
+<pre><code class="language-sh"><span class="hl-0">yarn </span><span class="hl-3">add</span><span class="hl-0"> </span><span class="hl-3">eligius</span>
 </code></pre>
 
 <a href="#development" id="development" style="color: inherit; text-decoration: none;">

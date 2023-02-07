@@ -84,13 +84,16 @@
             "$ref": "operations/end-action.json"
           },
           {
-            "$ref": "operations/end-loop.json"
+            "$ref": "operations/end-for-each.json"
           },
           {
             "$ref": "operations/end-when.json"
           },
           {
             "$ref": "operations/extend-controller.json"
+          },
+          {
+            "$ref": "operations/for-each.json"
           },
           {
             "$ref": "operations/get-attributes-from-element.json"
@@ -169,9 +172,6 @@
           },
           {
             "$ref": "operations/start-action.json"
-          },
-          {
-            "$ref": "operations/start-loop.json"
           },
           {
             "$ref": "operations/toggle-class.json"
@@ -228,13 +228,16 @@
             "$ref": "operations/end-action.json"
           },
           {
-            "$ref": "operations/end-loop.json"
+            "$ref": "operations/end-for-each.json"
           },
           {
             "$ref": "operations/end-when.json"
           },
           {
             "$ref": "operations/extend-controller.json"
+          },
+          {
+            "$ref": "operations/for-each.json"
           },
           {
             "$ref": "operations/get-attributes-from-element.json"
@@ -313,9 +316,6 @@
           },
           {
             "$ref": "operations/start-action.json"
-          },
-          {
-            "$ref": "operations/start-loop.json"
           },
           {
             "$ref": "operations/toggle-class.json"

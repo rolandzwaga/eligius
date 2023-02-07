@@ -4,9 +4,9 @@ import { forEach } from '../../../operation/for-each';
 import { IOperationContext } from '../../../operation/types';
 import { applyOperation } from '../../../util/apply-operation';
 
-const StartLoopSuite = suite('startLoop');
+const ForEachSuite = suite('forEach');
 
-StartLoopSuite('should set the context when a valid collection is passed in', () => {
+ForEachSuite('should set the context when a valid collection is passed in', () => {
   // given
   const context: IOperationContext = {
     currentIndex: 10,
@@ -27,7 +27,7 @@ StartLoopSuite('should set the context when a valid collection is passed in', ()
   expect(context.currentItem).to.equal(1);
 });
 
-StartLoopSuite('should set the context when an empty collection is passed in', () => {
+ForEachSuite('should set the context when an empty collection is passed in', () => {
   // given
   const context: IOperationContext = {
     currentIndex: 10,
@@ -48,7 +48,7 @@ StartLoopSuite('should set the context when an empty collection is passed in', (
   expect(context.currentItem).to.be.undefined;
 });
 
-StartLoopSuite('should set the context when a null collection is passed in', () => {
+ForEachSuite('should set the context when a null collection is passed in', () => {
   // given
   const context: IOperationContext = {
     currentIndex: 10,
@@ -69,4 +69,4 @@ StartLoopSuite('should set the context when a null collection is passed in', () 
   expect(context.currentItem).to.be.undefined;
 });
 
-StartLoopSuite.run();
+ForEachSuite.run();

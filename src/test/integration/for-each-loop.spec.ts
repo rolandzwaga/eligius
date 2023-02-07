@@ -5,24 +5,24 @@ import { IResolvedOperation } from '../../configuration/types';
 import { Eventbus } from '../../eventbus';
 import { endWhen, IOperationContext, TOperationData, when } from '../../operation';
 import { endForEach } from '../../operation/end-for-each';
-import { forEach, IStartLoopOperationData } from '../../operation/for-each';
+import { endForEachSystemName, forEach, forEachSystemName, IForEachOperationData } from '../../operation/for-each';
 
 global.cancelAnimationFrame = () => {};
 
-const StartEndLoop = suite<{ action: Action }>('Start and end loop');
+const ForEachLoop = suite<{ action: Action }>('Start and end a for each loop');
 
-StartEndLoop.before.each((context) => {
+ForEachLoop.before.each((context) => {
   const eventBus = new Eventbus();
   context.action = new Action('test', [], eventBus);
 });
 
-StartEndLoop('should loop the given operation 10 times', async (context) => {
+ForEachLoop('should loop the given operation 10 times', async (context) => {
   const { action } = context;
 
   const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
   const op1 = {
     id: 'id1',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: testCollection,
     },
@@ -42,7 +42,7 @@ StartEndLoop('should loop the given operation 10 times', async (context) => {
   };
   const op3 = {
     id: 'id3',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -59,13 +59,13 @@ StartEndLoop('should loop the given operation 10 times', async (context) => {
   });
 });
 
-StartEndLoop('should loop the given async operation 10 times', async (context) => {
+ForEachLoop('should loop the given async operation 10 times', async (context) => {
   const { action } = context;
 
   const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
   const op1 = {
     id: 'id1',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: testCollection,
     },
@@ -89,7 +89,7 @@ StartEndLoop('should loop the given async operation 10 times', async (context) =
   };
   const op3 = {
     id: 'id3',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -106,13 +106,13 @@ StartEndLoop('should loop the given async operation 10 times', async (context) =
   });
 });
 
-StartEndLoop('should skip the loop for an empty collection', async (context) => {
+ForEachLoop('should skip the loop for an empty collection', async (context) => {
   const { action } = context;
 
   const testCollection: any[] = [];
   const op1 = {
     id: 'id1',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: testCollection,
     },
@@ -132,7 +132,7 @@ StartEndLoop('should skip the loop for an empty collection', async (context) => 
   };
   const op3 = {
     id: 'id3',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -154,16 +154,16 @@ StartEndLoop('should skip the loop for an empty collection', async (context) => 
   assert.ok(operationData.test);
 });
 
-StartEndLoop('should skip the loop for a null collection', async (context) => {
+ForEachLoop('should skip the loop for a null collection', async (context) => {
   const { action } = context;
 
   const testCollection: any[] | null = null;
   const op1: IResolvedOperation = {
     id: 'id1',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: testCollection,
-    } as unknown as IStartLoopOperationData,
+    } as unknown as IForEachOperationData,
     instance: forEach,
   };
   const op2: IResolvedOperation = {
@@ -180,7 +180,7 @@ StartEndLoop('should skip the loop for a null collection', async (context) => {
   };
   const op3: IResolvedOperation = {
     id: 'id3',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -202,14 +202,14 @@ StartEndLoop('should skip the loop for a null collection', async (context) => {
   assert.ok(operationData.test);
 });
 
-StartEndLoop('should correctly handle nested loops', async (context) => {
+ForEachLoop('should correctly handle nested loops', async (context) => {
   const { action } = context;
 
   const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
   const nestedTestCollection = ['k', 'l'];
   const op1 = {
     id: 'id1',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: testCollection,
     },
@@ -229,7 +229,7 @@ StartEndLoop('should correctly handle nested loops', async (context) => {
   };
   const op3 = {
     id: 'id3',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: nestedTestCollection,
     },
@@ -249,13 +249,13 @@ StartEndLoop('should correctly handle nested loops', async (context) => {
   };
   const op5 = {
     id: 'id5',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
   const op6 = {
     id: 'id6',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -276,14 +276,14 @@ StartEndLoop('should correctly handle nested loops', async (context) => {
   assert.is(operationData.newNestedCollection.length, 20);
 });
 
-StartEndLoop('should correctly handle nested loops with nested when/otherwise blocks', async (context) => {
+ForEachLoop('should correctly handle nested loops with nested when/otherwise blocks', async (context) => {
   const { action } = context;
 
   const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
   const nestedTestCollection = ['k', 'l'];
   const op1 = {
     id: 'id1',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: testCollection,
     },
@@ -303,7 +303,7 @@ StartEndLoop('should correctly handle nested loops with nested when/otherwise bl
   };
   const op3 = {
     id: 'id3',
-    systemName: 'startLoop',
+    systemName: forEachSystemName,
     operationData: {
       collection: nestedTestCollection,
     },
@@ -324,7 +324,7 @@ StartEndLoop('should correctly handle nested loops with nested when/otherwise bl
   };
   const op5 = {
     id: 'id5',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -351,7 +351,7 @@ StartEndLoop('should correctly handle nested loops with nested when/otherwise bl
   };
   const op9 = {
     id: 'id9',
-    systemName: 'endLoop',
+    systemName: endForEachSystemName,
     operationData: {},
     instance: endForEach,
   };
@@ -377,4 +377,4 @@ StartEndLoop('should correctly handle nested loops with nested when/otherwise bl
   assert.is(operationData.parentItem, testCollection[testCollection.length - 1]);
 });
 
-StartEndLoop.run();
+ForEachLoop.run();

@@ -87,8 +87,8 @@ function findNextFlowControlIndex(context: IOperationContext) {
   const otherWiseIndex = list.findIndex(
     findMatchingOperationIndex.bind({
       counter: 0,
-      self: 'when',
-      matchingName: 'otherwise',
+      self: whenSystemName,
+      matchingName: otherwiseSystemName,
     })
   );
   if (otherWiseIndex > -1) {
@@ -98,12 +98,14 @@ function findNextFlowControlIndex(context: IOperationContext) {
   const endWhenIndex = list.findIndex(
     findMatchingOperationIndex.bind({
       counter: 0,
-      self: 'when',
-      matchingName: 'endWhen',
+      self: whenSystemName,
+      matchingName: endWhenSystemName,
     })
   );
 
-  return endWhenIndex > -1
-    ? endWhenIndex + currentIndex
-    : context.operations.length;
+  return endWhenIndex > -1 ? endWhenIndex + currentIndex : context.operations.length;
 }
+
+export const whenSystemName = 'when';
+export const otherwiseSystemName = 'otherwise';
+export const endWhenSystemName = 'endWhen';

@@ -1,9 +1,9 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/end-loop-operation.json",
+  "$id": "http://eligius.com/schema/end-for-each-operation.json",
   "type": "object",
-  "title": "The endLoop schema",
+  "title": "The endForEach schema",
   "description": "Ends the current loop",
   "required": [
     "systemName"
@@ -20,7 +20,7 @@
     },
     "systemName": {
       "$id": "#/properties/systemName",
-      "const": "endLoop"
+      "const": "endForEach"
     }
   }
 }

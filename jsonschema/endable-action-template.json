@@ -69,13 +69,16 @@
             "$ref": "operation-templates/end-action.json"
           },
           {
-            "$ref": "operation-templates/end-loop.json"
+            "$ref": "operation-templates/end-for-each.json"
           },
           {
             "$ref": "operation-templates/end-when.json"
           },
           {
             "$ref": "operation-templates/extend-controller.json"
+          },
+          {
+            "$ref": "operation-templates/for-each.json"
           },
           {
             "$ref": "operation-templates/get-attributes-from-element.json"
@@ -154,9 +157,6 @@
           },
           {
             "$ref": "operation-templates/start-action.json"
-          },
-          {
-            "$ref": "operation-templates/start-loop.json"
           },
           {
             "$ref": "operation-templates/toggle-class.json"
@@ -213,13 +213,16 @@
             "$ref": "operation-templates/end-action.json"
           },
           {
-            "$ref": "operation-templates/end-loop.json"
+            "$ref": "operation-templates/end-for-each.json"
           },
           {
             "$ref": "operation-templates/end-when.json"
           },
           {
             "$ref": "operation-templates/extend-controller.json"
+          },
+          {
+            "$ref": "operation-templates/for-each.json"
           },
           {
             "$ref": "operation-templates/get-attributes-from-element.json"
@@ -298,9 +301,6 @@
           },
           {
             "$ref": "operation-templates/start-action.json"
-          },
-          {
-            "$ref": "operation-templates/start-loop.json"
           },
           {
             "$ref": "operation-templates/toggle-class.json"

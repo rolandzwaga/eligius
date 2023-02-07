@@ -4,9 +4,9 @@ import { IOperationContext } from '../../../operation';
 import { endForEach } from '../../../operation/end-for-each';
 import { applyOperation } from '../../../util/apply-operation';
 
-const EndLoopSuite = suite('endLoop');
+const EndForEachSuite = suite('endForEach');
 
-EndLoopSuite('should return the operation data', () => {
+EndForEachSuite('should return the operation data', () => {
   // given
   const context: IOperationContext = {
     currentIndex: -1,
@@ -22,7 +22,7 @@ EndLoopSuite('should return the operation data', () => {
   expect(result).to.be.equal(operationData);
 });
 
-EndLoopSuite(
+EndForEachSuite(
   'should increment loopIndex and restart the newIndex when the current is lower than the loopLength',
   () => {
     // given
@@ -48,4 +48,4 @@ EndLoopSuite(
   }
 );
 
-EndLoopSuite.run();
+EndForEachSuite.run();

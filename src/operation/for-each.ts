@@ -1,7 +1,7 @@
 import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
 import { IOperationContext, TOperation } from './types';
 
-export interface IStartLoopOperationData {
+export interface IForEachOperationData {
   collection: any[] | string;
 }
 
@@ -17,7 +17,7 @@ export interface IStartLoopOperationData {
  * @param operationData
  * @returns
  */
-export const forEach: TOperation<IStartLoopOperationData> = function (operationData: IStartLoopOperationData) {
+export const forEach: TOperation<IForEachOperationData> = function (operationData: IForEachOperationData) {
   const { collection } = operationData;
 
   if (collection !== null && !Array.isArray(collection)) {
@@ -26,7 +26,7 @@ export const forEach: TOperation<IStartLoopOperationData> = function (operationD
 
   // First iteration of the loop
   if (this.loopIndex === undefined) {
-    this.loopEndIndex = findLoopEndIndex(this);
+    this.loopEndIndex = findEndForEachIndex(this);
     if (collection?.length) {
       this.loopIndex = 0;
       this.loopLength = collection.length - 1;
@@ -48,19 +48,21 @@ export const forEach: TOperation<IStartLoopOperationData> = function (operationD
   return operationData;
 };
 
-function findLoopEndIndex(context: IOperationContext) {
+function findEndForEachIndex(context: IOperationContext) {
   const currentIndex = context.currentIndex + 1;
   const list = context.operations.slice(currentIndex);
 
   const index = list.findIndex(
     findMatchingOperationIndex.bind({
       counter: 0,
-      self: 'startLoop',
-      matchingName: 'endLoop',
+      self: forEachSystemName,
+      matchingName: endForEachSystemName,
     })
   );
-  const endLoopIndex =
-    index > -1 ? index + currentIndex : context.operations.length;
+  const endLoopIndex = index > -1 ? index + currentIndex : context.operations.length;
 
   return endLoopIndex;
 }
+
+export const forEachSystemName = 'forEach';
+export const endForEachSystemName = 'endForEach';

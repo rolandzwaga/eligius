@@ -1,8 +1,10 @@
 import { IResolvedOperation } from '../configuration/types';
 import { Diagnostics } from '../diagnostics';
 import { IEventbus } from '../eventbus/types';
+import { endForEachSystemName, forEachSystemName } from '../operation/for-each';
 import { deepCopy } from '../operation/helper/deep-copy';
 import { IOperationContext, TOperationData } from '../operation/types';
+import { endWhenSystemName, whenSystemName } from '../operation/when';
 import { isPromise } from '../util/guards/is-promise';
 import { IAction } from './types';
 
@@ -10,29 +12,16 @@ export class Action implements IAction {
   public id = '';
   protected _contextStack: IOperationContext[] = [];
 
-  constructor(
-    public name: string,
-    public startOperations: IResolvedOperation[],
-    protected eventbus: IEventbus
-  ) {}
+  constructor(public name: string, public startOperations: IResolvedOperation[], protected eventbus: IEventbus) {}
 
   start(initOperationData?: TOperationData): Promise<TOperationData> {
     Diagnostics.active &&
-      Diagnostics.send(
-        'eligius-diagnostics-action',
-        `${this.name ?? 'Action'} begins executing start operations`
-      );
+      Diagnostics.send('eligius-diagnostics-action', `${this.name ?? 'Action'} begins executing start operations`);
 
     this._initializeContextStack();
 
     const result = new Promise<TOperationData>((resolve, reject) => {
-      this.executeOperation(
-        this.startOperations,
-        0,
-        resolve,
-        reject,
-        initOperationData
-      );
+      this.executeOperation(this.startOperations, 0, resolve, reject, initOperationData);
     }).catch((e) => {
       Diagnostics.active &&
         Diagnostics.send('eligius-diagnostics-action-error', {
@@ -110,12 +99,9 @@ export class Action implements IAction {
 
       const mergedOperationData = Object.assign(previousOperationData, copy);
 
-      if (operationInfo.systemName === 'when') {
+      if (operationInfo.systemName === whenSystemName) {
         context = this._pushContext(context);
-      } else if (
-        operationInfo.systemName === 'startLoop' &&
-        context.owner !== operationInfo
-      ) {
+      } else if (operationInfo.systemName === forEachSystemName && context.owner !== operationInfo) {
         context = this._pushContext(context);
         context.owner = operationInfo;
       }
@@ -130,15 +116,11 @@ export class Action implements IAction {
           },
         });
 
-      const operationResult = operationInfo.instance.call(
-        context,
-        mergedOperationData
-      );
+      const operationResult = operationInfo.instance.call(context, mergedOperationData);
 
       if (
-        operationInfo.systemName === 'endWhen' ||
-        (operationInfo.systemName === 'endLoop' &&
-          context.newIndex === undefined)
+        operationInfo.systemName === endWhenSystemName ||
+        (operationInfo.systemName === endForEachSystemName && context.newIndex === undefined)
       ) {
         this._popContext();
       }
@@ -146,25 +128,13 @@ export class Action implements IAction {
       if (isPromise(operationResult)) {
         operationResult
           .then((promisedOperationResult) =>
-            this.executeOperation(
-              operations,
-              ++operationIndex,
-              resolve,
-              reject,
-              promisedOperationResult
-            )
+            this.executeOperation(operations, ++operationIndex, resolve, reject, promisedOperationResult)
           )
           .catch((error: any) => {
             reject(error);
           });
       } else {
-        this.executeOperation(
-          operations,
-          ++operationIndex,
-          resolve,
-          reject,
-          operationResult
-        );
+        this.executeOperation(operations, ++operationIndex, resolve, reject, operationResult);
       }
     } else {
       resolve(previousOperationData);
