@@ -6,14 +6,8 @@ import { TOperation, TOperationData } from './types';
  * @param operationData
  * @returns
  */
-export const endLoop: TOperation<TOperationData> = function (
-  operationData: TOperationData
-) {
-  if (
-    this.loopIndex !== undefined &&
-    this.loopLength !== undefined &&
-    this.loopIndex < this.loopLength
-  ) {
+export const endForEach: TOperation<TOperationData> = function (operationData: TOperationData) {
+  if (this.loopIndex !== undefined && this.loopLength !== undefined && this.loopIndex < this.loopLength) {
     this.loopIndex = this.loopIndex + 1;
     this.newIndex = this.loopStartIndex;
     delete this.currentItem;

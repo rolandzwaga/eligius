@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import { IOperationContext } from '../../../operation';
-import { endLoop } from '../../../operation/end-loop';
+import { endForEach } from '../../../operation/end-for-each';
 import { applyOperation } from '../../../util/apply-operation';
 
 const EndLoopSuite = suite('endLoop');
@@ -16,7 +16,7 @@ EndLoopSuite('should return the operation data', () => {
   const operationData = {};
 
   // test
-  const result = applyOperation(endLoop, operationData, context);
+  const result = applyOperation(endForEach, operationData, context);
 
   // expect
   expect(result).to.be.equal(operationData);
@@ -38,7 +38,7 @@ EndLoopSuite(
     const operationData = {};
 
     // test
-    applyOperation(endLoop, operationData, context);
+    applyOperation(endForEach, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.equal(2);

@@ -6,9 +6,9 @@
     }
   },
   "compilerOptions": {
-    "module": "esnext",
-    "target": "ES6",
-    "lib": ["dom", "esnext"],
+    "module": "es2020",
+    "target": "es2020",
+    "lib": ["dom", "es2020"],
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,

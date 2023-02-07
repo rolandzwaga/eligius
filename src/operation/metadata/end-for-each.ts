@@ -1,9 +1,9 @@
 import { IOperationMetadata } from './types';
 
-function endLoop(): IOperationMetadata<never> {
+function endForEach(): IOperationMetadata<never> {
   return {
     description: 'Ends the current loop',
   };
 }
 
-export default endLoop;
+export default endForEach;

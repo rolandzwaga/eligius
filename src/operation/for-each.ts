@@ -6,7 +6,7 @@ export interface IStartLoopOperationData {
 }
 
 /**
- * This operation starts a loop using the given collection.
+ * This operation iterates over the given collection.
  *
  * Each iteration the current item from the specified collection is
  * assigned to the {@link IOperationContext.currentItem} property on the operation context.
@@ -17,15 +17,11 @@ export interface IStartLoopOperationData {
  * @param operationData
  * @returns
  */
-export const startLoop: TOperation<IStartLoopOperationData> = function (
-  operationData: IStartLoopOperationData
-) {
+export const forEach: TOperation<IStartLoopOperationData> = function (operationData: IStartLoopOperationData) {
   const { collection } = operationData;
 
   if (collection !== null && !Array.isArray(collection)) {
-    throw new Error(
-      'Expected collection to be array type, string value was probably not resolved correctly'
-    );
+    throw new Error('Expected collection to be array type, string value was probably not resolved correctly');
   }
 
   // First iteration of the loop

@@ -1,7 +1,7 @@
-import { IStartLoopOperationData } from '../../operation/start-loop';
+import { IStartLoopOperationData } from '../for-each';
 import { IOperationMetadata } from './types';
 
-function startLoop(): IOperationMetadata<IStartLoopOperationData> {
+function forEach(): IOperationMetadata<IStartLoopOperationData> {
   return {
     description: 'Starts a loop over the given collection',
     properties: {
@@ -13,4 +13,4 @@ function startLoop(): IOperationMetadata<IStartLoopOperationData> {
   };
 }
 
-export default startLoop;
+export default forEach;

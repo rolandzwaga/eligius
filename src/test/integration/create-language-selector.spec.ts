@@ -10,8 +10,9 @@ import {
   addControllerToElement,
   broadcastEvent,
   createElement,
-  endLoop,
+  endForEach,
   endWhen,
+  forEach,
   getControllerInstance,
   otherwise,
   removeControllerFromElement,
@@ -19,7 +20,6 @@ import {
   selectElement,
   setElementContent,
   setOperationData,
-  startLoop,
   when,
 } from '../../operation';
 import { TimelineEventNames } from '../../timeline-event-names';
@@ -41,9 +41,7 @@ CreateOptionList.before((context) => {
 
   const factory = new ConfigurationFactory();
   factory.init('nl-NL');
-  factory.setLayoutTemplate(
-    '<div data-test=true><div data-anim-container="true"/></div>'
-  );
+  factory.setLayoutTemplate('<div data-test=true><div data-anim-container="true"/></div>');
   const settingsEditor = factory.editTimelineProviderSettings();
   settingsEditor
     .addProvider('animation')
@@ -53,13 +51,7 @@ CreateOptionList.before((context) => {
   const actionCreator = factory
     .addLanguage('nl-NL', 'Nederlands')
     .addLanguage('en-GB', 'English')
-    .addTimeline(
-      'my-anim',
-      'animation',
-      100,
-      false,
-      '[data-anim-container=true]'
-    )
+    .addTimeline('my-anim', 'animation', 100, false, '[data-anim-container=true]')
     .createInitAction('CreateLanguageSelector');
 
   actionCreator
@@ -74,12 +66,11 @@ CreateOptionList.before((context) => {
     .addStartOperationByType(selectElement, {
       selector: '[data-language-selector=true]',
     })
-    .addStartOperationByType(startLoop, {
+    .addStartOperationByType(forEach, {
       collection: 'config:availableLanguages',
     })
     .addStartOperationByType(when, {
-      expression:
-        'context.parent.currentItem.languageCode==globaldata.defaultLanguage',
+      expression: 'context.parent.currentItem.languageCode==globaldata.defaultLanguage',
     })
     .addStartOperationByType(setOperationData, {
       properties: {
@@ -100,7 +91,7 @@ CreateOptionList.before((context) => {
       text: 'context.currentItem.label',
     })
     .addStartOperationByType(setElementContent, { insertionType: 'append' })
-    .addStartOperationByType(endLoop, {})
+    .addStartOperationByType(endForEach, {})
     .addStartOperationByType(getControllerInstance, {
       systemName: 'EventListenerController',
     })
@@ -115,9 +106,7 @@ CreateOptionList.before((context) => {
       controllerName: 'EventListenerController',
     });
 
-  const eventActionCreator = factory.createEventAction(
-    'BroadcastLanguageChange'
-  );
+  const eventActionCreator = factory.createEventAction('BroadcastLanguageChange');
   eventActionCreator.addStartOperationByType(broadcastEvent, {
     eventName: TimelineEventNames.LANGUAGE_CHANGE,
     eventArgs: ['operationData.eventTarget.value'],
