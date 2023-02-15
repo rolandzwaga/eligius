@@ -1,9 +1,9 @@
 import { IResolvedOperation } from '../../configuration/types';
 
 /**
- * This function can be used to find the index of a matching operation within a list of operations.
+ * This function can be used to find the index of a matching closing operation within a list of operations.
  * 
- * Given the array of operations:
+ * Assume the following array of operations:
  * ```ts
  * [
  *  {systemName:'name1'},       // index 0
@@ -17,17 +17,17 @@ import { IResolvedOperation } from '../../configuration/types';
  * ]
  * ```
  * 
- * Given the forEach instance at index 1, this function will return index 6. Given the forEach at index 3, it will yield index 5.
+ * Given the `forEach` instance at index 1, this function will return index 6. Given the `forEach` at index 3, it will yield index 5.
  * 
- * Returns true when the given operation.systemName equals the specified matchingName and the current counter value is zero.
+ * Returns `true` when the given `operation.systemName` equals the specified `matchingName` and the current counter value is zero.
  * 
- * If the matchingName matches operation.systemName but the counter is greater than zero, the counter is decremented.
+ * If the `matchingName` matches `operation.systemName` but the counter is greater than zero, the counter is decremented.
  * 
- * If the operation.systemName equal self (the name of the operation that requires to find its match), then counter is incremented.
+ * If the `operation.systemName` equals `self` (the name of the operation that requires to find its match), then counter is incremented.
  *
  * @param this
  * @param operation
- * @returns
+ * 
  */
 export function findMatchingOperationIndex(
   this: { counter: number; self: string; matchingName: string },

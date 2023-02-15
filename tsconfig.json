@@ -6,7 +6,7 @@
     }
   },
   "compilerOptions": {
-    "module": "es2020",
+    "module": "nodenext",
     "target": "es2020",
     "lib": ["dom", "es2020"],
     "importHelpers": true,
