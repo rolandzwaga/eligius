@@ -82,5 +82,5 @@
     "hotkeys-js": "3.10.1",
     "ts-is-present": "1.2.2"
   },
-  "packageManager": "yarn@3.3.0"
+  "packageManager": "yarn@3.4.1"
 }
