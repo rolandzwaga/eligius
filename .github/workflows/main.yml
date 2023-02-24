@@ -61,7 +61,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn --immutable
+        run: yarn
 
       - name: Test
         run: yarn test --ci --coverage --maxWorkers=2
