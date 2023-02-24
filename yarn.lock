@@ -456,13 +456,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/video.js@npm:7.3.51":
-  version: 7.3.51
-  resolution: "@types/video.js@npm:7.3.51"
-  checksum: 95b8e75da82b401965bd2b31648f7917495b9f2eda3773e1c50f027ed1f457760731912c71cf2c4e8c4b3087b29844bdcc92577bb56ae5c49b771039f7da819e
-  languageName: node
-  linkType: hard
-
 "@videojs/http-streaming@npm:3.0.0":
   version: 3.0.0
   resolution: "@videojs/http-streaming@npm:3.0.0"
@@ -998,7 +991,6 @@ __metadata:
     "@types/node": 18.14.1
     "@types/sinon": 10.0.13
     "@types/uuid": 9.0.1
-    "@types/video.js": 7.3.51
     canvas: 2.11.0
     chai: 4.3.7
     cross-env: 7.0.3
