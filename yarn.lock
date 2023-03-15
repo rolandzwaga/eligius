@@ -23,156 +23,156 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@esbuild/android-arm64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/android-arm64@npm:0.17.10"
+"@esbuild/android-arm64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/android-arm64@npm:0.17.11"
   conditions: os=android & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/android-arm@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/android-arm@npm:0.17.10"
+"@esbuild/android-arm@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/android-arm@npm:0.17.11"
   conditions: os=android & cpu=arm
   languageName: node
   linkType: hard
 
-"@esbuild/android-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/android-x64@npm:0.17.10"
+"@esbuild/android-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/android-x64@npm:0.17.11"
   conditions: os=android & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-arm64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/darwin-arm64@npm:0.17.10"
+"@esbuild/darwin-arm64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/darwin-arm64@npm:0.17.11"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/darwin-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/darwin-x64@npm:0.17.10"
+"@esbuild/darwin-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/darwin-x64@npm:0.17.11"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/freebsd-arm64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/freebsd-arm64@npm:0.17.10"
+"@esbuild/freebsd-arm64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/freebsd-arm64@npm:0.17.11"
   conditions: os=freebsd & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/freebsd-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/freebsd-x64@npm:0.17.10"
+"@esbuild/freebsd-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/freebsd-x64@npm:0.17.11"
   conditions: os=freebsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-arm64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-arm64@npm:0.17.10"
+"@esbuild/linux-arm64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-arm64@npm:0.17.11"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-arm@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-arm@npm:0.17.10"
+"@esbuild/linux-arm@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-arm@npm:0.17.11"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@esbuild/linux-ia32@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-ia32@npm:0.17.10"
+"@esbuild/linux-ia32@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-ia32@npm:0.17.11"
   conditions: os=linux & cpu=ia32
   languageName: node
   linkType: hard
 
-"@esbuild/linux-loong64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-loong64@npm:0.17.10"
+"@esbuild/linux-loong64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-loong64@npm:0.17.11"
   conditions: os=linux & cpu=loong64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-mips64el@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-mips64el@npm:0.17.10"
+"@esbuild/linux-mips64el@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-mips64el@npm:0.17.11"
   conditions: os=linux & cpu=mips64el
   languageName: node
   linkType: hard
 
-"@esbuild/linux-ppc64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-ppc64@npm:0.17.10"
+"@esbuild/linux-ppc64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-ppc64@npm:0.17.11"
   conditions: os=linux & cpu=ppc64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-riscv64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-riscv64@npm:0.17.10"
+"@esbuild/linux-riscv64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-riscv64@npm:0.17.11"
   conditions: os=linux & cpu=riscv64
   languageName: node
   linkType: hard
 
-"@esbuild/linux-s390x@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-s390x@npm:0.17.10"
+"@esbuild/linux-s390x@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-s390x@npm:0.17.11"
   conditions: os=linux & cpu=s390x
   languageName: node
   linkType: hard
 
-"@esbuild/linux-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/linux-x64@npm:0.17.10"
+"@esbuild/linux-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/linux-x64@npm:0.17.11"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/netbsd-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/netbsd-x64@npm:0.17.10"
+"@esbuild/netbsd-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/netbsd-x64@npm:0.17.11"
   conditions: os=netbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/openbsd-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/openbsd-x64@npm:0.17.10"
+"@esbuild/openbsd-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/openbsd-x64@npm:0.17.11"
   conditions: os=openbsd & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/sunos-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/sunos-x64@npm:0.17.10"
+"@esbuild/sunos-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/sunos-x64@npm:0.17.11"
   conditions: os=sunos & cpu=x64
   languageName: node
   linkType: hard
 
-"@esbuild/win32-arm64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/win32-arm64@npm:0.17.10"
+"@esbuild/win32-arm64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/win32-arm64@npm:0.17.11"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@esbuild/win32-ia32@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/win32-ia32@npm:0.17.10"
+"@esbuild/win32-ia32@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/win32-ia32@npm:0.17.11"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@esbuild/win32-x64@npm:0.17.10":
-  version: 0.17.10
-  resolution: "@esbuild/win32-x64@npm:0.17.10"
+"@esbuild/win32-x64@npm:0.17.11":
+  version: 0.17.11
+  resolution: "@esbuild/win32-x64@npm:0.17.11"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -283,7 +283,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/fake-timers@npm:10.0.2, @sinonjs/fake-timers@npm:^10.0.2":
+"@sinonjs/commons@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@sinonjs/commons@npm:3.0.0"
+  dependencies:
+    type-detect: 4.0.8
+  checksum: b4b5b73d4df4560fb8c0c7b38c7ad4aeabedd362f3373859d804c988c725889cde33550e4bcc7cd316a30f5152a2d1d43db71b6d0c38f5feef71fd8d016763f8
+  languageName: node
+  linkType: hard
+
+"@sinonjs/fake-timers@npm:^10.0.2":
   version: 10.0.2
   resolution: "@sinonjs/fake-timers@npm:10.0.2"
   dependencies:
@@ -412,10 +421,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:18.14.1":
+"@types/node@npm:*":
   version: 18.14.1
   resolution: "@types/node@npm:18.14.1"
   checksum: 58556bbdb0050e44a4934742c1da2530812782c06d266a758e669e44c5aa196166c5fce45fdb03f016876717e3840478b3220129bb77367f979607564047f0a3
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:18.15.3":
+  version: 18.15.3
+  resolution: "@types/node@npm:18.15.3"
+  checksum: 31b1d92475a82c30de29aa6c0771b18a276552d191283b4423ba2d61b3f01159bf0d02576c0b7cc834b043997893800db6bb47f246083ed85aa45e79c80875d7
   languageName: node
   linkType: hard
 
@@ -471,6 +487,24 @@ __metadata:
   peerDependencies:
     video.js: ^7 || ^8
   checksum: e479cd981a067e9b28c9c90f41936b5587939060690f4eabdbbe5ca54adb509515e03270297a03b545087d76dfd1ab7b9461e5e1ef62a8e0ed57d80fa52bbe2c
+  languageName: node
+  linkType: hard
+
+"@videojs/http-streaming@npm:3.0.2":
+  version: 3.0.2
+  resolution: "@videojs/http-streaming@npm:3.0.2"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@videojs/vhs-utils": 4.0.0
+    aes-decrypter: 4.0.1
+    global: ^4.4.0
+    m3u8-parser: ^6.0.0
+    mpd-parser: ^1.0.1
+    mux.js: 6.3.0
+    video.js: ^7 || ^8
+  peerDependencies:
+    video.js: ^7 || ^8
+  checksum: 5745eda3e9f59491fade66e7308b306fa202dd11c7e920cb050f074112ebc39936a60df0f8df6e56e1822a6ec89e993bb0edaef35febb9e8f8b060b180bd7193
   languageName: node
   linkType: hard
 
@@ -545,7 +579,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.1.0, acorn@npm:^8.4.1, acorn@npm:^8.8.1":
+"acorn@npm:^8.1.0, acorn@npm:^8.4.1, acorn@npm:^8.8.2":
   version: 8.8.2
   resolution: "acorn@npm:8.8.2"
   bin:
@@ -836,37 +870,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cssom@npm:^0.5.0":
-  version: 0.5.0
-  resolution: "cssom@npm:0.5.0"
-  checksum: 823471aa30091c59e0a305927c30e7768939b6af70405808f8d2ce1ca778cddcb24722717392438329d1691f9a87cb0183b64b8d779b56a961546d54854fde01
-  languageName: node
-  linkType: hard
-
-"cssom@npm:~0.3.6":
-  version: 0.3.8
-  resolution: "cssom@npm:0.3.8"
-  checksum: 24beb3087c76c0d52dd458be9ee1fbc80ac771478a9baef35dd258cdeb527c68eb43204dd439692bb2b1ae5272fa5f2946d10946edab0d04f1078f85e06bc7f6
-  languageName: node
-  linkType: hard
-
-"cssstyle@npm:^2.3.0":
-  version: 2.3.0
-  resolution: "cssstyle@npm:2.3.0"
+"cssstyle@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "cssstyle@npm:3.0.0"
   dependencies:
-    cssom: ~0.3.6
-  checksum: 5f05e6fd2e3df0b44695c2f08b9ef38b011862b274e320665176467c0725e44a53e341bc4959a41176e83b66064ab786262e7380fd1cabeae6efee0d255bb4e3
+    rrweb-cssom: ^0.6.0
+  checksum: 31f694dfed9998ed93570fe539610837b878193dd8487c33cb12db8004333c53c2a3904166288bbec68388c72fb01014d46d3243ddfb02fe845989d852c06f27
   languageName: node
   linkType: hard
 
-"data-urls@npm:^3.0.2":
-  version: 3.0.2
-  resolution: "data-urls@npm:3.0.2"
+"data-urls@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "data-urls@npm:4.0.0"
   dependencies:
     abab: ^2.0.6
     whatwg-mimetype: ^3.0.0
-    whatwg-url: ^11.0.0
-  checksum: 033fc3dd0fba6d24bc9a024ddcf9923691dd24f90a3d26f6545d6a2f71ec6956f93462f2cdf2183cc46f10dc01ed3bcb36731a8208456eb1a08147e571fe2a76
+    whatwg-url: ^12.0.0
+  checksum: 006e869b5bf079647949a3e9b1dd69d84b2d5d26e6b01c265485699bc96e83817d4b5aae758b2910a4c58c0601913f3a0034121c1ca2da268e9a244c57515b15
   languageName: node
   linkType: hard
 
@@ -882,7 +902,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decimal.js@npm:^10.4.2":
+"decimal.js@npm:^10.4.3":
   version: 10.4.3
   resolution: "decimal.js@npm:10.4.3"
   checksum: 796404dcfa9d1dbfdc48870229d57f788b48c21c603c3f6554a1c17c10195fc1024de338b0cf9e1efe0c7c167eeb18f04548979bcc5fdfabebb7cc0ae3287bae
@@ -956,7 +976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"diff@npm:^5.0.0":
+"diff@npm:^5.0.0, diff@npm:^5.1.0":
   version: 5.1.0
   resolution: "diff@npm:5.1.0"
   checksum: c7bf0df7c9bfbe1cf8a678fd1b2137c4fb11be117a67bc18a0e03ae75105e8533dbfb1cda6b46beb3586ef5aed22143ef9d70713977d5fb1f9114e21455fba90
@@ -988,32 +1008,32 @@ __metadata:
     "@types/fs-extra": 11.0.1
     "@types/jquery": 3.5.16
     "@types/jsdom": 21.1.0
-    "@types/node": 18.14.1
+    "@types/node": 18.15.3
     "@types/sinon": 10.0.13
     "@types/uuid": 9.0.1
     canvas: 2.11.0
     chai: 4.3.7
     cross-env: 7.0.3
-    esbuild: 0.17.10
+    esbuild: 0.17.11
     fs-extra: 11.1.0
     hotkeys-js: 3.10.1
-    jquery: 3.6.3
-    jsdom: 21.1.0
+    jquery: 3.6.4
+    jsdom: 21.1.1
     jsdom-global: 3.0.2
     lottie-web: 5.10.2
-    rimraf: 4.1.2
-    sinon: 15.0.1
+    rimraf: 4.4.0
+    sinon: 15.0.2
     ts-is-present: 1.2.2
     ts-morph: 17.0.1
     ts-node: 10.9.1
     tsconfig-paths: 4.1.2
     tslib: 2.5.0
-    typedoc: 0.23.25
+    typedoc: 0.23.26
     typedoc-plugin-missing-exports: 1.0.0
     typescript: 4.9.5
     uuid: 9.0.0
     uvu: 0.5.6
-    video.js: 8.1.0
+    video.js: 8.2.1
     watchlist: 0.3.1
   peerDependencies:
     jquery: 3.6.1
@@ -1060,32 +1080,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:0.17.10":
-  version: 0.17.10
-  resolution: "esbuild@npm:0.17.10"
+"esbuild@npm:0.17.11":
+  version: 0.17.11
+  resolution: "esbuild@npm:0.17.11"
   dependencies:
-    "@esbuild/android-arm": 0.17.10
-    "@esbuild/android-arm64": 0.17.10
-    "@esbuild/android-x64": 0.17.10
-    "@esbuild/darwin-arm64": 0.17.10
-    "@esbuild/darwin-x64": 0.17.10
-    "@esbuild/freebsd-arm64": 0.17.10
-    "@esbuild/freebsd-x64": 0.17.10
-    "@esbuild/linux-arm": 0.17.10
-    "@esbuild/linux-arm64": 0.17.10
-    "@esbuild/linux-ia32": 0.17.10
-    "@esbuild/linux-loong64": 0.17.10
-    "@esbuild/linux-mips64el": 0.17.10
-    "@esbuild/linux-ppc64": 0.17.10
-    "@esbuild/linux-riscv64": 0.17.10
-    "@esbuild/linux-s390x": 0.17.10
-    "@esbuild/linux-x64": 0.17.10
-    "@esbuild/netbsd-x64": 0.17.10
-    "@esbuild/openbsd-x64": 0.17.10
-    "@esbuild/sunos-x64": 0.17.10
-    "@esbuild/win32-arm64": 0.17.10
-    "@esbuild/win32-ia32": 0.17.10
-    "@esbuild/win32-x64": 0.17.10
+    "@esbuild/android-arm": 0.17.11
+    "@esbuild/android-arm64": 0.17.11
+    "@esbuild/android-x64": 0.17.11
+    "@esbuild/darwin-arm64": 0.17.11
+    "@esbuild/darwin-x64": 0.17.11
+    "@esbuild/freebsd-arm64": 0.17.11
+    "@esbuild/freebsd-x64": 0.17.11
+    "@esbuild/linux-arm": 0.17.11
+    "@esbuild/linux-arm64": 0.17.11
+    "@esbuild/linux-ia32": 0.17.11
+    "@esbuild/linux-loong64": 0.17.11
+    "@esbuild/linux-mips64el": 0.17.11
+    "@esbuild/linux-ppc64": 0.17.11
+    "@esbuild/linux-riscv64": 0.17.11
+    "@esbuild/linux-s390x": 0.17.11
+    "@esbuild/linux-x64": 0.17.11
+    "@esbuild/netbsd-x64": 0.17.11
+    "@esbuild/openbsd-x64": 0.17.11
+    "@esbuild/sunos-x64": 0.17.11
+    "@esbuild/win32-arm64": 0.17.11
+    "@esbuild/win32-ia32": 0.17.11
+    "@esbuild/win32-x64": 0.17.11
   dependenciesMeta:
     "@esbuild/android-arm":
       optional: true
@@ -1133,7 +1153,7 @@ __metadata:
       optional: true
   bin:
     esbuild: bin/esbuild
-  checksum: 803de327036528c140b3d1d8e148604fd1446062b63d2b5a49cd8fe5fa607dc41be915f28dec1242be77164378e3ca27a2ed2968692a73cc833896c7bebc0e12
+  checksum: febf218155513bb9c9c970508c03ec58e0aacfdc23394f425836a09f1da0dae0afa12949274adfd382782eef097f86b2d6b3032293062291f2f471de204f77ec
   languageName: node
   linkType: hard
 
@@ -1329,6 +1349,18 @@ __metadata:
     minimatch: ^5.0.1
     once: ^1.3.0
   checksum: 92fbea3221a7d12075f26f0227abac435de868dd0736a17170663783296d0dd8d3d532a5672b4488a439bf5d7fb85cdd07c11185d6cd39184f0385cbdfb86a47
+  languageName: node
+  linkType: hard
+
+"glob@npm:^9.2.0":
+  version: 9.3.0
+  resolution: "glob@npm:9.3.0"
+  dependencies:
+    fs.realpath: ^1.0.0
+    minimatch: ^7.4.1
+    minipass: ^4.2.4
+    path-scurry: ^1.6.1
+  checksum: 9beb4f1cdc9585412efd991a9786c1ee6816dfd0537494fd552c333fa3d4b041fce5681bce21d14651e41479f60866e10a35a2ce2571fd40b7cf73842ea12192
   languageName: node
   linkType: hard
 
@@ -1542,10 +1574,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jquery@npm:3.6.3":
-  version: 3.6.3
-  resolution: "jquery@npm:3.6.3"
-  checksum: 0fd366bdcaa0c84a7a8751ce20f8192290141913978b5059574426d9b01f4365daa675f95aab3eec94fd794d27b08d32078a2236bef404b8ba78073009988ce6
+"jquery@npm:3.6.4":
+  version: 3.6.4
+  resolution: "jquery@npm:3.6.4"
+  checksum: 8354f7bd0a0424aa714ee1b6b1ef74b410f834eb5c8501682289b358bc151f11677f11188b544f3bb49309d6ec4d15d1a5de175661250c206b06185a252f706f
   languageName: node
   linkType: hard
 
@@ -1558,17 +1590,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsdom@npm:21.1.0":
-  version: 21.1.0
-  resolution: "jsdom@npm:21.1.0"
+"jsdom@npm:21.1.1":
+  version: 21.1.1
+  resolution: "jsdom@npm:21.1.1"
   dependencies:
     abab: ^2.0.6
-    acorn: ^8.8.1
+    acorn: ^8.8.2
     acorn-globals: ^7.0.0
-    cssom: ^0.5.0
-    cssstyle: ^2.3.0
-    data-urls: ^3.0.2
-    decimal.js: ^10.4.2
+    cssstyle: ^3.0.0
+    data-urls: ^4.0.0
+    decimal.js: ^10.4.3
     domexception: ^4.0.0
     escodegen: ^2.0.0
     form-data: ^4.0.0
@@ -1577,7 +1608,8 @@ __metadata:
     https-proxy-agent: ^5.0.1
     is-potential-custom-element-name: ^1.0.1
     nwsapi: ^2.2.2
-    parse5: ^7.1.1
+    parse5: ^7.1.2
+    rrweb-cssom: ^0.6.0
     saxes: ^6.0.0
     symbol-tree: ^3.2.4
     tough-cookie: ^4.1.2
@@ -1585,15 +1617,15 @@ __metadata:
     webidl-conversions: ^7.0.0
     whatwg-encoding: ^2.0.0
     whatwg-mimetype: ^3.0.0
-    whatwg-url: ^11.0.0
-    ws: ^8.11.0
+    whatwg-url: ^12.0.1
+    ws: ^8.13.0
     xml-name-validator: ^4.0.0
   peerDependencies:
     canvas: ^2.5.0
   peerDependenciesMeta:
     canvas:
       optional: true
-  checksum: 2c89c72a6f399184ffc8de30bbdd86283086dbd72bb3a40667102d3f12af141c7517ffb78150a3bb6883a654e8c7d0266c3328d1c387a2b9a1fd0729dc537954
+  checksum: ea33c3f3f084b48685e3838baa1112f0cbffc2949b0249f90ee19152b66dbafc6ae7dd8573ee66933697f881e3bc04c0efc2b56cd26f64fd3e6321a64164e2d1
   languageName: node
   linkType: hard
 
@@ -1686,6 +1718,13 @@ __metadata:
   dependencies:
     yallist: ^4.0.0
   checksum: f97f499f898f23e4585742138a22f22526254fdba6d75d41a1c2526b3b6cc5747ef59c5612ba7375f42aca4f8461950e925ba08c991ead0651b4918b7c978297
+  languageName: node
+  linkType: hard
+
+"lru-cache@npm:^7.14.1":
+  version: 7.18.3
+  resolution: "lru-cache@npm:7.18.3"
+  checksum: e550d772384709deea3f141af34b6d4fa392e2e418c1498c078de0ee63670f1f46f5eee746e8ef7e69e1c895af0d4224e62ee33e66a543a14763b0f2e74c1356
   languageName: node
   linkType: hard
 
@@ -1830,12 +1869,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^6.1.6":
-  version: 6.2.0
-  resolution: "minimatch@npm:6.2.0"
+"minimatch@npm:^7.1.3, minimatch@npm:^7.4.1":
+  version: 7.4.2
+  resolution: "minimatch@npm:7.4.2"
   dependencies:
     brace-expansion: ^2.0.1
-  checksum: 0ffb77d05bd483fcc344ba3e64a501d569e658fa6c592d94e9716ffc7925de7a8c2ac294cafa822b160bd8b2cbf7e01012917e06ffb9a85cfa9604629b3f2c04
+  checksum: 9e341b04e69d5ab03e4206dcb61c8a158e3b8709628bf5e1a4eaa9f3b72c0ba925e24ad959b1f6ce6835caa5a927131d5087fae6836b69e7d99d7d5e63ef0bd8
   languageName: node
   linkType: hard
 
@@ -1913,6 +1952,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"minipass@npm:^4.0.2, minipass@npm:^4.2.4":
+  version: 4.2.5
+  resolution: "minipass@npm:4.2.5"
+  checksum: 4f9c19af23a5d4a9e7156feefc9110634b178a8cff8f8271af16ec5ebf7e221725a97429952c856f5b17b30c2065ebd24c81722d90c93d2122611d75b952b48f
+  languageName: node
+  linkType: hard
+
 "minizlib@npm:^2.1.1, minizlib@npm:^2.1.2":
   version: 2.1.2
   resolution: "minizlib@npm:2.1.2"
@@ -1979,7 +2025,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mux.js@npm:^6.2.0":
+"mux.js@npm:6.3.0, mux.js@npm:^6.2.0":
   version: 6.3.0
   resolution: "mux.js@npm:6.3.0"
   dependencies:
@@ -2007,7 +2053,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nise@npm:^5.1.2":
+"nise@npm:^5.1.4":
   version: 5.1.4
   resolution: "nise@npm:5.1.4"
   dependencies:
@@ -2146,7 +2192,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"parse5@npm:^7.0.0, parse5@npm:^7.1.1":
+"parse5@npm:^7.0.0, parse5@npm:^7.1.2":
   version: 7.1.2
   resolution: "parse5@npm:7.1.2"
   dependencies:
@@ -2173,6 +2219,16 @@ __metadata:
   version: 3.1.1
   resolution: "path-key@npm:3.1.1"
   checksum: 55cd7a9dd4b343412a8386a743f9c746ef196e57c823d90ca3ab917f90ab9f13dd0ded27252ba49dbdfcab2b091d998bc446f6220cd3cea65db407502a740020
+  languageName: node
+  linkType: hard
+
+"path-scurry@npm:^1.6.1":
+  version: 1.6.1
+  resolution: "path-scurry@npm:1.6.1"
+  dependencies:
+    lru-cache: ^7.14.1
+    minipass: ^4.0.2
+  checksum: 7ba57e823cb7bb879669a4e5e05a283cde1bb9e81b6d806b2609f8d8026d0aef08f4b655b17fc86b21c9c32807851bba95ca715db5ab0605fb13c7a3e9172e42
   languageName: node
   linkType: hard
 
@@ -2248,7 +2304,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"punycode@npm:^2.1.1":
+"punycode@npm:^2.1.1, punycode@npm:^2.3.0":
   version: 2.3.0
   resolution: "punycode@npm:2.3.0"
   checksum: 39f760e09a2a3bbfe8f5287cf733ecdad69d6af2fe6f97ca95f24b8921858b91e9ea3c9eeec6e08cede96181b3bb33f95c6ffd8c77e63986508aa2e8159fa200
@@ -2308,12 +2364,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rimraf@npm:4.1.2":
-  version: 4.1.2
-  resolution: "rimraf@npm:4.1.2"
+"rimraf@npm:4.4.0":
+  version: 4.4.0
+  resolution: "rimraf@npm:4.4.0"
+  dependencies:
+    glob: ^9.2.0
   bin:
     rimraf: dist/cjs/src/bin.js
-  checksum: 480b8147fd9bcbef3ac118f88a7b1169c3872977a3411a0c84df838bfc30e175a394c0db6f9619fc8b8a886a18c6d779d5e74f380a0075ecc710afaf81b3f50c
+  checksum: 0cedaf9d138589d1bb0ab851f05804c6d30827aa66563472b04ab76245f83537e23e7b94f1f79ea6c368c0d84a18fcde6a756fca3a44c967e08792671b3a0a6e
   languageName: node
   linkType: hard
 
@@ -2325,6 +2383,13 @@ __metadata:
   bin:
     rimraf: bin.js
   checksum: 87f4164e396f0171b0a3386cc1877a817f572148ee13a7e113b238e48e8a9f2f31d009a92ec38a591ff1567d9662c6b67fd8818a2dbbaed74bc26a87a2a4a9a0
+  languageName: node
+  linkType: hard
+
+"rrweb-cssom@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "rrweb-cssom@npm:0.6.0"
+  checksum: 182312f6e4f41d18230ccc34f14263bc8e8a6b9d30ee3ec0d2d8e643c6f27964cd7a8d638d4a00e988d93e8dc55369f4ab5a473ccfeff7a8bab95b36d2b5499c
   languageName: node
   linkType: hard
 
@@ -2467,17 +2532,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sinon@npm:15.0.1":
-  version: 15.0.1
-  resolution: "sinon@npm:15.0.1"
+"sinon@npm:15.0.2":
+  version: 15.0.2
+  resolution: "sinon@npm:15.0.2"
   dependencies:
-    "@sinonjs/commons": ^2.0.0
-    "@sinonjs/fake-timers": 10.0.2
+    "@sinonjs/commons": ^3.0.0
+    "@sinonjs/fake-timers": ^10.0.2
     "@sinonjs/samsam": ^7.0.1
-    diff: ^5.0.0
-    nise: ^5.1.2
+    diff: ^5.1.0
+    nise: ^5.1.4
     supports-color: ^7.2.0
-  checksum: 4b5acff291b4650cf736bf45fc9eceed44dceca63b663cbd55926dd688fe8e9baa4b4629e296ee5d5b64245aedec5c540fea0416b8bb35bccfb98ca9e9ed87f3
+  checksum: 98eb555442db3985d7fe0d90e23f081f3df71adffa0a50b049bcd2abbf5c2d71a43aeaa1e3c02500164cff5233d2f102f777356ebe8bfc257cb7059c1b2778b0
   languageName: node
   linkType: hard
 
@@ -2612,12 +2677,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tr46@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "tr46@npm:3.0.0"
+"tr46@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "tr46@npm:4.1.1"
   dependencies:
-    punycode: ^2.1.1
-  checksum: 44c3cc6767fb800490e6e9fd64fd49041aa4e49e1f6a012b34a75de739cc9ed3a6405296072c1df8b6389ae139c5e7c6496f659cfe13a04a4bff3a1422981270
+    punycode: ^2.3.0
+  checksum: aeeb821ac2cd792e63ec84888b4fd6598ac6ed75d861579e21a5cf9d4ee78b2c6b94e7d45036f2ca2088bc85b9b46560ad23c4482979421063b24137349dbd96
   languageName: node
   linkType: hard
 
@@ -2726,19 +2791,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typedoc@npm:0.23.25":
-  version: 0.23.25
-  resolution: "typedoc@npm:0.23.25"
+"typedoc@npm:0.23.26":
+  version: 0.23.26
+  resolution: "typedoc@npm:0.23.26"
   dependencies:
     lunr: ^2.3.9
     marked: ^4.2.12
-    minimatch: ^6.1.6
+    minimatch: ^7.1.3
     shiki: ^0.14.1
   peerDependencies:
     typescript: 4.6.x || 4.7.x || 4.8.x || 4.9.x
   bin:
     typedoc: bin/typedoc
-  checksum: 2089d6da0293e63f6d3fac9460e9427fb6bfd56ddf669f2f13bef9435aa69ca7e72a8754e8951788db69432356e419c48b811105c8a74a47cab1f92a0bdad75b
+  checksum: 09dbd221b5bd27a7f6c593a6aa7e4efc3c46f20761e109a76bf0ed7239011cca1261357094710c01472582060d75a7558aab5bf5b78db3aff7c52188d146ee65
   languageName: node
   linkType: hard
 
@@ -2848,7 +2913,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"video.js@npm:8.1.0, video.js@npm:^7 || ^8":
+"video.js@npm:8.2.1":
+  version: 8.2.1
+  resolution: "video.js@npm:8.2.1"
+  dependencies:
+    "@babel/runtime": ^7.12.5
+    "@videojs/http-streaming": 3.0.2
+    "@videojs/vhs-utils": ^4.0.0
+    "@videojs/xhr": 2.6.0
+    aes-decrypter: ^4.0.1
+    global: 4.4.0
+    keycode: 2.2.0
+    m3u8-parser: ^6.0.0
+    mpd-parser: ^1.0.1
+    mux.js: ^6.2.0
+    safe-json-parse: 4.0.0
+    videojs-contrib-quality-levels: 3.0.0
+    videojs-font: 4.1.0
+    videojs-vtt.js: 0.15.4
+  checksum: b1bc77490e8e66ed9c68ee8d2def842297382edfa1a98c5bcc6917f98bfb12d65995deac3d2915de7f3bf621cedc1d689ff17964c1339d89a8d4b86c43534ba8
+  languageName: node
+  linkType: hard
+
+"video.js@npm:^7 || ^8":
   version: 8.1.0
   resolution: "video.js@npm:8.1.0"
   dependencies:
@@ -2885,6 +2972,13 @@ __metadata:
   version: 4.0.0
   resolution: "videojs-font@npm:4.0.0"
   checksum: 062097e4ea5156493cdd0a5cb3ee0ece93952498b0d0e4e992787009456ad95345ec237f11d036d9ce30cb673012b60eaa8451aec0b79cd8f52d66a8f177afa4
+  languageName: node
+  linkType: hard
+
+"videojs-font@npm:4.1.0":
+  version: 4.1.0
+  resolution: "videojs-font@npm:4.1.0"
+  checksum: 7259a9e1855e269cfc08c72b031e4fa1e0008a8da7f3352b407a990177a06176c3ba69d732d91f7c9b2c1ae8b62f6aa9b5b6049ad8e0a98b86f5baea44c3d31f
   languageName: node
   linkType: hard
 
@@ -2961,13 +3055,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"whatwg-url@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "whatwg-url@npm:11.0.0"
+"whatwg-url@npm:^12.0.0, whatwg-url@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "whatwg-url@npm:12.0.1"
   dependencies:
-    tr46: ^3.0.0
+    tr46: ^4.1.1
     webidl-conversions: ^7.0.0
-  checksum: ed4826aaa57e66bb3488a4b25c9cd476c46ba96052747388b5801f137dd740b73fde91ad207d96baf9f17fbcc80fc1a477ad65181b5eb5fa718d27c69501d7af
+  checksum: 8698993b763c1e7eda5ed16c31dab24bca6489626aca7caf8b5a2b64684dda6578194786f10ec42ceb1c175feea16d0a915096e6419e08d154ce551c43176972
   languageName: node
   linkType: hard
 
@@ -3015,9 +3109,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ws@npm:^8.11.0":
-  version: 8.12.1
-  resolution: "ws@npm:8.12.1"
+"ws@npm:^8.13.0":
+  version: 8.13.0
+  resolution: "ws@npm:8.13.0"
   peerDependencies:
     bufferutil: ^4.0.1
     utf-8-validate: ">=5.0.2"
@@ -3026,7 +3120,7 @@ __metadata:
       optional: true
     utf-8-validate:
       optional: true
-  checksum: 97301c1c4d838fc81bd413f370f75c12aabe44527b31323b761eab3043a9ecb7e32ffd668548382c9a6a5ad3a1c3a9249608e8338e6b939f2f9540f1e21970b5
+  checksum: 53e991bbf928faf5dc6efac9b8eb9ab6497c69feeb94f963d648b7a3530a720b19ec2e0ec037344257e05a4f35bd9ad04d9de6f289615ffb133282031b18c61c
   languageName: node
   linkType: hard
 
