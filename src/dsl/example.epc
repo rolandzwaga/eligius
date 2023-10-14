@@ -1,0 +1,14 @@
+animation provider: RequestAnimationFrameTimelineProvider
+container: #ct-container
+language: en-US
+layout: layoutTemplate
+languages: en-US English, nl-NL Nederlands
+initialisation:
+MainTitleLabel:
+	start:
+		selectElement(selector=#main-title)
+		getControllerInstance(LabelController)
+		addControllerToElement(mainTitle)
+	end:
+		selectElement(#main-title)
+		removeControllerFromElement(LabelController)
