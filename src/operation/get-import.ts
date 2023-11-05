@@ -7,8 +7,8 @@ export interface IGetImportOperationData {
 }
 
 /**
- * This operation retrieves the import specified by the given system name and
- * assigns it to the importedInstance property on the current operaton date.
+ * This operation retrieves the import specified by the given `systemName` and
+ * assigns it to the `importedInstance` property on the current operaton date.
  *
  * @param operationData
  * @returns

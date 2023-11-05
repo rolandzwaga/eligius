@@ -1,8 +1,6 @@
 name: Publish Package to npmjs
 on:
   release:
-    branches:
-      - 'main'
     types: [created]
 jobs:
   build:
@@ -39,10 +37,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Use Node 16
+      - name: Use Node 18
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -57,7 +55,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        uses: mskelton/setup-yarn@v1
+        run: yarn
 
       - name: Test
         run: yarn test --ci --coverage --maxWorkers=2

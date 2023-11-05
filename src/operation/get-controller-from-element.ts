@@ -18,7 +18,7 @@ export const getControllerFromElement: TOperation<IGetControllerFromElementOpera
   function (operationData: IGetControllerFromElementOperationData) {
     const { selectedElement, controllerName } = operationData;
     const controllers = getElementControllers(selectedElement);
-    const controller = controllers.find((ctrl) => {
+    const controller = controllers?.find((ctrl) => {
       return ctrl.name === controllerName;
     });
 

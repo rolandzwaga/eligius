@@ -22,8 +22,8 @@ export class TimelineAction extends EndableAction implements ITimelineAction {
   }
 
   start(initOperationData?: TOperationData): Promise<TOperationData> {
-    if (!this.active || this.duration.end < 0) {
-      this._active = this.endOperations.length > 0;
+    if (!this.active) {
+      this._active = Boolean(this.endOperations.length);
       return super.start(initOperationData);
     }
 
@@ -31,7 +31,9 @@ export class TimelineAction extends EndableAction implements ITimelineAction {
   }
 
   end(initOperationData: TOperationData): Promise<TOperationData> {
-    this._active = false;
-    return super.end(initOperationData);
+    return super.end(initOperationData).then((result) => {
+      this._active = false;
+      return result;
+    });
   }
 }

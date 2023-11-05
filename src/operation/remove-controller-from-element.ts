@@ -22,10 +22,12 @@ export const removeControllerFromElement: TOperation<IRemoveControllerFromElemen
       (ctrl: IController<any>) => ctrl.name === controllerName
     );
 
-    if (controller) {
+    if (controller && controllers) {
       const idx = controllers.indexOf(controller);
       controllers.splice(idx, 1);
       controller.detach(this.eventbus);
+    } else {
+      console.warn(`controller for name '${controllerName}' was not found on the given element`);
     }
 
     return operationData;

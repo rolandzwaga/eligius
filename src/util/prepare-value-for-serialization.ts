@@ -2,7 +2,7 @@ import jQuery from 'jquery';
 import { isFunction } from './guards/is-function';
 import { isObject } from './guards/is-object';
 
-export function prepareValueForSerialization(value: any): any {
+export function prepareValueForSerialization(value: unknown): any {
   if (Array.isArray(value)) {
     return (value as Array<any>).map(prepareValueForSerialization);
   } else if (value instanceof jQuery) {
@@ -16,10 +16,7 @@ export function prepareValueForSerialization(value: any): any {
       return funcString.substring(0, funcString.indexOf('{') + 1);
     }
     return Object.fromEntries(
-      Object.entries(value).map(([propName, propValue]) => [
-        propName,
-        prepareValueForSerialization(propValue),
-      ])
+      Object.entries(value).map(([propName, propValue]) => [propName, prepareValueForSerialization(propValue)])
     );
   } else if (isFunction(value)) {
     const funcString: string = value.toString();

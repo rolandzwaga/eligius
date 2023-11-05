@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { expect } from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';

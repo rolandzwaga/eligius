@@ -1,5 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import { ISubtitle, ISubtitleCollection } from '../../types';
+import {
+  IStrictDuration,
+  ISubtitle,
+  ISubtitleCollection,
+  TLanguageCode,
+} from '../../types';
 
 /**
  * Used to edit and add to an {@link ISubtitleCollection}.
@@ -11,7 +16,17 @@ export class SubtitleEditor {
     return this.collection.find((x) => x.languageCode === languageCode);
   }
 
-  addLanguage(languageCode: string) {
+  /**
+   * Adds a new {@link ISubtitleCollection} for the given `languageCode`.
+   *
+   * If collections already exist for existing language codes then a duplicate
+   * of these collections is created with the same duration info but all of the
+   * text is left empty.
+   *
+   * @param languageCode
+   * @returns
+   */
+  addLanguage(languageCode: TLanguageCode) {
     const language = this._getLanguage(languageCode);
     if (language) {
       throw new Error(`Language ${languageCode} already exists.`);
@@ -19,6 +34,7 @@ export class SubtitleEditor {
     const newLanguage: ISubtitleCollection = this.collection.length
       ? {
           ...this.collection[0],
+          languageCode,
           titles: this.collection[0].titles.map((x) => ({
             id: uuidv4(),
             duration: { ...x.duration },
@@ -33,7 +49,7 @@ export class SubtitleEditor {
     return this;
   }
 
-  addSubtitle(languageCode: string, subtitle: ISubtitle) {
+  addSubtitle(languageCode: TLanguageCode, subtitle: ISubtitle) {
     const language = this._getLanguage(languageCode);
     if (!language) {
       throw new Error(`Language ${languageCode} does not exist.`);
@@ -42,14 +58,21 @@ export class SubtitleEditor {
     return this;
   }
 
-  addSubtitles(subtitles: Record<string, ISubtitle>) {
+  addSubtitles(
+    duration: IStrictDuration,
+    subtitles: Record<TLanguageCode, string>
+  ) {
     Object.entries(subtitles).forEach(([languageCode, subtitle]) =>
-      this.addSubtitle(languageCode, subtitle)
+      this.addSubtitle(languageCode as TLanguageCode, {
+        id: uuidv4(),
+        duration: { ...duration },
+        text: subtitle,
+      })
     );
     return this;
   }
 
-  setSubtitle(languageCode: string, subtitle: ISubtitle) {
+  setSubtitle(languageCode: TLanguageCode, subtitle: ISubtitle) {
     const language = this._getLanguage(languageCode);
     if (!language) {
       throw new Error(`Language ${languageCode} does not exist.`);

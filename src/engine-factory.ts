@@ -2,17 +2,10 @@ import hotkeys, { HotkeysEvent } from 'hotkeys-js';
 import $ from 'jquery';
 import { IAction } from './action/types';
 import { ConfigurationResolver } from './configuration/configuration-resolver';
-import {
-  IEngineConfiguration,
-  IResolvedEngineConfiguration,
-} from './configuration/types';
-import { DevToolEventListener } from './diagnostics/devtool-event-lister';
+import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
+import { DevToolEventListener } from './diagnostics/devtool-event-listener';
 import { Diagnostics } from './diagnostics/diagnostics';
-import {
-  DEV_TOOLS_KEY,
-  TDiagnosticType,
-  TWindowWithDevtools,
-} from './diagnostics/types';
+import { DEV_TOOLS_KEY, TDiagnosticType, TWindowWithDevtools } from './diagnostics/types';
 import {
   ActionRegistryEventbusListener,
   Eventbus,

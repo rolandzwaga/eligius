@@ -38,7 +38,7 @@
     "selector": {
       "$id": "#/properties/selector",
       "type": "string",
-      "title": "The loop schema"
+      "title": "The selector schema"
     },
     "timelineActions": {
       "$id": "#/properties/timelineActions",
