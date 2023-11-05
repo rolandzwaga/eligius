@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import { IOperationContext, TOperationData } from '../../../operation';

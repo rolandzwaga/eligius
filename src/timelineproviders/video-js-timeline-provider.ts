@@ -80,7 +80,10 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
 
   private _handleTimeUpdate() {
     if (this._player) {
-      this._onTime?.(this._player.currentTime());
+      const time = this._player.currentTime();
+      if (time !== undefined) {
+        this._onTime?.(time);
+      }
     }
   }
 

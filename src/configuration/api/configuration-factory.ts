@@ -151,7 +151,7 @@ export class ConfigurationFactory {
     return factory as T & typeof extensions;
   }
 
-  init(defaultLanguage: string) {
+  init(defaultLanguage: TLanguageCode) {
     this.configuration = {
       id: uuidv4(),
       engine: {
@@ -168,6 +168,11 @@ export class ConfigurationFactory {
       labels: [],
     };
 
+    return this;
+  }
+
+  setEngine(systemName: string) {
+    this.configuration.engine.systemName = systemName;
     return this;
   }
 

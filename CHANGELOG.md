@@ -1,5 +1,12 @@
 # Change Log
 
+## 1.1.3
+- rename `startLoop` to `forEach`.
+- rename `endLoop` to `endForEach`.
+- add `setEngine` method to `ConfigurationFactory`.
+- switch to esbuild
+- Loads of documentation tweaks
+
 ## 1.1.2
 - Add `SubtitleEditor` to configuration API.
 

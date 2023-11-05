@@ -11,7 +11,7 @@ export interface IForEachOperationData {
  * Each iteration the current item from the specified collection is
  * assigned to the {@link IOperationContext.currentItem} property on the operation context.
  *
- * At the start of the loop, the associated {@link endLoop} operation is determined and when
+ * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
  *
  * @param operationData
