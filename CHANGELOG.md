@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.1.4
+- Fix esm exports
+
 ## 1.1.3
 - rename `startLoop` to `forEach`.
 - rename `endLoop` to `endForEach`.
