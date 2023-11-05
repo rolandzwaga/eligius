@@ -1,7 +1,7 @@
 {
   "name": "eligius",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "license": "MIT",
   "homepage": "https://rolandzwaga.github.io/eligius/",
   "bugs": {
@@ -10,8 +10,14 @@
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "exports": {
-    "import": "./dist/index.esm.js",
-    "require": "./dist/index.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js"
+    },
+    "./metadata": {
+      "types": "./dist/operation/metadata/types.d.ts"
+    }
   },
   "typesVersions": {
     "*": {
