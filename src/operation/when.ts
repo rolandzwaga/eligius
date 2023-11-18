@@ -51,12 +51,15 @@ function parseExpression(
   operationContext: IOperationContext
 ): [TValue, TOperator, TValue] {
   let [left, right] = expression.split(/!=|==|>=|<=|>|</);
+  
   const operator = expression.substring(
     left.length,
     expression.length - right.length
   ) as TOperator;
-  const leftNr = +left;
-  const rightNr = +right;
+  
+  const leftNr = parseInt(left);
+  const rightNr = parseInt(right);
+
   return [
     (isNaN(leftNr)
       ? resolveExternalPropertyChain(operationData, operationContext, left)

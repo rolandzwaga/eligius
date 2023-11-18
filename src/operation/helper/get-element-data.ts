@@ -1,6 +1,6 @@
 import { IController } from '../../controllers/types';
 
-export const controllersDataName = 'eligiusEngineControllers';
+const controllersDataName = 'eligiusEngineControllers';
 
 function getElementData(name: string, element: JQuery): IController<any>[] | undefined {
   return element.data(name);
@@ -8,5 +8,5 @@ function getElementData(name: string, element: JQuery): IController<any>[] | und
 
 const getElementControllers = getElementData.bind(null, controllersDataName);
 
-export { getElementData, getElementControllers };
+export { getElementData, getElementControllers, controllersDataName };
 
