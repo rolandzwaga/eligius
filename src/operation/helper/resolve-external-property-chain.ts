@@ -1,5 +1,4 @@
-import { isString } from '../../util/guards/is-string';
-import { IOperationContext } from '../types';
+import { IOperationContext, TOperationData } from '../types';
 import { getPropertyChainValue } from './get-property-chain-value';
 import { getGlobals } from './globals';
 
@@ -16,11 +15,11 @@ import { getGlobals } from './globals';
  * @returns
  */
 export function resolveExternalPropertyChain(
-  sourceObject: any,
+  sourceObject: TOperationData,
   operationContext: IOperationContext,
-  propertyChainOrRegularObject: any
+  propertyChainOrRegularObject: ExternalProperty|Record<string,any>
 ) {
-  if (isString(propertyChainOrRegularObject)) {
+  if (isExternalProperty(propertyChainOrRegularObject)) {
     const propNames = propertyChainOrRegularObject.split('.');
     const prefix = propNames.shift()?.toLowerCase();
     switch (prefix) {
@@ -35,3 +34,9 @@ export function resolveExternalPropertyChain(
 
   return propertyChainOrRegularObject;
 }
+
+function isExternalProperty(value: ExternalProperty|Record<string,any>): value is ExternalProperty {
+  return typeof value === "string";
+}
+
+export type ExternalProperty = `operationdata.${string}` | `globaldata.${string}` | `context.${string}`;

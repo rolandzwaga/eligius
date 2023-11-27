@@ -1,4 +1,5 @@
 import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
+import { ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
 import { IOperationContext, TOperation } from './types';
 
 export interface IForEachOperationData {
@@ -19,17 +20,18 @@ export interface IForEachOperationData {
  */
 export const forEach: TOperation<IForEachOperationData> = function (operationData: IForEachOperationData) {
   const { collection } = operationData;
+  const resolvedCollection =  (typeof collection === "string") ? resolveExternalPropertyChain(operationData, this, collection as ExternalProperty) as any[] : collection;
 
-  if (collection !== null && !Array.isArray(collection)) {
+  if (resolvedCollection !== null && resolvedCollection !== undefined && !Array.isArray(resolvedCollection)) {
     throw new Error('Expected collection to be array type, string value was probably not resolved correctly');
   }
 
   // First iteration of the loop
   if (this.loopIndex === undefined) {
     this.loopEndIndex = findEndForEachIndex(this);
-    if (collection?.length) {
+    if (resolvedCollection?.length) {
       this.loopIndex = 0;
-      this.loopLength = collection.length - 1;
+      this.loopLength = resolvedCollection.length - 1;
       this.loopStartIndex = this.currentIndex;
     } else {
       this.newIndex = this.loopEndIndex;
@@ -41,8 +43,8 @@ export const forEach: TOperation<IForEachOperationData> = function (operationDat
     }
   }
 
-  if (collection?.length && this.loopIndex !== undefined) {
-    this.currentItem = collection[this.loopIndex];
+  if (resolvedCollection?.length && this.loopIndex !== undefined) {
+    this.currentItem = resolvedCollection[this.loopIndex];
   }
 
   return operationData;
