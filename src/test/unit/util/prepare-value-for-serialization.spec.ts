@@ -11,7 +11,7 @@ function SimpleClass(this: any) {
   return this;
 }
 
-PrepareValueForSerializationSuite('should seriaize the given object', () => {
+PrepareValueForSerializationSuite('should serialize the given object', () => {
   // given
 
   const object = {
@@ -33,9 +33,9 @@ PrepareValueForSerializationSuite('should seriaize the given object', () => {
 
   // expect
   expect(result.a).to.equal(1);
-  expect(result.b).to.equal('jQuery object');
+  expect(result.b).to.equal('[jQuery object]');
   expect(result.c).to.equal('function (i) {');
-  expect(result.d).to.eql([1, 'a', 'jQuery object', '(i) => i']);
+  expect(result.d).to.eql([1, 'a', '[jQuery object]', '(i) => i']);
   expect(result.e).to.be.null;
   expect(result.f).to.be.undefined;
   expect(result.controllerInstance).to.equal('class LabelController {');

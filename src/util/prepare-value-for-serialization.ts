@@ -6,7 +6,7 @@ export function prepareValueForSerialization(value: unknown): any {
   if (Array.isArray(value)) {
     return (value as Array<any>).map(prepareValueForSerialization);
   } else if (value instanceof jQuery) {
-    return 'jQuery object';
+    return '[jQuery object]';
   } else if (isObject(value)) {
     if (
       value.constructor.toString().substring(0, 5) === 'class' ||

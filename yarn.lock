@@ -6,11 +6,11 @@ __metadata:
   cacheKey: 10
 
 "@babel/runtime@npm:^7.11.2, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.5.5":
-  version: 7.23.2
-  resolution: "@babel/runtime@npm:7.23.2"
+  version: 7.23.5
+  resolution: "@babel/runtime@npm:7.23.5"
   dependencies:
     regenerator-runtime: "npm:^0.14.0"
-  checksum: abdcbdd590c7e31762e1bdab94dd466823c8bcedd3ff2fde85eeb94dac7cccaef151ac37c428bda7018ededd27c9a82b4dfeb621f978ad934232475a902f8e3a
+  checksum: 0f1669f639af30a0a2948ffcefa2c61935f337b0777bd94f8d7bc66bba8e7d4499e725caeb0449540d9c6d67399b733c4e719babb43ce9a0f33095aa01b42b37
   languageName: node
   linkType: hard
 
@@ -344,24 +344,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ts-morph/bootstrap@npm:0.21.0":
-  version: 0.21.0
-  resolution: "@ts-morph/bootstrap@npm:0.21.0"
+"@ts-morph/bootstrap@npm:0.22.0":
+  version: 0.22.0
+  resolution: "@ts-morph/bootstrap@npm:0.22.0"
   dependencies:
-    "@ts-morph/common": "npm:~0.21.0"
-  checksum: 78d86411947f8e1429fbd89b490d33941629fee21fe99865ba677177e4337a5a06e6c41f2a4f2d045069748b7ae2bd79d0a28329954f0fcf72637ef9b19239ce
+    "@ts-morph/common": "npm:~0.22.0"
+  checksum: ce3739529eedb715a5ca3bd91347b788b40a3986e2284a1a7d31c37295810908841c44570f59a2ddda59f58df8a52cdf6d7468a81d89cca198ea267b111124a2
   languageName: node
   linkType: hard
 
-"@ts-morph/common@npm:~0.21.0":
-  version: 0.21.0
-  resolution: "@ts-morph/common@npm:0.21.0"
+"@ts-morph/common@npm:~0.22.0":
+  version: 0.22.0
+  resolution: "@ts-morph/common@npm:0.22.0"
   dependencies:
-    fast-glob: "npm:^3.2.12"
-    minimatch: "npm:^7.4.3"
-    mkdirp: "npm:^2.1.6"
+    fast-glob: "npm:^3.3.2"
+    minimatch: "npm:^9.0.3"
+    mkdirp: "npm:^3.0.1"
     path-browserify: "npm:^1.0.1"
-  checksum: dbfffae478bb9da71182faf87c14f578de21afe098a388bbcbdeebc5864e9f17e136526dbad6a8e760fe20e5bb943b2dfa62dc47d14b8e6e9077ce08f6de6242
+  checksum: 536ca9944065156e26bb7fecca13adcbd5d65494e8ffa72096d02da9ec6afc8cd97bb582b12c15d0ac34f26cdab25dbc87e4f9e21f21f1019d30e670c8392d9f
   languageName: node
   linkType: hard
 
@@ -439,21 +439,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
-  version: 20.9.2
-  resolution: "@types/node@npm:20.9.2"
+"@types/node@npm:*, @types/node@npm:20.10.3":
+  version: 20.10.3
+  resolution: "@types/node@npm:20.10.3"
   dependencies:
     undici-types: "npm:~5.26.4"
-  checksum: 8bab2870bfc02efc988c53dfb0149634f8feb824132cc7f20b36f3d55d89ef893e3a43d545524a5cb3a284f4ce68ae4181d75a4a39cee6b79c586d719e6b7461
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:20.10.0":
-  version: 20.10.0
-  resolution: "@types/node@npm:20.10.0"
-  dependencies:
-    undici-types: "npm:~5.26.4"
-  checksum: c7d5ddbdbf3491e2363135c9611eb6bfae90eda2957279237fa232bcb29cd0df1cc3ee149d6de9915b754262a531ee2d57d33c9ecd58d763e8ad4856113822f3
+  checksum: 7cb506abb0d570bb5133bd06a47115109a813b507323c985c3b4aef2993eed79b6bb62b82194cb5c558b4d349de3d199ee2e8c693b913065a1cd7f526cc65a68
   languageName: node
   linkType: hard
 
@@ -474,9 +465,9 @@ __metadata:
   linkType: hard
 
 "@types/sizzle@npm:*":
-  version: 2.3.6
-  resolution: "@types/sizzle@npm:2.3.6"
-  checksum: 1573d6c86fdf0d7d3d2759b0db65e374b99d773b57781443a6400ce3d0a3bf6a3be393fb9aee5076eff8399c14b7b4d3f51391d1d5cb6a3dcbdccee06a5f6e3e
+  version: 2.3.8
+  resolution: "@types/sizzle@npm:2.3.8"
+  checksum: 2ac62443dc917f5f903cbd9afc51c7d6cc1c6569b4e1a15faf04aea5b13b486e7f208650014c3dc4fed34653eded3e00fe5abffe0e6300cbf0e8a01beebf11a6
   languageName: node
   linkType: hard
 
@@ -512,7 +503,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@videojs/vhs-utils@npm:4.0.0, @videojs/vhs-utils@npm:^4.0.0":
+"@videojs/vhs-utils@npm:4.0.0":
   version: 4.0.0
   resolution: "@videojs/vhs-utils@npm:4.0.0"
   dependencies:
@@ -531,6 +522,17 @@ __metadata:
     global: "npm:^4.4.0"
     url-toolkit: "npm:^2.2.1"
   checksum: da1dbbd75dc0f9971a9efb7301b886b08dd3eb9734f268cd5338dfd97a9a03d44a1d8103173193bbe0558a730858d5ff49a8e0bbee0415d976e63574081783e6
+  languageName: node
+  linkType: hard
+
+"@videojs/vhs-utils@npm:^4.0.0":
+  version: 4.1.0
+  resolution: "@videojs/vhs-utils@npm:4.1.0"
+  dependencies:
+    "@babel/runtime": "npm:^7.12.5"
+    global: "npm:^4.4.0"
+    url-toolkit: "npm:^2.2.1"
+  checksum: 6cf55913e17e585d009fd0c77a225fb7e4e561bb14daaf978929e8a5e931629ff675d835e6347165940b9f7149aa8d6be8dcfa6563ebdf9a28c9b9cfde09e5b6
   languageName: node
   linkType: hard
 
@@ -733,22 +735,22 @@ __metadata:
   linkType: hard
 
 "cacache@npm:^18.0.0":
-  version: 18.0.0
-  resolution: "cacache@npm:18.0.0"
+  version: 18.0.1
+  resolution: "cacache@npm:18.0.1"
   dependencies:
     "@npmcli/fs": "npm:^3.1.0"
     fs-minipass: "npm:^3.0.0"
     glob: "npm:^10.2.2"
     lru-cache: "npm:^10.0.1"
     minipass: "npm:^7.0.3"
-    minipass-collect: "npm:^1.0.2"
+    minipass-collect: "npm:^2.0.1"
     minipass-flush: "npm:^1.0.5"
     minipass-pipeline: "npm:^1.2.4"
     p-map: "npm:^4.0.0"
     ssri: "npm:^10.0.0"
     tar: "npm:^6.1.11"
     unique-filename: "npm:^3.0.0"
-  checksum: b71fefe97b9799a863dc48ac79da2bd57a724ff0922fddd3aef4f3b70395ba00d1ef9547a0594d3d6d3cd57aeaeaf4d938c54f89695053eb2198cf8758b47511
+  checksum: aecafd368fbfb2fc0cda1f2f831fe5a1d8161d2121317c92ac089bcd985085e8a588e810b4471e69946f91c6d2661849400e963231563c519aa1e3dac2cf6187
   languageName: node
   linkType: hard
 
@@ -1003,28 +1005,28 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "eligius@workspace:."
   dependencies:
-    "@ts-morph/bootstrap": "npm:0.21.0"
+    "@ts-morph/bootstrap": "npm:0.22.0"
     "@types/chai": "npm:4.3.11"
     "@types/fs-extra": "npm:11.0.4"
     "@types/jquery": "npm:3.5.29"
     "@types/jsdom": "npm:21.1.6"
-    "@types/node": "npm:20.10.0"
+    "@types/node": "npm:20.10.3"
     "@types/sinon": "npm:17.0.2"
     "@types/uuid": "npm:9.0.7"
     canvas: "npm:2.11.2"
     chai: "npm:4.3.10"
     cross-env: "npm:7.0.3"
     esbuild: "npm:0.19.8"
-    fs-extra: "npm:11.1.1"
+    fs-extra: "npm:11.2.0"
     hotkeys-js: "npm:3.12.2"
     jquery: "npm:3.7.1"
-    jsdom: "npm:23.0.0"
+    jsdom: "npm:23.0.1"
     jsdom-global: "npm:3.0.2"
     lottie-web: "npm:5.12.2"
     rimraf: "npm:5.0.5"
     sinon: "npm:17.0.1"
     ts-is-present: "npm:1.2.2"
-    ts-morph: "npm:20.0.0"
+    ts-morph: "npm:21.0.1"
     ts-node: "npm:10.9.1"
     tsconfig-paths: "npm:4.2.0"
     tslib: "npm:2.6.2"
@@ -1171,7 +1173,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.2.12":
+"fast-glob@npm:^3.3.2":
   version: 3.3.2
   resolution: "fast-glob@npm:3.3.2"
   dependencies:
@@ -1223,14 +1225,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:11.1.1":
-  version: 11.1.1
-  resolution: "fs-extra@npm:11.1.1"
+"fs-extra@npm:11.2.0":
+  version: 11.2.0
+  resolution: "fs-extra@npm:11.2.0"
   dependencies:
     graceful-fs: "npm:^4.2.0"
     jsonfile: "npm:^6.0.1"
     universalify: "npm:^2.0.0"
-  checksum: c4e9fabf9762a70d1403316b7faa899f3d3303c8afa765b891c2210fdeba368461e04ae1203920b64ef6a7d066a39ab8cef2160b5ce8d1011bb4368688cd9bb7
+  checksum: 0579bf6726a4cd054d4aa308f10b483f52478bb16284f32cf60b4ce0542063d551fca1a08a2af365e35db21a3fa5a06cf2a6ed614004b4368982bc754cb816b3
   languageName: node
   linkType: hard
 
@@ -1560,9 +1562,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsdom@npm:23.0.0":
-  version: 23.0.0
-  resolution: "jsdom@npm:23.0.0"
+"jsdom@npm:23.0.1":
+  version: 23.0.1
+  resolution: "jsdom@npm:23.0.1"
   dependencies:
     cssstyle: "npm:^3.0.0"
     data-urls: "npm:^5.0.0"
@@ -1586,11 +1588,11 @@ __metadata:
     ws: "npm:^8.14.2"
     xml-name-validator: "npm:^5.0.0"
   peerDependencies:
-    canvas: ^3.0.0
+    canvas: ^2.11.2
   peerDependenciesMeta:
     canvas:
       optional: true
-  checksum: e835fca6c48e9147e8de17828053681c8bac10f269f2e425982d731b6ba9232e385c42ef7736d7b6c162d6e14028ab84ef95cba74f43e7d94e15ce1c7c633286
+  checksum: b48fd785cfe5ea0c87e5fadb5fa7f4897bc64731a3930d9013cc0a0b16fbea323e7cced4dddf486b4edb305e7f511ccf78ef6b165b99e3a209069a394add6aa1
   languageName: node
   linkType: hard
 
@@ -1668,11 +1670,9 @@ __metadata:
   linkType: hard
 
 "lru-cache@npm:^10.0.1, lru-cache@npm:^9.1.1 || ^10.0.0":
-  version: 10.0.2
-  resolution: "lru-cache@npm:10.0.2"
-  dependencies:
-    semver: "npm:^7.3.5"
-  checksum: a675b71a19f4b23186549e343792c3eb6196a5fca2a96b59e31a44289459b7e166b3c6cb08952f45ac29d8cfe561cabee88d906fdd5c98fb7cbda8f5d47431a3
+  version: 10.1.0
+  resolution: "lru-cache@npm:10.1.0"
+  checksum: 207278d6fa711fb1f94a0835d4d4737441d2475302482a14785b10515e4c906a57ebf9f35bf060740c9560e91c7c1ad5a04fd7ed030972a9ba18bce2a228e95b
   languageName: node
   linkType: hard
 
@@ -1816,15 +1816,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minimatch@npm:^7.4.3":
-  version: 7.4.6
-  resolution: "minimatch@npm:7.4.6"
-  dependencies:
-    brace-expansion: "npm:^2.0.1"
-  checksum: 0046ba1161ac6414bde1b07c440792ebcdb2ed93e6714c85c73974332b709b7e692801550bc9da22028a8613407b3f13861e17dd0dd44f4babdeacd44950430b
-  languageName: node
-  linkType: hard
-
 "minimatch@npm:^9.0.1, minimatch@npm:^9.0.3":
   version: 9.0.3
   resolution: "minimatch@npm:9.0.3"
@@ -1841,12 +1832,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"minipass-collect@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "minipass-collect@npm:1.0.2"
+"minipass-collect@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "minipass-collect@npm:2.0.1"
   dependencies:
-    minipass: "npm:^3.0.0"
-  checksum: 14df761028f3e47293aee72888f2657695ec66bd7d09cae7ad558da30415fdc4752bbfee66287dcc6fd5e6a2fa3466d6c484dc1cbd986525d9393b9523d97f10
+    minipass: "npm:^7.0.3"
+  checksum: b251bceea62090f67a6cced7a446a36f4cd61ee2d5cea9aee7fff79ba8030e416327a1c5aa2908dc22629d06214b46d88fdab8c51ac76bacbf5703851b5ad342
   languageName: node
   linkType: hard
 
@@ -1934,12 +1925,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:^2.1.6":
-  version: 2.1.6
-  resolution: "mkdirp@npm:2.1.6"
+"mkdirp@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "mkdirp@npm:3.0.1"
   bin:
     mkdirp: dist/cjs/src/bin.js
-  checksum: 4672fadb94dca8d2eafeb6fff53f2c5ea74e885565ef23251791709064f216105167c2387088c61ef068901bd0776648999785e341d74728164fa551b1c65996
+  checksum: 16fd79c28645759505914561e249b9a1f5fe3362279ad95487a4501e4467abeb714fd35b95307326b8fd03f3c7719065ef11a6f97b7285d7888306d1bd2232ba
   languageName: node
   linkType: hard
 
@@ -1971,7 +1962,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mux.js@npm:7.0.1, mux.js@npm:^7.0.1":
+"mux.js@npm:7.0.1":
   version: 7.0.1
   resolution: "mux.js@npm:7.0.1"
   dependencies:
@@ -1980,6 +1971,18 @@ __metadata:
   bin:
     muxjs-transmux: bin/transmux.js
   checksum: 42f666fc23bcc59174b7579fdb4f6a370affca9baecc071a77b1eabe89c7ad62ca6b1e100730d359cc33e3d3bce45fad8165c2b90cfe4c37c559bb915bbd2859
+  languageName: node
+  linkType: hard
+
+"mux.js@npm:^7.0.1":
+  version: 7.0.2
+  resolution: "mux.js@npm:7.0.2"
+  dependencies:
+    "@babel/runtime": "npm:^7.11.2"
+    global: "npm:^4.4.0"
+  bin:
+    muxjs-transmux: bin/transmux.js
+  checksum: fd8c7fa9dec408f8655d1db590598bdae79e18ba119edba76d12ae5af9e4a2181d3368948d6e280587e6fd2295074ac3c0462c89e7e256888d902a826ba35557
   languageName: node
   linkType: hard
 
@@ -2633,13 +2636,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-morph@npm:20.0.0":
-  version: 20.0.0
-  resolution: "ts-morph@npm:20.0.0"
+"ts-morph@npm:21.0.1":
+  version: 21.0.1
+  resolution: "ts-morph@npm:21.0.1"
   dependencies:
-    "@ts-morph/common": "npm:~0.21.0"
+    "@ts-morph/common": "npm:~0.22.0"
     code-block-writer: "npm:^12.0.0"
-  checksum: e93cf96fd347d45c1031de90f50146707959e1564d6e0bdd4abefc32004717f4f2adf5e155956c80f04fca55f6f1bce79193077c0041616ce9fe619bc15159d0
+  checksum: 6e83a696807b44625c7eff01a074ba655c4a53e72a9000fe1fae6deba180549edbf36ebabb48027ed2af9b6d101f23e8d935e1e52a698c476a25153d6f5eed01
   languageName: node
   linkType: hard
 
