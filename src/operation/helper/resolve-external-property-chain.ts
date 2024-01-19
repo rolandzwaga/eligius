@@ -17,11 +17,15 @@ import { getGlobals } from './globals';
 export function resolveExternalPropertyChain(
   sourceObject: TOperationData,
   operationContext: IOperationContext,
-  propertyChainOrRegularObject: ExternalProperty|Record<string,any>
+  propertyChainOrRegularObject: ExternalProperty|Record<string,any>|null|undefined
 ) {
+  if (propertyChainOrRegularObject === null || propertyChainOrRegularObject === undefined) {
+    return null;
+  }
+
   if (isExternalProperty(propertyChainOrRegularObject)) {
     const propNames = propertyChainOrRegularObject.split('.');
-    const prefix = propNames.shift()?.toLowerCase();
+    const prefix = propNames.shift()!.toLowerCase();
     switch (prefix) {
       case 'operationdata':
         return getPropertyChainValue(propNames, sourceObject);
@@ -35,8 +39,8 @@ export function resolveExternalPropertyChain(
   return propertyChainOrRegularObject;
 }
 
-function isExternalProperty(value: ExternalProperty|Record<string,any>): value is ExternalProperty {
-  return typeof value === "string";
+export function isExternalProperty(value: ExternalProperty|Record<string,any>): value is ExternalProperty {
+  return (typeof value === "string" && (value.toLocaleLowerCase().startsWith('operationdata.') || (value.toLocaleLowerCase().startsWith('globaldata.')) || (value.toLocaleLowerCase().startsWith('context.'))));
 }
 
 export type ExternalProperty = `operationdata.${string}` | `globaldata.${string}` | `context.${string}`;

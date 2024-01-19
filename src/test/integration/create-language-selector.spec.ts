@@ -138,7 +138,7 @@ CreateOptionList(
       }
     );
     context.engine = engineFactory.createEngine(
-      context.configuration as IEngineConfiguration
+      context.configuration
     );
 
     try {

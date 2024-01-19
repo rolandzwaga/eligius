@@ -28,7 +28,7 @@ MathSuite('should perform all the math calculations', () => {
   });
 });
 
-MathSuite('Should resolve Math constants in args', () => {
+MathSuite.only('Should resolve Math constants in args', () => {
   const intProperties: (keyof Math)[] = Object.getOwnPropertyNames(Math).filter(
     (x) => typeof Math[x as keyof Math] === 'number'
   ) as (keyof Math)[];

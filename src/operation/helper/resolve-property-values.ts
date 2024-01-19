@@ -3,7 +3,7 @@ import { IOperationContext, TOperationData } from '../../operation/types';
 import { isObject } from '../../util/guards/is-object';
 import { isString } from '../../util/guards/is-string';
 import { deepCopy } from './deep-copy';
-import { resolveExternalPropertyChain } from './resolve-external-property-chain';
+import { ExternalProperty, isExternalProperty, resolveExternalPropertyChain } from './resolve-external-property-chain';
 
 const cache: any[] = [];
 
@@ -38,7 +38,7 @@ export function resolvePropertyValues<T extends TOperationData>(
 function resolveNewProperties(
   properties: Record<string, any>,
   copy: Record<string, any>,
-  resolvePropertyChain: (propertyChain: string) => any
+  resolvePropertyChain: (propertyChain: ExternalProperty|Record<string, any>) => any
 ) {
   // Prevent recursive looping
   if (cache.indexOf(properties) > -1) {
@@ -53,13 +53,13 @@ function resolveNewProperties(
         return;
       }
 
-      if (isString(value)) {
+      if (isExternalProperty(value)) {
         copy[key] = resolvePropertyChain(value);
       } else if (Array.isArray(value)) {
         value.forEach((item, index, arr) => {
-          if (isString(item)) {
+          if (isExternalProperty(item)) {
             arr[index] = resolvePropertyChain(item);
-          } else {
+          } else if (isObject(item)){
             resolveNewProperties(item, item, resolvePropertyChain);
           }
         });

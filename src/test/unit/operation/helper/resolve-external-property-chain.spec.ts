@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { suite } from 'uvu';
 import { IOperationContext } from '../../../../operation';
 import { removeGlobal } from '../../../../operation/helper/remove-global';
-import { resolveExternalPropertyChain } from '../../../../operation/helper/resolve-external-property-chain';
+import { ExternalProperty, resolveExternalPropertyChain } from '../../../../operation/helper/resolve-external-property-chain';
 import { setGlobal } from '../../../../operation/helper/set-global';
 
 const ResolveExternalPropertyChainSuite = suite('resolveExternalPropertyChain');
@@ -29,7 +29,7 @@ ResolveExternalPropertyChainSuite(
     const value = resolveExternalPropertyChain(
       operationData,
       operationContext,
-      operationData.operationDataArgument
+      operationData.operationDataArgument as ExternalProperty
     );
 
     // expect
@@ -50,7 +50,7 @@ ResolveExternalPropertyChainSuite(
     const value = resolveExternalPropertyChain(
       operationData,
       operationContext,
-      operationData.operationDataArgument
+      operationData.operationDataArgument as ExternalProperty
     );
 
     // expect
@@ -71,7 +71,7 @@ ResolveExternalPropertyChainSuite(
     const value = resolveExternalPropertyChain(
       operationData,
       operationContext,
-      operationData.operationDataArgument
+      operationData.operationDataArgument as ExternalProperty
     );
 
     // expect

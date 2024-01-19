@@ -1,5 +1,5 @@
 import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
-import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
+import { ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
 import { IOperationContext, TOperation } from './types';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
@@ -62,11 +62,11 @@ function parseExpression(
 
   return [
     (isNaN(leftNr)
-      ? resolveExternalPropertyChain(operationData, operationContext, left)
+      ? resolveExternalPropertyChain(operationData, operationContext, left as ExternalProperty)
       : leftNr) as TValue,
     operator,
     (isNaN(rightNr)
-      ? resolveExternalPropertyChain(operationData, operationContext, right)
+      ? resolveExternalPropertyChain(operationData, operationContext, right as ExternalProperty)
       : rightNr) as TValue,
   ];
 }
