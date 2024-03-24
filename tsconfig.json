@@ -7,8 +7,8 @@
   },
   "compilerOptions": {
     "module": "NodeNext",
-    "target": "es2020",
-    "lib": ["dom", "es2020"],
+    "target": "ESNext",
+    "lib": ["dom", "ESNext"],
     "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
@@ -19,7 +19,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "moduleResolution": "NodeNext",
-    "jsx": "react",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

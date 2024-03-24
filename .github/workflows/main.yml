@@ -7,14 +7,14 @@ on:
       - '**'
 jobs:
   build:
-    name: Build, lint, and test on Node 16 and ubuntu-latest
+    name: Build, lint, and test on Node 18 and windows-latest
 
     runs-on: windows-latest
 
     steps:
       - name: Cache gtk and libjpg downloads
         id: cache-cairo-deps
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-cairo-deps-
           path: |
@@ -46,25 +46,26 @@ jobs:
           FORCE_COLOR: 0
         with:
           node-version: 18
-          cache: 'yarn'
+          cache: 'npm'
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+      - name: Get npm cache directory
+        id: npm-cache-dir
+        shell: bash
+        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
 
-      - uses: actions/cache@v3
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - uses: actions/cache@v4
+        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          path: ${{ steps.npm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: yarn
+        run: npm ci
 
       - name: Test
-        run: yarn test --ci --coverage --maxWorkers=2
+        run: npm run test --ci --coverage --maxWorkers=2
 
       - name: Build
-        run: yarn build
+        run: npm run build
