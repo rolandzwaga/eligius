@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { v4 as uuidv4 } from 'uuid';
-import videojs, { ReadyCallback } from 'video.js';
-import Player from 'video.js/dist/types/player';
+import videojs from 'video.js';
+import Player, { type PlayerReadyCallback } from 'video.js/dist/types/player';
 import { IResolvedEngineConfiguration } from '../configuration/types';
 import { ITimelineProvider, TPlayState } from './types';
 
@@ -53,7 +53,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
             self._handleTimeUpdate.bind(self)
           );
           this.load();
-        } as ReadyCallback);
+        } as PlayerReadyCallback);
 
       }, 0);
     });
