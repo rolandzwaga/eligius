@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import type { IEventbus } from '../../../eventbus/types.ts';
 import {
   type ISelectElementOperationData,
@@ -31,11 +31,8 @@ class MockElement {
   }
 }
 
-const SelectElementSuite = suite('selectElement');
-
-SelectElementSuite(
-  'should select the element based on the specified selector',
-  () => {
+describe('selectElement', () => {
+  test('should select the element based on the specified selector', () => {
     // given
     const selectedElement = {
       length: 1,
@@ -56,12 +53,8 @@ SelectElementSuite(
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
     expect(mockElement.selector).to.equal('.testClass');
-  }
-);
-
-SelectElementSuite(
-  'should select the element based on the resolved selector',
-  () => {
+  });
+  test('should select the element based on the resolved selector', () => {
     // given
     const selectedElement = {
       length: 1,
@@ -82,12 +75,8 @@ SelectElementSuite(
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
-  }
-);
-
-SelectElementSuite(
-  'should select the element based on the specified selector from the existing root',
-  () => {
+  });
+  test('should select the element based on the specified selector from the existing root', () => {
     // given
     const selectedElement = {
       length: 1,
@@ -107,7 +96,5 @@ SelectElementSuite(
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
-  }
-);
-
-SelectElementSuite.run();
+  });
+});

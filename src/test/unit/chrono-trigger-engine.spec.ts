@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';
-import { suite } from 'uvu';
+import { afterEach, beforeEach, describe, test } from 'vitest';
 import { EligiusEngine } from '../../eligius-engine.ts';
 import type { IEventbus } from '../../eventbus/index.ts';
 
@@ -10,7 +10,7 @@ class LanguageManagerStub {
     public language: string,
     public labels: any[],
     public eventbus: any
-  ) {}
+  ) { }
 }
 
 interface SuiteContext {
@@ -19,20 +19,6 @@ interface SuiteContext {
   providers: any;
   languageManager: any;
 }
-
-const EligiusEngineSuite = suite<SuiteContext>('EligiusEngine');
-
-EligiusEngineSuite.before.each((context) => {
-  context.configuration = {};
-  context.eventbus = {} as unknown as IEventbus;
-  context.providers = {};
-  context.languageManager = {};
-  $('<div class="test"/>').appendTo(document.body);
-});
-
-EligiusEngineSuite.after.each(() => {
-  $('.test').remove();
-});
 
 function setupLayoutInit(context: SuiteContext) {
   context.configuration.layoutTemplate = '<div class="layout"/>';
@@ -45,38 +31,45 @@ function setupEventbus(context: SuiteContext) {
   } as unknown as IEventbus;
 }
 
-EligiusEngineSuite('should create an engine', (context) => {
-  // test
-  const engine = new EligiusEngine(
-    context.configuration,
-    context.eventbus,
-    context.providers,
-    context.languageManager
-  );
+describe<SuiteContext>('EligiusEngine', () => {
+  beforeEach<SuiteContext>((context) => {
+    context.configuration = {};
+    context.eventbus = {} as unknown as IEventbus;
+    context.providers = {};
+    context.languageManager = {};
+    $('<div class="test"/>').appendTo(document.body);
+  });
+  afterEach(() => {
+    $('.test').remove();
+  });
+  test<SuiteContext>('should create an engine', (context) => {
+    // test
+    const engine = new EligiusEngine(
+      context.configuration,
+      context.eventbus,
+      context.providers,
+      context.languageManager
+    );
 
-  // expect
-  expect(engine).to.not.equal(null);
-});
+    // expect
+    expect(engine).to.not.equal(null);
+  });
+  test<SuiteContext>('should create the layout template', (context) => {
+    // given
+    setupLayoutInit(context);
 
-EligiusEngineSuite('should create the layout template', (context) => {
-  // given
-  setupLayoutInit(context);
+    const engine = new EligiusEngine(
+      context.configuration,
+      context.eventbus,
+      context.providers,
+      context.languageManager
+    );
 
-  const engine = new EligiusEngine(
-    context.configuration,
-    context.eventbus,
-    context.providers,
-    context.languageManager
-  );
-
-  // test
-  (engine as any)._createLayoutTemplate();
-  expect($('.layout').length).to.equal(1);
-});
-
-EligiusEngineSuite(
-  'should throw an error when container selector cannot be resolved',
-  (context) => {
+    // test
+    (engine as any)._createLayoutTemplate();
+    expect($('.layout').length).to.equal(1);
+  });
+  test<SuiteContext>('should throw an error when container selector cannot be resolved', (context) => {
     // given
     context.configuration.containerSelector = '.test_does_not_exist';
     let error: any = null;
@@ -99,12 +92,8 @@ EligiusEngineSuite(
     expect(error.message).to.equal(
       'Container selector not found: .test_does_not_exist'
     );
-  }
-);
-
-EligiusEngineSuite(
-  'should initialize end duration to Infinity for timeline actions with an end value below zero',
-  (context) => {
+  });
+  test<SuiteContext>('should initialize end duration to Infinity for timeline actions with an end value below zero', (context) => {
     // given
     setupLayoutInit(context);
     setupEventbus(context);
@@ -122,8 +111,8 @@ EligiusEngineSuite(
               start: 1,
               end: -1,
             },
-            start: () => {},
-            end: () => {},
+            start: () => { },
+            end: () => { },
           },
           {
             name: 'testname2',
@@ -131,8 +120,8 @@ EligiusEngineSuite(
               start: 1,
               end: 10,
             },
-            start: () => {},
-            end: () => {},
+            start: () => { },
+            end: () => { },
           },
         ],
       },
@@ -141,11 +130,11 @@ EligiusEngineSuite(
       animation: {
         provider: {
           init: () => Promise.resolve(),
-          on: () => {},
-          onTime: () => {},
-          onComplete: () => {},
-          onFirstFrame: () => {},
-          onRestart: () => {},
+          on: () => { },
+          onTime: () => { },
+          onComplete: () => { },
+          onFirstFrame: () => { },
+          onRestart: () => { },
         },
       },
     };
@@ -167,7 +156,5 @@ EligiusEngineSuite(
     expect(
       context.configuration.timelines[0].timelineActions[1].duration.end
     ).to.equal(10);
-  }
-);
-
-EligiusEngineSuite.run();
+  });
+});

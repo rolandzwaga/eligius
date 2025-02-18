@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import type { TOperationData } from '../../../operation/index.ts';
 import { resizeAction } from '../../../operation/resize-action.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
@@ -11,11 +11,8 @@ class MockAction {
   }
 }
 
-const ResizeActionSuite = suite('resizeAction');
-
-ResizeActionSuite(
-  'should call the resize method on an action if it exists',
-  () => {
+describe('resizeAction', () => {
+  test('should call the resize method on an action if it exists', () => {
     // given
     const mockAction = new MockAction();
     const operationData = {
@@ -30,7 +27,5 @@ ResizeActionSuite(
 
     // expect
     expect(mockAction.operationData).to.equal(newData);
-  }
-);
-
-ResizeActionSuite.run();
+  });
+});

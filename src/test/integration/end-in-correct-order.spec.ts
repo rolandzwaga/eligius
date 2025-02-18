@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { ConfigurationFactory } from '../../configuration/api/index.ts';
 import { EngineFactory } from '../../engine-factory.ts';
 import { Eventbus } from '../../eventbus/index.ts';
@@ -10,12 +10,8 @@ import {
   selectElement,
   setElementContent,
 } from '../../operation/index.ts';
-
-const EndInCorrectOrder = suite('EndInCorrectOrder');
-
-EndInCorrectOrder(
-  'The ending of actions need to be called in reverse order',
-  async () => {
+describe('EndInCorrectOrder', () => {
+  test('The ending of actions need to be called in reverse order', async () => {
     $('<div data-ct-container=true></div>').appendTo(document.body);
     const factory = new ConfigurationFactory();
     factory.init('nl-NL');
@@ -75,7 +71,5 @@ EndInCorrectOrder(
     await engine.init();
 
     await engine.destroy();
-  }
-);
-
-EndInCorrectOrder.run();
+  });
+});

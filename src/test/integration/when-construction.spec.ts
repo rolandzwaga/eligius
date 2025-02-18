@@ -1,21 +1,22 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import { Action } from '../../action/index.ts';
 import { Eventbus } from '../../eventbus/index.ts';
-import { otherwise } from '../../operation/index.ts';
 import { endWhen } from '../../operation/end-when.ts';
+import { otherwise } from '../../operation/index.ts';
 import { type IWhenOperationData, when } from '../../operation/when.ts';
 
-const WhenConstruction = suite<{ action: Action }>('whenConstruction');
+type WhenConstructionContext = { action: Action } & TestContext;
 
-WhenConstruction.before.each((context) => {
-  const eventBus = new Eventbus();
-  context.action = new Action('test', [], eventBus);
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<WhenConstructionContext>('whenConstruction', () => {
+  beforeEach((context) => {
+    withContext<WhenConstructionContext>(context);
 
-WhenConstruction(
-  'should set operationdata.foo to true because expression evaluates to true',
-  async (context) => {
+    const eventBus = new Eventbus();
+    context.action = new Action('test', [], eventBus);
+  });
+  test<WhenConstructionContext>('should set operationdata.foo to true because expression evaluates to true', async (context) => {
     const { action } = context;
 
     const op1 = {
@@ -30,7 +31,7 @@ WhenConstruction(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.foo = true;
         return op;
       },
@@ -50,12 +51,8 @@ WhenConstruction(
 
     // expect
     expect(operationData?.foo).to.be.true;
-  }
-);
-
-WhenConstruction(
-  'should leave operationdata.foo undefined because expression evaluates to false',
-  async (context) => {
+  });
+  test<WhenConstructionContext>('should leave operationdata.foo undefined because expression evaluates to false', async (context) => {
     const { action } = context;
 
     action.startOperations.push({
@@ -70,7 +67,7 @@ WhenConstruction(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.foo = true;
         return op;
       },
@@ -87,12 +84,8 @@ WhenConstruction(
 
     // expect
     expect(operationData?.foo).to.be.undefined;
-  }
-);
-
-WhenConstruction(
-  'should continue executing after endWhen when expression evaluates to false',
-  async (context) => {
+  });
+  test<WhenConstructionContext>('should continue executing after endWhen when expression evaluates to false', async (context) => {
     const { action } = context;
 
     const op1 = {
@@ -107,7 +100,7 @@ WhenConstruction(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.foo = true;
         return op;
       },
@@ -122,7 +115,7 @@ WhenConstruction(
       id: 'id4',
       systemName: 'systemNam3',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.continued = true;
         return op;
       },
@@ -138,12 +131,8 @@ WhenConstruction(
     // expect
     expect(operationData?.foo).to.be.undefined;
     expect(operationData?.continued).to.be.true;
-  }
-);
-
-WhenConstruction(
-  'should continue executing after otherwise when expression evaluates to false',
-  async (context) => {
+  });
+  test<WhenConstructionContext>('should continue executing after otherwise when expression evaluates to false', async (context) => {
     const { action } = context;
 
     const op1 = {
@@ -158,7 +147,7 @@ WhenConstruction(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.foo = true;
         return op;
       },
@@ -173,7 +162,7 @@ WhenConstruction(
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.bar = true;
         return op;
       },
@@ -188,7 +177,7 @@ WhenConstruction(
       id: 'id6',
       systemName: 'systemNam3',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.continued = true;
         return op;
       },
@@ -207,12 +196,8 @@ WhenConstruction(
     expect(operationData?.foo).to.be.undefined;
     expect(operationData?.bar).to.be.true;
     expect(operationData?.continued).to.be.true;
-  }
-);
-
-WhenConstruction(
-  'should stop executing after otherwise when expression evaluates to true',
-  async (context) => {
+  });
+  test<WhenConstructionContext>('should stop executing after otherwise when expression evaluates to true', async (context) => {
     const { action } = context;
 
     const op1 = {
@@ -227,7 +212,7 @@ WhenConstruction(
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.foo = true;
         return op;
       },
@@ -242,7 +227,7 @@ WhenConstruction(
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.bar = true;
         return op;
       },
@@ -257,7 +242,7 @@ WhenConstruction(
       id: 'id6',
       systemName: 'systemNam3',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.continued = true;
         return op;
       },
@@ -276,12 +261,8 @@ WhenConstruction(
     expect(operationData?.foo).to.be.true;
     expect(operationData?.bar).to.be.undefined;
     expect(operationData?.continued).to.be.true;
-  }
-);
-
-WhenConstruction(
-  'should support nested when/otherwises with nested when evaluating to false',
-  async (context) => {
+  });
+  test<WhenConstructionContext>('should support nested when/otherwises with nested when evaluating to false', async (context) => {
     const { action } = context;
 
     action.startOperations.push({
@@ -304,7 +285,7 @@ WhenConstruction(
       id: 'id3',
       systemName: 'when',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.notSet = true;
         return op;
       },
@@ -327,12 +308,8 @@ WhenConstruction(
 
     // expect
     expect(operationData?.notSet).to.be.undefined;
-  }
-);
-
-WhenConstruction(
-  "should support nested when/otherwises with inner 'when' evaluating to true",
-  async (context) => {
+  });
+  test<WhenConstructionContext>("should support nested when/otherwises with inner 'when' evaluating to true", async (context) => {
     const { action } = context;
 
     action.startOperations.push({
@@ -355,7 +332,7 @@ WhenConstruction(
       id: 'id3',
       systemName: 'when',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.notSet = true;
         return op;
       },
@@ -378,12 +355,8 @@ WhenConstruction(
 
     // expect
     expect(operationData?.notSet).to.be.true;
-  }
-);
-
-WhenConstruction(
-  "should support nested when/otherwises with outer 'when' evaluating to false",
-  async (context) => {
+  });
+  test<WhenConstructionContext>("should support nested when/otherwises with outer 'when' evaluating to false", async (context) => {
     const { action } = context;
 
     action.startOperations.push({
@@ -406,7 +379,7 @@ WhenConstruction(
       id: 'id3',
       systemName: 'when',
       operationData: {},
-      instance: function (op: any) {
+      instance: function(op: any) {
         op.notSet = true;
         return op;
       },
@@ -429,7 +402,5 @@ WhenConstruction(
 
     // expect
     expect(operationData?.notSet).to.be.undefined;
-  }
-);
-
-WhenConstruction.run();
+  });
+});

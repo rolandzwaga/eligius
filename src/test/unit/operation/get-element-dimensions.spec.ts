@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { getElementDimensions } from '../../../operation/get-element-dimensions.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
@@ -21,31 +21,27 @@ class MockElement {
   }
 }
 
-const GetElementDimensionsSuite = suite('getElementDimensions');
+describe('getElementDimensions', () => {
+  test("should get the given element's dimensions", () => {
+    // given
 
-GetElementDimensionsSuite("should get the given element's dimensions", () => {
-  // given
+    const mockElement = new MockElement(100, 200);
 
-  const mockElement = new MockElement(100, 200);
+    const operationData = {
+      selectedElement: mockElement as any as JQuery,
+      modifier: '',
+    };
 
-  const operationData = {
-    selectedElement: mockElement as any as JQuery,
-    modifier: '',
-  };
+    // test
+    const newData = applyOperation<{
+      dimensions: { width: number; height: number };
+    }>(getElementDimensions, operationData);
 
-  // test
-  const newData = applyOperation<{
-    dimensions: { width: number; height: number };
-  }>(getElementDimensions, operationData);
-
-  // expect
-  expect(newData.dimensions.width).to.equal(100);
-  expect(newData.dimensions.height).to.equal(200);
-});
-
-GetElementDimensionsSuite(
-  "should get the given element's dimensions and set the height to the width if the height is 0",
-  () => {
+    // expect
+    expect(newData.dimensions.width).to.equal(100);
+    expect(newData.dimensions.height).to.equal(200);
+  });
+  test("should get the given element's dimensions and set the height to the width if the height is 0", () => {
     // given
 
     const mockElement = new MockElement(100, 0);
@@ -63,12 +59,8 @@ GetElementDimensionsSuite(
     // expect
     expect(newData.dimensions.width).to.equal(100);
     expect(newData.dimensions.height).to.equal(100);
-  }
-);
-
-GetElementDimensionsSuite(
-  "should get the given element's dimensions and use the given modifier",
-  () => {
+  });
+  test("should get the given element's dimensions and use the given modifier", () => {
     // given
 
     const mockElement = new MockElement(100, 0);
@@ -86,7 +78,5 @@ GetElementDimensionsSuite(
     // expect
     expect(newData.dimensions.width).to.equal(200);
     expect(newData.dimensions.height).to.equal(200);
-  }
-);
-
-GetElementDimensionsSuite.run();
+  });
+});

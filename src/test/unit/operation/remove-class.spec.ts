@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { removeClass } from '../../../operation/remove-class.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
@@ -11,21 +11,19 @@ class MockElement {
   }
 }
 
-const RemoveClassSuite = suite('removeClass');
+describe('removeClass', () => {
+  test('should remove the class from the given element', () => {
+    // given
+    const mockElement = new MockElement();
+    const operationData = {
+      selectedElement: mockElement as any as JQuery,
+      className: 'testClass',
+    };
 
-RemoveClassSuite('should remove the class from the given element', () => {
-  // given
-  const mockElement = new MockElement();
-  const operationData = {
-    selectedElement: mockElement as any as JQuery,
-    className: 'testClass',
-  };
+    // test
+    applyOperation(removeClass, operationData);
 
-  // test
-  applyOperation(removeClass, operationData);
-
-  // expect
-  expect(mockElement.removedClassName).to.equal(operationData.className);
+    // expect
+    expect(mockElement.removedClassName).to.equal(operationData.className);
+  });
 });
-
-RemoveClassSuite.run();

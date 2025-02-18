@@ -1,11 +1,6 @@
 {
-  "include": ["src"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  },
   "compilerOptions": {
+    "baseUrl": "src",
     "module": "NodeNext",
     "target": "ESNext",
     "lib": ["dom", "ESNext"],

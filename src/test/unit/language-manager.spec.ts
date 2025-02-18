@@ -1,41 +1,15 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import type { IEventbus } from '../../eventbus/index.ts';
 import { LanguageManager } from '../../language-manager.ts';
 import type { ILanguageLabel } from '../../types.ts';
 
-const LanguageManagerSuite = suite<{
+type LanguageManagerSuiteContext = {
   eventbus: IEventbus;
   language: string;
   labels: ILanguageLabel[];
   subscriptions: any[];
-}>('LanguageManager');
-
-LanguageManagerSuite.before.each((context) => {
-  context.language = 'nl-NL';
-  context.labels = [];
-  context.subscriptions = [];
-
-  context.eventbus = {
-    on: (name: string, handler: () => void) => {
-      context.subscriptions.push({ name, handler });
-    },
-    broadcast: (_name: string, _args: any[]) => {},
-  } as IEventbus;
-});
-
-LanguageManagerSuite(
-  'should create an instance and add the needed event listeners',
-  (context) => {
-    const { language, labels, eventbus, subscriptions } = context;
-    const languageManager = new LanguageManager(language, labels, eventbus);
-    expect(languageManager).to.be.not.undefined;
-    expect(subscriptions.length).to.equal(4);
-  }
-);
-
-LanguageManagerSuite.run();
-
+} & TestContext;
 /*it('should return the current language', () => {
     const languageManager = new LanguageManager(language, labels, eventbus);
     languageManager._handleRequestCurrentLanguage((current) => {
@@ -121,3 +95,26 @@ LanguageManagerSuite.run();
     expect(error).to.not.equal(null);
   });
   */
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<LanguageManagerSuiteContext>('LanguageManager', () => {
+  beforeEach((context) => {
+    withContext<LanguageManagerSuiteContext>(context);
+
+    context.language = 'nl-NL';
+    context.labels = [];
+    context.subscriptions = [];
+
+    context.eventbus = {
+      on: (name: string, handler: () => void) => {
+        context.subscriptions.push({ name, handler });
+      },
+      broadcast: (_name: string, _args: any[]) => { },
+    } as IEventbus;
+  });
+  test<LanguageManagerSuiteContext>('should create an instance and add the needed event listeners', (context) => {
+    const { language, labels, eventbus, subscriptions } = context;
+    const languageManager = new LanguageManager(language, labels, eventbus);
+    expect(languageManager).to.be.not.undefined;
+    expect(subscriptions.length).to.equal(4);
+  });
+});

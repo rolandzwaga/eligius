@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import {
   ActionEditor,
   EndableActionEditor,
@@ -12,61 +12,59 @@ import type {
   ITimelineActionConfiguration,
 } from '../../../../configuration/types.ts';
 
-const ConfigurationFactorySuite = suite<{
+type ConfigurationFactorySuiteContext = {
   configurationFactory: ConfigurationFactory;
-}>('ConfigurationFactory');
+} & TestContext;
 
-ConfigurationFactorySuite.before.each((context) => {
-  context.configurationFactory = new ConfigurationFactory();
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
+  beforeEach((context) => {
+    withContext<ConfigurationFactorySuiteContext>(context);
 
-ConfigurationFactorySuite('should initialize a config', (context) => {
-  //given
-  const { configurationFactory } = context;
-  // test
-  configurationFactory.init('nl-NL');
+    context.configurationFactory = new ConfigurationFactory();
+  });
+  test<ConfigurationFactorySuiteContext>('should initialize a config', (context) => {
+    //given
+    const { configurationFactory } = context;
+    // test
+    configurationFactory.init('nl-NL');
 
-  // expect
-  const { configuration } = configurationFactory;
-  expect(configuration.id).not.to.be.undefined;
-  expect(configuration.engine.systemName).to.equal('EligiusEngine');
-  expect(configuration.containerSelector).to.equal('[data-ct-container=true]');
-  expect(configuration.timelineProviderSettings).to.deep.equal({});
-  expect(configuration.language).to.equal('nl-NL');
-  expect(configuration.availableLanguages.length).to.equal(0);
-});
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.id).not.to.be.undefined;
+    expect(configuration.engine.systemName).to.equal('EligiusEngine');
+    expect(configuration.containerSelector).to.equal('[data-ct-container=true]');
+    expect(configuration.timelineProviderSettings).to.deep.equal({});
+    expect(configuration.language).to.equal('nl-NL');
+    expect(configuration.availableLanguages.length).to.equal(0);
+  });
+  test<ConfigurationFactorySuiteContext>('should set the container selector', (context) => {
+    // given
+    const { configurationFactory } = context;
+    configurationFactory.init('nl-NL');
+    const selector = 'selector';
 
-ConfigurationFactorySuite('should set the container selector', (context) => {
-  // given
-  const { configurationFactory } = context;
-  configurationFactory.init('nl-NL');
-  const selector = 'selector';
+    // test
+    configurationFactory.setContainerSelector(selector);
 
-  // test
-  configurationFactory.setContainerSelector(selector);
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.containerSelector).to.equal(selector);
+  });
+  test<ConfigurationFactorySuiteContext>('should set the default language', (context) => {
+    // given
+    const { configurationFactory } = context;
+    configurationFactory.init('nl-NL');
+    const language = 'en-US';
 
-  // expect
-  const { configuration } = configurationFactory;
-  expect(configuration.containerSelector).to.equal(selector);
-});
+    // test
+    configurationFactory.setDefaultLanguage(language);
 
-ConfigurationFactorySuite('should set the default language', (context) => {
-  // given
-  const { configurationFactory } = context;
-  configurationFactory.init('nl-NL');
-  const language = 'en-US';
-
-  // test
-  configurationFactory.setDefaultLanguage(language);
-
-  // expect
-  const { configuration } = configurationFactory;
-  expect(configuration.language).to.equal(language);
-});
-
-ConfigurationFactorySuite(
-  'should return a timeline provider editor',
-  (context) => {
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.language).to.equal(language);
+  });
+  test<ConfigurationFactorySuiteContext>('should return a timeline provider editor', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -76,28 +74,23 @@ ConfigurationFactorySuite(
 
     // expect
     expect(editor).to.be.an.instanceOf(TimelineProvidersSettingsEditor);
-  }
-);
+  });
+  test<ConfigurationFactorySuiteContext>('should add the given language', (context) => {
+    // given
+    const { configurationFactory } = context;
+    configurationFactory.init('nl-NL');
 
-ConfigurationFactorySuite('should add the given language', (context) => {
-  // given
-  const { configurationFactory } = context;
-  configurationFactory.init('nl-NL');
+    // test
+    configurationFactory.addLanguage('en-US', 'English');
 
-  // test
-  configurationFactory.addLanguage('en-US', 'English');
-
-  // expect
-  const { configuration } = configurationFactory;
-  expect(configuration.availableLanguages.length).to.equal(1);
-  const lang = configuration.availableLanguages[0];
-  expect(lang.languageCode).to.equal('en-US');
-  expect(lang.label).to.equal('English');
-});
-
-ConfigurationFactorySuite(
-  'addAction should add the specified action',
-  (context) => {
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.availableLanguages.length).to.equal(1);
+    const lang = configuration.availableLanguages[0];
+    expect(lang.languageCode).to.equal('en-US');
+    expect(lang.label).to.equal('English');
+  });
+  test<ConfigurationFactorySuiteContext>('addAction should add the specified action', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -110,12 +103,8 @@ ConfigurationFactorySuite(
     const { configuration } = configurationFactory;
     expect(configuration.actions.length).to.equal(1);
     expect(configuration.actions[0]).to.equal(action);
-  }
-);
-
-ConfigurationFactorySuite(
-  'addInitAction should add the specified initAction',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('addInitAction should add the specified initAction', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -128,12 +117,8 @@ ConfigurationFactorySuite(
     const { configuration } = configurationFactory;
     expect(configuration.initActions.length).to.equal(1);
     expect(configuration.initActions[0]).to.equal(action);
-  }
-);
-
-ConfigurationFactorySuite(
-  'addEventAction should add the specified eventAction',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('addEventAction should add the specified eventAction', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -146,12 +131,8 @@ ConfigurationFactorySuite(
     const { configuration } = configurationFactory;
     expect(configuration.eventActions?.length).to.equal(1);
     expect(configuration.eventActions?.[0]).to.equal(action);
-  }
-);
-
-ConfigurationFactorySuite(
-  'addTimelineAction should throw error when timeline is not found for given uri',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('addTimelineAction should throw error when timeline is not found for given uri', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -163,12 +144,8 @@ ConfigurationFactorySuite(
         {} as ITimelineActionConfiguration
       )
     ).throws("No timeline found for uri 'test'");
-  }
-);
-
-ConfigurationFactorySuite(
-  'addTimeline should add the specified timeline',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('addTimeline should add the specified timeline', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -190,12 +167,8 @@ ConfigurationFactorySuite(
     expect(timeline?.duration).to.equal(100);
     expect(timeline?.loop).to.be.false;
     expect(timeline?.selector).to.equal('selector');
-  }
-);
-
-ConfigurationFactorySuite(
-  'addTimeline should throw an error when a timeline with the given uri already exists',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('addTimeline should throw an error when a timeline with the given uri already exists', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -217,12 +190,8 @@ ConfigurationFactorySuite(
         'selector'
       )
     ).throws('timeline for uri test already exists');
-  }
-);
-
-ConfigurationFactorySuite(
-  'addTimelineAction should add the specified action',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('addTimelineAction should add the specified action', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -245,12 +214,8 @@ ConfigurationFactorySuite(
     const timeline = configurationFactory.getTimeline('test');
     expect(timeline?.timelineActions.length).to.equal(1);
     expect(timeline?.timelineActions[0]).to.equal(action);
-  }
-);
-
-ConfigurationFactorySuite(
-  'removeTimeline should remove the timeline for the given uri',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('removeTimeline should remove the timeline for the given uri', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -268,28 +233,23 @@ ConfigurationFactorySuite(
     // expect
     const { configuration } = configurationFactory;
     expect(configuration.timelines.length).to.equal(0);
-  }
-);
+  });
+  test<ConfigurationFactorySuiteContext>('addLabel should add given label info', (context) => {
+    // given
+    const { configurationFactory } = context;
+    configurationFactory.init('nl-NL');
 
-ConfigurationFactorySuite('addLabel should add given label info', (context) => {
-  // given
-  const { configurationFactory } = context;
-  configurationFactory.init('nl-NL');
+    // test
+    configurationFactory.addLabel('test', 'nl-NL', 'dit is een test');
 
-  // test
-  configurationFactory.addLabel('test', 'nl-NL', 'dit is een test');
-
-  // expect
-  const { configuration } = configurationFactory;
-  expect(configuration.labels.length).to.equal(1);
-  expect(configuration.labels[0].id).to.equal('test');
-  expect(configuration.labels[0].labels[0].languageCode).to.equal('nl-NL');
-  expect(configuration.labels[0].labels[0].label).to.equal('dit is een test');
-});
-
-ConfigurationFactorySuite(
-  'addLabel should add given label info to existing label config',
-  (context) => {
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.labels.length).to.equal(1);
+    expect(configuration.labels[0].id).to.equal('test');
+    expect(configuration.labels[0].labels[0].languageCode).to.equal('nl-NL');
+    expect(configuration.labels[0].labels[0].label).to.equal('dit is een test');
+  });
+  test<ConfigurationFactorySuiteContext>('addLabel should add given label info to existing label config', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -304,12 +264,8 @@ ConfigurationFactorySuite(
     expect(configuration.labels[0].id).to.equal('test');
     expect(configuration.labels[0].labels[1].languageCode).to.equal('en-US');
     expect(configuration.labels[0].labels[1].label).to.equal('this is a test');
-  }
-);
-
-ConfigurationFactorySuite(
-  'createAction should add an action with the given name',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('createAction should add an action with the given name', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -322,12 +278,8 @@ ConfigurationFactorySuite(
     expect(configuration.actions.length).to.equal(1);
     expect(configuration.actions[0].name).to.equal('TestAction');
     expect(creator).not.to.be.null;
-  }
-);
-
-ConfigurationFactorySuite(
-  'createInitAction should add an init action with the given name',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('createInitAction should add an init action with the given name', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -340,12 +292,8 @@ ConfigurationFactorySuite(
     expect(configuration.initActions.length).to.equal(1);
     expect(configuration.initActions[0].name).to.equal('TestInitAction');
     expect(creator).not.to.be.null;
-  }
-);
-
-ConfigurationFactorySuite(
-  'createEventAction should add an event action with the given name',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('createEventAction should add an event action with the given name', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -358,12 +306,8 @@ ConfigurationFactorySuite(
     expect(configuration.eventActions?.length).to.equal(1);
     expect(configuration.eventActions?.[0].name).to.equal('TestEventAction');
     expect(creator).not.to.be.null;
-  }
-);
-
-ConfigurationFactorySuite(
-  'createTimelineAction should add a timeline action with the given name to the timeline with the given uri',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('createTimelineAction should add a timeline action with the given name to the timeline with the given uri', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -387,12 +331,8 @@ ConfigurationFactorySuite(
     expect(timeline?.timelineActions.length).to.equal(1);
     expect(timeline?.timelineActions[0].name).to.equal('TestTimelineAction');
     expect(creator).not.to.be.null;
-  }
-);
-
-ConfigurationFactorySuite(
-  'editAction should return an actioneditor instance',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('editAction should return an actioneditor instance', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -403,12 +343,8 @@ ConfigurationFactorySuite(
 
     // expect
     expect(editor).to.be.an.instanceOf(ActionEditor);
-  }
-);
-
-ConfigurationFactorySuite(
-  'editEventAction should return an actioneditor instance',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('editEventAction should return an actioneditor instance', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -420,12 +356,8 @@ ConfigurationFactorySuite(
 
     // expect
     expect(editor).to.be.an.instanceOf(ActionEditor);
-  }
-);
-
-ConfigurationFactorySuite(
-  'editInitAction should return an endableactioneditor instance',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('editInitAction should return an endableactioneditor instance', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -437,12 +369,8 @@ ConfigurationFactorySuite(
 
     // expect
     expect(editor).to.be.an.instanceOf(EndableActionEditor);
-  }
-);
-
-ConfigurationFactorySuite(
-  'editTimelineAction should return a timelineactioneditor instance',
-  (context) => {
+  });
+  test<ConfigurationFactorySuiteContext>('editTimelineAction should return a timelineactioneditor instance', (context) => {
     // given
     const { configurationFactory } = context;
     configurationFactory.init('nl-NL');
@@ -468,7 +396,5 @@ ConfigurationFactorySuite(
 
     // expect
     expect(editor).to.be.an.instanceOf(TimelineActionEditor);
-  }
-);
-
-ConfigurationFactorySuite.run();
+  });
+});

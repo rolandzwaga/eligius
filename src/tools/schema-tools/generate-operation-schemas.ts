@@ -3,7 +3,7 @@ import { emptyDirSync } from 'fs-extra';
 import path from 'path';
 import * as controllers from '../../controllers/index.ts';
 import * as metadata from '../../operation/metadata/index.ts';
-import {
+import type {
   IOperationMetadata,
   TComplexPropertyMetadata,
   TConstantParametersTypes,
@@ -13,9 +13,9 @@ import {
   TPropertiesMetadata,
   TPropertyMetadata,
 } from '../../operation/metadata/types.ts';
-import camelCaseToDash from '../../util/camel-case-to-dash';
-import dashToCamelCase from '../../util/dash-to-camel-case';
-import { htmlTagNames } from './html-tag-names';
+import camelCaseToDash from '../../util/camel-case-to-dash.ts';
+import dashToCamelCase from '../../util/dash-to-camel-case.ts';
+import { htmlTagNames } from './html-tag-names.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const outputDirectory = path.join(schemaDirectory, 'operations');

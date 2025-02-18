@@ -1,23 +1,20 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { endWhen } from '../../../operation/index.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
+describe('endWhen', () => {
+  test('should delete whenEvaluation from context', () => {
+    // given
+    const context = {
+      whenEvaluation: true,
+    } as any;
+    const operationData = {};
 
-const EndWhenSuite = suite('endWhen');
+    // test
+    const result = applyOperation(endWhen, operationData, context);
 
-EndWhenSuite('should delete whenEvaluation from context', () => {
-  // given
-  const context = {
-    whenEvaluation: true,
-  } as any;
-  const operationData = {};
-
-  // test
-  const result = applyOperation(endWhen, operationData, context);
-
-  // expect
-  expect(context.whenEvaluation).to.be.undefined;
-  expect(result).to.be.equal(operationData);
+    // expect
+    expect(context.whenEvaluation).to.be.undefined;
+    expect(result).to.be.equal(operationData);
+  });
 });
-
-EndWhenSuite.run();

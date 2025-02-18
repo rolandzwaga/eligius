@@ -1,44 +1,47 @@
 import { createProject, ts } from '@ts-morph/bootstrap';
 import { expect } from 'chai';
 import fs, { type PathLike } from 'fs';
-import { suite } from 'uvu';
+import { afterEach, beforeEach, describe, test, type TestContext } from 'vitest';
 import { generateImporterSourceCode } from '../../../build/index.ts';
 import { ConfigurationFactory } from '../../../configuration/api/index.ts';
 
-const GenerateImporterSourceCodeSuite = suite('generateImporterSourceCode');
+type CustomContext = {
+  readdirSync: any;
+} & TestContext;
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<CustomContext>('generateImporterSourceCode', () => {
+  beforeEach<CustomContext>((context) => {
+    withContext(context);
 
-GenerateImporterSourceCodeSuite.before((context) => {
-  context.readdirSync = fs.readdirSync;
-  (fs as any).readdirSync = (path: PathLike, _options?: any) => {
-    if ((path as string).endsWith('html')) {
-      return ['test1.html', 'test2.html'];
-    }
-    return [];
-  };
+    context.readdirSync = fs.readdirSync;
+    (fs as any).readdirSync = (path: PathLike, _options?: any) => {
+      if ((path as string).endsWith('html')) {
+        return ['test1.html', 'test2.html'];
+      }
+      return [];
+    };
+  });
+  afterEach<CustomContext>((context) => {
+    withContext(context);
+
+    fs.readdirSync = context.readdirSync;
+  });
+  test<CustomContext>('should generate source code', async () => {
+    const factory = new ConfigurationFactory().init('nl-NL');
+
+    const config = factory.getConfiguration();
+
+    const tsSource = generateImporterSourceCode(config, './mypath', [
+      { path: 'html', extension: '.html' },
+    ]);
+
+    const project = await createProject({ useInMemoryFileSystem: true });
+    project.createSourceFile('importer.ts', tsSource);
+    const program = project.createProgram();
+    const diagnostics = ts
+      .getPreEmitDiagnostics(program)
+      .filter((x) => x.code !== 2307); //Filter out the cannot find module errors
+
+    expect(diagnostics.length).to.equal(0);
+  });
 });
-
-GenerateImporterSourceCodeSuite.after((context) => {
-  fs.readdirSync = context.readdirSync;
-});
-
-// TODO: create some actual useful unit tests for this...
-GenerateImporterSourceCodeSuite('should generate source code', async () => {
-  const factory = new ConfigurationFactory().init('nl-NL');
-
-  const config = factory.getConfiguration();
-
-  const tsSource = generateImporterSourceCode(config, './mypath', [
-    { path: 'html', extension: '.html' },
-  ]);
-
-  const project = await createProject({ useInMemoryFileSystem: true });
-  project.createSourceFile('importer.ts', tsSource);
-  const program = project.createProgram();
-  const diagnostics = ts
-    .getPreEmitDiagnostics(program)
-    .filter((x) => x.code !== 2307); //Filter out the cannot find module errors
-
-  expect(diagnostics.length).to.equal(0);
-});
-
-GenerateImporterSourceCodeSuite.run();

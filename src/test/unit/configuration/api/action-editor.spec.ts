@@ -1,79 +1,76 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
-import { ConfigurationFactory } from '../../../../configuration/api/index.ts';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import {
   ActionEditor,
   OperationEditor,
 } from '../../../../configuration/api/action-editor.ts';
+import { ConfigurationFactory } from '../../../../configuration/api/index.ts';
 import type { IActionConfiguration } from '../../../../configuration/types.ts';
 
-const ActionEditorSuite = suite<{
+type ActionEditorSuiteContext = {
   configurationFactory: ConfigurationFactory;
   actionConfig: any;
   actionEditor: ActionEditor;
-}>('ActionEditorSuite');
+} & TestContext;
 
-ActionEditorSuite.before.each((context) => {
-  context.configurationFactory = {} as unknown as ConfigurationFactory;
-  context.actionConfig = {
-    id: '111-222-333',
-    name: 'name',
-    startOperations: [],
-  } as any;
-  context.actionEditor = new ActionEditor(
-    context.actionConfig,
-    context.configurationFactory
-  );
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
+  beforeEach((context) => {
+    withContext<ActionEditorSuiteContext>(context);
 
-ActionEditorSuite('should initialize properly', (context) => {
-  // given
-  const { actionEditor } = context;
-  let config = {};
+    context.configurationFactory = {} as unknown as ConfigurationFactory;
+    context.actionConfig = {
+      id: '111-222-333',
+      name: 'name',
+      startOperations: [],
+    } as any;
+    context.actionEditor = new ActionEditor(
+      context.actionConfig,
+      context.configurationFactory
+    );
+  });
+  test<ActionEditorSuiteContext>('should initialize properly', (context) => {
+    // given
+    const { actionEditor } = context;
+    let config = {};
 
-  // test
-  actionEditor.getConfiguration((cf) => (config = cf));
+    // test
+    actionEditor.getConfiguration((cf) => (config = cf));
 
-  // expect
-  expect(config).is.eql(context.actionConfig);
-});
+    // expect
+    expect(config).is.eql(context.actionConfig);
+  });
+  test<ActionEditorSuiteContext>('should set the name', (context) => {
+    // given
+    const { actionEditor } = context;
 
-ActionEditorSuite('should set the name', (context) => {
-  // given
-  const { actionEditor } = context;
+    // test
+    actionEditor.setName('TestName');
 
-  // test
-  actionEditor.setName('TestName');
+    // expect
+    expect(actionEditor.getName()).to.equal('TestName');
+  });
+  test<ActionEditorSuiteContext>('should return an operation editor', (context) => {
+    // given
+    const { actionEditor } = context;
+    actionEditor.addStartOperation('addClass', {}, 'test');
 
-  // expect
-  expect(actionEditor.getName()).to.equal('TestName');
-});
+    // test
+    const editor = actionEditor.editStartOperation('test');
 
-ActionEditorSuite('should return an operation editor', (context) => {
-  // given
-  const { actionEditor } = context;
-  actionEditor.addStartOperation('addClass', {}, 'test');
+    // expect
+    expect(editor).to.be.an.instanceOf(OperationEditor);
+  });
+  test<ActionEditorSuiteContext>('should throw an operation not found error', (context) => {
+    // given
+    const { actionEditor } = context;
 
-  // test
-  const editor = actionEditor.editStartOperation('test');
-
-  // expect
-  expect(editor).to.be.an.instanceOf(OperationEditor);
-});
-
-ActionEditorSuite('should throw an operation not found error', (context) => {
-  // given
-  const { actionEditor } = context;
-
-  // expect
-  expect(() => actionEditor.editStartOperation('test')).throws(
-    'start operation not found for id test'
-  );
-});
-
-ActionEditorSuite(
-  'should remove the operation with the given id',
-  (context) => {
+    // expect
+    expect(() => actionEditor.editStartOperation('test')).throws(
+      'start operation not found for id test'
+    );
+  });
+  test<ActionEditorSuiteContext>('should remove the operation with the given id', (context) => {
     // given
     const { actionEditor } = context;
     actionEditor.addStartOperation('addClass', {}, 'test');
@@ -86,12 +83,8 @@ ActionEditorSuite(
       expect(config.startOperations.length).to.equal(0);
       return undefined;
     });
-  }
-);
-
-ActionEditorSuite(
-  'should move the start operation with given id up',
-  (context) => {
+  });
+  test<ActionEditorSuiteContext>('should move the start operation with given id up', (context) => {
     // given
     const { actionEditor } = context;
     const op1 = {
@@ -119,12 +112,8 @@ ActionEditorSuite(
       );
       return undefined;
     });
-  }
-);
-
-ActionEditorSuite(
-  'should move the start operation with given id down',
-  (context) => {
+  });
+  test<ActionEditorSuiteContext>('should move the start operation with given id down', (context) => {
     // given
     const { actionEditor } = context;
     const op1 = {
@@ -152,21 +141,16 @@ ActionEditorSuite(
       );
       return undefined;
     });
-  }
-);
+  });
+  test<ActionEditorSuiteContext>('should return the configuration editor', (context) => {
+    // test
+    const { actionEditor, configurationFactory } = context;
+    const result = actionEditor.next();
 
-ActionEditorSuite('should return the configuration editor', (context) => {
-  // test
-  const { actionEditor, configurationFactory } = context;
-  const result = actionEditor.next();
-
-  // expect
-  expect(result).to.equal(configurationFactory);
-});
-
-ActionEditorSuite(
-  'should pass the configuration to the getConfiguration callback',
-  (context) => {
+    // expect
+    expect(result).to.equal(configurationFactory);
+  });
+  test<ActionEditorSuiteContext>('should pass the configuration to the getConfiguration callback', (context) => {
     // given
     const { actionEditor } = context;
     let config = null;
@@ -176,12 +160,8 @@ ActionEditorSuite(
 
     // expect
     expect(config).to.not.be.null;
-  }
-);
-
-ActionEditorSuite(
-  'should substitute the actionConfig with the instance returned from the getConfiguration callback',
-  (context) => {
+  });
+  test<ActionEditorSuiteContext>('should substitute the actionConfig with the instance returned from the getConfiguration callback', (context) => {
     // given
     const { actionEditor } = context;
     let config: IActionConfiguration = {
@@ -196,7 +176,5 @@ ActionEditorSuite(
       expect(config).to.eql(cf);
       return undefined;
     });
-  }
-);
-
-ActionEditorSuite.run();
+  });
+});

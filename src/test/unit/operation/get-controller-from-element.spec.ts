@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { getControllerFromElement } from '../../../operation/get-controller-from-element.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
@@ -14,11 +14,8 @@ class MockElement {
   }
 }
 
-const GetControllerFromElementSuite = suite('getControllerFromElement');
-
-GetControllerFromElementSuite(
-  'should get the specified controller from the given element',
-  () => {
+describe('getControllerFromElement', () => {
+  test('should get the specified controller from the given element', () => {
     // given
 
     const controllers = [
@@ -44,7 +41,5 @@ GetControllerFromElementSuite(
 
     // expect
     expect(newData.controllerInstance).to.equal(controllers[1]);
-  }
-);
-
-GetControllerFromElementSuite.run();
+  });
+});

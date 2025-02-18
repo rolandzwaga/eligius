@@ -1,63 +1,63 @@
 import { expect } from 'chai';
 import $ from 'jquery';
-import { suite } from 'uvu';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext } from 'vitest';
 import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
 
-const RequestAnimationFrameTimelineProviderSuite = suite<{
+type RequestAnimationFrameTimelineProviderSuiteContext = {
   provider: RequestAnimationFrameTimelineProvider;
   configuration: any;
   requestAnimationFrame: any;
   cancelAnimationFrame: any;
-}>('RequestAnimationFrameTimelineProvider');
+} & TestContext;
+//RequestAnimationFrameTimelineProviderSuite.run();
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe.skip('RequestAnimationFrameTimelineProvider', () => {
+  beforeAll((context) => {
+    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
 
-RequestAnimationFrameTimelineProviderSuite.before((context) => {
-  context.requestAnimationFrame = global.requestAnimationFrame;
-  context.cancelAnimationFrame = global.cancelAnimationFrame;
-  global.requestAnimationFrame = (fn) => setTimeout(fn, 16);
-  global.cancelAnimationFrame = () => {};
-});
+    context.requestAnimationFrame = global.requestAnimationFrame;
+    context.cancelAnimationFrame = global.cancelAnimationFrame;
+    global.requestAnimationFrame = (fn) => setTimeout(fn, 16);
+    global.cancelAnimationFrame = () => { };
+  });
+  afterAll((context) => {
+    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
 
-RequestAnimationFrameTimelineProviderSuite.after((context) => {
-  global.requestAnimationFrame = context.requestAnimationFrame;
-  global.cancelAnimationFrame = context.cancelAnimationFrame;
-});
+    global.requestAnimationFrame = context.requestAnimationFrame;
+    global.cancelAnimationFrame = context.cancelAnimationFrame;
+  });
+  beforeEach((context) => {
+    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
 
-RequestAnimationFrameTimelineProviderSuite.before.each((context) => {
-  $('<div id="selector"/>').appendTo(document.body);
-  context.configuration = {
-    timelines: [
-      {
-        type: 'animation',
-        duration: 5,
-        selector: '#selector',
-      },
-    ],
-  };
-  context.provider = new RequestAnimationFrameTimelineProvider(
-    context.configuration
-  );
-});
+    $('<div id="selector"/>').appendTo(document.body);
+    context.configuration = {
+      timelines: [
+        {
+          type: 'animation',
+          duration: 5,
+          selector: '#selector',
+        },
+      ],
+    };
+    context.provider = new RequestAnimationFrameTimelineProvider(
+      context.configuration
+    );
+  });
+  afterEach((context) => {
+    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
 
-RequestAnimationFrameTimelineProviderSuite.after.each((context) => {
-  context.provider.destroy();
-  $('#selector').remove();
-});
-
-RequestAnimationFrameTimelineProviderSuite(
-  'should start and set correct play state',
-  (context) => {
+    context.provider.destroy();
+    $('#selector').remove();
+  });
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should start and set correct play state', (context) => {
     const { provider } = context;
 
     provider.init();
 
     provider.start();
     expect(provider.playState).to.equal('running');
-  }
-);
-
-RequestAnimationFrameTimelineProviderSuite(
-  'should pause and set correct play state',
-  (context) => {
+  });
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should pause and set correct play state', (context) => {
     const { provider } = context;
 
     provider.init();
@@ -66,12 +66,8 @@ RequestAnimationFrameTimelineProviderSuite(
     expect(provider.playState).to.equal('running');
     provider.pause();
     expect(provider.playState).to.equal('stopped');
-  }
-);
-
-RequestAnimationFrameTimelineProviderSuite(
-  'should stop, set correct play state and reset position to zero',
-  (context) => {
+  });
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should stop, set correct play state and reset position to zero', (context) => {
     const { provider } = context;
 
     provider.init();
@@ -81,12 +77,8 @@ RequestAnimationFrameTimelineProviderSuite(
     provider.stop();
     expect(provider.playState).to.equal('stopped');
     expect(provider.getPosition()).to.equal(0);
-  }
-);
-
-RequestAnimationFrameTimelineProviderSuite(
-  'should dispatch TimelineEventNames.TIME 5 times',
-  async (context) => {
+  });
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should dispatch TimelineEventNames.TIME 5 times', async (context) => {
     const { provider } = context;
 
     provider.init();
@@ -103,7 +95,5 @@ RequestAnimationFrameTimelineProviderSuite(
     });
 
     expect(result.length).to.equal(5);
-  }
-);
-
-//RequestAnimationFrameTimelineProviderSuite.run();
+  });
+});

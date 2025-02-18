@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import type { IAction } from '../../../action/types.ts';
 import type { TOperationData } from '../../../operation/index.ts';
 import { startAction } from '../../../operation/start-action.ts';
@@ -14,26 +14,24 @@ class MockAction {
   }
 }
 
-const StartActionSuite = suite('startAction');
+describe('startAction', () => {
+  test('should start the specified action', async () => {
+    // given
+    const mockAction = new MockAction() as unknown as IAction;
 
-StartActionSuite('should start the specified action', async () => {
-  // given
-  const mockAction = new MockAction() as unknown as IAction;
+    const operationData = {
+      actionInstance: mockAction,
+      actionOperationData: {
+        prop: 'test',
+      },
+    };
 
-  const operationData = {
-    actionInstance: mockAction,
-    actionOperationData: {
-      prop: 'test',
-    },
-  };
+    // test
+    const result = await applyOperation<Promise<any>>(startAction, operationData);
 
-  // test
-  const result = await applyOperation<Promise<any>>(startAction, operationData);
-
-  // expect
-  expect(result.resolved).to.be.true;
-  expect(result.prop).to.be.undefined;
-  return result;
+    // expect
+    expect(result.resolved).to.be.true;
+    expect(result.prop).to.be.undefined;
+    return result;
+  });
 });
-
-StartActionSuite.run();

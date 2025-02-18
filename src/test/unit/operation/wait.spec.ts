@@ -1,27 +1,26 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { afterEach, beforeEach, describe, test, type TestContext } from 'vitest';
 import { wait } from '../../../operation/wait.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
-const WaitSuite =
-  suite<{ timeout: typeof window.setTimeout; mseconds: number }>('wait');
+type WaitSuiteContext = { timeout: typeof window.setTimeout; mseconds: number } & TestContext;
 
-WaitSuite.before((context) => {
-  context.mseconds = 0;
-  context.timeout = window.setTimeout;
-  global.setTimeout = function (func: Function, ms: number) {
-    context.mseconds = ms;
-    func();
-  } as any;
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<WaitSuiteContext>('wait', () => {
+  beforeEach<WaitSuiteContext>((context) => {
+    context.mseconds = 0;
+    context.timeout = window.setTimeout;
+    global.setTimeout = function(func: Function, ms: number) {
+      context.mseconds = ms;
+      func();
+    } as any;
+  });
+  afterEach<WaitSuiteContext>((context) => {
 
-WaitSuite.after((context) => {
-  global.setTimeout = context.timeout;
-});
-
-WaitSuite(
-  'should wait for the specified amount of milliseconds',
-  async (context) => {
+    global.setTimeout = context.timeout;
+    delete (context as any).timeout;
+  });
+  test<WaitSuiteContext>('should wait for the specified amount of milliseconds', async (context) => {
     // given
     const operationData = {
       milliseconds: 1000,
@@ -31,9 +30,7 @@ WaitSuite(
     const data = await applyOperation<Promise<any>>(wait, operationData);
 
     // expect
-    expect(data).to.equal(operationData);
-    expect(context.mseconds).to.equal(operationData.milliseconds);
-  }
-);
-
-WaitSuite.run();
+    expect(data).to.eql({});
+    expect(context.mseconds).to.equal(1000);
+  });
+});

@@ -12,7 +12,7 @@ export interface IEndActionOperationData {
 }
 
 /**
- * This operation invokes the {@link EndableAction.end} method on the specified action instance.
+ * This operation invokes the {@link EndableAction}.end method on the specified action instance.
  *
  * The action operation data is first merged with the current operation data before it is
  * passed on to the action. After the action has completed the action operation data properties

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { Eventbus } from '../../../eventbus/index.ts';
-import type { TOperation } from '../../../operation/index.ts';
 import { addControllerToElement } from '../../../operation/add-controller-to-element.ts';
+import type { TOperation } from '../../../operation/index.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
@@ -37,11 +37,8 @@ class MockController {
   }
 }
 
-const AddControllerToElementSuite = suite('addControllerToElement');
-
-AddControllerToElementSuite(
-  'should attach the controller without a promise result',
-  () => {
+describe('addControllerToElement', () => {
+  test('should attach the controller without a promise result', () => {
     // given
     const operationData = {
       selectedElement: new MockElement(),
@@ -59,12 +56,8 @@ AddControllerToElementSuite(
     // expect
     expect(data).to.equal(operationData);
     expect(operationData.controllerInstance.eventbus).to.equal(eventbus);
-  }
-);
-
-AddControllerToElementSuite(
-  'should attach the controller with a promise result',
-  async () => {
+  });
+  test('should attach the controller with a promise result', async () => {
     // given
     const promise = new Promise<void>((resolve) => {
       resolve();
@@ -83,7 +76,5 @@ AddControllerToElementSuite(
 
     // expect
     expect(data).to.equal(operationData);
-  }
-);
-
-AddControllerToElementSuite.run();
+  });
+});

@@ -2,7 +2,7 @@ import type { IEndableAction, ITimelineAction } from '../action/types.ts';
 import type { TOperation, TOperationData } from '../operation/types.ts';
 import type { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '../types.ts';
 
-export type ExtractDataType<P> = P extends TOperation<infer T> ? T : never;
+export type ExtractDataType<P> = P extends TOperation<infer T, any> ? T : never;
 export interface IEngineInfo {
   systemName: string;
 }

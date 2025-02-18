@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import type { IController } from '../../../controllers/types.ts';
 import type { IEventbus } from '../../../eventbus/index.ts';
 import {
@@ -21,11 +21,8 @@ class MockEventbus {
   }
 }
 
-const GetControllerInstanceSuite = suite('getControllerInstance');
-
-GetControllerInstanceSuite(
-  'should get the controller instance for the given systemName',
-  () => {
+describe('getControllerInstance', () => {
+  test('should get the controller instance for the given systemName', () => {
     // given
     const operationData: IGetControllerInstanceOperationData = {
       systemName: 'LabelController',
@@ -47,7 +44,5 @@ GetControllerInstanceSuite(
     // expect
     expect(eventbus.eventName).to.equal('LabelController');
     expect(newData.controllerInstance).to.equal(controller);
-  }
-);
-
-GetControllerInstanceSuite.run();
+  });
+});

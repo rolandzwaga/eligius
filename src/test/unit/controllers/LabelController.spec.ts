@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import {
   type ILabelControllerMetadata,
   LabelController,
@@ -13,126 +13,122 @@ class MockElement {
   }
 }
 
-const LabelControllerSuite = suite<{
+type LabelControllerSuiteContext = {
   controller: LabelController;
   eventbus: IEventbus;
   selectedElement: JQuery;
   operationData: ILabelControllerMetadata;
-}>('LabelController');
+} & TestContext;
 
-LabelControllerSuite.before.each((context) => {
-  context.controller = new LabelController();
-  context.eventbus = new Eventbus();
-  context.selectedElement = new MockElement() as unknown as JQuery;
-  context.operationData = {
-    selectedElement: context.selectedElement,
-    labelId: 'test',
-  };
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<LabelControllerSuiteContext>('LabelController', () => {
+  beforeEach((context) => {
+    withContext<LabelControllerSuiteContext>(context);
 
-LabelControllerSuite('should create the LabelController', (context) => {
-  // given
-  const { controller } = context;
+    context.controller = new LabelController();
+    context.eventbus = new Eventbus();
+    context.selectedElement = new MockElement() as unknown as JQuery;
+    context.operationData = {
+      selectedElement: context.selectedElement,
+      labelId: 'test',
+    };
+  });
+  test<LabelControllerSuiteContext>('should create the LabelController', (context) => {
+    // given
+    const { controller } = context;
 
-  expect(controller.name).to.equal('LabelController');
-  expect(controller.listeners).to.not.be.null;
-  expect(controller.listeners.length).to.equal(0);
-  expect(controller.currentLanguage).to.be.null;
-  expect(controller.operationData).to.be.null;
-  expect(controller.labelData).to.not.be.null;
-});
-
-LabelControllerSuite(
-  'should clone the operationData in init method',
-  (context) => {
+    expect(controller.name).to.equal('LabelController');
+    expect(controller.listeners).to.not.be.null;
+    expect(controller.listeners.length).to.equal(0);
+    expect(controller.currentLanguage).to.be.null;
+    expect(controller.operationData).to.be.null;
+    expect(controller.labelData).to.not.be.null;
+  });
+  test<LabelControllerSuiteContext>('should clone the operationData in init method', (context) => {
     // given
     const { controller, operationData } = context;
     // test
     controller.init(operationData);
     // expect
     expect(operationData).to.not.equal(controller.operationData);
-  }
-);
-
-LabelControllerSuite('should attach properly', (context) => {
-  // given
-  const { controller, operationData, eventbus } = context;
-  controller.init(operationData);
-  eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
-    args[0]('en-GB');
   });
+  test<LabelControllerSuiteContext>('should attach properly', (context) => {
+    // given
+    const { controller, operationData, eventbus } = context;
+    controller.init(operationData);
+    eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
+      args[0]('en-GB');
+    });
 
-  eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
-    args[1]([
-      {
-        id: '1111',
-        languageCode: 'nl-NL',
-        label: 'hallo',
-      },
-      {
-        id: '2222',
-        languageCode: 'en-GB',
-        label: 'hello',
-      },
-    ]);
+    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
+      args[1]([
+        {
+          id: '1111',
+          languageCode: 'nl-NL',
+          label: 'hallo',
+        },
+        {
+          id: '2222',
+          languageCode: 'en-GB',
+          label: 'hello',
+        },
+      ]);
+    });
+
+    // test
+    controller.attach(eventbus);
+
+    // expect
+    expect(
+      (operationData.selectedElement as unknown as MockElement).content
+    ).to.equal('hello');
   });
+  test<LabelControllerSuiteContext>('should set the text based on the new id', (context) => {
+    // given
+    const { controller, operationData, eventbus } = context;
+    controller.init(operationData);
+    eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
+      args[0]('en-GB');
+    });
 
-  // test
-  controller.attach(eventbus);
+    const firstLabels = (...args: any[]) => {
+      args[1]([
+        {
+          id: '1111',
+          languageCode: 'nl-NL',
+          label: 'hallo',
+        },
+        {
+          id: '2222',
+          languageCode: 'en-GB',
+          label: 'hello',
+        },
+      ]);
+    };
+    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
 
-  // expect
-  expect(
-    (operationData.selectedElement as unknown as MockElement).content
-  ).to.equal('hello');
+    // test
+    controller.attach(eventbus);
+    eventbus.off(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
+    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
+      args[1]([
+        {
+          id: '3333',
+          languageCode: 'nl-NL',
+          label: 'tot ziens',
+        },
+        {
+          id: '4444',
+          languageCode: 'en-GB',
+          label: 'goodbye',
+        },
+      ]);
+    });
+    controller.setLabelId('test2');
+
+    // expect
+    expect(
+      (operationData.selectedElement as unknown as MockElement).content
+    ).to.equal('goodbye');
+  });
 });
-
-LabelControllerSuite('should set the text based on the new id', (context) => {
-  // given
-  const { controller, operationData, eventbus } = context;
-  controller.init(operationData);
-  eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
-    args[0]('en-GB');
-  });
-
-  const firstLabels = (...args: any[]) => {
-    args[1]([
-      {
-        id: '1111',
-        languageCode: 'nl-NL',
-        label: 'hallo',
-      },
-      {
-        id: '2222',
-        languageCode: 'en-GB',
-        label: 'hello',
-      },
-    ]);
-  };
-  eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
-
-  // test
-  controller.attach(eventbus);
-  eventbus.off(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
-  eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
-    args[1]([
-      {
-        id: '3333',
-        languageCode: 'nl-NL',
-        label: 'tot ziens',
-      },
-      {
-        id: '4444',
-        languageCode: 'en-GB',
-        label: 'goodbye',
-      },
-    ]);
-  });
-  controller.setLabelId('test2');
-
-  // expect
-  expect(
-    (operationData.selectedElement as unknown as MockElement).content
-  ).to.equal('goodbye');
-});
-
-LabelControllerSuite.run();

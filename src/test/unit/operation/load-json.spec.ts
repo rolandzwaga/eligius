@@ -1,63 +1,56 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext } from 'vitest';
 import { clearCache, loadJson } from '../../../operation/load-json.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
-function getResult(context: Context) {
+function getResult(context: LoadJsonContext) {
   return () =>
     new Promise((resolve) => {
       resolve(context.result);
     });
 }
 
-interface Context {
+type LoadJsonContext = {
   fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
   result: any;
-}
+} & TestContext;
 
-const LoadJSONSuite = suite<Context>('loadJSON');
+describe<LoadJsonContext>('loadJSON', () => {
+  beforeEach<LoadJsonContext>((context) => {
 
-LoadJSONSuite.before((context) => {
-  context.fetch = global.fetch;
-  context.result = {};
-  global.fetch = function () {
-    return new Promise((resolve) => {
-      resolve({
-        json: getResult(context),
-      } as any);
-    });
-  };
-});
+    context.fetch = global.fetch;
+    context.result = {};
+    global.fetch = function() {
+      return new Promise((resolve) => {
+        resolve({
+          json: getResult(context),
+        } as any);
+      });
+    };
+    clearCache();
 
-LoadJSONSuite.before.each(() => {
-  clearCache();
-});
+  });
+  afterEach<LoadJsonContext>((context) => {
+    (global as any).fetch = context.fetch;
+  });
+  test<LoadJsonContext>('should load the specified json', async (context) => {
+    // given
+    context.result = { test: true };
+    const operationData = {
+      url: '/test.json',
+      cache: true,
+    };
 
-LoadJSONSuite.after((context) => {
-  (global as any).fetch = context.fetch;
-});
+    // test
+    const newData = await applyOperation<Promise<{ json: any }>>(
+      loadJson,
+      operationData
+    );
 
-LoadJSONSuite('should load the specified json', async (context) => {
-  // given
-  context.result = { test: true };
-  const operationData = {
-    url: '/test.json',
-    cache: true,
-  };
-
-  // test
-  const newData = await applyOperation<Promise<{ json: any }>>(
-    loadJson,
-    operationData
-  );
-
-  // expect
-  expect(newData.json).to.equal(context.result);
-});
-
-LoadJSONSuite(
-  'should return the cached json the second time its called',
-  async (context) => {
+    // expect
+    expect(newData.json).to.equal(context.result);
+  });
+  test<LoadJsonContext>('should return the cached json the second time its called', async (context) => {
     // given
     context.result = { test: true };
     const operationData = {
@@ -79,7 +72,5 @@ LoadJSONSuite(
       operationData
     );
     expect(newData.json).to.not.equal(context.result);
-  }
-);
-
-LoadJSONSuite.run();
+  });
+});

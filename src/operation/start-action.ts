@@ -33,7 +33,7 @@ export const startAction: TOperation<IStartActionOperationData> = function (
       Object.keys(actionOperationData).forEach((key) => {
         delete (newOperationData as any)[key];
       });
-      internalResolve(resolve, newOperationData);
+      internalResolve(resolve, {...newOperationData, actionInstance});
     }, reject);
   });
 };

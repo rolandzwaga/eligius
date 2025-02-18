@@ -200,7 +200,7 @@ const getTypeFromProperty = (property: PropertySignature) => {
         }
         if (constraint.isUnion()) {
             const unionValues = constraint.getUnionTypes().map(u => u.getLiteralValue() ?? u.getText());
-            return `type: [\n${unionValues.map(val => `{value: '${val}'}`).join(',\n')}\n]`;
+            return `type: [\n${unionValues.map(x => x.toString().replaceAll(/['`]/g, "\\$&")).map(val => `{value: '${val}'}`).join(',\n')}\n]`;
         }
         return `type: ParamType:${constraint.getText()}`;
     } else {
@@ -208,7 +208,7 @@ const getTypeFromProperty = (property: PropertySignature) => {
         const propType = aliasSymbol ? aliasSymbol.getName() : type.getText();
         if (type.isUnion() && propType !== 'boolean') {
             const unionValues = type.getUnionTypes().map(u => u.getLiteralValue() ?? u.getText());
-            return `type: [\n${unionValues.map(val => `{value: '${val}'}`).join(',\n')}\n]`;
+            return `type: [\n${unionValues.map(x => x.toString().replaceAll(/['`]/g, "\\$&")).map(val => `{value: '${val}'}`).join(',\n')}\n]`;
         } else {
             if (propType.startsWith('Record') || propType === 'unknown' || propType === 'any') {
                 return `type: 'ParameterType:object'`;

@@ -1,25 +1,25 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import * as controllerImports from '../../../controllers/index.ts';
 import { EligiusResourceImporter } from '../../../importer/eligius-resource-importer.ts';
 import * as operationImports from '../../../operation/index.ts';
 import * as providerImports from '../../../timelineproviders/index.ts';
 
-const EligiusResourceImporterSuite = suite<{
+type EligiusResourceImporterSuiteContext = {
   importer: EligiusResourceImporter;
-}>('EligiusResourceImporter');
-
+} & TestContext;
 const operationImportNames = Object.keys(operationImports);
 const controllerImportNames = Object.keys(controllerImports);
 const providerImportNames = Object.keys(providerImports);
 
-EligiusResourceImporterSuite.before.each((context) => {
-  context.importer = new EligiusResourceImporter();
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<EligiusResourceImporterSuiteContext>('EligiusResourceImporter', () => {
+  beforeEach((context) => {
+    withContext<EligiusResourceImporterSuiteContext>(context);
 
-EligiusResourceImporterSuite(
-  'should return all the operation names',
-  (context) => {
+    context.importer = new EligiusResourceImporter();
+  });
+  test<EligiusResourceImporterSuiteContext>('should return all the operation names', (context) => {
     // given
     const { importer } = context;
 
@@ -29,12 +29,8 @@ EligiusResourceImporterSuite(
     operationNames.forEach((name) => {
       expect(operationImportNames).to.contain(name);
     });
-  }
-);
-
-EligiusResourceImporterSuite(
-  'should return all the controller names',
-  (context) => {
+  });
+  test<EligiusResourceImporterSuiteContext>('should return all the controller names', (context) => {
     // given
     const { importer } = context;
     var controllerNames = importer.getControllerNames();
@@ -43,12 +39,8 @@ EligiusResourceImporterSuite(
     controllerNames.forEach((name) => {
       expect(controllerImportNames).to.contain(name);
     });
-  }
-);
-
-EligiusResourceImporterSuite(
-  'should return all known operations',
-  (context) => {
+  });
+  test<EligiusResourceImporterSuiteContext>('should return all known operations', (context) => {
     // given
     const { importer } = context;
 
@@ -57,12 +49,8 @@ EligiusResourceImporterSuite(
       expect(imported).to.not.equal(null);
       expect(imported[op]).to.not.equal(null);
     });
-  }
-);
-
-EligiusResourceImporterSuite(
-  'should return all known controllers',
-  (context) => {
+  });
+  test<EligiusResourceImporterSuiteContext>('should return all known controllers', (context) => {
     // given
     const { importer } = context;
 
@@ -71,12 +59,8 @@ EligiusResourceImporterSuite(
       expect(imported).to.not.equal(null);
       expect(imported[ctrl]).to.not.equal(null);
     });
-  }
-);
-
-EligiusResourceImporterSuite(
-  'should return all known timeline providers',
-  (context) => {
+  });
+  test<EligiusResourceImporterSuiteContext>('should return all known timeline providers', (context) => {
     providerImportNames.forEach((provdr) => {
       // given
       const { importer } = context;
@@ -85,7 +69,5 @@ EligiusResourceImporterSuite(
       expect(imported).to.not.be.null;
       expect(imported[provdr]).to.not.be.null;
     });
-  }
-);
-
-EligiusResourceImporterSuite.run();
+  });
+});

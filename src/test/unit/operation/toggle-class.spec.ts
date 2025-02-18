@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import { toggleClass } from '../../../operation/toggle-class.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
@@ -10,11 +10,8 @@ class MockElement {
   }
 }
 
-const ToggleClassSuite = suite('toggleClass');
-
-ToggleClassSuite(
-  'should toggle the specified clas on the given element',
-  () => {
+describe('toggleClass', () => {
+  test('should toggle the specified clas on the given element', () => {
     // given
     const mockElement: JQuery = new MockElement() as any;
     const operationData = {
@@ -28,7 +25,5 @@ ToggleClassSuite(
     // expect
     expect((mockElement as any).className).to.equal(operationData.className);
     expect(newData).to.equal(operationData);
-  }
-);
-
-ToggleClassSuite.run();
+  });
+});

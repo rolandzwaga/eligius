@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import {
   getElementControllers,
   getElementData,
@@ -12,29 +12,26 @@ class MockElement {
   }
 }
 
-const GetElementDataSuite = suite('getElementData');
+describe('getElementData', () => {
+  test('should get the element data', () => {
+    // given
+    const mockElement = new MockElement();
+    const name = 'test';
 
-GetElementDataSuite('should get the element data', () => {
-  // given
-  const mockElement = new MockElement();
-  const name = 'test';
+    // test
+    getElementData(name, mockElement as any as JQuery);
 
-  // test
-  getElementData(name, mockElement as any as JQuery);
+    // expect
+    expect(mockElement.name).to.equal(name);
+  });
+  test('should retrieve the eligiusEngineControllers data', () => {
+    // given
+    const mockElement = new MockElement();
 
-  // expect
-  expect(mockElement.name).to.equal(name);
+    // test
+    getElementControllers(mockElement as any as JQuery);
+
+    // expect
+    expect(mockElement.name).to.equal('eligiusEngineControllers');
+  });
 });
-
-GetElementDataSuite('should retrieve the eligiusEngineControllers data', () => {
-  // given
-  const mockElement = new MockElement();
-
-  // test
-  getElementControllers(mockElement as any as JQuery);
-
-  // expect
-  expect(mockElement.name).to.equal('eligiusEngineControllers');
-});
-
-GetElementDataSuite.run();

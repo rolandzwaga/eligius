@@ -1,8 +1,8 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { describe, test } from 'vitest';
 import type { IEventbus } from '../../../eventbus/index.ts';
-import type { IOperationContext, TOperation } from '../../../operation/index.ts';
 import { customFunction } from '../../../operation/custom-function.ts';
+import type { IOperationContext, TOperation } from '../../../operation/index.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockEventbus {
@@ -16,18 +16,15 @@ class MockEventbus {
   }
 }
 
-const CustomFunctionSuite = suite('customFunction');
-
-CustomFunctionSuite(
-  'should resolve and execute the specified function',
-  async () => {
+describe('customFunction', () => {
+  test('should resolve and execute the specified function', async () => {
     // given
     const operationData = {
       systemName: 'testName',
     };
 
     let called = false;
-    const func = function (this: IOperationContext, opData: TOperation) {
+    const func = function(this: IOperationContext, opData: TOperation) {
       called = true;
       expect(opData).to.equal(operationData);
       expect(this.eventbus).to.equal(mockEventbus);
@@ -43,18 +40,14 @@ CustomFunctionSuite(
 
     // expect
     expect(called).to.be.true;
-  }
-);
-
-CustomFunctionSuite(
-  'should resolve and execute the specified function that itself returns a promise',
-  async () => {
+  });
+  test('should resolve and execute the specified function that itself returns a promise', async () => {
     // given
     const operationData = {
       systemName: 'testName',
     };
     let called = false;
-    const func = function (this: IOperationContext, opData: TOperation) {
+    const func = function(this: IOperationContext, opData: TOperation) {
       return new Promise<void>((resolve) => {
         called = true;
         expect(opData).to.equal(operationData);
@@ -78,7 +71,5 @@ CustomFunctionSuite(
     // expect
     expect(called).to.be.true;
     return result;
-  }
-);
-
-CustomFunctionSuite.run();
+  });
+});

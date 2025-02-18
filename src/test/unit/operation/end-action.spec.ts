@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
-import type { TOperation } from '../../../operation/index.ts';
+import { describe, test } from 'vitest';
 import { endAction } from '../../../operation/end-action.ts';
+import type { TOperation } from '../../../operation/index.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockAction {
@@ -12,11 +12,8 @@ class MockAction {
   }
 }
 
-const EndActionSuite = suite('endAction');
-
-EndActionSuite(
-  'should call the end() method on the given action with the given operationdata',
-  async () => {
+describe('endAction', () => {
+  test('should call the end() method on the given action with the given operationdata', async () => {
     // given
     const mockAction = new MockAction();
 
@@ -33,8 +30,8 @@ EndActionSuite(
       operationData
     );
 
-    expect(result).to.eql(operationData);
-  }
-);
+    delete (operationData as any).actionOperationData;
 
-EndActionSuite.run();
+    expect(result).to.eql(operationData);
+  });
+});

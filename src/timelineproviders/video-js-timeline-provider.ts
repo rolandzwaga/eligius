@@ -1,7 +1,8 @@
 import $ from 'jquery';
 import { v4 as uuidv4 } from 'uuid';
-import videojs from 'video.js';
-import Player, { type PlayerReadyCallback } from 'video.js/dist/types/player.ts';
+import * as videojs from 'video.js';
+import type Player from 'video.js';
+import { PlayerReadyCallback } from 'video.js';
 import type { IResolvedEngineConfiguration } from '../configuration/types.ts';
 import type { ITimelineProvider, TPlayState } from './types.ts';
 

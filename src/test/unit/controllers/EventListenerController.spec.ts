@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import { EventListenerController } from '../../../controllers/event-listener-controller.ts';
 import type { IEventbus } from '../../../eventbus/index.ts';
 
@@ -48,42 +48,39 @@ class MockElement {
   }
 }
 
-const EventListenerControllerSuite = suite<{
+type EventListenerControllerSuiteContext = {
   controller: EventListenerController;
   eventbus: IEventbus;
   selectedElement: MockElement;
   operationData: any;
-}>('EventListenerController');
+} & TestContext;
 
-EventListenerControllerSuite.before.each((context) => {
-  context.controller = new EventListenerController();
-  context.eventbus = new MockEventbus() as unknown as IEventbus;
-  context.selectedElement = new MockElement();
-  context.operationData = {
-    selectedElement: context.selectedElement,
-    eventName: 'test',
-    actions: ['actionName1', 'actionName2'],
-    actionOperationData: {
-      test: 'test',
-    },
-  };
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<EventListenerControllerSuiteContext>('EventListenerController', () => {
+  beforeEach((context) => {
+    withContext<EventListenerControllerSuiteContext>(context);
 
-EventListenerControllerSuite(
-  'should create the EventListenerController',
-  (context) => {
+    context.controller = new EventListenerController();
+    context.eventbus = new MockEventbus() as unknown as IEventbus;
+    context.selectedElement = new MockElement();
+    context.operationData = {
+      selectedElement: context.selectedElement,
+      eventName: 'test',
+      actions: ['actionName1', 'actionName2'],
+      actionOperationData: {
+        test: 'test',
+      },
+    };
+  });
+  test<EventListenerControllerSuiteContext>('should create the EventListenerController', (context) => {
     // given
     const { controller } = context;
 
     expect(controller.name).to.equal('EventListenerController');
     expect(controller.operationData).to.be.undefined;
     expect(controller.actionInstanceInfos).to.be.undefined;
-  }
-);
-
-EventListenerControllerSuite(
-  'should initialize the EventListenerController',
-  (context) => {
+  });
+  test<EventListenerControllerSuiteContext>('should initialize the EventListenerController', (context) => {
     // given
     const { controller, operationData } = context;
     // test
@@ -100,47 +97,41 @@ EventListenerControllerSuite(
     expect(controller.operationData?.actionOperationData?.test).to.equal(
       'test'
     );
-  }
-);
+  });
+  test<EventListenerControllerSuiteContext>('should attach properly', (context) => {
+    // given
+    const { controller, operationData, eventbus } = context;
 
-EventListenerControllerSuite('should attach properly', (context) => {
-  // given
-  const { controller, operationData, eventbus } = context;
+    controller.init(operationData);
 
-  controller.init(operationData);
+    // test
+    controller.attach(eventbus);
 
-  // test
-  controller.attach(eventbus);
+    // expect
+    expect(controller.actionInstanceInfos?.length).to.equal(2);
+    expect(controller.actionInstanceInfos?.[0].action?.name).to.equal(
+      'actionName1'
+    );
+    expect(controller.actionInstanceInfos?.[1].action?.name).to.equal(
+      'actionName2'
+    );
+    expect(controller.actionInstanceInfos?.[0].start).to.be.true;
+    expect(controller.actionInstanceInfos?.[1].start).to.be.true;
+    expect(operationData.selectedElement.eventName).to.equal('test');
+  });
+  test<EventListenerControllerSuiteContext>('should detach properly', (context) => {
+    // given
+    const { controller, operationData, eventbus } = context;
 
-  // expect
-  expect(controller.actionInstanceInfos?.length).to.equal(2);
-  expect(controller.actionInstanceInfos?.[0].action?.name).to.equal(
-    'actionName1'
-  );
-  expect(controller.actionInstanceInfos?.[1].action?.name).to.equal(
-    'actionName2'
-  );
-  expect(controller.actionInstanceInfos?.[0].start).to.be.true;
-  expect(controller.actionInstanceInfos?.[1].start).to.be.true;
-  expect(operationData.selectedElement.eventName).to.equal('test');
-});
+    controller.init(operationData);
 
-EventListenerControllerSuite('should detach properly', (context) => {
-  // given
-  const { controller, operationData, eventbus } = context;
+    // test
+    controller.detach(eventbus as any as IEventbus);
 
-  controller.init(operationData);
-
-  // test
-  controller.detach(eventbus as any as IEventbus);
-
-  // expect
-  expect(operationData.selectedElement.eventName).to.equal('test');
-});
-
-EventListenerControllerSuite(
-  'should call the select event handler',
-  async (context) => {
+    // expect
+    expect(operationData.selectedElement.eventName).to.equal('test');
+  });
+  test<EventListenerControllerSuiteContext>('should call the select event handler', async (context) => {
     // given
     const { controller, operationData, eventbus } = context;
 
@@ -179,12 +170,8 @@ EventListenerControllerSuite(
       (controller.actionInstanceInfos?.[1].action as unknown as MockAction)
         .startOperationData
     ).to.eql(expectedOperatonData);
-  }
-);
-
-EventListenerControllerSuite(
-  'should call the textinput event handler',
-  async (context) => {
+  });
+  test<EventListenerControllerSuiteContext>('should call the textinput event handler', async (context) => {
     // given
     const { controller, operationData, eventbus } = context;
 
@@ -224,7 +211,5 @@ EventListenerControllerSuite(
       (controller.actionInstanceInfos?.[1].action as unknown as MockAction)
         .startOperationData
     ).to.eql(expectedOperatonData);
-  }
-);
-
-EventListenerControllerSuite.run();
+  });
+});

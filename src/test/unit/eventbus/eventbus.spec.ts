@@ -1,16 +1,17 @@
 import { expect } from 'chai';
-import { suite } from 'uvu';
+import { beforeEach, describe, test, type TestContext } from 'vitest';
 import { Eventbus, type IEventbus } from '../../../eventbus/index.ts';
 
-const EventbusSuite = suite<{ eventbus: IEventbus }>('Eventbus');
+type EventbusSuiteContext = { eventbus: IEventbus } & TestContext;
 
-EventbusSuite.before.each((context) => {
-  context.eventbus = new Eventbus();
-});
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<EventbusSuiteContext>('Eventbus', () => {
+  beforeEach((context) => {
+    withContext<EventbusSuiteContext>(context);
 
-EventbusSuite(
-  'should register an event handler and let it get called',
-  (context) => {
+    context.eventbus = new Eventbus();
+  });
+  test<EventbusSuiteContext>('should register an event handler and let it get called', (context) => {
     // given
     const { eventbus } = context;
 
@@ -24,12 +25,8 @@ EventbusSuite(
 
     // expect
     expect(called).to.equal(1);
-  }
-);
-
-EventbusSuite(
-  'should register an event handler once and let it get called only once',
-  (context) => {
+  });
+  test<EventbusSuiteContext>('should register an event handler once and let it get called only once', (context) => {
     // given
     const { eventbus } = context;
     let called = 0;
@@ -43,12 +40,8 @@ EventbusSuite(
 
     // expect
     expect(called).to.be.equal(1);
-  }
-);
-
-EventbusSuite(
-  'should register an event handler once, but not be called after it was removed',
-  (context) => {
+  });
+  test<EventbusSuiteContext>('should register an event handler once, but not be called after it was removed', (context) => {
     // given
     const { eventbus } = context;
     let called = 0;
@@ -62,53 +55,47 @@ EventbusSuite(
 
     // expect
     expect(called).to.be.equal(0);
-  }
-);
+  });
+  test<EventbusSuiteContext>('should only call handler for specified topic', (context) => {
+    // given
+    const { eventbus } = context;
+    let called = 0;
+    let topic = 'topic';
+    eventbus.on(
+      'test',
+      (val) => {
+        called += val;
+      },
+      topic
+    );
 
-EventbusSuite('should only call handler for specified topic', (context) => {
-  // given
-  const { eventbus } = context;
-  let called = 0;
-  let topic = 'topic';
-  eventbus.on(
-    'test',
-    (val) => {
-      called += val;
-    },
-    topic
-  );
+    // test
+    eventbus.broadcast('test', [1]);
+    eventbus.broadcastForTopic('test', topic, [1]);
 
-  // test
-  eventbus.broadcast('test', [1]);
-  eventbus.broadcastForTopic('test', topic, [1]);
+    // expect
+    expect(called).to.be.equal(1);
+  });
+  test<EventbusSuiteContext>('should register and call the event interceptor', (context) => {
+    // given
+    const { eventbus } = context;
+    let called = 0;
+    const interceptor = {
+      intercept: (args: number[]) => {
+        called += args[0];
+        return args;
+      },
+    };
+    eventbus.registerInterceptor('test', interceptor);
 
-  // expect
-  expect(called).to.be.equal(1);
-});
+    // test
+    eventbus.broadcast('test', [1]);
+    eventbus.broadcast('test2', [1]);
 
-EventbusSuite('should register and call the event interceptor', (context) => {
-  // given
-  const { eventbus } = context;
-  let called = 0;
-  const interceptor = {
-    intercept: (args: number[]) => {
-      called += args[0];
-      return args;
-    },
-  };
-  eventbus.registerInterceptor('test', interceptor);
-
-  // test
-  eventbus.broadcast('test', [1]);
-  eventbus.broadcast('test2', [1]);
-
-  // expect
-  expect(called).to.equal(1);
-});
-
-EventbusSuite(
-  'should register and not call the event interceptor after it was removed',
-  (context) => {
+    // expect
+    expect(called).to.equal(1);
+  });
+  test<EventbusSuiteContext>('should register and not call the event interceptor after it was removed', (context) => {
     // given
     const { eventbus } = context;
     let called = 0;
@@ -126,12 +113,8 @@ EventbusSuite(
 
     // expect
     expect(called).to.equal(0);
-  }
-);
-
-EventbusSuite(
-  'should register and call the event interceptor for the specified topic',
-  (context) => {
+  });
+  test<EventbusSuiteContext>('should register and call the event interceptor for the specified topic', (context) => {
     // given
     const { eventbus } = context;
     let called = 0;
@@ -150,12 +133,8 @@ EventbusSuite(
 
     // expect
     expect(called).to.be.equal(1);
-  }
-);
-
-EventbusSuite(
-  'should register and call the event interceptor and pass the new args to the event handler',
-  (context) => {
+  });
+  test<EventbusSuiteContext>('should register and call the event interceptor and pass the new args to the event handler', (context) => {
     // given
     const { eventbus } = context;
     let called1 = 0;
@@ -185,12 +164,8 @@ EventbusSuite(
     // expect
     expect(called1).to.be.equal(10);
     expect(called2).to.be.equal(1);
-  }
-);
-
-EventbusSuite(
-  'should register and call the specified eventlistener',
-  (context) => {
+  });
+  test<EventbusSuiteContext>('should register and call the specified eventlistener', (context) => {
     // given
     const { eventbus } = context;
     let received: [string, string, any[]][] = [];
@@ -216,12 +191,8 @@ EventbusSuite(
     expect(received[1][0]).to.equal('test2');
     expect(received[1][1]).to.equal(topic);
     expect(received[1][2][0]).to.equal(100);
-  }
-);
-
-EventbusSuite(
-  'should register and not call the specified eventlistener after it was removed',
-  (context) => {
+  });
+  test<EventbusSuiteContext>('should register and not call the specified eventlistener after it was removed', (context) => {
     // given
     const { eventbus } = context;
     let received: [string, string, any[]][] = [];
@@ -239,7 +210,5 @@ EventbusSuite(
 
     // expect
     expect(received.length).to.be.equal(0);
-  }
-);
-
-EventbusSuite.run();
+  });
+});
