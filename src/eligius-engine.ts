@@ -1,11 +1,11 @@
 import $ from 'jquery';
-import { IEndableAction, ITimelineAction } from './action/types';
-import { IResolvedEngineConfiguration } from './configuration/types';
-import { IEventbus, TEventbusRemover, TEventHandler } from './eventbus/types';
-import { LanguageManager } from './language-manager';
-import { TimelineEventNames } from './timeline-event-names';
-import { ITimelineProvider } from './timelineproviders/types';
-import { IEligiusEngine, ITimelineProviderInfo, TimelineTypes, TResultCallback } from './types';
+import type { IEndableAction, ITimelineAction } from './action/types.ts';
+import type { IResolvedEngineConfiguration } from './configuration/types.ts';
+import type { IEventbus, TEventbusRemover, TEventHandler } from './eventbus/types.ts';
+import { LanguageManager } from './language-manager.ts';
+import { TimelineEventNames } from './timeline-event-names.ts';
+import type { ITimelineProvider } from './timelineproviders/types.ts';
+import type { IEligiusEngine, ITimelineProviderInfo, TimelineTypes, TResultCallback } from './types.ts';
 
 type ActionMethod = (IEndableAction['start'] & ActionMethodMetadata) | (IEndableAction['end'] & ActionMethodMetadata);
 

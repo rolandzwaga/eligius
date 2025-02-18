@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IOperationContext } from '../../../../operation';
-import { resolveEventArguments } from '../../../../operation/helper/resolve-event-arguments';
+import type { IOperationContext } from '../../../../operation/index.ts';
+import { resolveEventArguments } from '../../../../operation/helper/resolve-event-arguments.ts';
 
 const ResolveEventArgumentsSuite = suite('resolveEventArguments');
 

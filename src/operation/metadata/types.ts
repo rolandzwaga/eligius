@@ -6,9 +6,9 @@ export type THasDescription = {
   description?: string;
 };
 
-export type TComplexProperyMetadata = {
-  type: TParameterTypes;
-  defaultValue?: any;
+export type TComplexPropertyMetadata = {
+  type: (TConstantParametersTypes[]) | TParameterTypes;
+  defaultValue?: unknown;
 } & THasRequired &
   THasDescription;
 
@@ -21,14 +21,12 @@ export type TArrayProperyMetadata = {
 export type TConstantParametersTypes = {
   value: string;
   default?: boolean;
-} & THasRequired &
-  THasDescription;
+} & THasDescription;
 
 export type TPropertyMetadata =
-  | TComplexProperyMetadata
+  | TComplexPropertyMetadata
   | TArrayProperyMetadata
-  | TParameterTypes
-  | TConstantParametersTypes[];
+  | TParameterTypes;
 
 export type TPropertiesMetadata<T> = { [P in keyof T]?: TPropertyMetadata };
 

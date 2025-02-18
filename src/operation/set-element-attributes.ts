@@ -1,15 +1,18 @@
-import { TOperation } from './types';
+import type { TOperation } from './types.ts';
 
 export interface ISetElementAttributesOperationData {
-  attributes: Record<string, any>;
+  /**
+   * @required
+   */
+  attributes: Record<string, unknown>;
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
 }
 
 /**
  * This operation sets the specified set of attributes on the given selected element.
- *
- * @param operationData
- * @returns
  */
 export const setElementAttributes: TOperation<ISetElementAttributesOperationData> =
   function (operationData: ISetElementAttributesOperationData) {

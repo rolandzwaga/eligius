@@ -1,18 +1,18 @@
 import fs from 'fs';
 import { emptyDirSync } from 'fs-extra';
 import path from 'path';
-import * as controllers from '../../controllers';
-import * as metadata from '../../operation/metadata';
+import * as controllers from '../../controllers/index.ts';
+import * as metadata from '../../operation/metadata/index.ts';
 import {
   IOperationMetadata,
-  TComplexProperyMetadata,
+  TComplexPropertyMetadata,
   TConstantParametersTypes,
   THasDescription,
   THasRequired,
   TParameterTypes,
   TPropertiesMetadata,
   TPropertyMetadata,
-} from '../../operation/metadata/types';
+} from '../../operation/metadata/types.ts';
 import camelCaseToDash from '../../util/camel-case-to-dash';
 import dashToCamelCase from '../../util/dash-to-camel-case';
 import { htmlTagNames } from './html-tag-names';
@@ -257,7 +257,7 @@ function hasDescription(value: any): value is THasDescription {
   return typeof value === 'object' && 'description' in value;
 }
 
-function isComplex(value: TPropertyMetadata): value is TComplexProperyMetadata {
+function isComplex(value: TPropertyMetadata): value is TComplexPropertyMetadata {
   return typeof value === 'object' && 'type' in value;
 }
 
@@ -315,6 +315,9 @@ function metadataType2SchemaPattern(value: TParameterTypes) {
   }
 }
 
-function capitalize(value: string) {
-  return `${value[0].toUpperCase()}${value.substring(1)}`;
+function capitalize(value: unknown) {
+  if (typeof value === "string") {
+    return `${value[0].toUpperCase()}${value.substring(1)}`;
+  }
+  return value;
 }

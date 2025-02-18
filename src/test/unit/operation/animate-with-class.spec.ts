@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { animateWithClass } from '../../../operation/animate-with-class';
-import { applyOperation } from '../../../util/apply-operation';
+import { animateWithClass } from '../../../operation/animate-with-class.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   removedCalled = false;

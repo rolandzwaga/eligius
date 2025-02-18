@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { ConfigurationFactory } from '../../../../configuration/api';
+import { ConfigurationFactory } from '../../../../configuration/api/index.ts';
 import {
   EndableActionEditor,
   OperationEditor,
-} from '../../../../configuration/api/action-editor';
+} from '../../../../configuration/api/action-editor.ts';
 
 const EndableActionEditorSuite = suite<{
   configurationFactory: ConfigurationFactory;

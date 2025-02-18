@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
-import { isFunction } from './guards/is-function';
-import { isObject } from './guards/is-object';
+import { isFunction } from './guards/is-function.ts';
+import { isObject } from './guards/is-object.ts';
 
 export function prepareValueForSerialization(value: unknown): any {
   if (Array.isArray(value)) {

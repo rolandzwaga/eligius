@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { clearGlobals, getGlobals } from '../../../operation/helper/globals';
+import { clearGlobals, getGlobals } from '../../../operation/helper/globals.ts';
 import {
-  ISetGlobalDataOperationData,
+  type ISetGlobalDataOperationData,
   setGlobalData,
-} from '../../../operation/set-global-data';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/set-global-data.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const SetGlobalDataSuite = suite('setGlobalData');
 

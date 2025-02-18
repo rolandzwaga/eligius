@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import { suite } from 'uvu';
-import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider';
+import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
 
 const RequestAnimationFrameTimelineProviderSuite = suite<{
   provider: RequestAnimationFrameTimelineProvider;

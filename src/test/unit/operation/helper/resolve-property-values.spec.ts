@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IOperationContext } from '../../../../operation';
-import { resolvePropertyValues } from '../../../../operation/helper/resolve-property-values';
-import { setGlobal } from '../../../../operation/helper/set-global';
+import type { IOperationContext } from '../../../../operation/index.ts';
+import { resolvePropertyValues } from '../../../../operation/helper/resolve-property-values.ts';
+import { setGlobal } from '../../../../operation/helper/set-global.ts';
 
 const ResolvePropertyValuesSuite = suite('resolvePropertyValues');
 

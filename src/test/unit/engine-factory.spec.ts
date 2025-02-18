@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IEngineConfiguration } from '../../configuration/types';
-import { EngineFactory } from '../../engine-factory';
-import { IEngineFactory, ISimpleResourceImporter } from '../../types';
+import type { IEngineConfiguration } from '../../configuration/types.ts';
+import { EngineFactory } from '../../engine-factory.ts';
+import type { IEngineFactory, ISimpleResourceImporter } from '../../types.ts';
 
 class MockImporter {
   import(name: string) {

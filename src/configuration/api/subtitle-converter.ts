@@ -1,4 +1,4 @@
-import { IStrictDuration, ISubtitle } from '../../types';
+import type { IStrictDuration, ISubtitle } from '../../types.ts';
 
 /**
  * This class converts an AVID subtitle file to an `ISubtitle` array.

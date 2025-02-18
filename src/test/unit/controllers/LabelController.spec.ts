@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import {
-  ILabelControllerMetadata,
+  type ILabelControllerMetadata,
   LabelController,
-} from '../../../controllers/label-controller';
-import { Eventbus, IEventbus } from '../../../eventbus';
-import { TimelineEventNames } from '../../../timeline-event-names';
+} from '../../../controllers/label-controller.ts';
+import { Eventbus, type IEventbus } from '../../../eventbus/index.ts';
+import { TimelineEventNames } from '../../../timeline-event-names.ts';
 class MockElement {
   content: string = '';
   html(content: string) {

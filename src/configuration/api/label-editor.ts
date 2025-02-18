@@ -1,5 +1,5 @@
-import { ILanguageLabel } from '../../types';
-import { ConfigurationFactory } from './configuration-factory';
+import type { ILanguageLabel } from '../../types.ts';
+import { ConfigurationFactory } from './configuration-factory.ts';
 
 export class LabelEditor {
   constructor(

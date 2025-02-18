@@ -1,8 +1,8 @@
-import * as controllers from '../../controllers';
-import * as operations from '../../operation';
-import * as operationMetadata from '../../operation/metadata';
-import { IOperationMetadata } from '../../operation/metadata/types';
-import { TimelineEventNames } from '../../timeline-event-names';
+import * as controllers from '../../controllers/index.ts';
+import * as operations from '../../operation/index.ts';
+import * as operationMetadata from '../../operation/metadata/index.ts';
+import type { IOperationMetadata } from '../../operation/metadata/types.ts';
+import { TimelineEventNames } from '../../timeline-event-names.ts';
 
 export class OperationNamesProvider {
   getOperationNames() {

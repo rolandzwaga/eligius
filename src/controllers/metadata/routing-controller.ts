@@ -1,5 +1,5 @@
-import { IRoutingControllerOperationData } from '../routing-controller';
-import { IControllerMetadata } from './types';
+import type { IRoutingControllerOperationData } from '../routing-controller.ts';
+import type { IControllerMetadata } from './types.ts';
 
 function RoutingController(): IControllerMetadata<IRoutingControllerOperationData> {
   return {

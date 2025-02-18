@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { TOperationData } from '../../../operation';
-import { resizeAction } from '../../../operation/resize-action';
-import { applyOperation } from '../../../util/apply-operation';
+import type { TOperationData } from '../../../operation/index.ts';
+import { resizeAction } from '../../../operation/resize-action.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockAction {
   operationData: any;

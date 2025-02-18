@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { clearOperationData } from '../../../operation/clear-operation-data';
-import { applyOperation } from '../../../util/apply-operation';
+import { clearOperationData } from '../../../operation/clear-operation-data.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const ClearOperationDataSuite = suite('clearOperationData');
 

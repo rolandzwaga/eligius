@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { Eventbus, IEventbus } from '../../../eventbus';
+import { Eventbus, type IEventbus } from '../../../eventbus/index.ts';
 
 const EventbusSuite = suite<{ eventbus: IEventbus }>('Eventbus');
 

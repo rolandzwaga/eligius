@@ -1,7 +1,7 @@
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { IController } from './types';
+import type { IEventbus, TEventbusRemover } from '../eventbus/types.ts';
+import type { TOperationData } from '../operation/types.ts';
+import { TimelineEventNames } from '../timeline-event-names.ts';
+import type { IController } from './types.ts';
 
 export interface IProgressbarControllerOperationData {
   selectedElement: JQuery;

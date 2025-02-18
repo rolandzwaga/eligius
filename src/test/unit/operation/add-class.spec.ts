@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { addClass } from '../../../operation/add-class';
-import { applyOperation } from '../../../util/apply-operation';
+import { addClass } from '../../../operation/add-class.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const AddClassSuite = suite('addClass');
 

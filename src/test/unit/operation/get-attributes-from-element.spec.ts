@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getAttributesFromElement } from '../../../operation';
-import { IGetAttributesFromElementOperationData } from '../../../operation/get-attributes-from-element';
-import { applyOperation } from '../../../util/apply-operation';
+import { getAttributesFromElement } from '../../../operation/index.ts';
+import type { IGetAttributesFromElementOperationData } from '../../../operation/get-attributes-from-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const GetAttibutesFromElementSuite = suite('getAttibutesFromElement');
 

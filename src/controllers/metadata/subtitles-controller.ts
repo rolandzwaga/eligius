@@ -1,5 +1,5 @@
-import { ISubtitlesControllerOperationData } from '../subtitles-controller';
-import { IControllerMetadata } from './types';
+import type { ISubtitlesControllerOperationData } from '../subtitles-controller.ts';
+import type { IControllerMetadata } from './types.ts';
 
 function SubtitlesController(): IControllerMetadata<ISubtitlesControllerOperationData> {
   return {

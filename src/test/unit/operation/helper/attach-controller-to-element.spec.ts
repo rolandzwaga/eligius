@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { attachControllerToElement } from '../../../../operation/helper/attach-controller-to-element';
+import { attachControllerToElement } from '../../../../operation/helper/attach-controller-to-element.ts';
 
 class MockElement {
   name: string = '';

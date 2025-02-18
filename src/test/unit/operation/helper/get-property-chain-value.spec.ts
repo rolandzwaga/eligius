@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getPropertyChainValue } from '../../../../operation/helper/get-property-chain-value';
+import { getPropertyChainValue } from '../../../../operation/helper/get-property-chain-value.ts';
 
 const GetNestedValueSuite = suite('getNestedValue');
 

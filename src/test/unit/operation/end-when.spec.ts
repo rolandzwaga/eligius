@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { endWhen } from '../../../operation';
-import { applyOperation } from '../../../util/apply-operation';
+import { endWhen } from '../../../operation/index.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const EndWhenSuite = suite('endWhen');
 

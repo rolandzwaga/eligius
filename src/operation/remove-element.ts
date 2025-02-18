@@ -1,6 +1,9 @@
-import { TOperation } from './types';
+import type { TOperation } from './types.ts';
 
 export interface IRemoveElementOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
 }
 

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { toggleElement } from '../../../operation/toggle-element';
-import { applyOperation } from '../../../util/apply-operation';
+import { toggleElement } from '../../../operation/toggle-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   isToggled: boolean = false;

@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IController } from '../../../controllers/types';
-import { IEventbus } from '../../../eventbus';
+import type { IController } from '../../../controllers/types.ts';
+import type { IEventbus } from '../../../eventbus/index.ts';
 import {
   getControllerInstance,
-  IGetControllerInstanceOperationData,
-} from '../../../operation/get-controller-instance';
-import { applyOperation } from '../../../util/apply-operation';
+  type IGetControllerInstanceOperationData,
+} from '../../../operation/get-controller-instance.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   controller: any;

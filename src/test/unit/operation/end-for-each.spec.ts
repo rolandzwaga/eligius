@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IOperationContext } from '../../../operation';
-import { endForEach } from '../../../operation/end-for-each';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IOperationContext } from '../../../operation/index.ts';
+import { endForEach } from '../../../operation/end-for-each.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const EndForEachSuite = suite('endForEach');
 

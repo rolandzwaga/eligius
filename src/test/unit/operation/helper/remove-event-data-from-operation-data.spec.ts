@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { removeEventDataFromOperationData } from '../../../../operation/helper/remove-event-data-from-operation-data';
+import { removeEventDataFromOperationData } from '../../../../operation/helper/remove-event-data-from-operation-data.ts';
 
 const RemoveEventDataFromOperationDataSuite = suite(
   'removeEventDataFromOperationData'

@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
-import * as operations from '../../operation';
-import { deepCopy } from '../../operation/helper/deep-copy';
-import { TOperation, TOperationData } from '../../operation/types';
-import {
+import * as operations from '../../operation/index.ts';
+import { deepCopy } from '../../operation/helper/deep-copy.ts';
+import type { TOperation, TOperationData } from '../../operation/types.ts';
+import type {
   ExtractDataType,
   IActionConfiguration,
   IEndableActionConfiguration,
   ITimelineActionConfiguration,
-} from '../types';
-import { ConfigurationFactory } from './configuration-factory';
+} from '../types.ts';
+import { ConfigurationFactory } from './configuration-factory.ts';
 
 export class ActionCreatorFactory {
   constructor(private readonly configurationfactory: ConfigurationFactory) {}

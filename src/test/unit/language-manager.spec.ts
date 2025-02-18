@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IEventbus } from '../../eventbus';
-import { LanguageManager } from '../../language-manager';
-import { ILanguageLabel } from '../../types';
+import type { IEventbus } from '../../eventbus/index.ts';
+import { LanguageManager } from '../../language-manager.ts';
+import type { ILanguageLabel } from '../../types.ts';
 
 const LanguageManagerSuite = suite<{
   eventbus: IEventbus;

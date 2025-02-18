@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { TimelineProviderSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor';
+import { TimelineProviderSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor.ts';
 
 const TimelineProviderSettingsEditorSuite = suite<{
   editor: TimelineProviderSettingsEditor;

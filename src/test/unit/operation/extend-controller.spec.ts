@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IController } from '../../../controllers/types';
-import { extendController } from '../../../operation/extend-controller';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IController } from '../../../controllers/types.ts';
+import { extendController } from '../../../operation/extend-controller.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const ExtendControllerSuite = suite('extendController');
 

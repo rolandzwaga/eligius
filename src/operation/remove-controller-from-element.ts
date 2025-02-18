@@ -1,9 +1,15 @@
-import { IController } from '../controllers/types';
-import { getElementControllers } from './helper/get-element-data';
-import { TOperation } from './types';
+import type { IController } from '../controllers/types.ts';
+import { getElementControllers } from './helper/get-element-data.ts';
+import type { TOperation } from './types.ts';
 
 export interface IRemoveControllerFromElementOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:controllerName
+   */
   controllerName: string;
 }
 

@@ -4,13 +4,13 @@ import {
   ActionEditor,
   EndableActionEditor,
   TimelineActionEditor,
-} from '../../../../configuration/api/action-editor';
-import { ConfigurationFactory } from '../../../../configuration/api/configuration-factory';
-import { TimelineProvidersSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor';
-import {
+} from '../../../../configuration/api/action-editor.ts';
+import { ConfigurationFactory } from '../../../../configuration/api/configuration-factory.ts';
+import { TimelineProvidersSettingsEditor } from '../../../../configuration/api/timeline-provider-settings-editor.ts';
+import type {
   IActionConfiguration,
   ITimelineActionConfiguration,
-} from '../../../../configuration/types';
+} from '../../../../configuration/types.ts';
 
 const ConfigurationFactorySuite = suite<{
   configurationFactory: ConfigurationFactory;

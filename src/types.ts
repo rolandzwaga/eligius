@@ -1,10 +1,10 @@
-import { IAction } from './action/types';
-import {
+import type { IAction } from './action/types.ts';
+import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration
-} from './configuration/types';
-import { IEventbus, IEventbusListener } from './eventbus/types';
-import { ITimelineProvider } from './timelineproviders/types';
+} from './configuration/types.ts';
+import type { IEventbus, IEventbusListener } from './eventbus/types.ts';
+import type { ITimelineProvider } from './timelineproviders/types.ts';
 
 export type KeysOfType<T, U, B = false> = {
   [P in keyof T]: B extends true

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { EOL } from 'os';
 import path from 'path';
-import camelCaseToDash from '../../util/camel-case-to-dash';
+import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
 const docsJsonPath = path.resolve(__dirname, '../../../docs.json');
 const operationsReadMeoutputPath = path.resolve(__dirname, '../../operation');

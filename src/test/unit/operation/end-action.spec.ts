@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { TOperation } from '../../../operation';
-import { endAction } from '../../../operation/end-action';
-import { applyOperation } from '../../../util/apply-operation';
+import type { TOperation } from '../../../operation/index.ts';
+import { endAction } from '../../../operation/end-action.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockAction {
   end(operationData: TOperation) {

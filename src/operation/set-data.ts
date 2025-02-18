@@ -1,7 +1,7 @@
-import { getPropertyChainValue } from './helper/get-property-chain-value';
-import { getGlobals, TGlobalCache } from './helper/globals';
-import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
-import { IOperationContext, TOperation, TOperationData } from './types';
+import { getPropertyChainValue } from './helper/get-property-chain-value.ts';
+import { getGlobals, type TGlobalCache } from './helper/globals.ts';
+import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
+import type { IOperationContext, TOperation, TOperationData } from './types.ts';
 
 export type TDataTarget =
   | `context.${string}`
@@ -9,6 +9,9 @@ export type TDataTarget =
   | `globaldata.${string}`;
 
 export interface ISetDataOperationData {
+  /**
+   * @required
+   */
   properties: Record<TDataTarget, any>;
 }
 
@@ -23,9 +26,6 @@ export interface ISetDataOperationData {
  *  'context.newIndex': 100,                    // The constant 100 will be assigned to context.newIndex
  * })
  * ```
- *
- * @param operationData
- * @returns
  */
 export const setData: TOperation<ISetDataOperationData> = function (
   operationData: ISetDataOperationData

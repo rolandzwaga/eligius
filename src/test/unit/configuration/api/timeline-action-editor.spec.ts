@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { ConfigurationFactory } from '../../../../configuration/api';
-import { TimelineActionEditor } from '../../../../configuration/api/action-editor';
-import { ITimelineActionConfiguration } from '../../../../configuration/types';
+import { ConfigurationFactory } from '../../../../configuration/api/index.ts';
+import { TimelineActionEditor } from '../../../../configuration/api/action-editor.ts';
+import type { ITimelineActionConfiguration } from '../../../../configuration/types.ts';
 
 const TimelineActionEditorSuite = suite<{
   timelineActionEditor: TimelineActionEditor;

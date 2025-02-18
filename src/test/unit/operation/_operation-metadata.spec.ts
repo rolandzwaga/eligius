@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import * as operations from '../../../operation';
-import * as metadata from '../../../operation/metadata';
+import * as operations from '../../../operation/index.ts';
+import * as metadata from '../../../operation/metadata/index.ts';
 // import ParameterTypes from '../../src/operation/metadata/ParameterTypes';
 // import randomstring from 'randomstring';
 // import { Eventbus } from '../../eventbus';

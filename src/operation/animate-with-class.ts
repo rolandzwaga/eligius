@@ -1,8 +1,15 @@
-import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import { internalResolve } from './helper/internal-resolve.ts';
+import type { TOperation } from './types.ts';
 
 export interface IAnimateWithClassOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:className
+   * @required
+   */
   className: string;
   removeClass?: boolean;
 }
@@ -11,9 +18,6 @@ export interface IAnimateWithClassOperationData {
  * This operation adds the specified class name to the specified selected element and assumes that this
  * class triggers and animation on the selected element. It then waits for this animation to complete
  * before it resolves.
- *
- * @param operationData
- * @returns
  */
 export const animateWithClass: TOperation<IAnimateWithClassOperationData> =
   function (operationData: IAnimateWithClassOperationData) {

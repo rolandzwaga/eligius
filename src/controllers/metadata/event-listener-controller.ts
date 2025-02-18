@@ -1,5 +1,5 @@
-import { IEventListenerControllerOperationData } from '../event-listener-controller';
-import { IControllerMetadata } from './types';
+import type { IEventListenerControllerOperationData } from '../event-listener-controller.ts';
+import type { IControllerMetadata } from './types.ts';
 
 function EventListenerController(): IControllerMetadata<IEventListenerControllerOperationData> {
   return {

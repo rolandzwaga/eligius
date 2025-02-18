@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { toggleClass } from '../../../operation/toggle-class';
-import { applyOperation } from '../../../util/apply-operation';
+import { toggleClass } from '../../../operation/toggle-class.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   className: string = '';

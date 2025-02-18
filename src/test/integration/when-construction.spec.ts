@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { Action } from '../../action';
-import { Eventbus } from '../../eventbus';
-import { otherwise } from '../../operation';
-import { endWhen } from '../../operation/end-when';
-import { IWhenOperationData, when } from '../../operation/when';
+import { Action } from '../../action/index.ts';
+import { Eventbus } from '../../eventbus/index.ts';
+import { otherwise } from '../../operation/index.ts';
+import { endWhen } from '../../operation/end-when.ts';
+import { type IWhenOperationData, when } from '../../operation/when.ts';
 
 const WhenConstruction = suite<{ action: Action }>('whenConstruction');
 

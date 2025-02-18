@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import { suite } from 'uvu';
-import { setElementAttributes } from '../../../operation/set-element-attributes';
-import { applyOperation } from '../../../util/apply-operation';
+import { setElementAttributes } from '../../../operation/set-element-attributes.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const SetElementAttributesSuite = suite('setElementAttributes');
 

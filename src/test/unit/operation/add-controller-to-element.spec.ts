@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { Eventbus } from '../../../eventbus';
-import { TOperation } from '../../../operation';
-import { addControllerToElement } from '../../../operation/add-controller-to-element';
-import { applyOperation } from '../../../util/apply-operation';
+import { Eventbus } from '../../../eventbus/index.ts';
+import type { TOperation } from '../../../operation/index.ts';
+import { addControllerToElement } from '../../../operation/add-controller-to-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   name: string = '';

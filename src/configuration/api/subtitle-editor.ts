@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
-import {
+import type {
   IStrictDuration,
   ISubtitle,
   ISubtitleCollection,
   TLanguageCode,
-} from '../../types';
+} from '../../types.ts';
 
 /**
  * Used to edit and add to an {@link ISubtitleCollection}.

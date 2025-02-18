@@ -1,17 +1,17 @@
 import { isDefined } from 'ts-is-present';
 import { v4 as uuidv4 } from 'uuid';
-import * as operations from '../../operation';
-import { deepCopy } from '../../operation/helper/deep-copy';
-import { TOperation, TOperationData } from '../../operation/types';
-import { IDuration } from '../../types';
-import {
+import * as operations from '../../operation/index.ts';
+import { deepCopy } from '../../operation/helper/deep-copy.ts';
+import type { TOperation, TOperationData } from '../../operation/types.ts';
+import type { IDuration } from '../../types.ts';
+import type {
   ExtractDataType,
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
   ITimelineActionConfiguration,
-} from '../types';
-import { ConfigurationFactory } from './configuration-factory';
+} from '../types.ts';
+import { ConfigurationFactory } from './configuration-factory.ts';
 
 type TOperationName = keyof typeof operations;
 

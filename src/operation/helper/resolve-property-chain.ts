@@ -1,4 +1,4 @@
-import { getPropertyChainValue } from './get-property-chain-value';
+import { getPropertyChainValue } from './get-property-chain-value.ts';
 
 /**
  * Gets the value for the given property chain. A property chain is defined by a period delimited string.
@@ -17,10 +17,6 @@ import { getPropertyChainValue } from './get-property-chain-value';
  * ```
  *
  * The result of the invocation `resolvePropertyChain('mySource.subSource.element.value', foo)` would then yield the value `bar`.
- *
- * @param propertyChain the specified property chain
- * @param sourceObject the given source object
- * @returns
  */
 export function resolvePropertyChain(propertyChain: string, sourceObject: any) {
   const properties = propertyChain.split('.');

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { internalResolve } from '../../../../operation/helper/internal-resolve';
+import { internalResolve } from '../../../../operation/helper/internal-resolve.ts';
 
 const InternalResolveSuite = suite('internalResolve');
 

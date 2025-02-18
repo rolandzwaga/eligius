@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import $ from 'jquery';
 import { suite } from 'uvu';
-import { LabelController } from '../../../controllers';
-import { prepareValueForSerialization } from '../../../util/prepare-value-for-serialization';
+import { LabelController } from '../../../controllers/index.ts';
+import { prepareValueForSerialization } from '../../../util/prepare-value-for-serialization.ts';
 
 const PrepareValueForSerializationSuite = suite('prepareValueForSerialization');
 

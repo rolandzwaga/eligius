@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { modifyDimensions } from '../../../../operation/helper/modify-dimensions';
-import { IDimensions } from '../../../../types';
+import { modifyDimensions } from '../../../../operation/helper/modify-dimensions.ts';
+import type { IDimensions } from '../../../../types.ts';
 
 const ModifyDimensionsSuite =
   suite<{ dimensions: IDimensions }>('modifyDimensions');

@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import {
-  IReparentElementOperationData,
+  type IReparentElementOperationData,
   reparentElement,
-} from '../../../operation/reparent-element';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/reparent-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   selector: string = '';

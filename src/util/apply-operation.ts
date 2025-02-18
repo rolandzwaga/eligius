@@ -1,4 +1,4 @@
-import { IOperationContext, TOperation } from '../operation';
+import type { IOperationContext, TOperation } from '../operation/index.ts';
 
 export const defaultContext: IOperationContext = {
   currentIndex: -1,

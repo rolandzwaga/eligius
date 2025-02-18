@@ -1,7 +1,14 @@
-import { TOperation } from './types';
+import type { TOperation } from './types.ts';
 
 export interface IRemoveClassOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:className
+   * @required
+   */
   className: string;
 }
 

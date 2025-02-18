@@ -1,20 +1,24 @@
-import { IController } from '../controllers/types';
-import { attachControllerToElement } from './helper/attach-controller-to-element';
-import { internalResolve } from './helper/internal-resolve';
-import { IOperationContext, TOperation, TOperationData } from './types';
+import type { IController } from '../controllers/types.ts';
+import { attachControllerToElement } from './helper/attach-controller-to-element.ts';
+import { internalResolve } from './helper/internal-resolve.ts';
+import type { IOperationContext, TOperation, TOperationData } from './types.ts';
 
 export type IAddControllerToElementOperationData<
   T extends TOperationData = TOperationData
 > = {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @dependency
+   */
   controllerInstance: IController<T>;
 } & T;
 
 /**
  * This operation adds the specified controller instance to the given selected element.
  *
- * @param operationData
- * @returns
  */
 export const addControllerToElement: TOperation<IAddControllerToElementOperationData> =
   function <T extends TOperationData = TOperationData>(

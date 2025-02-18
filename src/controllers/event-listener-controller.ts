@@ -1,9 +1,9 @@
-import { IEndableAction } from '../action/types';
-import { IEventbus } from '../eventbus/types';
-import { deepCopy } from '../operation/helper/deep-copy';
-import { TOperationData } from '../operation/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { IController } from './types';
+import type { IEndableAction } from '../action/types.ts';
+import type { IEventbus } from '../eventbus/types.ts';
+import { deepCopy } from '../operation/helper/deep-copy.ts';
+import type { TOperationData } from '../operation/types.ts';
+import { TimelineEventNames } from '../timeline-event-names.ts';
+import type { IController } from './types.ts';
 
 interface IActionInstanceInfo {
   start: boolean;

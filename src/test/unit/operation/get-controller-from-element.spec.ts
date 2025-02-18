@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getControllerFromElement } from '../../../operation/get-controller-from-element';
-import { applyOperation } from '../../../util/apply-operation';
+import { getControllerFromElement } from '../../../operation/get-controller-from-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   controllers: any[];

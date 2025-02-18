@@ -1,19 +1,19 @@
 import $ from 'jquery';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
-import { IEngineConfiguration } from '../../configuration/types';
-import { EngineFactory } from '../../engine-factory';
-import { Eventbus, IEventbus } from '../../eventbus';
-import { EligiusResourceImporter } from '../../importer';
+import { ConfigurationFactory } from '../../configuration/api/configuration-factory.ts';
+import { type IEngineConfiguration } from '../../configuration/types.ts';
+import { EngineFactory } from '../../engine-factory.ts';
+import { Eventbus, type IEventbus } from '../../eventbus/index.ts';
+import { EligiusResourceImporter } from '../../importer/index.ts';
 import {
   createElement,
   requestAction,
   selectElement,
   setElementContent,
   startAction,
-} from '../../operation';
-import { IEligiusEngine } from '../../types';
+} from '../../operation/index.ts';
+import type { IEligiusEngine } from '../../types.ts';
 
 global.cancelAnimationFrame = () => {};
 

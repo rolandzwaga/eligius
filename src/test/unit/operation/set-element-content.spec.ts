@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
 import {
-  ISetElementContentOperationData,
+  type ISetElementContentOperationData,
   setElementContent,
-} from '../../../operation/set-element-content';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/set-element-content.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   htmlContent: string = '';

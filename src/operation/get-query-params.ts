@@ -1,4 +1,4 @@
-import { TOperation } from './types';
+import type { TOperation } from './types.ts';
 
 export interface IGetQueryParamsOperationData {
   /**
@@ -11,6 +11,7 @@ export interface IGetQueryParamsOperationData {
    * }
    * ```
    * This object will be assigned to the `queryParams` property.
+   * @output
    */
   queryParams?: Record<string, string>;
   /**
@@ -23,9 +24,6 @@ export interface IGetQueryParamsOperationData {
 /**
  * This operation retrieves the current query parameters from the browser's address bar and places
  * them on the returned operation data.
- *
- * @param operationData
- * @returns
  */
 export const getQueryParams: TOperation<IGetQueryParamsOperationData> =
   function (operationData: IGetQueryParamsOperationData) {

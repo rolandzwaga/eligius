@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IOperationContext } from '../../../../operation';
-import { removeGlobal } from '../../../../operation/helper/remove-global';
-import { ExternalProperty, resolveExternalPropertyChain } from '../../../../operation/helper/resolve-external-property-chain';
-import { setGlobal } from '../../../../operation/helper/set-global';
+import type { IOperationContext } from '../../../../operation/index.ts';
+import { removeGlobal } from '../../../../operation/helper/remove-global.ts';
+import { type ExternalProperty, resolveExternalPropertyChain } from '../../../../operation/helper/resolve-external-property-chain.ts';
+import { setGlobal } from '../../../../operation/helper/set-global.ts';
 
 const ResolveExternalPropertyChainSuite = suite('resolveExternalPropertyChain');
 

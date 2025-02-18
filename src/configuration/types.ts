@@ -1,6 +1,6 @@
-import { IEndableAction, ITimelineAction } from '../action/types';
-import { TOperation, TOperationData } from '../operation/types';
-import { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '../types';
+import type { IEndableAction, ITimelineAction } from '../action/types.ts';
+import type { TOperation, TOperationData } from '../operation/types.ts';
+import type { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '../types.ts';
 
 export type ExtractDataType<P> = P extends TOperation<infer T> ? T : never;
 export interface IEngineInfo {

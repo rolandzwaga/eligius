@@ -1,8 +1,8 @@
 import $ from 'jquery';
-import { IEventbus, TEventbusRemover } from './eventbus/types';
-import { setGlobal } from './operation/helper/set-global';
-import { TimelineEventNames } from './timeline-event-names';
-import { ILabel, ILanguageLabel, TResultCallback } from './types';
+import type { IEventbus, TEventbusRemover } from './eventbus/types.ts';
+import { setGlobal } from './operation/helper/set-global.ts';
+import { TimelineEventNames } from './timeline-event-names.ts';
+import type { ILabel, ILanguageLabel, TResultCallback } from './types.ts';
 
 /**
  * This class manages the labels for an {@link IEligiusEngine} instance.

@@ -1,6 +1,6 @@
-import { TimelineEventNames } from '../timeline-event-names';
-import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import { TimelineEventNames } from '../timeline-event-names.ts';
+import { internalResolve } from './helper/internal-resolve.ts';
+import type { TOperation } from './types.ts';
 
 export interface ICustomFunctionOperationData {
   systemName: string;

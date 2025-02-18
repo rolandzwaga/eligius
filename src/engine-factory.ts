@@ -1,21 +1,21 @@
-import hotkeys, { HotkeysEvent } from 'hotkeys-js';
+import hotkeys, { type HotkeysEvent } from 'hotkeys-js';
 import $ from 'jquery';
-import { IAction } from './action/types';
-import { ConfigurationResolver } from './configuration/configuration-resolver';
-import { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types';
-import { DevToolEventListener } from './diagnostics/devtool-event-listener';
-import { Diagnostics } from './diagnostics/diagnostics';
-import { DEV_TOOLS_KEY, TDiagnosticType, TWindowWithDevtools } from './diagnostics/types';
+import type { IAction } from './action/types.ts';
+import { ConfigurationResolver } from './configuration/configuration-resolver.ts';
+import type { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types.ts';
+import { DevToolEventListener } from './diagnostics/devtool-event-listener.ts';
+import { Diagnostics } from './diagnostics/diagnostics.ts';
+import { DEV_TOOLS_KEY, type TDiagnosticType, type TWindowWithDevtools } from './diagnostics/types.ts';
 import {
   ActionRegistryEventbusListener,
   Eventbus,
-  IEventbus,
+  type IEventbus,
   RequestVideoUriInterceptor,
-  TEventbusRemover,
-} from './eventbus';
-import { LanguageManager } from './language-manager';
-import { TimelineEventNames } from './timeline-event-names';
-import {
+  type TEventbusRemover,
+} from './eventbus/index.ts';
+import { LanguageManager } from './language-manager.ts';
+import { TimelineEventNames } from './timeline-event-names.ts';
+import type {
   IConfigurationResolver,
   IEligiusEngine,
   IEngineFactory,
@@ -24,8 +24,8 @@ import {
   ITimelineProviderInfo,
   TimelineTypes,
   TResultCallback,
-} from './types';
-import { prepareValueForSerialization } from './util/prepare-value-for-serialization';
+} from './types.ts';
+import { prepareValueForSerialization } from './util/prepare-value-for-serialization.ts';
 
 /**
  * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.

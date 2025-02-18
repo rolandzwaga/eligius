@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import * as timelineProviders from '../../timelineproviders';
-import { TimelineTypes } from '../../types';
-import { ITimelineProviderSettings, TTimelineProviderSettings } from '../types';
-import { ConfigurationFactory } from './configuration-factory';
+import * as timelineProviders from '../../timelineproviders/index.ts';
+import type { TimelineTypes } from '../../types.ts';
+import type { ITimelineProviderSettings, TTimelineProviderSettings } from '../types.ts';
+import { ConfigurationFactory } from './configuration-factory.ts';
 
 export class TimelineProvidersSettingsEditor {
   constructor(

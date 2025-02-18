@@ -1,17 +1,20 @@
-import { resolvePropertyValues } from './helper/resolve-property-values';
-import { TOperation } from './types';
+import { resolvePropertyValues } from './helper/resolve-property-values.ts';
+import type { TOperation } from './types.ts';
 
 export interface ISetStyleOperationData {
+  /**
+   * @required
+   */
   properties: Record<string, any>;
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
 }
 
 /**
  * This operation assigns the specified CSS style properties to the
  * given selected element.
- *
- * @param operationData
- * @returns
  */
 export const setStyle: TOperation<ISetStyleOperationData> = function (
   operationData: ISetStyleOperationData

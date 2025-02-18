@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { addGlobalsToOperation } from '../../../operation/add-globals-to-operation';
-import { setGlobal } from '../../../operation/helper/set-global';
-import { applyOperation } from '../../../util/apply-operation';
+import { addGlobalsToOperation } from '../../../operation/add-globals-to-operation.ts';
+import { setGlobal } from '../../../operation/helper/set-global.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const AddGlobalsToOperationSuite = suite('addGlobalsToOperation');
 

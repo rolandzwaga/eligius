@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getGlobals, setGlobals } from '../../../../operation/helper/globals';
+import { getGlobals, setGlobals } from '../../../../operation/helper/globals.ts';
 
 const GetGlobalsSuite = suite('getGlobals');
 

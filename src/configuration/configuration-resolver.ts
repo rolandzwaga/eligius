@@ -1,14 +1,14 @@
 import { isDefined } from 'ts-is-present';
-import { Action, EndableAction, TimelineAction } from '../action';
-import { IAction } from '../action/types';
-import { ActionRegistryEventbusListener } from '../eventbus';
-import { IEventbus } from '../eventbus/types';
-import { deepCopy } from '../operation/helper/deep-copy';
-import { resolvePropertyChain } from '../operation/helper/resolve-property-chain';
-import { IConfigurationResolver, ISimpleResourceImporter } from '../types';
-import { isObject } from '../util/guards/is-object';
-import { isString } from '../util/guards/is-string';
-import {
+import { Action, EndableAction, TimelineAction } from '../action/index.ts';
+import type { IAction } from '../action/types.ts';
+import { ActionRegistryEventbusListener } from '../eventbus/index.ts';
+import type { IEventbus } from '../eventbus/types.ts';
+import { deepCopy } from '../operation/helper/deep-copy.ts';
+import { resolvePropertyChain } from '../operation/helper/resolve-property-chain.ts';
+import type { IConfigurationResolver, ISimpleResourceImporter } from '../types.ts';
+import { isObject } from '../util/guards/is-object.ts';
+import { isString } from '../util/guards/is-string.ts';
+import type {
   IActionConfiguration,
   IEndableActionConfiguration,
   IEngineConfiguration,
@@ -21,7 +21,7 @@ import {
   IResolvedTimelineConfiguration,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
-} from './types';
+} from './types.ts';
 
 /**
  * Takes an `IEngineConfiguration` instance and return an `IResolvedEngineConfiguration`.

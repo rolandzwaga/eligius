@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
-import { TResultCallback } from '../types';
-import { LabelController } from './label-controller';
-import { IController } from './types';
+import type { IEventbus, TEventbusRemover } from '../eventbus/types.ts';
+import type { TOperationData } from '../operation/types.ts';
+import type { TResultCallback } from '../types.ts';
+import { LabelController } from './label-controller.ts';
+import type { IController } from './types.ts';
 
 export interface INavigationControllerOperationData {
   selectedElement: JQuery;

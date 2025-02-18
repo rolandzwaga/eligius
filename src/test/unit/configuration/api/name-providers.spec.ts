@@ -3,7 +3,7 @@ import { suite } from 'uvu';
 import {
   OperationMetadataProvider,
   TimeLineEventNamesProvider,
-} from '../../../../configuration/api/name-providers';
+} from '../../../../configuration/api/name-providers.ts';
 
 const NameProviders = suite('name-providers');
 

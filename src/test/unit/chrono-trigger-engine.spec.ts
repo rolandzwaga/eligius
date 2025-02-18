@@ -2,8 +2,8 @@ import { expect } from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';
 import { suite } from 'uvu';
-import { EligiusEngine } from '../../eligius-engine';
-import { IEventbus } from '../../eventbus';
+import { EligiusEngine } from '../../eligius-engine.ts';
+import type { IEventbus } from '../../eventbus/index.ts';
 
 class LanguageManagerStub {
   constructor(

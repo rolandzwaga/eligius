@@ -1,5 +1,5 @@
-import { IAction } from '../action/types';
-import { IEventbusListener } from './types';
+import type { IAction } from '../action/types.ts';
+import type { IEventbusListener } from './types.ts';
 
 /**
  * The `IEventbusListener` first registers a number of actions that are then

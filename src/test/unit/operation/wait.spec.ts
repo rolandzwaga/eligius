@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { wait } from '../../../operation/wait';
-import { applyOperation } from '../../../util/apply-operation';
+import { wait } from '../../../operation/wait.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const WaitSuite =
   suite<{ timeout: typeof window.setTimeout; mseconds: number }>('wait');

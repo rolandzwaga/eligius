@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { getElementDimensions } from '../../../operation/get-element-dimensions';
-import { applyOperation } from '../../../util/apply-operation';
+import { getElementDimensions } from '../../../operation/get-element-dimensions.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   width: number;

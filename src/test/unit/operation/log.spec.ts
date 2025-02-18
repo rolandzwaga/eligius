@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IOperationContext, TOperationData } from '../../../operation';
-import { log } from '../../../operation/log';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IOperationContext, TOperationData } from '../../../operation/index.ts';
+import { log } from '../../../operation/log.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const LogSuite = suite<{
   groupFunc: (message: any) => void;

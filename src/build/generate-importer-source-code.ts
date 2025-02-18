@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
-import {
+import type {
   IActionConfiguration,
   IEndableActionConfiguration,
   IEngineConfiguration,
   IOperationConfiguration
-} from '../configuration/types';
-import dashToCamelCase from '../util/dash-to-camel-case';
+} from '../configuration/types.ts';
+import dashToCamelCase from '../util/dash-to-camel-case.ts';
 
 interface ImportInfo {
   systemName: string;

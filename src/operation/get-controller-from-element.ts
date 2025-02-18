@@ -1,10 +1,20 @@
-import { IController } from '../controllers/types';
-import { getElementControllers } from './helper/get-element-data';
-import { TOperation } from './types';
+import type { IController } from '../controllers/types.ts';
+import { getElementControllers } from './helper/get-element-data.ts';
+import type { TOperation } from './types.ts';
 
 export interface IGetControllerFromElementOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:controllerName
+   * @required
+   */
   controllerName: string;
+  /**
+   * @output
+   */  
   controllerInstance?: IController<any>;
 }
 

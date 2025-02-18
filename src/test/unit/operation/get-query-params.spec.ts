@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import { suite } from 'uvu';
 import {
   getQueryParams,
-  IGetQueryParamsOperationData,
-} from '../../../operation/get-query-params';
-import { applyOperation } from '../../../util/apply-operation';
+  type IGetQueryParamsOperationData,
+} from '../../../operation/get-query-params.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 interface GetQueryParamsSuiteContext {
   location: any;

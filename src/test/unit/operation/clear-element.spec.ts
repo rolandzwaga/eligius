@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { clearElement } from '../../../operation/clear-element';
-import { applyOperation } from '../../../util/apply-operation';
+import { clearElement } from '../../../operation/clear-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   emptied = false;

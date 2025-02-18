@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IEventbus } from '../../../eventbus/types';
+import type { IEventbus } from '../../../eventbus/types.ts';
 import {
-  ISelectElementOperationData,
+  type ISelectElementOperationData,
   selectElement,
-} from '../../../operation/select-element';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/select-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   rootElement: any;

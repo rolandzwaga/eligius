@@ -1,11 +1,8 @@
-import { getGlobals } from './helper/globals';
-import { TOperation, TOperationData } from './types';
+import { getGlobals } from './helper/globals.ts';
+import type { TOperation, TOperationData } from './types.ts';
 
 /**
  * This operation logs the current operation data, global data and context to the console.
- *
- * @param operationData
- * @returns
  */
 export const log: TOperation<TOperationData> = function (
   operationData: TOperationData

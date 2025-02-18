@@ -1,4 +1,4 @@
-import { IDimensions } from '../../types';
+import type { IDimensions } from '../../types.ts';
 
 function _modifyDimensionsByRatio(
   ratioModifier: string,

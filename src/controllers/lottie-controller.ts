@@ -1,13 +1,14 @@
-import lottie, {
+import type {
   AnimationConfigWithData,
   AnimationItem,
   CanvasRendererConfig,
   HTMLRendererConfig,
   SVGRendererConfig,
 } from 'lottie-web';
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { IController } from './types';
+import lottie from 'lottie-web';
+import type{ IEventbus, TEventbusRemover } from '../eventbus/types.ts';
+import { TimelineEventNames } from '../timeline-event-names.ts';
+import type { IController } from './types.ts';
 
 export interface IInnerMetadata {
   selectedElement: JQuery;

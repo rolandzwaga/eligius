@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IEventbus } from '../../../eventbus';
-import { IOperationContext } from '../../../operation';
-import { createElement } from '../../../operation/create-element';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IEventbus } from '../../../eventbus/index.ts';
+import type { IOperationContext } from '../../../operation/index.ts';
+import { createElement } from '../../../operation/create-element.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const CreateElementSuite = suite('createElement');
 

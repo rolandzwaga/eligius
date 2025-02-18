@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { setOperationData } from '../../../operation/set-operation-data';
-import { applyOperation } from '../../../util/apply-operation';
+import { setOperationData } from '../../../operation/set-operation-data.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const SetOperationDataSuite = suite('setOperationData');
 

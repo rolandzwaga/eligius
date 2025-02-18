@@ -1,8 +1,8 @@
-import { IResolvedOperation } from '../configuration/types';
-import { Diagnostics } from '../diagnostics';
-import { IEventbus } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
-import { Action } from './action';
+import type { IResolvedOperation } from '../configuration/types.ts';
+import { Diagnostics } from '../diagnostics/index.ts';
+import type { IEventbus } from '../eventbus/types.ts';
+import type { TOperationData } from '../operation/types.ts';
+import { Action } from './action.ts';
 
 export class EndableAction extends Action {
   constructor(

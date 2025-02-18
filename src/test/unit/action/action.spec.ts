@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { Action } from '../../../action';
-import { Eventbus } from '../../../eventbus';
-import { IOperationContext } from '../../../operation/types';
+import { Action } from '../../../action/index.ts';
+import { Eventbus } from '../../../eventbus/index.ts';
+import type { IOperationContext } from '../../../operation/types.ts';
 
 const ActionSuite = suite('Action');
 

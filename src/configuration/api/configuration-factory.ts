@@ -1,25 +1,25 @@
 import { v4 as uuidv4 } from 'uuid';
-import { deepCopy } from '../../operation/helper/deep-copy';
-import {
+import { deepCopy } from '../../operation/helper/deep-copy.ts';
+import type {
   ILabel,
   ILanguageLabel,
   TimelineTypes,
   TLanguageCode,
-} from '../../types';
-import {
+} from '../../types.ts';
+import type {
   IActionConfiguration,
   IEngineConfiguration,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
-} from '../types';
-import { ActionCreatorFactory } from './action-creator-factory';
+} from '../types.ts';
+import { ActionCreatorFactory } from './action-creator-factory.ts';
 import {
   ActionEditor,
   EndableActionEditor,
   TimelineActionEditor,
-} from './action-editor';
-import { LabelEditor } from './label-editor';
-import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor';
+} from './action-editor.ts';
+import { LabelEditor } from './label-editor.ts';
+import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor.ts';
 
 export type TEngineConfigurationLists = Pick<
   IEngineConfiguration,

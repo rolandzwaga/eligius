@@ -1,19 +1,22 @@
-import { TOperation } from './types';
+import type { TOperation } from './types.ts';
 
 export interface IAddClassOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:className
+   * @required
+   */
   className: string;
 }
 
 /**
  * This operation adds the specified class name to the specified selected element.
  *
- * @param operationData
- * @returns
  */
-export const addClass: TOperation<IAddClassOperationData> = function (
-  operationData: IAddClassOperationData
-) {
+export const addClass: TOperation<IAddClassOperationData> = function (operationData) {
   const { selectedElement, className } = operationData;
   selectedElement.addClass(className);
   return operationData;

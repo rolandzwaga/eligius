@@ -1,5 +1,5 @@
-import { ILabelControllerMetadata } from '../label-controller';
-import { IControllerMetadata } from './types';
+import type { ILabelControllerMetadata } from '../label-controller.ts';
+import type { IControllerMetadata } from './types.ts';
 
 function LabelController(): IControllerMetadata<ILabelControllerMetadata> {
   return {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { EventListenerController } from '../../../controllers/event-listener-controller';
-import { IEventbus } from '../../../eventbus';
+import { EventListenerController } from '../../../controllers/event-listener-controller.ts';
+import type { IEventbus } from '../../../eventbus/index.ts';
 
 class MockAction {
   name: string;

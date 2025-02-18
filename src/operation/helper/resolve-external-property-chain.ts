@@ -1,6 +1,6 @@
-import { IOperationContext, TOperationData } from '../types';
-import { getPropertyChainValue } from './get-property-chain-value';
-import { getGlobals } from './globals';
+import type { IOperationContext, TOperationData } from '../types.ts';
+import { getPropertyChainValue } from './get-property-chain-value.ts';
+import { getGlobals } from './globals.ts';
 
 /**
  * Resolves operation and global data property chains.
@@ -9,10 +9,6 @@ import { getGlobals } from './globals';
  * For global data the suffix should be `globaldata.`
  *
  * If the propertyChainOrRegularObject is not a property chain, this value is returned instead.
- *
- * @param sourceObject The object that represents the operation data
- * @param propertyChainOrRegularObject A period delimited string, or just a regular object
- * @returns
  */
 export function resolveExternalPropertyChain(
   sourceObject: TOperationData,

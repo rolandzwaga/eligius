@@ -1,9 +1,9 @@
 import { createProject, ts } from '@ts-morph/bootstrap';
 import { expect } from 'chai';
-import fs, { PathLike } from 'fs';
+import fs, { type PathLike } from 'fs';
 import { suite } from 'uvu';
-import { generateImporterSourceCode } from '../../../build';
-import { ConfigurationFactory } from '../../../configuration/api';
+import { generateImporterSourceCode } from '../../../build/index.ts';
+import { ConfigurationFactory } from '../../../configuration/api/index.ts';
 
 const GenerateImporterSourceCodeSuite = suite('generateImporterSourceCode');
 

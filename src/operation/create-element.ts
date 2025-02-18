@@ -1,13 +1,23 @@
 import $ from 'jquery';
-import { resolvePropertyValues } from './helper/resolve-property-values';
-import { IOperationContext, TOperation } from './types';
+import { resolvePropertyValues } from './helper/resolve-property-values.ts';
+import type { IOperationContext, TOperation } from './types.ts';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
 export interface ICreateElementOperationData<T extends TTagNames> {
+  /**
+   * @required
+   */
   elementName: T;
   text?: string;
+  /**
+   * @type=ParameterType:object
+   */
   attributes?: Partial<HTMLElementTagNameMap[T]>;
+  /**
+   * @type=ParameterType:object
+   * @output
+   */
   template?: JQuery;
 }
 

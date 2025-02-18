@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { animate } from '../../../operation/animate';
-import { applyOperation } from '../../../util/apply-operation';
+import { animate } from '../../../operation/animate.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   properties: any;

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { broadcastEvent } from '../../../operation/broadcast-event';
-import { applyOperation } from '../../../util/apply-operation';
+import { broadcastEvent } from '../../../operation/broadcast-event.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   eventName: string = '';

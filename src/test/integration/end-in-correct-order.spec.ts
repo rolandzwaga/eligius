@@ -1,15 +1,15 @@
 import $ from 'jquery';
 
 import { suite } from 'uvu';
-import { ConfigurationFactory } from '../../configuration/api';
-import { EngineFactory } from '../../engine-factory';
-import { Eventbus } from '../../eventbus';
-import { EligiusResourceImporter } from '../../importer';
+import { ConfigurationFactory } from '../../configuration/api/index.ts';
+import { EngineFactory } from '../../engine-factory.ts';
+import { Eventbus } from '../../eventbus/index.ts';
+import { EligiusResourceImporter } from '../../importer/index.ts';
 import {
   removeElement,
   selectElement,
   setElementContent,
-} from '../../operation';
+} from '../../operation/index.ts';
 
 const EndInCorrectOrder = suite('EndInCorrectOrder');
 

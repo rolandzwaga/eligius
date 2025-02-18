@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { removeClass } from '../../../operation/remove-class';
-import { applyOperation } from '../../../util/apply-operation';
+import { removeClass } from '../../../operation/remove-class.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   removedClassName: string = '';

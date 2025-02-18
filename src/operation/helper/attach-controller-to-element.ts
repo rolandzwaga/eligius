@@ -1,4 +1,4 @@
-import { controllersDataName, getElementControllers } from './get-element-data';
+import { controllersDataName, getElementControllers } from './get-element-data.ts';
 
 export function attachControllerToElement(element: JQuery, controller: any) {
   if (!element.data(controllersDataName)) {

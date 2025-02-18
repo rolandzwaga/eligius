@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { SubtitleEditor } from '../../../../configuration/api';
+import { SubtitleEditor } from '../../../../configuration/api/index.ts';
 
 const SubtitleEditorSuite = suite<{
   subtitleEditor: SubtitleEditor;

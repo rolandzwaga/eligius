@@ -1,11 +1,14 @@
-import { IEndableAction } from '../action/types';
-import { internalResolve } from './helper/internal-resolve';
-import { mergeOperationData } from './helper/merge-operation-data';
-import { TOperation } from './types';
+import type { IEndableAction } from '../action/types.ts';
+import { internalResolve } from './helper/internal-resolve.ts';
+import { mergeOperationData } from './helper/merge-operation-data.ts';
+import type { TOperation } from './types.ts';
 
 export interface IEndActionOperationData {
+  /**
+   * @dependency
+   */
   actionInstance: IEndableAction;
-  actionOperationData: any;
+  actionOperationData: Record<string, unknown>;
 }
 
 /**
@@ -14,24 +17,20 @@ export interface IEndActionOperationData {
  * The action operation data is first merged with the current operation data before it is
  * passed on to the action. After the action has completed the action operation data properties
  * are removed from the current operation data.
- * 
- * @param operationData
- * @returns
  */
 export const endAction: TOperation<IEndActionOperationData> = function (
   operationData: IEndActionOperationData
 ) {
-  const { actionInstance, actionOperationData } = operationData;
-  delete operationData.actionOperationData;
-
+  let { actionOperationData, ...newOperationData } = operationData;
+  
   return new Promise<IEndActionOperationData>((resolve, reject) => {
-    operationData = mergeOperationData(operationData, actionOperationData);
+    newOperationData = mergeOperationData(newOperationData, actionOperationData);
 
-    actionInstance.end(operationData).then(() => {
+    newOperationData.actionInstance.end(newOperationData).then(() => {
       Object.keys(actionOperationData).forEach((key) => {
-        delete (operationData as any)[key];
+        delete (newOperationData as any)[key];
       });
-      internalResolve(resolve, operationData);
+      internalResolve(resolve, newOperationData);
     }, reject);
   });
 };

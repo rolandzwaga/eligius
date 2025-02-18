@@ -3,7 +3,7 @@ import { suite } from 'uvu';
 import {
   getElementControllers,
   getElementData,
-} from '../../../../operation/helper/get-element-data';
+} from '../../../../operation/helper/get-element-data.ts';
 
 class MockElement {
   name: string = '';

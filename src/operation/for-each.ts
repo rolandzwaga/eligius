@@ -1,9 +1,13 @@
-import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
-import { ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
-import { IOperationContext, TOperation } from './types';
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index.ts';
+import { type ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
+import type { IOperationContext, TOperation } from './types.ts';
 
 export interface IForEachOperationData {
-  collection: any[] | string;
+  /**
+   * @type=ParameterType:array
+   * @required
+   */
+  collection: unknown[] | string;
 }
 
 /**
@@ -14,9 +18,6 @@ export interface IForEachOperationData {
  *
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
- *
- * @param operationData
- * @returns
  */
 export const forEach: TOperation<IForEachOperationData> = function (operationData: IForEachOperationData) {
   const { collection } = operationData;

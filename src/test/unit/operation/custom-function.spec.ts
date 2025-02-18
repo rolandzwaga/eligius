@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IEventbus } from '../../../eventbus';
-import { IOperationContext, TOperation } from '../../../operation';
-import { customFunction } from '../../../operation/custom-function';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IEventbus } from '../../../eventbus/index.ts';
+import type { IOperationContext, TOperation } from '../../../operation/index.ts';
+import { customFunction } from '../../../operation/custom-function.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   testFunction: Function;

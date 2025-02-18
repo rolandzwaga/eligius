@@ -7,3 +7,5 @@ dist
 jsonschema/operations
 jsonschema/operation-templates
 docs.json
+src/operation/metadata/*.ts
+!src/operation/metadata/types.ts

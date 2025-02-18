@@ -1,7 +1,7 @@
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { IStrictDuration, ISubtitleCollection } from '../types';
-import { IController } from './types';
+import type { IEventbus, TEventbusRemover } from '../eventbus/types.ts';
+import { TimelineEventNames } from '../timeline-event-names.ts';
+import type { IStrictDuration, ISubtitleCollection } from '../types.ts';
+import type { IController } from './types.ts';
 
 export interface ISubtitlesControllerOperationData {
   selectedElement: JQuery;

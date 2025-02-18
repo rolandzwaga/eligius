@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { mergeOperationData } from '../../../../operation/helper/merge-operation-data';
+import { mergeOperationData } from '../../../../operation/helper/merge-operation-data.ts';
+import type { TOperationData } from '../../../../operation/types.ts';
 
 const MergeOperationDataSuite = suite('mergeOperationData');
 
@@ -14,7 +15,7 @@ MergeOperationDataSuite('should merge the given operation datas', () => {
   };
 
   // test
-  const newData: any = mergeOperationData(data1, data2);
+  const newData: TOperationData = mergeOperationData(data1, data2);
 
   // expect
   expect(newData.hasOwnProperty('test1')).to.be.true;

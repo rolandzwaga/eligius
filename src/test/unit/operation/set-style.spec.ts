@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { setStyle } from '../../../operation/set-style';
-import { applyOperation } from '../../../util/apply-operation';
+import { setStyle } from '../../../operation/set-style.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockElement {
   cssProps: any;

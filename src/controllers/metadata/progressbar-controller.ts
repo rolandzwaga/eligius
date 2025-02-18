@@ -1,5 +1,5 @@
-import { IProgressbarControllerOperationData } from '../progressbar-controller';
-import { IControllerMetadata } from './types';
+import type { IProgressbarControllerOperationData } from '../progressbar-controller.ts';
+import type { IControllerMetadata } from './types.ts';
 
 function ProgressbarController(): IControllerMetadata<IProgressbarControllerOperationData> {
   return {

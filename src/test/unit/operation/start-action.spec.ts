@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IAction } from '../../../action/types';
-import { TOperationData } from '../../../operation';
-import { startAction } from '../../../operation/start-action';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IAction } from '../../../action/types.ts';
+import type { TOperationData } from '../../../operation/index.ts';
+import { startAction } from '../../../operation/start-action.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockAction {
   start(operationData: TOperationData) {

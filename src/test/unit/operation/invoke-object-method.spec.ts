@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IController } from '../../../controllers/types';
+import type { IController } from '../../../controllers/types.ts';
 import {
-  IInvokeObjectMethodOperationData,
+  type IInvokeObjectMethodOperationData,
   invokeObjectMethod,
-} from '../../../operation/invoke-object-method';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/invoke-object-method.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const InvokeObjectMethodSuite = suite('invokeObjectMethod');
 

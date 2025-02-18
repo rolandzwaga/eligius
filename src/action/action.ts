@@ -1,12 +1,12 @@
-import { IResolvedOperation } from '../configuration/types';
-import { Diagnostics } from '../diagnostics';
-import { IEventbus } from '../eventbus/types';
-import { endForEachSystemName, forEachSystemName } from '../operation/for-each';
-import { deepCopy } from '../operation/helper/deep-copy';
-import { IOperationContext, TOperationData } from '../operation/types';
-import { endWhenSystemName, whenSystemName } from '../operation/when';
-import { isPromise } from '../util/guards/is-promise';
-import { IAction } from './types';
+import type { IResolvedOperation } from '../configuration/types.ts';
+import { Diagnostics } from '../diagnostics/index.ts';
+import type { IEventbus } from '../eventbus/types.ts';
+import { endForEachSystemName, forEachSystemName } from '../operation/for-each.ts';
+import { deepCopy } from '../operation/helper/deep-copy.ts';
+import type { IOperationContext, TOperationData } from '../operation/types.ts';
+import { endWhenSystemName, whenSystemName } from '../operation/when.ts';
+import { isPromise } from '../util/guards/is-promise.ts';
+import type { IAction } from './types.ts';
 
 export class Action implements IAction {
   public id = '';

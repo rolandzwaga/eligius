@@ -1,20 +1,15 @@
 import $ from 'jquery';
-import { IOperationContext, TOperationData } from '../../operation/types';
-import { isObject } from '../../util/guards/is-object';
-import { isString } from '../../util/guards/is-string';
-import { deepCopy } from './deep-copy';
-import { ExternalProperty, isExternalProperty, resolveExternalPropertyChain } from './resolve-external-property-chain';
+import type { IOperationContext, TOperationData } from '../../operation/types.ts';
+import { isObject } from '../../util/guards/is-object.ts';
+import { deepCopy } from './deep-copy.ts';
+import { isExternalProperty, resolveExternalPropertyChain } from './resolve-external-property-chain.ts';
+import type { ExternalProperty } from './resolve-external-property-chain.ts';
 
 const cache: any[] = [];
 
 /**
  * This takes a `newProperties` instance, resolves all of the properties on this object and then
  * assigns these properties to the given operationData.
- * 
- * @param operationData 
- * @param operationContext 
- * @param newProperties 
- * @returns 
  */
 export function resolvePropertyValues<T extends TOperationData>(
   operationData: T,

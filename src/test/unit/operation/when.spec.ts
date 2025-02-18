@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IResolvedOperation } from '../../../configuration/types';
-import { IOperationContext } from '../../../operation';
-import { setGlobals } from '../../../operation/helper/globals';
-import { IWhenOperationData, when } from '../../../operation/when';
-import { applyOperation } from '../../../util/apply-operation';
+import type { IResolvedOperation } from '../../../configuration/types.ts';
+import type { IOperationContext } from '../../../operation/index.ts';
+import { setGlobals } from '../../../operation/helper/globals.ts';
+import { type IWhenOperationData, when } from '../../../operation/when.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const WhenSuite = suite<{
   operationContext: IOperationContext;

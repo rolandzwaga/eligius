@@ -1,6 +1,6 @@
-import { TimelineEventNames } from '../timeline-event-names';
-import { ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
-import { TOperation } from './types';
+import { TimelineEventNames } from '../timeline-event-names.ts';
+import { type ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
+import type { TOperation } from './types.ts';
 
 function findElementBySelector(root: JQuery, selector: string) {
   const element = root.find(selector);
@@ -11,8 +11,15 @@ function findElementBySelector(root: JQuery, selector: string) {
 }
 
 export interface ISelectElementOperationData {
+  /**
+   * @type=ParameterType:selector
+   * @required
+   */
   selector: string;
   useSelectedElementAsRoot?: boolean;
+  /**
+   * @output
+   */
   selectedElement?: JQuery;
 }
 
@@ -22,9 +29,6 @@ export interface ISelectElementOperationData {
  * If `useSelectedElementAsRoot` is set to true and a valid DOM element is assigned
  * to the current operation data's `selectedElement` property
  * then the element will be looked for only in the descendant elements of this DOM element.
- *
- * @param operationData
- * @returns
  */
 export const selectElement: TOperation<ISelectElementOperationData> = function (
   operationData: ISelectElementOperationData

@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import * as controllerImports from '../../../controllers';
-import { EligiusResourceImporter } from '../../../importer/eligius-resource-importer';
-import * as operationImports from '../../../operation';
-import * as providerImports from '../../../timelineproviders';
+import * as controllerImports from '../../../controllers/index.ts';
+import { EligiusResourceImporter } from '../../../importer/eligius-resource-importer.ts';
+import * as operationImports from '../../../operation/index.ts';
+import * as providerImports from '../../../timelineproviders/index.ts';
 
 const EligiusResourceImporterSuite = suite<{
   importer: EligiusResourceImporter;

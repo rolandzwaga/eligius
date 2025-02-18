@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import { v4 as uuidv4 } from 'uuid';
 import videojs from 'video.js';
-import Player, { type PlayerReadyCallback } from 'video.js/dist/types/player';
-import { IResolvedEngineConfiguration } from '../configuration/types';
-import { ITimelineProvider, TPlayState } from './types';
+import Player, { type PlayerReadyCallback } from 'video.js/dist/types/player.ts';
+import type { IResolvedEngineConfiguration } from '../configuration/types.ts';
+import type { ITimelineProvider, TPlayState } from './types.ts';
 
 export class VideoJsTimelineProvider implements ITimelineProvider {
   private _videoElementId: string = uuidv4();
@@ -19,7 +19,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
   private _onComplete: (() => void) | undefined;
   private _onRestart: (() => void) | undefined;
   private _onFirstFrame: (() => void) | undefined;
-  private _player: Player | undefined;
+  private _player: typeof Player | undefined;
 
   constructor(private config: IResolvedEngineConfiguration) {}
 

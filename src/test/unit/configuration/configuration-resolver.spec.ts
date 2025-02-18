@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { ConfigurationResolver } from '../../../configuration/configuration-resolver';
-import { IEngineConfiguration } from '../../../configuration/types';
-import { Eventbus } from '../../../eventbus';
-import { ISimpleResourceImporter } from '../../../types';
+import { ConfigurationResolver } from '../../../configuration/configuration-resolver.ts';
+import type { IEngineConfiguration } from '../../../configuration/types.ts';
+import { Eventbus } from '../../../eventbus/index.ts';
+import type { ISimpleResourceImporter } from '../../../types.ts';
 
 class MockImporter {
   lookup: any;

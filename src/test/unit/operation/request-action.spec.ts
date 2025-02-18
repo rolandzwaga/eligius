@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { requestAction } from '../../../operation/request-action';
-import { TimelineEventNames } from '../../../timeline-event-names';
-import { applyOperation } from '../../../util/apply-operation';
+import { requestAction } from '../../../operation/request-action.ts';
+import { TimelineEventNames } from '../../../timeline-event-names.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   mockAction: any = {};

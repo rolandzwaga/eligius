@@ -1,16 +1,16 @@
-import { getGlobals } from './helper/globals';
-import { TOperation } from './types';
+import { getGlobals } from './helper/globals.ts';
+import type { TOperation } from './types.ts';
 
 export interface IAddGlobalsToOperationData {
+  /**
+   * @required
+   */
   globalProperties: string[];
 }
 
 /**
  * This operation adds the specified global property names to the current operation data.
  * It finally removes the `globalProperties` property from the current operation data.
- *
- * @param operationData
- * @returns
  */
 export const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> =
   function (operationData: IAddGlobalsToOperationData) {

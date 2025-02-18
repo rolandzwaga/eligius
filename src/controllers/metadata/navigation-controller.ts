@@ -1,5 +1,5 @@
-import { INavigationControllerOperationData } from '../navigation-controller';
-import { IControllerMetadata } from './types';
+import type { INavigationControllerOperationData } from '../navigation-controller.ts';
+import type { IControllerMetadata } from './types.ts';
 
 function NavigationController(): IControllerMetadata<INavigationControllerOperationData> {
   return {

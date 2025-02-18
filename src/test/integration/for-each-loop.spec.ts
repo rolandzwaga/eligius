@@ -1,11 +1,11 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { Action } from '../../action';
-import { IResolvedOperation } from '../../configuration/types';
-import { Eventbus } from '../../eventbus';
-import { endWhen, IOperationContext, TOperationData, when } from '../../operation';
-import { endForEach } from '../../operation/end-for-each';
-import { endForEachSystemName, forEach, forEachSystemName, IForEachOperationData } from '../../operation/for-each';
+import { Action } from '../../action/index.ts';
+import type { IResolvedOperation } from '../../configuration/types.ts';
+import { Eventbus } from '../../eventbus/index.ts';
+import { endWhen, type IOperationContext, type TOperationData, when } from '../../operation/index.ts';
+import { endForEach } from '../../operation/end-for-each.ts';
+import { endForEachSystemName, forEach, forEachSystemName, type IForEachOperationData } from '../../operation/for-each.ts';
 
 global.cancelAnimationFrame = () => {};
 

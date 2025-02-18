@@ -1,11 +1,11 @@
 import $ from 'jquery';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { ConfigurationFactory } from '../../configuration/api/configuration-factory';
-import { IEngineConfiguration } from '../../configuration/types';
-import { EngineFactory } from '../../engine-factory';
-import { Eventbus } from '../../eventbus';
-import { EligiusResourceImporter } from '../../importer';
+import { ConfigurationFactory } from '../../configuration/api/configuration-factory.ts';
+import type { IEngineConfiguration } from '../../configuration/types.ts';
+import { EngineFactory } from '../../engine-factory.ts';
+import { Eventbus } from '../../eventbus/index.ts';
+import { EligiusResourceImporter } from '../../importer/index.ts';
 import {
   addControllerToElement,
   broadcastEvent,
@@ -21,9 +21,9 @@ import {
   setElementContent,
   setOperationData,
   when,
-} from '../../operation';
-import { TimelineEventNames } from '../../timeline-event-names';
-import { IEligiusEngine } from '../../types';
+} from '../../operation/index.ts';
+import { TimelineEventNames } from '../../timeline-event-names.ts';
+import type { IEligiusEngine } from '../../types.ts';
 
 const CreateOptionList = suite<{
   configuration: IEngineConfiguration;
@@ -126,7 +126,7 @@ CreateOptionList(
   'should create a selector and attach a change controller',
   async (context) => {
     let selectedLang = '';
-    context.eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode) => {
+    context.eventbus.on(TimelineEventNames.LANGUAGE_CHANGE, (languageCode: string) => {
       selectedLang = languageCode;
     });
 

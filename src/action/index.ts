@@ -1,3 +1,3 @@
-export { Action } from './action';
-export { EndableAction } from './endable-action';
-export { TimelineAction } from './timeline-action';
+export { Action } from './action.ts';
+export { EndableAction } from './endable-action.ts';
+export { TimelineAction } from './timeline-action.ts';

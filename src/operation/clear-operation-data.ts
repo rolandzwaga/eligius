@@ -1,4 +1,4 @@
-import { TOperation } from './types';
+import type { TOperation } from './types.ts';
 
 export interface IClearOperationDataOperationData {
   properties?: string[];

@@ -1,16 +1,16 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IMathOperationData, math } from '../../../operation/math';
-import { applyOperation } from '../../../util/apply-operation';
+import { type IMathOperationData, math, type MathFunctionKeys, type MathNonFunctionKeys } from '../../../operation/math.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const MathSuite = suite('math');
 
 MathSuite('should perform all the math calculations', () => {
   // given
 
-  const funcNames: (keyof Math)[] = Object.getOwnPropertyNames(Math).filter(
+  const funcNames: MathFunctionKeys[] = Object.getOwnPropertyNames(Math).filter(
     (x) => Math[x as keyof Math] === 'functions'
-  ) as (keyof Math)[];
+  ) as MathFunctionKeys[];
 
   funcNames.forEach((functionName) => {
     const argCount = (Math[functionName] as any).length;
@@ -29,9 +29,9 @@ MathSuite('should perform all the math calculations', () => {
 });
 
 MathSuite.only('Should resolve Math constants in args', () => {
-  const intProperties: (keyof Math)[] = Object.getOwnPropertyNames(Math).filter(
+  const intProperties: MathNonFunctionKeys[] = Object.getOwnPropertyNames(Math).filter(
     (x) => typeof Math[x as keyof Math] === 'number'
-  ) as (keyof Math)[];
+  ) as MathNonFunctionKeys[];
 
   intProperties.forEach((propName) => {
     //given

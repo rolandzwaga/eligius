@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { IOperationContext, setData } from '../../../operation';
-import { getGlobals } from '../../../operation/helper/globals';
-import { setGlobal } from '../../../operation/helper/set-global';
-import { ISetDataOperationData } from '../../../operation/set-data';
-import { applyOperation } from '../../../util/apply-operation';
+import { type IOperationContext, setData } from '../../../operation/index.ts';
+import { getGlobals } from '../../../operation/helper/globals.ts';
+import { setGlobal } from '../../../operation/helper/set-global.ts';
+import type { ISetDataOperationData } from '../../../operation/set-data.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const SetDataSuite = suite('setData');
 

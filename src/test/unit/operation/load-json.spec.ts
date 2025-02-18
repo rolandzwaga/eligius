@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { suite } from 'uvu';
-import { clearCache, loadJSON } from '../../../operation/load-json';
-import { applyOperation } from '../../../util/apply-operation';
+import { clearCache, loadJson } from '../../../operation/load-json.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 function getResult(context: Context) {
   return () =>
@@ -47,7 +47,7 @@ LoadJSONSuite('should load the specified json', async (context) => {
 
   // test
   const newData = await applyOperation<Promise<{ json: any }>>(
-    loadJSON,
+    loadJson,
     operationData
   );
 
@@ -67,7 +67,7 @@ LoadJSONSuite(
 
     // test
     let newData = await applyOperation<Promise<{ json: any }>>(
-      loadJSON,
+      loadJson,
       operationData
     );
 
@@ -75,7 +75,7 @@ LoadJSONSuite(
     expect(newData.json).to.equal(context.result);
     context.result = { test: false };
     newData = await applyOperation<Promise<{ json: any }>>(
-      loadJSON,
+      loadJson,
       operationData
     );
     expect(newData.json).to.not.equal(context.result);

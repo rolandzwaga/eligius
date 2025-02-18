@@ -1,9 +1,19 @@
-import { modifyDimensions } from './helper/modify-dimensions';
-import { TOperation } from './types';
+import { modifyDimensions } from './helper/modify-dimensions.ts';
+import type { TOperation } from './types.ts';
 
 export interface IGetElementDimensionsOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:dimensionsModifier
+   */
   modifier?: string;
+  /**
+   * @type=ParameterType:object
+   * @output
+   */
   dimensions?: { width?: number; height?: number };
 }
 
@@ -20,10 +30,7 @@ export interface IGetElementDimensionsOperationData {
  * <side>[ar=<ratio-left>-<ratio-right>]
  *
  * For example, this modifier '+100h|w[ar=8-1]' will modifiy the dimensions like this:
- * it will add a value of 100 to the height and modify the width by a ration of 8 to 1 relative to the height.
- *
- * @param operationData
- * @returns
+ * it will add a value of 100 to the height and modify the width by a ratio of 8 to 1 relative to the height.
  */
 export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> =
   function (operationData: IGetElementDimensionsOperationData) {
@@ -32,12 +39,15 @@ export const getElementDimensions: TOperation<IGetElementDimensionsOperationData
       width: selectedElement.innerWidth() ?? 0,
       height: selectedElement.innerHeight() ?? 0,
     };
+    
     if (dimensions.height === 0) {
       dimensions.height = dimensions.width;
     }
+    
     if (modifier) {
       dimensions = modifyDimensions(dimensions, modifier);
     }
+    
     operationData.dimensions = dimensions;
     return operationData;
   };

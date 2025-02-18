@@ -1,6 +1,6 @@
-import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
-import { ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
-import { IOperationContext, TOperation } from './types';
+import { findMatchingOperationIndex } from './helper/find-matching-operation-index.ts';
+import { type ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
+import type { IOperationContext, TOperation } from './types.ts';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =
@@ -13,6 +13,9 @@ type TValue =
 type TExpression = `${TValue}${TOperator}${TValue}`;
 
 export interface IWhenOperationData {
+  /**
+   * @required
+   */
   expression: TExpression;
 }
 

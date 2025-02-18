@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import { suite } from 'uvu';
 import {
   calc,
-  ICalcOperationData,
-  TCalculationOperator,
-} from '../../../operation/calc';
-import { applyOperation } from '../../../util/apply-operation';
+  type ICalcOperationData,
+  type TCalculationOperator,
+} from '../../../operation/calc.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 const CalcSuite = suite('calc');
 
