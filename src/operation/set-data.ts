@@ -75,7 +75,7 @@ function resolveTargets(
     const propertyTarget = getPropertyChainValue(
       path,
       (targets as any)[rootTarget]
-    );
+    ) as Record<string, any>;
 
     propertyTarget[property] = propertyValue;
   });

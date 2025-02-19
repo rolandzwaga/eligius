@@ -13,6 +13,7 @@ export interface IGetControllerFromElementOperationData {
    */
   controllerName: string;
   /**
+   * @type=ParameterType:object
    * @output
    */  
   controllerInstance?: IController<any>;

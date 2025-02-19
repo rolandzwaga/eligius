@@ -1,4 +1,5 @@
-import hotkeys, { type HotkeysEvent } from 'hotkeys-js';
+import hk from 'hotkeys-js';
+import { type HotkeysEvent } from 'hotkeys-js';
 import $ from 'jquery';
 import type { IAction } from './action/types.ts';
 import { ConfigurationResolver } from './configuration/configuration-resolver.ts';
@@ -26,6 +27,8 @@ import type {
   TResultCallback,
 } from './types.ts';
 import { prepareValueForSerialization } from './util/prepare-value-for-serialization.ts';
+
+const hotkeys = hk.default || hk;
 
 /**
  * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.

@@ -47,7 +47,7 @@
     "ctrls-metadata": "tsx src/tools/code-generator/ctrls-metadata-generator.ts",
     "metadata": "npm run opers-metadata && npm run ctrls-metadata",
     "ts-types": " tsc --emitDeclarationOnly --outDir dist",
-    "build": "rimraf dist && npm run metadata && node ./esbuild.js & npm run ts-types",
+    "build": "rimraf dist && npm run metadata && node ./esbuild.cjs & npm run ts-types",
     "codemod": "tsx src/tools/code-generator/uvu2vitest-codemod.ts"
   },
   "devDependencies": {

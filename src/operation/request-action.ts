@@ -9,6 +9,7 @@ export interface IRequestActionOperationData {
    */
   systemName: string;
   /**
+   * @type=ParameterType:object
    * @output
    */
   actionInstance?: IAction;

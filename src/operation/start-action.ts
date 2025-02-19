@@ -5,7 +5,7 @@ import type { TOperation, TOperationData } from './types.ts';
 
 export interface IStartActionOperationData {
   /**
-   * @dependecy
+   * @dependency
    */
   actionInstance: IAction;
   /**

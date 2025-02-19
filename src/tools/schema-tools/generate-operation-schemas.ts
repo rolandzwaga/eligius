@@ -265,48 +265,52 @@ function isString(value: TPropertyMetadata): value is TParameterTypes {
   return typeof value === 'string';
 }
 
-function metadataType2SchemaType(value: TParameterTypes) {
-  switch (value) {
-    case 'ParameterType:htmlElementName':
-      return { type: 'string', enum: htmlTagNames };
-    case 'ParameterType:controllerName':
-      return {
-        type: 'string',
-        enum: Object.keys(controllers).map(dashToCamelCase).map(capitalize),
-      };
-    case 'ParameterType:QuadrantPosition':
-      return {
-        type: 'string',
-        enum: ['top', 'left', 'right', 'bottom'],
-      };
-    case 'ParameterType:className':
-    case 'ParameterType:selector':
-    case 'ParameterType:string':
-    case 'ParameterType:eventTopic':
-    case 'ParameterType:eventName':
-    case 'ParameterType:systemName':
-    case 'ParameterType:actionName':
-    case 'ParameterType:url':
-    case 'ParameterType:htmlContent':
-    case 'ParameterType:labelId':
-    case 'ParameterType:ImagePath':
-    case 'ParameterType:dimensionsModifier':
-    case 'ParameterType:expression':
-      return 'string';
-    case 'ParameterType:number':
-      return 'number';
-    case 'ParameterType:object':
-    case 'ParameterType:dimensions':
-    case 'ParameterType:jQuery':
-      return 'object';
-    case 'ParameterType:boolean':
-      return 'boolean';
-    case 'ParameterType:array':
-      return 'array';
+function metadataType2SchemaType(value: TParameterTypes|TConstantParametersTypes[]) {
+  if (Array.isArray(value)) {
+    return 'array';
+  } else {
+    switch (value) {
+      case 'ParameterType:htmlElementName':
+        return { type: 'string', enum: htmlTagNames };
+      case 'ParameterType:controllerName':
+        return {
+          type: 'string',
+          enum: Object.keys(controllers).map(dashToCamelCase).map(capitalize),
+        };
+      case 'ParameterType:QuadrantPosition':
+        return {
+          type: 'string',
+          enum: ['top', 'left', 'right', 'bottom'],
+        };
+      case 'ParameterType:className':
+      case 'ParameterType:selector':
+      case 'ParameterType:string':
+      case 'ParameterType:eventTopic':
+      case 'ParameterType:eventName':
+      case 'ParameterType:systemName':
+      case 'ParameterType:actionName':
+      case 'ParameterType:url':
+      case 'ParameterType:htmlContent':
+      case 'ParameterType:labelId':
+      case 'ParameterType:ImagePath':
+      case 'ParameterType:dimensionsModifier':
+      case 'ParameterType:expression':
+        return 'string';
+      case 'ParameterType:number':
+        return 'number';
+      case 'ParameterType:object':
+      case 'ParameterType:dimensions':
+      case 'ParameterType:jQuery':
+        return 'object';
+      case 'ParameterType:boolean':
+        return 'boolean';
+      case 'ParameterType:array':
+        return 'array';
+    }
   }
 }
 
-function metadataType2SchemaPattern(value: TParameterTypes) {
+function metadataType2SchemaPattern(value: TParameterTypes|TConstantParametersTypes[]) {
   switch (value) {
     case 'ParameterType:className':
       return '.-?[_a-zA-Z]+[_a-zA-Z0-9-]*';

@@ -5,10 +5,12 @@ import type {
   HTMLRendererConfig,
   SVGRendererConfig,
 } from 'lottie-web';
-import lottie from 'lottie-web';
+import lt from 'lottie-web';
 import type{ IEventbus, TEventbusRemover } from '../eventbus/types.ts';
 import { TimelineEventNames } from '../timeline-event-names.ts';
 import type { IController } from './types.ts';
+
+const lottie = lt.default ?? lt;
 
 export interface IInnerMetadata {
   /**

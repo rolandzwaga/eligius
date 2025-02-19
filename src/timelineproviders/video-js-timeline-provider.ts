@@ -1,10 +1,12 @@
 import $ from 'jquery';
 import { v4 as uuidv4 } from 'uuid';
-import * as videojs from 'video.js';
-import type Player from 'video.js';
-import { PlayerReadyCallback } from 'video.js';
+import vjs from 'video.js';
+//import type Player from 'video.js';
+//import { PlayerReadyCallback } from 'video.js';
 import type { IResolvedEngineConfiguration } from '../configuration/types.ts';
 import type { ITimelineProvider, TPlayState } from './types.ts';
+
+const videojs = vjs.default ?? vjs;
 
 export class VideoJsTimelineProvider implements ITimelineProvider {
   private _videoElementId: string = uuidv4();
@@ -20,7 +22,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
   private _onComplete: (() => void) | undefined;
   private _onRestart: (() => void) | undefined;
   private _onFirstFrame: (() => void) | undefined;
-  private _player: typeof Player | undefined;
+  private _player: any | undefined;
 
   constructor(private config: IResolvedEngineConfiguration) {}
 
@@ -54,7 +56,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
             self._handleTimeUpdate.bind(self)
           );
           this.load();
-        } as PlayerReadyCallback);
+        }); //as PlayerReadyCallback
 
       }, 0);
     });

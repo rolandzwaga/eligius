@@ -18,6 +18,7 @@ export interface ISelectElementOperationData {
   selector: string;
   useSelectedElementAsRoot?: boolean;
   /**
+   * @type=ParameterType:object
    * @output
    */
   selectedElement?: JQuery;
@@ -37,7 +38,7 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
     operationData,
     this,
     operationData.selector as ExternalProperty
-  );
+  ) as string;
   const { selector, useSelectedElementAsRoot = false } = operationData;
 
   if (!selector) {
