@@ -11,9 +11,19 @@ interface IActionInstanceInfo {
 }
 
 export interface IEventListenerControllerOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:eventName
+   * @required
+   */
   eventName: string;
   actions: string[];
+  /**
+   * @type=ParameterType:object
+   */
   actionOperationData?: TOperationData;
 }
 

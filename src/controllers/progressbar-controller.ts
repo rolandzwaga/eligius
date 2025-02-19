@@ -4,7 +4,13 @@ import { TimelineEventNames } from '../timeline-event-names.ts';
 import type { IController } from './types.ts';
 
 export interface IProgressbarControllerOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @dependency
+   */
   textElement: JQuery;
 }
 

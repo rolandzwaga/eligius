@@ -4,8 +4,20 @@ import type { ILabel } from '../types.ts';
 import type { IController } from './types.ts';
 
 export interface ILabelControllerMetadata {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:labelId
+   * @required
+   */
   labelId: string;
+  /**
+   * By default the label is added to the inner HTML of the `selectedElement`,
+   * otherwise if this property is set, the label text is added to the specified attribute
+   * of the `selectedElement`.
+   */
   attributeName?: string;
 }
 

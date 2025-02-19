@@ -6,7 +6,13 @@ import { LabelController } from './label-controller.ts';
 import type { IController } from './types.ts';
 
 export interface INavigationControllerOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @required
+   */
   json: any;
 }
 

@@ -9,3 +9,5 @@ jsonschema/operation-templates
 docs.json
 src/operation/metadata/*.ts
 !src/operation/metadata/types.ts
+src/controllers/metadata/*.ts
+!src/controllers/metadata/types.ts

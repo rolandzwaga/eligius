@@ -4,8 +4,15 @@ import type { IStrictDuration, ISubtitleCollection } from '../types.ts';
 import type { IController } from './types.ts';
 
 export interface ISubtitlesControllerOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
   language: string;
+  /**
+   * @type=ParameterType:array
+   * @itemType=ParameterType:object
+   */
   subtitleData: ISubtitleCollection[];
 }
 

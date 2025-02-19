@@ -11,18 +11,38 @@ import { TimelineEventNames } from '../timeline-event-names.ts';
 import type { IController } from './types.ts';
 
 export interface IInnerMetadata {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:string
+   */
   renderer: SVGRendererConfig | CanvasRendererConfig | HTMLRendererConfig;
   loop: boolean;
   autoplay: boolean;
+  /**
+   * ParameterType:object
+   */
   animationData: any;
+  /**
+   * @required
+   */
   json: any;
+  /**
+   * @type=ParameterType:array
+   * @itemType=ParameterType:labelId
+   */
   labelIds: string[];
   viewBox: string;
   iefallback: any;
 }
 
 export interface ILottieControllerMetadata extends IInnerMetadata {
+  /**
+   * @type=ParameterType:url
+   * @required
+   */
   url: string;
 }
 

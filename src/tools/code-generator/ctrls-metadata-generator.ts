@@ -1,59 +1,45 @@
-import { Project, SourceFile, StructureKind, SyntaxKind, ts, type ExportDeclarationStructure, type InterfaceDeclaration, type JSDoc, type JSDocTag, type PropertySignature, type TypeAliasDeclaration, type TypeParameterDeclaration, type VariableDeclaration } from "ts-morph";
+import { Project, SourceFile, StructureKind, SyntaxKind, ts, type ClassDeclaration, type ExportDeclarationStructure, type InterfaceDeclaration, type JSDoc, type JSDocTag, type PropertySignature, type TypeAliasDeclaration, type TypeParameterDeclaration, type VariableDeclaration } from "ts-morph";
 import camelCaseToDash from "../../util/camel-case-to-dash.ts";
 import { relative, dirname } from "node:path";
 import dashToCamelCase from "../../util/dash-to-camel-case.ts";
+import { uppercaseFirstChar } from "util/uppercase-first-char.ts";
 
 const project = new Project();
-project.addSourceFilesAtPaths('./src/operation/*.ts');
+project.addSourceFilesAtPaths('./src/controllers/*.ts');
 
-
-const createOperationMetadata = (sourceFile: SourceFile) => {
-    const statement = sourceFile.getVariableStatements().find(stat => stat.isExported() && stat.isKind(SyntaxKind.VariableStatement));
-    if (!statement) {
-        console.error(`Can't find an exported statement in ${sourceFile.getBaseName()}`);
+const createControllerMetadata = (sourceFile: SourceFile) => {
+    const classDeclaration = sourceFile.getClasses().find(stat => stat.isExported());
+    if (!classDeclaration) {
+        console.error(`Can't find an exported class in ${sourceFile.getBaseName()}`);
         return;
     };
-
-    const declaration = statement.getDeclarations()[0];
-    if (!declaration) {
-        console.error(`Exported variable statement in ${sourceFile.getBaseName()} doesn't have any declarations`);
-        return;
-    };
-
-    const typeRef = declaration.getDescendantsOfKind(SyntaxKind.TypeReference)[0];
-    if (!typeRef) {
-        console.error(`declaration ${declaration.getName()} in ${sourceFile.getBaseName()} does not have any type refences`);
-        return;
-    };
-
-    const typeArgs = typeRef.getTypeArguments();
-    if (!typeArgs.length) {
-        console.error(`The type reference for ${declaration.getName()} in ${sourceFile.getBaseName()} doesn't have any generics`);
+    const heritageClause = classDeclaration.getHeritageClauses().find(h => h.getToken() === ts.SyntaxKind.ImplementsKeyword);
+    if (!heritageClause) {
+        console.error(`Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} does not implement an interface`);
         return;
     }
 
-    const typeName = (typeArgs[0].getType().getText().replace(/\<[^\>]+\>/g, '').split('.').pop() || '');
-    if (!typeName) {
-        console.error(`Can't figure out the type name of the typeref of ${declaration.getName()} in ${sourceFile.getBaseName()}`);
+    const implementedType = heritageClause.getTypeNodes()[0]; // Get the first implemented interface
+    const typeArguments = implementedType.getTypeArguments();
+    if (typeArguments.length === 0) {
+        console.error(`Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} implements ${implementedType.getText()}, but this interface has no generic arguments`);
         return;
-    };
+    }
+    const typeName = typeArguments[0].getText(); 
 
     const interfaceOrTypeAlias = sourceFile.getTypeAlias(typeName) ?? sourceFile.getInterface(typeName);
     if (!interfaceOrTypeAlias && typeName !== 'TOperationData' && typeName !== 'Record') {
-        console.error(`The given typeref ${typeName} of ${declaration.getName()} in ${sourceFile.getBaseName()} is neither a type alias or an interface`);
+        console.error(`The given typeref ${typeName} of ${implementedType.getText()} in ${sourceFile.getBaseName()} is neither a type alias or an interface`);
         return;
     };
 
-    createSourceFile(declaration)(interfaceOrTypeAlias);
+    createSourceFile(classDeclaration)(interfaceOrTypeAlias);
 }
 
 const toImport = (sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
     const constraint = typeParam.getConstraint()!;
-
-    const symbol = constraint.getType().getAliasSymbol() ?? constraint.getType().getSymbol();
     
-    const declarationSourceFile = symbol?.getDeclarations()[0].getSourceFile() ?? constraint.getSourceFile();;
-    
+    const declarationSourceFile = constraint.getSourceFile();
     const fromPath = dirname(sourceFile.getFilePath());
     const toPath = declarationSourceFile.getFilePath();
     const importPath = relative(fromPath, toPath).replaceAll('\\', '/');
@@ -82,9 +68,9 @@ const toOperationDataType = (sourceFile: SourceFile) => (operationData: TypeAlia
     return [name, name, []] as const;
 };
 
-const createSourceFile = (declaration: VariableDeclaration) => (operationData: TypeAliasDeclaration|InterfaceDeclaration|undefined) => {
-    const fileName = camelCaseToDash(declaration.getName());
-    const outputSourceFile = project.createSourceFile(`./src/operation/metadata/${fileName}.ts`, '', {overwrite: true});
+const createSourceFile = (declaration: ClassDeclaration) => (operationData: TypeAliasDeclaration|InterfaceDeclaration|undefined) => {
+    const fileName = camelCaseToDash(declaration.getNameOrThrow());
+    const outputSourceFile = project.createSourceFile(`./src/controllers/metadata/${fileName}.ts`, '', {overwrite: true});
 
     const [importName, operationDataName, imports] = operationData ? toOperationDataType(outputSourceFile)(operationData) : [undefined, undefined, []];
 
@@ -94,7 +80,7 @@ const createSourceFile = (declaration: VariableDeclaration) => (operationData: T
         .addNamedImport({ name: importName, isTypeOnly: true });
     }
     outputSourceFile.addImportDeclaration({ moduleSpecifier: './types.ts' })
-        .addNamedImport({ name: "IOperationMetadata", isTypeOnly: true });
+        .addNamedImport({ name: "IControllerMetadata", isTypeOnly: true });
     imports.forEach(imp => {
         const importDeclaration = outputSourceFile.addImportDeclaration({ moduleSpecifier: imp.importPath });
         imp.types.forEach(type => importDeclaration.addNamedImport({ name: type, isTypeOnly: true }));
@@ -103,7 +89,7 @@ const createSourceFile = (declaration: VariableDeclaration) => (operationData: T
     outputSourceFile.addFunction({
         name: declaration.getName(),
         isExported: true,
-        returnType: `IOperationMetadata<${operationDataName}>`,
+        returnType: `IControllerMetadata<${operationDataName}>`,
         statements: (writer) => {
             writer.writeLine('return {')
             writer.writeLine(`description: \`${getDescription(declaration)}\`,`);
@@ -138,9 +124,8 @@ const createSourceFile = (declaration: VariableDeclaration) => (operationData: T
         });
 }
 
-const getDescription = (declaration: VariableDeclaration) => {
-    const statement = declaration.getVariableStatement();
-    const description = statement?.getJsDocs().map(x => x.getCommentText()).join('');
+const getDescription = (declaration: ClassDeclaration) => {
+    const description = declaration?.getJsDocs().map(x => x.getCommentText()).join('');
     return description?.replaceAll('\`', '\\`');
 }
 
@@ -241,9 +226,9 @@ const getPropertiesWithoutTags = (properties: PropertySignature[]) => (...tagNam
 };
 
 const toIndexFile = (project: Project, fileNames: string[]) => {
-    const outputSourceFile = project.createSourceFile(`./src/operation/metadata/index.ts`, '', {overwrite: true});
+    const outputSourceFile = project.createSourceFile(`./src/controllers/metadata/index.ts`, '', {overwrite: true});
     outputSourceFile.addExportDeclarations(fileNames.map(name => {
-        const namedExport = dashToCamelCase(name.slice(0,-3));
+        const namedExport = uppercaseFirstChar(dashToCamelCase(name.slice(0,-3)));
         return {
             kind: StructureKind.ExportDeclaration,
             moduleSpecifier: `./${name}`,
@@ -253,11 +238,11 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
     outputSourceFile.addExportDeclaration({ moduleSpecifier: './types.ts' });
 }
 
-const operationFiles = project.getSourceFiles().filter(src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts');
+const controllerFiles = project.getSourceFiles().filter(src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts');
 
-toIndexFile(project, operationFiles.map(f => f.getBaseName()));
+toIndexFile(project, controllerFiles.map(f => f.getBaseName()));
 
-operationFiles.forEach(createOperationMetadata);
+controllerFiles.forEach(createControllerMetadata);
 project.saveSync();
 
 console.log('Ready.');

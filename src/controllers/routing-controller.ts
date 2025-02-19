@@ -3,6 +3,9 @@ import type { TOperationData } from '../operation/types.ts';
 import type { IController } from './types.ts';
 
 export interface IRoutingControllerOperationData {
+  /**
+   * @required
+   */
   json: any;
 }
 
