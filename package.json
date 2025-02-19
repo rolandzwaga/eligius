@@ -8,7 +8,6 @@
     "url": "https://github.com/rolandzwaga/eligius/issues?q=is%3Aissue+is%3Aopen+label%3ABug"
   },
   "type": "module",
-  "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "exports": {
     ".": {
@@ -46,7 +45,7 @@
     "opers-metadata": "tsx src/tools/code-generator/metadata-generator.ts",
     "ctrls-metadata": "tsx src/tools/code-generator/ctrls-metadata-generator.ts",
     "metadata": "npm run opers-metadata && npm run ctrls-metadata",
-    "ts-types": " tsc --emitDeclarationOnly --outDir dist",
+    "ts-types": " tsc --noEmit false --emitDeclarationOnly --outDir dist",
     "build": "rimraf dist && npm run metadata && node ./esbuild.cjs & npm run ts-types",
     "codemod": "tsx src/tools/code-generator/uvu2vitest-codemod.ts"
   },
