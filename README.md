@@ -298,7 +298,6 @@ yarn add eligius
 
 ## development
 
-- To install first get Yarn: https://yarnpkg.com
-- Then open up a command prompt in the project root and run `yarn`
-- Use `yarn test` to run the unit tests (tests use UVU)
-- Use `yarn build` to create a production library bundle
+- run `npm install`
+- Use `npm run test` to run the unit tests (tests use Vitest)
+- Use `npm run build` to create a production library bundle
