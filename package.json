@@ -37,7 +37,7 @@
     "typecheck": "tsc --pretty --noEmit",
     "test": "vitest --config src/vitest.config.ts",
     "coverage": "vitest --config src/vitest.config.ts --coverage",
-    "prepare": "npm run build",
+    "prepublish": "npm run build",
     "generate-readmes": "tsx ./src/tools/doc-tools/generate-readmes",
     "generate-schema": "tsx ./src/tools/schema-tools/generate-operation-schemas",
     "typedoc": "typedoc --options typedoc-metadata.json & typedoc --options typedoc.json",
