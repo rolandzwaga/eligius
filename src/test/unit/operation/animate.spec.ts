@@ -28,7 +28,7 @@ class MockElement {
   }
 }
 
-describe('animate', () => {
+describe.concurrent('animate', () => {
   test('should animate with easing when defined', async () => {
     // given
     const mockElement = new MockElement();

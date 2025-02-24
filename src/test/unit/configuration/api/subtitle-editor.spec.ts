@@ -7,7 +7,7 @@ type SubtitleEditorSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<SubtitleEditorSuiteContext>('SubtitleEditor', () => {
+describe.concurrent<SubtitleEditorSuiteContext>('SubtitleEditor', () => {
   beforeEach((context) => {
     withContext<SubtitleEditorSuiteContext>(context);
 

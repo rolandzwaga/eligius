@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, test } from 'vitest';
 import { getGlobals } from '../../../../operation/helper/globals.ts';
 import { removeGlobal } from '../../../../operation/helper/remove-global.ts';
 import { setGlobal } from '../../../../operation/helper/set-global.ts';
-describe('removeGlobal', () => {
+describe.concurrent('removeGlobal', () => {
   beforeAll(() => {
     setGlobal('foo', 'bar');
   });

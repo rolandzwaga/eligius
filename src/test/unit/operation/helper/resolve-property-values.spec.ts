@@ -3,7 +3,7 @@ import { describe, test } from 'vitest';
 import { resolvePropertyValues } from '../../../../operation/helper/resolve-property-values.ts';
 import { setGlobal } from '../../../../operation/helper/set-global.ts';
 import type { IOperationContext } from '../../../../operation/index.ts';
-describe('resolvePropertyValues', () => {
+describe.concurrent('resolvePropertyValues', () => {
   test('should resolve the given property values', () => {
     // given
     const operationData: any = {

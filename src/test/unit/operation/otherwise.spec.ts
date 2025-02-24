@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { otherwise } from '../../../operation/index.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
-describe('otherwise', () => {
+describe.concurrent('otherwise', () => {
   test('should set newIndex to undefined when it is false', () => {
     // given
     const context = {

@@ -96,7 +96,7 @@ type LanguageManagerSuiteContext = {
   });
   */
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<LanguageManagerSuiteContext>('LanguageManager', () => {
+describe.concurrent<LanguageManagerSuiteContext>('LanguageManager', () => {
   beforeEach((context) => {
     withContext<LanguageManagerSuiteContext>(context);
 

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { addClass } from '../../../operation/add-class.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
-describe('addClass', () => {
+describe.concurrent('addClass', () => {
   test('should add the specified class to the element', () => {
     // given
     const elementMock = {

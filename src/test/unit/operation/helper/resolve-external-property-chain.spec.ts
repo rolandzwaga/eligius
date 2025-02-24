@@ -4,7 +4,7 @@ import { removeGlobal } from '../../../../operation/helper/remove-global.ts';
 import { type ExternalProperty, resolveExternalPropertyChain } from '../../../../operation/helper/resolve-external-property-chain.ts';
 import { setGlobal } from '../../../../operation/helper/set-global.ts';
 import type { IOperationContext } from '../../../../operation/index.ts';
-describe('resolveExternalPropertyChain', () => {
+describe.concurrent('resolveExternalPropertyChain', () => {
   beforeAll(() => {
     setGlobal('foo', 'bar');
   });

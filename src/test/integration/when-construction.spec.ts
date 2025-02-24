@@ -9,7 +9,7 @@ import { type IWhenOperationData, when } from '../../operation/when.ts';
 type WhenConstructionContext = { action: Action } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<WhenConstructionContext>('whenConstruction', () => {
+describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
   beforeEach((context) => {
     withContext<WhenConstructionContext>(context);
 

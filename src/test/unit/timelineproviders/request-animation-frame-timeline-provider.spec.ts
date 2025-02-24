@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import $ from 'jquery';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext, vi } from 'vitest';
 import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
 
 type RequestAnimationFrameTimelineProviderSuiteContext = {
@@ -11,23 +11,11 @@ type RequestAnimationFrameTimelineProviderSuiteContext = {
 } & TestContext;
 //RequestAnimationFrameTimelineProviderSuite.run();
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe.skip('RequestAnimationFrameTimelineProvider', () => {
-  beforeAll((context) => {
-    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
 
-    context.requestAnimationFrame = global.requestAnimationFrame;
-    context.cancelAnimationFrame = global.cancelAnimationFrame;
-    global.requestAnimationFrame = (fn) => setTimeout(fn, 16);
-    global.cancelAnimationFrame = () => { };
-  });
-  afterAll((context) => {
-    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
-
-    global.requestAnimationFrame = context.requestAnimationFrame;
-    global.cancelAnimationFrame = context.cancelAnimationFrame;
-  });
-  beforeEach((context) => {
-    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
+describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
+  beforeEach<RequestAnimationFrameTimelineProviderSuiteContext>((context) => {
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => setTimeout(() => cb(performance.now()), 16));
+    vi.stubGlobal('cancelAnimationFrame', () => {});
 
     $('<div id="selector"/>').appendTo(document.body);
     context.configuration = {
@@ -43,9 +31,8 @@ describe.skip('RequestAnimationFrameTimelineProvider', () => {
       context.configuration
     );
   });
-  afterEach((context) => {
-    withContext<RequestAnimationFrameTimelineProviderSuiteContext>(context);
-
+  afterEach<RequestAnimationFrameTimelineProviderSuiteContext>((context) => {
+    vi.restoreAllMocks();
     context.provider.destroy();
     $('#selector').remove();
   });
@@ -78,7 +65,7 @@ describe.skip('RequestAnimationFrameTimelineProvider', () => {
     expect(provider.playState).to.equal('stopped');
     expect(provider.getPosition()).to.equal(0);
   });
-  test<RequestAnimationFrameTimelineProviderSuiteContext>('should dispatch TimelineEventNames.TIME 5 times', async (context) => {
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should dispatch TimelineEventNames.TIME 4 times', async (context) => {
     const { provider } = context;
 
     provider.init();
@@ -91,9 +78,9 @@ describe.skip('RequestAnimationFrameTimelineProvider', () => {
     const result: number[] = await new Promise((resolve) => {
       setTimeout(() => {
         resolve(recordedPositions);
-      }, 5500);
+      }, 4000);
     });
 
-    expect(result.length).to.equal(5);
+    expect(result.length).to.equal(4);
   });
 });

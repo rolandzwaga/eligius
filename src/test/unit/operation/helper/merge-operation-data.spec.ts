@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { mergeOperationData } from '../../../../operation/helper/merge-operation-data.ts';
 import type { TOperationData } from '../../../../operation/types.ts';
-describe('mergeOperationData', () => {
+describe.concurrent('mergeOperationData', () => {
   test('should merge the given operation datas', () => {
     // given
     const data1 = {

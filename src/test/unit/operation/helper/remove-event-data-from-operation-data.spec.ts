@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { removeEventDataFromOperationData } from '../../../../operation/helper/remove-event-data-from-operation-data.ts';
-describe('removeEventDataFromOperationData', () => {
+describe.concurrent('removeEventDataFromOperationData', () => {
   test('should remove the event data from the given operation data', () => {
     // given
     const operationData = {

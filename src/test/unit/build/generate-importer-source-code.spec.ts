@@ -9,7 +9,7 @@ type CustomContext = {
   readdirSync: any;
 } & TestContext;
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<CustomContext>('generateImporterSourceCode', () => {
+describe.concurrent<CustomContext>('generateImporterSourceCode', () => {
   beforeEach<CustomContext>((context) => {
     withContext(context);
 

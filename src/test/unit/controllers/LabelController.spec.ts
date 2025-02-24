@@ -21,7 +21,7 @@ type LabelControllerSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<LabelControllerSuiteContext>('LabelController', () => {
+describe.concurrent<LabelControllerSuiteContext>('LabelController', () => {
   beforeEach((context) => {
     withContext<LabelControllerSuiteContext>(context);
 

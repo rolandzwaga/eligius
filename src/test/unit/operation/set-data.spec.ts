@@ -5,7 +5,7 @@ import { setGlobal } from '../../../operation/helper/set-global.ts';
 import { type IOperationContext, setData } from '../../../operation/index.ts';
 import type { ISetDataOperationData } from '../../../operation/set-data.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
-describe('setData', () => {
+describe.concurrent('setData', () => {
   afterAll(() => {
     setGlobal('globalTarget', undefined);
   });

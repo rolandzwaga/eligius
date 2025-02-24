@@ -14,7 +14,7 @@ class MockElement {
   }
 }
 
-describe('getControllerFromElement', () => {
+describe.concurrent('getControllerFromElement', () => {
   test('should get the specified controller from the given element', () => {
     // given
 

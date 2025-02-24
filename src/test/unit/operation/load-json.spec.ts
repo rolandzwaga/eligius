@@ -15,7 +15,7 @@ type LoadJsonContext = {
   result: any;
 } & TestContext;
 
-describe<LoadJsonContext>('loadJSON', () => {
+describe.concurrent<LoadJsonContext>('loadJSON', () => {
   beforeEach<LoadJsonContext>((context) => {
 
     context.fetch = global.fetch;
@@ -48,7 +48,7 @@ describe<LoadJsonContext>('loadJSON', () => {
     );
 
     // expect
-    expect(newData.json).to.equal(context.result);
+    expect(newData.json).to.eql(context.result);
   });
   test<LoadJsonContext>('should return the cached json the second time its called', async (context) => {
     // given
@@ -71,6 +71,6 @@ describe<LoadJsonContext>('loadJSON', () => {
       loadJson,
       operationData
     );
-    expect(newData.json).to.not.equal(context.result);
+    expect(newData.json).to.not.eql(context.result);
   });
 });

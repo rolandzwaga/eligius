@@ -21,7 +21,7 @@ class MockEventbus {
   }
 }
 
-describe('getControllerInstance', () => {
+describe.concurrent('getControllerInstance', () => {
   test('should get the controller instance for the given systemName', () => {
     // given
     const operationData: IGetControllerInstanceOperationData = {

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { getGlobals, setGlobals } from '../../../../operation/helper/globals.ts';
-describe('globals', () => {
+describe.concurrent('globals', () => {
   test('should get the globals', () => {
     const cache = getGlobals();
     expect(cache).not.to.be.undefined;

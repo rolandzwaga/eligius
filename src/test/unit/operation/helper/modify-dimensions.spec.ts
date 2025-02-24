@@ -11,7 +11,7 @@ type ModifyDimensionsSuiteContext = { dimensions: IDimensions } & TestContext;
 // RATIOS
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<ModifyDimensionsSuiteContext>('modifyDimensions', () => {
+describe.concurrent<ModifyDimensionsSuiteContext>('modifyDimensions', () => {
   beforeEach((context) => {
     withContext<ModifyDimensionsSuiteContext>(context);
 

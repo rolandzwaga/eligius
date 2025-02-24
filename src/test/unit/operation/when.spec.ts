@@ -12,7 +12,7 @@ type WhenSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<WhenSuiteContext>('when', () => {
+describe.concurrent<WhenSuiteContext>('when', () => {
   beforeEach((context) => {
     withContext<WhenSuiteContext>(context);
 

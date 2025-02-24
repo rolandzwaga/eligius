@@ -4,7 +4,7 @@ import {
   OperationMetadataProvider,
   TimeLineEventNamesProvider,
 } from '../../../../configuration/api/name-providers.ts';
-describe('name-providers', () => {
+describe.concurrent('name-providers', () => {
   test('should return a list of event names', () => {
     // given
     const provider = new TimeLineEventNamesProvider();

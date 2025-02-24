@@ -11,7 +11,7 @@ type LogSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<LogSuiteContext>('log', () => {
+describe.concurrent<LogSuiteContext>('log', () => {
   beforeEach((context) => {
     withContext<LogSuiteContext>(context);
 

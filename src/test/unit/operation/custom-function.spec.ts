@@ -16,7 +16,7 @@ class MockEventbus {
   }
 }
 
-describe('customFunction', () => {
+describe.concurrent('customFunction', () => {
   test('should resolve and execute the specified function', async () => {
     // given
     const operationData = {

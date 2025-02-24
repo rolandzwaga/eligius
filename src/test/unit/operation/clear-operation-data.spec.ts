@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { clearOperationData } from '../../../operation/clear-operation-data.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
-describe('clearOperationData', () => {
+describe.concurrent('clearOperationData', () => {
   test('should clear the given operation data', () => {
     // given
     const operationData = {

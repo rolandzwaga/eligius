@@ -60,7 +60,7 @@ type ConfigurationResolverSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
+describe.concurrent<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
   beforeEach((context) => {
     withContext<ConfigurationResolverSuiteContext>(context);
 

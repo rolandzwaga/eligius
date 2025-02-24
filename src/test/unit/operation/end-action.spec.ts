@@ -12,7 +12,7 @@ class MockAction {
   }
 }
 
-describe('endAction', () => {
+describe.concurrent('endAction', () => {
   test('should call the end() method on the given action with the given operationdata', async () => {
     // given
     const mockAction = new MockAction();

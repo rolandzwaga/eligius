@@ -16,7 +16,7 @@ class MockEventbus {
   }
 }
 
-describe('requestAction', () => {
+describe.concurrent('requestAction', () => {
   test('should request the specified action', () => {
     // given
     const operationData = {

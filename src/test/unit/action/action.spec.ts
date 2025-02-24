@@ -8,7 +8,7 @@ type ActionContext = {
   action: any;
 } & TestContext;
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<ActionContext>('Action', () => {
+describe.concurrent<ActionContext>('Action', () => {
   beforeEach<ActionContext>((context) => {
     withContext(context);
 

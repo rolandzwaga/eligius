@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, test } from 'vitest';
 import { type IMathOperationData, math, type MathFunctionKeys, type MathNonFunctionKeys } from '../../../operation/math.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
-describe('math', () => {
+describe.concurrent('math', () => {
   test('should perform all the math calculations', () => {
     // given
 

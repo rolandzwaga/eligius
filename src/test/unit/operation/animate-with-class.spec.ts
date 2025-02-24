@@ -26,7 +26,7 @@ class MockElement {
   }
 }
 
-describe('animateWithClass', () => {
+describe.concurrent('animateWithClass', () => {
   test(
     'should animate by adding the specified class, and remove the class afterwards',
     () => {

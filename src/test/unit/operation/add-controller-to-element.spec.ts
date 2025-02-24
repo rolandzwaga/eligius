@@ -37,7 +37,7 @@ class MockController {
   }
 }
 
-describe('addControllerToElement', () => {
+describe.concurrent('addControllerToElement', () => {
   test('should attach the controller without a promise result', () => {
     // given
     const operationData = {

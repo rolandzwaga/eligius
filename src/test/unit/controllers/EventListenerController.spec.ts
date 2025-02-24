@@ -56,7 +56,7 @@ type EventListenerControllerSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<EventListenerControllerSuiteContext>('EventListenerController', () => {
+describe.concurrent<EventListenerControllerSuiteContext>('EventListenerController', () => {
   beforeEach((context) => {
     withContext<EventListenerControllerSuiteContext>(context);
 

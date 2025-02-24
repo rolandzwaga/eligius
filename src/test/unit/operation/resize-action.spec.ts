@@ -11,7 +11,7 @@ class MockAction {
   }
 }
 
-describe('resizeAction', () => {
+describe.concurrent('resizeAction', () => {
   test('should call the resize method on an action if it exists', () => {
     // given
     const mockAction = new MockAction();

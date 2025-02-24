@@ -13,7 +13,7 @@ type EndableActionEditorSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<EndableActionEditorSuiteContext>('EndableActionEditor', () => {
+describe.concurrent<EndableActionEditorSuiteContext>('EndableActionEditor', () => {
   beforeEach((context) => {
     withContext<EndableActionEditorSuiteContext>(context);
 

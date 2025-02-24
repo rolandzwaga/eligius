@@ -21,7 +21,7 @@ class MockElement {
   }
 }
 
-describe('getElementDimensions', () => {
+describe.concurrent('getElementDimensions', () => {
   test("should get the given element's dimensions", () => {
     // given
 

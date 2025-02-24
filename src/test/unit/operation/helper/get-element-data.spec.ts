@@ -12,7 +12,7 @@ class MockElement {
   }
 }
 
-describe('getElementData', () => {
+describe.concurrent('getElementData', () => {
   test('should get the element data', () => {
     // given
     const mockElement = new MockElement();

@@ -11,7 +11,7 @@ class MockElement {
   }
 }
 
-describe('clearElement', () => {
+describe.concurrent('clearElement', () => {
   test('should clear the given element', () => {
     // given
     const operationData = {

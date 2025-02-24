@@ -14,7 +14,7 @@ class MockElement {
   }
 }
 
-describe('attachControllerToElement', () => {
+describe.concurrent('attachControllerToElement', () => {
   test('should attach the given controller to the given element', () => {
     // given
     const element = new MockElement();

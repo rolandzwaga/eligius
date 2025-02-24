@@ -38,7 +38,7 @@ type EngineFactorySuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<EngineFactorySuiteContext>('EngineFactory', () => {
+describe.concurrent<EngineFactorySuiteContext>('EngineFactory', () => {
   beforeEach((context) => {
     withContext<EngineFactorySuiteContext>(context);
 

@@ -6,7 +6,7 @@ import {
   setGlobalData,
 } from '../../../operation/set-global-data.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
-describe('setGlobalData', () => {
+describe.concurrent('setGlobalData', () => {
   beforeAll(() => {
     clearGlobals();
   });

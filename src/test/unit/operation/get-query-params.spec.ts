@@ -10,7 +10,7 @@ type GetQueryParamsSuiteContext = {
   location: any;
 } & TestContext;
 
-describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
+describe.concurrent<GetQueryParamsSuiteContext>('getQueryParams', () => {
   beforeEach<GetQueryParamsSuiteContext>((context) => {
     context.location = window.location;
     delete (window as any).location;

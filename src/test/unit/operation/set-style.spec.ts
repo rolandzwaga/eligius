@@ -10,7 +10,7 @@ class MockElement {
   }
 }
 
-describe('setStyle', () => {
+describe.concurrent('setStyle', () => {
   test('should set the style on the specified element', () => {
     // given
     const mockElement = new MockElement();

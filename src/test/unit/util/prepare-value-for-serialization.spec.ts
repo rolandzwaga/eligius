@@ -9,7 +9,7 @@ function SimpleClass(this: any) {
   return this;
 }
 
-describe('prepareValueForSerialization', () => {
+describe.concurrent('prepareValueForSerialization', () => {
   test('should serialize the given object', () => {
     // given
 

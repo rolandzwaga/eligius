@@ -5,8 +5,7 @@ import { applyOperation } from '../../../util/apply-operation.ts';
 
 type WaitSuiteContext = { timeout: typeof window.setTimeout; mseconds: number } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<WaitSuiteContext>('wait', () => {
+describe.concurrent<WaitSuiteContext>('wait', () => {
   beforeEach<WaitSuiteContext>((context) => {
     context.mseconds = 0;
     context.timeout = window.setTimeout;

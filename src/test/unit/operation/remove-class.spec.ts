@@ -11,7 +11,7 @@ class MockElement {
   }
 }
 
-describe('removeClass', () => {
+describe.concurrent('removeClass', () => {
   test('should remove the class from the given element', () => {
     // given
     const mockElement = new MockElement();

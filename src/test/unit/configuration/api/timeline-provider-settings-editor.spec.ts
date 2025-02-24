@@ -9,7 +9,7 @@ type TimelineProviderSettingsEditorSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T { }
-describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEditor', () => {
+describe.concurrent<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEditor', () => {
   beforeEach((context) => {
     withContext<TimelineProviderSettingsEditorSuiteContext>(context);
 
