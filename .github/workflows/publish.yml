@@ -35,10 +35,10 @@ jobs:
           vs-version: '15.0'
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Use Node 18
-        uses: actions/setup-node@v3
+      - name: Use Node 20
+        uses: actions/setup-node@v4
         env:
           FORCE_COLOR: 0
         with:
@@ -68,7 +68,7 @@ jobs:
         run: npm run build
 
       - name: Publish
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
-          check-version: true
+          strategy: all
