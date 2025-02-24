@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import $ from 'jquery';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext, vi } from 'vitest';
+import { afterEach, beforeEach, describe, test, type TestContext, vi } from 'vitest';
 import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
 
 type RequestAnimationFrameTimelineProviderSuiteContext = {
@@ -9,8 +9,6 @@ type RequestAnimationFrameTimelineProviderSuiteContext = {
   requestAnimationFrame: any;
   cancelAnimationFrame: any;
 } & TestContext;
-//RequestAnimationFrameTimelineProviderSuite.run();
-function withContext<T>(ctx: unknown): asserts ctx is T { }
 
 describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
   beforeEach<RequestAnimationFrameTimelineProviderSuiteContext>((context) => {
