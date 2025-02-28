@@ -7,6 +7,7 @@ import type {
   IOperationConfiguration
 } from '../configuration/types.ts';
 import dashToCamelCase from '../util/dash-to-camel-case.ts';
+import type { TOperationData } from 'operation/types.ts';
 
 interface ImportInfo {
   systemName: string;
@@ -195,7 +196,7 @@ function _gatherOperationImportPathsFromActions(
 }
 
 function _gatherControllerImportPaths(
-  operationConfigs: IOperationConfiguration[]
+  operationConfigs: IOperationConfiguration<TOperationData>[]
 ): ImportInfo[] {
   if (!operationConfigs) {
     return [] as ImportInfo[];
@@ -235,7 +236,6 @@ function _deduplicate(importPaths: ImportInfo[]): ImportInfo[] {
     if (lookup[imp.systemName]) {
       return false;
     }
-    lookup[imp.systemName] = true;
-    return true;
+    return lookup[imp.systemName] = true;
   });
 }

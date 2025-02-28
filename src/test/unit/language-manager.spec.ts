@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import { beforeEach, describe, test, type TestContext } from 'vitest';
 import type { IEventbus } from '../../eventbus/index.ts';
 import { LanguageManager } from '../../language-manager.ts';
-import type { ILanguageLabel } from '../../types.ts';
+import type { ILanguageLabel, TLanguageCode } from '../../types.ts';
 
 type LanguageManagerSuiteContext = {
   eventbus: IEventbus;
-  language: string;
+  language: TLanguageCode;
   labels: ILanguageLabel[];
   subscriptions: any[];
 } & TestContext;

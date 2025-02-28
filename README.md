@@ -271,7 +271,9 @@ const factory = new EngineFactory(new WebpackResourceImporter(), window);
 
 const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
-engine.init().then(()=> {console.log('Eligius engine ready for business');});
+await engine.init();
+
+console.log('Eligius engine ready for business');
 ```
 
 ## Configuration API

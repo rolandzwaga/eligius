@@ -198,11 +198,11 @@ export class EligiusEngine implements IEligiusEngine {
     }
   }
 
-  private durationRequest(callBack: TResultCallback) {
+  private durationRequest(callBack: TResultCallback<number|undefined>) {
     callBack(this._activeTimelineProvider?.getDuration());
   }
 
-  private containerRequest(callBack: TResultCallback) {
+  private containerRequest(callBack: TResultCallback<JQuery<HTMLElement>|undefined>) {
     callBack(this._activeTimelineProvider?.getContainer());
   }
 
@@ -350,7 +350,7 @@ export class EligiusEngine implements IEligiusEngine {
     return Promise.resolve();
   }
 
-  private _handleRequestEngineRoot(engineRootSelector: string, resultCallback: TResultCallback) {
+  private _handleRequestEngineRoot(engineRootSelector: string, resultCallback: TResultCallback<JQuery<HTMLElement>>) {
     resultCallback($(engineRootSelector));
   }
 
@@ -434,7 +434,7 @@ export class EligiusEngine implements IEligiusEngine {
     return this._executeActions(currentActions, executionType, 0);
   }
 
-  private _handleRequestTimelinePosition(floor: Function, resultCallback: TResultCallback) {
+  private _handleRequestTimelinePosition(floor: Function, resultCallback: TResultCallback<number>) {
     resultCallback(floor(this._activeTimelineProvider?.getPosition() || -1));
   }
 
@@ -446,7 +446,7 @@ export class EligiusEngine implements IEligiusEngine {
     return this._getTimelineActionsForUri(this._currentTimelineUri);
   }
 
-  private _requestCurrentTimeline(resultCallback: TResultCallback) {
+  private _requestCurrentTimeline(resultCallback: TResultCallback<string>) {
     resultCallback(this._currentTimelineUri);
   }
 

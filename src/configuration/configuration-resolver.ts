@@ -22,6 +22,7 @@ import type {
   ITimelineActionConfiguration,
   ITimelineConfiguration,
 } from './types.ts';
+import type { TOperationData } from 'operation/types.ts';
 
 /**
  * Takes an `IEngineConfiguration` instance and return an `IResolvedEngineConfiguration`.
@@ -139,7 +140,7 @@ function resolveTimelines(
 
 function resolveOperation(
   importer: ISimpleResourceImporter,
-  operationConfig: IOperationConfiguration
+  operationConfig: IOperationConfiguration<TOperationData>
 ): IResolvedOperation {
   return {
     id: operationConfig.id,

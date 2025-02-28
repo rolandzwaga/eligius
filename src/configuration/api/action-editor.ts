@@ -5,15 +5,16 @@ import { deepCopy } from '../../operation/helper/deep-copy.ts';
 import type { TOperation, TOperationData } from '../../operation/types.ts';
 import type { IDuration } from '../../types.ts';
 import type {
-  ExtractDataType,
+  ExtractOperationDataType,
+  GetOperationByName,
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
   ITimelineActionConfiguration,
+  TOperationName,
+  TOperationType,
 } from '../types.ts';
 import { ConfigurationFactory } from './configuration-factory.ts';
-
-type TOperationName = keyof typeof operations;
 
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {
@@ -24,6 +25,11 @@ function array_move(arr: any[], old_index: number, new_index: number) {
   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
 }
 
+/**
+ * 
+ * A factory that assists in editing an action
+ * 
+ */
 export class ActionEditor<
   T extends IActionConfiguration = IActionConfiguration
 > {
@@ -33,11 +39,16 @@ export class ActionEditor<
   ) {}
 
   updateConfiguration() {
-    this.actionConfig = {
-      ...this.actionConfig,
-    };
+    this.actionConfig = structuredClone(this.actionConfig);
   }
 
+  /**
+   * 
+   * Returns a copy of the current internal state of the factory
+   * 
+   * @param callBack 
+   * @returns 
+   */
   getConfiguration(callBack: (config: T) => T | undefined) {
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
@@ -47,6 +58,13 @@ export class ActionEditor<
     return this;
   }
 
+  /**
+   * 
+   * Sets the action name
+   * 
+   * @param name 
+   * @returns 
+   */
   setName(name: string) {
     this.actionConfig = {
       ...this.actionConfig,
@@ -55,14 +73,28 @@ export class ActionEditor<
     return this;
   }
 
+  /**
+   * 
+   * Gets the action name
+   * 
+   * @returns 
+   */
   getName() {
     return this.actionConfig.name;
   }
 
-  addStartOperationByType<T extends TOperation<any>>(
+  /**
+   * 
+   * Adds the operation data for a start operation specified by the given type
+   * 
+   * @param operationClass 
+   * @param operationData 
+   * @returns 
+   */
+  addStartOperationByType<T extends TOperation<TOperationData>>(
     operationClass: T,
-    operationData: Partial<ExtractDataType<T>>
-  ): OperationEditor<this> {
+    operationData: Partial<ExtractOperationDataType<T>>
+  ): OperationEditor<this, T> {
     const entries = Object.entries(operations).find(
       ([, value]) => value === operationClass
     );
@@ -71,17 +103,26 @@ export class ActionEditor<
       return this.addStartOperation(
         entries[0] as TOperationName,
         operationData
-      );
+      ) as OperationEditor<this, T>;
     }
 
     throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
+  /**
+   * 
+   * Adds the operation data for a start operation specified by the given system name
+   * 
+   * @param systemName 
+   * @param operationData 
+   * @param id 
+   * @returns 
+   */
   addStartOperation(
     systemName: TOperationName,
     operationData: TOperationData,
-    id?: string
-  ): OperationEditor<this> {
+    id: string = uuidv4()
+  ): OperationEditor<this, TOperation<TOperationData>> {
     if (!(operations as any)[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
@@ -91,10 +132,10 @@ export class ActionEditor<
       : [];
 
     const newConfig = {
-      id: id ?? uuidv4(),
+      id,
       systemName: systemName,
       operationData: operationData,
-    };
+    } as IOperationConfiguration<TOperation<TOperationData>>;
 
     startOperations.push(newConfig);
 
@@ -103,20 +144,34 @@ export class ActionEditor<
       startOperations,
     };
 
-    return new OperationEditor<this>(newConfig, this);
+    return new OperationEditor<this, TOperation<TOperationData>>(newConfig, this);
   }
 
+  /**
+   * 
+   * Starts an editor for the start operation associated with the given id
+   * 
+   * @param id 
+   * @returns 
+   */
   editStartOperation(id: string) {
     const { startOperations } = this.actionConfig;
     const operation = startOperations.find(o => o.id === id);
 
     if (isDefined(operation)) {
-      return new OperationEditor<ActionEditor<T>>(operation, this);
+      return new OperationEditor<ActionEditor<T>, TOperation<TOperationData>>(operation, this);
     }
 
     throw new Error(`start operation not found for id ${id}`);
   }
 
+  /**
+   * 
+   * Removes the start operation associated with the given id
+   * 
+   * @param id 
+   * @returns 
+   */
   removeStartOperation(id: string) {
     const startOperations = this.actionConfig.startOperations
       ? this.actionConfig.startOperations.slice()
@@ -140,6 +195,14 @@ export class ActionEditor<
     return this;
   }
 
+  /**
+   * 
+   * Moves the start operation associated with the given id in the given direction
+   * 
+   * @param id 
+   * @param direction 
+   * @returns 
+   */
   moveStartOperation(id: string, direction: 'up' | 'down') {
     const startOperations = this.actionConfig.startOperations
       ? this.actionConfig.startOperations.slice()
@@ -164,31 +227,59 @@ export class ActionEditor<
     return this;
   }
 
+  /**
+   * 
+   * Return the fluent scopt to the `ConfigurationFactory`
+   * 
+   * @returns 
+   */
   next() {
     return this.configurationFactory;
   }
 }
 
+/**
+ * 
+ * A factory that assists in editing an endable action
+ * 
+ */
 export class EndableActionEditor<
   T extends IEndableActionConfiguration = IEndableActionConfiguration
 > extends ActionEditor<T> {
-  addEndOperationByType<T extends TOperation<any>>(
+
+  /**
+   * 
+   * Adds the operation data for a end operation specified by the given type
+   * 
+   * @param operationClass 
+   * @param operationData 
+   * @returns 
+   */
+  addEndOperationByType<T extends TOperationType, Dt extends Partial<ExtractOperationDataType<T>>>(
     operationClass: T,
-    operationData: Partial<ExtractDataType<T>>
-  ): OperationEditor<this> {
+    operationData: Dt
+  ): OperationEditor<this, TOperationType> {
     const entries = Object.entries(operations).find(
       ([, value]) => value === operationClass
     );
 
     if (entries) {
-      return this.addEndOperation(entries[0], operationData);
+      return this.addEndOperation(entries[0] as TOperationName, operationData);
     }
 
     throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
-  addEndOperation(systemName: string, operationData: TOperationData) {
-    if (!(operations as any)[systemName]) {
+  /**
+   * 
+   * Adds the operation data for a start operation specified by the given system name
+   * 
+   * @param systemName 
+   * @param operationData 
+   * @returns 
+   */
+  addEndOperation<T extends TOperationName, O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>>(systemName: TOperationName, operationData: O) {
+    if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
 
@@ -206,9 +297,17 @@ export class EndableActionEditor<
 
     this.actionConfig.endOperations = endOperations;
 
-    return new OperationEditor<this>(newConfig, this);
+    const operationCsl = operations[systemName];
+    return new OperationEditor<this, typeof operationCsl>(newConfig, this);
   }
 
+  /**
+   * 
+   * Starts an editor for the end operation associated with the given id
+   * 
+   * @param id 
+   * @returns 
+   */
   editEndOperation(id: string) {
     const { endOperations } = this.actionConfig;
     const operationConfig = endOperations.find(o => o.id === id);
@@ -220,6 +319,13 @@ export class EndableActionEditor<
     throw new Error(`operation not found for id ${id}`);
   }
 
+  /**
+   * 
+   * Removes the end operation associated with the given id
+   * 
+   * @param id 
+   * @returns 
+   */
   removeEndOperation(id: string) {
     const endOperations = this.actionConfig.endOperations
       ? this.actionConfig.endOperations.slice()
@@ -243,6 +349,14 @@ export class EndableActionEditor<
     return this;
   }
 
+  /**
+   * 
+   * Moves the end operation associated with the given id in the specified direction
+   * 
+   * @param id 
+   * @param direction 
+   * @returns 
+   */
   moveEndOperation(id: string, direction: 'up' | 'down') {
     const endOperations = this.actionConfig.endOperations
       ? this.actionConfig.endOperations.slice()
@@ -267,9 +381,23 @@ export class EndableActionEditor<
   }
 }
 
+/**
+ * 
+ * A factory that assists in editing a timeline action
+ * 
+ */
 export class TimelineActionEditor extends EndableActionEditor<
   ITimelineActionConfiguration
 > {
+
+  /**
+   * 
+   * Sets the duration specified by the given start and optional end positions
+   * 
+   * @param start 
+   * @param end 
+   * @returns 
+   */
   setDuration(start: number, end?: number) {
     if (end != undefined && start > end) {
       throw Error('start position cannot be higher than end position');
@@ -291,14 +419,26 @@ export class TimelineActionEditor extends EndableActionEditor<
   }
 }
 
-export class OperationEditor<T extends ActionEditor> {
+/**
+ * 
+ * A factory that assists in editing an operation
+ * 
+ */
+export class OperationEditor<T extends ActionEditor, O extends TOperationType = TOperation<TOperationData>> {
   constructor(
-    private operationConfig: IOperationConfiguration,
+    private operationConfig: IOperationConfiguration<ExtractOperationDataType<O>>,
     private actionEditor: T
   ) {}
 
+  /**
+   * 
+   * Invokes the given callback with a copy of the internal state of the factory
+   * 
+   * @param callBack 
+   * @returns 
+   */
   getConfiguration(
-    callBack: (config: IOperationConfiguration) => IOperationConfiguration
+    callBack: (config: IOperationConfiguration<ExtractOperationDataType<O>>) => IOperationConfiguration<ExtractOperationDataType<O>>
   ) {
     const copy = deepCopy(this.operationConfig);
     const newConfig = callBack.call(this, copy);
@@ -310,10 +450,23 @@ export class OperationEditor<T extends ActionEditor> {
     return this;
   }
 
+  /**
+   * 
+   * Gets the system name
+   * 
+   * @returns 
+   */
   getSystemName() {
     return this.operationConfig.systemName;
   }
 
+  /**
+   * 
+   * Sets the system name
+   * 
+   * @param systemName 
+   * @returns 
+   */
   setSystemName(systemName: TOperationName) {
     if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
@@ -324,28 +477,65 @@ export class OperationEditor<T extends ActionEditor> {
     return this;
   }
 
-  setOperationData(operationData: TOperationData) {
+  /**
+   * 
+   * Sets the operation data
+   * 
+   * @param operationData 
+   * @returns 
+   */
+  setOperationData(operationData: ExtractOperationDataType<O>) {
     this.operationConfig.operationData = operationData;
     this.actionEditor.updateConfiguration();
     return this;
   }
 
-  setOperationDataItem(key: string, value: any) {
-    const { operationData = {} } = this.operationConfig;
+  /**
+   * 
+   * Sets the value on the current `operationData` with the given key
+   * 
+   * @param key 
+   * @param value 
+   * @returns 
+   */
+  setOperationDataItem(key: keyof ExtractOperationDataType<O>, value: ExtractOperationDataType<O>[keyof ExtractOperationDataType<O>]) {
+    let { operationData } = this.operationConfig;
+    if (!operationData) {
+      operationData = {} as ExtractOperationDataType<O>;
+    }
     operationData[key] = value;
     return this.setOperationData(operationData);
   }
 
-  getOperationDataKeys() {
+  /**
+   * 
+   * returns all of the defined property names on the current `operationData`
+   * 
+   * @returns 
+   */
+  getOperationDataKeys(): keyof ExtractOperationDataType<O> {
     const { operationData } = this.operationConfig;
-    return operationData ? Object.keys(operationData) : [];
+    return (operationData ? Object.keys(operationData) : []) as unknown as keyof ExtractOperationDataType<O>;
   }
 
-  getOperationDataValue(key: string) {
+  /**
+   * 
+   * Gets the value of the given key on the current `operationData`
+   * 
+   * @param key 
+   * @returns 
+   */
+  getOperationDataValue(key: keyof ExtractOperationDataType<O>) {
     const { operationData } = this.operationConfig;
     return operationData?.[key];
   }
 
+  /**
+   * 
+   * Returns the fluent scope back to the action editor
+   * 
+   * @returns 
+   */
   next() {
     return this.actionEditor;
   }

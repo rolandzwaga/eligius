@@ -1,3 +1,5 @@
+import type { Operations } from "configuration/types.ts";
+
 export type THasRequired = {
   required?: boolean;
 };

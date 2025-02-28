@@ -1,8 +1,20 @@
 import type { IEndableAction, ITimelineAction } from '../action/types.ts';
 import type { TOperation, TOperationData } from '../operation/types.ts';
-import type { IDuration, ILabel, ILanguageLabel, TimelineTypes } from '../types.ts';
+import type { IDuration, ILabel, ILanguageLabel, TimelineTypes, TLanguageCode } from '../types.ts';
+import * as operations from '../operation/index.ts'; 
+import * as controllers from '../controllers/index.ts';
 
-export type ExtractDataType<P> = P extends TOperation<infer T, any> ? T : never;
+export type Controllers = typeof controllers;
+export type TControllerName = keyof Controllers;
+export type TControllerType = Controllers[TControllerName];
+export type GetControllerByName<T extends TControllerName> = Controllers[T];
+
+export type Operations = typeof operations;
+export type TOperationName = keyof Operations;
+export type TOperationType = Operations[TOperationName];
+export type GetOperationByName<T extends TOperationName> = Operations[T];
+
+export type ExtractOperationDataType<P> = P extends TOperation<infer T, any> ? T : never;
 export interface IEngineInfo {
   systemName: string;
 }
@@ -15,7 +27,7 @@ export interface IEngineConfiguration {
   engine: IEngineInfo;
   timelineProviderSettings?: TTimelineProviderSettings;
   containerSelector: string;
-  language: string;
+  language: TLanguageCode;
   layoutTemplate: string;
   availableLanguages: ILabel[];
   initActions: IEndableActionConfiguration[];
@@ -31,7 +43,7 @@ export interface IResolvedEngineConfiguration {
   engine: IEngineInfo;
   timelineProviderSettings: TTimelineProviderSettings;
   containerSelector: string;
-  language: string;
+  language: TLanguageCode;
   layoutTemplate: string;
   availableLanguages: ILabel[];
   initActions: IEndableAction[];
@@ -82,10 +94,10 @@ export interface ITimelineConfiguration {
   timelineActions: ITimelineActionConfiguration[];
 }
 
-export interface IOperationConfiguration {
+export interface IOperationConfiguration<T extends TOperationData> {
   id: string;
   systemName: string;
-  operationData?: TOperationData;
+  operationData?: T;
 }
 
 export interface IEventActionConfiguration extends IActionConfiguration {
@@ -96,11 +108,11 @@ export interface IEventActionConfiguration extends IActionConfiguration {
 export interface IActionConfiguration {
   id: string;
   name: string;
-  startOperations: IOperationConfiguration[];
+  startOperations: IOperationConfiguration<TOperationData>[];
 }
 
 export interface IEndableActionConfiguration extends IActionConfiguration {
-  endOperations: IOperationConfiguration[];
+  endOperations: IOperationConfiguration<TOperationData>[];
 }
 
 export interface ITimelineActionConfiguration

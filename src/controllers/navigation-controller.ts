@@ -91,7 +91,7 @@ export class NavigationController
     return null;
   }
 
-  private _handleRequestCurrentNavigation(resultCallback: TResultCallback) {
+  private _handleRequestCurrentNavigation(resultCallback: TResultCallback<{navigationData: any, title: string}|null>) {
     if (this.activeNavigationPoint) {
       const labelCtrl = this.ctrlLookup[this.activeNavigationPoint.labelId];
       resultCallback({

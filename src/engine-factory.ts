@@ -187,21 +187,21 @@ export class EngineFactory implements IEngineFactory {
 
   private _requestInstanceHandler(
     systemName: string,
-    resultCallback: TResultCallback
+    resultCallback: TResultCallback<any>
   ) {
     resultCallback(this._importSystemEntryWithEventbusDependency(systemName));
   }
 
   private _requestFunctionHandler(
     systemName: string,
-    resultCallback: TResultCallback
+    resultCallback: TResultCallback<any>
   ) {
     resultCallback(this._importSystemEntry(systemName));
   }
 
   private _requestActionHandler(
     systemName: string,
-    resultCallback: TResultCallback
+    resultCallback: TResultCallback<IAction|null>
   ) {
     const action = this._actionsLookup[systemName];
     if (action) {

@@ -6,17 +6,10 @@ import type {
 import type { IEventbus, IEventbusListener } from './eventbus/types.ts';
 import type { ITimelineProvider } from './timelineproviders/types.ts';
 
-export type KeysOfType<T, U, B = false> = {
-  [P in keyof T]: B extends true
-    ? T[P] extends U
-      ? U extends T[P]
-        ? P
-        : never
-      : never
-    : T[P] extends U
-    ? P
-    : never;
+export type KeysOfType<T, U> = {
+  [P in keyof T]-?: T[P] extends U|undefined ? P : never;
 }[keyof T];
+
 
 /**
  * Describes an object that is capable of processing the given configuration and constructing an IEligiusEngine
@@ -78,7 +71,7 @@ export interface IConfigurationResolver {
   ): [Record<string, IAction>, IResolvedEngineConfiguration];
 }
 
-export type TResultCallback = (result: any) => void;
+export type TResultCallback<T> = (result: T) => void;
 
 /**
  * Describes a duration of time expressed in a start and an optional end range with a one second interval.
@@ -118,11 +111,23 @@ export interface ILabel {
   label: string;
 }
 
+/**
+ * 
+ * Container type for a width and height
+ * 
+ */
 export interface IDimensions {
   width: number;
   height: number;
 }
 
+/**
+ * 
+ * This represents an IETF language tag
+ * 
+ * The format reads as follows: [Primary language subtag]-[Region subtag] 
+ * 
+ */
 export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
 
 export interface ISubtitleCollection {

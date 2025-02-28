@@ -11,16 +11,14 @@ import type {
   IActionConfiguration,
   ITimelineActionConfiguration,
 } from '../../../../configuration/types.ts';
+import type { TLanguageCode } from 'types.ts';
 
 type ConfigurationFactorySuiteContext = {
   configurationFactory: ConfigurationFactory;
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
 describe.concurrent<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
-  beforeEach((context) => {
-    withContext<ConfigurationFactorySuiteContext>(context);
-
+  beforeEach<ConfigurationFactorySuiteContext>((context) => {
     context.configurationFactory = new ConfigurationFactory();
   });
   test<ConfigurationFactorySuiteContext>('should initialize a config', (context) => {
@@ -396,5 +394,69 @@ describe.concurrent<ConfigurationFactorySuiteContext>('ConfigurationFactory', ()
 
     // expect
     expect(editor).to.be.an.instanceOf(TimelineActionEditor);
+  });
+  test<ConfigurationFactorySuiteContext>('extend factory with single method', (context) => {
+    // given
+    const { configurationFactory } = context;
+    const extendedFactory = ConfigurationFactory.extend(configurationFactory, 'addThings', function() {
+      this.init('nl-NL');
+      this.addTimeline(
+        'test',
+        'animation',
+        100,
+        false,
+        'selector'
+      );
+      return this;
+    });
+
+    // test
+    extendedFactory.addThings();
+
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.language).to.equal('nl-NL');
+    const timeline = configurationFactory.getTimeline('test');
+    expect(timeline).not.to.be.null;
+    expect(timeline?.uri).to.equal('test');
+    expect(timeline?.type).to.equal('animation');
+    expect(timeline?.duration).to.equal(100);
+    expect(timeline?.loop).to.be.false;
+    expect(timeline?.selector).to.equal('selector');
+  });
+  test<ConfigurationFactorySuiteContext>('extend factory with multiple methods', (context) => {
+    // given
+    const { configurationFactory } = context;
+    const extendedFactory = ConfigurationFactory.extendMultiple(configurationFactory, {
+      'addThings': function(langCode:TLanguageCode) {
+      this.init(langCode);
+      return this;
+    },
+    'addThings2': function(name: string) {
+      this.addTimeline(
+        name,
+        'animation',
+        100,
+        false,
+        'selector'
+      );
+      return this;
+    }
+  });
+
+    // test
+    extendedFactory.addThings('nl-NL');
+    extendedFactory.addThings2('test');
+
+    // expect
+    const { configuration } = configurationFactory;
+    expect(configuration.language).to.equal('nl-NL');
+    const timeline = configurationFactory.getTimeline('test');
+    expect(timeline).not.to.be.null;
+    expect(timeline?.uri).to.equal('test');
+    expect(timeline?.type).to.equal('animation');
+    expect(timeline?.duration).to.equal(100);
+    expect(timeline?.loop).to.be.false;
+    expect(timeline?.selector).to.equal('selector');
   });
 });

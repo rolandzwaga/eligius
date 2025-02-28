@@ -42,7 +42,7 @@ function createTestConfig(): IEngineConfiguration {
     engine: { systemName: 'TestEngine' },
     timelineProviderSettings: {} as any,
     containerSelector: 'containerSelector',
-    language: 'nl',
+    language: 'nl-NL',
     layoutTemplate: 'layoutTemplate',
     availableLanguages: [],
     initActions: [],

@@ -49,6 +49,14 @@ export class SubtitleEditor {
     return this;
   }
 
+  /**
+   * 
+   * Add a single subtitle line that is associated with the given `languageCode`
+   * 
+   * @param languageCode 
+   * @param subtitle 
+   * @returns 
+   */
   addSubtitle(languageCode: TLanguageCode, subtitle: ISubtitle) {
     const language = this._getLanguage(languageCode);
     if (!language) {
