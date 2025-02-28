@@ -12,14 +12,14 @@ export function prepareValueForSerialization(value: unknown): any {
       value.constructor.toString().substring(0, 5) === 'class' ||
       !value.constructor.toString().startsWith('function Object()')
     ) {
-      const funcString: string = value.constructor.toString();
+      const funcString = value.constructor.toString();
       return funcString.substring(0, funcString.indexOf('{') + 1);
     }
     return Object.fromEntries(
       Object.entries(value).map(([propName, propValue]) => [propName, prepareValueForSerialization(propValue)])
     );
   } else if (isFunction(value)) {
-    const funcString: string = value.toString();
+    const funcString = value.toString();
     const paranIndex = funcString.indexOf('{');
     if (paranIndex > -1) {
       return funcString.substring(0, funcString.indexOf('{') + 1);
