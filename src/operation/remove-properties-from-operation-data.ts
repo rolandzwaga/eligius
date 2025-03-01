@@ -22,5 +22,5 @@ export const removePropertiesFromOperationData: TOperation<IRemovePropertiesFrom
       Object.entries(operationData).filter(
         ([name, _value]) => !propertyNames.includes(name)
       )
-    ) as IRemovePropertiesFromOperationDataOperationData;
+    );
   };

@@ -19,7 +19,7 @@ export interface IAnimateWithClassOperationData {
  * class triggers and animation on the selected element. It then waits for this animation to complete
  * before it resolves.
  */
-export const animateWithClass: TOperation<IAnimateWithClassOperationData> =
+export const animateWithClass: TOperation<IAnimateWithClassOperationData, Promise<IAnimateWithClassOperationData>> =
   function (operationData: IAnimateWithClassOperationData) {
     let { selectedElement, className, removeClass } = operationData;
     removeClass = removeClass !== undefined ? removeClass : true;

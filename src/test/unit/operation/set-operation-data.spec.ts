@@ -23,9 +23,7 @@ describe.concurrent('setOperationData', () => {
     };
 
     // test
-    const newData = applyOperation<
-      typeof operationData.properties & { unusedProperty: string }
-    >(setOperationData, operationData);
+    const newData = applyOperation(setOperationData, operationData) as Record<PropertyKey, any>;
 
     // expect
     expect(newData.unusedProperty).to.equal('test');
@@ -52,13 +50,7 @@ describe.concurrent('setOperationData', () => {
     };
 
     // test
-    const newData = applyOperation<
-      typeof operationData.properties & {
-        unusedProperty: string;
-        testProperty: string;
-        override: boolean;
-      }
-    >(setOperationData, operationData);
+    const newData = applyOperation(setOperationData, operationData) as Record<PropertyKey, any>;
 
     // expect
     expect(newData.unusedProperty).to.be.undefined;

@@ -1,10 +1,11 @@
 import { expect } from 'chai';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext } from 'vitest';
+import { afterEach, beforeEach, describe, test, type TestContext } from 'vitest';
 import {
   getQueryParams,
   type IGetQueryParamsOperationData,
 } from '../../../operation/get-query-params.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
+import type { ExtractReturnedOperationData } from 'operation/types.ts';
 
 type GetQueryParamsSuiteContext = {
   location: any;
@@ -29,7 +30,7 @@ describe.concurrent<GetQueryParamsSuiteContext>('getQueryParams', () => {
     const operationData = {};
 
     // test
-    const result = applyOperation<IGetQueryParamsOperationData>(
+    const result = applyOperation(
       getQueryParams,
       operationData
     );
@@ -44,7 +45,7 @@ describe.concurrent<GetQueryParamsSuiteContext>('getQueryParams', () => {
     const operationData = {};
 
     // test
-    const result = applyOperation<IGetQueryParamsOperationData>(
+    const result = applyOperation(
       getQueryParams,
       operationData
     );
@@ -61,7 +62,7 @@ describe.concurrent<GetQueryParamsSuiteContext>('getQueryParams', () => {
     };
 
     // test
-    const result = applyOperation<IGetQueryParamsOperationData>(
+    const result = applyOperation(
       getQueryParams,
       operationData
     );

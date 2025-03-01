@@ -32,7 +32,7 @@ describe.concurrent('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    await applyOperation<Promise<any>>(customFunction, operationData, {
+    await applyOperation(customFunction, operationData, {
       currentIndex: -1,
       eventbus: mockEventbus as unknown as IEventbus,
       operations: [],
@@ -58,7 +58,7 @@ describe.concurrent('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const result = await applyOperation<Promise<any>>(
+    const result = await applyOperation(
       customFunction,
       operationData,
       {

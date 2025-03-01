@@ -33,13 +33,11 @@ describe.concurrent('getElementDimensions', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      dimensions: { width: number; height: number };
-    }>(getElementDimensions, operationData);
+    const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect(newData.dimensions.width).to.equal(100);
-    expect(newData.dimensions.height).to.equal(200);
+    expect(newData.dimensions!.width).to.equal(100);
+    expect(newData.dimensions!.height).to.equal(200);
   });
   test("should get the given element's dimensions and set the height to the width if the height is 0", () => {
     // given
@@ -52,13 +50,11 @@ describe.concurrent('getElementDimensions', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      dimensions: { width: number; height: number };
-    }>(getElementDimensions, operationData);
+    const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect(newData.dimensions.width).to.equal(100);
-    expect(newData.dimensions.height).to.equal(100);
+    expect(newData.dimensions!.width).to.equal(100);
+    expect(newData.dimensions!.height).to.equal(100);
   });
   test("should get the given element's dimensions and use the given modifier", () => {
     // given
@@ -71,12 +67,10 @@ describe.concurrent('getElementDimensions', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      dimensions: { width: number; height: number };
-    }>(getElementDimensions, operationData);
+    const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect(newData.dimensions.width).to.equal(200);
-    expect(newData.dimensions.height).to.equal(200);
+    expect(newData.dimensions!.width).to.equal(200);
+    expect(newData.dimensions!.height).to.equal(200);
   });
 });

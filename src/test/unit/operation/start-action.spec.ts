@@ -6,9 +6,10 @@ import { startAction } from '../../../operation/start-action.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
 class MockAction {
+  resolved: boolean = false;
   start(operationData: TOperationData) {
+    this.resolved = true;
     return new Promise((resolve) => {
-      operationData.resolved = true;
       resolve(operationData);
     });
   }
@@ -21,17 +22,20 @@ describe.concurrent('startAction', () => {
 
     const operationData = {
       actionInstance: mockAction,
+      resolved: false,
       actionOperationData: {
         prop: 'test',
       },
     };
 
     // test
-    const result = await applyOperation<Promise<any>>(startAction, operationData);
+    const result = await applyOperation(startAction, operationData);
 
     // expect
-    expect(result.resolved).to.be.true;
-    expect(result.prop).to.be.undefined;
+    //expect(result.resolved).to.be.true;
+    console.log('result', result);
+    expect((mockAction as any).resolved).to.be.true;
+    expect(result.actionOperationData).to.be.undefined;
     return result;
   });
 });

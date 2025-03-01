@@ -16,12 +16,10 @@ describe.concurrent('extendController', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      controllerInstance: { prop1: string; prop2: string };
-    }>(extendController, operationData);
+    const newData = applyOperation(extendController, operationData);
 
     // expect
-    expect(newData.controllerInstance.prop1).to.equal('prop1');
-    expect(newData.controllerInstance.prop2).to.equal('prop2');
+    expect((newData.controllerInstance as any).prop1).to.equal('prop1');
+    expect((newData.controllerInstance as any).prop2).to.equal('prop2');
   });
 });

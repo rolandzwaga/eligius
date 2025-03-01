@@ -31,7 +31,7 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation<typeof operationData>(
+    const resultOperationData = applyOperation(
       broadcastEvent,
       operationData,
       {
@@ -57,7 +57,7 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation<typeof operationData>(
+    const resultOperationData = applyOperation(
       broadcastEvent,
       operationData,
       {
@@ -85,7 +85,7 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation<typeof operationData>(
+    const resultOperationData = applyOperation(
       broadcastEvent,
       operationData,
       {
@@ -116,7 +116,7 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation<typeof operationData>(
+    const resultOperationData = applyOperation(
       broadcastEvent,
       operationData,
       {

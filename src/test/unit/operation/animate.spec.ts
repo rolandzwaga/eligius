@@ -41,7 +41,7 @@ describe.concurrent('animate', () => {
     };
 
     // test
-    const data = await applyOperation<Promise<typeof operationData>>(
+    const data = await applyOperation(
       animate,
       operationData
     );
@@ -60,7 +60,7 @@ describe.concurrent('animate', () => {
     };
 
     // test
-    const data = await applyOperation<Promise<typeof operationData>>(
+    const data = await applyOperation(
       animate,
       operationData
     );

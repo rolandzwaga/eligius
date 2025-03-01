@@ -14,9 +14,7 @@ describe.concurrent('getAttibutesFromElement', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      attributeValues: Record<string, any>;
-    }>(getAttributesFromElement, operationData);
+    const newData = applyOperation(getAttributesFromElement, operationData);
 
     // expect
     expect(newData.attributeValues).to.eql({ foo: 'fooValue', bar: 'barValue' });

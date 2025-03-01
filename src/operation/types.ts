@@ -56,9 +56,15 @@ export interface IOperationContext {
   parent?: IOperationContext;
 }
 
-export type TOperation<T extends TOperationData = TOperationData, R = T> = (
+export type TOperation<T extends TOperationData = TOperationData, RT = T> = (
   this: IOperationContext,
   operationData: T
-) => TOperationResult<R>;
+) => TOperationResult<RT>;
 
 export type ExtractOperationData<T extends TOperation<TOperationData>> = T extends TOperation<infer K> ? K : never
+export type ExtractReturnedOperationData<T extends TOperation<TOperationData, TOperationData>> =
+  T extends TOperation<any, infer K> 
+    ? unknown extends K
+      ? ExtractOperationData<T>
+      : K
+    : never;

@@ -16,7 +16,7 @@ describe.concurrent('forEach', () => {
     };
 
     // test
-    applyOperation<{ currentItem: number }>(forEach, operationData, context);
+    applyOperation(forEach, operationData, context);
 
     // expect
     expect(context.loopIndex).to.equal(0);
@@ -36,7 +36,7 @@ describe.concurrent('forEach', () => {
     };
 
     // test
-    applyOperation<{ currentItem: number }>(forEach, operationData, context);
+    applyOperation(forEach, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.undefined;
@@ -56,7 +56,7 @@ describe.concurrent('forEach', () => {
     };
 
     // test
-    applyOperation<{ currentItem: number }>(forEach, operationData, context);
+    applyOperation(forEach, operationData, context);
 
     // expect
     expect(context.loopIndex).to.be.undefined;

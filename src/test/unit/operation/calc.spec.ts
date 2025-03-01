@@ -20,7 +20,7 @@ describe.concurrent('calc', () => {
         };
 
         // test
-        const result = applyOperation<typeof operationData>(calc, operationData);
+        const result = applyOperation(calc, operationData);
 
         // expect
         expect((result as any).calculationResult).to.equal(
@@ -37,7 +37,7 @@ describe.concurrent('calc', () => {
     };
 
     // test
-    const result = applyOperation<typeof operationData>(calc, operationData);
+    const result = applyOperation(calc, operationData);
 
     // expect
     expect((result as any).calculationResult).to.equal(200);

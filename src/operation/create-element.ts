@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { resolvePropertyValues } from './helper/resolve-property-values.ts';
 import type { IOperationContext, TOperation } from './types.ts';
+import type { RequireKeys } from 'types.ts';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
@@ -28,7 +29,7 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  * @param operationData
  * @returns
  */
-export const createElement: TOperation<ICreateElementOperationData<any>> =
+export const createElement: TOperation<ICreateElementOperationData<TTagNames>, RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>> =
   function <T extends TTagNames>(
     this: IOperationContext,
     operationData: ICreateElementOperationData<T>
@@ -37,7 +38,7 @@ export const createElement: TOperation<ICreateElementOperationData<any>> =
       operationData,
       this,
       operationData
-    ) as ICreateElementOperationData<T>;
+    );
 
     const { elementName, attributes, text } = operationData;
 
@@ -54,5 +55,5 @@ export const createElement: TOperation<ICreateElementOperationData<any>> =
 
     operationData.template = template;
 
-    return operationData;
+    return operationData as RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>;
   };

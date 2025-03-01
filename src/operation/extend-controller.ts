@@ -9,7 +9,7 @@ export interface IExtendControllerOperationData {
    * @dependency
    */
   controllerInstance: IController<TOperationData>;
-  controllerExtension: unknown;
+  controllerExtension: Record<PropertyKey, unknown>;
 }
 
 /**

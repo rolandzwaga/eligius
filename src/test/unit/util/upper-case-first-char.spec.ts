@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { uppercaseFirstChar } from "../../../util/uppercase-first-char.ts";
 import { describe, test } from "vitest";
 
-describe('upper-case-first-char', () => {
+describe.concurrent('upper-case-first-char', () => {
     test('should upper case the first character', () => {
         // given
         const input = "myFirstCharIsNotUpperCase";

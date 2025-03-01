@@ -44,11 +44,11 @@ describe.concurrent('selectElement', () => {
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation<{ selectedElement: any }>(
+    const newData = applyOperation(
       selectElement,
       operationData,
       { currentIndex: -1, eventbus, operations: [] }
-    );
+    ) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
@@ -67,11 +67,11 @@ describe.concurrent('selectElement', () => {
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation<{ selectedElement: any }>(
+    const newData = applyOperation(
       selectElement,
       operationData,
       { currentIndex: -1, eventbus, operations: [] }
-    );
+    ) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
@@ -89,10 +89,10 @@ describe.concurrent('selectElement', () => {
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation<{ selectedElement: any }>(
+    const newData = applyOperation(
       selectElement,
       operationData
-    );
+    ) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);

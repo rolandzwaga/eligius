@@ -31,7 +31,7 @@ describe.concurrent('getControllerInstance', () => {
     const eventbus = new MockEventbus(controller);
 
     // test
-    const newData = applyOperation<{ controllerInstance: IController<any> }>(
+    const newData = applyOperation(
       getControllerInstance,
       operationData,
       {

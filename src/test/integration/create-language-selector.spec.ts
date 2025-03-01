@@ -32,7 +32,6 @@ type CreateOptionListContext = {
   cancelAnimationFrame: typeof global.cancelAnimationFrame;
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
 describe<CreateOptionListContext>('Create option list', () => {
   beforeEach<CreateOptionListContext>((context) => {
     context.cancelAnimationFrame = global.cancelAnimationFrame;
@@ -117,8 +116,6 @@ describe<CreateOptionListContext>('Create option list', () => {
     context.configuration = factory.getConfiguration();
   });
   afterEach<CreateOptionListContext>(async (context) => {
-    withContext<CreateOptionListContext>(context);
-
     await context.engine?.destroy();
     context.eventbus.clear();
     $('[data-ct-container=true]').remove();

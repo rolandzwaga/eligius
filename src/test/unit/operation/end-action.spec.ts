@@ -25,7 +25,7 @@ describe.concurrent('endAction', () => {
     };
 
     // test
-    const result = await applyOperation<Promise<typeof operationData>>(
+    const result = await applyOperation(
       endAction,
       operationData
     );

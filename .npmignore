@@ -1,1 +1,10 @@
 /src
+.eslintrc.js
+.gitignore
+.npmignore
+.prettierrc
+copy-schema.js
+esbuild.cjs
+tsconfig.json
+typedoc-metadata.json
+typedoc.json

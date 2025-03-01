@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { afterAll, afterEach, beforeAll, beforeEach, describe, test, type TestContext } from 'vitest';
+import { afterEach, beforeEach, describe, test, type TestContext } from 'vitest';
 import { clearCache, loadJson } from '../../../operation/load-json.ts';
 import { applyOperation } from '../../../util/apply-operation.ts';
 
@@ -42,7 +42,7 @@ describe.concurrent<LoadJsonContext>('loadJSON', () => {
     };
 
     // test
-    const newData = await applyOperation<Promise<{ json: any }>>(
+    const newData = await applyOperation(
       loadJson,
       operationData
     );
@@ -59,7 +59,7 @@ describe.concurrent<LoadJsonContext>('loadJSON', () => {
     };
 
     // test
-    let newData = await applyOperation<Promise<{ json: any }>>(
+    let newData = await applyOperation(
       loadJson,
       operationData
     );
@@ -67,7 +67,7 @@ describe.concurrent<LoadJsonContext>('loadJSON', () => {
     // expect
     expect(newData.json).to.equal(context.result);
     context.result = { test: false };
-    newData = await applyOperation<Promise<{ json: any }>>(
+    newData = await applyOperation(
       loadJson,
       operationData
     );

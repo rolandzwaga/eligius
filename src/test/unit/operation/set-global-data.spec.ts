@@ -20,7 +20,7 @@ describe.concurrent('setGlobalData', () => {
     } as ISetGlobalDataOperationData;
 
     // test
-    const result = applyOperation<ISetGlobalDataOperationData>(
+    const result = applyOperation(
       setGlobalData,
       operationData
     );

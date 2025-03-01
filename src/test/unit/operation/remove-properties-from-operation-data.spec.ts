@@ -13,10 +13,10 @@ describe.concurrent('removePropertiesFromOperationData', () => {
     };
 
     // test
-    const newData = applyOperation<typeof operationData>(
+    const newData = applyOperation(
       removePropertiesFromOperationData,
       operationData
-    );
+    ) as typeof operationData;
 
     // expect
     expect(newData.hasOwnProperty('testProp1')).to.be.false;

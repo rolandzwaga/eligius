@@ -40,7 +40,7 @@ describe.concurrent('animateWithClass', () => {
 
       // test
       
-      applyOperation<Promise<typeof operationData>>(
+      applyOperation(
         animateWithClass,
         operationData
       ).then(() => {
@@ -63,7 +63,7 @@ describe.concurrent('animateWithClass', () => {
 
       // test
       
-      applyOperation<Promise<typeof operationData>>(
+      applyOperation(
         animateWithClass,
         operationData
       ).then(() => {

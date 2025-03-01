@@ -19,10 +19,11 @@ describe.concurrent('math', () => {
       };
 
       // test
-      const result = applyOperation<typeof operationData>(math, operationData);
+      const result = applyOperation(math, operationData);
 
       // expect
-      expect(isNaN((result as any).mathResult)).to.equal(false);
+      expect(result.mathResult).is.not.undefined;
+      expect(isNaN(result.mathResult!)).to.equal(false);
     });
   });
   test('Should resolve Math constants in args', () => {
@@ -38,10 +39,10 @@ describe.concurrent('math', () => {
       };
 
       // test
-      const result = applyOperation<typeof operationData>(math, operationData);
+      const result = applyOperation(math, operationData);
 
       // expect
-      expect((result as any).mathResult).to.equal(Math[propName]);
+      expect(result.mathResult).to.equal(Math[propName]);
     });
   });
 });

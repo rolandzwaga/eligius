@@ -140,3 +140,7 @@ export interface ISubtitle {
   duration: IStrictDuration;
   text: string;
 }
+
+export type RequireKeys<T, K extends keyof T> = {
+  [P in K]-?: T[P];
+};

@@ -34,7 +34,7 @@ describe.concurrent('getControllerFromElement', () => {
     };
 
     // test
-    const newData = applyOperation<{ controllerInstance: any }>(
+    const newData = applyOperation(
       getControllerFromElement,
       operationData
     );

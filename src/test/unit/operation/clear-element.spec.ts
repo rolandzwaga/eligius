@@ -19,12 +19,12 @@ describe.concurrent('clearElement', () => {
     };
 
     // test
-    const result = applyOperation<typeof operationData>(
+    const result = applyOperation(
       clearElement,
       operationData
     );
 
     // expect
-    expect(result.selectedElement.emptied).to.be.true;
+    expect((result.selectedElement as unknown as MockElement).emptied).to.be.true;
   });
 });

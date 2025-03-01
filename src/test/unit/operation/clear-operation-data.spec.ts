@@ -12,7 +12,7 @@ describe.concurrent('clearOperationData', () => {
     };
 
     // test
-    const newOperationData = applyOperation<typeof operationData>(
+    const newOperationData = applyOperation(
       clearOperationData,
       operationData
     );
@@ -30,10 +30,10 @@ describe.concurrent('clearOperationData', () => {
     };
 
     // test
-    const newOperationData = applyOperation<typeof operationData>(
+    const newOperationData = applyOperation(
       clearOperationData,
       operationData
-    );
+    ) as typeof operationData;
 
     // expect
     expect(newOperationData.bla).to.be.undefined;

@@ -69,7 +69,7 @@ describe.concurrent('addControllerToElement', () => {
     };
 
     // test
-    const data = await applyOperation<Promise<any>>(
+    const data = await applyOperation(
       addControllerToElement,
       operationData
     );

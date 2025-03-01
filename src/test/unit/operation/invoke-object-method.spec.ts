@@ -19,7 +19,7 @@ describe.concurrent('invokeObjectMethod', () => {
     };
 
     // test
-    const result = applyOperation<IInvokeObjectMethodOperationData>(
+    const result = applyOperation(
       invokeObjectMethod,
       operationData
     );

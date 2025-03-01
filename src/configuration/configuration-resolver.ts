@@ -238,10 +238,10 @@ function resolvePlaceholders(
   }
 
   if (Array.isArray(configFragment)) {
-    configFragment.forEach((item) => {
+    configFragment.forEach((item, index) => {
       resolvePlaceholders(item, rootConfig, importer);
     });
-  } else {
+  } else if (isObject(configFragment)){
     Object.keys(configFragment).forEach((key) => {
       resolvePlaceholder(key, configFragment, rootConfig, importer);
     });
@@ -249,7 +249,7 @@ function resolvePlaceholders(
 }
 
 function resolvePlaceholder(
-  key: string,
+  key: PropertyKey,
   configFragment: any,
   rootConfig: any,
   importer: ISimpleResourceImporter
@@ -268,7 +268,7 @@ function resolvePlaceholder(
       const json = importer.import(jsonKey)[jsonKey];
       configFragment[key] = json;
     }
-  } else if (isObject(configValue)) {
+  } else if (isObject(configValue) || Array.isArray(configValue)) {
     resolvePlaceholders(configValue, rootConfig, importer);
   }
 }

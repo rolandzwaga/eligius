@@ -26,7 +26,7 @@ describe.concurrent<WaitSuiteContext>('wait', () => {
     };
 
     // test
-    const data = await applyOperation<Promise<any>>(wait, operationData);
+    const data = await applyOperation(wait, operationData);
 
     // expect
     expect(data).to.eql({});

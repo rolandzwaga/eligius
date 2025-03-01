@@ -59,11 +59,8 @@ type ConfigurationResolverSuiteContext = {
   eventbus: Eventbus;
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
 describe.concurrent<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
-  beforeEach((context) => {
-    withContext<ConfigurationResolverSuiteContext>(context);
-
+  beforeEach<ConfigurationResolverSuiteContext>((context) => {
     context.importer = new MockImporter();
     context.eventbus = new MockEventbus() as Eventbus;
   });

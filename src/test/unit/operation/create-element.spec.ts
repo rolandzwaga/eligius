@@ -10,9 +10,7 @@ describe.concurrent('createElement', () => {
     const operationData = { elementName: 'div' };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData);
+    const newData = applyOperation(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal('<div></div>');
@@ -22,9 +20,7 @@ describe.concurrent('createElement', () => {
     const operationData = { elementName: 'div', text: 'test' };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData);
+    const newData = applyOperation(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal('<div>test</div>');
@@ -40,9 +36,7 @@ describe.concurrent('createElement', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData);
+    const newData = applyOperation(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
@@ -61,9 +55,7 @@ describe.concurrent('createElement', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData);
+    const newData = applyOperation(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
@@ -92,9 +84,7 @@ describe.concurrent('createElement', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData, context);
+    const newData = applyOperation(createElement, operationData, context);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
@@ -113,9 +103,7 @@ describe.concurrent('createElement', () => {
     };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData);
+    const newData = applyOperation(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
