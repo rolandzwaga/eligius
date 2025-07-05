@@ -21,6 +21,7 @@ import {
 } from "./action-editor.ts";
 import { LabelEditor } from "./label-editor.ts";
 import { TimelineProvidersSettingsEditor } from "./timeline-provider-settings-editor.ts";
+import { mergeIfMissing } from "util/merge-if-missing.ts";
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
@@ -184,7 +185,7 @@ export class ConfigurationFactory {
    * @returns 
    */
   init(defaultLanguage: TLanguageCode) {
-    this.configuration = {
+    const newConfiguration: IEngineConfiguration = {
       id: uuidv4(),
       engine: {
         systemName: "EligiusEngine",
@@ -199,6 +200,8 @@ export class ConfigurationFactory {
       timelines: [],
       labels: [],
     };
+
+    this.configuration = mergeIfMissing(this.configuration, newConfiguration);
 
     return this;
   }

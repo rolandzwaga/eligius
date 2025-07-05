@@ -20,8 +20,8 @@ export function prepareValueForSerialization(value: unknown): any {
     );
   } else if (isFunction(value)) {
     const funcString = value.toString();
-    const paranIndex = funcString.indexOf('{');
-    if (paranIndex > -1) {
+    const parenIndex = funcString.indexOf('{');
+    if (parenIndex > -1) {
       return funcString.substring(0, funcString.indexOf('{') + 1);
     }
     return funcString;

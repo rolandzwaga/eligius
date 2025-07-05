@@ -20,7 +20,7 @@ export class DevToolEventListener implements IEventbusListener {
     } catch (e) {
       console.error('postmessage failed');
       console.error(e);
-      console.log('message', message);
+      console.info('message', message);
     }
   }
 }

@@ -3,9 +3,10 @@ import { beforeEach, describe, test, type TestContext } from 'vitest';
 import { Action } from '../../../action/index.ts';
 import { Eventbus } from '../../../eventbus/index.ts';
 import type { IOperationContext } from '../../../operation/types.ts';
+import type { IResolvedOperation } from 'configuration/types.ts';
 
 type ActionContext = {
-  action: any;
+  action: Action;
 } & TestContext;
 function withContext<T>(ctx: unknown): asserts ctx is T { }
 describe.concurrent<ActionContext>('Action', () => {
@@ -29,7 +30,7 @@ describe.concurrent<ActionContext>('Action', () => {
     // given
     const { action } = context;
     const opData1 = { value1: 'op1' };
-    const op1 = {
+    const op1: IResolvedOperation = {
       id: 'id1',
       systemName: 'systemNam1',
       operationData: opData1,
@@ -39,7 +40,7 @@ describe.concurrent<ActionContext>('Action', () => {
       },
     };
     const opData2 = { value2: 'op2' };
-    const op2 = {
+    const op2: IResolvedOperation = {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: opData2,
@@ -82,11 +83,7 @@ describe.concurrent<ActionContext>('Action', () => {
       operationData: opData2,
       instance: (op: any) => {
         op.result.push(op.value2);
-        return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(op);
-          }, 200);
-        });
+        return new Promise((resolve) => setTimeout(() => resolve(op), 200));
       },
     };
     action.startOperations.push(op1);

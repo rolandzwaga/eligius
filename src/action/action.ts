@@ -128,7 +128,7 @@ export class Action implements IAction {
       if (isPromise(operationResult)) {
         operationResult
           .then((promisedOperationResult) =>
-            this.executeOperation(operations, ++operationIndex, resolve, reject, promisedOperationResult)
+            this.executeOperation(operations, ++operationIndex, resolve, reject, promisedOperationResult as TOperationData)
           )
           .catch((error: any) => {
             reject(error);

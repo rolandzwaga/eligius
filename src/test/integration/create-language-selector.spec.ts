@@ -32,7 +32,7 @@ type CreateOptionListContext = {
   cancelAnimationFrame: typeof global.cancelAnimationFrame;
 } & TestContext;
 
-describe<CreateOptionListContext>('Create option list', () => {
+describe.concurrent<CreateOptionListContext>('Create option list', () => {
   beforeEach<CreateOptionListContext>((context) => {
     context.cancelAnimationFrame = global.cancelAnimationFrame;
     global.cancelAnimationFrame = () => { };
