@@ -36,7 +36,7 @@
   "scripts": {
     "typecheck": "tsc --pretty --noEmit",
     "test": "vitest --config src/vitest.config.ts",
-    "test:debug": "npx vitest run --config src/vitest.config.ts --coverage --reporter=verbose",
+    "test:debug": "npx vitest run --config src/vitest.config.ts --coverage --reporter=verbose --no-truncate 2>&1 | tee test-output.log",
     "test:ci": "vitest run --config src/vitest.config.ts --reporter=verbose",
     "coverage": "vitest --config src/vitest.config.ts --coverage",
     "prepublish": "npm run build",
