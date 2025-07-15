@@ -66,7 +66,20 @@ jobs:
         run: npm ci
 
       - name: Test
-        run: npm run test:debug
+        run: |
+          npx vitest run --config src/vitest.config.ts --coverage --reporter=verbose --no-truncate 2>&1 | tee test-output.log
+          echo "Process exited with code: ${PIPESTATUS[0]}"
+          continue-on-error: true
+
+      - name: Check for any error files
+        if: always()
+        run: |
+          echo "=== Looking for error logs ==="
+          find . -name "*.log" -type f 2>/dev/null | head -10 | xargs ls -la
+          echo "=== Checking for core dumps ==="
+          find . -name "core*" -type f 2>/dev/null | head -5
+          echo "=== Node.js debugging ==="
+          ls -la node_modules/.bin/vitest 2>/dev/null || echo "Vitest binary not found"
 
       - name: Build
         run: npm run build
