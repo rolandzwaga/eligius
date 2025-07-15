@@ -7,6 +7,15 @@ export default defineConfig({
     environment: 'jsdom', // Use 'jsdom' if you're testing browser-based code
     coverage: {
       provider: 'istanbul', // Enables coverage reports
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/**',
+        'dist/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/coverage/**'
+      ]
     },
     include: ['src/test/**/*.spec.ts'],
     pool: 'threads',
