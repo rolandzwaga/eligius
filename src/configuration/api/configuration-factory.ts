@@ -21,7 +21,7 @@ import {
 } from "./action-editor.ts";
 import { LabelEditor } from "./label-editor.ts";
 import { TimelineProvidersSettingsEditor } from "./timeline-provider-settings-editor.ts";
-import { mergeIfMissing } from "util/merge-if-missing.ts";
+import { mergeIfMissing } from "../../util/merge-if-missing.ts";
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
