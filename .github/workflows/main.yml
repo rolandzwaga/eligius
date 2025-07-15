@@ -5,18 +5,28 @@ on:
       - '**'
     tags-ignore:
       - '**'
+
+env:
+  # Cairo dependency versions - update these to change versions
+  GTK_BUNDLE_VERSION: '2.22.1-20101229'
+  LIBJPEG_TURBO_VERSION: '2.1.5.1'
+
 jobs:
   build:
-    name: Build, lint, and test on Node 18 and windows-latest
+    name: Build, lint, and test on Node 20 and windows-latest
 
     runs-on: windows-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Cache gtk and libjpg downloads
         id: cache-cairo-deps
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-cairo-deps-
+          # Cache key includes the versions, so cache is invalidated on version change
+          key: ${{ runner.os }}-cairo-deps-gtk-${{ env.GTK_BUNDLE_VERSION }}-libjpeg-${{ env.LIBJPEG_TURBO_VERSION }}
           path: |
             C:\libjpeg.exe
             C:\GTK
@@ -24,21 +34,25 @@ jobs:
       - name: Download Cairo dependencies
         if: steps.cache-cairo-deps.outputs.cache-hit != 'true'
         run: |
-          Invoke-WebRequest "http://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_2.22.1-20101229_win64.zip" -OutFile "C:\gtk.zip" -MaximumRetryCount 3 -UserAgent NativeHost
+          # Using HTTPS where possible
+          $gtkUrl = "https://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_${{ env.GTK_BUNDLE_VERSION }}_win64.zip"
+          $libjpegUrl = "https://downloads.sourceforge.net/project/libjpeg-turbo/2.1.5/libjpeg-turbo-${{ env.LIBJPEG_TURBO_VERSION }}-vc64.exe"
+          
+          Write-Host "Downloading GTK bundle version ${{ env.GTK_BUNDLE_VERSION }}"
+          Invoke-WebRequest $gtkUrl -OutFile "C:\gtk.zip" -MaximumRetryCount 3 -UserAgent NativeHost
           Expand-Archive C:\gtk.zip -DestinationPath "C:\GTK"
-          Invoke-WebRequest "https://downloads.sourceforge.net/project/libjpeg-turbo/2.0.4/libjpeg-turbo-2.0.4-vc64.exe" -OutFile "C:\libjpeg.exe" -MaximumRetryCount 3 -UserAgent NativeHost
+          
+          Write-Host "Downloading libjpeg-turbo version ${{ env.LIBJPEG_TURBO_VERSION }}"
+          Invoke-WebRequest $libjpegUrl -OutFile "C:\libjpeg.exe" -MaximumRetryCount 3 -UserAgent NativeHost
 
       - name: Install Cairo dependencies
         run: |
           C:\libjpeg.exe /S
 
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
+        uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: '15.0'
-
-      - name: Checkout repo
-        uses: actions/checkout@v4
+          vs-version: 'latest'
 
       - name: Use Node 20
         uses: actions/setup-node@v4
@@ -48,21 +62,11 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        shell: bash
-        run: echo "dir=$(npm config get cache)" >> ${GITHUB_OUTPUT}
-
-      - uses: actions/cache@v4
-        id: npm-cache # use this to check for `cache-hit` ==> if: steps.npm-cache.outputs.cache-hit != 'true'
-        with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install dependencies
         run: npm ci
+
+      - name: Lint
+        run: npm run lint
 
       - name: Test
         run: npm run test:ci
