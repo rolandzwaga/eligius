@@ -36,7 +36,7 @@
   "scripts": {
     "typecheck": "tsc --pretty --noEmit",
     "test": "vitest --config src/vitest.config.ts",
-    "test:ci": "vitest run --config src/vitest.config.ts --coverage",
+    "test:ci": "vitest run --config src/vitest.config.ts --coverage --reporter=verbose",
     "coverage": "vitest --config src/vitest.config.ts --coverage",
     "prepublish": "npm run build",
     "generate-readmes": "tsx ./src/tools/doc-tools/generate-readmes",
