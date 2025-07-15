@@ -36,6 +36,7 @@
   "scripts": {
     "typecheck": "tsc --pretty --noEmit",
     "test": "vitest --config src/vitest.config.ts",
+    "test:debug": "node --trace-warnings ./node_modules/.bin/vitest run --config src/vitest.config.ts --coverage",
     "test:ci": "vitest run --config src/vitest.config.ts --reporter=verbose",
     "coverage": "vitest --config src/vitest.config.ts --coverage",
     "prepublish": "npm run build",
