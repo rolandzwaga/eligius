@@ -33,7 +33,6 @@ describe.concurrent('startAction', () => {
 
     // expect
     //expect(result.resolved).to.be.true;
-    console.log('result', result);
     expect((mockAction as any).resolved).to.be.true;
     expect(result.actionOperationData).to.be.undefined;
     return result;

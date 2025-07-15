@@ -65,7 +65,7 @@ jobs:
         run: npm ci
 
       - name: Test
-        run: npm run test --ci --coverage
+        run: npm run test:ci
 
       - name: Build
         run: npm run build

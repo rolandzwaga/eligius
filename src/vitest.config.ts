@@ -9,6 +9,7 @@ export default defineConfig({
       provider: 'istanbul', // Enables coverage reports
     },
     include: ['src/test/**/*.spec.ts'],
-    pool: 'threads'
+    pool: 'threads',
+    reporters: process.env.GITHUB_ACTIONS ? ['dot', 'github-actions'] : ['dot'],
   },
 })
