@@ -27,6 +27,10 @@
     }
   },
   "linter": {
+    "domains": {
+      "test": "none"
+    },
+    "includes": ["**", "!**/*.spec.ts"],
     "rules": {
       "performance": {
         "noAccumulatingSpread": "off"
