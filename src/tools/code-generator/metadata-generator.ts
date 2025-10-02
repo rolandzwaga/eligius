@@ -52,7 +52,7 @@ const toImport = (sourceFile: SourceFile) => (typeParam: TypeParameterDeclaratio
 
     const symbol = constraint.getType().getAliasSymbol() ?? constraint.getType().getSymbol();
     
-    const declarationSourceFile = symbol?.getDeclarations()[0].getSourceFile() ?? constraint.getSourceFile();;
+    const declarationSourceFile = symbol?.getDeclarations()[0].getSourceFile() ?? constraint.getSourceFile();
     
     const fromPath = dirname(sourceFile.getFilePath());
     const toPath = declarationSourceFile.getFilePath();
