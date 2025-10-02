@@ -17,6 +17,9 @@
   "json": {
     "formatter": {
       "trailingCommas": "none"
+    },
+    "linter": {
+      "enabled": false
     }
   },
   "assist": {
@@ -30,13 +33,16 @@
     "domains": {
       "test": "none"
     },
-    "includes": ["**", "!**/*.spec.ts"],
+    "includes": ["**/*.ts", "!**/*.spec.ts"],
     "rules": {
       "performance": {
         "noAccumulatingSpread": "off"
       },
       "style": {
         "noNonNullAssertion": "off"
+      },
+      "suspicious": {
+        "noExplicitAny": "off"
       }
     }
   }

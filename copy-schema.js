@@ -1,5 +1,5 @@
-var fs = require('fs');
-var path = require('path');
+var fs = require('node:fs');
+var path = require('node:path');
 
 /**
  * This script copies the static JSON schema and the generated schema parts

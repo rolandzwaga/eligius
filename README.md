@@ -264,10 +264,10 @@ Labels can be rendered by the [`LabelController`](https://rolandzwaga.github.io/
 Running the engine is a matter of loading the configuration and feeding it to an engine instance.
 
 ```javascript
-import { IEngineConfiguration, EngineFactory, WebpackResourceImporter } from 'eligius';
+import { IEngineConfiguration, EngineFactory, EligiusResourceImporter } from 'eligius';
 import * as engineConfig from './my-eligius-config.json';
 
-const factory = new EngineFactory(new WebpackResourceImporter(), window);
+const factory = new EngineFactory(new EligiusResourceImporter(), window);
 
 const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
