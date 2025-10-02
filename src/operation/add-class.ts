@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IAddClassOperationData {
   /**
@@ -16,8 +16,8 @@ export interface IAddClassOperationData {
  * This operation adds the specified class name to the specified selected element.
  *
  */
-export const addClass: TOperation<IAddClassOperationData> = function (operationData) {
-  const { selectedElement, className } = operationData;
+export const addClass: TOperation<IAddClassOperationData> = operationData => {
+  const {selectedElement, className} = operationData;
   selectedElement.addClass(className);
   return operationData;
 };

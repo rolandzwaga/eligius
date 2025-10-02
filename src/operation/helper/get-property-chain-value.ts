@@ -17,7 +17,7 @@
  *
  * The result of the invocation `getPropertyChainValue([mySource, subSource, element, value], foo)` would then yield the value `bar`.
  */
- export function getPropertyChainValue(
+export function getPropertyChainValue(
   propertyChain: string[],
   sourceObject: Record<string, any>
 ) {

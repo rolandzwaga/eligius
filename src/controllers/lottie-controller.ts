@@ -6,9 +6,9 @@ import type {
   SVGRendererConfig,
 } from 'lottie-web';
 import lt from 'lottie-web';
-import type{ IEventbus, TEventbusRemover } from '../eventbus/types.ts';
-import { TimelineEventNames } from '../timeline-event-names.ts';
-import type { IController } from './types.ts';
+import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {IController} from './types.ts';
 
 const lottie = lt.default ?? lt;
 
@@ -71,7 +71,7 @@ export class LottieController
   constructor() {}
 
   init(operationData: ILottieControllerMetadata) {
-    this.operationData = { ...operationData };
+    this.operationData = {...operationData};
 
     if (operationData.url.indexOf('[') > -1) {
       this._parseFilename(operationData.url);
@@ -94,7 +94,7 @@ export class LottieController
 
     const settings = params.split(',');
 
-    settings.forEach((setting) => {
+    settings.forEach(setting => {
       const values = setting.split('=');
       if (values[0] === 'freeze') {
         this.freezePosition = +values[1];
@@ -109,7 +109,7 @@ export class LottieController
       return;
     }
 
-    const { labelIds } = this.operationData;
+    const {labelIds} = this.operationData;
     if (labelIds && labelIds.length) {
       const resultHolder: {
         language: string;
@@ -136,7 +136,7 @@ export class LottieController
   }
 
   detach(_eventbus: IEventbus) {
-    this.eventbusRemovers.forEach((func) => {
+    this.eventbusRemovers.forEach(func => {
       func();
     });
 
@@ -174,9 +174,9 @@ export class LottieController
         ? this.serializedIEData
         : this.serializedData;
 
-    const { labelIds } = this.operationData;
+    const {labelIds} = this.operationData;
     if (labelIds && labelIds.length) {
-      labelIds.forEach((id) => {
+      labelIds.forEach(id => {
         serialized = serialized
           .split(`!!${id}!!`)
           .join(this.labelData[id][this.currentLanguage]);

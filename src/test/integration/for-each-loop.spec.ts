@@ -1,24 +1,35 @@
-import { expect } from 'chai';
-import { beforeEach, describe, test, type TestContext } from 'vitest';
-import { Action } from '../../action/index.ts';
-import type { IResolvedOperation } from '../../configuration/types.ts';
-import { Eventbus } from '../../eventbus/index.ts';
-import { endForEach } from '../../operation/end-for-each.ts';
-import { endForEachSystemName, forEach, forEachSystemName, type IForEachOperationData } from '../../operation/for-each.ts';
-import { endWhen, type IOperationContext, type TOperationData, when } from '../../operation/index.ts';
-type ForEachLoopContext = { action: Action } & TestContext;
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {Action} from '../../action/index.ts';
+import type {IResolvedOperation} from '../../configuration/types.ts';
+import {Eventbus} from '../../eventbus/index.ts';
+import {endForEach} from '../../operation/end-for-each.ts';
+import {
+  endForEachSystemName,
+  forEach,
+  forEachSystemName,
+  type IForEachOperationData,
+} from '../../operation/for-each.ts';
+import {
+  endWhen,
+  type IOperationContext,
+  type TOperationData,
+  when,
+} from '../../operation/index.ts';
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+type ForEachLoopContext = {action: Action} & TestContext;
+
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
-  global.cancelAnimationFrame = () => { };
-  beforeEach((context) => {
+  global.cancelAnimationFrame = () => {};
+  beforeEach(context => {
     withContext<ForEachLoopContext>(context);
 
     const eventBus = new Eventbus();
     context.action = new Action('test', [], eventBus);
   });
-  test<ForEachLoopContext>('should loop the given operation 10 times', async (context) => {
-    const { action } = context;
+  test<ForEachLoopContext>('should loop the given operation 10 times', async context => {
+    const {action} = context;
 
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const op1 = {
@@ -33,7 +44,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -59,8 +70,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       expect(letter).to.equal(testCollection[index]);
     });
   });
-  test<ForEachLoopContext>('should loop the given async operation 10 times', async (context) => {
-    const { action } = context;
+  test<ForEachLoopContext>('should loop the given async operation 10 times', async context => {
+    const {action} = context;
 
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const op1 = {
@@ -75,12 +86,12 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
         op.newCollection.push(this.currentItem);
-        return new Promise((resolve) => {
+        return new Promise(resolve => {
           setTimeout(() => {
             resolve(op);
           }, 10);
@@ -105,8 +116,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       expect(letter).to.equal(testCollection[index]);
     });
   });
-  test<ForEachLoopContext>('should skip the loop for an empty collection', async (context) => {
-    const { action } = context;
+  test<ForEachLoopContext>('should skip the loop for an empty collection', async context => {
+    const {action} = context;
 
     const testCollection: any[] = [];
     const op1 = {
@@ -121,7 +132,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -138,7 +149,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     const op4 = {
       id: 'id4',
       systemName: 'systemNam4',
-      operationData: { test: true },
+      operationData: {test: true},
       instance: (op: any) => op,
     };
     action.startOperations.push(op1);
@@ -152,8 +163,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     expect(operationData.newCollection).to.be.undefined;
     expect(operationData.test).to.be.true;
   });
-  test<ForEachLoopContext>('should skip the loop for a null collection', async (context) => {
-    const { action } = context;
+  test<ForEachLoopContext>('should skip the loop for a null collection', async context => {
+    const {action} = context;
 
     const testCollection: any[] | null = null;
     const op1: IResolvedOperation = {
@@ -168,7 +179,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {} as any,
-      instance: function(this: IOperationContext, op) {
+      instance: function (this: IOperationContext, op) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -185,8 +196,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     const op4: IResolvedOperation = {
       id: 'id4',
       systemName: 'systemNam4',
-      operationData: { test: true },
-      instance: (op) => op,
+      operationData: {test: true},
+      instance: op => op,
     };
     action.startOperations.push(op1);
     action.startOperations.push(op2);
@@ -199,8 +210,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     expect(operationData.newCollection).to.be.undefined;
     expect(operationData.test).to.be.true;
   });
-  test<ForEachLoopContext>('should correctly handle nested loops', async (context) => {
-    const { action } = context;
+  test<ForEachLoopContext>('should correctly handle nested loops', async context => {
+    const {action} = context;
 
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const nestedTestCollection = ['k', 'l'];
@@ -216,7 +227,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -236,7 +247,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newNestedCollection) {
           op.newNestedCollection = [];
         }
@@ -272,8 +283,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     });
     expect(operationData.newNestedCollection.length).to.equal(20);
   });
-  test<ForEachLoopContext>('should correctly handle nested loops with nested when/otherwise blocks', async (context) => {
-    const { action } = context;
+  test<ForEachLoopContext>('should correctly handle nested loops with nested when/otherwise blocks', async context => {
+    const {action} = context;
 
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
     const nestedTestCollection = ['k', 'l'];
@@ -289,7 +300,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -309,7 +320,7 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(this: IOperationContext, op: any) {
+      instance: function (this: IOperationContext, op: any) {
         if (!op.newNestedCollection) {
           op.newNestedCollection = [];
         }
@@ -327,14 +338,14 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     const op6 = {
       id: 'id6',
       systemName: 'when',
-      operationData: { expression: '1==1' },
+      operationData: {expression: '1==1'},
       instance: when,
     };
     const op7 = {
       id: 'id7',
       systemName: 'systemName3',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.nestedWhen = true;
         return op;
       },
@@ -370,6 +381,8 @@ describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
     });
     expect(operationData.newNestedCollection.length).to.equal(20);
     expect(operationData.nestedWhen).to.be.true;
-    expect(operationData.parentItem).to.equal(testCollection[testCollection.length - 1]);
+    expect(operationData.parentItem).to.equal(
+      testCollection[testCollection.length - 1]
+    );
   });
 });

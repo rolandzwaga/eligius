@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { EOL } from 'os';
+import {EOL} from 'os';
 import path from 'path';
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
@@ -25,7 +25,7 @@ if (!fs.existsSync(controllersReadMeoutputPath)) {
   process.exit(1);
 }
 
-const contents = fs.readFileSync(docsJsonPath, { encoding: 'utf-8' });
+const contents = fs.readFileSync(docsJsonPath, {encoding: 'utf-8'});
 const docs = JSON.parse(contents);
 
 writeOperationsReadMe();
@@ -115,7 +115,6 @@ function generateLink(linkSuffix: string, itemInfo: any) {
   }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
     itemInfo.name
   }.html${getFirstCommentLine(itemInfo)})`;
-
 }
 
 function getFirstCommentLine(itemInfo: any) {

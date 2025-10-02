@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IReparentElementOperationData {
   /**
@@ -19,9 +19,10 @@ export interface IReparentElementOperationData {
  * @param operationData
  * @returns
  */
-export const reparentElement: TOperation<IReparentElementOperationData> =
-  function (operationData: IReparentElementOperationData) {
-    const { selectedElement, newParentSelector } = operationData;
-    selectedElement.remove().appendTo(newParentSelector);
-    return operationData;
-  };
+export const reparentElement: TOperation<IReparentElementOperationData> = (
+  operationData: IReparentElementOperationData
+) => {
+  const {selectedElement, newParentSelector} = operationData;
+  selectedElement.remove().appendTo(newParentSelector);
+  return operationData;
+};

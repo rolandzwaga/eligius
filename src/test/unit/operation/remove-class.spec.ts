@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { removeClass } from '../../../operation/remove-class.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {removeClass} from '../../../operation/remove-class.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   removedClassName: string = '';

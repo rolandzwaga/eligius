@@ -1,14 +1,19 @@
 import $ from 'jquery';
-import type { IEventbus, TEventbusRemover } from './eventbus/types.ts';
-import { setGlobal } from './operation/helper/set-global.ts';
-import { TimelineEventNames } from './timeline-event-names.ts';
-import type { ILabel, ILanguageLabel, TLanguageCode, TResultCallback } from './types.ts';
+import type {IEventbus, TEventbusRemover} from './eventbus/types.ts';
+import {setGlobal} from './operation/helper/set-global.ts';
+import {TimelineEventNames} from './timeline-event-names.ts';
+import type {
+  ILabel,
+  ILanguageLabel,
+  TLanguageCode,
+  TResultCallback,
+} from './types.ts';
 
 /**
  * This class manages the labels for an {@link IEligiusEngine} instance.
- * 
+ *
  * It handles the {@link TimelineEventNames.REQUEST_LABEL_COLLECTION}, {@link TimelineEventNames.REQUEST_LABEL_COLLECTIONS}, {@link TimelineEventNames.REQUEST_CURRENT_LANGUAGE} and {@link TimelineEventNames.LANGUAGE_CHANGE} events.
- * 
+ *
  */
 export class LanguageManager {
   private _labelLookup: Record<string, ILabel[]>;
@@ -29,7 +34,7 @@ export class LanguageManager {
   }
 
   destroy() {
-    this._eventbusRemovers.forEach((x) => x());
+    this._eventbusRemovers.forEach(x => x());
   }
 
   _addEventbusListeners(eventbus: IEventbus) {
@@ -59,7 +64,9 @@ export class LanguageManager {
     );
   }
 
-  _handleRequestCurrentLanguage(resultCallback: TResultCallback<TLanguageCode>) {
+  _handleRequestCurrentLanguage(
+    resultCallback: TResultCallback<TLanguageCode>
+  ) {
     resultCallback(this._currentLanguage);
   }
 
@@ -74,7 +81,7 @@ export class LanguageManager {
     labelIds: string[],
     resultCallback: TResultCallback<ILabel[][]>
   ) {
-    const labelCollections = labelIds.map((labelId) => {
+    const labelCollections = labelIds.map(labelId => {
       return this._labelLookup[labelId];
     });
     resultCallback(labelCollections);

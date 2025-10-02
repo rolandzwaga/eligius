@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { requestAction } from '../../../operation/request-action.ts';
-import { TimelineEventNames } from '../../../timeline-event-names.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {requestAction} from '../../../operation/request-action.ts';
+import {TimelineEventNames} from '../../../timeline-event-names.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   mockAction: any = {};

@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
   type ISetElementContentOperationData,
   setElementContent,
 } from '../../../operation/set-element-content.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   htmlContent: string = '';

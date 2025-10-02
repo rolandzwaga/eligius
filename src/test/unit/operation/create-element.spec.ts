@@ -1,13 +1,14 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IEventbus } from '../../../eventbus/index.ts';
-import { createElement } from '../../../operation/create-element.ts';
-import type { IOperationContext } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IEventbus} from '../../../eventbus/index.ts';
+import {createElement} from '../../../operation/create-element.ts';
+import type {IOperationContext} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('createElement', () => {
   test('should create a simple element', () => {
     // given
-    const operationData = { elementName: 'div' };
+    const operationData = {elementName: 'div'};
 
     // test
     const newData = applyOperation(createElement, operationData);
@@ -17,7 +18,7 @@ describe.concurrent('createElement', () => {
   });
   test('should create a simple element with text', () => {
     // given
-    const operationData = { elementName: 'div', text: 'test' };
+    const operationData = {elementName: 'div', text: 'test'};
 
     // test
     const newData = applyOperation(createElement, operationData);

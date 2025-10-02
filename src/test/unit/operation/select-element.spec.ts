@@ -1,11 +1,11 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IEventbus } from '../../../eventbus/types.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISelectElementOperationData,
   selectElement,
 } from '../../../operation/select-element.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   rootElement: any;
@@ -44,11 +44,11 @@ describe.concurrent('selectElement', () => {
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation(
-      selectElement,
-      operationData,
-      { currentIndex: -1, eventbus, operations: [] }
-    ) as ISelectElementOperationData;
+    const newData = applyOperation(selectElement, operationData, {
+      currentIndex: -1,
+      eventbus,
+      operations: [],
+    }) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
@@ -67,11 +67,11 @@ describe.concurrent('selectElement', () => {
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation(
-      selectElement,
-      operationData,
-      { currentIndex: -1, eventbus, operations: [] }
-    ) as ISelectElementOperationData;
+    const newData = applyOperation(selectElement, operationData, {
+      currentIndex: -1,
+      eventbus,
+      operations: [],
+    }) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);

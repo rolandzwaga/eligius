@@ -1,6 +1,6 @@
 import jQuery from 'jquery';
-import { isFunction } from './guards/is-function.ts';
-import { isObject } from './guards/is-object.ts';
+import {isFunction} from './guards/is-function.ts';
+import {isObject} from './guards/is-object.ts';
 
 export function prepareValueForSerialization(value: unknown): any {
   if (Array.isArray(value)) {
@@ -16,7 +16,10 @@ export function prepareValueForSerialization(value: unknown): any {
       return funcString.substring(0, funcString.indexOf('{') + 1);
     }
     return Object.fromEntries(
-      Object.entries(value).map(([propName, propValue]) => [propName, prepareValueForSerialization(propValue)])
+      Object.entries(value).map(([propName, propValue]) => [
+        propName,
+        prepareValueForSerialization(propValue),
+      ])
     );
   } else if (isFunction(value)) {
     const funcString = value.toString();

@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
   type IReparentElementOperationData,
   reparentElement,
 } from '../../../operation/reparent-element.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   selector: string = '';

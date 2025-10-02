@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IRemovePropertiesFromOperationDataOperationData {
   /**
@@ -11,16 +11,18 @@ export interface IRemovePropertiesFromOperationDataOperationData {
  * This operation removes the given list of properties from the current operation data.
  * It will also remove the property `propertyNames` from the result.
  */
-export const removePropertiesFromOperationData: TOperation<IRemovePropertiesFromOperationDataOperationData, Omit<IRemovePropertiesFromOperationDataOperationData,'propertyNames'>> =
-  function (operationData: IRemovePropertiesFromOperationDataOperationData) {
-    const { propertyNames } = operationData;
-    if (propertyNames.indexOf('propertyNames') < 0) {
-      propertyNames.push('propertyNames');
-    }
+export const removePropertiesFromOperationData: TOperation<
+  IRemovePropertiesFromOperationDataOperationData,
+  Omit<IRemovePropertiesFromOperationDataOperationData, 'propertyNames'>
+> = (operationData: IRemovePropertiesFromOperationDataOperationData) => {
+  const {propertyNames} = operationData;
+  if (propertyNames.indexOf('propertyNames') < 0) {
+    propertyNames.push('propertyNames');
+  }
 
-    return Object.fromEntries(
-      Object.entries(operationData).filter(
-        ([name, _value]) => !propertyNames.includes(name)
-      )
-    );
-  };
+  return Object.fromEntries(
+    Object.entries(operationData).filter(
+      ([name, _value]) => !propertyNames.includes(name)
+    )
+  );
+};

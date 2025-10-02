@@ -1,11 +1,12 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IController } from '../../../controllers/types.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IController} from '../../../controllers/types.ts';
 import {
   type IInvokeObjectMethodOperationData,
   invokeObjectMethod,
 } from '../../../operation/invoke-object-method.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('invokeObjectMethod', () => {
   test('should call the specified method on the given object', () => {
     // given
@@ -19,10 +20,7 @@ describe.concurrent('invokeObjectMethod', () => {
     };
 
     // test
-    const result = applyOperation(
-      invokeObjectMethod,
-      operationData
-    );
+    const result = applyOperation(invokeObjectMethod, operationData);
 
     // expect
     expect(result.methodResult).to.equal(20);

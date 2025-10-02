@@ -1,9 +1,12 @@
 import $ from 'jquery';
-import type { IOperationContext, TOperationData } from '../../operation/types.ts';
-import { isObject } from '../../util/guards/is-object.ts';
-import { deepCopy } from './deep-copy.ts';
-import { isExternalProperty, resolveExternalPropertyChain } from './resolve-external-property-chain.ts';
-import type { ExternalProperty } from './resolve-external-property-chain.ts';
+import type {IOperationContext, TOperationData} from '../../operation/types.ts';
+import {isObject} from '../../util/guards/is-object.ts';
+import {deepCopy} from './deep-copy.ts';
+import type {ExternalProperty} from './resolve-external-property-chain.ts';
+import {
+  isExternalProperty,
+  resolveExternalPropertyChain,
+} from './resolve-external-property-chain.ts';
 
 const cache: any[] = [];
 
@@ -33,7 +36,9 @@ export function resolvePropertyValues<T extends TOperationData>(
 function resolveNewProperties(
   properties: Record<string, any>,
   copy: Record<string, any>,
-  resolvePropertyChain: (propertyChain: ExternalProperty|Record<string, any>) => any
+  resolvePropertyChain: (
+    propertyChain: ExternalProperty | Record<string, any>
+  ) => any
 ) {
   // Prevent recursive looping
   if (cache.indexOf(properties) > -1) {
@@ -54,7 +59,7 @@ function resolveNewProperties(
         value.forEach((item, index, arr) => {
           if (isExternalProperty(item)) {
             arr[index] = resolvePropertyChain(item);
-          } else if (isObject(item)){
+          } else if (isObject(item)) {
             resolveNewProperties(item, item, resolvePropertyChain);
           }
         });

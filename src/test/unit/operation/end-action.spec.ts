@@ -1,12 +1,12 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { endAction } from '../../../operation/end-action.ts';
-import type { TOperation } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {endAction} from '../../../operation/end-action.ts';
+import type {TOperation} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockAction {
   end(operationData: TOperation) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(operationData);
     });
   }
@@ -25,10 +25,7 @@ describe.concurrent('endAction', () => {
     };
 
     // test
-    const result = await applyOperation(
-      endAction,
-      operationData
-    );
+    const result = await applyOperation(endAction, operationData);
 
     delete (operationData as any).actionOperationData;
 

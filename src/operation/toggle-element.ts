@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IToggleElementOperationData {
   /**
@@ -10,7 +10,7 @@ export interface IToggleElementOperationData {
 
 /**
  * This operation toggles the visibility of the given selected element.
- * 
+ *
  * Meaning, if the element is hidden, it will be made visible, otherwise
  * it will be hidden.
  */

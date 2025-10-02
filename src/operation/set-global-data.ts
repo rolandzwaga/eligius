@@ -1,5 +1,5 @@
-import { setGlobals } from './helper/globals.ts';
-import type { TOperation } from './types.ts';
+import {setGlobals} from './helper/globals.ts';
+import type {TOperation} from './types.ts';
 
 export interface ISetGlobalDataOperationData {
   /**
@@ -11,10 +11,11 @@ export interface ISetGlobalDataOperationData {
 /**
  * This operation copies the specified properties from the operationData to the global data.
  */
-export const setGlobalData: TOperation<ISetGlobalDataOperationData, Omit<ISetGlobalDataOperationData,'propertyNames'>> = function (
-  operationData: ISetGlobalDataOperationData
-) {
-  const { propertyNames, ...newOperationData } = operationData;
+export const setGlobalData: TOperation<
+  ISetGlobalDataOperationData,
+  Omit<ISetGlobalDataOperationData, 'propertyNames'>
+> = (operationData: ISetGlobalDataOperationData) => {
+  const {propertyNames, ...newOperationData} = operationData;
   const newGlobals = Object.fromEntries(
     Object.entries(operationData).filter(([name, _value]) =>
       propertyNames.includes(name)

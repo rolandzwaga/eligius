@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { getControllerFromElement } from '../../../operation/get-controller-from-element.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {getControllerFromElement} from '../../../operation/get-controller-from-element.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   controllers: any[];
@@ -34,10 +34,7 @@ describe.concurrent('getControllerFromElement', () => {
     };
 
     // test
-    const newData = applyOperation(
-      getControllerFromElement,
-      operationData
-    );
+    const newData = applyOperation(getControllerFromElement, operationData);
 
     // expect
     expect(newData.controllerInstance).to.equal(controllers[1]);

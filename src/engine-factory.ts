@@ -1,12 +1,18 @@
-import hk from 'hotkeys-js';
-import { type HotkeysEvent } from 'hotkeys-js';
+import hk, {type HotkeysEvent} from 'hotkeys-js';
 import $ from 'jquery';
-import type { IAction } from './action/types.ts';
-import { ConfigurationResolver } from './configuration/configuration-resolver.ts';
-import type { IEngineConfiguration, IResolvedEngineConfiguration } from './configuration/types.ts';
-import { DevToolEventListener } from './diagnostics/devtool-event-listener.ts';
-import { Diagnostics } from './diagnostics/diagnostics.ts';
-import { DEV_TOOLS_KEY, type TDiagnosticType, type TWindowWithDevtools } from './diagnostics/types.ts';
+import type {IAction} from './action/types.ts';
+import {ConfigurationResolver} from './configuration/configuration-resolver.ts';
+import type {
+  IEngineConfiguration,
+  IResolvedEngineConfiguration,
+} from './configuration/types.ts';
+import {DevToolEventListener} from './diagnostics/devtool-event-listener.ts';
+import {Diagnostics} from './diagnostics/diagnostics.ts';
+import {
+  DEV_TOOLS_KEY,
+  type TDiagnosticType,
+  type TWindowWithDevtools,
+} from './diagnostics/types.ts';
 import {
   ActionRegistryEventbusListener,
   Eventbus,
@@ -14,8 +20,8 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from './eventbus/index.ts';
-import { LanguageManager } from './language-manager.ts';
-import { TimelineEventNames } from './timeline-event-names.ts';
+import {LanguageManager} from './language-manager.ts';
+import {TimelineEventNames} from './timeline-event-names.ts';
 import type {
   IConfigurationResolver,
   IEligiusEngine,
@@ -26,7 +32,7 @@ import type {
   TimelineTypes,
   TResultCallback,
 } from './types.ts';
-import { prepareValueForSerialization } from './util/prepare-value-for-serialization.ts';
+import {prepareValueForSerialization} from './util/prepare-value-for-serialization.ts';
 
 const hotkeys = hk.default || hk;
 
@@ -111,14 +117,14 @@ export class EngineFactory implements IEngineFactory {
     ];
 
     if (diagnosticInfo) {
-      const { agent } = diagnosticInfo;
+      const {agent} = diagnosticInfo;
 
       this._eventRemovers.push(
         eventbus.registerEventlistener(new DevToolEventListener(agent))
       );
 
       this._eventRemovers.push(
-        agent.subscribe((message) => {
+        agent.subscribe(message => {
           if (message.type === 'playcontrol') {
             switch (message.data.kind) {
               case 'play':
@@ -163,7 +169,7 @@ export class EngineFactory implements IEngineFactory {
   }
 
   destroy() {
-    this._eventRemovers.forEach((x) => x());
+    this._eventRemovers.forEach(x => x());
   }
 
   private _resizeHandler() {
@@ -201,7 +207,7 @@ export class EngineFactory implements IEngineFactory {
 
   private _requestActionHandler(
     systemName: string,
-    resultCallback: TResultCallback<IAction|null>
+    resultCallback: TResultCallback<IAction | null>
   ) {
     const action = this._actionsLookup[systemName];
     if (action) {
@@ -216,11 +222,10 @@ export class EngineFactory implements IEngineFactory {
     configuration: IEngineConfiguration,
     resolver?: IConfigurationResolver
   ): IEligiusEngine {
-    const { systemName } = configuration.engine;
+    const {systemName} = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
-    let actionRegistryListener: ActionRegistryEventbusListener | undefined =
-      undefined;
+    let actionRegistryListener: ActionRegistryEventbusListener | undefined;
     if (configuration.eventActions?.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
       this._eventRemovers.push(
@@ -247,7 +252,7 @@ export class EngineFactory implements IEngineFactory {
       resolvedConfiguration
     );
 
-    const { language, labels } = configuration;
+    const {language, labels} = configuration;
     const languageManager = new LanguageManager(
       language,
       labels,
@@ -267,25 +272,28 @@ export class EngineFactory implements IEngineFactory {
   private _createTimelineProviders(
     configuration: IResolvedEngineConfiguration
   ): Record<TimelineTypes, ITimelineProviderInfo> {
-    const { timelineProviderSettings } = configuration;
+    const {timelineProviderSettings} = configuration;
 
     const result = Object.entries(timelineProviderSettings).reduce<
       Record<TimelineTypes, ITimelineProviderInfo>
-    >((acc, [timelineType, settings]) => {
-      if (!settings) {
-        return acc;
-      }
+    >(
+      (acc, [timelineType, settings]) => {
+        if (!settings) {
+          return acc;
+        }
 
-      const TimelineProviderClass = this._importSystemEntry(
-        settings.systemName
-      );
-      acc[timelineType as TimelineTypes] = {
-        id: settings.id,
-        vendor: settings.vendor,
-        provider: new TimelineProviderClass(configuration),
-      };
-      return acc;
-    }, {} as Record<TimelineTypes, ITimelineProviderInfo>);
+        const TimelineProviderClass = this._importSystemEntry(
+          settings.systemName
+        );
+        acc[timelineType as TimelineTypes] = {
+          id: settings.id,
+          vendor: settings.vendor,
+          provider: new TimelineProviderClass(configuration),
+        };
+        return acc;
+      },
+      {} as Record<TimelineTypes, ITimelineProviderInfo>
+    );
 
     return result;
   }

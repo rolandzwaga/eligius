@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import type { IEventbus, TEventbusRemover } from '../eventbus/types.ts';
-import type { TOperationData } from '../operation/types.ts';
-import type { TResultCallback } from '../types.ts';
-import { LabelController } from './label-controller.ts';
-import type { IController } from './types.ts';
+import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {TOperationData} from '../operation/types.ts';
+import type {TResultCallback} from '../types.ts';
+import type {LabelController} from './label-controller.ts';
+import type {IController} from './types.ts';
 
 export interface INavigationControllerOperationData {
   /**
@@ -91,7 +91,9 @@ export class NavigationController
     return null;
   }
 
-  private _handleRequestCurrentNavigation(resultCallback: TResultCallback<{navigationData: any, title: string}|null>) {
+  private _handleRequestCurrentNavigation(
+    resultCallback: TResultCallback<{navigationData: any; title: string} | null>
+  ) {
     if (this.activeNavigationPoint) {
       const labelCtrl = this.ctrlLookup[this.activeNavigationPoint.labelId];
       resultCallback({
@@ -104,11 +106,11 @@ export class NavigationController
   }
 
   detach(eventbus: IEventbus) {
-    this.eventhandlers.forEach((handler) => {
+    this.eventhandlers.forEach(handler => {
       handler();
     });
 
-    this.labelControllers.forEach((ctrl) => {
+    this.labelControllers.forEach(ctrl => {
       ctrl.detach(eventbus);
     });
 

@@ -12,3 +12,4 @@ src/operation/metadata/*.ts
 src/controllers/metadata/*.ts
 !src/controllers/metadata/types.ts
 coverage/
+*.log

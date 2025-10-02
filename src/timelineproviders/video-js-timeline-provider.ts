@@ -1,10 +1,8 @@
 import $ from 'jquery';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import vjs from 'video.js';
-//import type Player from 'video.js';
-//import { PlayerReadyCallback } from 'video.js';
-import type { IResolvedEngineConfiguration } from '../configuration/types.ts';
-import type { ITimelineProvider, TPlayState } from './types.ts';
+import type {IResolvedEngineConfiguration} from '../configuration/types.ts';
+import type {ITimelineProvider, TPlayState} from './types.ts';
 
 const videojs = vjs.default ?? vjs;
 
@@ -36,28 +34,35 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
 
     const self = this;
 
-    const promise = new Promise<void>((resolve) => {
-    
+    const promise = new Promise<void>(resolve => {
       setTimeout(() => {
-        this._player = videojs(this._videoElementId, {
-          controls: false,
-          controlBar: false,
-          liveui: false,
-          autoplay: false,
-          preload: 'auto',
-          loop: this.loop,
-          src: this._urls[0],
-        }, function onPlayerReady(this: any) {
-          this.one('firstplay', () => self._onFirstFrame?.());
-          this.one('canplay', () => resolve());
-          self._addPlayerListener(this, 'ended', self._handleEnded.bind(self));
-          self._addPlayerListener(this,
-            'timeupdate',
-            self._handleTimeUpdate.bind(self)
-          );
-          this.load();
-        }); //as PlayerReadyCallback
-
+        this._player = videojs(
+          this._videoElementId,
+          {
+            controls: false,
+            controlBar: false,
+            liveui: false,
+            autoplay: false,
+            preload: 'auto',
+            loop: this.loop,
+            src: this._urls[0],
+          },
+          function onPlayerReady(this: any) {
+            this.one('firstplay', () => self._onFirstFrame?.());
+            this.one('canplay', () => resolve());
+            self._addPlayerListener(
+              this,
+              'ended',
+              self._handleEnded.bind(self)
+            );
+            self._addPlayerListener(
+              this,
+              'timeupdate',
+              self._handleTimeUpdate.bind(self)
+            );
+            this.load();
+          }
+        ); //as PlayerReadyCallback
       }, 0);
     });
 
@@ -104,7 +109,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
   }
 
   seek(position: number): Promise<number> {
-    return new Promise<number>((resolve) => {
+    return new Promise<number>(resolve => {
       (this._player as any).one('seeked', () => {
         resolve(this._player?.currentTime() ?? 0);
       });
@@ -133,7 +138,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
   }
 
   destroy(): void {
-    this._eventHandlers.forEach((remover) => remover());
+    this._eventHandlers.forEach(remover => remover());
     this._eventHandlers.length = 0;
   }
 
@@ -155,14 +160,14 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
 
   private _extractUrls(configuration: IResolvedEngineConfiguration) {
     const urls = configuration.timelines
-      .filter((timeline) => timeline.type === 'mediaplayer')
-      .map((timeline) => timeline.uri);
+      .filter(timeline => timeline.type === 'mediaplayer')
+      .map(timeline => timeline.uri);
     return urls;
   }
 
   private _addVideoElements(selector: string, urls: string[]) {
     const videoElm = [`<video id=${this._videoElementId}>`];
-    urls.forEach((url) => {
+    urls.forEach(url => {
       videoElm.push(
         `<source src='${url}' type='${this._extractFileType(url)}'/>`
       );

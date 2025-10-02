@@ -1,5 +1,5 @@
-import type { IAction } from '../action/types.ts';
-import type { IEventbusListener } from './types.ts';
+import type {IAction} from '../action/types.ts';
+import type {IEventbusListener} from './types.ts';
 
 /**
  * The `IEventbusListener` first registers a number of actions that are then
@@ -35,7 +35,7 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
       const operationData = {
         eventArgs: args,
       };
-      actions.forEach((action) => {
+      actions.forEach(action => {
         action.start(operationData);
       });
     }

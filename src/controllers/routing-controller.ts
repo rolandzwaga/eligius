@@ -1,6 +1,6 @@
-import type { IEventbus, TEventbusRemover } from '../eventbus/types.ts';
-import type { TOperationData } from '../operation/types.ts';
-import type { IController } from './types.ts';
+import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {TOperationData} from '../operation/types.ts';
+import type {IController} from './types.ts';
 
 export interface IRoutingControllerOperationData {
   /**
@@ -52,7 +52,7 @@ export class RoutingController
       ]);
     } else {
       window.history.pushState(
-        { navigationId: this.navigation[0].id },
+        {navigationId: this.navigation[0].id},
         '',
         `#/${this.navigation[0].id}`
       );
@@ -75,7 +75,7 @@ export class RoutingController
 
   detach(_eventbus: IEventbus) {
     if (this.eventhandlers) {
-      this.eventhandlers.forEach((handler) => {
+      this.eventhandlers.forEach(handler => {
         handler();
       });
     }
@@ -132,7 +132,7 @@ export class RoutingController
         currentState.navigationId !== state.navigationData.id
       ) {
         window.history.pushState(
-          { navigationId: state.navigationData.id, position: currentPosition },
+          {navigationId: state.navigationData.id, position: currentPosition},
           state.title,
           `#/${state.navigationData.id}/${currentPosition}`
         );
@@ -150,7 +150,7 @@ export class RoutingController
         );
       } else {
         window.history.pushState(
-          { navigationId: state.navigationData.id, position: currentPosition },
+          {navigationId: state.navigationData.id, position: currentPosition},
           state.title,
           `#/${state.navigationData.id}/${currentPosition}`
         );

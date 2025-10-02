@@ -1,19 +1,19 @@
-import type { IDimensions } from '../../types.ts';
+import type {IDimensions} from '../../types.ts';
 
 function _modifyDimensionsByRatio(
   ratioModifier: string,
   dimensions: IDimensions
 ) {
-  const modifiedDimensions = { ...dimensions };
+  const modifiedDimensions = {...dimensions};
   //h[ar=8-1]
-  let prefix = ratioModifier.substring(0, 1);
+  const prefix = ratioModifier.substring(0, 1);
 
-  let ratio = ratioModifier.substring(
+  const ratio = ratioModifier.substring(
     ratioModifier.indexOf('[') + 1,
     ratioModifier.indexOf(']') - (ratioModifier.indexOf('[') - 1)
   );
 
-  let ratios = ratio.split('=')[1].split('-');
+  const ratios = ratio.split('=')[1].split('-');
 
   if (ratios.filter(Boolean).length !== 2) {
     throw new Error(`Badly formatted modifier, expect two ratios: ${ratio}`);
@@ -33,7 +33,7 @@ function _modifyDimensionsByRatio(
 function _getModifierSuffix(
   modifier: string //*100h%
 ): [string | null, number, boolean] {
-  let endIdx = 1;
+  const endIdx = 1;
   let suffix: string | null = modifier.substring(
     modifier.length - endIdx,
     modifier.length
@@ -66,7 +66,7 @@ function _modifyDimensions(
   widthModifier: number,
   heightModifier: number
 ) {
-  const modifiedDimension = { ...dimensions };
+  const modifiedDimension = {...dimensions};
   switch (prefix) {
     case '+':
       switch (suffix) {
@@ -142,14 +142,14 @@ function _modifyDimensions(
  * @param modifier
  */
 export function modifyDimensions(dimensions: IDimensions, modifier: string) {
-  const clonedDimensions = { ...dimensions };
+  const clonedDimensions = {...dimensions};
   let ratioModifier: string | null = null;
   if (modifier.indexOf('|') > -1) {
     [modifier, ratioModifier] = modifier.split('|');
   }
 
   const prefix = modifier.substring(0, 1);
-  let [suffix, endIdx, isPercent] = _getModifierSuffix(modifier);
+  const [suffix, endIdx, isPercent] = _getModifierSuffix(modifier);
 
   const value = parseInt(
     suffix !== null

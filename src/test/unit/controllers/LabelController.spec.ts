@@ -1,11 +1,12 @@
-import { expect } from 'chai';
-import { beforeEach, describe, test, type TestContext } from 'vitest';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   type ILabelControllerMetadata,
   LabelController,
 } from '../../../controllers/label-controller.ts';
-import { Eventbus, type IEventbus } from '../../../eventbus/index.ts';
-import { TimelineEventNames } from '../../../timeline-event-names.ts';
+import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
+import {TimelineEventNames} from '../../../timeline-event-names.ts';
+
 class MockElement {
   content: string = '';
   html(content: string) {
@@ -20,9 +21,9 @@ type LabelControllerSuiteContext = {
   operationData: ILabelControllerMetadata;
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<LabelControllerSuiteContext>('LabelController', () => {
-  beforeEach((context) => {
+  beforeEach(context => {
     withContext<LabelControllerSuiteContext>(context);
 
     context.controller = new LabelController();
@@ -33,9 +34,9 @@ describe.concurrent<LabelControllerSuiteContext>('LabelController', () => {
       labelId: 'test',
     };
   });
-  test<LabelControllerSuiteContext>('should create the LabelController', (context) => {
+  test<LabelControllerSuiteContext>('should create the LabelController', context => {
     // given
-    const { controller } = context;
+    const {controller} = context;
 
     expect(controller.name).to.equal('LabelController');
     expect(controller.listeners).to.not.be.null;
@@ -44,36 +45,42 @@ describe.concurrent<LabelControllerSuiteContext>('LabelController', () => {
     expect(controller.operationData).to.be.null;
     expect(controller.labelData).to.not.be.null;
   });
-  test<LabelControllerSuiteContext>('should clone the operationData in init method', (context) => {
+  test<LabelControllerSuiteContext>('should clone the operationData in init method', context => {
     // given
-    const { controller, operationData } = context;
+    const {controller, operationData} = context;
     // test
     controller.init(operationData);
     // expect
     expect(operationData).to.not.equal(controller.operationData);
   });
-  test<LabelControllerSuiteContext>('should attach properly', (context) => {
+  test<LabelControllerSuiteContext>('should attach properly', context => {
     // given
-    const { controller, operationData, eventbus } = context;
+    const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.on(
+      TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+      (...args: any[]) => {
+        args[0]('en-GB');
+      }
+    );
 
-    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
-      args[1]([
-        {
-          id: '1111',
-          languageCode: 'nl-NL',
-          label: 'hallo',
-        },
-        {
-          id: '2222',
-          languageCode: 'en-GB',
-          label: 'hello',
-        },
-      ]);
-    });
+    eventbus.on(
+      TimelineEventNames.REQUEST_LABEL_COLLECTION,
+      (...args: any[]) => {
+        args[1]([
+          {
+            id: '1111',
+            languageCode: 'nl-NL',
+            label: 'hallo',
+          },
+          {
+            id: '2222',
+            languageCode: 'en-GB',
+            label: 'hello',
+          },
+        ]);
+      }
+    );
 
     // test
     controller.attach(eventbus);
@@ -83,13 +90,16 @@ describe.concurrent<LabelControllerSuiteContext>('LabelController', () => {
       (operationData.selectedElement as unknown as MockElement).content
     ).to.equal('hello');
   });
-  test<LabelControllerSuiteContext>('should set the text based on the new id', (context) => {
+  test<LabelControllerSuiteContext>('should set the text based on the new id', context => {
     // given
-    const { controller, operationData, eventbus } = context;
+    const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.on(
+      TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+      (...args: any[]) => {
+        args[0]('en-GB');
+      }
+    );
 
     const firstLabels = (...args: any[]) => {
       args[1]([
@@ -110,20 +120,23 @@ describe.concurrent<LabelControllerSuiteContext>('LabelController', () => {
     // test
     controller.attach(eventbus);
     eventbus.off(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
-    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, (...args: any[]) => {
-      args[1]([
-        {
-          id: '3333',
-          languageCode: 'nl-NL',
-          label: 'tot ziens',
-        },
-        {
-          id: '4444',
-          languageCode: 'en-GB',
-          label: 'goodbye',
-        },
-      ]);
-    });
+    eventbus.on(
+      TimelineEventNames.REQUEST_LABEL_COLLECTION,
+      (...args: any[]) => {
+        args[1]([
+          {
+            id: '3333',
+            languageCode: 'nl-NL',
+            label: 'tot ziens',
+          },
+          {
+            id: '4444',
+            languageCode: 'en-GB',
+            label: 'goodbye',
+          },
+        ]);
+      }
+    );
     controller.setLabelId('test2');
 
     // expect

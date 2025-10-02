@@ -1,5 +1,5 @@
-import { resolvePropertyValues } from './helper/resolve-property-values.ts';
-import type { TOperation } from './types.ts';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {TOperation} from './types.ts';
 
 export interface ISetStyleOperationData {
   /**

@@ -1,5 +1,5 @@
-import type { TOperationData } from '../types.ts';
-import { mergeOperationData } from './merge-operation-data.ts';
+import type {TOperationData} from '../types.ts';
+import {mergeOperationData} from './merge-operation-data.ts';
 
 export function internalResolve(
   resolve: Function,

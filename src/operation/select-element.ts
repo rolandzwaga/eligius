@@ -1,6 +1,9 @@
-import { TimelineEventNames } from '../timeline-event-names.ts';
-import { type ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
-import type { TOperation } from './types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import {
+  type ExternalProperty,
+  resolveExternalPropertyChain,
+} from './helper/resolve-external-property-chain.ts';
+import type {TOperation} from './types.ts';
 
 function findElementBySelector(root: JQuery, selector: string) {
   const element = root.find(selector);
@@ -39,7 +42,7 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
     this,
     operationData.selector as ExternalProperty
   ) as string;
-  const { selector, useSelectedElementAsRoot = false } = operationData;
+  const {selector, useSelectedElementAsRoot = false} = operationData;
 
   if (!selector) {
     throw new Error('selectElement: selector is either empty or not defined.');

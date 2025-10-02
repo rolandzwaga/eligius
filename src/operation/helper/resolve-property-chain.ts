@@ -1,4 +1,4 @@
-import { getPropertyChainValue } from './get-property-chain-value.ts';
+import {getPropertyChainValue} from './get-property-chain-value.ts';
 
 /**
  * Gets the value for the given property chain. A property chain is defined by a period delimited string.

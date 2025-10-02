@@ -1,7 +1,7 @@
-import * as controllers from '../controllers/index.ts';
-import type { IController } from '../controllers/types.ts';
-import { TimelineEventNames } from '../timeline-event-names.ts';
-import type { TOperation, TOperationData } from './types.ts';
+import type * as controllers from '../controllers/index.ts';
+import type {IController} from '../controllers/types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {TOperation, TOperationData} from './types.ts';
 
 type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {
@@ -22,7 +22,7 @@ export interface IGetControllerInstanceOperationData {
  */
 export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> =
   function (operationData: IGetControllerInstanceOperationData) {
-    const { systemName } = operationData;
+    const {systemName} = operationData;
 
     operationData.controllerInstance = undefined;
     const resultCallback = (instance: IController<TOperationData>) => {

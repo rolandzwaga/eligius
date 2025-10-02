@@ -1,25 +1,27 @@
-import { expect } from 'chai';
-import { afterEach, beforeEach, describe, test, type TestContext } from 'vitest';
-import { wait } from '../../../operation/wait.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {wait} from '../../../operation/wait.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-type WaitSuiteContext = { timeout: typeof window.setTimeout; mseconds: number } & TestContext;
+type WaitSuiteContext = {
+  timeout: typeof window.setTimeout;
+  mseconds: number;
+} & TestContext;
 
 describe.concurrent<WaitSuiteContext>('wait', () => {
-  beforeEach<WaitSuiteContext>((context) => {
+  beforeEach<WaitSuiteContext>(context => {
     context.mseconds = 0;
     context.timeout = window.setTimeout;
-    global.setTimeout = function(func: Function, ms: number) {
+    global.setTimeout = ((func: Function, ms: number) => {
       context.mseconds = ms;
       func();
-    } as any;
+    }) as any;
   });
-  afterEach<WaitSuiteContext>((context) => {
-
+  afterEach<WaitSuiteContext>(context => {
     global.setTimeout = context.timeout;
     delete (context as any).timeout;
   });
-  test<WaitSuiteContext>('should wait for the specified amount of milliseconds', async (context) => {
+  test<WaitSuiteContext>('should wait for the specified amount of milliseconds', async context => {
     // given
     const operationData = {
       milliseconds: 1000,

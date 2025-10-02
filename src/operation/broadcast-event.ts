@@ -1,6 +1,6 @@
-import { removeEventDataFromOperationData } from './helper/remove-event-data-from-operation-data.ts';
-import { resolveEventArguments } from './helper/resolve-event-arguments.ts';
-import type { TOperation } from './types.ts';
+import {removeEventDataFromOperationData} from './helper/remove-event-data-from-operation-data.ts';
+import {resolveEventArguments} from './helper/resolve-event-arguments.ts';
+import type {TOperation} from './types.ts';
 
 export interface IBroadcastEventOperationData {
   eventArgs: unknown[];
@@ -21,7 +21,7 @@ export interface IBroadcastEventOperationData {
  */
 export const broadcastEvent: TOperation<IBroadcastEventOperationData> =
   function (operationData: IBroadcastEventOperationData) {
-    const { eventArgs, eventTopic, eventName } = operationData;
+    const {eventArgs, eventTopic, eventName} = operationData;
 
     const eventArguments = resolveEventArguments(
       operationData,

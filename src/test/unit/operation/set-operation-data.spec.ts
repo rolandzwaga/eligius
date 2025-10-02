@@ -1,7 +1,8 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { setOperationData } from '../../../operation/set-operation-data.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {setOperationData} from '../../../operation/set-operation-data.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('setOperationData', () => {
   test('should set the specified operation data', () => {
     // given
@@ -23,7 +24,10 @@ describe.concurrent('setOperationData', () => {
     };
 
     // test
-    const newData = applyOperation(setOperationData, operationData) as Record<PropertyKey, any>;
+    const newData = applyOperation(setOperationData, operationData) as Record<
+      PropertyKey,
+      any
+    >;
 
     // expect
     expect(newData.unusedProperty).to.equal('test');
@@ -50,7 +54,10 @@ describe.concurrent('setOperationData', () => {
     };
 
     // test
-    const newData = applyOperation(setOperationData, operationData) as Record<PropertyKey, any>;
+    const newData = applyOperation(setOperationData, operationData) as Record<
+      PropertyKey,
+      any
+    >;
 
     // expect
     expect(newData.unusedProperty).to.be.undefined;

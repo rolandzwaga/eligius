@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { removeEventDataFromOperationData } from '../../../../operation/helper/remove-event-data-from-operation-data.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {removeEventDataFromOperationData} from '../../../../operation/helper/remove-event-data-from-operation-data.ts';
+
 describe.concurrent('removeEventDataFromOperationData', () => {
   test('should remove the event data from the given operation data', () => {
     // given
@@ -15,9 +16,9 @@ describe.concurrent('removeEventDataFromOperationData', () => {
     removeEventDataFromOperationData(operationData);
 
     // expect
-    expect(operationData.hasOwnProperty('eventName')).to.be.false;
-    expect(operationData.hasOwnProperty('eventTopic')).to.be.false;
-    expect(operationData.hasOwnProperty('eventArgs')).to.be.false;
-    expect(operationData.hasOwnProperty('test')).to.be.true;
+    expect(Object.hasOwn(operationData, 'eventName')).to.be.false;
+    expect(Object.hasOwn(operationData, 'eventTopic')).to.be.false;
+    expect(Object.hasOwn(operationData, 'eventArgs')).to.be.false;
+    expect(Object.hasOwn(operationData, 'test')).to.be.true;
   });
 });

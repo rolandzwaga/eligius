@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { emptyDirSync } from 'fs-extra';
+import {emptyDirSync} from 'fs-extra';
 import path from 'path';
 import * as controllers from '../../controllers/index.ts';
 import * as metadata from '../../operation/metadata/index.ts';
@@ -15,7 +15,7 @@ import type {
 } from '../../operation/metadata/types.ts';
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 import dashToCamelCase from '../../util/dash-to-camel-case.ts';
-import { htmlTagNames } from './html-tag-names.ts';
+import {htmlTagNames} from './html-tag-names.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const outputDirectory = path.join(schemaDirectory, 'operations');
@@ -44,14 +44,14 @@ operationSchemas.forEach(([name, schema]) => {
 
 const operationSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map((name) => ({ $ref: `operations/${name}.json` }));
+  .map(name => ({$ref: `operations/${name}.json`}));
 
 const operationTemplateSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map((name) => ({ $ref: `operation-templates/${name}.json` }));
+  .map(name => ({$ref: `operation-templates/${name}.json`}));
 
 ['endable-action.json', 'event-action.json', 'timeline-action.json'].forEach(
-  (x) => saveOperations(x, operationSchemaPaths)
+  x => saveOperations(x, operationSchemaPaths)
 );
 
 saveOperations('endable-action-template.json', operationTemplateSchemaPaths);
@@ -71,7 +71,7 @@ function saveOperations(filename: string, schemaPaths: any[]) {
   fs.writeFileSync(
     path.join(schemaDirectory, filename),
     JSON.stringify(actionSchema, null, 2),
-    { encoding: 'utf-8' }
+    {encoding: 'utf-8'}
   );
 
   console.log(`${filename} was written`);
@@ -129,7 +129,7 @@ function getTemplate() {
 
 function generateOperationSchema([name, getMetadata]: [
   string,
-  () => IOperationMetadata<any>
+  () => IOperationMetadata<any>,
 ]) {
   const metadata = getMetadata();
   const schemaTemplate = getTemplate();
@@ -184,7 +184,7 @@ function generateProperty(name: string, propertyMetadata: TPropertyMetadata) {
 
   const type = generateSchemaType(propertyMetadata);
   if (typeof type === 'object' && 'enum' in type) {
-    result[name] = { ...type, ...result[name] };
+    result[name] = {...type, ...result[name]};
   } else {
     result[name].type = type;
   }
@@ -210,8 +210,8 @@ function generateSchemaType(metadata: TPropertyMetadata) {
   }
 
   if (isConstantList(metadata)) {
-    const defaultValue = metadata.find((x) => x.default)?.value;
-    const enums = metadata.map<string | null>((x) => x.value);
+    const defaultValue = metadata.find(x => x.default)?.value;
+    const enums = metadata.map<string | null>(x => x.value);
 
     if (defaultValue) {
       enums.push(null);
@@ -257,7 +257,9 @@ function hasDescription(value: any): value is THasDescription {
   return typeof value === 'object' && 'description' in value;
 }
 
-function isComplex(value: TPropertyMetadata): value is TComplexPropertyMetadata {
+function isComplex(
+  value: TPropertyMetadata
+): value is TComplexPropertyMetadata {
   return typeof value === 'object' && 'type' in value;
 }
 
@@ -265,13 +267,15 @@ function isString(value: TPropertyMetadata): value is TParameterTypes {
   return typeof value === 'string';
 }
 
-function metadataType2SchemaType(value: TParameterTypes|TConstantParametersTypes[]) {
+function metadataType2SchemaType(
+  value: TParameterTypes | TConstantParametersTypes[]
+) {
   if (Array.isArray(value)) {
     return 'array';
   } else {
     switch (value) {
       case 'ParameterType:htmlElementName':
-        return { type: 'string', enum: htmlTagNames };
+        return {type: 'string', enum: htmlTagNames};
       case 'ParameterType:controllerName':
         return {
           type: 'string',
@@ -310,7 +314,9 @@ function metadataType2SchemaType(value: TParameterTypes|TConstantParametersTypes
   }
 }
 
-function metadataType2SchemaPattern(value: TParameterTypes|TConstantParametersTypes[]) {
+function metadataType2SchemaPattern(
+  value: TParameterTypes | TConstantParametersTypes[]
+) {
   switch (value) {
     case 'ParameterType:className':
       return '.-?[_a-zA-Z]+[_a-zA-Z0-9-]*';
@@ -320,7 +326,7 @@ function metadataType2SchemaPattern(value: TParameterTypes|TConstantParametersTy
 }
 
 function capitalize(value: unknown) {
-  if (typeof value === "string") {
+  if (typeof value === 'string') {
     return `${value[0].toUpperCase()}${value.substring(1)}`;
   }
   return value;

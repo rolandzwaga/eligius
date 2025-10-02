@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IRemoveElementOperationData {
   /**
@@ -13,10 +13,10 @@ export interface IRemoveElementOperationData {
  * @param operationData
  * @returns
  */
-export const removeElement: TOperation<IRemoveElementOperationData> = function (
+export const removeElement: TOperation<IRemoveElementOperationData> = (
   operationData: IRemoveElementOperationData
-) {
-  const { selectedElement } = operationData;
+) => {
+  const {selectedElement} = operationData;
   selectedElement.remove();
   return operationData;
 };

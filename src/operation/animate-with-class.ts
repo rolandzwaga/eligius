@@ -1,5 +1,5 @@
-import { internalResolve } from './helper/internal-resolve.ts';
-import type { TOperation } from './types.ts';
+import {internalResolve} from './helper/internal-resolve.ts';
+import type {TOperation} from './types.ts';
 
 export interface IAnimateWithClassOperationData {
   /**
@@ -19,30 +19,32 @@ export interface IAnimateWithClassOperationData {
  * class triggers and animation on the selected element. It then waits for this animation to complete
  * before it resolves.
  */
-export const animateWithClass: TOperation<IAnimateWithClassOperationData, Promise<IAnimateWithClassOperationData>> =
-  function (operationData: IAnimateWithClassOperationData) {
-    let { selectedElement, className, removeClass } = operationData;
-    removeClass = removeClass !== undefined ? removeClass : true;
+export const animateWithClass: TOperation<
+  IAnimateWithClassOperationData,
+  Promise<IAnimateWithClassOperationData>
+> = (operationData: IAnimateWithClassOperationData) => {
+  let {selectedElement, className, removeClass} = operationData;
+  removeClass = removeClass !== undefined ? removeClass : true;
 
-    const promise = new Promise<IAnimateWithClassOperationData>(
-      (resolve, reject) => {
-        try {
-          selectedElement.one(
-            'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
-            () => {
-              if (removeClass) {
-                selectedElement.removeClass(className);
-              }
-              internalResolve(resolve, {}, operationData);
+  const promise = new Promise<IAnimateWithClassOperationData>(
+    (resolve, reject) => {
+      try {
+        selectedElement.one(
+          'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
+          () => {
+            if (removeClass) {
+              selectedElement.removeClass(className);
             }
-          );
-        } catch (e) {
-          reject(e);
-        }
+            internalResolve(resolve, {}, operationData);
+          }
+        );
+      } catch (e) {
+        reject(e);
       }
-    );
+    }
+  );
 
-    selectedElement.addClass(className);
+  selectedElement.addClass(className);
 
-    return promise;
-  };
+  return promise;
+};

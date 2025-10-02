@@ -1,4 +1,4 @@
-import type { TDiagnosticType } from './types.ts';
+import type {TDiagnosticType} from './types.ts';
 
 export class Diagnostics {
   static send(_name: TDiagnosticType, _data: any): void {

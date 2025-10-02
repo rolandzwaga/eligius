@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IGetQueryParamsOperationData {
   /**
@@ -25,18 +25,19 @@ export interface IGetQueryParamsOperationData {
  * This operation retrieves the current query parameters from the browser's address bar and places
  * them on the returned operation data.
  */
-export const getQueryParams: TOperation<IGetQueryParamsOperationData> =
-  function (operationData: IGetQueryParamsOperationData) {
-    const searchParams = new URLSearchParams(window.location.search);
-    const queryParams = Object.fromEntries(searchParams.entries());
+export const getQueryParams: TOperation<IGetQueryParamsOperationData> = (
+  operationData: IGetQueryParamsOperationData
+) => {
+  const searchParams = new URLSearchParams(window.location.search);
+  const queryParams = Object.fromEntries(searchParams.entries());
 
-    const { defaultValues = {} } = operationData;
-    delete (operationData as any).defaultValues;
+  const {defaultValues = {}} = operationData;
+  delete (operationData as any).defaultValues;
 
-    operationData.queryParams = {
-      ...defaultValues,
-      ...queryParams,
-    };
-
-    return operationData;
+  operationData.queryParams = {
+    ...defaultValues,
+    ...queryParams,
   };
+
+  return operationData;
+};

@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
   getElementControllers,
   getElementData,

@@ -1,5 +1,5 @@
-import { internalResolve } from './helper/internal-resolve.ts';
-import type { TOperation } from './types.ts';
+import {internalResolve} from './helper/internal-resolve.ts';
+import type {TOperation} from './types.ts';
 
 export interface IAnimateOperationData {
   /**
@@ -28,9 +28,9 @@ export interface IAnimateOperationData {
  * @param operationData
  * @returns
  */
-export const animate: TOperation<IAnimateOperationData> = function (
+export const animate: TOperation<IAnimateOperationData> = (
   operationData: IAnimateOperationData
-) {
+) => {
   const {
     animationEasing,
     selectedElement,

@@ -1,11 +1,11 @@
-import { expect } from 'chai';
-import { beforeEach, describe, test, type TestContext } from 'vitest';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   ActionEditor,
   OperationEditor,
 } from '../../../../configuration/api/action-editor.ts';
-import { ConfigurationFactory } from '../../../../configuration/api/index.ts';
-import type { IActionConfiguration } from '../../../../configuration/types.ts';
+import type {ConfigurationFactory} from '../../../../configuration/api/index.ts';
+import type {IActionConfiguration} from '../../../../configuration/types.ts';
 
 type ActionEditorSuiteContext = {
   configurationFactory: ConfigurationFactory;
@@ -13,9 +13,9 @@ type ActionEditorSuiteContext = {
   actionEditor: ActionEditor;
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
-  beforeEach((context) => {
+  beforeEach(context => {
     withContext<ActionEditorSuiteContext>(context);
 
     context.configurationFactory = {} as unknown as ConfigurationFactory;
@@ -29,20 +29,20 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
       context.configurationFactory
     );
   });
-  test<ActionEditorSuiteContext>('should initialize properly', (context) => {
+  test<ActionEditorSuiteContext>('should initialize properly', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
     let config = {};
 
     // test
-    actionEditor.getConfiguration((cf) => (config = cf));
+    actionEditor.getConfiguration(cf => (config = cf));
 
     // expect
     expect(config).is.eql(context.actionConfig);
   });
-  test<ActionEditorSuiteContext>('should set the name', (context) => {
+  test<ActionEditorSuiteContext>('should set the name', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
 
     // test
     actionEditor.setName('TestName');
@@ -50,9 +50,9 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     // expect
     expect(actionEditor.getName()).to.equal('TestName');
   });
-  test<ActionEditorSuiteContext>('should return an operation editor', (context) => {
+  test<ActionEditorSuiteContext>('should return an operation editor', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
     actionEditor.addStartOperation('addClass', {}, 'test');
 
     // test
@@ -61,32 +61,32 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     // expect
     expect(editor).to.be.an.instanceOf(OperationEditor);
   });
-  test<ActionEditorSuiteContext>('should throw an operation not found error', (context) => {
+  test<ActionEditorSuiteContext>('should throw an operation not found error', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
 
     // expect
     expect(() => actionEditor.editStartOperation('test')).throws(
       'start operation not found for id test'
     );
   });
-  test<ActionEditorSuiteContext>('should remove the operation with the given id', (context) => {
+  test<ActionEditorSuiteContext>('should remove the operation with the given id', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
     actionEditor.addStartOperation('addClass', {}, 'test');
 
     // test
     actionEditor.removeStartOperation('test');
 
     // expect
-    actionEditor.getConfiguration((config) => {
+    actionEditor.getConfiguration(config => {
       expect(config.startOperations.length).to.equal(0);
       return undefined;
     });
   });
-  test<ActionEditorSuiteContext>('should move the start operation with given id up', (context) => {
+  test<ActionEditorSuiteContext>('should move the start operation with given id up', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
     const op1 = {
       id: 'test',
       systemName: 'test',
@@ -97,7 +97,7 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
       systemName: 'test2',
       operationData: {},
     };
-    actionEditor.getConfiguration((config) => {
+    actionEditor.getConfiguration(config => {
       config.startOperations.push(op1, op2);
       return config;
     });
@@ -106,16 +106,16 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     actionEditor.moveStartOperation('test', 'up');
 
     // expect
-    actionEditor.getConfiguration((config) => {
-      expect(config.startOperations.findIndex((x) => x.id === op1.id)).to.equal(
+    actionEditor.getConfiguration(config => {
+      expect(config.startOperations.findIndex(x => x.id === op1.id)).to.equal(
         1
       );
       return undefined;
     });
   });
-  test<ActionEditorSuiteContext>('should move the start operation with given id down', (context) => {
+  test<ActionEditorSuiteContext>('should move the start operation with given id down', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
     const op1 = {
       id: 'test',
       systemName: 'test',
@@ -126,7 +126,7 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
       systemName: 'test2',
       operationData: {},
     };
-    actionEditor.getConfiguration((config) => {
+    actionEditor.getConfiguration(config => {
       config.startOperations.push(op1, op2);
       return config;
     });
@@ -135,44 +135,44 @@ describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     actionEditor.moveStartOperation('test2', 'down');
 
     // expect
-    actionEditor.getConfiguration((config) => {
-      expect(config.startOperations.findIndex((x) => x.id === op2.id)).to.equal(
+    actionEditor.getConfiguration(config => {
+      expect(config.startOperations.findIndex(x => x.id === op2.id)).to.equal(
         0
       );
       return undefined;
     });
   });
-  test<ActionEditorSuiteContext>('should return the configuration editor', (context) => {
+  test<ActionEditorSuiteContext>('should return the configuration editor', context => {
     // test
-    const { actionEditor, configurationFactory } = context;
+    const {actionEditor, configurationFactory} = context;
     const result = actionEditor.next();
 
     // expect
     expect(result).to.equal(configurationFactory);
   });
-  test<ActionEditorSuiteContext>('should pass the configuration to the getConfiguration callback', (context) => {
+  test<ActionEditorSuiteContext>('should pass the configuration to the getConfiguration callback', context => {
     // given
-    const { actionEditor } = context;
+    const {actionEditor} = context;
     let config = null;
 
     // test
-    actionEditor.getConfiguration((c) => (config = c));
+    actionEditor.getConfiguration(c => (config = c));
 
     // expect
     expect(config).to.not.be.null;
   });
-  test<ActionEditorSuiteContext>('should substitute the actionConfig with the instance returned from the getConfiguration callback', (context) => {
+  test<ActionEditorSuiteContext>('should substitute the actionConfig with the instance returned from the getConfiguration callback', context => {
     // given
-    const { actionEditor } = context;
-    let config: IActionConfiguration = {
+    const {actionEditor} = context;
+    const config: IActionConfiguration = {
       id: '888-777-666',
     } as unknown as IActionConfiguration;
 
     // test
-    actionEditor.getConfiguration((_c) => config);
+    actionEditor.getConfiguration(_c => config);
 
     // expect
-    actionEditor.getConfiguration((cf) => {
+    actionEditor.getConfiguration(cf => {
       expect(config).to.eql(cf);
       return undefined;
     });

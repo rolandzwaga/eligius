@@ -1,7 +1,7 @@
-import { getPropertyChainValue } from './helper/get-property-chain-value.ts';
-import { getGlobals, type TGlobalCache } from './helper/globals.ts';
-import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
-import type { IOperationContext, TOperation, TOperationData } from './types.ts';
+import {getPropertyChainValue} from './helper/get-property-chain-value.ts';
+import {getGlobals, type TGlobalCache} from './helper/globals.ts';
+import {resolveExternalPropertyChain} from './helper/resolve-external-property-chain.ts';
+import type {IOperationContext, TOperation, TOperationData} from './types.ts';
 
 export type TDataTarget =
   | `context.${string}`
@@ -30,7 +30,7 @@ export interface ISetDataOperationData {
 export const setData: TOperation<ISetDataOperationData> = function (
   operationData: ISetDataOperationData
 ) {
-  const { properties } = operationData;
+  const {properties} = operationData;
   delete (operationData as any).properties;
 
   resolveTargets(properties, operationData, this);
@@ -45,7 +45,7 @@ function resolveTargets(
 ) {
   const propertyChains = Object.keys(data);
 
-  return propertyChains.forEach((item) => {
+  return propertyChains.forEach(item => {
     const path = item.split('.');
     const rootTarget = path.shift()?.toLowerCase() ?? '';
     if (!isDataTarget(rootTarget)) {

@@ -5,18 +5,13 @@
   "type": "object",
   "title": "The broadcastEvent schema",
   "description": "Broadcasts an eventbus event with the given type, topic and optional arguments",
-  "required": [
-    "systemName",
-    "operationData"
-  ],
+  "required": ["systemName", "operationData"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": [
-        "123e4567-e89b-12d3-a456-426614174000"
-      ],
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -27,9 +22,7 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [
-        "eventName"
-      ],
+      "required": ["eventName"],
       "properties": {
         "eventArgs": {
           "$id": "#/properties/operationData/eventArgs",

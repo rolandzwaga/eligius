@@ -1,4 +1,4 @@
-import { isDefined } from 'ts-is-present';
+import {isDefined} from 'ts-is-present';
 
 const copyFunction =
   typeof structuredClone !== 'undefined'

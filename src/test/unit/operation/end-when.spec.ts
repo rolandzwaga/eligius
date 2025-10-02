@@ -1,7 +1,8 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { endWhen } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {endWhen} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('endWhen', () => {
   test('should delete whenEvaluation from context', () => {
     // given

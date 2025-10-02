@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { broadcastEvent } from '../../../operation/broadcast-event.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {broadcastEvent} from '../../../operation/broadcast-event.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   eventName: string = '';
@@ -31,15 +31,11 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation(
-      broadcastEvent,
-      operationData,
-      {
-        currentIndex: -1,
-        eventbus: eventbus as any,
-        operations: [],
-      }
-    );
+    const resultOperationData = applyOperation(broadcastEvent, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+      operations: [],
+    });
 
     // expect
     expect(eventbus.eventName).to.be.equal('testEvent');
@@ -57,15 +53,11 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation(
-      broadcastEvent,
-      operationData,
-      {
-        currentIndex: -1,
-        eventbus: eventbus as any,
-        operations: [],
-      }
-    );
+    const resultOperationData = applyOperation(broadcastEvent, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+      operations: [],
+    });
 
     // expect
     expect(eventbus.eventName).to.be.equal('testEvent');
@@ -85,15 +77,11 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation(
-      broadcastEvent,
-      operationData,
-      {
-        currentIndex: -1,
-        eventbus: eventbus as any,
-        operations: [],
-      }
-    );
+    const resultOperationData = applyOperation(broadcastEvent, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+      operations: [],
+    });
 
     // expect
     expect(eventbus.eventName).to.be.equal('testEvent');
@@ -116,15 +104,11 @@ describe.concurrent('broadcastEvent', () => {
     const eventbus = new MockEventbus();
 
     // test
-    const resultOperationData = applyOperation(
-      broadcastEvent,
-      operationData,
-      {
-        currentIndex: -1,
-        eventbus: eventbus as any,
-        operations: [],
-      }
-    );
+    const resultOperationData = applyOperation(broadcastEvent, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+      operations: [],
+    });
 
     // expect
     expect(eventbus.eventName).to.be.equal('testEvent');

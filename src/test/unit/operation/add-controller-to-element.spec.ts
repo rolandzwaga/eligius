@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { Eventbus } from '../../../eventbus/index.ts';
-import { addControllerToElement } from '../../../operation/add-controller-to-element.ts';
-import type { TOperation } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {Eventbus} from '../../../eventbus/index.ts';
+import {addControllerToElement} from '../../../operation/add-controller-to-element.ts';
+import type {TOperation} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   name: string = '';
@@ -59,7 +59,7 @@ describe.concurrent('addControllerToElement', () => {
   });
   test('should attach the controller with a promise result', async () => {
     // given
-    const promise = new Promise<void>((resolve) => {
+    const promise = new Promise<void>(resolve => {
       resolve();
     });
 
@@ -69,10 +69,7 @@ describe.concurrent('addControllerToElement', () => {
     };
 
     // test
-    const data = await applyOperation(
-      addControllerToElement,
-      operationData
-    );
+    const data = await applyOperation(addControllerToElement, operationData);
 
     // expect
     expect(data).to.equal(operationData);

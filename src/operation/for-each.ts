@@ -1,6 +1,9 @@
-import { findMatchingOperationIndex } from './helper/find-matching-operation-index.ts';
-import { type ExternalProperty, resolveExternalPropertyChain } from './helper/resolve-external-property-chain.ts';
-import type { IOperationContext, TOperation } from './types.ts';
+import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import {
+  type ExternalProperty,
+  resolveExternalPropertyChain,
+} from './helper/resolve-external-property-chain.ts';
+import type {IOperationContext, TOperation} from './types.ts';
 
 export interface IForEachOperationData {
   /**
@@ -19,12 +22,27 @@ export interface IForEachOperationData {
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
  */
-export const forEach: TOperation<IForEachOperationData> = function (operationData: IForEachOperationData) {
-  const { collection } = operationData;
-  const resolvedCollection =  (typeof collection === "string") ? resolveExternalPropertyChain(operationData, this, collection as ExternalProperty) as any[] : collection;
+export const forEach: TOperation<IForEachOperationData> = function (
+  operationData: IForEachOperationData
+) {
+  const {collection} = operationData;
+  const resolvedCollection =
+    typeof collection === 'string'
+      ? (resolveExternalPropertyChain(
+          operationData,
+          this,
+          collection as ExternalProperty
+        ) as any[])
+      : collection;
 
-  if (resolvedCollection !== null && resolvedCollection !== undefined && !Array.isArray(resolvedCollection)) {
-    throw new Error('Expected collection to be array type, string value was probably not resolved correctly');
+  if (
+    resolvedCollection !== null &&
+    resolvedCollection !== undefined &&
+    !Array.isArray(resolvedCollection)
+  ) {
+    throw new Error(
+      'Expected collection to be array type, string value was probably not resolved correctly'
+    );
   }
 
   // First iteration of the loop
@@ -62,7 +80,8 @@ function findEndForEachIndex(context: IOperationContext) {
       matchingName: endForEachSystemName,
     })
   );
-  const endLoopIndex = index > -1 ? index + currentIndex : context.operations.length;
+  const endLoopIndex =
+    index > -1 ? index + currentIndex : context.operations.length;
 
   return endLoopIndex;
 }

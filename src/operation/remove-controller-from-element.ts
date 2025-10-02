@@ -1,6 +1,6 @@
-import type { IController } from '../controllers/types.ts';
-import { getElementControllers } from './helper/get-element-data.ts';
-import type { TOperation } from './types.ts';
+import type {IController} from '../controllers/types.ts';
+import {getElementControllers} from './helper/get-element-data.ts';
+import type {TOperation} from './types.ts';
 
 export interface IRemoveControllerFromElementOperationData {
   /**
@@ -21,7 +21,7 @@ export interface IRemoveControllerFromElementOperationData {
  */
 export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData> =
   function (operationData: IRemoveControllerFromElementOperationData) {
-    const { selectedElement, controllerName } = operationData;
+    const {selectedElement, controllerName} = operationData;
 
     const controllers = getElementControllers(selectedElement);
     const controller = controllers?.find(
@@ -33,7 +33,9 @@ export const removeControllerFromElement: TOperation<IRemoveControllerFromElemen
       controllers.splice(idx, 1);
       controller.detach(this.eventbus);
     } else {
-      console.warn(`controller for name '${controllerName}' was not found on the given element`);
+      console.warn(
+        `controller for name '${controllerName}' was not found on the given element`
+      );
     }
 
     return operationData;

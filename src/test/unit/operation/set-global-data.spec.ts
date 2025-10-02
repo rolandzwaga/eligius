@@ -1,11 +1,12 @@
-import { expect } from 'chai';
-import { beforeAll, describe, test } from 'vitest';
-import { clearGlobals, getGlobals } from '../../../operation/helper/globals.ts';
+import {expect} from 'chai';
+import {beforeAll, describe, test} from 'vitest';
+import {clearGlobals, getGlobals} from '../../../operation/helper/globals.ts';
 import {
   type ISetGlobalDataOperationData,
   setGlobalData,
 } from '../../../operation/set-global-data.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('setGlobalData', () => {
   beforeAll(() => {
     clearGlobals();
@@ -20,14 +21,11 @@ describe.concurrent('setGlobalData', () => {
     } as ISetGlobalDataOperationData;
 
     // test
-    const result = applyOperation(
-      setGlobalData,
-      operationData
-    );
+    const result = applyOperation(setGlobalData, operationData);
     const globals = getGlobals();
 
     // expect
-    expect(result).to.eql({ foo: 'bar', bar: 'foo', test: false });
-    expect(globals).to.eql({ foo: 'bar', bar: 'foo' });
+    expect(result).to.eql({foo: 'bar', bar: 'foo', test: false});
+    expect(globals).to.eql({foo: 'bar', bar: 'foo'});
   });
 });

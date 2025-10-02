@@ -1,5 +1,5 @@
-import { mergeOperationData } from './helper/merge-operation-data.ts';
-import type { TOperation, TOperationData } from './types.ts';
+import {mergeOperationData} from './helper/merge-operation-data.ts';
+import type {TOperation, TOperationData} from './types.ts';
 
 export interface IResizeActionOperationData {
   /**
@@ -15,13 +15,16 @@ export interface IResizeActionOperationData {
 /**
  * @deprecated
  */
-export const resizeAction: TOperation<IResizeActionOperationData> = function (
+export const resizeAction: TOperation<IResizeActionOperationData> = (
   operationData: IResizeActionOperationData
-) {
-  const { actionInstance, actionOperationData } = operationData;
+) => {
+  const {actionInstance, actionOperationData} = operationData;
   operationData = mergeOperationData(operationData, actionOperationData);
 
-  if ("resize" in actionInstance && typeof actionInstance.resize === "function") {
+  if (
+    'resize' in actionInstance &&
+    typeof actionInstance.resize === 'function'
+  ) {
     return actionInstance.resize(operationData);
   }
 

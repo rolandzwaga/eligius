@@ -1,5 +1,5 @@
-import type { IOperationContext, TOperationData } from '../../operation/types.ts';
-import { resolveExternalPropertyChain } from './resolve-external-property-chain.ts';
+import type {IOperationContext, TOperationData} from '../../operation/types.ts';
+import {resolveExternalPropertyChain} from './resolve-external-property-chain.ts';
 
 export function resolveEventArguments(
   operationData: TOperationData,

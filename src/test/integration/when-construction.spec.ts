@@ -1,23 +1,23 @@
-import { expect } from 'chai';
-import { beforeEach, describe, test, type TestContext } from 'vitest';
-import { Action } from '../../action/index.ts';
-import { Eventbus } from '../../eventbus/index.ts';
-import { endWhen } from '../../operation/end-when.ts';
-import { otherwise } from '../../operation/index.ts';
-import { type IWhenOperationData, when } from '../../operation/when.ts';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {Action} from '../../action/index.ts';
+import {Eventbus} from '../../eventbus/index.ts';
+import {endWhen} from '../../operation/end-when.ts';
+import {otherwise} from '../../operation/index.ts';
+import {type IWhenOperationData, when} from '../../operation/when.ts';
 
-type WhenConstructionContext = { action: Action } & TestContext;
+type WhenConstructionContext = {action: Action} & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
-  beforeEach((context) => {
+  beforeEach(context => {
     withContext<WhenConstructionContext>(context);
 
     const eventBus = new Eventbus();
     context.action = new Action('test', [], eventBus);
   });
-  test<WhenConstructionContext>('should set operationdata.foo to true because expression evaluates to true', async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>('should set operationdata.foo to true because expression evaluates to true', async context => {
+    const {action} = context;
 
     const op1 = {
       id: 'id1',
@@ -31,7 +31,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.foo = true;
         return op;
       },
@@ -52,8 +52,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     // expect
     expect(operationData?.foo).to.be.true;
   });
-  test<WhenConstructionContext>('should leave operationdata.foo undefined because expression evaluates to false', async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>('should leave operationdata.foo undefined because expression evaluates to false', async context => {
+    const {action} = context;
 
     action.startOperations.push({
       id: 'id1',
@@ -67,7 +67,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.foo = true;
         return op;
       },
@@ -85,8 +85,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     // expect
     expect(operationData?.foo).to.be.undefined;
   });
-  test<WhenConstructionContext>('should continue executing after endWhen when expression evaluates to false', async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>('should continue executing after endWhen when expression evaluates to false', async context => {
+    const {action} = context;
 
     const op1 = {
       id: 'id1',
@@ -100,7 +100,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.foo = true;
         return op;
       },
@@ -115,7 +115,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id4',
       systemName: 'systemNam3',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.continued = true;
         return op;
       },
@@ -132,8 +132,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     expect(operationData?.foo).to.be.undefined;
     expect(operationData?.continued).to.be.true;
   });
-  test<WhenConstructionContext>('should continue executing after otherwise when expression evaluates to false', async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>('should continue executing after otherwise when expression evaluates to false', async context => {
+    const {action} = context;
 
     const op1 = {
       id: 'id1',
@@ -147,7 +147,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.foo = true;
         return op;
       },
@@ -162,7 +162,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.bar = true;
         return op;
       },
@@ -177,7 +177,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id6',
       systemName: 'systemNam3',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.continued = true;
         return op;
       },
@@ -197,8 +197,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     expect(operationData?.bar).to.be.true;
     expect(operationData?.continued).to.be.true;
   });
-  test<WhenConstructionContext>('should stop executing after otherwise when expression evaluates to true', async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>('should stop executing after otherwise when expression evaluates to true', async context => {
+    const {action} = context;
 
     const op1 = {
       id: 'id1',
@@ -212,7 +212,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.foo = true;
         return op;
       },
@@ -227,7 +227,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.bar = true;
         return op;
       },
@@ -242,7 +242,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id6',
       systemName: 'systemNam3',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.continued = true;
         return op;
       },
@@ -262,8 +262,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     expect(operationData?.bar).to.be.undefined;
     expect(operationData?.continued).to.be.true;
   });
-  test<WhenConstructionContext>('should support nested when/otherwises with nested when evaluating to false', async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>('should support nested when/otherwises with nested when evaluating to false', async context => {
+    const {action} = context;
 
     action.startOperations.push({
       id: 'id1',
@@ -285,7 +285,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id3',
       systemName: 'when',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.notSet = true;
         return op;
       },
@@ -309,8 +309,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     // expect
     expect(operationData?.notSet).to.be.undefined;
   });
-  test<WhenConstructionContext>("should support nested when/otherwises with inner 'when' evaluating to true", async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>("should support nested when/otherwises with inner 'when' evaluating to true", async context => {
+    const {action} = context;
 
     action.startOperations.push({
       id: 'id1',
@@ -332,7 +332,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id3',
       systemName: 'when',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.notSet = true;
         return op;
       },
@@ -356,8 +356,8 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
     // expect
     expect(operationData?.notSet).to.be.true;
   });
-  test<WhenConstructionContext>("should support nested when/otherwises with outer 'when' evaluating to false", async (context) => {
-    const { action } = context;
+  test<WhenConstructionContext>("should support nested when/otherwises with outer 'when' evaluating to false", async context => {
+    const {action} = context;
 
     action.startOperations.push({
       id: 'id1',
@@ -379,7 +379,7 @@ describe.concurrent<WhenConstructionContext>('whenConstruction', () => {
       id: 'id3',
       systemName: 'when',
       operationData: {},
-      instance: function(op: any) {
+      instance: (op: any) => {
         op.notSet = true;
         return op;
       },

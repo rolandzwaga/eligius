@@ -1,5 +1,5 @@
-import { getGlobals } from './helper/globals.ts';
-import type { TOperation, TOperationData } from './types.ts';
+import {getGlobals} from './helper/globals.ts';
+import type {TOperation, TOperationData} from './types.ts';
 
 /**
  * This operation logs the current operation data, global data and context to the console.

@@ -1,6 +1,6 @@
-import type { RequireKeys } from 'types.ts';
-import { TimelineEventNames } from '../timeline-event-names.ts';
-import type { TOperation } from './types.ts';
+import type {RequireKeys} from 'types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {TOperation} from './types.ts';
 
 export interface IGetImportOperationData {
   /**
@@ -21,10 +21,11 @@ export interface IGetImportOperationData {
  * @param operationData
  * @returns
  */
-export const getImport: TOperation<IGetImportOperationData, Omit<RequireKeys<IGetImportOperationData, 'importedInstance'>, 'systemName'>> = function (
-  operationData: IGetImportOperationData
-) {
-  const { systemName } = operationData;
+export const getImport: TOperation<
+  IGetImportOperationData,
+  Omit<RequireKeys<IGetImportOperationData, 'importedInstance'>, 'systemName'>
+> = function (operationData: IGetImportOperationData) {
+  const {systemName} = operationData;
   const callBack = (instance: unknown) => {
     operationData.importedInstance = instance;
   };
@@ -33,5 +34,8 @@ export const getImport: TOperation<IGetImportOperationData, Omit<RequireKeys<IGe
     callBack,
   ]);
   delete (operationData as any).systemName;
-  return operationData as Omit<RequireKeys<IGetImportOperationData, 'importedInstance'>, 'systemName'>;
+  return operationData as Omit<
+    RequireKeys<IGetImportOperationData, 'importedInstance'>,
+    'systemName'
+  >;
 };

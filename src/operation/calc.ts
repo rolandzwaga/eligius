@@ -1,5 +1,5 @@
-import { resolvePropertyValues } from './helper/resolve-property-values.ts';
-import type { TOperation } from './types.ts';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {TOperation} from './types.ts';
 
 export type TCalculationOperator = '+' | '-' | '*' | '/' | '%' | '**';
 
@@ -48,7 +48,7 @@ export const calc: TOperation<ICalcOperationData> = function (
 ) {
   operationData = resolvePropertyValues(operationData, this, operationData);
 
-  const { left, right, operator } = operationData;
+  const {left, right, operator} = operationData;
 
   operationData.calculationResult = calcFunctions[operator](+left, +right);
 

@@ -1,4 +1,3 @@
-
 export type TimelineEventName = keyof typeof TimelineEventNames;
 
 /**

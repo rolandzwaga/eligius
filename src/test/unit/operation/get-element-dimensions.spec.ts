@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { getElementDimensions } from '../../../operation/get-element-dimensions.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {getElementDimensions} from '../../../operation/get-element-dimensions.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   width: number;

@@ -1,7 +1,8 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { clearOperationData } from '../../../operation/clear-operation-data.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {clearOperationData} from '../../../operation/clear-operation-data.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('clearOperationData', () => {
   test('should clear the given operation data', () => {
     // given
@@ -12,10 +13,7 @@ describe.concurrent('clearOperationData', () => {
     };
 
     // test
-    const newOperationData = applyOperation(
-      clearOperationData,
-      operationData
-    );
+    const newOperationData = applyOperation(clearOperationData, operationData);
 
     // expect
     expect(newOperationData).to.not.equal(operationData);

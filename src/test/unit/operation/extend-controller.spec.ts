@@ -1,8 +1,9 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IController } from '../../../controllers/types.ts';
-import { extendController } from '../../../operation/extend-controller.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IController} from '../../../controllers/types.ts';
+import {extendController} from '../../../operation/extend-controller.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('extendController', () => {
   test('should extend the given controller', () => {
     // given

@@ -1,9 +1,9 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IInvokeObjectMethodOperationData {
   /**
    *  The given object instance
-   * 
+   *
    */
   instance: any;
   /**
@@ -27,16 +27,21 @@ export interface IInvokeObjectMethodOperationData {
  * @param operationData
  * @returns
  */
-export const invokeObjectMethod: TOperation<IInvokeObjectMethodOperationData, Omit<IInvokeObjectMethodOperationData, 'methodName' | 'methodArguments'>> =
-  function (operationData: IInvokeObjectMethodOperationData) {
-    const { methodName, methodArguments, ...newOperationData } = operationData;
+export const invokeObjectMethod: TOperation<
+  IInvokeObjectMethodOperationData,
+  Omit<IInvokeObjectMethodOperationData, 'methodName' | 'methodArguments'>
+> = (operationData: IInvokeObjectMethodOperationData) => {
+  const {methodName, methodArguments, ...newOperationData} = operationData;
 
-    const func = operationData.instance[methodName];
-    if (typeof func === 'function') {
-      newOperationData.methodResult = func.apply(operationData.instance, methodArguments ?? []);
-    } else {
-      console.error(`The given member name ${methodName} is not a function`);
-    }
+  const func = operationData.instance[methodName];
+  if (typeof func === 'function') {
+    newOperationData.methodResult = func.apply(
+      operationData.instance,
+      methodArguments ?? []
+    );
+  } else {
+    console.error(`The given member name ${methodName} is not a function`);
+  }
 
-    return newOperationData;
-  };
+  return newOperationData;
+};

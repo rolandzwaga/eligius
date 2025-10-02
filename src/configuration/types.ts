@@ -1,8 +1,14 @@
-import type { IEndableAction, ITimelineAction } from '../action/types.ts';
-import type { TOperation, TOperationData } from '../operation/types.ts';
-import type { IDuration, ILabel, ILanguageLabel, TimelineTypes, TLanguageCode } from '../types.ts';
-import * as operations from '../operation/index.ts'; 
-import * as controllers from '../controllers/index.ts';
+import type {IEndableAction, ITimelineAction} from '../action/types.ts';
+import type * as controllers from '../controllers/index.ts';
+import type * as operations from '../operation/index.ts';
+import type {TOperation, TOperationData} from '../operation/types.ts';
+import type {
+  IDuration,
+  ILabel,
+  ILanguageLabel,
+  TimelineTypes,
+  TLanguageCode,
+} from '../types.ts';
 
 export type Controllers = typeof controllers;
 export type TControllerName = keyof Controllers;
@@ -14,7 +20,9 @@ export type TOperationName = keyof Operations;
 export type TOperationType = Operations[TOperationName];
 export type GetOperationByName<T extends TOperationName> = Operations[T];
 
-export type ExtractOperationDataType<P> = P extends TOperation<infer T, any> ? T : never;
+export type ExtractOperationDataType<P> = P extends TOperation<infer T, any>
+  ? T
+  : never;
 export interface IEngineInfo {
   systemName: string;
 }
@@ -64,7 +72,7 @@ export interface IResolvedEndableActionConfiguration
   endOperations: IResolvedOperation[];
 }
 
-export interface ITimelineFlow {}
+export type ITimelineFlow = {};
 
 export interface ITimelineProviderSettings {
   id: string;

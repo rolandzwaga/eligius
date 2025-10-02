@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { TOperationData } from '../../../operation/index.ts';
-import { resizeAction } from '../../../operation/resize-action.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {TOperationData} from '../../../operation/index.ts';
+import {resizeAction} from '../../../operation/resize-action.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockAction {
   operationData: any;

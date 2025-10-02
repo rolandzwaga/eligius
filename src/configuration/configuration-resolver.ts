@@ -1,13 +1,17 @@
-import { isDefined } from 'ts-is-present';
-import { Action, EndableAction, TimelineAction } from '../action/index.ts';
-import type { IAction } from '../action/types.ts';
-import { ActionRegistryEventbusListener } from '../eventbus/index.ts';
-import type { IEventbus } from '../eventbus/types.ts';
-import { deepCopy } from '../operation/helper/deep-copy.ts';
-import { resolvePropertyChain } from '../operation/helper/resolve-property-chain.ts';
-import type { IConfigurationResolver, ISimpleResourceImporter } from '../types.ts';
-import { isObject } from '../util/guards/is-object.ts';
-import { isString } from '../util/guards/is-string.ts';
+import type {TOperationData} from 'operation/types.ts';
+import {isDefined} from 'ts-is-present';
+import {Action, EndableAction, TimelineAction} from '../action/index.ts';
+import type {IAction} from '../action/types.ts';
+import type {ActionRegistryEventbusListener} from '../eventbus/index.ts';
+import type {IEventbus} from '../eventbus/types.ts';
+import {deepCopy} from '../operation/helper/deep-copy.ts';
+import {resolvePropertyChain} from '../operation/helper/resolve-property-chain.ts';
+import type {
+  IConfigurationResolver,
+  ISimpleResourceImporter,
+} from '../types.ts';
+import {isObject} from '../util/guards/is-object.ts';
+import {isString} from '../util/guards/is-string.ts';
 import type {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -22,7 +26,6 @@ import type {
   ITimelineActionConfiguration,
   ITimelineConfiguration,
 } from './types.ts';
-import type { TOperationData } from 'operation/types.ts';
 
 /**
  * Takes an `IEngineConfiguration` instance and return an `IResolvedEngineConfiguration`.
@@ -51,7 +54,7 @@ export class ConfigurationResolver implements IConfigurationResolver {
 
     const resolvedConfig: IResolvedEngineConfiguration = {
       id: configuration.id,
-      engine: { ...configuration.engine },
+      engine: {...configuration.engine},
       timelineProviderSettings: deepCopy(
         configuration.timelineProviderSettings
       ),
@@ -109,12 +112,12 @@ function resolveEventActions(
   eventbus: IEventbus
 ) {
   const resolvedConfigs =
-    eventActionConfigurations.map<IResolvedActionConfiguration>((config) =>
+    eventActionConfigurations.map<IResolvedActionConfiguration>(config =>
       resolveActionConfiguration(config, importer)
     );
 
   return resolvedConfigs.map((config, index) => {
-    const { eventName, eventTopic } = eventActionConfigurations[index];
+    const {eventName, eventTopic} = eventActionConfigurations[index];
     const eventAction = new Action(
       config.name,
       config.startOperations,
@@ -132,7 +135,7 @@ function resolveTimelines(
 ) {
   const resolve = resolveTimelineAction.bind(null, importer, eventbus);
 
-  return timelines.map<IResolvedTimelineConfiguration>((config) => ({
+  return timelines.map<IResolvedTimelineConfiguration>(config => ({
     ...config,
     timelineActions: config.timelineActions.map(resolve),
   }));
@@ -193,7 +196,7 @@ function resolveTimelineAction(
     start: actionConfiguration.duration.start,
   };
 
-  const { id, name, endOperations, startOperations } = resolvedConfig;
+  const {id, name, endOperations, startOperations} = resolvedConfig;
   const action = new TimelineAction(
     name,
     startOperations,
@@ -211,12 +214,12 @@ function resolveActions(
   eventbus: IEventbus
 ) {
   const resolvedConfigs =
-    actionConfigurations.map<IResolvedEndableActionConfiguration>((config) => {
+    actionConfigurations.map<IResolvedEndableActionConfiguration>(config => {
       return resolveEndableActionConfiguration(config, importer);
     });
 
-  return resolvedConfigs.map<EndableAction>((resolvedConfig) => {
-    const { name, endOperations, startOperations } = resolvedConfig;
+  return resolvedConfigs.map<EndableAction>(resolvedConfig => {
+    const {name, endOperations, startOperations} = resolvedConfig;
     const action = new EndableAction(
       name,
       startOperations,
@@ -241,8 +244,8 @@ function resolvePlaceholders(
     configFragment.forEach((item, index) => {
       resolvePlaceholders(item, rootConfig, importer);
     });
-  } else if (isObject(configFragment)){
-    Object.keys(configFragment).forEach((key) => {
+  } else if (isObject(configFragment)) {
+    Object.keys(configFragment).forEach(key => {
       resolvePlaceholder(key, configFragment, rootConfig, importer);
     });
   }

@@ -1,16 +1,16 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import $ from 'jquery';
 import sinon from 'sinon';
-import { afterEach, beforeEach, describe, test } from 'vitest';
-import { EligiusEngine } from '../../eligius-engine.ts';
-import type { IEventbus } from '../../eventbus/index.ts';
+import {afterEach, beforeEach, describe, test} from 'vitest';
+import {EligiusEngine} from '../../eligius-engine.ts';
+import type {IEventbus} from '../../eventbus/index.ts';
 
 class LanguageManagerStub {
   constructor(
     public language: string,
     public labels: any[],
     public eventbus: any
-  ) { }
+  ) {}
 }
 
 interface SuiteContext {
@@ -32,7 +32,7 @@ function setupEventbus(context: SuiteContext) {
 }
 
 describe<SuiteContext>('EligiusEngine', () => {
-  beforeEach<SuiteContext>((context) => {
+  beforeEach<SuiteContext>(context => {
     context.configuration = {};
     context.eventbus = {} as unknown as IEventbus;
     context.providers = {};
@@ -42,7 +42,7 @@ describe<SuiteContext>('EligiusEngine', () => {
   afterEach(() => {
     $('.test').remove();
   });
-  test<SuiteContext>('should create an engine', (context) => {
+  test<SuiteContext>('should create an engine', context => {
     // test
     const engine = new EligiusEngine(
       context.configuration,
@@ -54,7 +54,7 @@ describe<SuiteContext>('EligiusEngine', () => {
     // expect
     expect(engine).to.not.equal(null);
   });
-  test<SuiteContext>('should create the layout template', (context) => {
+  test<SuiteContext>('should create the layout template', context => {
     // given
     setupLayoutInit(context);
 
@@ -69,7 +69,7 @@ describe<SuiteContext>('EligiusEngine', () => {
     (engine as any)._createLayoutTemplate();
     expect($('.layout').length).to.equal(1);
   });
-  test<SuiteContext>('should throw an error when container selector cannot be resolved', (context) => {
+  test<SuiteContext>('should throw an error when container selector cannot be resolved', context => {
     // given
     context.configuration.containerSelector = '.test_does_not_exist';
     let error: any = null;
@@ -93,7 +93,7 @@ describe<SuiteContext>('EligiusEngine', () => {
       'Container selector not found: .test_does_not_exist'
     );
   });
-  test<SuiteContext>('should initialize end duration to Infinity for timeline actions with an end value below zero', (context) => {
+  test<SuiteContext>('should initialize end duration to Infinity for timeline actions with an end value below zero', context => {
     // given
     setupLayoutInit(context);
     setupEventbus(context);
@@ -111,8 +111,8 @@ describe<SuiteContext>('EligiusEngine', () => {
               start: 1,
               end: -1,
             },
-            start: () => { },
-            end: () => { },
+            start: () => {},
+            end: () => {},
           },
           {
             name: 'testname2',
@@ -120,8 +120,8 @@ describe<SuiteContext>('EligiusEngine', () => {
               start: 1,
               end: 10,
             },
-            start: () => { },
-            end: () => { },
+            start: () => {},
+            end: () => {},
           },
         ],
       },
@@ -130,11 +130,11 @@ describe<SuiteContext>('EligiusEngine', () => {
       animation: {
         provider: {
           init: () => Promise.resolve(),
-          on: () => { },
-          onTime: () => { },
-          onComplete: () => { },
-          onFirstFrame: () => { },
-          onRestart: () => { },
+          on: () => {},
+          onTime: () => {},
+          onComplete: () => {},
+          onFirstFrame: () => {},
+          onRestart: () => {},
         },
       },
     };

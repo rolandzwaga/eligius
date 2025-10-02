@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IEventbus } from '../../../eventbus/index.ts';
-import { customFunction } from '../../../operation/custom-function.ts';
-import type { IOperationContext, TOperation } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IEventbus} from '../../../eventbus/index.ts';
+import {customFunction} from '../../../operation/custom-function.ts';
+import type {IOperationContext, TOperation} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   testFunction: Function;
@@ -24,7 +24,7 @@ describe.concurrent('customFunction', () => {
     };
 
     let called = false;
-    const func = function(this: IOperationContext, opData: TOperation) {
+    const func = function (this: IOperationContext, opData: TOperation) {
       called = true;
       expect(opData).to.equal(operationData);
       expect(this.eventbus).to.equal(mockEventbus);
@@ -47,8 +47,8 @@ describe.concurrent('customFunction', () => {
       systemName: 'testName',
     };
     let called = false;
-    const func = function(this: IOperationContext, opData: TOperation) {
-      return new Promise<void>((resolve) => {
+    const func = function (this: IOperationContext, opData: TOperation) {
+      return new Promise<void>(resolve => {
         called = true;
         expect(opData).to.equal(operationData);
         expect(this.eventbus).to.equal(mockEventbus);
@@ -58,15 +58,11 @@ describe.concurrent('customFunction', () => {
     const mockEventbus = new MockEventbus(func);
 
     // test
-    const result = await applyOperation(
-      customFunction,
-      operationData,
-      {
-        currentIndex: -1,
-        eventbus: mockEventbus as unknown as IEventbus,
-        operations: [],
-      }
-    );
+    const result = await applyOperation(customFunction, operationData, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
+    });
 
     // expect
     expect(called).to.be.true;

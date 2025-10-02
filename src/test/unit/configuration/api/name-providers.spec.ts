@@ -1,9 +1,10 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
   OperationMetadataProvider,
   TimeLineEventNamesProvider,
 } from '../../../../configuration/api/name-providers.ts';
+
 describe.concurrent('name-providers', () => {
   test('should return a list of event names', () => {
     // given

@@ -1,15 +1,14 @@
-import type { IAction } from './action/types.ts';
+import type {IAction} from './action/types.ts';
 import type {
   IEngineConfiguration,
-  IResolvedEngineConfiguration
+  IResolvedEngineConfiguration,
 } from './configuration/types.ts';
-import type { IEventbus, IEventbusListener } from './eventbus/types.ts';
-import type { ITimelineProvider } from './timelineproviders/types.ts';
+import type {IEventbus, IEventbusListener} from './eventbus/types.ts';
+import type {ITimelineProvider} from './timelineproviders/types.ts';
 
 export type KeysOfType<T, U> = {
-  [P in keyof T]-?: T[P] extends U|undefined ? P : never;
+  [P in keyof T]-?: T[P] extends U | undefined ? P : never;
 }[keyof T];
-
 
 /**
  * Describes an object that is capable of processing the given configuration and constructing an IEligiusEngine
@@ -18,7 +17,7 @@ export type KeysOfType<T, U> = {
 export interface IEngineFactory {
   /**
    * Returns a fully configured IEligiusEngine instance.
-   * 
+   *
    * @param engineConfig The given configuration
    * @param resolver An optional resolver to process the given IEngineConfiguration. When not provided the IEngineFactory is expected to create their own instance.
    */
@@ -92,7 +91,7 @@ export interface IStrictDuration extends Required<IDuration> {}
 export type TimelineTypes = 'animation' | 'mediaplayer';
 
 /**
- * 
+ *
  */
 export interface ITimelineProviderInfo {
   id: string;
@@ -112,9 +111,9 @@ export interface ILabel {
 }
 
 /**
- * 
+ *
  * Container type for a width and height
- * 
+ *
  */
 export interface IDimensions {
   width: number;
@@ -122,11 +121,11 @@ export interface IDimensions {
 }
 
 /**
- * 
+ *
  * This represents an IETF language tag
- * 
- * The format reads as follows: [Primary language subtag]-[Region subtag] 
- * 
+ *
+ * The format reads as follows: [Primary language subtag]-[Region subtag]
+ *
  */
 export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
 

@@ -1,5 +1,5 @@
-import type { IResolvedOperation } from '../configuration/types.ts';
-import type { IEventbus } from '../eventbus/index.ts';
+import type {IResolvedOperation} from '../configuration/types.ts';
+import type {IEventbus} from '../eventbus/index.ts';
 
 export type TOperationData = Record<string, any>;
 
@@ -61,10 +61,12 @@ export type TOperation<T extends TOperationData = TOperationData, RT = T> = (
   operationData: T
 ) => TOperationResult<RT>;
 
-export type ExtractOperationData<T extends TOperation<TOperationData>> = T extends TOperation<infer K> ? K : never
-export type ExtractReturnedOperationData<T extends TOperation<TOperationData, TOperationData>> =
-  T extends TOperation<any, infer K> 
-    ? unknown extends K
-      ? ExtractOperationData<T>
-      : K
-    : never;
+export type ExtractOperationData<T extends TOperation<TOperationData>> =
+  T extends TOperation<infer K> ? K : never;
+export type ExtractReturnedOperationData<
+  T extends TOperation<TOperationData, TOperationData>,
+> = T extends TOperation<any, infer K>
+  ? unknown extends K
+    ? ExtractOperationData<T>
+    : K
+  : never;

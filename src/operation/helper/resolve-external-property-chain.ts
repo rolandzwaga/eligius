@@ -1,6 +1,6 @@
-import type { IOperationContext, TOperationData } from '../types.ts';
-import { getPropertyChainValue } from './get-property-chain-value.ts';
-import { getGlobals } from './globals.ts';
+import type {IOperationContext, TOperationData} from '../types.ts';
+import {getPropertyChainValue} from './get-property-chain-value.ts';
+import {getGlobals} from './globals.ts';
 
 /**
  * Resolves operation and global data property chains.
@@ -13,9 +13,16 @@ import { getGlobals } from './globals.ts';
 export function resolveExternalPropertyChain(
   sourceObject: TOperationData,
   operationContext: IOperationContext,
-  propertyChainOrRegularObject: ExternalProperty|Record<string,any>|null|undefined
+  propertyChainOrRegularObject:
+    | ExternalProperty
+    | Record<string, any>
+    | null
+    | undefined
 ) {
-  if (propertyChainOrRegularObject === null || propertyChainOrRegularObject === undefined) {
+  if (
+    propertyChainOrRegularObject === null ||
+    propertyChainOrRegularObject === undefined
+  ) {
     return null;
   }
 
@@ -35,8 +42,18 @@ export function resolveExternalPropertyChain(
   return propertyChainOrRegularObject;
 }
 
-export function isExternalProperty(value: ExternalProperty|Record<string,any>): value is ExternalProperty {
-  return (typeof value === "string" && (value.toLocaleLowerCase().startsWith('operationdata.') || (value.toLocaleLowerCase().startsWith('globaldata.')) || (value.toLocaleLowerCase().startsWith('context.'))));
+export function isExternalProperty(
+  value: ExternalProperty | Record<string, any>
+): value is ExternalProperty {
+  return (
+    typeof value === 'string' &&
+    (value.toLocaleLowerCase().startsWith('operationdata.') ||
+      value.toLocaleLowerCase().startsWith('globaldata.') ||
+      value.toLocaleLowerCase().startsWith('context.'))
+  );
 }
 
-export type ExternalProperty = `operationdata.${string}` | `globaldata.${string}` | `context.${string}`;
+export type ExternalProperty =
+  | `operationdata.${string}`
+  | `globaldata.${string}`
+  | `context.${string}`;

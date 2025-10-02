@@ -1,13 +1,14 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { addClass } from '../../../operation/add-class.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {addClass} from '../../../operation/add-class.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('addClass', () => {
   test('should add the specified class to the element', () => {
     // given
     const elementMock = {
       className: '',
-      addClass: function(className: string) {
+      addClass: function (className: string) {
         this.className = className;
       },
     };

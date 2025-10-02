@@ -1,1 +1,1 @@
-export { EligiusResourceImporter } from './eligius-resource-importer.ts';
+export {EligiusResourceImporter} from './eligius-resource-importer.ts';

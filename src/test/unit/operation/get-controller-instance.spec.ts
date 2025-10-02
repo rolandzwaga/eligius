@@ -1,12 +1,12 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IController } from '../../../controllers/types.ts';
-import type { IEventbus } from '../../../eventbus/index.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IController} from '../../../controllers/types.ts';
+import type {IEventbus} from '../../../eventbus/index.ts';
 import {
   getControllerInstance,
   type IGetControllerInstanceOperationData,
 } from '../../../operation/get-controller-instance.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   controller: any;
@@ -31,15 +31,11 @@ describe.concurrent('getControllerInstance', () => {
     const eventbus = new MockEventbus(controller);
 
     // test
-    const newData = applyOperation(
-      getControllerInstance,
-      operationData,
-      {
-        currentIndex: -1,
-        eventbus: eventbus as unknown as IEventbus,
-        operations: [],
-      }
-    );
+    const newData = applyOperation(getControllerInstance, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as unknown as IEventbus,
+      operations: [],
+    });
 
     // expect
     expect(eventbus.eventName).to.equal('LabelController');

@@ -1,8 +1,9 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import $ from 'jquery';
-import { describe, test } from 'vitest';
-import { setElementAttributes } from '../../../operation/set-element-attributes.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {describe, test} from 'vitest';
+import {setElementAttributes} from '../../../operation/set-element-attributes.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('setElementAttributes', () => {
   test('should set the given attributes on the specified element', () => {
     // given

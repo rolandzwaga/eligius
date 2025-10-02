@@ -1,4 +1,9 @@
-import type { ExtractOperationData, ExtractReturnedOperationData, IOperationContext, TOperation } from '../operation/index.ts';
+import type {
+  ExtractOperationData,
+  ExtractReturnedOperationData,
+  IOperationContext,
+  TOperation,
+} from '../operation/index.ts';
 
 export const defaultContext: IOperationContext = {
   currentIndex: -1,
@@ -6,7 +11,11 @@ export const defaultContext: IOperationContext = {
   operations: [],
 };
 
-export function applyOperation<T extends TOperation<any>=TOperation<any>, OD = ExtractOperationData<T>, RT = ExtractReturnedOperationData<T>>(
+export function applyOperation<
+  T extends TOperation<any> = TOperation<any>,
+  OD = ExtractOperationData<T>,
+  RT = ExtractReturnedOperationData<T>,
+>(
   operation: T,
   operationData: OD,
   context: IOperationContext = defaultContext

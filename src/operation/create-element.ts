@@ -1,7 +1,7 @@
 import $ from 'jquery';
-import { resolvePropertyValues } from './helper/resolve-property-values.ts';
-import type { IOperationContext, TOperation } from './types.ts';
-import type { RequireKeys } from 'types.ts';
+import type {RequireKeys} from 'types.ts';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {IOperationContext, TOperation} from './types.ts';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
@@ -29,31 +29,32 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  * @param operationData
  * @returns
  */
-export const createElement: TOperation<ICreateElementOperationData<TTagNames>, RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>> =
-  function <T extends TTagNames>(
-    this: IOperationContext,
-    operationData: ICreateElementOperationData<T>
-  ) {
-    operationData = resolvePropertyValues(
-      operationData,
-      this,
-      operationData
-    );
+export const createElement: TOperation<
+  ICreateElementOperationData<TTagNames>,
+  RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>
+> = function <T extends TTagNames>(
+  this: IOperationContext,
+  operationData: ICreateElementOperationData<T>
+) {
+  operationData = resolvePropertyValues(operationData, this, operationData);
 
-    const { elementName, attributes, text } = operationData;
+  const {elementName, attributes, text} = operationData;
 
-    const serializedAttrs = attributes
-      ? ` ${Object.entries(attributes)
-          .filter(([_, value]) => Boolean(value))
-          .map(([key, value]) => `${key}="${value}"`)
-          .join(' ')}`
-      : '';
+  const serializedAttrs = attributes
+    ? ` ${Object.entries(attributes)
+        .filter(([_, value]) => Boolean(value))
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(' ')}`
+    : '';
 
-    const template = text
-      ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
-      : $(`<${elementName}${serializedAttrs}/>`);
+  const template = text
+    ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
+    : $(`<${elementName}${serializedAttrs}/>`);
 
-    operationData.template = template;
+  operationData.template = template;
 
-    return operationData as RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>;
-  };
+  return operationData as RequireKeys<
+    ICreateElementOperationData<TTagNames>,
+    'template'
+  >;
+};

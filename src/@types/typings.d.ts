@@ -12,7 +12,7 @@ declare module '*.json' {
 }
 declare module '*.html';
 
-declare module mediaelementjs {
+declare namespace mediaelementjs {
   declare class MediaElementPlayer {
     duration: number;
     paused: boolean;

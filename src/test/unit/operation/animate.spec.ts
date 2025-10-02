@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { animate } from '../../../operation/animate.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {animate} from '../../../operation/animate.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   properties: any;
@@ -41,10 +41,7 @@ describe.concurrent('animate', () => {
     };
 
     // test
-    const data = await applyOperation(
-      animate,
-      operationData
-    );
+    const data = await applyOperation(animate, operationData);
 
     // expect
     expect(data.selectedElement).to.equal(operationData.selectedElement);
@@ -60,10 +57,7 @@ describe.concurrent('animate', () => {
     };
 
     // test
-    const data = await applyOperation(
-      animate,
-      operationData
-    );
+    const data = await applyOperation(animate, operationData);
 
     // expect
     expect(data.selectedElement).to.equal(operationData.selectedElement);

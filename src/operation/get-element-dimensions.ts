@@ -1,5 +1,5 @@
-import { modifyDimensions } from './helper/modify-dimensions.ts';
-import type { TOperation } from './types.ts';
+import {modifyDimensions} from './helper/modify-dimensions.ts';
+import type {TOperation} from './types.ts';
 
 export interface IGetElementDimensionsOperationData {
   /**
@@ -14,7 +14,7 @@ export interface IGetElementDimensionsOperationData {
    * @type=ParameterType:object
    * @output
    */
-  dimensions?: { width?: number; height?: number };
+  dimensions?: {width?: number; height?: number};
 }
 
 /**
@@ -32,22 +32,23 @@ export interface IGetElementDimensionsOperationData {
  * For example, this modifier '+100h|w[ar=8-1]' will modifiy the dimensions like this:
  * it will add a value of 100 to the height and modify the width by a ratio of 8 to 1 relative to the height.
  */
-export const getElementDimensions: TOperation<IGetElementDimensionsOperationData> =
-  function (operationData: IGetElementDimensionsOperationData) {
-    const { selectedElement, modifier } = operationData;
-    let dimensions = {
-      width: selectedElement.innerWidth() ?? 0,
-      height: selectedElement.innerHeight() ?? 0,
-    };
-    
-    if (dimensions.height === 0) {
-      dimensions.height = dimensions.width;
-    }
-    
-    if (modifier) {
-      dimensions = modifyDimensions(dimensions, modifier);
-    }
-    
-    operationData.dimensions = dimensions;
-    return operationData;
+export const getElementDimensions: TOperation<
+  IGetElementDimensionsOperationData
+> = (operationData: IGetElementDimensionsOperationData) => {
+  const {selectedElement, modifier} = operationData;
+  let dimensions = {
+    width: selectedElement.innerWidth() ?? 0,
+    height: selectedElement.innerHeight() ?? 0,
   };
+
+  if (dimensions.height === 0) {
+    dimensions.height = dimensions.width;
+  }
+
+  if (modifier) {
+    dimensions = modifyDimensions(dimensions, modifier);
+  }
+
+  operationData.dimensions = dimensions;
+  return operationData;
+};

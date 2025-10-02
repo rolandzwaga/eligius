@@ -1,8 +1,9 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IGetAttributesFromElementOperationData } from '../../../operation/get-attributes-from-element.ts';
-import { getAttributesFromElement } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IGetAttributesFromElementOperationData} from '../../../operation/get-attributes-from-element.ts';
+import {getAttributesFromElement} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('getAttibutesFromElement', () => {
   test('should extend the given controller', () => {
     // given
@@ -17,6 +18,6 @@ describe.concurrent('getAttibutesFromElement', () => {
     const newData = applyOperation(getAttributesFromElement, operationData);
 
     // expect
-    expect(newData.attributeValues).to.eql({ foo: 'fooValue', bar: 'barValue' });
+    expect(newData.attributeValues).to.eql({foo: 'fooValue', bar: 'barValue'});
   });
 });

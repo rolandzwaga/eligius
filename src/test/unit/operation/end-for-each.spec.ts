@@ -1,8 +1,9 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { endForEach } from '../../../operation/end-for-each.ts';
-import type { IOperationContext } from '../../../operation/index.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {endForEach} from '../../../operation/end-for-each.ts';
+import type {IOperationContext} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('endForEach', () => {
   test('should return the operation data', () => {
     // given

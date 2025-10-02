@@ -1,10 +1,11 @@
-import { expect } from 'chai';
-import { afterAll, describe, test } from 'vitest';
-import { getGlobals } from '../../../operation/helper/globals.ts';
-import { setGlobal } from '../../../operation/helper/set-global.ts';
-import { type IOperationContext, setData } from '../../../operation/index.ts';
-import type { ISetDataOperationData } from '../../../operation/set-data.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {afterAll, describe, test} from 'vitest';
+import {getGlobals} from '../../../operation/helper/globals.ts';
+import {setGlobal} from '../../../operation/helper/set-global.ts';
+import {type IOperationContext, setData} from '../../../operation/index.ts';
+import type {ISetDataOperationData} from '../../../operation/set-data.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('setData', () => {
   afterAll(() => {
     setGlobal('globalTarget', undefined);

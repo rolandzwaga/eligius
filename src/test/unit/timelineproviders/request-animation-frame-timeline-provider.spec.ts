@@ -1,7 +1,14 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import $ from 'jquery';
-import { afterEach, beforeEach, describe, test, type TestContext, vi } from 'vitest';
-import { RequestAnimationFrameTimelineProvider } from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  type TestContext,
+  test,
+  vi,
+} from 'vitest';
+import {RequestAnimationFrameTimelineProvider} from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
 
 type RequestAnimationFrameTimelineProviderSuiteContext = {
   provider: RequestAnimationFrameTimelineProvider;
@@ -11,8 +18,10 @@ type RequestAnimationFrameTimelineProviderSuiteContext = {
 } & TestContext;
 
 describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
-  beforeEach<RequestAnimationFrameTimelineProviderSuiteContext>((context) => {
-    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => setTimeout(() => cb(performance.now()), 16));
+  beforeEach<RequestAnimationFrameTimelineProviderSuiteContext>(context => {
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
+      setTimeout(() => cb(performance.now()), 16)
+    );
     vi.stubGlobal('cancelAnimationFrame', () => {});
 
     $('<div id="selector"/>').appendTo(document.body);
@@ -29,21 +38,21 @@ describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
       context.configuration
     );
   });
-  afterEach<RequestAnimationFrameTimelineProviderSuiteContext>((context) => {
+  afterEach<RequestAnimationFrameTimelineProviderSuiteContext>(context => {
     vi.restoreAllMocks();
     context.provider.destroy();
     $('#selector').remove();
   });
-  test<RequestAnimationFrameTimelineProviderSuiteContext>('should start and set correct play state', (context) => {
-    const { provider } = context;
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should start and set correct play state', context => {
+    const {provider} = context;
 
     provider.init();
 
     provider.start();
     expect(provider.playState).to.equal('running');
   });
-  test<RequestAnimationFrameTimelineProviderSuiteContext>('should pause and set correct play state', (context) => {
-    const { provider } = context;
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should pause and set correct play state', context => {
+    const {provider} = context;
 
     provider.init();
 
@@ -52,8 +61,8 @@ describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
     provider.pause();
     expect(provider.playState).to.equal('stopped');
   });
-  test<RequestAnimationFrameTimelineProviderSuiteContext>('should stop, set correct play state and reset position to zero', (context) => {
-    const { provider } = context;
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should stop, set correct play state and reset position to zero', context => {
+    const {provider} = context;
 
     provider.init();
 
@@ -63,8 +72,8 @@ describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
     expect(provider.playState).to.equal('stopped');
     expect(provider.getPosition()).to.equal(0);
   });
-  test<RequestAnimationFrameTimelineProviderSuiteContext>('should dispatch TimelineEventNames.TIME 4 times', async (context) => {
-    const { provider } = context;
+  test<RequestAnimationFrameTimelineProviderSuiteContext>('should dispatch TimelineEventNames.TIME 4 times', async context => {
+    const {provider} = context;
 
     provider.init();
     const recordedPositions: number[] = [];
@@ -73,7 +82,7 @@ describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
 
     provider.start();
 
-    const result: number[] = await new Promise((resolve) => {
+    const result: number[] = await new Promise(resolve => {
       setTimeout(() => {
         resolve(recordedPositions);
       }, 4000);

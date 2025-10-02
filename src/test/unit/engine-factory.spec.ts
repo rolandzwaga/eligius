@@ -1,17 +1,17 @@
-import { expect } from 'chai';
-import { beforeEach, describe, test, type TestContext } from 'vitest';
-import type { IEngineConfiguration } from '../../configuration/types.ts';
-import { EngineFactory } from '../../engine-factory.ts';
-import type { IEngineFactory, ISimpleResourceImporter } from '../../types.ts';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
+import type {IEngineConfiguration} from '../../configuration/types.ts';
+import {EngineFactory} from '../../engine-factory.ts';
+import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
 
 class MockImporter {
   import(name: string) {
     if (name === 'EligiusEngine') {
-      return { EligiusEngine: MockEngine };
+      return {EligiusEngine: MockEngine};
     } else if (name === 'MockTimelineProvider') {
-      return { MockTimelineProvider: MockTimelineProvider };
+      return {MockTimelineProvider: MockTimelineProvider};
     }
-    return { [name]: {} };
+    return {[name]: {}};
   }
 }
 
@@ -29,7 +29,7 @@ class MockEngine {
   }
 }
 
-class MockTimelineProvider { }
+class MockTimelineProvider {}
 
 type EngineFactorySuiteContext = {
   importer: ISimpleResourceImporter;
@@ -37,25 +37,25 @@ type EngineFactorySuiteContext = {
   factory: IEngineFactory;
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<EngineFactorySuiteContext>('EngineFactory', () => {
-  beforeEach((context) => {
+  beforeEach(context => {
     withContext<EngineFactorySuiteContext>(context);
 
     context.importer = new MockImporter();
     context.windowRef = {};
     context.factory = new EngineFactory(context.importer, context.windowRef);
   });
-  test<EngineFactorySuiteContext>('should create', (context) => {
+  test<EngineFactorySuiteContext>('should create', context => {
     // test
-    const { factory } = context;
+    const {factory} = context;
 
     // expect
     expect(factory).not.to.be.undefined;
   });
-  test<EngineFactorySuiteContext>('should create the engine', (context) => {
+  test<EngineFactorySuiteContext>('should create the engine', context => {
     // given
-    const { factory } = context;
+    const {factory} = context;
 
     const config: IEngineConfiguration = {
       id: 'testEngine',

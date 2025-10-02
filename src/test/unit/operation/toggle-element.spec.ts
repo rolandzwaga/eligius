@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { toggleElement } from '../../../operation/toggle-element.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {toggleElement} from '../../../operation/toggle-element.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   isToggled: boolean = false;

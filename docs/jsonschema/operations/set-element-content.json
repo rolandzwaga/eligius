@@ -5,18 +5,13 @@
   "type": "object",
   "title": "The setElementContent schema",
   "description": "Sets the given HTML content in the selected element",
-  "required": [
-    "systemName",
-    "operationData"
-  ],
+  "required": ["systemName", "operationData"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": [
-        "123e4567-e89b-12d3-a456-426614174000"
-      ],
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -31,12 +26,7 @@
       "properties": {
         "insertionType": {
           "type": "string",
-          "enum": [
-            "overwrite",
-            "append",
-            "prepend",
-            null
-          ],
+          "enum": ["overwrite", "append", "prepend", null],
           "default": "overwrite",
           "$id": "#/properties/operationData/insertionType"
         }

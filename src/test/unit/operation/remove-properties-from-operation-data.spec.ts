@@ -1,7 +1,8 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { removePropertiesFromOperationData } from '../../../operation/remove-properties-from-operation-data.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {removePropertiesFromOperationData} from '../../../operation/remove-properties-from-operation-data.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('removePropertiesFromOperationData', () => {
   test('should remove the specified properties from the given operationData', () => {
     // given
@@ -19,9 +20,9 @@ describe.concurrent('removePropertiesFromOperationData', () => {
     ) as typeof operationData;
 
     // expect
-    expect(newData.hasOwnProperty('testProp1')).to.be.false;
-    expect(newData.hasOwnProperty('testProp2')).to.be.false;
-    expect(newData.hasOwnProperty('propertyNames')).to.be.false;
+    expect(Object.hasOwn(newData, 'testProp1')).to.be.false;
+    expect(Object.hasOwn(newData, 'testProp2')).to.be.false;
+    expect(Object.hasOwn(newData, 'propertyNames')).to.be.false;
     expect(newData.testProp3).to.equal('test3');
   });
 });

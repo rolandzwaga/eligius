@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface IToggleClassOperationData {
   /**
@@ -16,14 +16,14 @@ export interface IToggleClassOperationData {
 
 /**
  * This operation toggles the specfied class name on the given selected element.
- * 
+ *
  * Meaning, if the specified class name exists on the given element it will be removed,
  * otherwise it will be added.
  */
-export const toggleClass: TOperation<IToggleClassOperationData> = function (
+export const toggleClass: TOperation<IToggleClassOperationData> = (
   operationData: IToggleClassOperationData
-) {
-  const { selectedElement, className } = operationData;
+) => {
+  const {selectedElement, className} = operationData;
   selectedElement.toggleClass(className);
   return operationData;
 };

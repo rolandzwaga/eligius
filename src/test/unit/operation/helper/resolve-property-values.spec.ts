@@ -1,8 +1,9 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { resolvePropertyValues } from '../../../../operation/helper/resolve-property-values.ts';
-import { setGlobal } from '../../../../operation/helper/set-global.ts';
-import type { IOperationContext } from '../../../../operation/index.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {resolvePropertyValues} from '../../../../operation/helper/resolve-property-values.ts';
+import {setGlobal} from '../../../../operation/helper/set-global.ts';
+import type {IOperationContext} from '../../../../operation/index.ts';
+
 describe.concurrent('resolvePropertyValues', () => {
   test('should resolve the given property values', () => {
     // given
@@ -34,7 +35,7 @@ describe.concurrent('resolvePropertyValues', () => {
       test1: 'test1',
       test2: 100,
       test3: true,
-      currentItem: { title: 'test' },
+      currentItem: {title: 'test'},
       resolvedItem: 'operationdata.currentItem.title',
     };
     const operationContext = {} as IOperationContext;
@@ -55,7 +56,7 @@ describe.concurrent('resolvePropertyValues', () => {
       test1: 'test1',
       test2: 100,
       test3: true,
-      currentItem: { title: 'test' },
+      currentItem: {title: 'test'},
       resolvedItem: 'globaldata.globalTitle',
     };
     const operationContext = {} as IOperationContext;
@@ -77,10 +78,10 @@ describe.concurrent('resolvePropertyValues', () => {
       test1: 'test1',
       test2: 100,
       test3: true,
-      currentItem: { title: 'test' },
+      currentItem: {title: 'test'},
       resolvedItem: 'context.currentIndex',
     };
-    const operationContext = { currentIndex: 100 } as IOperationContext;
+    const operationContext = {currentIndex: 100} as IOperationContext;
 
     // test
     const resolved = resolvePropertyValues(

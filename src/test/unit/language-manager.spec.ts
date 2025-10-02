@@ -1,8 +1,8 @@
-import { expect } from 'chai';
-import { beforeEach, describe, test, type TestContext } from 'vitest';
-import type { IEventbus } from '../../eventbus/index.ts';
-import { LanguageManager } from '../../language-manager.ts';
-import type { ILanguageLabel, TLanguageCode } from '../../types.ts';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
+import type {IEventbus} from '../../eventbus/index.ts';
+import {LanguageManager} from '../../language-manager.ts';
+import type {ILanguageLabel, TLanguageCode} from '../../types.ts';
 
 type LanguageManagerSuiteContext = {
   eventbus: IEventbus;
@@ -95,9 +95,9 @@ type LanguageManagerSuiteContext = {
     expect(error).to.not.equal(null);
   });
   */
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<LanguageManagerSuiteContext>('LanguageManager', () => {
-  beforeEach((context) => {
+  beforeEach(context => {
     withContext<LanguageManagerSuiteContext>(context);
 
     context.language = 'nl-NL';
@@ -106,13 +106,13 @@ describe.concurrent<LanguageManagerSuiteContext>('LanguageManager', () => {
 
     context.eventbus = {
       on: (name: string, handler: () => void) => {
-        context.subscriptions.push({ name, handler });
+        context.subscriptions.push({name, handler});
       },
-      broadcast: (_name: string, _args: any[]) => { },
+      broadcast: (_name: string, _args: any[]) => {},
     } as IEventbus;
   });
-  test<LanguageManagerSuiteContext>('should create an instance and add the needed event listeners', (context) => {
-    const { language, labels, eventbus, subscriptions } = context;
+  test<LanguageManagerSuiteContext>('should create an instance and add the needed event listeners', context => {
+    const {language, labels, eventbus, subscriptions} = context;
     const languageManager = new LanguageManager(language, labels, eventbus);
     expect(languageManager).to.be.not.undefined;
     expect(subscriptions.length).to.equal(4);

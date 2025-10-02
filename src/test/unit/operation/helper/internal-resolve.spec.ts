@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { internalResolve } from '../../../../operation/helper/internal-resolve.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {internalResolve} from '../../../../operation/helper/internal-resolve.ts';
+
 describe.concurrent('internalResolve', () => {
   test('it should call the given resolve with the given operationdata', () => {
     // given
@@ -33,8 +34,8 @@ describe.concurrent('internalResolve', () => {
     internalResolve(resolve, operationData, newOperationData);
 
     // expect
-    expect(receivedData.hasOwnProperty('test1')).to.be.true;
-    expect(receivedData.hasOwnProperty('test2')).to.be.true;
+    expect(Object.hasOwn(receivedData, 'test1')).to.be.true;
+    expect(Object.hasOwn(receivedData, 'test2')).to.be.true;
     expect(receivedData.test1).to.be.equal(operationData.test1);
     expect(receivedData.test2).to.be.equal(newOperationData.test2);
   });

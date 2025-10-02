@@ -1,15 +1,16 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
   calc,
   type ICalcOperationData,
   type TCalculationOperator,
 } from '../../../operation/calc.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
+
 describe.concurrent('calc', () => {
   test('should perform the calculations', () => {
     (['+', '-', '*', '/', '%', '**'] as TCalculationOperator[]).forEach(
-      (operator) => {
+      operator => {
         // given
         const left = Math.floor(Math.random() * 100) + 1;
         const right = Math.floor(Math.random() * 100) + 1;

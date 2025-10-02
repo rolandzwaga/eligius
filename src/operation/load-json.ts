@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 const jsonCache: Record<string, unknown> = {};
 
@@ -30,10 +30,10 @@ const addToCache = (key: string, value: any) => {
  * If the cache property is set to true and a cached value already exists, this is assigned
  * instead of re-retrieving it from the url.
  */
-export const loadJson: TOperation<ILoadJSONOperationData> = async function (
+export const loadJson: TOperation<ILoadJSONOperationData> = async (
   operationData: ILoadJSONOperationData
-) {
-  const { url, cache } = operationData;
+) => {
+  const {url, cache} = operationData;
 
   if (cache && jsonCache[url]) {
     operationData.json = jsonCache[url];
@@ -52,7 +52,7 @@ export const loadJson: TOperation<ILoadJSONOperationData> = async function (
 };
 
 export const clearCache = () => {
-  for (let p in jsonCache) {
+  for (const p in jsonCache) {
     delete jsonCache[p];
   }
 };

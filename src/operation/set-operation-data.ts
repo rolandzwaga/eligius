@@ -1,5 +1,5 @@
-import { resolvePropertyValues } from './helper/resolve-property-values.ts';
-import type { TOperation } from './types.ts';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {TOperation} from './types.ts';
 
 export interface ISetOperationData {
   /**
@@ -16,10 +16,11 @@ export interface ISetOperationData {
  * This operation assigns the specified properties to the current operation data.
  * When override is set to true the properties replace the current operation data entirely.
  */
-export const setOperationData: TOperation<ISetOperationData, Omit<ISetOperationData,'override'|'properties'>> = function (
-  operationData: ISetOperationData
-) {
-  const { override = false, properties, ...newOperationData } = operationData;
+export const setOperationData: TOperation<
+  ISetOperationData,
+  Omit<ISetOperationData, 'override' | 'properties'>
+> = function (operationData: ISetOperationData) {
+  const {override = false, properties, ...newOperationData} = operationData;
 
   const resolvedProperties = resolvePropertyValues(
     newOperationData,

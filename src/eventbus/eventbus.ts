@@ -127,7 +127,7 @@ export class Eventbus implements IEventbus {
     if (handlers) {
       const interceptors = this._getEventInterceptors(eventName, eventTopic);
 
-      interceptors.forEach((interceptor) => {
+      interceptors.forEach(interceptor => {
         args = interceptor.intercept(args);
       });
 

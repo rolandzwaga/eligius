@@ -1,15 +1,15 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import type { IAction } from '../../../action/types.ts';
-import type { TOperationData } from '../../../operation/index.ts';
-import { startAction } from '../../../operation/start-action.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IAction} from '../../../action/types.ts';
+import type {TOperationData} from '../../../operation/index.ts';
+import {startAction} from '../../../operation/start-action.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockAction {
   resolved: boolean = false;
   start(operationData: TOperationData) {
     this.resolved = true;
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(operationData);
     });
   }

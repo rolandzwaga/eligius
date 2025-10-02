@@ -1,16 +1,16 @@
-import { createProject, ts } from '@ts-morph/bootstrap';
-import { expect } from 'chai';
-import fs, { type PathLike } from 'fs';
-import { afterEach, beforeEach, describe, test, type TestContext } from 'vitest';
-import { generateImporterSourceCode } from '../../../build/index.ts';
-import { ConfigurationFactory } from '../../../configuration/api/index.ts';
+import {createProject, ts} from '@ts-morph/bootstrap';
+import {expect} from 'chai';
+import fs, {type PathLike} from 'fs';
+import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {generateImporterSourceCode} from '../../../build/index.ts';
+import {ConfigurationFactory} from '../../../configuration/api/index.ts';
 
 type CustomContext = {
   readdirSync: any;
 } & TestContext;
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe.concurrent<CustomContext>('generateImporterSourceCode', () => {
-  beforeEach<CustomContext>((context) => {
+  beforeEach<CustomContext>(context => {
     withContext(context);
 
     context.readdirSync = fs.readdirSync;
@@ -21,7 +21,7 @@ describe.concurrent<CustomContext>('generateImporterSourceCode', () => {
       return [];
     };
   });
-  afterEach<CustomContext>((context) => {
+  afterEach<CustomContext>(context => {
     withContext(context);
 
     fs.readdirSync = context.readdirSync;
@@ -32,15 +32,15 @@ describe.concurrent<CustomContext>('generateImporterSourceCode', () => {
     const config = factory.getConfiguration();
 
     const tsSource = generateImporterSourceCode(config, './mypath', [
-      { path: 'html', extension: '.html' },
+      {path: 'html', extension: '.html'},
     ]);
 
-    const project = await createProject({ useInMemoryFileSystem: true });
+    const project = await createProject({useInMemoryFileSystem: true});
     project.createSourceFile('importer.ts', tsSource);
     const program = project.createProgram();
     const diagnostics = ts
       .getPreEmitDiagnostics(program)
-      .filter((x) => x.code !== 2307); //Filter out the cannot find module errors
+      .filter(x => x.code !== 2307); //Filter out the cannot find module errors
 
     expect(diagnostics.length).to.equal(0);
   });

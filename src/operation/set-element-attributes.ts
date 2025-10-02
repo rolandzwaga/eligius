@@ -1,4 +1,4 @@
-import type { TOperation } from './types.ts';
+import type {TOperation} from './types.ts';
 
 export interface ISetElementAttributesOperationData {
   /**
@@ -14,9 +14,10 @@ export interface ISetElementAttributesOperationData {
 /**
  * This operation sets the specified set of attributes on the given selected element.
  */
-export const setElementAttributes: TOperation<ISetElementAttributesOperationData> =
-  function (operationData: ISetElementAttributesOperationData) {
-    const { attributes, selectedElement } = operationData;
-    selectedElement.attr(attributes);
-    return operationData;
-  };
+export const setElementAttributes: TOperation<
+  ISetElementAttributesOperationData
+> = (operationData: ISetElementAttributesOperationData) => {
+  const {attributes, selectedElement} = operationData;
+  selectedElement.attr(attributes);
+  return operationData;
+};

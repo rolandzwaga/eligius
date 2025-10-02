@@ -1,6 +1,7 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import { getGlobals, setGlobals } from '../../../../operation/helper/globals.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {getGlobals, setGlobals} from '../../../../operation/helper/globals.ts';
+
 describe.concurrent('globals', () => {
   test('should get the globals', () => {
     const cache = getGlobals();
@@ -14,7 +15,7 @@ describe.concurrent('globals', () => {
     expect(cache).to.equal(value);
   });
   test('should set the given globals', () => {
-    setGlobals({ foo: 'bar', bar: 'foo' });
+    setGlobals({foo: 'bar', bar: 'foo'});
 
     const cache = getGlobals();
 
