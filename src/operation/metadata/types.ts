@@ -1,5 +1,3 @@
-import type {Operations} from 'configuration/types.ts';
-
 export type THasRequired = {
   required?: boolean;
 };
@@ -30,7 +28,7 @@ export type TPropertyMetadata =
   | TArrayProperyMetadata
   | TParameterTypes;
 
-export type TPropertiesMetadata<T> = {[P in keyof T]?: TPropertyMetadata};
+export type TPropertiesMetadata<T> = { [P in keyof T]?: TPropertyMetadata };
 
 export interface IOperationMetadata<T> {
   description: string;
