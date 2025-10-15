@@ -14,3 +14,11 @@ src/controllers/metadata/*.ts
 !src/controllers/metadata/types.ts
 coverage/
 *.log
+/.claude/settings.local.json
+
+# Prevent accidentally committed compiled files in src/
+src/**/*.js
+src/**/*.js.map
+src/**/*.d.ts
+# But allow legitimate declaration files
+!src/@types/**/*.d.ts
