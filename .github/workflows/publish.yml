@@ -30,6 +30,12 @@ jobs:
             C:\libjpeg.exe
             C:\GTK
 
+      - name: Put GTK on PATH for this job
+        run: |
+          $env:PATH = 'C:\GTK\bin;' + $env:PATH
+          [Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'Process')
+          Write-Host "Updated PATH: $env:PATH"
+
       - name: Download Cairo dependencies
         if: steps.cache-cairo-deps.outputs.cache-hit != 'true'
         run: |
@@ -82,7 +88,7 @@ jobs:
 
       - name: Test
         run: |
-          npx vitest run --config src/vitest.config.ts --coverage --reporter=verbose 2>&1 | tee test-output.log
+          npx vitest run --no-threads --config src/vitest.config.ts --coverage --reporter=verbose 2>&1 | tee test-output.log
           echo "Process exited with code: ${PIPESTATUS[0]}"
         continue-on-error: true
 
