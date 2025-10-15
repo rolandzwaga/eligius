@@ -55,7 +55,7 @@ jobs:
           vs-version: 'latest'
 
       - name: Use Node 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         env:
           FORCE_COLOR: 0
         with:
