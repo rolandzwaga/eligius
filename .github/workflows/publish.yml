@@ -11,7 +11,7 @@ env:
 
 jobs:
   build:
-    name: Build, lint, test on Node 18 and windows-latest and publish to NPM registry
+    name: Build, lint, test on Node 20 and windows-latest and publish to NPM registry
 
     runs-on: windows-latest
 
@@ -20,7 +20,8 @@ jobs:
         id: cache-cairo-deps
         uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-cairo-deps-
+          # Cache key includes the versions, so cache is invalidated on version change
+          key: ${{ runner.os }}-cairo-deps-gtk-${{ env.GTK_BUNDLE_VERSION }}-libjpeg-${{ env.LIBJPEG_TURBO_VERSION }}
           path: |
             C:\libjpeg.exe
             C:\GTK
