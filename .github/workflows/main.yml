@@ -77,7 +77,7 @@ jobs:
 
       - name: Test
         run: |
-          npx vitest run --no-threads --config src/vitest.config.ts --coverage --reporter=verbose 2>&1 | tee test-output.log
+          npx vitest run --poolOptions.threads.singleThread --config src/vitest.config.ts --coverage --reporter=verbose 2>&1 | tee test-output.log
           echo "Process exited with code: ${PIPESTATUS[0]}"
         continue-on-error: true
 
