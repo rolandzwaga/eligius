@@ -4,6 +4,10 @@ on:
   release:
     types: [created]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   # Cairo dependency versions - update these to change versions
   GTK_BUNDLE_VERSION: "2.22.1-20101229"

@@ -2,14 +2,18 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - "**"
     tags-ignore:
-      - '**'
+      - "**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   # Cairo dependency versions - update these to change versions
-  GTK_BUNDLE_VERSION: '2.22.1-20101229'
-  LIBJPEG_TURBO_VERSION: '3.0.1'
+  GTK_BUNDLE_VERSION: "2.22.1-20101229"
+  LIBJPEG_TURBO_VERSION: "3.0.1"
 
 jobs:
   build:
@@ -37,11 +41,11 @@ jobs:
           # Using HTTPS where possible
           $gtkUrl = "https://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_${{ env.GTK_BUNDLE_VERSION }}_win64.zip"
           $libjpegUrl = "https://sourceforge.net/projects/libjpeg-turbo/files/3.0.1/libjpeg-turbo-3.0.1-vc64.exe/download"
-          
+
           Write-Host "Downloading GTK bundle version ${{ env.GTK_BUNDLE_VERSION }}"
           Invoke-WebRequest $gtkUrl -OutFile "C:\gtk.zip" -MaximumRetryCount 3 -UserAgent NativeHost
           Expand-Archive C:\gtk.zip -DestinationPath "C:\GTK"
-          
+
           Write-Host "Downloading libjpeg-turbo version ${{ env.LIBJPEG_TURBO_VERSION }}"
           Invoke-WebRequest $libjpegUrl -OutFile "C:\libjpeg.exe" -MaximumRetryCount 3 -UserAgent NativeHost
 
@@ -52,7 +56,7 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v2
         with:
-          vs-version: 'latest'
+          vs-version: "latest"
 
       - name: Use Node 20
         uses: actions/setup-node@v4
@@ -60,7 +64,7 @@ jobs:
           FORCE_COLOR: 0
         with:
           node-version: 20
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
