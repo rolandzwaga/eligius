@@ -1,4 +1,4 @@
-import { IStrictDuration, ISubtitle } from '../../types';
+import type {IStrictDuration, ISubtitle} from '../../types.ts';
 
 /**
  * This class converts an AVID subtitle file to an `ISubtitle` array.
@@ -22,14 +22,14 @@ export class SubtitleImporter {
     let caption: Partial<ISubtitle> | null = null;
     lines.forEach((line: string) => {
       if (line.length === 0 || !caption) {
-        caption = { text: '' };
+        caption = {text: ''};
         if (line.length) {
           //this happens for first caption only
           caption.duration = this.convertDuration(line);
         }
         result.push(caption as ISubtitle);
       } else {
-        if (!caption.hasOwnProperty('duration')) {
+        if (!Object.hasOwn(caption, 'duration')) {
           caption.duration = this.convertDuration(line);
         } else {
           caption.text += line;

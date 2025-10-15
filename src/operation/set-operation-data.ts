@@ -1,27 +1,29 @@
-import { resolvePropertyValues } from './helper/resolve-property-values';
-import { TOperation } from './types';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {TOperation} from './types.ts';
 
 export interface ISetOperationData {
+  /**
+   * If set to true, the plucked properties replace the current operation data.
+   */
   override?: boolean;
+  /**
+   * @required
+   */
   properties: Record<string, any>;
 }
 
 /**
  * This operation assigns the specified properties to the current operation data.
  * When override is set to true the properties replace the current operation data entirely.
- *
- * @param operationData
- * @returns
  */
-export const setOperationData: TOperation<ISetOperationData> = function (
-  operationData: ISetOperationData
-) {
-  const { override = false, properties } = operationData;
-  delete (operationData as any).properties;
-  delete operationData.override;
+export const setOperationData: TOperation<
+  ISetOperationData,
+  Omit<ISetOperationData, 'override' | 'properties'>
+> = function (operationData: ISetOperationData) {
+  const {override = false, properties, ...newOperationData} = operationData;
 
   const resolvedProperties = resolvePropertyValues(
-    operationData,
+    newOperationData,
     this,
     properties
   );
@@ -31,7 +33,7 @@ export const setOperationData: TOperation<ISetOperationData> = function (
   }
 
   return {
-    ...operationData,
+    ...newOperationData,
     ...resolvedProperties,
   };
 };

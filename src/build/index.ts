@@ -1,1 +1,1 @@
-export { generateImporterSourceCode } from './generate-importer-source-code';
+export {generateImporterSourceCode} from './generate-importer-source-code.ts';

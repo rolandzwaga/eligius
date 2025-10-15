@@ -1,23 +1,29 @@
-import { IAction } from '../action/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { TOperation } from './types';
+import type {IAction} from '../action/types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {TOperation} from './types.ts';
 
 export interface IRequestActionOperationData {
+  /**
+   * @type=ParameterType:actionName
+   * @required
+   */
   systemName: string;
+  /**
+   * @type=ParameterType:object
+   * @output
+   */
   actionInstance?: IAction;
 }
 
 /**
  * This operation requests an action instance with the specified name and assigns it
  * to the `actionInstance` property on the current operation data.
- *
- * @param operationData
- * @returns
  */
-export const requestAction: TOperation<IRequestActionOperationData> = function (
-  operationData: IRequestActionOperationData
-) {
-  const { systemName } = operationData;
+export const requestAction: TOperation<
+  IRequestActionOperationData,
+  Required<IRequestActionOperationData>
+> = function (operationData: IRequestActionOperationData) {
+  const {systemName} = operationData;
 
   const resultCallback = (action: IAction) => {
     operationData.actionInstance = action;
@@ -27,5 +33,5 @@ export const requestAction: TOperation<IRequestActionOperationData> = function (
     systemName,
     resultCallback,
   ]);
-  return operationData;
+  return operationData as Required<IRequestActionOperationData>;
 };

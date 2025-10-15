@@ -1,21 +1,21 @@
-import fs from 'fs';
+import fs from 'node:fs';
+import path from 'node:path';
 import { emptyDirSync } from 'fs-extra';
-import path from 'path';
-import * as controllers from '../../controllers';
-import * as metadata from '../../operation/metadata';
-import {
+import * as controllers from '../../controllers/index.ts';
+import * as metadata from '../../operation/metadata/index.ts';
+import type {
   IOperationMetadata,
-  TComplexProperyMetadata,
+  TComplexPropertyMetadata,
   TConstantParametersTypes,
   THasDescription,
   THasRequired,
   TParameterTypes,
   TPropertiesMetadata,
   TPropertyMetadata,
-} from '../../operation/metadata/types';
-import camelCaseToDash from '../../util/camel-case-to-dash';
-import dashToCamelCase from '../../util/dash-to-camel-case';
-import { htmlTagNames } from './html-tag-names';
+} from '../../operation/metadata/types.ts';
+import camelCaseToDash from '../../util/camel-case-to-dash.ts';
+import dashToCamelCase from '../../util/dash-to-camel-case.ts';
+import { htmlTagNames } from './html-tag-names.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const outputDirectory = path.join(schemaDirectory, 'operations');
@@ -44,14 +44,14 @@ operationSchemas.forEach(([name, schema]) => {
 
 const operationSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map((name) => ({ $ref: `operations/${name}.json` }));
+  .map(name => ({ $ref: `operations/${name}.json` }));
 
 const operationTemplateSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map((name) => ({ $ref: `operation-templates/${name}.json` }));
+  .map(name => ({ $ref: `operation-templates/${name}.json` }));
 
 ['endable-action.json', 'event-action.json', 'timeline-action.json'].forEach(
-  (x) => saveOperations(x, operationSchemaPaths)
+  x => saveOperations(x, operationSchemaPaths)
 );
 
 saveOperations('endable-action-template.json', operationTemplateSchemaPaths);
@@ -129,7 +129,7 @@ function getTemplate() {
 
 function generateOperationSchema([name, getMetadata]: [
   string,
-  () => IOperationMetadata<any>
+  () => IOperationMetadata<any>,
 ]) {
   const metadata = getMetadata();
   const schemaTemplate = getTemplate();
@@ -210,8 +210,8 @@ function generateSchemaType(metadata: TPropertyMetadata) {
   }
 
   if (isConstantList(metadata)) {
-    const defaultValue = metadata.find((x) => x.default)?.value;
-    const enums = metadata.map<string | null>((x) => x.value);
+    const defaultValue = metadata.find(x => x.default)?.value;
+    const enums = metadata.map<string | null>(x => x.value);
 
     if (defaultValue) {
       enums.push(null);
@@ -257,7 +257,9 @@ function hasDescription(value: any): value is THasDescription {
   return typeof value === 'object' && 'description' in value;
 }
 
-function isComplex(value: TPropertyMetadata): value is TComplexProperyMetadata {
+function isComplex(
+  value: TPropertyMetadata
+): value is TComplexPropertyMetadata {
   return typeof value === 'object' && 'type' in value;
 }
 
@@ -265,48 +267,56 @@ function isString(value: TPropertyMetadata): value is TParameterTypes {
   return typeof value === 'string';
 }
 
-function metadataType2SchemaType(value: TParameterTypes) {
-  switch (value) {
-    case 'ParameterType:htmlElementName':
-      return { type: 'string', enum: htmlTagNames };
-    case 'ParameterType:controllerName':
-      return {
-        type: 'string',
-        enum: Object.keys(controllers).map(dashToCamelCase).map(capitalize),
-      };
-    case 'ParameterType:QuadrantPosition':
-      return {
-        type: 'string',
-        enum: ['top', 'left', 'right', 'bottom'],
-      };
-    case 'ParameterType:className':
-    case 'ParameterType:selector':
-    case 'ParameterType:string':
-    case 'ParameterType:eventTopic':
-    case 'ParameterType:eventName':
-    case 'ParameterType:systemName':
-    case 'ParameterType:actionName':
-    case 'ParameterType:url':
-    case 'ParameterType:htmlContent':
-    case 'ParameterType:labelId':
-    case 'ParameterType:ImagePath':
-    case 'ParameterType:dimensionsModifier':
-    case 'ParameterType:expression':
-      return 'string';
-    case 'ParameterType:number':
-      return 'number';
-    case 'ParameterType:object':
-    case 'ParameterType:dimensions':
-    case 'ParameterType:jQuery':
-      return 'object';
-    case 'ParameterType:boolean':
-      return 'boolean';
-    case 'ParameterType:array':
-      return 'array';
+function metadataType2SchemaType(
+  value: TParameterTypes | TConstantParametersTypes[]
+) {
+  if (Array.isArray(value)) {
+    return 'array';
+  } else {
+    switch (value) {
+      case 'ParameterType:htmlElementName':
+        return { type: 'string', enum: htmlTagNames };
+      case 'ParameterType:controllerName':
+        return {
+          type: 'string',
+          enum: Object.keys(controllers).map(dashToCamelCase).map(capitalize),
+        };
+      case 'ParameterType:QuadrantPosition':
+        return {
+          type: 'string',
+          enum: ['top', 'left', 'right', 'bottom'],
+        };
+      case 'ParameterType:className':
+      case 'ParameterType:selector':
+      case 'ParameterType:string':
+      case 'ParameterType:eventTopic':
+      case 'ParameterType:eventName':
+      case 'ParameterType:systemName':
+      case 'ParameterType:actionName':
+      case 'ParameterType:url':
+      case 'ParameterType:htmlContent':
+      case 'ParameterType:labelId':
+      case 'ParameterType:ImagePath':
+      case 'ParameterType:dimensionsModifier':
+      case 'ParameterType:expression':
+        return 'string';
+      case 'ParameterType:number':
+        return 'number';
+      case 'ParameterType:object':
+      case 'ParameterType:dimensions':
+      case 'ParameterType:jQuery':
+        return 'object';
+      case 'ParameterType:boolean':
+        return 'boolean';
+      case 'ParameterType:array':
+        return 'array';
+    }
   }
 }
 
-function metadataType2SchemaPattern(value: TParameterTypes) {
+function metadataType2SchemaPattern(
+  value: TParameterTypes | TConstantParametersTypes[]
+) {
   switch (value) {
     case 'ParameterType:className':
       return '.-?[_a-zA-Z]+[_a-zA-Z0-9-]*';
@@ -315,6 +325,9 @@ function metadataType2SchemaPattern(value: TParameterTypes) {
   }
 }
 
-function capitalize(value: string) {
-  return `${value[0].toUpperCase()}${value.substring(1)}`;
+function capitalize(value: unknown) {
+  if (typeof value === 'string') {
+    return `${value[0].toUpperCase()}${value.substring(1)}`;
+  }
+  return value;
 }

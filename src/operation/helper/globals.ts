@@ -1,4 +1,4 @@
-import { deepCopy } from './deep-copy';
+import {deepCopy} from './deep-copy.ts';
 export type TGlobalCache = Record<string, any>;
 const cache: TGlobalCache = {};
 
@@ -16,7 +16,7 @@ function _setGlobals(cache: TGlobalCache, newValues: TGlobalCache): void {
 
 function _clearGlobals(cache: TGlobalCache): void {
   const keys = Object.keys(cache);
-  keys.forEach((key) => delete cache[key]);
+  keys.forEach(key => delete cache[key]);
 }
 
 export const getGlobals: (name?: string) => TGlobalCache | any =

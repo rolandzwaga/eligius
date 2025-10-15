@@ -4,6 +4,13 @@ node_modules
 dist
 /.yarn/cache
 /.yarn/install-state.gz
+jsonschema/
 jsonschema/operations
 jsonschema/operation-templates
 docs.json
+src/operation/metadata/*.ts
+!src/operation/metadata/types.ts
+src/controllers/metadata/*.ts
+!src/controllers/metadata/types.ts
+coverage/
+*.log

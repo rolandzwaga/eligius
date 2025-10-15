@@ -1,16 +1,22 @@
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { IController } from './types';
+import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {TOperationData} from '../operation/types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {IController} from './types.ts';
 
 export interface IProgressbarControllerOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @dependency
+   */
   textElement: JQuery;
 }
 
 /**
  * This controller renders a progressbar that displays the progress of the current timeline in the given selected element.
- * 
+ *
  * The current progress as a percentage is rendered in the given text element.
  */
 export class ProgressbarController

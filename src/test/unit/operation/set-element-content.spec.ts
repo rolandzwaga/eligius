@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
-  ISetElementContentOperationData,
+  type ISetElementContentOperationData,
   setElementContent,
-} from '../../../operation/set-element-content';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/set-element-content.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   htmlContent: string = '';
@@ -24,11 +24,8 @@ class MockElement {
   }
 }
 
-const SetElementContentSuite = suite('setElementContent');
-
-SetElementContentSuite(
-  'should set the given element with the specified content',
-  () => {
+describe.concurrent('setElementContent', () => {
+  test('should set the given element with the specified content', () => {
     // given
     const mockElement = new MockElement();
     const operationData: ISetElementContentOperationData = {
@@ -42,12 +39,8 @@ SetElementContentSuite(
 
     // expect
     expect(mockElement.htmlContent).to.equal(operationData.template);
-  }
-);
-
-SetElementContentSuite(
-  'should append the given element with the specified content',
-  () => {
+  });
+  test('should append the given element with the specified content', () => {
     // given
     const mockElement = new MockElement();
     const operationData: ISetElementContentOperationData = {
@@ -61,12 +54,8 @@ SetElementContentSuite(
 
     // expect
     expect(mockElement.appendContent).to.equal(operationData.template);
-  }
-);
-
-SetElementContentSuite(
-  'should prepend the given element with the specified content',
-  () => {
+  });
+  test('should prepend the given element with the specified content', () => {
     // given
     const mockElement = new MockElement();
     const operationData: ISetElementContentOperationData = {
@@ -80,7 +69,5 @@ SetElementContentSuite(
 
     // expect
     expect(mockElement.prependContent).to.equal(operationData.template);
-  }
-);
-
-SetElementContentSuite.run();
+  });
+});

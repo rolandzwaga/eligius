@@ -1,51 +1,56 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { IMathOperationData, math } from '../../../operation/math';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {
+  type IMathOperationData,
+  type MathFunctionKeys,
+  type MathNonFunctionKeys,
+  math,
+} from '../../../operation/math.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const MathSuite = suite('math');
+describe.concurrent('math', () => {
+  test('should perform all the math calculations', () => {
+    // given
 
-MathSuite('should perform all the math calculations', () => {
-  // given
+    const funcNames: MathFunctionKeys[] = Object.getOwnPropertyNames(
+      Math
+    ).filter(x => Math[x as keyof Math] === 'functions') as MathFunctionKeys[];
 
-  const funcNames: (keyof Math)[] = Object.getOwnPropertyNames(Math).filter(
-    (x) => Math[x as keyof Math] === 'functions'
-  ) as (keyof Math)[];
+    funcNames.forEach(functionName => {
+      const argCount = (Math[functionName] as any).length;
+      const args = new Array(argCount).fill(0).map(x => Math.random());
+      const operationData: IMathOperationData = {
+        args,
+        functionName,
+      };
 
-  funcNames.forEach((functionName) => {
-    const argCount = (Math[functionName] as any).length;
-    const args = new Array(argCount).fill(0).map((x) => Math.random());
-    const operationData: IMathOperationData = {
-      args,
-      functionName,
-    };
+      // test
+      const result = applyOperation(math, operationData);
 
-    // test
-    const result = applyOperation<typeof operationData>(math, operationData);
+      // expect
+      expect(result.mathResult).is.not.undefined;
+      expect(isNaN(result.mathResult!)).to.equal(false);
+    });
+  });
+  test('Should resolve Math constants in args', () => {
+    const intProperties: MathNonFunctionKeys[] = Object.getOwnPropertyNames(
+      Math
+    ).filter(
+      x => typeof Math[x as keyof Math] === 'number'
+    ) as MathNonFunctionKeys[];
 
-    // expect
-    expect(isNaN((result as any).mathResult)).to.equal(false);
+    intProperties.forEach(propName => {
+      //given
+      const operationData: IMathOperationData = {
+        args: [0, propName],
+        functionName: 'max',
+      };
+
+      // test
+      const result = applyOperation(math, operationData);
+
+      // expect
+      expect(result.mathResult).to.equal(Math[propName]);
+    });
   });
 });
-
-MathSuite('Should resolve Math constants in args', () => {
-  const intProperties: (keyof Math)[] = Object.getOwnPropertyNames(Math).filter(
-    (x) => typeof Math[x as keyof Math] === 'number'
-  ) as (keyof Math)[];
-
-  intProperties.forEach((propName) => {
-    //given
-    const operationData: IMathOperationData = {
-      args: [0, propName],
-      functionName: 'max',
-    };
-
-    // test
-    const result = applyOperation<typeof operationData>(math, operationData);
-
-    // expect
-    expect((result as any).mathResult).to.equal(Math[propName]);
-  });
-});
-
-MathSuite.run();

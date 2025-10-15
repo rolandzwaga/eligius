@@ -1,15 +1,10 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { removePropertiesFromOperationData } from '../../../operation/remove-properties-from-operation-data';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {removePropertiesFromOperationData} from '../../../operation/remove-properties-from-operation-data.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const RemovePropertiesFromOperationDataSuite = suite(
-  'removePropertiesFromOperationData'
-);
-
-RemovePropertiesFromOperationDataSuite(
-  'should remove the specified properties from the given operationData',
-  () => {
+describe.concurrent('removePropertiesFromOperationData', () => {
+  test('should remove the specified properties from the given operationData', () => {
     // given
     const operationData = {
       testProp1: 'test1',
@@ -19,17 +14,15 @@ RemovePropertiesFromOperationDataSuite(
     };
 
     // test
-    const newData = applyOperation<typeof operationData>(
+    const newData = applyOperation(
       removePropertiesFromOperationData,
       operationData
-    );
+    ) as typeof operationData;
 
     // expect
-    expect(newData.hasOwnProperty('testProp1')).to.be.false;
-    expect(newData.hasOwnProperty('testProp2')).to.be.false;
-    expect(newData.hasOwnProperty('propertyNames')).to.be.false;
+    expect(Object.hasOwn(newData, 'testProp1')).to.be.false;
+    expect(Object.hasOwn(newData, 'testProp2')).to.be.false;
+    expect(Object.hasOwn(newData, 'propertyNames')).to.be.false;
     expect(newData.testProp3).to.equal('test3');
-  }
-);
-
-RemovePropertiesFromOperationDataSuite.run();
+  });
+});

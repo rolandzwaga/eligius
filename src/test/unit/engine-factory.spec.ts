@@ -1,17 +1,17 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { IEngineConfiguration } from '../../configuration/types';
-import { EngineFactory } from '../../engine-factory';
-import { IEngineFactory, ISimpleResourceImporter } from '../../types';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
+import type {IEngineConfiguration} from '../../configuration/types.ts';
+import {EngineFactory} from '../../engine-factory.ts';
+import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
 
 class MockImporter {
   import(name: string) {
     if (name === 'EligiusEngine') {
-      return { EligiusEngine: MockEngine };
+      return {EligiusEngine: MockEngine};
     } else if (name === 'MockTimelineProvider') {
-      return { MockTimelineProvider: MockTimelineProvider };
+      return {MockTimelineProvider: MockTimelineProvider};
     }
-    return { [name]: {} };
+    return {[name]: {}};
   }
 }
 
@@ -31,72 +31,73 @@ class MockEngine {
 
 class MockTimelineProvider {}
 
-const EngineFactorySuite = suite<{
+type EngineFactorySuiteContext = {
   importer: ISimpleResourceImporter;
   windowRef: any;
   factory: IEngineFactory;
-}>('EngineFactory');
+} & TestContext;
 
-EngineFactorySuite.before.each((context) => {
-  context.importer = new MockImporter();
-  context.windowRef = {};
-  context.factory = new EngineFactory(context.importer, context.windowRef);
-});
+function withContext<T>(ctx: unknown): asserts ctx is T {}
+describe.concurrent<EngineFactorySuiteContext>('EngineFactory', () => {
+  beforeEach(context => {
+    withContext<EngineFactorySuiteContext>(context);
 
-EngineFactorySuite('should create', (context) => {
-  // test
-  const { factory } = context;
+    context.importer = new MockImporter();
+    context.windowRef = {};
+    context.factory = new EngineFactory(context.importer, context.windowRef);
+  });
+  test<EngineFactorySuiteContext>('should create', context => {
+    // test
+    const {factory} = context;
 
-  // expect
-  expect(factory).not.to.be.undefined;
-});
+    // expect
+    expect(factory).not.to.be.undefined;
+  });
+  test<EngineFactorySuiteContext>('should create the engine', context => {
+    // given
+    const {factory} = context;
 
-EngineFactorySuite('should create the engine', (context) => {
-  // given
-  const { factory } = context;
-
-  const config: IEngineConfiguration = {
-    id: 'testEngine',
-    containerSelector: 'containerSelector',
-    layoutTemplate: 'layoutTemplate',
-    availableLanguages: [],
-    engine: {
-      systemName: 'EligiusEngine',
-    },
-    actions: [],
-    initActions: [],
-    timelineProviderSettings: {
-      animation: {
-        id: '1111',
-        selector: '.test',
-        poster: '',
-        vendor: 'eligius',
-        systemName: 'MockTimelineProvider',
+    const config: IEngineConfiguration = {
+      id: 'testEngine',
+      containerSelector: 'containerSelector',
+      layoutTemplate: 'layoutTemplate',
+      availableLanguages: [],
+      engine: {
+        systemName: 'EligiusEngine',
       },
-    },
-    timelines: [],
-    language: 'en-US',
-    labels: [
-      {
-        id: 'mainTitle',
-        labels: [
-          {
-            id: '111',
-            languageCode: 'en-US',
-            label: 'test 1',
-          },
-          {
-            id: '222',
-            languageCode: 'nl-NL',
-            label: 'tezt 1',
-          },
-        ],
+      actions: [],
+      initActions: [],
+      timelineProviderSettings: {
+        animation: {
+          id: '1111',
+          selector: '.test',
+          poster: '',
+          vendor: 'eligius',
+          systemName: 'MockTimelineProvider',
+        },
       },
-    ],
-  };
+      timelines: [],
+      language: 'en-US',
+      labels: [
+        {
+          id: 'mainTitle',
+          labels: [
+            {
+              id: '111',
+              languageCode: 'en-US',
+              label: 'test 1',
+            },
+            {
+              id: '222',
+              languageCode: 'nl-NL',
+              label: 'tezt 1',
+            },
+          ],
+        },
+      ],
+    };
 
-  // test
-  factory.createEngine(config);
+    // test
+    factory.createEngine(config);
+  });
 });
-
-EngineFactorySuite.run();

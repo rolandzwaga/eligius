@@ -1,12 +1,13 @@
-import fs from 'fs';
-import path from 'path';
-import {
+import fs from 'node:fs';
+import path from 'node:path';
+import type { TOperationData } from 'operation/types.ts';
+import type {
   IActionConfiguration,
   IEndableActionConfiguration,
   IEngineConfiguration,
-  IOperationConfiguration
-} from '../configuration/types';
-import dashToCamelCase from '../util/dash-to-camel-case';
+  IOperationConfiguration,
+} from '../configuration/types.ts';
+import dashToCamelCase from '../util/dash-to-camel-case.ts';
 
 interface ImportInfo {
   systemName: string;
@@ -42,13 +43,13 @@ export function generateImporterSourceCode(
 
 function _generateSourceCode(importPaths: ImportInfo[]) {
   const result = importPaths
-    .filter((x) => x.defaultImport)
-    .map((imp) => `import ${imp.systemName} from '${imp.path}';`)
+    .filter(x => x.defaultImport)
+    .map(imp => `import ${imp.systemName} from '${imp.path}';`)
     .concat(
       importPaths
-        .filter((x) => !x.defaultImport)
+        .filter(x => !x.defaultImport)
         .map(
-          (imp) => `import {${imp.systemName}} from '${imp.path ?? 'eligius'}';`
+          imp => `import {${imp.systemName}} from '${imp.path ?? 'eligius'}';`
         )
     );
   result.push(`import { ISimpleResourceImporter } from 'eligius';`);
@@ -57,7 +58,7 @@ function _generateSourceCode(importPaths: ImportInfo[]) {
   result.push('const imports: Record<string, any> = {');
   result.push(
     ...importPaths.map(
-      (imp) => `${imp.systemName}: { '${imp.systemName}': ${imp.systemName} },`
+      imp => `${imp.systemName}: { '${imp.systemName}': ${imp.systemName} },`
     )
   );
   result.push('};');
@@ -82,7 +83,7 @@ function _gatherImportPaths(
 ): ImportInfo[] {
   return [
     ..._gatherOperations(config),
-    ...assetInfo.flatMap((info) =>
+    ...assetInfo.flatMap(info =>
       _gatherAssets(configPath, info.path, info.extension)
     ),
     ..._gatherControllers(config),
@@ -93,7 +94,7 @@ function _gatherImportPaths(
 
 function _gatherAssets(assetPath: string, subdir: string, extension: string) {
   const entries = fs.readdirSync(path.join(assetPath, subdir));
-  return entries.map((file) => {
+  return entries.map(file => {
     const importName = `${dashToCamelCase(path.basename(file, extension))}`;
     return {
       systemName: importName,
@@ -111,7 +112,7 @@ function _gatherControllers(config: IEngineConfiguration) {
   importPaths.push(..._gatherControllerImportPathsFromActions(config.actions));
   importPaths.push(
     ..._gatherControllerImportPathsFromActions(
-      config.timelines.flatMap((x) => x.timelineActions)
+      config.timelines.flatMap(x => x.timelineActions)
     )
   );
   importPaths.push(
@@ -154,7 +155,7 @@ function _gatherOperations(config: IEngineConfiguration): ImportInfo[] {
   );
 
   if (config.timelines) {
-    const timelineActions = config.timelines.flatMap((x) => x.timelineActions);
+    const timelineActions = config.timelines.flatMap(x => x.timelineActions);
 
     importPaths = importPaths.concat(
       _gatherOperationImportPathsFromActions(timelineActions)
@@ -171,7 +172,7 @@ function _gatherControllerImportPathsFromActions(
     return [] as ImportInfo[];
   }
 
-  const operations = actionsConfig.flatMap((x) => [
+  const operations = actionsConfig.flatMap(x => [
     ...x.startOperations,
     ...((x as any).endOperations ?? []),
   ]);
@@ -186,7 +187,7 @@ function _gatherOperationImportPathsFromActions(
     return [] as ImportInfo[];
   }
 
-  const operations = actionsConfig.flatMap((x) => [
+  const operations = actionsConfig.flatMap(x => [
     ...x.startOperations,
     ...((x as any).endOperations ?? []),
   ]);
@@ -195,20 +196,20 @@ function _gatherOperationImportPathsFromActions(
 }
 
 function _gatherControllerImportPaths(
-  operationConfigs: IOperationConfiguration[]
+  operationConfigs: IOperationConfiguration<TOperationData>[]
 ): ImportInfo[] {
   if (!operationConfigs) {
     return [] as ImportInfo[];
   }
 
   return operationConfigs
-    .filter((operationConfig) => {
+    .filter(operationConfig => {
       if (operationConfig.operationData?.hasOwnProperty('systemName')) {
         return operationConfig.operationData.systemName.endsWith('Controller');
       }
       return false;
     })
-    .map((operationConfig) => {
+    .map(operationConfig => {
       const { systemName } = operationConfig.operationData ?? {};
       return {
         systemName,
@@ -221,7 +222,7 @@ function _gatherOperationImportPaths(operationConfigs: any[]): ImportInfo[] {
     return [] as ImportInfo[];
   }
 
-  return operationConfigs.map((operationConfig) => {
+  return operationConfigs.map(operationConfig => {
     const { systemName } = operationConfig;
     return {
       systemName,
@@ -231,11 +232,10 @@ function _gatherOperationImportPaths(operationConfigs: any[]): ImportInfo[] {
 
 function _deduplicate(importPaths: ImportInfo[]): ImportInfo[] {
   const lookup: Record<string, true> = {};
-  return importPaths.filter((imp) => {
+  return importPaths.filter(imp => {
     if (lookup[imp.systemName]) {
       return false;
     }
-    lookup[imp.systemName] = true;
-    return true;
+    return (lookup[imp.systemName] = true);
   });
 }

@@ -1,84 +1,69 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { IEventbus } from '../../../eventbus';
-import { IOperationContext } from '../../../operation';
-import { createElement } from '../../../operation/create-element';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IEventbus} from '../../../eventbus/index.ts';
+import {createElement} from '../../../operation/create-element.ts';
+import type {IOperationContext} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const CreateElementSuite = suite('createElement');
+describe.concurrent('createElement', () => {
+  test('should create a simple element', () => {
+    // given
+    const operationData = {elementName: 'div'};
 
-CreateElementSuite('should create a simple element', () => {
-  // given
-  const operationData = { elementName: 'div' };
+    // test
+    const newData = applyOperation(createElement, operationData);
 
-  // test
-  const newData = applyOperation<{
-    template: { prop: (name: string) => string };
-  }>(createElement, operationData);
+    // expect
+    expect(newData.template.prop('outerHTML')).to.equal('<div></div>');
+  });
+  test('should create a simple element with text', () => {
+    // given
+    const operationData = {elementName: 'div', text: 'test'};
 
-  // expect
-  expect(newData.template.prop('outerHTML')).to.equal('<div></div>');
-});
+    // test
+    const newData = applyOperation(createElement, operationData);
 
-CreateElementSuite('should create a simple element with text', () => {
-  // given
-  const operationData = { elementName: 'div', text: 'test' };
+    // expect
+    expect(newData.template.prop('outerHTML')).to.equal('<div>test</div>');
+  });
+  test('should create an element with attributes', () => {
+    // given
+    const operationData = {
+      elementName: 'div',
+      attributes: {
+        class: 'test',
+        id: 'testmore',
+      },
+    };
 
-  // test
-  const newData = applyOperation<{
-    template: { prop: (name: string) => string };
-  }>(createElement, operationData);
+    // test
+    const newData = applyOperation(createElement, operationData);
 
-  // expect
-  expect(newData.template.prop('outerHTML')).to.equal('<div>test</div>');
-});
+    // expect
+    expect(newData.template.prop('outerHTML')).to.equal(
+      '<div class="test" id="testmore"></div>'
+    );
+  });
+  test('should create an element with attributes and text', () => {
+    // given
+    const operationData = {
+      elementName: 'div',
+      attributes: {
+        class: 'testClass',
+        id: 'testId',
+      },
+      text: 'test text',
+    };
 
-CreateElementSuite('should create an element with attributes', () => {
-  // given
-  const operationData = {
-    elementName: 'div',
-    attributes: {
-      class: 'test',
-      id: 'testmore',
-    },
-  };
+    // test
+    const newData = applyOperation(createElement, operationData);
 
-  // test
-  const newData = applyOperation<{
-    template: { prop: (name: string) => string };
-  }>(createElement, operationData);
-
-  // expect
-  expect(newData.template.prop('outerHTML')).to.equal(
-    '<div class="test" id="testmore"></div>'
-  );
-});
-
-CreateElementSuite('should create an element with attributes and text', () => {
-  // given
-  const operationData = {
-    elementName: 'div',
-    attributes: {
-      class: 'testClass',
-      id: 'testId',
-    },
-    text: 'test text',
-  };
-
-  // test
-  const newData = applyOperation<{
-    template: { prop: (name: string) => string };
-  }>(createElement, operationData);
-
-  // expect
-  expect(newData.template.prop('outerHTML')).to.equal(
-    '<div class="testClass" id="testId">test text</div>'
-  );
-});
-
-CreateElementSuite(
-  'should create an element with resolved attributes and text',
-  () => {
+    // expect
+    expect(newData.template.prop('outerHTML')).to.equal(
+      '<div class="testClass" id="testId">test text</div>'
+    );
+  });
+  test('should create an element with resolved attributes and text', () => {
     // given
     const operationData = {
       elementName: 'div',
@@ -100,20 +85,14 @@ CreateElementSuite(
     };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData, context);
+    const newData = applyOperation(createElement, operationData, context);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
       '<div class="resolved-class" id="testId">foo bar</div>'
     );
-  }
-);
-
-CreateElementSuite(
-  'should create an element with attributes but ignore attribute values that are undefined',
-  () => {
+  });
+  test('should create an element with attributes but ignore attribute values that are undefined', () => {
     // given
     const operationData = {
       elementName: 'div',
@@ -125,15 +104,11 @@ CreateElementSuite(
     };
 
     // test
-    const newData = applyOperation<{
-      template: { prop: (name: string) => string };
-    }>(createElement, operationData);
+    const newData = applyOperation(createElement, operationData);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
       '<div id="testId">test text</div>'
     );
-  }
-);
-
-CreateElementSuite.run();
+  });
+});

@@ -1,27 +1,23 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { getAttributesFromElement } from '../../../operation';
-import { IGetAttributesFromElementOperationData } from '../../../operation/get-attributes-from-element';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IGetAttributesFromElementOperationData} from '../../../operation/get-attributes-from-element.ts';
+import {getAttributesFromElement} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const GetAttibutesFromElementSuite = suite('getAttibutesFromElement');
+describe.concurrent('getAttibutesFromElement', () => {
+  test('should extend the given controller', () => {
+    // given
+    const operationData: IGetAttributesFromElementOperationData = {
+      selectedElement: {
+        attr: (name: string) => `${name}Value`,
+      } as unknown as JQuery,
+      attributeNames: ['foo', 'bar'],
+    };
 
-GetAttibutesFromElementSuite('should extend the given controller', () => {
-  // given
-  const operationData: IGetAttributesFromElementOperationData = {
-    selectedElement: {
-      attr: (name: string) => `${name}Value`,
-    } as unknown as JQuery,
-    attributeNames: ['foo', 'bar'],
-  };
+    // test
+    const newData = applyOperation(getAttributesFromElement, operationData);
 
-  // test
-  const newData = applyOperation<{
-    attributeValues: Record<string, any>;
-  }>(getAttributesFromElement, operationData);
-
-  // expect
-  expect(newData.attributeValues).to.eql({ foo: 'fooValue', bar: 'barValue' });
+    // expect
+    expect(newData.attributeValues).to.eql({foo: 'fooValue', bar: 'barValue'});
+  });
 });
-
-GetAttibutesFromElementSuite.run();

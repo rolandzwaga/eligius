@@ -1,20 +1,18 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { getGlobals } from '../../../../operation/helper/globals';
-import { removeGlobal } from '../../../../operation/helper/remove-global';
-import { setGlobal } from '../../../../operation/helper/set-global';
+import {expect} from 'chai';
+import {afterAll, beforeAll, describe, test} from 'vitest';
+import {getGlobals} from '../../../../operation/helper/globals.ts';
+import {removeGlobal} from '../../../../operation/helper/remove-global.ts';
+import {setGlobal} from '../../../../operation/helper/set-global.ts';
 
-const SetGlobalSuite = suite('setGlobal');
-
-SetGlobalSuite.before(() => {
-  setGlobal('foo', 'bar');
-});
-
-SetGlobalSuite.after(() => {
-  removeGlobal('foo');
-});
-
-SetGlobalSuite('should set the global', () => {
-  const value = getGlobals('foo');
-  expect(value).to.equal('bar');
+describe.concurrent('setGlobal', () => {
+  beforeAll(() => {
+    setGlobal('foo', 'bar');
+  });
+  afterAll(() => {
+    removeGlobal('foo');
+  });
+  test('should set the global', () => {
+    const value = getGlobals('foo');
+    expect(value).to.equal('bar');
+  });
 });

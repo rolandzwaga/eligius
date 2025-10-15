@@ -1,31 +1,24 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { clearOperationData } from '../../../operation/clear-operation-data';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {clearOperationData} from '../../../operation/clear-operation-data.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const ClearOperationDataSuite = suite('clearOperationData');
+describe.concurrent('clearOperationData', () => {
+  test('should clear the given operation data', () => {
+    // given
+    const operationData = {
+      bla: 1,
+      bla2: true,
+      bla3: 'hello',
+    };
 
-ClearOperationDataSuite('should clear the given operation data', () => {
-  // given
-  const operationData = {
-    bla: 1,
-    bla2: true,
-    bla3: 'hello',
-  };
+    // test
+    const newOperationData = applyOperation(clearOperationData, operationData);
 
-  // test
-  const newOperationData = applyOperation<typeof operationData>(
-    clearOperationData,
-    operationData
-  );
-
-  // expect
-  expect(newOperationData).to.not.equal(operationData);
-});
-
-ClearOperationDataSuite(
-  'should clear the given properties on the given operation data',
-  () => {
+    // expect
+    expect(newOperationData).to.not.equal(operationData);
+  });
+  test('should clear the given properties on the given operation data', () => {
     // given
     const operationData = {
       bla: 1,
@@ -35,17 +28,15 @@ ClearOperationDataSuite(
     };
 
     // test
-    const newOperationData = applyOperation<typeof operationData>(
+    const newOperationData = applyOperation(
       clearOperationData,
       operationData
-    );
+    ) as typeof operationData;
 
     // expect
     expect(newOperationData.bla).to.be.undefined;
     expect(newOperationData.bla3).to.be.undefined;
     expect(newOperationData.properties).to.be.undefined;
     expect(newOperationData.bla2).to.be.true;
-  }
-);
-
-ClearOperationDataSuite.run();
+  });
+});

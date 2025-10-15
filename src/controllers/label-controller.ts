@@ -1,11 +1,23 @@
-import { IEventbus, TEventbusRemover } from '../eventbus/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { ILabel } from '../types';
-import { IController } from './types';
+import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {ILabel} from '../types.ts';
+import type {IController} from './types.ts';
 
 export interface ILabelControllerMetadata {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:labelId
+   * @required
+   */
   labelId: string;
+  /**
+   * By default the label is added to the inner HTML of the `selectedElement`,
+   * otherwise if this property is set, the label text is added to the specified attribute
+   * of the `selectedElement`.
+   */
   attributeName?: string;
 }
 
@@ -85,7 +97,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
   }
 
   detach(_eventbus: IEventbus) {
-    this.listeners.forEach((func) => func());
+    this.listeners.forEach(func => func());
     this.requestLabelDataBound = undefined;
   }
 
@@ -95,7 +107,7 @@ export class LabelController implements IController<ILabelControllerMetadata> {
   }
 
   private _createTextDataLookup(data: ILabel[]) {
-    data.forEach((d) => {
+    data.forEach(d => {
       this.labelData[d.languageCode] = d.label;
     });
   }

@@ -1,10 +1,10 @@
-import {
+import type {
   IEventbus,
   IEventbusInterceptor,
   IEventbusListener,
   TEventbusRemover,
   TEventHandler,
-} from './types';
+} from './types.ts';
 
 export class Eventbus implements IEventbus {
   private eventHandlers = new Map<string, TEventHandler[]>();
@@ -127,7 +127,7 @@ export class Eventbus implements IEventbus {
     if (handlers) {
       const interceptors = this._getEventInterceptors(eventName, eventTopic);
 
-      interceptors.forEach((interceptor) => {
+      interceptors.forEach(interceptor => {
         args = interceptor.intercept(args);
       });
 

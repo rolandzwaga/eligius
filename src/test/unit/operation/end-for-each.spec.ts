@@ -1,30 +1,26 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { IOperationContext } from '../../../operation';
-import { endForEach } from '../../../operation/end-for-each';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {endForEach} from '../../../operation/end-for-each.ts';
+import type {IOperationContext} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const EndForEachSuite = suite('endForEach');
+describe.concurrent('endForEach', () => {
+  test('should return the operation data', () => {
+    // given
+    const context: IOperationContext = {
+      currentIndex: -1,
+      eventbus: {} as any,
+      operations: [],
+    };
+    const operationData = {};
 
-EndForEachSuite('should return the operation data', () => {
-  // given
-  const context: IOperationContext = {
-    currentIndex: -1,
-    eventbus: {} as any,
-    operations: [],
-  };
-  const operationData = {};
+    // test
+    const result = applyOperation(endForEach, operationData, context);
 
-  // test
-  const result = applyOperation(endForEach, operationData, context);
-
-  // expect
-  expect(result).to.be.equal(operationData);
-});
-
-EndForEachSuite(
-  'should increment loopIndex and restart the newIndex when the current is lower than the loopLength',
-  () => {
+    // expect
+    expect(result).to.be.equal(operationData);
+  });
+  test('should increment loopIndex and restart the newIndex when the current is lower than the loopLength', () => {
     // given
     const context: IOperationContext = {
       currentIndex: -1,
@@ -45,7 +41,5 @@ EndForEachSuite(
     expect(context.loopLength).to.be.equal(10);
     expect(context.loopStartIndex).to.be.equal(5);
     expect(context.newIndex).to.be.equal(5);
-  }
-);
-
-EndForEachSuite.run();
+  });
+});

@@ -1,19 +1,28 @@
-import { ILanguageLabel } from '../../types';
-import { ConfigurationFactory } from './configuration-factory';
+import type {ILanguageLabel, TLanguageCode} from '../../types.ts';
+import type {ConfigurationFactory} from './configuration-factory.ts';
 
+/**
+ * Factory that assists with editing a label
+ */
 export class LabelEditor {
   constructor(
-    private factory: ConfigurationFactory,
+    private configurationFactory: ConfigurationFactory,
     private languageLabel: ILanguageLabel
   ) {}
 
   private _internalGetLabel(languageCode: string) {
-    return this.languageLabel.labels.find(
-      (x) => x.languageCode === languageCode
-    );
+    return this.languageLabel.labels.find(x => x.languageCode === languageCode);
   }
 
-  setLabel(languageCode: string, translation: string) {
+  /**
+   *
+   * Set the translation associated with the given language code
+   *
+   * @param languageCode
+   * @param translation
+   * @returns
+   */
+  setLabel(languageCode: TLanguageCode, translation: string) {
     const label = this._internalGetLabel(languageCode);
     if (label) {
       label.label === translation;
@@ -23,9 +32,16 @@ export class LabelEditor {
     return this;
   }
 
-  removeLabel(languageCode: string) {
+  /**
+   *
+   * Remove all of the translations for the given language code
+   *
+   * @param languageCode
+   * @returns
+   */
+  removeLabel(languageCode: TLanguageCode) {
     const idx = this.languageLabel.labels.findIndex(
-      (x) => x.languageCode === languageCode
+      x => x.languageCode === languageCode
     );
     if (idx > -1) {
       this.languageLabel.labels.splice(idx, 1);
@@ -35,7 +51,13 @@ export class LabelEditor {
     return this;
   }
 
+  /**
+   *
+   * Returns the fluent scope back to the `ConfigurationFactory`
+   *
+   * @returns
+   */
   end() {
-    return this.factory;
+    return this.configurationFactory;
   }
 }

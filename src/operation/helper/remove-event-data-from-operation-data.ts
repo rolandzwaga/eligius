@@ -1,4 +1,4 @@
-import { TOperationData } from '../../operation/types';
+import type {TOperationData} from '../../operation/types.ts';
 
 export function removeEventDataFromOperationData(
   operationData: TOperationData

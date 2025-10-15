@@ -1,30 +1,50 @@
-import { isFunction } from '../util/guards/is-function';
-import { isString } from '../util/guards/is-string';
-import { resolvePropertyValues } from './helper/resolve-property-values';
-import { TOperation } from './types';
+import {isFunction} from '../util/guards/is-function.ts';
+import {isString} from '../util/guards/is-string.ts';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {TOperation} from './types.ts';
+
+export type MathFunctionKeys = {
+  [K in keyof Math]: Math[K] extends (...args: any) => any ? K : never;
+}[keyof Math];
+
+export type MathNonFunctionKeys = {
+  [K in keyof Math]: Math[K] extends (...args: any) => any ? never : K;
+}[keyof Math];
 
 export interface IMathOperationData {
-  args: (number | string | keyof Math)[];
-  functionName: keyof Math;
+  /**
+   * @type=ParameterType:array
+   * @required
+   */
+  args: (number | string | MathNonFunctionKeys)[];
+  /**
+   * @required
+   */
+  functionName: MathFunctionKeys;
+  /**
+   * @output
+   */
   mathResult?: number;
 }
 
 /**
  * This operation performs the given math function with the specified arguments.
- *
- * @param operationData
  */
-export const math: TOperation<IMathOperationData> = function (
-  operationData: IMathOperationData
-) {
+export const math: TOperation<
+  IMathOperationData,
+  Omit<IMathOperationData, 'args' | 'functionName'>
+> = function (operationData: IMathOperationData) {
   operationData = resolvePropertyValues(operationData, this, operationData);
   operationData.args = resolveMathConstants(operationData.args);
 
-  const { args, functionName } = operationData;
+  const {args, functionName, ...newOperationData} = operationData;
 
-  operationData.mathResult = (Math[functionName] as Function).apply(null, args);
+  newOperationData.mathResult = (Math[functionName] as Function).apply(
+    null,
+    args
+  );
 
-  return operationData;
+  return newOperationData;
 };
 
 function resolveMathConstants(args: any[]) {
@@ -36,7 +56,7 @@ function resolveMathConstants(args: any[]) {
   });
 }
 
-function isMathProperty(value: string | Symbol): value is keyof Math {
+function isMathProperty(value: string | symbol): value is keyof Math {
   return (
     isString(value) && value in Math && !isFunction(Math[value as keyof Math])
   );

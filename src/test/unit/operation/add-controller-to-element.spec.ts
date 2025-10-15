@@ -1,9 +1,9 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { Eventbus } from '../../../eventbus';
-import { TOperation } from '../../../operation';
-import { addControllerToElement } from '../../../operation/add-controller-to-element';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {Eventbus} from '../../../eventbus/index.ts';
+import {addControllerToElement} from '../../../operation/add-controller-to-element.ts';
+import type {TOperation} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   name: string = '';
@@ -37,11 +37,8 @@ class MockController {
   }
 }
 
-const AddControllerToElementSuite = suite('addControllerToElement');
-
-AddControllerToElementSuite(
-  'should attach the controller without a promise result',
-  () => {
+describe.concurrent('addControllerToElement', () => {
+  test('should attach the controller without a promise result', () => {
     // given
     const operationData = {
       selectedElement: new MockElement(),
@@ -59,14 +56,10 @@ AddControllerToElementSuite(
     // expect
     expect(data).to.equal(operationData);
     expect(operationData.controllerInstance.eventbus).to.equal(eventbus);
-  }
-);
-
-AddControllerToElementSuite(
-  'should attach the controller with a promise result',
-  async () => {
+  });
+  test('should attach the controller with a promise result', async () => {
     // given
-    const promise = new Promise<void>((resolve) => {
+    const promise = new Promise<void>(resolve => {
       resolve();
     });
 
@@ -76,14 +69,9 @@ AddControllerToElementSuite(
     };
 
     // test
-    const data = await applyOperation<Promise<any>>(
-      addControllerToElement,
-      operationData
-    );
+    const data = await applyOperation(addControllerToElement, operationData);
 
     // expect
     expect(data).to.equal(operationData);
-  }
-);
-
-AddControllerToElementSuite.run();
+  });
+});

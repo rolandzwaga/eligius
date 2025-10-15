@@ -1,8 +1,15 @@
-import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import {internalResolve} from './helper/internal-resolve.ts';
+import type {TOperation} from './types.ts';
 
 export interface IAnimateWithClassOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:className
+   * @required
+   */
   className: string;
   removeClass?: boolean;
 }
@@ -11,34 +18,33 @@ export interface IAnimateWithClassOperationData {
  * This operation adds the specified class name to the specified selected element and assumes that this
  * class triggers and animation on the selected element. It then waits for this animation to complete
  * before it resolves.
- *
- * @param operationData
- * @returns
  */
-export const animateWithClass: TOperation<IAnimateWithClassOperationData> =
-  function (operationData: IAnimateWithClassOperationData) {
-    let { selectedElement, className, removeClass } = operationData;
-    removeClass = removeClass !== undefined ? removeClass : true;
+export const animateWithClass: TOperation<
+  IAnimateWithClassOperationData,
+  Promise<IAnimateWithClassOperationData>
+> = (operationData: IAnimateWithClassOperationData) => {
+  let {selectedElement, className, removeClass} = operationData;
+  removeClass = removeClass !== undefined ? removeClass : true;
 
-    const promise = new Promise<IAnimateWithClassOperationData>(
-      (resolve, reject) => {
-        try {
-          selectedElement.one(
-            'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
-            () => {
-              if (removeClass) {
-                selectedElement.removeClass(className);
-              }
-              internalResolve(resolve, {}, operationData);
+  const promise = new Promise<IAnimateWithClassOperationData>(
+    (resolve, reject) => {
+      try {
+        selectedElement.one(
+          'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
+          () => {
+            if (removeClass) {
+              selectedElement.removeClass(className);
             }
-          );
-        } catch (e) {
-          reject(e);
-        }
+            internalResolve(resolve, {}, operationData);
+          }
+        );
+      } catch (e) {
+        reject(e);
       }
-    );
+    }
+  );
 
-    selectedElement.addClass(className);
+  selectedElement.addClass(className);
 
-    return promise;
-  };
+  return promise;
+};

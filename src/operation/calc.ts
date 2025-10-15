@@ -1,12 +1,28 @@
-import { resolvePropertyValues } from './helper/resolve-property-values';
-import { TOperation } from './types';
+import {resolvePropertyValues} from './helper/resolve-property-values.ts';
+import type {TOperation} from './types.ts';
 
 export type TCalculationOperator = '+' | '-' | '*' | '/' | '%' | '**';
 
 export interface ICalcOperationData {
+  /**
+   * The left operand
+   * @type=ParameterType:number
+   * @required
+   */
   left: string | number;
+  /**
+   * The right operand
+   * @type=ParameterType:number
+   * @required
+   */
   right: string | number;
+  /**
+   * @required
+   */
   operator: TCalculationOperator;
+  /**
+   * @output
+   */
   calculationResult?: number;
 }
 
@@ -32,7 +48,7 @@ export const calc: TOperation<ICalcOperationData> = function (
 ) {
   operationData = resolvePropertyValues(operationData, this, operationData);
 
-  const { left, right, operator } = operationData;
+  const {left, right, operator} = operationData;
 
   operationData.calculationResult = calcFunctions[operator](+left, +right);
 

@@ -1,9 +1,17 @@
-import { TimelineEventNames } from '../timeline-event-names';
-import { TOperation } from './types';
+import type {RequireKeys} from 'types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {TOperation} from './types.ts';
 
 export interface IGetImportOperationData {
+  /**
+   * @type=ParameterType:systemName
+   * @required
+   */
   systemName: string;
-  importedInstance?: any;
+  /**
+   * @output
+   */
+  importedInstance?: unknown;
 }
 
 /**
@@ -13,11 +21,12 @@ export interface IGetImportOperationData {
  * @param operationData
  * @returns
  */
-export const getImport: TOperation<IGetImportOperationData> = function (
-  operationData: IGetImportOperationData
-) {
-  const { systemName } = operationData;
-  const callBack = (instance: any) => {
+export const getImport: TOperation<
+  IGetImportOperationData,
+  Omit<RequireKeys<IGetImportOperationData, 'importedInstance'>, 'systemName'>
+> = function (operationData: IGetImportOperationData) {
+  const {systemName} = operationData;
+  const callBack = (instance: unknown) => {
     operationData.importedInstance = instance;
   };
   this.eventbus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
@@ -25,5 +34,8 @@ export const getImport: TOperation<IGetImportOperationData> = function (
     callBack,
   ]);
   delete (operationData as any).systemName;
-  return operationData;
+  return operationData as Omit<
+    RequireKeys<IGetImportOperationData, 'importedInstance'>,
+    'systemName'
+  >;
 };

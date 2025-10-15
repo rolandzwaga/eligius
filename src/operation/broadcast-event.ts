@@ -1,22 +1,27 @@
-import { removeEventDataFromOperationData } from './helper/remove-event-data-from-operation-data';
-import { resolveEventArguments } from './helper/resolve-event-arguments';
-import { TOperation } from './types';
+import {removeEventDataFromOperationData} from './helper/remove-event-data-from-operation-data.ts';
+import {resolveEventArguments} from './helper/resolve-event-arguments.ts';
+import type {TOperation} from './types.ts';
 
 export interface IBroadcastEventOperationData {
-  eventArgs: any[];
+  eventArgs: unknown[];
+  /**
+   * @type=ParameterType:eventTopic
+   */
   eventTopic?: string;
+  /**
+   * @type=ParameterType:eventName
+   * @required
+   */
   eventName: string;
 }
 
 /**
  * This operation broadcasts the given event through the eventbus, along with the
  * event argumetns and optional event topic.
- *
- * @param operationData
  */
 export const broadcastEvent: TOperation<IBroadcastEventOperationData> =
   function (operationData: IBroadcastEventOperationData) {
-    const { eventArgs, eventTopic, eventName } = operationData;
+    const {eventArgs, eventTopic, eventName} = operationData;
 
     const eventArguments = resolveEventArguments(
       operationData,

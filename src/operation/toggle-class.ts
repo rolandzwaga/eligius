@@ -1,29 +1,29 @@
-import { TOperation } from './types';
+import type {TOperation} from './types.ts';
 
 export interface IToggleClassOperationData {
   /**
    * The element on which the class will be toggled
+   * @dependency
    */
   selectedElement: JQuery;
   /**
    * The class that will be toggled
+   * @type=ParameterType:className
+   * @required
    */
   className: string;
 }
 
 /**
  * This operation toggles the specfied class name on the given selected element.
- * 
+ *
  * Meaning, if the specified class name exists on the given element it will be removed,
  * otherwise it will be added.
- *
- * @param operationData
- * @returns
  */
-export const toggleClass: TOperation<IToggleClassOperationData> = function (
+export const toggleClass: TOperation<IToggleClassOperationData> = (
   operationData: IToggleClassOperationData
-) {
-  const { selectedElement, className } = operationData;
+) => {
+  const {selectedElement, className} = operationData;
   selectedElement.toggleClass(className);
   return operationData;
 };

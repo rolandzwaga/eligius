@@ -1,5 +1,5 @@
-var fs = require('fs');
-var path = require('path');
+var fs = require('node:fs');
+var path = require('node:path');
 
 /**
  * This script copies the static JSON schema and the generated schema parts
@@ -31,7 +31,7 @@ function copyFolderRecursiveSync(source, target) {
   // Copy
   if (fs.lstatSync(source).isDirectory()) {
     files = fs.readdirSync(source);
-    files.forEach(function (file) {
+    files.forEach(file => {
       var curSource = path.join(source, file);
       if (fs.lstatSync(curSource).isDirectory()) {
         copyFolderRecursiveSync(curSource, targetFolder);

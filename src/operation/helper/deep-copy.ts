@@ -1,13 +1,13 @@
-import { isDefined } from 'ts-is-present';
+import {isDefined} from 'ts-is-present';
 
 const copyFunction =
   typeof structuredClone !== 'undefined'
     ? structuredClone
-    : (original: any) => JSON.parse(JSON.stringify(original));
+    : <T>(original: any) => JSON.parse(JSON.stringify(original)) as T;
 
 export function deepCopy<T>(original: T): T {
   if (isDefined(original)) {
-    return copyFunction(original) as T;
+    return copyFunction<T>(original);
   }
   return original;
 }

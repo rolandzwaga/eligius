@@ -1,6 +1,9 @@
-import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
-import { resolveExternalPropertyChain } from './helper/resolve-external-property-chain';
-import { IOperationContext, TOperation } from './types';
+import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import {
+  type ExternalProperty,
+  resolveExternalPropertyChain,
+} from './helper/resolve-external-property-chain.ts';
+import type {IOperationContext, TOperation} from './types.ts';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =
@@ -13,13 +16,16 @@ type TValue =
 type TExpression = `${TValue}${TOperator}${TValue}`;
 
 export interface IWhenOperationData {
+  /**
+   * @required
+   */
   expression: TExpression;
 }
 
 /**
  * When the given expression evaluates to false, subsequent operations will be skipped
  * until an {@link endWhen} or {@link otherwise} operation is encountered.
- * 
+ *
  * Practically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.
  *
  * @param operationData
@@ -50,20 +56,31 @@ function parseExpression(
   operationData: IWhenOperationData,
   operationContext: IOperationContext
 ): [TValue, TOperator, TValue] {
-  let [left, right] = expression.split(/!=|==|>=|<=|>|</);
+  const [left, right] = expression.split(/!=|==|>=|<=|>|</);
+
   const operator = expression.substring(
     left.length,
     expression.length - right.length
   ) as TOperator;
-  const leftNr = +left;
-  const rightNr = +right;
+
+  const leftNr = parseInt(left);
+  const rightNr = parseInt(right);
+
   return [
     (isNaN(leftNr)
-      ? resolveExternalPropertyChain(operationData, operationContext, left)
+      ? resolveExternalPropertyChain(
+          operationData,
+          operationContext,
+          left as ExternalProperty
+        )
       : leftNr) as TValue,
     operator,
     (isNaN(rightNr)
-      ? resolveExternalPropertyChain(operationData, operationContext, right)
+      ? resolveExternalPropertyChain(
+          operationData,
+          operationContext,
+          right as ExternalProperty
+        )
       : rightNr) as TValue,
   ];
 }
@@ -103,7 +120,9 @@ function findNextFlowControlIndex(context: IOperationContext) {
     })
   );
 
-  return endWhenIndex > -1 ? endWhenIndex + currentIndex : context.operations.length;
+  return endWhenIndex > -1
+    ? endWhenIndex + currentIndex
+    : context.operations.length;
 }
 
 export const whenSystemName = 'when';

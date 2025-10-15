@@ -1,22 +1,29 @@
-import { IController } from '../controllers/types';
-import { TOperation } from './types';
+import type {IController} from '../controllers/types.ts';
+import type {TOperation, TOperationData} from './types.ts';
 
 /**
  * This operation extends the specified controller instance with the specified extension.
  */
 export interface IExtendControllerOperationData {
-  controllerInstance: IController<any>;
-  controllerExtension: any;
+  /**
+   * @dependency
+   */
+  controllerInstance: IController<TOperationData>;
+  controllerExtension: Record<PropertyKey, unknown>;
 }
 
-export const extendController: TOperation<IExtendControllerOperationData> =
-  function (operationData: IExtendControllerOperationData) {
-    const { controllerInstance, controllerExtension } = operationData;
+/**
+ * Extends the current controller with given extension.
+ */
+export const extendController: TOperation<IExtendControllerOperationData> = (
+  operationData: IExtendControllerOperationData
+) => {
+  const {controllerInstance, controllerExtension} = operationData;
 
-    operationData.controllerInstance = Object.assign(
-      controllerInstance,
-      controllerExtension
-    );
+  operationData.controllerInstance = Object.assign(
+    controllerInstance,
+    controllerExtension
+  );
 
-    return operationData;
-  };
+  return operationData;
+};

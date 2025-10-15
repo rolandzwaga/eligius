@@ -1,3 +1,3 @@
-export { DevToolEventListener } from './devtool-event-listener';
-export * from './diagnostics';
-export * from './types';
+export {DevToolEventListener} from './devtool-event-listener.ts';
+export * from './diagnostics.ts';
+export * from './types.ts';

@@ -264,14 +264,16 @@ Labels can be rendered by the [`LabelController`](https://rolandzwaga.github.io/
 Running the engine is a matter of loading the configuration and feeding it to an engine instance.
 
 ```javascript
-import { IEngineConfiguration, EngineFactory, WebpackResourceImporter } from 'eligius';
+import { IEngineConfiguration, EngineFactory, EligiusResourceImporter } from 'eligius';
 import * as engineConfig from './my-eligius-config.json';
 
-const factory = new EngineFactory(new WebpackResourceImporter(), window);
+const factory = new EngineFactory(new EligiusResourceImporter(), window);
 
 const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
-engine.init().then(()=> {console.log('Eligius engine ready for business');});
+await engine.init();
+
+console.log('Eligius engine ready for business');
 ```
 
 ## Configuration API
@@ -298,7 +300,6 @@ yarn add eligius
 
 ## development
 
-- To install first get Yarn: https://yarnpkg.com
-- Then open up a command prompt in the project root and run `yarn`
-- Use `yarn test` to run the unit tests (tests use UVU)
-- Use `yarn build` to create a production library bundle
+- run `npm install`
+- Use `npm run test` to run the unit tests (tests use Vitest)
+- Use `npm run build` to create a production library bundle

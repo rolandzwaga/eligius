@@ -1,10 +1,10 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
 import {
-  IReparentElementOperationData,
+  type IReparentElementOperationData,
   reparentElement,
-} from '../../../operation/reparent-element';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/reparent-element.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   selector: string = '';
@@ -20,11 +20,8 @@ class MockElement {
   }
 }
 
-const ReparentElementSuite = suite('reparentElement');
-
-ReparentElementSuite(
-  'should set the parent of the given element to the new given parent',
-  () => {
+describe.concurrent('reparentElement', () => {
+  test('should set the parent of the given element to the new given parent', () => {
     // given
     const mockElement = new MockElement();
     const operationData = {
@@ -38,7 +35,5 @@ ReparentElementSuite(
     // expect
     expect(mockElement.calledRemove).to.be.true;
     expect(mockElement.selector).to.equal(operationData.newParentSelector);
-  }
-);
-
-ReparentElementSuite.run();
+  });
+});

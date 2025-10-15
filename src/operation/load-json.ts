@@ -1,10 +1,11 @@
-import { TOperation } from './types';
+import type {TOperation} from './types.ts';
 
-const jsonCache: Record<string, any> = {};
+const jsonCache: Record<string, unknown> = {};
 
 export interface ILoadJSONOperationData {
   /**
    * The URL where the JSON will be retrieved from
+   * @required
    */
   url: string;
   /**
@@ -13,17 +14,12 @@ export interface ILoadJSONOperationData {
   cache: boolean;
   /**
    * The JSON retrieved from the given URL
+   * @output
    */
   json?: any;
 }
 
-export const clearCache = () => {
-  for (let p in jsonCache) {
-    delete jsonCache[p];
-  }
-};
-
-export const addToCache = (key: string, value: any) => {
+const addToCache = (key: string, value: any) => {
   jsonCache[key] = value;
 };
 
@@ -33,14 +29,11 @@ export const addToCache = (key: string, value: any) => {
  *
  * If the cache property is set to true and a cached value already exists, this is assigned
  * instead of re-retrieving it from the url.
- *
- * @param operationData
- * @returns
  */
-export const loadJSON: TOperation<ILoadJSONOperationData> = async function (
+export const loadJson: TOperation<ILoadJSONOperationData> = async (
   operationData: ILoadJSONOperationData
-) {
-  const { url, cache } = operationData;
+) => {
+  const {url, cache} = operationData;
 
   if (cache && jsonCache[url]) {
     operationData.json = jsonCache[url];
@@ -56,4 +49,10 @@ export const loadJSON: TOperation<ILoadJSONOperationData> = async function (
   }
 
   return operationData;
+};
+
+export const clearCache = () => {
+  for (const p in jsonCache) {
+    delete jsonCache[p];
+  }
 };

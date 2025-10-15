@@ -1,29 +1,28 @@
-import { setGlobals } from './helper/globals';
-import { TOperation } from './types';
+import {setGlobals} from './helper/globals.ts';
+import type {TOperation} from './types.ts';
 
 export interface ISetGlobalDataOperationData {
-  properties: string[];
+  /**
+   * @required
+   */
+  propertyNames: string[];
 }
 
 /**
- * This operation copies the specified property values from the operationData to the global data.
- *
- * @param operationData
- * @returns
+ * This operation copies the specified properties from the operationData to the global data.
  */
-export const setGlobalData: TOperation<ISetGlobalDataOperationData> = function (
-  operationData: ISetGlobalDataOperationData
-) {
-  const { properties } = operationData;
+export const setGlobalData: TOperation<
+  ISetGlobalDataOperationData,
+  Omit<ISetGlobalDataOperationData, 'propertyNames'>
+> = (operationData: ISetGlobalDataOperationData) => {
+  const {propertyNames, ...newOperationData} = operationData;
   const newGlobals = Object.fromEntries(
     Object.entries(operationData).filter(([name, _value]) =>
-      properties.includes(name)
+      propertyNames.includes(name)
     )
   );
 
   setGlobals(newGlobals);
 
-  delete (operationData as any).properties;
-
-  return operationData;
+  return newOperationData;
 };

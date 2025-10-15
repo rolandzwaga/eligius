@@ -1,11 +1,11 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { IEventbus } from '../../../eventbus/types';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import type {IEventbus} from '../../../eventbus/types.ts';
 import {
-  ISelectElementOperationData,
+  type ISelectElementOperationData,
   selectElement,
-} from '../../../operation/select-element';
-import { applyOperation } from '../../../util/apply-operation';
+} from '../../../operation/select-element.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
   rootElement: any;
@@ -31,11 +31,8 @@ class MockElement {
   }
 }
 
-const SelectElementSuite = suite('selectElement');
-
-SelectElementSuite(
-  'should select the element based on the specified selector',
-  () => {
+describe.concurrent('selectElement', () => {
+  test('should select the element based on the specified selector', () => {
     // given
     const selectedElement = {
       length: 1,
@@ -47,21 +44,17 @@ SelectElementSuite(
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation<{ selectedElement: any }>(
-      selectElement,
-      operationData,
-      { currentIndex: -1, eventbus, operations: [] }
-    );
+    const newData = applyOperation(selectElement, operationData, {
+      currentIndex: -1,
+      eventbus,
+      operations: [],
+    }) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
     expect(mockElement.selector).to.equal('.testClass');
-  }
-);
-
-SelectElementSuite(
-  'should select the element based on the resolved selector',
-  () => {
+  });
+  test('should select the element based on the resolved selector', () => {
     // given
     const selectedElement = {
       length: 1,
@@ -74,20 +67,16 @@ SelectElementSuite(
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation<{ selectedElement: any }>(
-      selectElement,
-      operationData,
-      { currentIndex: -1, eventbus, operations: [] }
-    );
+    const newData = applyOperation(selectElement, operationData, {
+      currentIndex: -1,
+      eventbus,
+      operations: [],
+    }) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
-  }
-);
-
-SelectElementSuite(
-  'should select the element based on the specified selector from the existing root',
-  () => {
+  });
+  test('should select the element based on the specified selector from the existing root', () => {
     // given
     const selectedElement = {
       length: 1,
@@ -100,14 +89,12 @@ SelectElementSuite(
     } as any as ISelectElementOperationData;
 
     // test
-    const newData = applyOperation<{ selectedElement: any }>(
+    const newData = applyOperation(
       selectElement,
       operationData
-    );
+    ) as ISelectElementOperationData;
 
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
-  }
-);
-
-SelectElementSuite.run();
+  });
+});

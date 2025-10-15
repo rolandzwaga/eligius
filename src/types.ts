@@ -1,21 +1,13 @@
-import { IAction } from './action/types';
-import {
+import type {IAction} from './action/types.ts';
+import type {
   IEngineConfiguration,
-  IResolvedEngineConfiguration
-} from './configuration/types';
-import { IEventbus, IEventbusListener } from './eventbus/types';
-import { ITimelineProvider } from './timelineproviders/types';
+  IResolvedEngineConfiguration,
+} from './configuration/types.ts';
+import type {IEventbus, IEventbusListener} from './eventbus/types.ts';
+import type {ITimelineProvider} from './timelineproviders/types.ts';
 
-export type KeysOfType<T, U, B = false> = {
-  [P in keyof T]: B extends true
-    ? T[P] extends U
-      ? U extends T[P]
-        ? P
-        : never
-      : never
-    : T[P] extends U
-    ? P
-    : never;
+export type KeysOfType<T, U> = {
+  [P in keyof T]-?: T[P] extends U | undefined ? P : never;
 }[keyof T];
 
 /**
@@ -25,7 +17,7 @@ export type KeysOfType<T, U, B = false> = {
 export interface IEngineFactory {
   /**
    * Returns a fully configured IEligiusEngine instance.
-   * 
+   *
    * @param engineConfig The given configuration
    * @param resolver An optional resolver to process the given IEngineConfiguration. When not provided the IEngineFactory is expected to create their own instance.
    */
@@ -78,7 +70,7 @@ export interface IConfigurationResolver {
   ): [Record<string, IAction>, IResolvedEngineConfiguration];
 }
 
-export type TResultCallback = (result: any) => void;
+export type TResultCallback<T> = (result: T) => void;
 
 /**
  * Describes a duration of time expressed in a start and an optional end range with a one second interval.
@@ -99,7 +91,7 @@ export interface IStrictDuration extends Required<IDuration> {}
 export type TimelineTypes = 'animation' | 'mediaplayer';
 
 /**
- * 
+ *
  */
 export interface ITimelineProviderInfo {
   id: string;
@@ -118,11 +110,23 @@ export interface ILabel {
   label: string;
 }
 
+/**
+ *
+ * Container type for a width and height
+ *
+ */
 export interface IDimensions {
   width: number;
   height: number;
 }
 
+/**
+ *
+ * This represents an IETF language tag
+ *
+ * The format reads as follows: [Primary language subtag]-[Region subtag]
+ *
+ */
 export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
 
 export interface ISubtitleCollection {
@@ -135,3 +139,7 @@ export interface ISubtitle {
   duration: IStrictDuration;
   text: string;
 }
+
+export type RequireKeys<T, K extends keyof T> = {
+  [P in K]-?: T[P];
+};

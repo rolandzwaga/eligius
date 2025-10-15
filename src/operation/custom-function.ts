@@ -1,6 +1,6 @@
-import { TimelineEventNames } from '../timeline-event-names';
-import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import {internalResolve} from './helper/internal-resolve.ts';
+import type {TOperation} from './types.ts';
 
 export interface ICustomFunctionOperationData {
   systemName: string;
@@ -15,7 +15,7 @@ export interface ICustomFunctionOperationData {
  */
 export const customFunction: TOperation<ICustomFunctionOperationData> =
   function (operationData: ICustomFunctionOperationData) {
-    const { systemName } = operationData;
+    const {systemName} = operationData;
     return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
       const resultCallback = (func: Function) => {
         const promise = func.apply(this, [operationData]);

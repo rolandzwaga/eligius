@@ -1,32 +1,28 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
+import {expect} from 'chai';
+import type {ExtractReturnedOperationData} from 'operation/types.ts';
+import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   getQueryParams,
-  IGetQueryParamsOperationData,
-} from '../../../operation/get-query-params';
-import { applyOperation } from '../../../util/apply-operation';
+  type IGetQueryParamsOperationData,
+} from '../../../operation/get-query-params.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-interface GetQueryParamsSuiteContext {
+type GetQueryParamsSuiteContext = {
   location: any;
-}
+} & TestContext;
 
-const GetQueryParamsSuite = suite<GetQueryParamsSuiteContext>('getQueryParams');
-
-GetQueryParamsSuite.before((context) => {
-  context.location = window.location;
-  delete (window as any).location;
-  (window as any).location = {
-    search: '',
-  };
-});
-
-GetQueryParamsSuite.after((context) => {
-  (window as any).location = context.location;
-});
-
-GetQueryParamsSuite(
-  'should retrieve the query params and put them on the resulting operation data',
-  () => {
+describe.concurrent<GetQueryParamsSuiteContext>('getQueryParams', () => {
+  beforeEach<GetQueryParamsSuiteContext>(context => {
+    context.location = window.location;
+    delete (window as any).location;
+    (window as any).location = {
+      search: '',
+    };
+  });
+  afterEach<GetQueryParamsSuiteContext>(context => {
+    (window as any).location = context.location;
+  });
+  test('should retrieve the query params and put them on the resulting operation data', () => {
     /// given
     (window as any).location = {
       search: '?test=true&test2=false',
@@ -34,18 +30,11 @@ GetQueryParamsSuite(
     const operationData = {};
 
     // test
-    const result = applyOperation<IGetQueryParamsOperationData>(
-      getQueryParams,
-      operationData
-    );
+    const result = applyOperation(getQueryParams, operationData);
 
-    expect(result).to.eql({ queryParams: { test: 'true', test2: 'false' } });
-  }
-);
-
-GetQueryParamsSuite(
-  'should add an empty queryParams object to the operation data when no query params are present',
-  () => {
+    expect(result).to.eql({queryParams: {test: 'true', test2: 'false'}});
+  });
+  test('should add an empty queryParams object to the operation data when no query params are present', () => {
     /// given
     (window as any).location = {
       search: '',
@@ -53,34 +42,22 @@ GetQueryParamsSuite(
     const operationData = {};
 
     // test
-    const result = applyOperation<IGetQueryParamsOperationData>(
-      getQueryParams,
-      operationData
-    );
+    const result = applyOperation(getQueryParams, operationData);
 
-    expect(result).to.eql({ queryParams: {} });
-  }
-);
-
-GetQueryParamsSuite(
-  'should add the default values when query params not set',
-  () => {
+    expect(result).to.eql({queryParams: {}});
+  });
+  test('should add the default values when query params not set', () => {
     /// given
     (window as any).location = {
       search: 'test=true',
     };
     const operationData: IGetQueryParamsOperationData = {
-      defaultValues: { test: 'true', test2: 'foo' },
+      defaultValues: {test: 'true', test2: 'foo'},
     };
 
     // test
-    const result = applyOperation<IGetQueryParamsOperationData>(
-      getQueryParams,
-      operationData
-    );
+    const result = applyOperation(getQueryParams, operationData);
 
-    expect(result).to.eql({ queryParams: { test: 'true', test2: 'foo' } });
-  }
-);
-
-GetQueryParamsSuite.run();
+    expect(result).to.eql({queryParams: {test: 'true', test2: 'foo'}});
+  });
+});

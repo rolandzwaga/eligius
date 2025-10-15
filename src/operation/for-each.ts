@@ -1,8 +1,16 @@
-import { findMatchingOperationIndex } from './helper/find-matching-operation-index';
-import { IOperationContext, TOperation } from './types';
+import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import {
+  type ExternalProperty,
+  resolveExternalPropertyChain,
+} from './helper/resolve-external-property-chain.ts';
+import type {IOperationContext, TOperation} from './types.ts';
 
 export interface IForEachOperationData {
-  collection: any[] | string;
+  /**
+   * @type=ParameterType:array
+   * @required
+   */
+  collection: unknown[] | string;
 }
 
 /**
@@ -13,23 +21,36 @@ export interface IForEachOperationData {
  *
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
- *
- * @param operationData
- * @returns
  */
-export const forEach: TOperation<IForEachOperationData> = function (operationData: IForEachOperationData) {
-  const { collection } = operationData;
+export const forEach: TOperation<IForEachOperationData> = function (
+  operationData: IForEachOperationData
+) {
+  const {collection} = operationData;
+  const resolvedCollection =
+    typeof collection === 'string'
+      ? (resolveExternalPropertyChain(
+          operationData,
+          this,
+          collection as ExternalProperty
+        ) as any[])
+      : collection;
 
-  if (collection !== null && !Array.isArray(collection)) {
-    throw new Error('Expected collection to be array type, string value was probably not resolved correctly');
+  if (
+    resolvedCollection !== null &&
+    resolvedCollection !== undefined &&
+    !Array.isArray(resolvedCollection)
+  ) {
+    throw new Error(
+      'Expected collection to be array type, string value was probably not resolved correctly'
+    );
   }
 
   // First iteration of the loop
   if (this.loopIndex === undefined) {
     this.loopEndIndex = findEndForEachIndex(this);
-    if (collection?.length) {
+    if (resolvedCollection?.length) {
       this.loopIndex = 0;
-      this.loopLength = collection.length - 1;
+      this.loopLength = resolvedCollection.length - 1;
       this.loopStartIndex = this.currentIndex;
     } else {
       this.newIndex = this.loopEndIndex;
@@ -41,8 +62,8 @@ export const forEach: TOperation<IForEachOperationData> = function (operationDat
     }
   }
 
-  if (collection?.length && this.loopIndex !== undefined) {
-    this.currentItem = collection[this.loopIndex];
+  if (resolvedCollection?.length && this.loopIndex !== undefined) {
+    this.currentItem = resolvedCollection[this.loopIndex];
   }
 
   return operationData;
@@ -59,7 +80,8 @@ function findEndForEachIndex(context: IOperationContext) {
       matchingName: endForEachSystemName,
     })
   );
-  const endLoopIndex = index > -1 ? index + currentIndex : context.operations.length;
+  const endLoopIndex =
+    index > -1 ? index + currentIndex : context.operations.length;
 
   return endLoopIndex;
 }

@@ -1,6 +1,9 @@
-import { TOperation } from './types';
+import type {TOperation} from './types.ts';
 
 export interface IRemoveElementOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
 }
 
@@ -10,10 +13,10 @@ export interface IRemoveElementOperationData {
  * @param operationData
  * @returns
  */
-export const removeElement: TOperation<IRemoveElementOperationData> = function (
+export const removeElement: TOperation<IRemoveElementOperationData> = (
   operationData: IRemoveElementOperationData
-) {
-  const { selectedElement } = operationData;
+) => {
+  const {selectedElement} = operationData;
   selectedElement.remove();
   return operationData;
 };

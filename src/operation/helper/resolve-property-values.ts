@@ -1,20 +1,18 @@
 import $ from 'jquery';
-import { IOperationContext, TOperationData } from '../../operation/types';
-import { isObject } from '../../util/guards/is-object';
-import { isString } from '../../util/guards/is-string';
-import { deepCopy } from './deep-copy';
-import { resolveExternalPropertyChain } from './resolve-external-property-chain';
+import type {IOperationContext, TOperationData} from '../../operation/types.ts';
+import {isObject} from '../../util/guards/is-object.ts';
+import {deepCopy} from './deep-copy.ts';
+import type {ExternalProperty} from './resolve-external-property-chain.ts';
+import {
+  isExternalProperty,
+  resolveExternalPropertyChain,
+} from './resolve-external-property-chain.ts';
 
 const cache: any[] = [];
 
 /**
  * This takes a `newProperties` instance, resolves all of the properties on this object and then
  * assigns these properties to the given operationData.
- * 
- * @param operationData 
- * @param operationContext 
- * @param newProperties 
- * @returns 
  */
 export function resolvePropertyValues<T extends TOperationData>(
   operationData: T,
@@ -38,7 +36,9 @@ export function resolvePropertyValues<T extends TOperationData>(
 function resolveNewProperties(
   properties: Record<string, any>,
   copy: Record<string, any>,
-  resolvePropertyChain: (propertyChain: string) => any
+  resolvePropertyChain: (
+    propertyChain: ExternalProperty | Record<string, any>
+  ) => any
 ) {
   // Prevent recursive looping
   if (cache.indexOf(properties) > -1) {
@@ -53,13 +53,13 @@ function resolveNewProperties(
         return;
       }
 
-      if (isString(value)) {
+      if (isExternalProperty(value)) {
         copy[key] = resolvePropertyChain(value);
       } else if (Array.isArray(value)) {
         value.forEach((item, index, arr) => {
-          if (isString(item)) {
+          if (isExternalProperty(item)) {
             arr[index] = resolvePropertyChain(item);
-          } else {
+          } else if (isObject(item)) {
             resolveNewProperties(item, item, resolvePropertyChain);
           }
         });

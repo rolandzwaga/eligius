@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { animateWithClass } from '../../../operation/animate-with-class';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {animateWithClass} from '../../../operation/animate-with-class.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   removedCalled = false;
@@ -26,11 +26,8 @@ class MockElement {
   }
 }
 
-const AnimateWithClassSuite = suite('animateWithClass');
-
-AnimateWithClassSuite.skip(
-  'should animate by adding the specified class, and remove the class afterwards',
-  async () => {
+describe.concurrent('animateWithClass', () => {
+  test('should animate by adding the specified class, and remove the class afterwards', () => {
     // given
     const mockElement = new MockElement('testClass');
 
@@ -40,18 +37,13 @@ AnimateWithClassSuite.skip(
     };
 
     // test
-    mockElement.handler();
-    await applyOperation<Promise<typeof operationData>>(
-      animateWithClass,
-      operationData
-    );
-    expect(mockElement.removedCalled).to.be.true;
-  }
-);
 
-AnimateWithClassSuite.skip(
-  'should animate by adding the specified class, and keep the class afterwards',
-  async () => {
+    applyOperation(animateWithClass, operationData).then(() => {
+      expect(mockElement.removedCalled).to.be.true;
+    });
+    mockElement.handler();
+  });
+  test('should animate by adding the specified class, and keep the class afterwards', async () => {
     // given
     const mockElement = new MockElement('testClass');
 
@@ -62,13 +54,10 @@ AnimateWithClassSuite.skip(
     };
 
     // test
-    mockElement.handler();
-    await applyOperation<Promise<typeof operationData>>(
-      animateWithClass,
-      operationData
-    );
-    expect(mockElement.removedCalled).to.be.false;
-  }
-);
 
-AnimateWithClassSuite.run();
+    applyOperation(animateWithClass, operationData).then(() => {
+      expect(mockElement.removedCalled).to.be.false;
+    });
+    mockElement.handler();
+  });
+});

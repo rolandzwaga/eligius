@@ -1,7 +1,7 @@
-import fs from 'fs';
-import { EOL } from 'os';
-import path from 'path';
-import camelCaseToDash from '../../util/camel-case-to-dash';
+import fs from 'node:fs';
+import { EOL } from 'node:os';
+import path from 'node:path';
+import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
 const docsJsonPath = path.resolve(__dirname, '../../../docs.json');
 const operationsReadMeoutputPath = path.resolve(__dirname, '../../operation');
@@ -99,23 +99,18 @@ function writeControllersReadMe() {
 
 function generateLink(linkSuffix: string, itemInfo: any) {
   if (linkSuffix === 'functions') {
-    return `- [${
-      itemInfo.name
-    }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
-      itemInfo.name
-    }.html${getFirstCommentLine(
-      itemInfo
-    )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
-      itemInfo.name
-    )}.json))`;
+    return `- [${itemInfo.name
+      }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${itemInfo.name
+      }.html${getFirstCommentLine(
+        itemInfo
+      )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
+        itemInfo.name
+      )}.json))`;
   }
 
-  return `- [${
-    itemInfo.name
-  }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
-    itemInfo.name
-  }.html${getFirstCommentLine(itemInfo)})`;
-
+  return `- [${itemInfo.name
+    }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${itemInfo.name
+    }.html${getFirstCommentLine(itemInfo)})`;
 }
 
 function getFirstCommentLine(itemInfo: any) {

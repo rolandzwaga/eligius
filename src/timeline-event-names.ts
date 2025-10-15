@@ -1,3 +1,5 @@
+export type TimelineEventName = keyof typeof TimelineEventNames;
+
 /**
  * These are the event names that are being braodcast and/or handled by Eligius.
  */

@@ -1,24 +1,30 @@
-import { mergeOperationData } from './helper/merge-operation-data';
-import { TOperation } from './types';
+import {mergeOperationData} from './helper/merge-operation-data.ts';
+import type {TOperation, TOperationData} from './types.ts';
 
 export interface IResizeActionOperationData {
+  /**
+   * @dependency
+   */
   actionInstance: any;
-  actionOperationData: any;
+  /**
+   * @type=ParameterType:object
+   */
+  actionOperationData: TOperationData;
 }
 
 /**
  * @deprecated
- *
- * @param operationData
- * @returns
  */
-export const resizeAction: TOperation<IResizeActionOperationData> = function (
+export const resizeAction: TOperation<IResizeActionOperationData> = (
   operationData: IResizeActionOperationData
-) {
-  const { actionInstance, actionOperationData } = operationData;
+) => {
+  const {actionInstance, actionOperationData} = operationData;
   operationData = mergeOperationData(operationData, actionOperationData);
 
-  if (actionInstance.resize) {
+  if (
+    'resize' in actionInstance &&
+    typeof actionInstance.resize === 'function'
+  ) {
     return actionInstance.resize(operationData);
   }
 

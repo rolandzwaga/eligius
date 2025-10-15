@@ -1,9 +1,9 @@
-import { IResolvedOperation } from '../configuration/types';
-import { IEventbus } from '../eventbus/types';
-import { TOperationData } from '../operation/types';
-import { IStrictDuration } from '../types';
-import { EndableAction } from './endable-action';
-import { ITimelineAction } from './types';
+import type {IResolvedOperation} from '../configuration/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
+import type {TOperationData} from '../operation/types.ts';
+import type {IStrictDuration} from '../types.ts';
+import {EndableAction} from './endable-action.ts';
+import type {ITimelineAction} from './types.ts';
 
 export class TimelineAction extends EndableAction implements ITimelineAction {
   private _active: boolean = false;
@@ -31,7 +31,7 @@ export class TimelineAction extends EndableAction implements ITimelineAction {
   }
 
   end(initOperationData: TOperationData): Promise<TOperationData> {
-    return super.end(initOperationData).then((result) => {
+    return super.end(initOperationData).then(result => {
       this._active = false;
       return result;
     });

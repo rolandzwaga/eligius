@@ -1,10 +1,10 @@
 import $ from 'jquery';
-import {
+import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
-} from '../configuration/types';
-import { animationInterval } from '../util/animation-interval';
-import { ITimelineProvider, TPlayState } from './types';
+} from '../configuration/types.ts';
+import {animationInterval} from '../util/animation-interval.ts';
+import type {ITimelineProvider, TPlayState} from './types.ts';
 
 type TUpdateMethod = (now: number) => void;
 
@@ -39,7 +39,7 @@ export class RequestAnimationFrameTimelineProvider
     configuration: IResolvedEngineConfiguration
   ): IResolvedTimelineConfiguration[] {
     const playlist = configuration.timelines.filter(
-      (timeline) => timeline.type === 'animation'
+      timeline => timeline.type === 'animation'
     );
     return playlist;
   }
@@ -65,7 +65,7 @@ export class RequestAnimationFrameTimelineProvider
       return;
     }
 
-    const item = this._playlist.find((item) => {
+    const item = this._playlist.find(item => {
       return item.uri === uri;
     });
 

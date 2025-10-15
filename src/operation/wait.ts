@@ -1,27 +1,25 @@
-import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import {internalResolve} from './helper/internal-resolve.ts';
+import type {TOperation} from './types.ts';
 
 export interface IWaitOperationData {
   /**
    * The amount of milliseconds the operation will wait for.
+   * @required
    */
   milliseconds: number;
 }
 
 /**
  * This operation waits for the specified amount of milliseconds.
- *
- * @param operationData
- * @returns
  */
-export const wait: TOperation<IWaitOperationData> = function (
+export const wait: TOperation<IWaitOperationData> = (
   operationData: IWaitOperationData
-) {
-  const { milliseconds } = operationData;
+) => {
+  const {milliseconds, ...newOperationData} = operationData;
 
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     setTimeout(() => {
-      internalResolve(resolve, operationData);
+      internalResolve(resolve, newOperationData);
     }, milliseconds);
   });
 };

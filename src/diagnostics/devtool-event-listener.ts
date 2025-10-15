@@ -1,6 +1,6 @@
-import { IEventbusListener } from '../eventbus';
-import { prepareValueForSerialization } from '../util/prepare-value-for-serialization';
-import { IDiagnosticsAgent } from './types';
+import type {IEventbusListener} from '../eventbus/index.ts';
+import {prepareValueForSerialization} from '../util/prepare-value-for-serialization.ts';
+import type {IDiagnosticsAgent} from './types.ts';
 
 export class DevToolEventListener implements IEventbusListener {
   constructor(private agent: IDiagnosticsAgent) {}
@@ -20,7 +20,7 @@ export class DevToolEventListener implements IEventbusListener {
     } catch (e) {
       console.error('postmessage failed');
       console.error(e);
-      console.log('message', message);
+      console.info('message', message);
     }
   }
 }

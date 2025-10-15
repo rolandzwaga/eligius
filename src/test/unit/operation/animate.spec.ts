@@ -1,7 +1,7 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { animate } from '../../../operation/animate';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {animate} from '../../../operation/animate.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockElement {
   properties: any;
@@ -28,47 +28,38 @@ class MockElement {
   }
 }
 
-const AnimateSuite = suite('animate');
+describe.concurrent('animate', () => {
+  test('should animate with easing when defined', async () => {
+    // given
+    const mockElement = new MockElement();
 
-AnimateSuite('should animate with easing when defined', async () => {
-  // given
-  const mockElement = new MockElement();
+    const operationData = {
+      animationEasing: 'slow',
+      selectedElement: mockElement as any as JQuery,
+      animationProperties: {},
+      animationDuration: 5,
+    };
 
-  const operationData = {
-    animationEasing: 'slow',
-    selectedElement: mockElement as any as JQuery,
-    animationProperties: {},
-    animationDuration: 5,
-  };
+    // test
+    const data = await applyOperation(animate, operationData);
 
-  // test
-  const data = await applyOperation<Promise<typeof operationData>>(
-    animate,
-    operationData
-  );
+    // expect
+    expect(data.selectedElement).to.equal(operationData.selectedElement);
+  });
+  test('should animate without easing when not defined', async () => {
+    // given
+    const mockElement = new MockElement();
 
-  // expect
-  expect(data.selectedElement).to.equal(operationData.selectedElement);
+    const operationData = {
+      selectedElement: mockElement as any as JQuery,
+      animationProperties: {},
+      animationDuration: 5,
+    };
+
+    // test
+    const data = await applyOperation(animate, operationData);
+
+    // expect
+    expect(data.selectedElement).to.equal(operationData.selectedElement);
+  });
 });
-
-AnimateSuite('should animate without easing when not defined', async () => {
-  // given
-  const mockElement = new MockElement();
-
-  const operationData = {
-    selectedElement: mockElement as any as JQuery,
-    animationProperties: {},
-    animationDuration: 5,
-  };
-
-  // test
-  const data = await applyOperation<Promise<typeof operationData>>(
-    animate,
-    operationData
-  );
-
-  // expect
-  expect(data.selectedElement).to.equal(operationData.selectedElement);
-});
-
-AnimateSuite.run();

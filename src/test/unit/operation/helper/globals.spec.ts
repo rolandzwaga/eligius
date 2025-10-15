@@ -1,31 +1,25 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { getGlobals, setGlobals } from '../../../../operation/helper/globals';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {getGlobals, setGlobals} from '../../../../operation/helper/globals.ts';
 
-const GetGlobalsSuite = suite('getGlobals');
+describe.concurrent('globals', () => {
+  test('should get the globals', () => {
+    const cache = getGlobals();
+    expect(cache).not.to.be.undefined;
+  });
+  test('should get the global by name', () => {
+    let cache = getGlobals();
+    const value = 'test';
+    cache['test'] = value;
+    cache = getGlobals('test');
+    expect(cache).to.equal(value);
+  });
+  test('should set the given globals', () => {
+    setGlobals({foo: 'bar', bar: 'foo'});
 
-GetGlobalsSuite('should get the globals', () => {
-  const cache = getGlobals();
-  expect(cache).not.to.be.undefined;
+    const cache = getGlobals();
+
+    expect(cache['foo']).to.equal('bar');
+    expect(cache['bar']).to.equal('foo');
+  });
 });
-
-GetGlobalsSuite('should get the global by name', () => {
-  let cache = getGlobals();
-  const value = 'test';
-  cache['test'] = value;
-  cache = getGlobals('test');
-  expect(cache).to.equal(value);
-});
-
-const SetGlobalsSuite = suite('setGlobals');
-
-SetGlobalsSuite('should set the given globals', () => {
-  setGlobals({ foo: 'bar', bar: 'foo' });
-
-  const cache = getGlobals();
-
-  expect(cache['foo']).to.equal('bar');
-  expect(cache['bar']).to.equal('foo');
-});
-
-GetGlobalsSuite.run();

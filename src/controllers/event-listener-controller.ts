@@ -1,9 +1,9 @@
-import { IEndableAction } from '../action/types';
-import { IEventbus } from '../eventbus/types';
-import { deepCopy } from '../operation/helper/deep-copy';
-import { TOperationData } from '../operation/types';
-import { TimelineEventNames } from '../timeline-event-names';
-import { IController } from './types';
+import type {IEndableAction} from '../action/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
+import {deepCopy} from '../operation/helper/deep-copy.ts';
+import type {TOperationData} from '../operation/types.ts';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {IController} from './types.ts';
 
 interface IActionInstanceInfo {
   start: boolean;
@@ -11,17 +11,27 @@ interface IActionInstanceInfo {
 }
 
 export interface IEventListenerControllerOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:eventName
+   * @required
+   */
   eventName: string;
   actions: string[];
+  /**
+   * @type=ParameterType:object
+   */
   actionOperationData?: TOperationData;
 }
 
 /**
  * This controller attaches to the given selected element and adds an event listener for the specified event name that
  * executes the given actions with the given operation data.
- * 
- * By default the `start` operations of the specified actions are executed. To execute the `end` operations instead, 
+ *
+ * By default the `start` operations of the specified actions are executed. To execute the `end` operations instead,
  * prefix the action name with `end:`.
  */
 export class EventListenerController
@@ -47,7 +57,7 @@ export class EventListenerController
       return;
     }
 
-    const { selectedElement, actions, eventName } = this.operationData;
+    const {selectedElement, actions, eventName} = this.operationData;
     if (!this.actionInstanceInfos) {
       this.actionInstanceInfos = [];
 
@@ -103,7 +113,7 @@ export class EventListenerController
   ) {
     if (idx < actions.length) {
       const actionInfo = actions[idx];
-      const { action } = actionInfo;
+      const {action} = actionInfo;
       const method = actionInfo.start
         ? action.start.bind(action)
         : action.end.bind(action);

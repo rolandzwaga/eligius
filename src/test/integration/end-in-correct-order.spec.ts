@@ -1,21 +1,18 @@
 import $ from 'jquery';
 
-import { suite } from 'uvu';
-import { ConfigurationFactory } from '../../configuration/api';
-import { EngineFactory } from '../../engine-factory';
-import { Eventbus } from '../../eventbus';
-import { EligiusResourceImporter } from '../../importer';
+import {describe, test} from 'vitest';
+import {ConfigurationFactory} from '../../configuration/api/index.ts';
+import {EngineFactory} from '../../engine-factory.ts';
+import {Eventbus} from '../../eventbus/index.ts';
+import {EligiusResourceImporter} from '../../importer/index.ts';
 import {
   removeElement,
   selectElement,
   setElementContent,
-} from '../../operation';
+} from '../../operation/index.ts';
 
-const EndInCorrectOrder = suite('EndInCorrectOrder');
-
-EndInCorrectOrder(
-  'The ending of actions need to be called in reverse order',
-  async () => {
+describe.concurrent('EndInCorrectOrder', () => {
+  test('The ending of actions need to be called in reverse order', async () => {
     $('<div data-ct-container=true></div>').appendTo(document.body);
     const factory = new ConfigurationFactory();
     factory.init('nl-NL');
@@ -54,11 +51,11 @@ EndInCorrectOrder(
       .addEndOperationByType(removeElement, {})
       .next()
       .createInitAction('Add element to main container')
-      .addStartOperationByType(selectElement, { selector: '.main' })
+      .addStartOperationByType(selectElement, {selector: '.main'})
       .addStartOperationByType(setElementContent, {
         template: '<div class="sub-container"></div>',
       })
-      .addEndOperationByType(selectElement, { selector: '.sub-container' })
+      .addEndOperationByType(selectElement, {selector: '.sub-container'})
       .addEndOperationByType(removeElement, {});
 
     const configuration = factory.getConfiguration();
@@ -75,7 +72,5 @@ EndInCorrectOrder(
     await engine.init();
 
     await engine.destroy();
-  }
-);
-
-EndInCorrectOrder.run();
+  });
+});

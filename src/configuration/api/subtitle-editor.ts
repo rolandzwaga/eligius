@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
-import {
+import {v4 as uuidv4} from 'uuid';
+import type {
   IStrictDuration,
   ISubtitle,
   ISubtitleCollection,
   TLanguageCode,
-} from '../../types';
+} from '../../types.ts';
 
 /**
  * Used to edit and add to an {@link ISubtitleCollection}.
@@ -13,7 +13,7 @@ export class SubtitleEditor {
   constructor(private collection: ISubtitleCollection[] = []) {}
 
   private _getLanguage(languageCode: string) {
-    return this.collection.find((x) => x.languageCode === languageCode);
+    return this.collection.find(x => x.languageCode === languageCode);
   }
 
   /**
@@ -35,9 +35,9 @@ export class SubtitleEditor {
       ? {
           ...this.collection[0],
           languageCode,
-          titles: this.collection[0].titles.map((x) => ({
+          titles: this.collection[0].titles.map(x => ({
             id: uuidv4(),
-            duration: { ...x.duration },
+            duration: {...x.duration},
             text: '',
           })),
         }
@@ -49,6 +49,14 @@ export class SubtitleEditor {
     return this;
   }
 
+  /**
+   *
+   * Add a single subtitle line that is associated with the given `languageCode`
+   *
+   * @param languageCode
+   * @param subtitle
+   * @returns
+   */
   addSubtitle(languageCode: TLanguageCode, subtitle: ISubtitle) {
     const language = this._getLanguage(languageCode);
     if (!language) {
@@ -65,7 +73,7 @@ export class SubtitleEditor {
     Object.entries(subtitles).forEach(([languageCode, subtitle]) =>
       this.addSubtitle(languageCode as TLanguageCode, {
         id: uuidv4(),
-        duration: { ...duration },
+        duration: {...duration},
         text: subtitle,
       })
     );
@@ -78,7 +86,7 @@ export class SubtitleEditor {
       throw new Error(`Language ${languageCode} does not exist.`);
     }
 
-    const titleIdx = language.titles.findIndex((x) => x.id === subtitle.id);
+    const titleIdx = language.titles.findIndex(x => x.id === subtitle.id);
     if (titleIdx < 0) {
       throw new Error(
         `Subtitle with id '${subtitle.id}' was not found in language with code ${languageCode}.`
@@ -87,7 +95,7 @@ export class SubtitleEditor {
 
     language.titles[titleIdx] = {
       ...subtitle,
-      duration: { ...subtitle.duration },
+      duration: {...subtitle.duration},
     };
     return this;
   }

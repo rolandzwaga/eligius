@@ -1,14 +1,11 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import $ from 'jquery';
-import { suite } from 'uvu';
-import { setElementAttributes } from '../../../operation/set-element-attributes';
-import { applyOperation } from '../../../util/apply-operation';
+import {describe, test} from 'vitest';
+import {setElementAttributes} from '../../../operation/set-element-attributes.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
-const SetElementAttributesSuite = suite('setElementAttributes');
-
-SetElementAttributesSuite(
-  'should set the given attributes on the specified element',
-  () => {
+describe.concurrent('setElementAttributes', () => {
+  test('should set the given attributes on the specified element', () => {
     // given
     const testElement = $('<div/>');
     const operationData = {
@@ -25,7 +22,5 @@ SetElementAttributesSuite(
     // expect
     expect(testElement.attr('testProp1')).to.equal('test1');
     expect(testElement.attr('testProp2')).to.equal('test2');
-  }
-);
-
-SetElementAttributesSuite.run();
+  });
+});

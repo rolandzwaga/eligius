@@ -1,22 +1,19 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { TOperation } from '../../../operation';
-import { endAction } from '../../../operation/end-action';
-import { applyOperation } from '../../../util/apply-operation';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {endAction} from '../../../operation/end-action.ts';
+import type {TOperation} from '../../../operation/index.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockAction {
   end(operationData: TOperation) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       resolve(operationData);
     });
   }
 }
 
-const EndActionSuite = suite('endAction');
-
-EndActionSuite(
-  'should call the end() method on the given action with the given operationdata',
-  async () => {
+describe.concurrent('endAction', () => {
+  test('should call the end() method on the given action with the given operationdata', async () => {
     // given
     const mockAction = new MockAction();
 
@@ -28,13 +25,10 @@ EndActionSuite(
     };
 
     // test
-    const result = await applyOperation<Promise<typeof operationData>>(
-      endAction,
-      operationData
-    );
+    const result = await applyOperation(endAction, operationData);
+
+    delete (operationData as any).actionOperationData;
 
     expect(result).to.eql(operationData);
-  }
-);
-
-EndActionSuite.run();
+  });
+});

@@ -1,5 +1,5 @@
-import { TimelineEventNames } from '../timeline-event-names';
-import { IEventbus, IEventbusInterceptor } from './types';
+import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {IEventbus, IEventbusInterceptor} from './types.ts';
 
 export class RequestVideoUriInterceptor implements IEventbusInterceptor {
   constructor(private eventbus: IEventbus) {}

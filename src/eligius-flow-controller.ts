@@ -1,8 +1,8 @@
-import {
+import type {
   IResolvedEngineConfiguration,
   ITimelineFlow,
-} from './configuration/types';
-import { IEventbus } from './eventbus/types';
+} from './configuration/types.ts';
+import type {IEventbus} from './eventbus/types.ts';
 
 export class EligiusFlowController {
   timelineFlow?: ITimelineFlow;

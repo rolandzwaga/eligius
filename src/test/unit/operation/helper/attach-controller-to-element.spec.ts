@@ -1,6 +1,6 @@
-import { expect } from 'chai';
-import { suite } from 'uvu';
-import { attachControllerToElement } from '../../../../operation/helper/attach-controller-to-element';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {attachControllerToElement} from '../../../../operation/helper/attach-controller-to-element.ts';
 
 class MockElement {
   name: string = '';
@@ -14,11 +14,8 @@ class MockElement {
   }
 }
 
-const AttachControllerToElementSuite = suite('attachControllerToElement');
-
-AttachControllerToElementSuite(
-  'should attach the given controller to the given element',
-  () => {
+describe.concurrent('attachControllerToElement', () => {
+  test('should attach the given controller to the given element', () => {
     // given
     const element = new MockElement();
     const controller = {};
@@ -28,7 +25,5 @@ AttachControllerToElementSuite(
 
     // expect
     expect(element.list).to.contain(controller);
-  }
-);
-
-AttachControllerToElementSuite.run();
+  });
+});

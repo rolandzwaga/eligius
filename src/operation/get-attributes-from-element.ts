@@ -1,8 +1,9 @@
-import { TOperation } from './types';
+import type {TOperation} from './types.ts';
 
 export interface IGetAttributesFromElementOperationData {
   /**
    * The HTML element whose attributes will be retrieved
+   * @dependency
    */
   selectedElement?: JQuery;
   /**
@@ -11,25 +12,30 @@ export interface IGetAttributesFromElementOperationData {
   attributeNames: string[];
   /**
    * The retrieved attributes
+   * @output
    */
-  attributeValues?: Record<string, any>;
+  attributeValues?: Record<string, unknown>;
 }
 
 /**
  * This operation retrieves the values for the specified attribute names from  the given selected element.
  */
-export const getAttributesFromElement: TOperation<IGetAttributesFromElementOperationData> =
-  function (operationData: IGetAttributesFromElementOperationData) {
-    const { selectedElement, attributeNames } = operationData;
+export const getAttributesFromElement: TOperation<
+  IGetAttributesFromElementOperationData
+> = (operationData: IGetAttributesFromElementOperationData) => {
+  const {selectedElement, attributeNames} = operationData;
 
-    operationData.attributeValues = attributeNames.reduce((acc, attrName) => {
+  operationData.attributeValues = attributeNames.reduce(
+    (acc, attrName) => {
       if (attrName !== 'value') {
         acc[attrName] = selectedElement?.attr(attrName);
       } else {
         acc[attrName] = selectedElement?.val();
       }
       return acc;
-    }, {} as Record<string, any>);
+    },
+    {} as Record<string, unknown>
+  );
 
-    return operationData;
-  };
+  return operationData;
+};

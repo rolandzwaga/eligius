@@ -1,7 +1,14 @@
-import { TOperation } from './types';
+import type {TOperation} from './types.ts';
 
 export interface IReparentElementOperationData {
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:selector
+   * @required
+   */
   newParentSelector: string;
 }
 
@@ -12,9 +19,10 @@ export interface IReparentElementOperationData {
  * @param operationData
  * @returns
  */
-export const reparentElement: TOperation<IReparentElementOperationData> =
-  function (operationData: IReparentElementOperationData) {
-    const { selectedElement, newParentSelector } = operationData;
-    selectedElement.remove().appendTo(newParentSelector);
-    return operationData;
-  };
+export const reparentElement: TOperation<IReparentElementOperationData> = (
+  operationData: IReparentElementOperationData
+) => {
+  const {selectedElement, newParentSelector} = operationData;
+  selectedElement.remove().appendTo(newParentSelector);
+  return operationData;
+};

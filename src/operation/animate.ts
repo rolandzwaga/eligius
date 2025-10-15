@@ -1,10 +1,23 @@
-import { internalResolve } from './helper/internal-resolve';
-import { TOperation } from './types';
+import {internalResolve} from './helper/internal-resolve.ts';
+import type {TOperation} from './types.ts';
 
 export interface IAnimateOperationData {
+  /**
+   * @type=ParameterType:boolean
+   */
   animationEasing?: string;
+  /**
+   * @dependency
+   */
   selectedElement: JQuery;
-  animationProperties: any;
+  /**
+   * @required
+   */
+  animationProperties: Record<string, unknown>;
+  /**
+   * @type=ParameterType:number
+   * @required
+   */
   animationDuration: JQuery.Duration;
 }
 
@@ -15,9 +28,9 @@ export interface IAnimateOperationData {
  * @param operationData
  * @returns
  */
-export const animate: TOperation<IAnimateOperationData> = function (
+export const animate: TOperation<IAnimateOperationData> = (
   operationData: IAnimateOperationData
-) {
+) => {
   const {
     animationEasing,
     selectedElement,

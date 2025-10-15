@@ -1,13 +1,24 @@
 import $ from 'jquery';
-import { IEndableAction, ITimelineAction } from './action/types';
-import { IResolvedEngineConfiguration } from './configuration/types';
-import { IEventbus, TEventbusRemover, TEventHandler } from './eventbus/types';
-import { LanguageManager } from './language-manager';
-import { TimelineEventNames } from './timeline-event-names';
-import { ITimelineProvider } from './timelineproviders/types';
-import { IEligiusEngine, ITimelineProviderInfo, TimelineTypes, TResultCallback } from './types';
+import type {IEndableAction, ITimelineAction} from './action/types.ts';
+import type {IResolvedEngineConfiguration} from './configuration/types.ts';
+import type {
+  IEventbus,
+  TEventbusRemover,
+  TEventHandler,
+} from './eventbus/types.ts';
+import type {LanguageManager} from './language-manager.ts';
+import {TimelineEventNames} from './timeline-event-names.ts';
+import type {ITimelineProvider} from './timelineproviders/types.ts';
+import type {
+  IEligiusEngine,
+  ITimelineProviderInfo,
+  TimelineTypes,
+  TResultCallback,
+} from './types.ts';
 
-type ActionMethod = (IEndableAction['start'] & ActionMethodMetadata) | (IEndableAction['end'] & ActionMethodMetadata);
+type ActionMethod =
+  | (IEndableAction['start'] & ActionMethodMetadata)
+  | (IEndableAction['end'] & ActionMethodMetadata);
 
 interface ActionMethodMetadata {
   id: string;
@@ -20,7 +31,10 @@ interface ActionMethodMetadata {
  * the given timeline provider and triggering the actions associated with the positions along the timeline.
  */
 export class EligiusEngine implements IEligiusEngine {
-  private _timeLineActionsLookup: Record<string, Record<number, ActionMethod[]>> = {};
+  private _timeLineActionsLookup: Record<
+    string,
+    Record<number, ActionMethod[]>
+  > = {};
   private _eventbusRemovers: TEventbusRemover[] = [];
   private _currentTimelineUri: string = '';
   private _activeTimelineProvider: ITimelineProvider | undefined = undefined;
@@ -42,7 +56,7 @@ export class EligiusEngine implements IEligiusEngine {
 
     this._addEventbusListeners();
 
-    const { timelines } = this.configuration;
+    const {timelines} = this.configuration;
 
     this._currentTimelineUri = timelines?.[0].uri ?? '';
 
@@ -52,14 +66,14 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _createLayoutTemplate() {
-    const { containerSelector } = this.configuration;
+    const {containerSelector} = this.configuration;
     const container = $(containerSelector);
 
     if (!container || !container.length) {
       throw new Error(`Container selector not found: ${containerSelector}`);
     }
 
-    const { layoutTemplate } = this.configuration;
+    const {layoutTemplate} = this.configuration;
 
     if (layoutTemplate && layoutTemplate.length) {
       container.html(layoutTemplate);
@@ -77,7 +91,9 @@ export class EligiusEngine implements IEligiusEngine {
     const providerSettings = this.timelineProviders[firstTimeline.type];
 
     if (!providerSettings) {
-      throw new Error(`No timeline provider configured for type ${firstTimeline.type}`);
+      throw new Error(
+        `No timeline provider configured for type ${firstTimeline.type}`
+      );
     }
 
     this._activeTimelineProvider?.destroy();
@@ -87,9 +103,15 @@ export class EligiusEngine implements IEligiusEngine {
       throw new Error('NO ACTIVE TIMELINE PROVIDER');
     }
 
-    this._activeTimelineProvider.onTime(this._onTimeHandler.bind(this, Math.floor));
-    this._activeTimelineProvider.onComplete(this._onCompleteCallback.bind(this));
-    this._activeTimelineProvider.onFirstFrame(this._onFirstFrameCallback.bind(this));
+    this._activeTimelineProvider.onTime(
+      this._onTimeHandler.bind(this, Math.floor)
+    );
+    this._activeTimelineProvider.onComplete(
+      this._onCompleteCallback.bind(this)
+    );
+    this._activeTimelineProvider.onFirstFrame(
+      this._onFirstFrameCallback.bind(this)
+    );
     this._activeTimelineProvider.onRestart(this._onRestartCallback.bind(this));
 
     await this._activeTimelineProvider.init();
@@ -103,7 +125,9 @@ export class EligiusEngine implements IEligiusEngine {
 
   private _onFirstFrameCallback() {
     this.eventbus.broadcast(TimelineEventNames.FIRST_FRAME);
-    this.eventbus.broadcast(TimelineEventNames.DURATION, [this._activeTimelineProvider?.getDuration]);
+    this.eventbus.broadcast(TimelineEventNames.DURATION, [
+      this._activeTimelineProvider?.getDuration,
+    ]);
   }
 
   private _onRestartCallback() {
@@ -112,7 +136,10 @@ export class EligiusEngine implements IEligiusEngine {
 
   private async _cleanUp() {
     await this._cleanUpTimeline();
-    await this._executeActions([...this.configuration.initActions].reverse(), 'end');
+    await this._executeActions(
+      [...this.configuration.initActions].reverse(),
+      'end'
+    );
   }
 
   /**
@@ -129,46 +156,87 @@ export class EligiusEngine implements IEligiusEngine {
     this.languageManager.destroy();
 
     this._activeTimelineProvider = undefined;
-    this._eventbusRemovers.forEach((remover) => remover());
+    this._eventbusRemovers.forEach(remover => remover());
 
     if (this.timelineProviders) {
-      Object.values(this.timelineProviders).forEach((providerInfo) => providerInfo.provider.destroy());
+      Object.values(this.timelineProviders).forEach(providerInfo =>
+        providerInfo.provider.destroy()
+      );
     }
 
-    const { containerSelector } = this.configuration;
+    const {containerSelector} = this.configuration;
     const container = $(containerSelector);
     container.empty();
   }
 
-  private _addEventListener(eventName: string, eventHandler: TEventHandler, eventTopic?: string) {
-    this._eventbusRemovers.push(this.eventbus.on(eventName, eventHandler, eventTopic));
+  private _addEventListener(
+    eventName: string,
+    eventHandler: TEventHandler,
+    eventTopic?: string
+  ) {
+    this._eventbusRemovers.push(
+      this.eventbus.on(eventName, eventHandler, eventTopic)
+    );
   }
 
   private _addEventbusListeners() {
     this._addEventListener(
       TimelineEventNames.REQUEST_ENGINE_ROOT,
-      this._handleRequestEngineRoot.bind(this, this.configuration.containerSelector)
+      this._handleRequestEngineRoot.bind(
+        this,
+        this.configuration.containerSelector
+      )
     );
-    this._addEventListener(TimelineEventNames.REQUEST_TIMELINE_URI, this._handleRequestTimelineUri.bind(this));
+    this._addEventListener(
+      TimelineEventNames.REQUEST_TIMELINE_URI,
+      this._handleRequestTimelineUri.bind(this)
+    );
     this._addEventListener(
       TimelineEventNames.REQUEST_CURRENT_TIMELINE_POSITION,
       this._handleRequestTimelinePosition.bind(this, Math.floor)
     );
-    this._addEventListener(TimelineEventNames.REQUEST_TIMELINE_CLEANUP, this._handleTimelineComplete.bind(this));
-    this._addEventListener(TimelineEventNames.REQUEST_CURRENT_TIMELINE, this._requestCurrentTimeline.bind(this));
-    this._addEventListener(TimelineEventNames.PLAY_TOGGLE_REQUEST, this._toggleplay.bind(this));
+    this._addEventListener(
+      TimelineEventNames.REQUEST_TIMELINE_CLEANUP,
+      this._handleTimelineComplete.bind(this)
+    );
+    this._addEventListener(
+      TimelineEventNames.REQUEST_CURRENT_TIMELINE,
+      this._requestCurrentTimeline.bind(this)
+    );
+    this._addEventListener(
+      TimelineEventNames.PLAY_TOGGLE_REQUEST,
+      this._toggleplay.bind(this)
+    );
 
-    this._addEventListener(TimelineEventNames.PLAY_REQUEST, this._playRequest.bind(this));
+    this._addEventListener(
+      TimelineEventNames.PLAY_REQUEST,
+      this._playRequest.bind(this)
+    );
 
-    this._addEventListener(TimelineEventNames.STOP_REQUEST, this._stopRequest.bind(this));
+    this._addEventListener(
+      TimelineEventNames.STOP_REQUEST,
+      this._stopRequest.bind(this)
+    );
 
-    this._addEventListener(TimelineEventNames.PAUSE_REQUEST, this._pauseRequest.bind(this));
+    this._addEventListener(
+      TimelineEventNames.PAUSE_REQUEST,
+      this._pauseRequest.bind(this)
+    );
 
-    this._addEventListener(TimelineEventNames.CONTAINER_REQUEST, this.containerRequest.bind(this));
+    this._addEventListener(
+      TimelineEventNames.CONTAINER_REQUEST,
+      this.containerRequest.bind(this)
+    );
 
-    this._addEventListener(TimelineEventNames.DURATION_REQUEST, this.durationRequest.bind(this));
+    this._addEventListener(
+      TimelineEventNames.DURATION_REQUEST,
+      this.durationRequest.bind(this)
+    );
 
-    this._addEventListener(TimelineEventNames.SEEK_REQUEST, this.seekRequest.bind(this));
+    this._addEventListener(
+      TimelineEventNames.SEEK_REQUEST,
+      this.seekRequest.bind(this)
+    );
   }
 
   private async seekRequest(position: number) {
@@ -184,25 +252,36 @@ export class EligiusEngine implements IEligiusEngine {
       return;
     }
 
-    this.eventbus.broadcast(TimelineEventNames.SEEK, [seekPosition, currentPosition, duration]);
+    this.eventbus.broadcast(TimelineEventNames.SEEK, [
+      seekPosition,
+      currentPosition,
+      duration,
+    ]);
 
     await this._activeTimelineProvider.seek(seekPosition);
     await this._executeSeekActions(seekPosition);
 
-    this.eventbus.broadcast(TimelineEventNames.SEEKED, [this._activeTimelineProvider.getPosition(), duration]);
+    this.eventbus.broadcast(TimelineEventNames.SEEKED, [
+      this._activeTimelineProvider.getPosition(),
+      duration,
+    ]);
 
-    this.eventbus.broadcast(TimelineEventNames.TIME, [this._activeTimelineProvider.getPosition()]);
+    this.eventbus.broadcast(TimelineEventNames.TIME, [
+      this._activeTimelineProvider.getPosition(),
+    ]);
 
     if (this._activeTimelineProvider?.playState === 'running') {
       this._activeTimelineProvider?.start();
     }
   }
 
-  private durationRequest(callBack: TResultCallback) {
+  private durationRequest(callBack: TResultCallback<number | undefined>) {
     callBack(this._activeTimelineProvider?.getDuration());
   }
 
-  private containerRequest(callBack: TResultCallback) {
+  private containerRequest(
+    callBack: TResultCallback<JQuery<HTMLElement> | undefined>
+  ) {
     callBack(this._activeTimelineProvider?.getContainer());
   }
 
@@ -250,21 +329,28 @@ export class EligiusEngine implements IEligiusEngine {
       return;
     }
 
-    this.configuration.timelines.forEach((timelineInfo) => {
-      timelineInfo.timelineActions.forEach(this._addTimelineActionStart.bind(this, timelineInfo.uri));
+    this.configuration.timelines.forEach(timelineInfo => {
+      timelineInfo.timelineActions.forEach(
+        this._addTimelineActionStart.bind(this, timelineInfo.uri)
+      );
     });
 
-    this.configuration.timelines.forEach((timelineInfo) => {
-      timelineInfo.timelineActions.forEach(this._addTimelineActionEnd.bind(this, timelineInfo.uri));
+    this.configuration.timelines.forEach(timelineInfo => {
+      timelineInfo.timelineActions.forEach(
+        this._addTimelineActionEnd.bind(this, timelineInfo.uri)
+      );
     });
 
     EligiusEngine.sortTimelines(Object.values(this._timeLineActionsLookup));
   }
 
   static sortTimelines(timelines: Record<number, ActionMethod[]>[]) {
-    timelines.forEach((timelineActions) => {
+    timelines.forEach(timelineActions => {
       Object.keys(timelineActions).forEach(
-        (key) => ((timelineActions as any)[key] = EligiusEngine.sortActionsPerPosition((timelineActions as any)[key]))
+        key =>
+          ((timelineActions as any)[key] = EligiusEngine.sortActionsPerPosition(
+            (timelineActions as any)[key]
+          ))
       );
     });
   }
@@ -281,16 +367,24 @@ export class EligiusEngine implements IEligiusEngine {
       },
       [[], []] as [ActionMethod[], ActionMethod[]]
     );
-    return [...endMethods.sort(sortActionMethodsHighestStartPositionFirst), ...startMethods];
+    return [
+      ...endMethods.sort(sortActionMethodsHighestStartPositionFirst),
+      ...startMethods,
+    ];
   }
 
-  private _addTimelineActionStart(uri: string, timeLineAction: ITimelineAction) {
+  private _addTimelineActionStart(
+    uri: string,
+    timeLineAction: ITimelineAction
+  ) {
     const startPosition = timeLineAction.duration.start;
     const timelineStartPositions = this._initializeTimelinePosition(
       this._initializeUriLookup(this._timeLineActionsLookup, uri),
       startPosition
     );
-    const startMethod = timeLineAction.start.bind(timeLineAction) as ActionMethod;
+    const startMethod = timeLineAction.start.bind(
+      timeLineAction
+    ) as ActionMethod;
 
     if (timeLineAction.id?.length) {
       startMethod.id = timeLineAction.id;
@@ -307,7 +401,10 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     if (isFinite(end)) {
-      const timelineEndPositions = this._initializeTimelinePosition(this._timeLineActionsLookup[uri], end);
+      const timelineEndPositions = this._initializeTimelinePosition(
+        this._timeLineActionsLookup[uri],
+        end
+      );
       const endMethod = timeLineAction.end.bind(timeLineAction) as ActionMethod;
 
       if (timeLineAction.id?.length) {
@@ -331,7 +428,10 @@ export class EligiusEngine implements IEligiusEngine {
     return lookup[uri];
   }
 
-  private _initializeTimelinePosition(lookup: Record<number, ActionMethod[]>, position: number): ActionMethod[] {
+  private _initializeTimelinePosition(
+    lookup: Record<number, ActionMethod[]>,
+    position: number
+  ): ActionMethod[] {
     if (!lookup[position]) {
       lookup[position] = [] as ActionMethod[];
     }
@@ -339,7 +439,11 @@ export class EligiusEngine implements IEligiusEngine {
     return lookup[position];
   }
 
-  private async _executeActions(actions: IEndableAction[], methodName: 'start' | 'end', idx = 0): Promise<void> {
+  private async _executeActions(
+    actions: IEndableAction[],
+    methodName: 'start' | 'end',
+    idx = 0
+  ): Promise<void> {
     if (actions && idx < actions.length) {
       const action = actions[idx];
 
@@ -350,7 +454,10 @@ export class EligiusEngine implements IEligiusEngine {
     return Promise.resolve();
   }
 
-  private _handleRequestEngineRoot(engineRootSelector: string, resultCallback: TResultCallback) {
+  private _handleRequestEngineRoot(
+    engineRootSelector: string,
+    resultCallback: TResultCallback<JQuery<HTMLElement>>
+  ) {
     resultCallback($(engineRootSelector));
   }
 
@@ -363,13 +470,21 @@ export class EligiusEngine implements IEligiusEngine {
 
     await this._cleanUpTimeline();
 
-    const timelineConfig = this.configuration.timelines.find((timeline) => timeline.uri === uri);
-    if (!timelineConfig || !this._activeTimelineProvider || this._currentTimelineUri === timelineConfig.uri) {
+    const timelineConfig = this.configuration.timelines.find(
+      timeline => timeline.uri === uri
+    );
+    if (
+      !timelineConfig ||
+      !this._activeTimelineProvider ||
+      this._currentTimelineUri === timelineConfig.uri
+    ) {
       return;
     }
     this._currentTimelineUri = timelineConfig.uri;
 
-    this.eventbus.broadcast(TimelineEventNames.CURRENT_TIMELINE_CHANGE, [this._currentTimelineUri]);
+    this.eventbus.broadcast(TimelineEventNames.CURRENT_TIMELINE_CHANGE, [
+      this._currentTimelineUri,
+    ]);
 
     const newProviderSettings = this.timelineProviders[timelineConfig.type];
 
@@ -387,7 +502,9 @@ export class EligiusEngine implements IEligiusEngine {
         }
 
         this._activeTimelineProvider.pause();
-        this.eventbus.broadcast(TimelineEventNames.DURATION, [this._activeTimelineProvider.getDuration()]);
+        this.eventbus.broadcast(TimelineEventNames.DURATION, [
+          this._activeTimelineProvider.getDuration(),
+        ]);
 
         await this._executeStartActions();
 
@@ -404,7 +521,10 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _executeStartActions() {
-    return this._executeRelevantActions(this._getActionsForPosition.bind(this, 0), 'start');
+    return this._executeRelevantActions(
+      this._getActionsForPosition.bind(this, 0),
+      'start'
+    );
   }
 
   /**
@@ -416,12 +536,15 @@ export class EligiusEngine implements IEligiusEngine {
    */
   private _getActionsForPosition(position: number, actions: ITimelineAction[]) {
     return actions.filter(
-      (action) => !action.active && action.duration.start <= position && action.duration.end >= position
+      action =>
+        !action.active &&
+        action.duration.start <= position &&
+        action.duration.end >= position
     );
   }
 
   private _getActiveActions(allActions: ITimelineAction[]) {
-    const actions = allActions.filter((action) => action.active);
+    const actions = allActions.filter(action => action.active);
     return actions.sort(sortActionsHighestStartPositionFirst);
   }
 
@@ -434,7 +557,10 @@ export class EligiusEngine implements IEligiusEngine {
     return this._executeActions(currentActions, executionType, 0);
   }
 
-  private _handleRequestTimelinePosition(floor: Function, resultCallback: TResultCallback) {
+  private _handleRequestTimelinePosition(
+    floor: Function,
+    resultCallback: TResultCallback<number>
+  ) {
     resultCallback(floor(this._activeTimelineProvider?.getPosition() || -1));
   }
 
@@ -446,12 +572,12 @@ export class EligiusEngine implements IEligiusEngine {
     return this._getTimelineActionsForUri(this._currentTimelineUri);
   }
 
-  private _requestCurrentTimeline(resultCallback: TResultCallback) {
+  private _requestCurrentTimeline(resultCallback: TResultCallback<string>) {
     resultCallback(this._currentTimelineUri);
   }
 
   private _getTimelineActionsForUri(uri: string): ITimelineAction[] {
-    const info = this.configuration.timelines.find((timelineInfo) => {
+    const info = this.configuration.timelines.find(timelineInfo => {
       return timelineInfo.uri === uri;
     });
     return info?.timelineActions ?? [];
@@ -474,7 +600,7 @@ export class EligiusEngine implements IEligiusEngine {
 
     if (actions) {
       const executions = actions[position];
-      executions?.forEach((exec) => exec());
+      executions?.forEach(exec => exec());
     }
   }
 
@@ -486,7 +612,8 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     const currentActions = this._getActiveActions(timelineActions).filter(
-      (action) => !(action.duration.start <= position && action.duration.end >= position)
+      action =>
+        !(action.duration.start <= position && action.duration.end >= position)
     );
     const newActions = this._getActionsForPosition(position, timelineActions);
     const currentActionsEnd = this._executeActions(currentActions, 'end', 0);
