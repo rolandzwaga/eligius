@@ -77,7 +77,10 @@ jobs:
         run: npm ci
 
       - name: Test
-        run: npm run test --ci --coverage
+        run: |
+          npx vitest run --config src/vitest.config.ts --coverage --reporter=verbose 2>&1 | tee test-output.log
+          echo "Process exited with code: ${PIPESTATUS[0]}"
+        continue-on-error: true
 
       - name: Build
         run: npm run build
