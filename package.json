@@ -8,16 +8,10 @@
     "url": "https://github.com/rolandzwaga/eligius/issues?q=is%3Aissue+is%3Aopen+label%3ABug"
   },
   "type": "module",
-  "module": "dist/index.esm.js",
+  "module": "./dist/index.js",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.js"
-    },
-    "./metadata": {
-      "types": "./dist/operation/metadata/types.d.ts"
-    }
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
@@ -81,7 +75,6 @@
     "typedoc": "0.28.14",
     "typedoc-plugin-missing-exports": "4.1.2",
     "typescript": "5.9.3",
-    "uuid": "13.0.0",
     "uvu": "0.5.6",
     "video.js": "8.23.4",
     "vitest": "3.2.4",
@@ -95,6 +88,8 @@
   "dependencies": {
     "hotkeys-js": "3.13.15",
     "ts-is-present": "1.2.2",
-    "uninstall": "^0.0.0"
-  }
+    "uuid": "13.0.0"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts"
 }

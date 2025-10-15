@@ -17,7 +17,12 @@ import {
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 import dashToCamelCase from '../../util/dash-to-camel-case.ts';
 
-const project = new Project();
+const project = new Project({
+  compilerOptions: {
+    noEmit: true,  // Prevent emitting .js/.d.ts files for source files
+  },
+  skipAddingFilesFromTsConfig: true,  // Don't load files from tsconfig
+});
 project.addSourceFilesAtPaths('./src/operation/*.ts');
 
 const createOperationMetadata = (sourceFile: SourceFile) => {
