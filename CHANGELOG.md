@@ -1,5 +1,8 @@
 # Change Log
 
+## 1.1.5
+- Stricter typing
+
 ## 1.1.4
 - Fix esm exports
 
