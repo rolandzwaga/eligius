@@ -8,7 +8,7 @@ import type {IOperationContext, TOperation} from './types.ts';
 
 export interface IForEachOperationData {
   /**
-   * @type=ParameterType:array|string
+   * @type=ParameterType:array|ParameterType:string
    * @required
    */
   collection: unknown[] | string | VariableName;
