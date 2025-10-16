@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/add-controller-to-element-operation.json",
   "type": "object",
   "title": "The addControllerToElement schema",
-  "description": "Adds the current controller to the selected element(s)",
-  "required": ["systemName"],
+  "description": "This operation adds the specified controller instance to the given selected element.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {

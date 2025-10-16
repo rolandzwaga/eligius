@@ -4,14 +4,19 @@
   "$id": "http://eligius.com/schema/get-controller-from-element-operation.json",
   "type": "object",
   "title": "The getControllerFromElement schema",
-  "description": "Retrieves the specified controller from the current element",
-  "required": ["systemName", "operationData"],
+  "description": "This operation retrieves the controller instance with the specified name that is assigned to the given selected element.",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -22,20 +27,26 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": ["controllerName"],
+      "required": [
+        "controllerName"
+      ],
       "properties": {
         "controllerName": {
-          "type": "string",
-          "enum": [
-            "EventListenerController",
-            "LabelController",
-            "LottieController",
-            "NavigationController",
-            "ProgressbarController",
-            "RoutingController",
-            "SubtitlesController"
-          ],
-          "$id": "#/properties/operationData/controllerName"
+          "$id": "#/properties/operationData/controllerName",
+          "type": [
+            {
+              "type": "string",
+              "enum": [
+                "EventListenerController",
+                "LabelController",
+                "LottieController",
+                "NavigationController",
+                "ProgressbarController",
+                "RoutingController",
+                "SubtitlesController"
+              ]
+            }
+          ]
         }
       }
     }

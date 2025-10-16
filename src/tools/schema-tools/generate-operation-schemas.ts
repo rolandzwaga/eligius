@@ -268,7 +268,7 @@ function isString(value: TPropertyMetadata): value is TParameterTypes {
 }
 
 function metadataType2SchemaType(
-  value: TParameterTypes | TConstantParametersTypes[]
+  value: TParameterTypes | TConstantParametersTypes[] | metadata.TParameterTypesDelimited
 ) {
   if (Array.isArray(value)) {
     return 'array';
@@ -324,7 +324,7 @@ function getSchemaType(value: string) {
 }
 
 function metadataType2SchemaPattern(
-  value: TParameterTypes | TConstantParametersTypes[]
+  value: TParameterTypes | TConstantParametersTypes[] | metadata.TParameterTypesDelimited
 ) {
   switch (value) {
     case 'ParameterType:className':

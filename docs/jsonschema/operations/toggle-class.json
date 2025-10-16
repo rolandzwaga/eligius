@@ -4,14 +4,19 @@
   "$id": "http://eligius.com/schema/toggle-class-operation.json",
   "type": "object",
   "title": "The toggleClass schema",
-  "description": "Toggles the given class on the selected element",
-  "required": ["systemName", "operationData"],
+  "description": "This operation toggles the specfied class name on the given selected element.\n\nMeaning, if the specified class name exists on the given element it will be removed,\notherwise it will be added.",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -22,11 +27,15 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": ["className"],
+      "required": [
+        "className"
+      ],
       "properties": {
         "className": {
           "$id": "#/properties/operationData/className",
-          "type": "string",
+          "type": [
+            "string"
+          ],
           "pattern": ".-?[_a-zA-Z]+[_a-zA-Z0-9-]*"
         }
       }

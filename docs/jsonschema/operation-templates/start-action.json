@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/start-action-operation.json",
   "type": "object",
   "title": "The startAction schema",
-  "description": "Starts the selected action",
-  "required": ["systemName"],
+  "description": "This operation starts the specified action instance using the given action operation data.\n\nThe action operation data is first merged with the current operation data before it is\npassed on to the action. After the action has completed the action operation data properties\nare removed from the current operation data.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,7 +29,9 @@
       "properties": {
         "actionOperationData": {
           "$id": "#/properties/operationData/actionOperationData",
-          "type": "object"
+          "type": [
+            "object"
+          ]
         }
       }
     }

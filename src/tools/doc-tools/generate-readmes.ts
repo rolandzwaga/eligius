@@ -1,8 +1,11 @@
 import fs from 'node:fs';
 import { EOL } from 'node:os';
-import path from 'node:path';
+import path, { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const docsJsonPath = path.resolve(__dirname, '../../../docs.json');
 const operationsReadMeoutputPath = path.resolve(__dirname, '../../operation');
 const controllersReadMeoutputPath = path.resolve(

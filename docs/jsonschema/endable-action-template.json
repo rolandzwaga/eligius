@@ -4,13 +4,19 @@
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
   "type": "object",
   "title": "The Endable Action Schema",
-  "required": ["name", "startOperations", "endOperations"],
+  "required": [
+    "name",
+    "startOperations",
+    "endOperations"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "name": {
@@ -18,7 +24,9 @@
       "type": "string",
       "title": "The Name Schema",
       "default": "",
-      "examples": ["ProgressbarSetup"],
+      "examples": [
+        "ProgressbarSetup"
+      ],
       "pattern": "^(.*)$"
     },
     "startOperations": {
@@ -32,6 +40,9 @@
           },
           {
             "$ref": "operation-templates/add-controller-to-element.json"
+          },
+          {
+            "$ref": "operation-templates/add-globals-to-operation.json"
           },
           {
             "$ref": "operation-templates/animate.json"
@@ -146,6 +157,9 @@
           },
           {
             "$ref": "operation-templates/set-style.json"
+          },
+          {
+            "$ref": "operation-templates/set-variable.json"
           },
           {
             "$ref": "operation-templates/start-action.json"
@@ -178,6 +192,9 @@
             "$ref": "operation-templates/add-controller-to-element.json"
           },
           {
+            "$ref": "operation-templates/add-globals-to-operation.json"
+          },
+          {
             "$ref": "operation-templates/animate.json"
           },
           {
@@ -290,6 +307,9 @@
           },
           {
             "$ref": "operation-templates/set-style.json"
+          },
+          {
+            "$ref": "operation-templates/set-variable.json"
           },
           {
             "$ref": "operation-templates/start-action.json"

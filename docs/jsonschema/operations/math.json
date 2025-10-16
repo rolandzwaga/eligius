@@ -4,14 +4,19 @@
   "$id": "http://eligius.com/schema/math-operation.json",
   "type": "object",
   "title": "The math schema",
-  "description": "This operation performs the given math function of the specified arguments.",
-  "required": ["systemName", "operationData"],
+  "description": "This operation performs the given math function with the specified arguments.",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -22,56 +27,20 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": ["args"],
+      "required": [
+        "args",
+        "functionName"
+      ],
       "properties": {
         "args": {
           "$id": "#/properties/operationData/args",
-          "type": "array"
+          "type": [
+            "array"
+          ]
         },
         "functionName": {
-          "type": "string",
-          "enum": [
-            "abs",
-            "acos",
-            "acosh",
-            "asin",
-            "asinh",
-            "atan",
-            "atanh",
-            "atan2",
-            "ceil",
-            "cbrt",
-            "expm1",
-            "clz32",
-            "cos",
-            "cosh",
-            "exp",
-            "floor",
-            "fround",
-            "hypot",
-            "imul",
-            "log",
-            "log1p",
-            "log2",
-            "log10",
-            "max",
-            "min",
-            "pow",
-            "random",
-            "round",
-            "sign",
-            "sin",
-            "sinh",
-            "sqrt",
-            "tan",
-            "tanh",
-            "trunc"
-          ],
-          "$id": "#/properties/operationData/functionName"
-        },
-        "mathResult": {
-          "$id": "#/properties/operationData/mathResult",
-          "type": "number"
+          "$id": "#/properties/operationData/functionName",
+          "type": "array"
         }
       }
     }

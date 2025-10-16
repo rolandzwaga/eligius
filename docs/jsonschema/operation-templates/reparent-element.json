@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/reparent-element-operation.json",
   "type": "object",
   "title": "The reparentElement schema",
-  "description": "Moves the selected element to the new location described by the given selector",
-  "required": ["systemName"],
+  "description": "This operation moves the given selected element to the new parent that is defined\nby the specified `newParentSelector`.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,7 +29,9 @@
       "properties": {
         "newParentSelector": {
           "$id": "#/properties/operationData/newParentSelector",
-          "type": "string"
+          "type": [
+            "string"
+          ]
         }
       }
     }

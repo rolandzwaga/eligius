@@ -4,14 +4,19 @@
   "$id": "http://eligius.com/schema/when-operation.json",
   "type": "object",
   "title": "The when schema",
-  "description": "Evaluates the given expression, when it evaluates to false context.skipNextOperation will be set to true",
-  "required": ["systemName", "operationData"],
+  "description": "When the given expression evaluates to false, subsequent operations will be skipped\nuntil an {@link endWhen} or {@link otherwise} operation is encountered.\n\nPractically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.\n\nThe expression is passed in as a formatted string.\nThe left and right values of the expression can be defined like this:\n\n'constant': for a constant string\n100: for a constant number\noperationData.foo: for an operation data value\nglobaldata.foo: for a global data value\ncontext.loopIndex: for a context value",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -22,11 +27,15 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": ["expression"],
+      "required": [
+        "expression"
+      ],
       "properties": {
         "expression": {
           "$id": "#/properties/operationData/expression",
-          "type": "string"
+          "type": [
+            "string"
+          ]
         }
       }
     }

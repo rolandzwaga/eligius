@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/end-for-each-operation.json",
   "type": "object",
   "title": "The endForEach schema",
-  "description": "Ends the current loop",
-  "required": ["systemName"],
+  "description": "This operation checks if the current loop should end or start the next iteration.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {

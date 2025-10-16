@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/remove-controller-from-element-operation.json",
   "type": "object",
   "title": "The removeControllerFromElement schema",
-  "description": "Removes the specified controller from the selected element",
-  "required": ["systemName"],
+  "description": "This operation removes the controller with the specified name from the given selected element.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -24,17 +28,21 @@
       "title": "The Operationdata Schema",
       "properties": {
         "controllerName": {
-          "type": "string",
-          "enum": [
-            "EventListenerController",
-            "LabelController",
-            "LottieController",
-            "NavigationController",
-            "ProgressbarController",
-            "RoutingController",
-            "SubtitlesController"
-          ],
-          "$id": "#/properties/operationData/controllerName"
+          "$id": "#/properties/operationData/controllerName",
+          "type": [
+            {
+              "type": "string",
+              "enum": [
+                "EventListenerController",
+                "LabelController",
+                "LottieController",
+                "NavigationController",
+                "ProgressbarController",
+                "RoutingController",
+                "SubtitlesController"
+              ]
+            }
+          ]
         }
       }
     }

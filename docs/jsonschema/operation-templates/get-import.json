@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/get-import-operation.json",
   "type": "object",
   "title": "The getImport schema",
-  "description": "Retrieves a javascript import specified by the given system name",
-  "required": ["systemName"],
+  "description": "This operation retrieves the import specified by the given `systemName` and\nassigns it to the `importedInstance` property on the current operaton date.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,7 +29,9 @@
       "properties": {
         "systemName": {
           "$id": "#/properties/operationData/systemName",
-          "type": "string"
+          "type": [
+            "string"
+          ]
         }
       }
     }
