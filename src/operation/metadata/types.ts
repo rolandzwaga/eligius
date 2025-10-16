@@ -7,7 +7,7 @@ export type THasDescription = {
 };
 
 export type TComplexPropertyMetadata = {
-  type: TConstantParametersTypes[] | TParameterTypes;
+  type: TConstantParametersTypes[] | TParameterTypes | TParameterTypesDelimited;
   defaultValue?: unknown;
 } & THasRequired &
   THasDescription;
@@ -36,6 +36,8 @@ export interface IOperationMetadata<T> {
   properties?: TPropertiesMetadata<T>;
   outputProperties?: TPropertiesMetadata<T>;
 }
+
+export type TParameterTypesDelimited = `${TParameterTypes}` | `${TParameterTypes}|${string}`;
 
 export type TParameterTypes =
   | 'ParameterType:htmlElementName'

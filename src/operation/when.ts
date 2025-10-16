@@ -1,4 +1,5 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import { getContextVar, isVariableName } from './helper/get-context-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -87,7 +88,7 @@ function parseExpression(
 
   return [
     (Number.isNaN(leftNr)
-      ? left.startsWith('@') ? getContextVar(operationContext.variables, left) : resolveExternalPropertyChain(
+      ? isVariableName(left) ? getContextVar(operationContext.variables, left) : resolveExternalPropertyChain(
           operationData,
           operationContext,
           left as ExternalProperty
@@ -95,7 +96,7 @@ function parseExpression(
       : leftNr) as TValue,
     operator,
     (Number.isNaN(rightNr)
-      ? right.startsWith('@') ? getContextVar(operationContext.variables, right) : resolveExternalPropertyChain(
+      ? isVariableName(right) ? getContextVar(operationContext.variables, right) : resolveExternalPropertyChain(
           operationData,
           operationContext,
           right as ExternalProperty
@@ -103,11 +104,6 @@ function parseExpression(
       : rightNr) as TValue,
   ];
 }
-
-const getContextVar = (variables: Record<string, any>, identifier: string) => {
-  const name = identifier.substring(1);
-  return variables ? variables[name] : undefined;
-};
 
 const evaluations: Record<
   TOperator,

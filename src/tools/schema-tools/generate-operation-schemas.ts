@@ -273,44 +273,53 @@ function metadataType2SchemaType(
   if (Array.isArray(value)) {
     return 'array';
   } else {
-    switch (value) {
-      case 'ParameterType:htmlElementName':
-        return { type: 'string', enum: htmlTagNames };
-      case 'ParameterType:controllerName':
-        return {
-          type: 'string',
-          enum: Object.keys(controllers).map(dashToCamelCase).map(capitalize),
-        };
-      case 'ParameterType:QuadrantPosition':
-        return {
-          type: 'string',
-          enum: ['top', 'left', 'right', 'bottom'],
-        };
-      case 'ParameterType:className':
-      case 'ParameterType:selector':
-      case 'ParameterType:string':
-      case 'ParameterType:eventTopic':
-      case 'ParameterType:eventName':
-      case 'ParameterType:systemName':
-      case 'ParameterType:actionName':
-      case 'ParameterType:url':
-      case 'ParameterType:htmlContent':
-      case 'ParameterType:labelId':
-      case 'ParameterType:ImagePath':
-      case 'ParameterType:dimensionsModifier':
-      case 'ParameterType:expression':
-        return 'string';
-      case 'ParameterType:number':
-        return 'number';
-      case 'ParameterType:object':
-      case 'ParameterType:dimensions':
-      case 'ParameterType:jQuery':
-        return 'object';
-      case 'ParameterType:boolean':
-        return 'boolean';
-      case 'ParameterType:array':
-        return 'array';
+    if (value.indexOf('|')) {
+      return value.split('|').map(x => getSchemaType(x.trim()));
     }
+    return getSchemaType(value);
+  }
+}
+
+function getSchemaType(value: string) {
+  switch (value) {
+    case 'ParameterType:htmlElementName':
+      return { type: 'string', enum: htmlTagNames };
+    case 'ParameterType:controllerName':
+      return {
+        type: 'string',
+        enum: Object.keys(controllers).map(dashToCamelCase).map(capitalize),
+      };
+    case 'ParameterType:QuadrantPosition':
+      return {
+        type: 'string',
+        enum: ['top', 'left', 'right', 'bottom'],
+      };
+    case 'ParameterType:className':
+    case 'ParameterType:selector':
+    case 'ParameterType:string':
+    case 'ParameterType:eventTopic':
+    case 'ParameterType:eventName':
+    case 'ParameterType:systemName':
+    case 'ParameterType:actionName':
+    case 'ParameterType:url':
+    case 'ParameterType:htmlContent':
+    case 'ParameterType:labelId':
+    case 'ParameterType:ImagePath':
+    case 'ParameterType:dimensionsModifier':
+    case 'ParameterType:expression':
+      return 'string';
+    case 'ParameterType:number':
+      return 'number';
+    case 'ParameterType:object':
+    case 'ParameterType:dimensions':
+    case 'ParameterType:jQuery':
+      return 'object';
+    case 'ParameterType:boolean':
+      return 'boolean';
+    case 'ParameterType:array':
+      return 'array';
+    default:
+      return 'string';
   }
 }
 

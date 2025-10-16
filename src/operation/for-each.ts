@@ -1,4 +1,5 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import { getContextVar, isVariableName, type VariableName } from './helper/get-context-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -7,10 +8,10 @@ import type {IOperationContext, TOperation} from './types.ts';
 
 export interface IForEachOperationData {
   /**
-   * @type=ParameterType:array
+   * @type=ParameterType:array|string
    * @required
    */
-  collection: unknown[] | string;
+  collection: unknown[] | string | VariableName;
 }
 
 /**
@@ -28,7 +29,7 @@ export const forEach: TOperation<IForEachOperationData> = function (
   const {collection} = operationData;
   const resolvedCollection =
     typeof collection === 'string'
-      ? (resolveExternalPropertyChain(
+      ? isVariableName(collection) ? getContextVar(this.variables, collection) : (resolveExternalPropertyChain(
           operationData,
           this,
           collection as ExternalProperty
