@@ -8,7 +8,7 @@ import {
 } from '../../../operation/math.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('math', () => {
+describe('math', () => {
   test('should perform all the math calculations', () => {
     // given
 

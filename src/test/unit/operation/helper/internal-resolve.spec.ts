@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import {internalResolve} from '../../../../operation/helper/internal-resolve.ts';
 
-describe.concurrent('internalResolve', () => {
+describe('internalResolve', () => {
   test('it should call the given resolve with the given operationdata', () => {
     // given
     let receivedData: any = null;

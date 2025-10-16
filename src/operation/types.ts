@@ -54,6 +54,11 @@ export interface IOperationContext {
    *
    */
   parent?: IOperationContext;
+
+  /**
+   * 
+  */
+ variables?: Record<string, unknown>;
 }
 
 export type TOperation<T extends TOperationData = TOperationData, RT = T> = (

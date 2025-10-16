@@ -31,7 +31,7 @@ class MockElement {
   }
 }
 
-describe.concurrent('selectElement', () => {
+describe('selectElement', () => {
   test('should select the element based on the specified selector', () => {
     // given
     const selectedElement = {

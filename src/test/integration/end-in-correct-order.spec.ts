@@ -11,7 +11,7 @@ import {
   setElementContent,
 } from '../../operation/index.ts';
 
-describe.concurrent('EndInCorrectOrder', () => {
+describe('EndInCorrectOrder', () => {
   test('The ending of actions need to be called in reverse order', async () => {
     $('<div data-ct-container=true></div>').appendTo(document.body);
     const factory = new ConfigurationFactory();

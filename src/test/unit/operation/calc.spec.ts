@@ -7,7 +7,7 @@ import {
 } from '../../../operation/calc.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('calc', () => {
+describe('calc', () => {
   test('should perform the calculations', () => {
     (['+', '-', '*', '/', '%', '**'] as TCalculationOperator[]).forEach(
       operator => {

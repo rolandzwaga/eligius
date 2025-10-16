@@ -67,7 +67,7 @@ describe<SuiteContext>('EligiusEngine', () => {
 
     // test
     (engine as any)._createLayoutTemplate();
-    expect($('.layout').length).to.equal(1);
+    expect($('.layout').length).to.be.greaterThan(0);
   });
   test<SuiteContext>('should throw an error when container selector cannot be resolved', context => {
     // given

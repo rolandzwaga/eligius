@@ -5,7 +5,7 @@ import {createElement} from '../../../operation/create-element.ts';
 import type {IOperationContext} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('createElement', () => {
+describe('createElement', () => {
   test('should create a simple element', () => {
     // given
     const operationData = {elementName: 'div'};

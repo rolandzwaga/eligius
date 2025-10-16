@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import {getPropertyChainValue} from '../../../../operation/helper/get-property-chain-value.ts';
 
-describe.concurrent('getNestedValue', () => {
+describe('getNestedValue', () => {
   test('should get the nested value', () => {
     // given
     const operationData = {

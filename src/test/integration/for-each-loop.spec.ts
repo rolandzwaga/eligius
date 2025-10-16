@@ -20,7 +20,7 @@ import {
 type ForEachLoopContext = {action: Action} & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
-describe.concurrent<ForEachLoopContext>('Start and end a for each loop', () => {
+describe<ForEachLoopContext>('Start and end a for each loop', () => {
   global.cancelAnimationFrame = () => {};
   beforeEach(context => {
     withContext<ForEachLoopContext>(context);

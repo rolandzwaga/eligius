@@ -8,7 +8,7 @@ import type {
 export const defaultContext: IOperationContext = {
   currentIndex: -1,
   eventbus: {} as any,
-  operations: [],
+  operations: []
 };
 
 export function applyOperation<

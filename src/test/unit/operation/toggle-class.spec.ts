@@ -10,7 +10,7 @@ class MockElement {
   }
 }
 
-describe.concurrent('toggleClass', () => {
+describe('toggleClass', () => {
   test('should toggle the specified clas on the given element', () => {
     // given
     const mockElement: JQuery = new MockElement() as any;

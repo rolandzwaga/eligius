@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {clearOperationData} from '../../../operation/clear-operation-data.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('clearOperationData', () => {
+describe('clearOperationData', () => {
   test('should clear the given operation data', () => {
     // given
     const operationData = {

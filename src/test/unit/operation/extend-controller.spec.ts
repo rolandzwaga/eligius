@@ -4,7 +4,7 @@ import type {IController} from '../../../controllers/types.ts';
 import {extendController} from '../../../operation/extend-controller.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('extendController', () => {
+describe('extendController', () => {
   test('should extend the given controller', () => {
     // given
     const operationData = {
