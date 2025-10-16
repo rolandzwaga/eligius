@@ -5,7 +5,7 @@ import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
 type EventbusSuiteContext = {eventbus: IEventbus} & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
-describe.concurrent<EventbusSuiteContext>('Eventbus', () => {
+describe<EventbusSuiteContext>('Eventbus', () => {
   beforeEach(context => {
     withContext<EventbusSuiteContext>(context);
 

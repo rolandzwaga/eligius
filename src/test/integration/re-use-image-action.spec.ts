@@ -21,7 +21,7 @@ type ReuseActionsContext = {
   engine?: IEligiusEngine;
 } & TestContext;
 
-describe.concurrent<ReuseActionsContext>(
+describe<ReuseActionsContext>(
   'Re-use actions to add pictures',
   () => {
     global.cancelAnimationFrame = () => {};

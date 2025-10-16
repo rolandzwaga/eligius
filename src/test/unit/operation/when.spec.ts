@@ -1,18 +1,18 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
-import type {IResolvedOperation} from '../../../configuration/types.ts';
-import {setGlobals} from '../../../operation/helper/globals.ts';
-import type {IOperationContext} from '../../../operation/index.ts';
-import {type IWhenOperationData, when} from '../../../operation/when.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import { expect } from 'chai';
+import { beforeEach, describe, type TestContext, test } from 'vitest';
+import type { IResolvedOperation } from '../../../configuration/types.ts';
+import { setGlobals } from '../../../operation/helper/globals.ts';
+import type { IOperationContext } from '../../../operation/index.ts';
+import { type IWhenOperationData, when } from '../../../operation/when.ts';
+import { applyOperation } from '../../../util/apply-operation.ts';
 
 type WhenSuiteContext = {
   operationContext: IOperationContext;
-  operationData: IWhenOperationData & {left?: any; right?: any};
+  operationData: IWhenOperationData & { left?: any; right?: any; };
 } & TestContext;
 
-function withContext<T>(ctx: unknown): asserts ctx is T {}
-describe.concurrent<WhenSuiteContext>('when', () => {
+function withContext<T>(ctx: unknown): asserts ctx is T { }
+describe<WhenSuiteContext>('when', () => {
   beforeEach(context => {
     withContext<WhenSuiteContext>(context);
 
@@ -237,7 +237,7 @@ describe.concurrent<WhenSuiteContext>('when', () => {
     operationData,
   }) => {
     // given
-    setGlobals({left: 'foo', right: 'bar'});
+    setGlobals({ left: 'foo', right: 'bar' });
     operationData.expression = 'globaldata.left==globaldata.right';
 
     // test
@@ -269,7 +269,7 @@ describe.concurrent<WhenSuiteContext>('when', () => {
     operationData,
   }) => {
     // given
-    setGlobals({left: 'foo', right: 'bar'});
+    setGlobals({ left: 'foo', right: 'bar' });
 
     operationData.expression = 'globaldata.left==globaldata.right';
 
@@ -289,4 +289,44 @@ describe.concurrent<WhenSuiteContext>('when', () => {
     // expect
     expect(operationContext.newIndex).to.equal(2);
   });
+  test<WhenSuiteContext>('should set newIndex to zero when left variable value is not equal to right variable value', ({
+    operationContext,
+    operationData,
+  }) => {
+    // given
+    operationContext.variables = {
+      left: 1,
+      right: 2
+    };
+
+    operationData.expression =
+      '@left==@right';
+
+    // test
+    applyOperation(when, operationData, operationContext);
+
+    // expect
+    expect(operationContext.newIndex).to.equal(0);
+  });
+
+  test<WhenSuiteContext>('should leave newIndex undefined when left variable value is equal to right variable value', ({
+    operationContext,
+    operationData,
+  }) => {
+    // given
+    operationContext.variables = {
+      left: 1,
+      right: 1
+    };
+
+    operationData.expression =
+      '@left==@right';
+
+    // test
+    applyOperation(when, operationData, operationContext);
+
+    // expect
+    expect(operationContext.newIndex).to.be.undefined;
+  });
+
 });

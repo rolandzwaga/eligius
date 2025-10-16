@@ -14,7 +14,7 @@ type ActionEditorSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
-describe.concurrent<ActionEditorSuiteContext>('ActionEditorSuite', () => {
+describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
   beforeEach(context => {
     withContext<ActionEditorSuiteContext>(context);
 

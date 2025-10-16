@@ -1,9 +1,7 @@
 import {expect} from 'chai';
 import $ from 'jquery';
 import {
-  afterAll,
   afterEach,
-  beforeAll,
   beforeEach,
   describe,
   type TestContext,
@@ -40,7 +38,7 @@ type CreateOptionListContext = {
   cancelAnimationFrame: typeof global.cancelAnimationFrame;
 } & TestContext;
 
-describe.concurrent<CreateOptionListContext>('Create option list', () => {
+describe<CreateOptionListContext>('Create option list', () => {
   beforeEach<CreateOptionListContext>(context => {
     context.cancelAnimationFrame = global.cancelAnimationFrame;
     global.cancelAnimationFrame = () => {};

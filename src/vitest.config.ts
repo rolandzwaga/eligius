@@ -3,6 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   test: {
+    setupFiles: 'src/test/setup.ts',
     globals: true, // Enables global test functions like `describe`, `it`, etc.
     environment: 'jsdom', // Use 'jsdom' if you're testing browser-based code
     coverage: {
@@ -18,7 +19,6 @@ export default defineConfig({
       ],
     },
     include: ['src/test/**/*.spec.ts'],
-    pool: 'threads',
     reporters: process.env.GITHUB_ACTIONS ? ['dot', 'github-actions'] : ['default'],
   },
 });

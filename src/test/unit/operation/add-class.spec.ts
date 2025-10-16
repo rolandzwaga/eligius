@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {addClass} from '../../../operation/add-class.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('addClass', () => {
+describe('addClass', () => {
   test('should add the specified class to the element', () => {
     // given
     const elementMock = {

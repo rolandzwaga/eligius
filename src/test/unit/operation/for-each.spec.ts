@@ -4,7 +4,7 @@ import {forEach} from '../../../operation/for-each.ts';
 import type {IOperationContext} from '../../../operation/types.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('forEach', () => {
+describe('forEach', () => {
   test('should set the context when a valid collection is passed in', () => {
     // given
     const context: IOperationContext = {

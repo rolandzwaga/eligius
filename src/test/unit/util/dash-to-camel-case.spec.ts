@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import dashToCamelCase from '../../../util/dash-to-camel-case.ts';
 
-describe.concurrent('dash-to-camel-case', () => {
+describe('dash-to-camel-case', () => {
   test('should convert a dashed string to a camel cased string', () => {
     // given
     const input = 'i-am-very-dashed';

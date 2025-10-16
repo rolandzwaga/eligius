@@ -1,0 +1,16 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/timeline-provider-settings.json",
+  "type": "object",
+  "title": "The TimelineProviderSettings Schema",
+  "required": [],
+  "properties": {
+    "animation": {
+      "$ref": "raf-timeline-provider-settings.json"
+    },
+    "mediaplayer": {
+      "$ref": "mediaplayer-timeline-provider-settings.json"
+    }
+  }
+}

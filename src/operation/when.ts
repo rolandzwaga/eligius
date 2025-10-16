@@ -1,4 +1,5 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import { getContextVar, isVariableName } from './helper/get-context-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -11,12 +12,14 @@ type TValue =
   | number
   | `operationdata.${string}`
   | `globaldata.${string}`
-  | `context.${string}`;
+  | `context.${string}`
+  | `@${string}`;
 
 type TExpression = `${TValue}${TOperator}${TValue}`;
 
 export interface IWhenOperationData {
   /**
+   * @type=ParameterType:expression
    * @required
    */
   expression: TExpression;
@@ -27,6 +30,23 @@ export interface IWhenOperationData {
  * until an {@link endWhen} or {@link otherwise} operation is encountered.
  *
  * Practically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.
+ * 
+ * The expression is passed in as a formatted string.
+ * The left and right values of the expression can be defined like this:
+ * 
+ * 'constant': for a constant string
+ * 100: for a constant number
+ * operationData.foo: for an operation data value
+ * globaldata.foo: for a global data value
+ * context.loopIndex: for a context value
+ * @foo: for a variable value
+ * 
+ * @example
+ * @foo=='bar'
+ * @example
+ * globalData.foo>@bar
+ * @example
+ * operationData.foo!=100
  *
  * @param operationData
  * @returns
@@ -63,20 +83,20 @@ function parseExpression(
     expression.length - right.length
   ) as TOperator;
 
-  const leftNr = parseInt(left);
-  const rightNr = parseInt(right);
+  const leftNr = parseFloat(left);
+  const rightNr = parseFloat(right);
 
   return [
-    (isNaN(leftNr)
-      ? resolveExternalPropertyChain(
+    (Number.isNaN(leftNr)
+      ? isVariableName(left) ? getContextVar(operationContext.variables, left) : resolveExternalPropertyChain(
           operationData,
           operationContext,
           left as ExternalProperty
         )
       : leftNr) as TValue,
     operator,
-    (isNaN(rightNr)
-      ? resolveExternalPropertyChain(
+    (Number.isNaN(rightNr)
+      ? isVariableName(right) ? getContextVar(operationContext.variables, right) : resolveExternalPropertyChain(
           operationData,
           operationContext,
           right as ExternalProperty

@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {resolveEventArguments} from '../../../../operation/helper/resolve-event-arguments.ts';
 import type {IOperationContext} from '../../../../operation/index.ts';
 
-describe.concurrent('resolveEventArguments', () => {
+describe('resolveEventArguments', () => {
   test('should return undefined when eventArgs is undefined', () => {
     // given
     const operationData = {};

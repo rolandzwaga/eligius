@@ -4,7 +4,7 @@ import {addGlobalsToOperation} from '../../../operation/add-globals-to-operation
 import {setGlobal} from '../../../operation/helper/set-global.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('addGlobalsToOperation', () => {
+describe('addGlobalsToOperation', () => {
   test('should add the given global properties to the given operation data', () => {
     setGlobal('test', 'testing');
 

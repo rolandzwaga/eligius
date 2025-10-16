@@ -4,7 +4,7 @@ import {describe, test} from 'vitest';
 import {setElementAttributes} from '../../../operation/set-element-attributes.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('setElementAttributes', () => {
+describe('setElementAttributes', () => {
   test('should set the given attributes on the specified element', () => {
     // given
     const testElement = $('<div/>');

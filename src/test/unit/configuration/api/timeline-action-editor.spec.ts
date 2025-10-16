@@ -11,7 +11,7 @@ type TimelineActionEditorSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
-describe.concurrent<TimelineActionEditorSuiteContext>(
+describe<TimelineActionEditorSuiteContext>(
   'TimelineActionEditor',
   () => {
     beforeEach(context => {

@@ -15,7 +15,7 @@ class MockAction {
   }
 }
 
-describe.concurrent('startAction', () => {
+describe('startAction', () => {
   test('should start the specified action', async () => {
     // given
     const mockAction = new MockAction() as unknown as IAction;

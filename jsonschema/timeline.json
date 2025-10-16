@@ -1,0 +1,52 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/timeline.json",
+  "type": "object",
+  "title": "The Timeline Schema",
+  "required": ["uri", "type", "duration", "selector"],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "uri": {
+      "$id": "#/properties/uri",
+      "type": "string",
+      "title": "The uri Schema",
+      "description": "The URI for the video or audio file, only used when type is set to mediaplayer"
+    },
+    "type": {
+      "$id": "#/properties/type",
+      "type": "string",
+      "enum": ["animation", "mediaplayer"],
+      "title": "The type Schema"
+    },
+    "duration": {
+      "$id": "#/properties/duration",
+      "type": "number",
+      "title": "The duration schema"
+    },
+    "loop": {
+      "$id": "#/properties/loop",
+      "type": "boolean",
+      "title": "The loop schema"
+    },
+    "selector": {
+      "$id": "#/properties/selector",
+      "type": "string",
+      "title": "The selector schema"
+    },
+    "timelineActions": {
+      "$id": "#/properties/timelineActions",
+      "type": "array",
+      "title": "The timelineActions schema",
+      "items": {
+        "$ref": "timeline-action.json"
+      }
+    }
+  }
+}

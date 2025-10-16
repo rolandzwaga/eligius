@@ -1,0 +1,348 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
+  "type": "object",
+  "title": "The Timeline Action Schema",
+  "required": [
+    "name",
+    "startOperations",
+    "endOperations",
+    "duration"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "duration": {
+      "$id": "#/properties/duration",
+      "type": "object",
+      "title": "The duration Schema",
+      "required": [
+        "start"
+      ],
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        }
+      }
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The Name Schema",
+      "examples": [
+        "ProgressbarSetup"
+      ]
+    },
+    "startOperations": {
+      "$id": "#/properties/startOperations",
+      "type": "array",
+      "title": "The Startoperations Schema",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "operations/add-class.json"
+          },
+          {
+            "$ref": "operations/add-controller-to-element.json"
+          },
+          {
+            "$ref": "operations/add-globals-to-operation.json"
+          },
+          {
+            "$ref": "operations/animate.json"
+          },
+          {
+            "$ref": "operations/animate-with-class.json"
+          },
+          {
+            "$ref": "operations/broadcast-event.json"
+          },
+          {
+            "$ref": "operations/calc.json"
+          },
+          {
+            "$ref": "operations/clear-element.json"
+          },
+          {
+            "$ref": "operations/clear-operation-data.json"
+          },
+          {
+            "$ref": "operations/create-element.json"
+          },
+          {
+            "$ref": "operations/custom-function.json"
+          },
+          {
+            "$ref": "operations/end-action.json"
+          },
+          {
+            "$ref": "operations/end-for-each.json"
+          },
+          {
+            "$ref": "operations/end-when.json"
+          },
+          {
+            "$ref": "operations/extend-controller.json"
+          },
+          {
+            "$ref": "operations/for-each.json"
+          },
+          {
+            "$ref": "operations/get-attributes-from-element.json"
+          },
+          {
+            "$ref": "operations/get-controller-from-element.json"
+          },
+          {
+            "$ref": "operations/get-controller-instance.json"
+          },
+          {
+            "$ref": "operations/get-element-dimensions.json"
+          },
+          {
+            "$ref": "operations/get-import.json"
+          },
+          {
+            "$ref": "operations/get-query-params.json"
+          },
+          {
+            "$ref": "operations/invoke-object-method.json"
+          },
+          {
+            "$ref": "operations/load-json.json"
+          },
+          {
+            "$ref": "operations/log.json"
+          },
+          {
+            "$ref": "operations/math.json"
+          },
+          {
+            "$ref": "operations/otherwise.json"
+          },
+          {
+            "$ref": "operations/remove-class.json"
+          },
+          {
+            "$ref": "operations/remove-controller-from-element.json"
+          },
+          {
+            "$ref": "operations/remove-element.json"
+          },
+          {
+            "$ref": "operations/remove-properties-from-operation-data.json"
+          },
+          {
+            "$ref": "operations/reparent-element.json"
+          },
+          {
+            "$ref": "operations/request-action.json"
+          },
+          {
+            "$ref": "operations/resize-action.json"
+          },
+          {
+            "$ref": "operations/select-element.json"
+          },
+          {
+            "$ref": "operations/set-data.json"
+          },
+          {
+            "$ref": "operations/set-element-attributes.json"
+          },
+          {
+            "$ref": "operations/set-element-content.json"
+          },
+          {
+            "$ref": "operations/set-global-data.json"
+          },
+          {
+            "$ref": "operations/set-operation-data.json"
+          },
+          {
+            "$ref": "operations/set-style.json"
+          },
+          {
+            "$ref": "operations/set-variable.json"
+          },
+          {
+            "$ref": "operations/start-action.json"
+          },
+          {
+            "$ref": "operations/toggle-class.json"
+          },
+          {
+            "$ref": "operations/toggle-element.json"
+          },
+          {
+            "$ref": "operations/wait.json"
+          },
+          {
+            "$ref": "operations/when.json"
+          }
+        ]
+      }
+    },
+    "endOperations": {
+      "$id": "#/properties/endOperations",
+      "type": "array",
+      "title": "The Endoperations Schema",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "operations/add-class.json"
+          },
+          {
+            "$ref": "operations/add-controller-to-element.json"
+          },
+          {
+            "$ref": "operations/add-globals-to-operation.json"
+          },
+          {
+            "$ref": "operations/animate.json"
+          },
+          {
+            "$ref": "operations/animate-with-class.json"
+          },
+          {
+            "$ref": "operations/broadcast-event.json"
+          },
+          {
+            "$ref": "operations/calc.json"
+          },
+          {
+            "$ref": "operations/clear-element.json"
+          },
+          {
+            "$ref": "operations/clear-operation-data.json"
+          },
+          {
+            "$ref": "operations/create-element.json"
+          },
+          {
+            "$ref": "operations/custom-function.json"
+          },
+          {
+            "$ref": "operations/end-action.json"
+          },
+          {
+            "$ref": "operations/end-for-each.json"
+          },
+          {
+            "$ref": "operations/end-when.json"
+          },
+          {
+            "$ref": "operations/extend-controller.json"
+          },
+          {
+            "$ref": "operations/for-each.json"
+          },
+          {
+            "$ref": "operations/get-attributes-from-element.json"
+          },
+          {
+            "$ref": "operations/get-controller-from-element.json"
+          },
+          {
+            "$ref": "operations/get-controller-instance.json"
+          },
+          {
+            "$ref": "operations/get-element-dimensions.json"
+          },
+          {
+            "$ref": "operations/get-import.json"
+          },
+          {
+            "$ref": "operations/get-query-params.json"
+          },
+          {
+            "$ref": "operations/invoke-object-method.json"
+          },
+          {
+            "$ref": "operations/load-json.json"
+          },
+          {
+            "$ref": "operations/log.json"
+          },
+          {
+            "$ref": "operations/math.json"
+          },
+          {
+            "$ref": "operations/otherwise.json"
+          },
+          {
+            "$ref": "operations/remove-class.json"
+          },
+          {
+            "$ref": "operations/remove-controller-from-element.json"
+          },
+          {
+            "$ref": "operations/remove-element.json"
+          },
+          {
+            "$ref": "operations/remove-properties-from-operation-data.json"
+          },
+          {
+            "$ref": "operations/reparent-element.json"
+          },
+          {
+            "$ref": "operations/request-action.json"
+          },
+          {
+            "$ref": "operations/resize-action.json"
+          },
+          {
+            "$ref": "operations/select-element.json"
+          },
+          {
+            "$ref": "operations/set-data.json"
+          },
+          {
+            "$ref": "operations/set-element-attributes.json"
+          },
+          {
+            "$ref": "operations/set-element-content.json"
+          },
+          {
+            "$ref": "operations/set-global-data.json"
+          },
+          {
+            "$ref": "operations/set-operation-data.json"
+          },
+          {
+            "$ref": "operations/set-style.json"
+          },
+          {
+            "$ref": "operations/set-variable.json"
+          },
+          {
+            "$ref": "operations/start-action.json"
+          },
+          {
+            "$ref": "operations/toggle-class.json"
+          },
+          {
+            "$ref": "operations/toggle-element.json"
+          },
+          {
+            "$ref": "operations/wait.json"
+          },
+          {
+            "$ref": "operations/when.json"
+          }
+        ]
+      }
+    }
+  }
+}

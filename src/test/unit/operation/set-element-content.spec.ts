@@ -24,7 +24,7 @@ class MockElement {
   }
 }
 
-describe.concurrent('setElementContent', () => {
+describe('setElementContent', () => {
   test('should set the given element with the specified content', () => {
     // given
     const mockElement = new MockElement();

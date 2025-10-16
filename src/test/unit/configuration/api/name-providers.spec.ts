@@ -5,7 +5,7 @@ import {
   TimeLineEventNamesProvider,
 } from '../../../../configuration/api/name-providers.ts';
 
-describe.concurrent('name-providers', () => {
+describe('name-providers', () => {
   test('should return a list of event names', () => {
     // given
     const provider = new TimeLineEventNamesProvider();

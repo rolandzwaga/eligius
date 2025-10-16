@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {endWhen} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('endWhen', () => {
+describe('endWhen', () => {
   test('should delete whenEvaluation from context', () => {
     // given
     const context = {

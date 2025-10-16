@@ -20,7 +20,7 @@ class MockElement {
   }
 }
 
-describe.concurrent('reparentElement', () => {
+describe('reparentElement', () => {
   test('should set the parent of the given element to the new given parent', () => {
     // given
     const mockElement = new MockElement();

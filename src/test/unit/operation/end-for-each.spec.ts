@@ -4,7 +4,7 @@ import {endForEach} from '../../../operation/end-for-each.ts';
 import type {IOperationContext} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('endForEach', () => {
+describe('endForEach', () => {
   test('should return the operation data', () => {
     // given
     const context: IOperationContext = {

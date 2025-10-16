@@ -1,7 +1,7 @@
 {
   "name": "eligius",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "license": "MIT",
   "homepage": "https://rolandzwaga.github.io/eligius/",
   "bugs": {
@@ -29,11 +29,9 @@
   },
   "scripts": {
     "typecheck": "tsc --pretty --noEmit",
-    "test": "vitest --config src/vitest.config.ts",
-    "test:debug": "npx vitest run --config src/vitest.config.ts --coverage --reporter=verbose --no-truncate 2>&1 | tee test-output.log",
+    "test": "vitest --config src/vitest.config.ts --poolOptions.threads.singleThread --no-file-parallelism",
     "test:ci": "vitest run --config src/vitest.config.ts --reporter=verbose",
     "coverage": "vitest --config src/vitest.config.ts --coverage",
-    "prepublish": "npm run build",
     "generate-readmes": "tsx ./src/tools/doc-tools/generate-readmes",
     "generate-schema": "tsx ./src/tools/schema-tools/generate-operation-schemas",
     "typedoc": "typedoc --options typedoc-metadata.json & typedoc --options typedoc.json",
