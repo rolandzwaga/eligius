@@ -7,7 +7,7 @@ import {
 } from '../../../operation/invoke-object-method.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('invokeObjectMethod', () => {
+describe('invokeObjectMethod', () => {
   test('should call the specified method on the given object', () => {
     // given
     const controller = {

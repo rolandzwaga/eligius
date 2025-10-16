@@ -38,6 +38,7 @@ export {setElementContent} from './set-element-content.ts';
 export {setGlobalData} from './set-global-data.ts';
 export {setOperationData} from './set-operation-data.ts';
 export {setStyle} from './set-style.ts';
+export {setVariable} from './set-variable.ts';
 export {startAction} from './start-action.ts';
 export {toggleClass} from './toggle-class.ts';
 export {toggleElement} from './toggle-element.ts';

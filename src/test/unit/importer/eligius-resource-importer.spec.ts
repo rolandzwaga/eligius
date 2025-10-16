@@ -13,7 +13,7 @@ const controllerImportNames = Object.keys(controllerImports);
 const providerImportNames = Object.keys(providerImports);
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
-describe.concurrent<EligiusResourceImporterSuiteContext>(
+describe<EligiusResourceImporterSuiteContext>(
   'EligiusResourceImporter',
   () => {
     beforeEach(context => {

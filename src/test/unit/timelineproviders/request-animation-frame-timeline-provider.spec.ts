@@ -17,7 +17,7 @@ type RequestAnimationFrameTimelineProviderSuiteContext = {
   cancelAnimationFrame: any;
 } & TestContext;
 
-describe.concurrent('RequestAnimationFrameTimelineProvider', () => {
+describe('RequestAnimationFrameTimelineProvider', () => {
   beforeEach<RequestAnimationFrameTimelineProviderSuiteContext>(context => {
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) =>
       setTimeout(() => cb(performance.now()), 16)

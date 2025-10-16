@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {setOperationData} from '../../../operation/set-operation-data.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('setOperationData', () => {
+describe('setOperationData', () => {
   test('should set the specified operation data', () => {
     // given
     const operationData = {

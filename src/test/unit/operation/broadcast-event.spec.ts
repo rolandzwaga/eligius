@@ -20,7 +20,7 @@ class MockEventbus {
   }
 }
 
-describe.concurrent('broadcastEvent', () => {
+describe('broadcastEvent', () => {
   test('should broadcast the event through the given eventbus and clean up the operationdata', () => {
     // given
     const operationData = {

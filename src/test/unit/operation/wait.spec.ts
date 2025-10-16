@@ -8,7 +8,7 @@ type WaitSuiteContext = {
   mseconds: number;
 } & TestContext;
 
-describe.concurrent<WaitSuiteContext>('wait', () => {
+describe<WaitSuiteContext>('wait', () => {
   beforeEach<WaitSuiteContext>(context => {
     context.mseconds = 0;
     context.timeout = window.setTimeout;

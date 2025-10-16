@@ -59,7 +59,7 @@ type ConfigurationResolverSuiteContext = {
   eventbus: Eventbus;
 } & TestContext;
 
-describe.concurrent<ConfigurationResolverSuiteContext>(
+describe<ConfigurationResolverSuiteContext>(
   'ConfigurationResolver',
   () => {
     beforeEach<ConfigurationResolverSuiteContext>(context => {

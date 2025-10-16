@@ -4,7 +4,7 @@ import type {IGetAttributesFromElementOperationData} from '../../../operation/ge
 import {getAttributesFromElement} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('getAttibutesFromElement', () => {
+describe('getAttibutesFromElement', () => {
   test('should extend the given controller', () => {
     // given
     const operationData: IGetAttributesFromElementOperationData = {

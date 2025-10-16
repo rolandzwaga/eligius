@@ -8,7 +8,7 @@ import {
 import {setGlobal} from '../../../../operation/helper/set-global.ts';
 import type {IOperationContext} from '../../../../operation/index.ts';
 
-describe.concurrent('resolveExternalPropertyChain', () => {
+describe('resolveExternalPropertyChain', () => {
   beforeAll(() => {
     setGlobal('foo', 'bar');
   });

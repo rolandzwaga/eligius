@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {removePropertiesFromOperationData} from '../../../operation/remove-properties-from-operation-data.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('removePropertiesFromOperationData', () => {
+describe('removePropertiesFromOperationData', () => {
   test('should remove the specified properties from the given operationData', () => {
     // given
     const operationData = {

@@ -15,7 +15,7 @@ type LoadJsonContext = {
   result: any;
 } & TestContext;
 
-describe.concurrent<LoadJsonContext>('loadJSON', () => {
+describe<LoadJsonContext>('loadJSON', () => {
   beforeEach<LoadJsonContext>(context => {
     context.fetch = global.fetch;
     context.result = {};

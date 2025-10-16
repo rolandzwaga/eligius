@@ -17,7 +17,7 @@ type ConfigurationFactorySuiteContext = {
   configurationFactory: ConfigurationFactory;
 } & TestContext;
 
-describe.concurrent<ConfigurationFactorySuiteContext>(
+describe<ConfigurationFactorySuiteContext>(
   'ConfigurationFactory',
   () => {
     beforeEach<ConfigurationFactorySuiteContext>(context => {

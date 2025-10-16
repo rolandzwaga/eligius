@@ -4,7 +4,7 @@ import {resolvePropertyValues} from '../../../../operation/helper/resolve-proper
 import {setGlobal} from '../../../../operation/helper/set-global.ts';
 import type {IOperationContext} from '../../../../operation/index.ts';
 
-describe.concurrent('resolvePropertyValues', () => {
+describe('resolvePropertyValues', () => {
   test('should resolve the given property values', () => {
     // given
     const operationData: any = {

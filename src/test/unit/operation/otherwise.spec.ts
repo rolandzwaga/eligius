@@ -3,7 +3,7 @@ import {describe, test} from 'vitest';
 import {otherwise} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-describe.concurrent('otherwise', () => {
+describe('otherwise', () => {
   test('should set newIndex to undefined when it is false', () => {
     // given
     const context = {
