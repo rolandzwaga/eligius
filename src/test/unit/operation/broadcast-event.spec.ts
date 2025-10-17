@@ -93,7 +93,7 @@ describe('broadcastEvent', () => {
   });
   test('should broadcast the event using the resolved arguments', () => {
     // given
-    const args = ['operationdata.arg1', 'operationdata.arg2'];
+    const args = ['$operationdata.arg1', '$operationdata.arg2'];
     const operationData = {
       arg1: 'resolved1',
       arg2: 'resolved2',
@@ -121,7 +121,7 @@ describe('broadcastEvent', () => {
 
     test('should remove eventArgs, eventTopic and eventName from operation data', () => {
     // given
-    const args = ['operationdata.arg1', 'operationdata.arg2'];
+    const args = ['$operationdata.arg1', '$operationdata.arg2'];
     const operationData = {
       arg1: 'resolved1',
       arg2: 'resolved2',

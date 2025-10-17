@@ -4,9 +4,14 @@ import type {TOperation} from './types.ts';
 
 export interface ILogOperationData {
   /**
+   * @type=ParameterType:object|ParameterType:string|ParameterType:number|ParameterType:boolean|ParameterType:array
    * @erased
    */
   logValue?: any;
+  /**
+   * @erased
+   */
+  logName?: string;
 }
 
 /**
@@ -17,8 +22,9 @@ export const log: TOperation<ILogOperationData> = function (
   operationData: ILogOperationData
 ) {
   if ('logValue' in operationData) {
-    console.log('logValue', operationData.logValue);
+    console.log(operationData.logName ?? 'logValue', operationData.logValue);
     delete operationData.logValue;
+    delete operationData.logName;
   } else {
     const globalData = getGlobals();
 

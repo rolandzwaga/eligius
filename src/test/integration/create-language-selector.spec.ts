@@ -86,7 +86,7 @@ describe<CreateOptionListContext>('Create option list', () => {
       })
       .addStartOperationByType(when, {
         expression:
-          'scope.parent.currentItem.languageCode==globaldata.defaultLanguage',
+          '$scope.parent.currentItem.languageCode==$globaldata.defaultLanguage',
       })
       .addStartOperationByType(setOperationData, {
         properties: {
@@ -101,10 +101,10 @@ describe<CreateOptionListContext>('Create option list', () => {
       .addStartOperationByType(createElement, {
         elementName: 'option',
         attributes: {
-          value: 'scope.currentItem.languageCode',
-          selected: 'operationData.isSelectedItem',
+          value: '$scope.currentItem.languageCode',
+          selected: '$operationData.isSelectedItem',
         },
-        text: 'scope.currentItem.label',
+        text: '$scope.currentItem.label',
       })
       .addStartOperationByType(setElementContent, {insertionType: 'append'})
       .addStartOperationByType(endForEach, {})
@@ -127,7 +127,7 @@ describe<CreateOptionListContext>('Create option list', () => {
     );
     eventActionCreator.addStartOperationByType(broadcastEvent, {
       eventName: TimelineEventNames.LANGUAGE_CHANGE,
-      eventArgs: ['operationData.eventTarget.value'],
+      eventArgs: ['$operationData.eventTarget.value'],
     });
 
     context.configuration = factory.getConfiguration();

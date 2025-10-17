@@ -15,7 +15,7 @@ describe('setOperationData', () => {
       properties: {
         prop1: 'prop1',
         prop2: 'prop2',
-        prop3: 'operationdata.testProperty',
+        prop3: '$operationdata.testProperty',
         prop4: 100,
         prop5: true,
         prop6: null,
@@ -49,7 +49,7 @@ describe('setOperationData', () => {
       properties: {
         prop1: 'prop1',
         prop2: 'prop2',
-        prop3: 'operationdata.testProperty',
+        prop3: '$operationdata.testProperty',
       },
     };
 
@@ -77,7 +77,7 @@ describe('setOperationData', () => {
       properties: {
         prop1: 'prop1',
         prop2: 'prop2',
-        prop3: 'operationdata.testProperty',
+        prop3: '$operationdata.testProperty',
       },
     };
 

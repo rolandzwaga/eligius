@@ -14,9 +14,9 @@ describe('resolvePropertyValues', () => {
     };
     const operationScope = {} as IOperationScope;
     const properties = {
-      testValue1: 'operationdata.test1',
-      testValue2: 'operationdata.test2',
-      testValue3: 'operationdata.test3',
+      testValue1: '$operationdata.test1',
+      testValue2: '$operationdata.test2',
+      testValue3: '$operationdata.test3',
     };
 
     // test
@@ -36,7 +36,7 @@ describe('resolvePropertyValues', () => {
       test2: 100,
       test3: true,
       currentItem: {title: 'test'},
-      resolvedItem: 'operationdata.currentItem.title',
+      resolvedItem: '$operationdata.currentItem.title',
     };
     const operationScope = {} as IOperationScope;
 
@@ -57,7 +57,7 @@ describe('resolvePropertyValues', () => {
       test2: 100,
       test3: true,
       currentItem: {title: 'test'},
-      resolvedItem: 'globaldata.globalTitle',
+      resolvedItem: '$globaldata.globalTitle',
     };
     const operationScope = {} as IOperationScope;
     setGlobal('globalTitle', 'global title');
@@ -79,7 +79,7 @@ describe('resolvePropertyValues', () => {
       test2: 100,
       test3: true,
       currentItem: {title: 'test'},
-      resolvedItem: 'scope.currentIndex',
+      resolvedItem: '$scope.currentIndex',
     };
     const operationScope = {currentIndex: 100} as IOperationScope;
 

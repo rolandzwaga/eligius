@@ -4,9 +4,9 @@ import {resolveExternalPropertyChain} from './helper/resolve-external-property-c
 import type {IOperationScope, TOperation, TOperationData} from './types.ts';
 
 export type TDataTarget =
-  | `scope.${string}`
-  | `operationdata.${string}`
-  | `globaldata.${string}`;
+  | `$scope.${string}`
+  | `$operationdata.${string}`
+  | `$globaldata.${string}`;
 
 export interface ISetDataOperationData {
   /**
@@ -22,9 +22,9 @@ export interface ISetDataOperationData {
  * @example The various ways of assigning data
  * ```ts
  * setData({
- *  'operationdata.foo': 'scope.currentItem', // scope.currentItem will be assigned to operationdata.foo
- *  'globaldata.foo': 'scope.currentItem',    // scope.currentItem will be assigned to globaldata.foo
- *  'scope.newIndex': 100,                    // The constant 100 will be assigned to scope.newIndex
+ *  '$operationdata.foo': '$scope.currentItem', // $scope.currentItem will be assigned to $operationdata.foo
+ *  '$globaldata.foo': '$scope.currentItem',    // $scope.currentItem will be assigned to $globaldata.foo
+ *  '$scope.newIndex': 100,                    // The constant 100 will be assigned to $scope.newIndex
  * })
  * ```
  */
@@ -48,7 +48,7 @@ function resolveTargets(
 
   return propertyChains.forEach(item => {
     const path = item.split('.');
-    const rootTarget = path.shift()?.toLowerCase() ?? '';
+    const rootTarget = path.shift()?.toLowerCase().substring(1) ?? '';
     if (!isDataTarget(rootTarget)) {
       throw new Error(
         `Unrecognized target: ${rootTarget}, known targets are: ${knownTargets.join(

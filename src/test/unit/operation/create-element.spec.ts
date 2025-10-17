@@ -69,10 +69,10 @@ describe('createElement', () => {
       elementName: 'div',
       className: 'resolved-class',
       attributes: {
-        class: 'operationdata.className',
+        class: '$operationdata.className',
         id: 'testId',
       },
-      text: 'scope.currentItem.label',
+      text: '$scope.currentItem.label',
     };
 
     const scope: IOperationScope = {

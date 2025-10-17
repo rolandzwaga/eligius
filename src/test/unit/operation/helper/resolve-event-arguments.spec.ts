@@ -23,7 +23,7 @@ describe('resolveEventArguments', () => {
       },
     };
     const operationScope = {} as IOperationScope;
-    const eventArgs = ['operationdata.complexProperty.test'];
+    const eventArgs = ['$operationdata.complexProperty.test'];
 
     // test
     const resolved = resolveEventArguments(
