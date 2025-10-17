@@ -4,7 +4,7 @@
   "$id": "http://eligius.com/schema/set-variable-operation.json",
   "type": "object",
   "title": "The setVariable schema",
-  "description": "This operation sets a variable with the specified name on the context with the specified value.",
+  "description": "This operation sets a variable with the specified name on the scope with the specified value.",
   "required": [
     "systemName",
     "operationData"

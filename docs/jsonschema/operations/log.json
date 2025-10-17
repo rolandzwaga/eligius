@@ -4,9 +4,10 @@
   "$id": "http://eligius.com/schema/log-operation.json",
   "type": "object",
   "title": "The log schema",
-  "description": "This operation logs the current operation data, global data and context to the console.",
+  "description": "This operation logs the specified value, or, when no logValue property has been assigned\nit will log the current operation data, global data and scope to the console",
   "required": [
-    "systemName"
+    "systemName",
+    "operationData"
   ],
   "properties": {
     "id": {
@@ -21,6 +22,20 @@
     "systemName": {
       "$id": "#/properties/systemName",
       "const": "log"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "required": [],
+      "properties": {
+        "logValue": {
+          "$id": "#/properties/operationData/logValue",
+          "type": [
+            "object"
+          ]
+        }
+      }
     }
   }
 }

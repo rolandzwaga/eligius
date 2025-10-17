@@ -29,6 +29,10 @@
       "title": "The Operationdata Schema",
       "required": [],
       "properties": {
+        "template": {
+          "$id": "#/properties/operationData/template",
+          "type": "array"
+        },
         "insertionType": {
           "$id": "#/properties/operationData/insertionType",
           "type": "array"

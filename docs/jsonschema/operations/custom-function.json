@@ -27,7 +27,9 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
+      "required": [
+        "systemName"
+      ],
       "properties": {
         "systemName": {
           "$id": "#/properties/operationData/systemName",

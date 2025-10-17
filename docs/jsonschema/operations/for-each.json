@@ -4,7 +4,7 @@
   "$id": "http://eligius.com/schema/for-each-operation.json",
   "type": "object",
   "title": "The forEach schema",
-  "description": "This operation iterates over the given collection.\n\nEach iteration the current item from the specified collection is\nassigned to the {@link IOperationContext.currentItem} property on the operation context.\n\nAt the start of the loop, the associated {@link endForEach} operation is determined and when\nthe last iteration is completed the flow control is set to the index of that operation.",
+  "description": "This operation iterates over the given collection.\n\nEach iteration the current item from the specified collection is\nassigned to the {@link IOperationScope.currentItem} property on the operation scope.\n\nAt the start of the loop, the associated {@link endForEach} operation is determined and when\nthe last iteration is completed the flow control is set to the index of that operation.",
   "required": [
     "systemName",
     "operationData"
