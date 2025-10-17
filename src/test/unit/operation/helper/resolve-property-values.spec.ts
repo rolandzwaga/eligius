@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import {resolvePropertyValues} from '../../../../operation/helper/resolve-property-values.ts';
 import {setGlobal} from '../../../../operation/helper/set-global.ts';
-import type {IOperationContext} from '../../../../operation/index.ts';
+import type {IOperationScope} from '../../../../operation/index.ts';
 
 describe('resolvePropertyValues', () => {
   test('should resolve the given property values', () => {
@@ -12,7 +12,7 @@ describe('resolvePropertyValues', () => {
       test2: 100,
       test3: true,
     };
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
     const properties = {
       testValue1: 'operationdata.test1',
       testValue2: 'operationdata.test2',
@@ -22,7 +22,7 @@ describe('resolvePropertyValues', () => {
     // test
     const resolved = resolvePropertyValues<
       typeof operationData & typeof properties
-    >(operationData, operationContext, properties);
+    >(operationData, operationScope, properties);
 
     // expect
     expect(resolved.testValue1).to.equal('test1');
@@ -38,12 +38,12 @@ describe('resolvePropertyValues', () => {
       currentItem: {title: 'test'},
       resolvedItem: 'operationdata.currentItem.title',
     };
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
 
     // test
     const resolved = resolvePropertyValues(
       operationData,
-      operationContext,
+      operationScope,
       operationData
     );
 
@@ -59,34 +59,34 @@ describe('resolvePropertyValues', () => {
       currentItem: {title: 'test'},
       resolvedItem: 'globaldata.globalTitle',
     };
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
     setGlobal('globalTitle', 'global title');
 
     // test
     const resolved = resolvePropertyValues(
       operationData,
-      operationContext,
+      operationScope,
       operationData
     );
 
     // expect
     expect(resolved.resolvedItem).to.equal('global title');
   });
-  test('should resolve the given property values on the context', () => {
+  test('should resolve the given property values on the scope', () => {
     // given
     const operationData = {
       test1: 'test1',
       test2: 100,
       test3: true,
       currentItem: {title: 'test'},
-      resolvedItem: 'context.currentIndex',
+      resolvedItem: 'scope.currentIndex',
     };
-    const operationContext = {currentIndex: 100} as IOperationContext;
+    const operationScope = {currentIndex: 100} as IOperationScope;
 
     // test
     const resolved = resolvePropertyValues(
       operationData,
-      operationContext,
+      operationScope,
       operationData
     );
 

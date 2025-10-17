@@ -4,18 +4,18 @@ import {endWhen} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 describe('endWhen', () => {
-  test('should delete whenEvaluation from context', () => {
+  test('should delete whenEvaluation from scope', () => {
     // given
-    const context = {
+    const scope = {
       whenEvaluation: true,
     } as any;
     const operationData = {};
 
     // test
-    const result = applyOperation(endWhen, operationData, context);
+    const result = applyOperation(endWhen, operationData, scope);
 
     // expect
-    expect(context.whenEvaluation).to.be.undefined;
+    expect(scope.whenEvaluation).to.be.undefined;
     expect(result).to.be.equal(operationData);
   });
 });

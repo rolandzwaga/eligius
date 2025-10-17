@@ -23,7 +23,23 @@ describe('toggleClass', () => {
     const newData = applyOperation(toggleClass, operationData);
 
     // expect
-    expect((mockElement as any).className).to.equal(operationData.className);
+    expect((mockElement as any).className).to.equal('testClass');
     expect(newData).to.equal(operationData);
   });
+
+  test('should remove the className property from the operation data', () => {
+    // given
+    const mockElement: JQuery = new MockElement() as any;
+    const operationData = {
+      selectedElement: mockElement,
+      className: 'testClass',
+    };
+
+    // test
+    const newData = applyOperation(toggleClass, operationData);
+
+    // expect
+    expect('className' in newData).to.be.false;
+  });
+
 });

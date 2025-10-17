@@ -53,4 +53,28 @@ describe('math', () => {
       expect(result.mathResult).to.equal(Math[propName]);
     });
   });
+
+  test('Should remove the args and functionName properties from the operation data', () => {
+    const intProperties: MathNonFunctionKeys[] = Object.getOwnPropertyNames(
+      Math
+    ).filter(
+      x => typeof Math[x as keyof Math] === 'number'
+    ) as MathNonFunctionKeys[];
+
+    intProperties.forEach(propName => {
+      //given
+      const operationData: IMathOperationData = {
+        args: [0, propName],
+        functionName: 'max',
+      };
+
+      // test
+      const newData = applyOperation(math, operationData);
+
+      // expect
+      expect('args' in newData).to.be.false;
+      expect('functionName' in newData).to.be.false;
+    });
+  });
+
 });

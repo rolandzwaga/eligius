@@ -25,7 +25,7 @@ export class EndableAction extends Action {
       return Promise.resolve(initOperationData ?? {});
     }
 
-    this._initializeContextStack();
+    this._initializeScopeStack();
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(

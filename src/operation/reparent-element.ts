@@ -8,6 +8,7 @@ export interface IReparentElementOperationData {
   /**
    * @type=ParameterType:selector
    * @required
+   * @erased
    */
   newParentSelector: string;
 }
@@ -23,6 +24,7 @@ export const reparentElement: TOperation<IReparentElementOperationData> = (
   operationData: IReparentElementOperationData
 ) => {
   const {selectedElement, newParentSelector} = operationData;
+  delete (operationData as any).newParentSelector;
   selectedElement.remove().appendTo(newParentSelector);
   return operationData;
 };

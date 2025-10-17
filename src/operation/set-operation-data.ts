@@ -4,10 +4,12 @@ import type {TOperation} from './types.ts';
 export interface ISetOperationData {
   /**
    * If set to true, the plucked properties replace the current operation data.
+   * @erased
    */
   override?: boolean;
   /**
    * @required
+   * @erased
    */
   properties: Record<string, any>;
 }

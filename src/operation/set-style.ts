@@ -4,6 +4,7 @@ import type {TOperation} from './types.ts';
 export interface ISetStyleOperationData {
   /**
    * @required
+   * @erased
    */
   properties: Record<string, any>;
   /**
@@ -25,6 +26,8 @@ export const setStyle: TOperation<ISetStyleOperationData> = function (
     operationData.properties
   );
   operationData.selectedElement.css(properties as JQuery.PlainObject);
+
+  delete (operationData as any).properties;
 
   return operationData;
 };

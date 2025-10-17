@@ -32,8 +32,27 @@ describe('requestAction', () => {
     });
 
     // expect
-    expect(eventbus.systemName).to.equal(operationData.systemName);
+    expect(eventbus.systemName).to.equal('testActionName');
     expect(eventbus.eventName).to.equal(TimelineEventNames.REQUEST_ACTION);
     expect(newData.actionInstance).to.equal(eventbus.mockAction);
   });
+
+  test('should remove the systemName from the operation data', () => {
+    // given
+    const operationData = {
+      systemName: 'testActionName',
+    } as any;
+    const eventbus = new MockEventbus();
+
+    // test
+    const newData: any = applyOperation(requestAction, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+      operations: [],
+    });
+
+    // expect
+    expect('systemName' in newData).to.be.false;
+  });
+
 });

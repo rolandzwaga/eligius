@@ -1,16 +1,17 @@
 import {getPropertyChainValue} from './helper/get-property-chain-value.ts';
 import {getGlobals, type TGlobalCache} from './helper/globals.ts';
 import {resolveExternalPropertyChain} from './helper/resolve-external-property-chain.ts';
-import type {IOperationContext, TOperation, TOperationData} from './types.ts';
+import type {IOperationScope, TOperation, TOperationData} from './types.ts';
 
 export type TDataTarget =
-  | `context.${string}`
+  | `scope.${string}`
   | `operationdata.${string}`
   | `globaldata.${string}`;
 
 export interface ISetDataOperationData {
   /**
    * @required
+   * @erased
    */
   properties: Record<TDataTarget, any>;
 }
@@ -21,9 +22,9 @@ export interface ISetDataOperationData {
  * @example The various ways of assigning data
  * ```ts
  * setData({
- *  'operationdata.foo': 'context.currentItem', // context.currentItem will be assigned to operationdata.foo
- *  'globaldata.foo': 'context.currentItem',    // context.currentItem will be assigned to globaldata.foo
- *  'context.newIndex': 100,                    // The constant 100 will be assigned to context.newIndex
+ *  'operationdata.foo': 'scope.currentItem', // scope.currentItem will be assigned to operationdata.foo
+ *  'globaldata.foo': 'scope.currentItem',    // scope.currentItem will be assigned to globaldata.foo
+ *  'scope.newIndex': 100,                    // The constant 100 will be assigned to scope.newIndex
  * })
  * ```
  */
@@ -41,7 +42,7 @@ export const setData: TOperation<ISetDataOperationData> = function (
 function resolveTargets(
   data: Record<TDataTarget, any>,
   operationData: Record<string, any>,
-  context: IOperationContext
+  scope: IOperationScope
 ) {
   const propertyChains = Object.keys(data);
 
@@ -58,16 +59,16 @@ function resolveTargets(
     const property = path.pop() ?? '';
     const propertyValue = resolveExternalPropertyChain(
       operationData,
-      context,
+      scope,
       (data as any)[item]
     );
 
     const targets: {
-      context: IOperationContext;
+      scope: IOperationScope;
       operationdata: TOperationData;
       globaldata: TGlobalCache;
     } = {
-      context: context,
+      scope,
       operationdata: operationData,
       globaldata: getGlobals(),
     };
@@ -81,7 +82,7 @@ function resolveTargets(
   });
 }
 
-const knownTargets = ['context', 'operationdata', 'globaldata'];
+const knownTargets = ['scope', 'operationdata', 'globaldata'];
 function isDataTarget(value: string): value is TDataTarget {
   return knownTargets.includes(value);
 }

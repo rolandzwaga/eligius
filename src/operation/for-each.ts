@@ -1,14 +1,14 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import { getContextVar, isVariableName, type VariableName } from './helper/get-context-var.ts';
+import { getScopeVar, isVariableName, type VariableName } from './helper/get-scope-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
 } from './helper/resolve-external-property-chain.ts';
-import type {IOperationContext, TOperation} from './types.ts';
+import type {IOperationScope, TOperation} from './types.ts';
 
 export interface IForEachOperationData {
   /**
-   * @type=ParameterType:array|string
+   * @type=ParameterType:array|ParameterType:string
    * @required
    */
   collection: unknown[] | string | VariableName;
@@ -18,7 +18,7 @@ export interface IForEachOperationData {
  * This operation iterates over the given collection.
  *
  * Each iteration the current item from the specified collection is
- * assigned to the {@link IOperationContext.currentItem} property on the operation context.
+ * assigned to the {@link IOperationScope.currentItem} property on the operation scope.
  *
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
@@ -29,7 +29,7 @@ export const forEach: TOperation<IForEachOperationData> = function (
   const {collection} = operationData;
   const resolvedCollection =
     typeof collection === 'string'
-      ? isVariableName(collection) ? getContextVar(this.variables, collection) : (resolveExternalPropertyChain(
+      ? isVariableName(collection) ? getScopeVar(this.variables, collection) : (resolveExternalPropertyChain(
           operationData,
           this,
           collection as ExternalProperty
@@ -70,9 +70,9 @@ export const forEach: TOperation<IForEachOperationData> = function (
   return operationData;
 };
 
-function findEndForEachIndex(context: IOperationContext) {
-  const currentIndex = context.currentIndex + 1;
-  const list = context.operations.slice(currentIndex);
+function findEndForEachIndex(scope: IOperationScope) {
+  const currentIndex = scope.currentIndex + 1;
+  const list = scope.operations.slice(currentIndex);
 
   const index = list.findIndex(
     findMatchingOperationIndex.bind({
@@ -82,7 +82,7 @@ function findEndForEachIndex(context: IOperationContext) {
     })
   );
   const endLoopIndex =
-    index > -1 ? index + currentIndex : context.operations.length;
+    index > -1 ? index + currentIndex : scope.operations.length;
 
   return endLoopIndex;
 }

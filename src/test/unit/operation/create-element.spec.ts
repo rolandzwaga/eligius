@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/index.ts';
 import {createElement} from '../../../operation/create-element.ts';
-import type {IOperationContext} from '../../../operation/index.ts';
+import type {IOperationScope} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 describe('createElement', () => {
@@ -72,10 +72,10 @@ describe('createElement', () => {
         class: 'operationdata.className',
         id: 'testId',
       },
-      text: 'context.currentItem.label',
+      text: 'scope.currentItem.label',
     };
 
-    const context: IOperationContext = {
+    const scope: IOperationScope = {
       currentIndex: 0,
       eventbus: {} as IEventbus,
       operations: [],
@@ -85,7 +85,7 @@ describe('createElement', () => {
     };
 
     // test
-    const newData = applyOperation(createElement, operationData, context);
+    const newData = applyOperation(createElement, operationData, scope);
 
     // expect
     expect(newData.template.prop('outerHTML')).to.equal(
@@ -111,4 +111,25 @@ describe('createElement', () => {
       '<div id="testId">test text</div>'
     );
   });
+
+    test('should remove elementName, attributes and text properties from operation data', () => {
+    // given
+    const operationData = {
+      elementName: 'div',
+      attributes: {
+        class: undefined,
+        id: 'testId',
+      },
+      text: 'test text',
+    };
+
+    // test
+    const newData = applyOperation(createElement, operationData);
+
+    // expect
+    expect('elementName' in newData).to.be.false;
+    expect('attributes' in newData).to.be.false;
+    expect('text' in newData).to.be.false;
+  });
+
 });

@@ -9,9 +9,6 @@ export interface IRemoveElementOperationData {
 
 /**
  * This operation removes the given selected element from the DOM.
- *
- * @param operationData
- * @returns
  */
 export const removeElement: TOperation<IRemoveElementOperationData> = (
   operationData: IRemoveElementOperationData

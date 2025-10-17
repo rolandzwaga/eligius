@@ -2,6 +2,10 @@ export type THasRequired = {
   required?: boolean;
 };
 
+export type THasErased = {
+  erased?: boolean;
+};
+
 export type THasDescription = {
   description?: string;
 };
@@ -9,13 +13,13 @@ export type THasDescription = {
 export type TComplexPropertyMetadata = {
   type: TConstantParametersTypes[] | TParameterTypes | TParameterTypesDelimited;
   defaultValue?: unknown;
-} & THasRequired &
+} & THasRequired & THasErased &
   THasDescription;
 
 export type TArrayProperyMetadata = {
   type: 'ParameterType:array';
   itemType: TParameterTypes;
-} & THasRequired &
+} & THasRequired & THasErased &
   THasDescription;
 
 export type TConstantParametersTypes = {
@@ -61,4 +65,5 @@ export type TParameterTypes =
   | 'ParameterType:ImagePath'
   | 'ParameterType:QuadrantPosition'
   | 'ParameterType:jQuery'
-  | 'ParameterType:expression';
+  | 'ParameterType:expression'
+  | 'ParameterType:mathfunction';

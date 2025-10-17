@@ -3,7 +3,7 @@ import type {IResolvedOperation} from 'configuration/types.ts';
 import {beforeEach, describe, type TestContext, test} from 'vitest';
 import {Action} from '../../../action/index.ts';
 import {Eventbus} from '../../../eventbus/index.ts';
-import type {IOperationContext} from '../../../operation/types.ts';
+import type {IOperationScope} from '../../../operation/types.ts';
 
 type ActionContext = {
   action: Action;
@@ -174,7 +174,7 @@ describe<ActionContext>('Action', () => {
       id: 'id1',
       systemName: 'systemNam1',
       operationData: opData1,
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         op.result = [];
         op.result.push(this.currentIndex);
         return op;
@@ -185,7 +185,7 @@ describe<ActionContext>('Action', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: opData2,
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         op.result.push(this.currentIndex);
         return op;
       },

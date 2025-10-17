@@ -62,4 +62,24 @@ describe('animate', () => {
     // expect
     expect(data.selectedElement).to.equal(operationData.selectedElement);
   });
+
+  test('should remove animationEasing, animationProperties and animationDuration from operation data', async () => {
+    // given
+    const mockElement = new MockElement();
+
+    const operationData = {
+      selectedElement: mockElement as any as JQuery,
+      animationProperties: {},
+      animationDuration: 5,
+    };
+
+    // test
+    const data = await applyOperation(animate, operationData);
+
+    // expect
+    expect('animationEasing' in operationData).to.be.false;
+    expect('animationProperties' in operationData).to.be.false;
+    expect('animationDuration' in operationData).to.be.false;
+  });
+
 });

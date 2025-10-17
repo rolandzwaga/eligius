@@ -58,7 +58,27 @@ describe<LoadJsonContext>('loadJSON', () => {
     // expect
     expect(newData.json).to.equal(context.result);
     context.result = {test: false};
-    newData = await applyOperation(loadJson, operationData);
+    newData = await applyOperation(loadJson, {
+      url: '/test.json',
+      cache: true,
+    });
     expect(newData.json).to.not.eql(context.result);
   });
+
+  test<LoadJsonContext>('should remove the url and cache properties from the operation data', async context => {
+    // given
+    context.result = {test: true};
+    const operationData = {
+      url: '/test.json',
+      cache: true,
+    };
+
+    // test
+    let newData = await applyOperation(loadJson, operationData);
+
+    // expect
+    expect('url' in newData).to.be.false;
+    expect('cache' in newData).to.be.false;
+  });
+
 });

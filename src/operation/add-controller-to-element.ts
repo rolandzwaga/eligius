@@ -1,7 +1,7 @@
 import type {IController} from '../controllers/types.ts';
 import {attachControllerToElement} from './helper/attach-controller-to-element.ts';
 import {internalResolve} from './helper/internal-resolve.ts';
-import type {IOperationContext, TOperation, TOperationData} from './types.ts';
+import type {IOperationScope, TOperation, TOperationData} from './types.ts';
 
 export type IAddControllerToElementOperationData<
   T extends TOperationData = TOperationData,
@@ -22,7 +22,7 @@ export type IAddControllerToElementOperationData<
  */
 export const addControllerToElement: TOperation<IAddControllerToElementOperationData> =
   function <T extends TOperationData = TOperationData>(
-    this: IOperationContext,
+    this: IOperationScope,
     operationData: IAddControllerToElementOperationData<T>
   ) {
     const {selectedElement, controllerInstance} = operationData;

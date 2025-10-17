@@ -1,5 +1,5 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import type {IOperationContext, TOperation} from './types.ts';
+import type {IOperationScope, TOperation} from './types.ts';
 
 /**
  * If the preceeding {@link when} operation evaluates to `true` subsequent operations will
@@ -14,9 +14,9 @@ export const otherwise: TOperation<Record<string, unknown>> = function (
   return operationData;
 };
 
-function findEndWhenIndex(context: IOperationContext) {
-  const currentIndex = context.currentIndex + 1;
-  const list = context.operations.slice(currentIndex);
+function findEndWhenIndex(scope: IOperationScope) {
+  const currentIndex = scope.currentIndex + 1;
+  const list = scope.operations.slice(currentIndex);
 
   const endWhenIndex = list.findIndex(
     findMatchingOperationIndex.bind({
@@ -28,5 +28,5 @@ function findEndWhenIndex(context: IOperationContext) {
 
   return endWhenIndex > -1
     ? endWhenIndex + currentIndex
-    : context.operations.length;
+    : scope.operations.length;
 }

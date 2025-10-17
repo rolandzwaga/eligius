@@ -9,6 +9,10 @@ export interface IExtendControllerOperationData {
    * @dependency
    */
   controllerInstance: IController<TOperationData>;
+  /**
+   * @erased
+   * @required
+   */
   controllerExtension: Record<PropertyKey, unknown>;
 }
 
@@ -19,6 +23,8 @@ export const extendController: TOperation<IExtendControllerOperationData> = (
   operationData: IExtendControllerOperationData
 ) => {
   const {controllerInstance, controllerExtension} = operationData;
+
+  delete (operationData as any).controllerExtension;
 
   operationData.controllerInstance = Object.assign(
     controllerInstance,

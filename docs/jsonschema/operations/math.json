@@ -40,7 +40,9 @@
         },
         "functionName": {
           "$id": "#/properties/operationData/functionName",
-          "type": "array"
+          "type": [
+            "string"
+          ]
         }
       }
     }

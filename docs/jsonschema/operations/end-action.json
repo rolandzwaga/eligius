@@ -27,7 +27,9 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
+      "required": [
+        "actionOperationData"
+      ],
       "properties": {
         "actionOperationData": {
           "$id": "#/properties/operationData/actionOperationData",

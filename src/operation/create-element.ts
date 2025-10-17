@@ -1,18 +1,24 @@
 import $ from 'jquery';
 import type {RequireKeys} from 'types.ts';
 import {resolvePropertyValues} from './helper/resolve-property-values.ts';
-import type {IOperationContext, TOperation} from './types.ts';
+import type {IOperationScope, TOperation} from './types.ts';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
 export interface ICreateElementOperationData<T extends TTagNames> {
   /**
+   * @type=ParameterType:htmlElementName
    * @required
+   * @erased
    */
   elementName: T;
+  /**
+   * @erased
+   */
   text?: string;
   /**
    * @type=ParameterType:object
+   * @erased
    */
   attributes?: Partial<HTMLElementTagNameMap[T]>;
   /**
@@ -33,12 +39,16 @@ export const createElement: TOperation<
   ICreateElementOperationData<TTagNames>,
   RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>
 > = function <T extends TTagNames>(
-  this: IOperationContext,
+  this: IOperationScope,
   operationData: ICreateElementOperationData<T>
 ) {
   operationData = resolvePropertyValues(operationData, this, operationData);
 
   const {elementName, attributes, text} = operationData;
+  
+  delete (operationData as any).elementName;
+  delete (operationData as any).attributes;
+  delete (operationData as any).text;
 
   const serializedAttrs = attributes
     ? ` ${Object.entries(attributes)

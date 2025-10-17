@@ -5,6 +5,7 @@ export interface IWaitOperationData {
   /**
    * The amount of milliseconds the operation will wait for.
    * @required
+   * @erased
    */
   milliseconds: number;
 }

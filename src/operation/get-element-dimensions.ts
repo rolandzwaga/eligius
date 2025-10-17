@@ -8,6 +8,7 @@ export interface IGetElementDimensionsOperationData {
   selectedElement: JQuery;
   /**
    * @type=ParameterType:dimensionsModifier
+   * @erased
    */
   modifier?: string;
   /**
@@ -36,6 +37,9 @@ export const getElementDimensions: TOperation<
   IGetElementDimensionsOperationData
 > = (operationData: IGetElementDimensionsOperationData) => {
   const {selectedElement, modifier} = operationData;
+
+  delete (operationData as any).modifier;
+
   let dimensions = {
     width: selectedElement.innerWidth() ?? 0,
     height: selectedElement.innerHeight() ?? 0,

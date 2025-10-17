@@ -41,4 +41,24 @@ describe('getControllerInstance', () => {
     expect(eventbus.eventName).to.equal('LabelController');
     expect(newData.controllerInstance).to.equal(controller);
   });
+
+  test('should remove the systemName property from the operation data', () => {
+    // given
+    const operationData: IGetControllerInstanceOperationData = {
+      systemName: 'LabelController',
+    };
+    const controller = {} as IController<any>;
+    const eventbus = new MockEventbus(controller);
+
+    // test
+    const newData = applyOperation(getControllerInstance, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as unknown as IEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect('systemName' in newData).to.be.false;
+  });
+
 });

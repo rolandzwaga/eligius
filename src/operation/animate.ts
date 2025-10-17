@@ -4,6 +4,7 @@ import type {TOperation} from './types.ts';
 export interface IAnimateOperationData {
   /**
    * @type=ParameterType:boolean
+   * @erased
    */
   animationEasing?: string;
   /**
@@ -12,11 +13,13 @@ export interface IAnimateOperationData {
   selectedElement: JQuery;
   /**
    * @required
+   * @erased
    */
   animationProperties: Record<string, unknown>;
   /**
    * @type=ParameterType:number
    * @required
+   * @erased
    */
   animationDuration: JQuery.Duration;
 }
@@ -32,11 +35,16 @@ export const animate: TOperation<IAnimateOperationData> = (
   operationData: IAnimateOperationData
 ) => {
   const {
-    animationEasing,
     selectedElement,
+    animationEasing,
     animationProperties,
     animationDuration,
   } = operationData;
+
+  delete (operationData as any).animationEasing;
+  delete (operationData as any).animationProperties;
+  delete (operationData as any).animationDuration;
+
   const promise = new Promise<IAnimateOperationData>((resolve, reject) => {
     try {
       if (animationEasing) {

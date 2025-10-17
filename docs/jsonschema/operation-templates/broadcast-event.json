@@ -4,7 +4,7 @@
   "$id": "http://eligius.com/schema/broadcast-event-operation.json",
   "type": "object",
   "title": "The broadcastEvent schema",
-  "description": "This operation broadcasts the given event through the eventbus, along with the\nevent argumetns and optional event topic.",
+  "description": "This operation broadcasts the given event through the eventbus, along with the\nevent arguments and optional event topic.",
   "required": [
     "systemName"
   ],

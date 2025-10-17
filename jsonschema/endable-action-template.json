@@ -135,9 +135,6 @@
             "$ref": "operation-templates/request-action.json"
           },
           {
-            "$ref": "operation-templates/resize-action.json"
-          },
-          {
             "$ref": "operation-templates/select-element.json"
           },
           {
@@ -283,9 +280,6 @@
           },
           {
             "$ref": "operation-templates/request-action.json"
-          },
-          {
-            "$ref": "operation-templates/resize-action.json"
           },
           {
             "$ref": "operation-templates/select-element.json"

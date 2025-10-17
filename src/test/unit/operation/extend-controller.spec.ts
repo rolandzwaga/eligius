@@ -23,4 +23,23 @@ describe('extendController', () => {
     expect((newData.controllerInstance as any).prop1).to.equal('prop1');
     expect((newData.controllerInstance as any).prop2).to.equal('prop2');
   });
+
+  test('should remove the extension from th operation data', () => {
+    // given
+    const operationData = {
+      controllerInstance: {
+        prop1: 'prop1',
+      } as any as IController<any>,
+      controllerExtension: {
+        prop2: 'prop2',
+      },
+    };
+
+    // test
+    const newData = applyOperation(extendController, operationData);
+
+    // expect
+    expect('controllerExtension' in newData).to.be.false;
+  });
+
 });

@@ -6,7 +6,7 @@ export interface ISetElementContentOperationData {
    */
   selectedElement: JQuery;
   /**
-   * @dependency
+   * @erased
    */
   template: string | JQuery.Node;
   /**
@@ -15,6 +15,8 @@ export interface ISetElementContentOperationData {
    * append = the new content will be inserted after the current content
    *
    * prepend = the new content will be inserted before the current content
+   * 
+   * @erased
    */
   insertionType: 'overwrite' | 'append' | 'prepend';
 }
@@ -50,6 +52,7 @@ export const setElementContent: TOperation<ISetElementContentOperationData> = (
   }
 
   delete (operationData as any).insertionType;
+  delete (operationData as any).template;
 
   return operationData;
 };

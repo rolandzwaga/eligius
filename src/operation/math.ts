@@ -15,10 +15,13 @@ export interface IMathOperationData {
   /**
    * @type=ParameterType:array
    * @required
+   * @erased
    */
   args: (number | string | MathNonFunctionKeys)[];
   /**
+   * @type=ParameterType:mathfunction
    * @required
+   * @erased
    */
   functionName: MathFunctionKeys;
   /**

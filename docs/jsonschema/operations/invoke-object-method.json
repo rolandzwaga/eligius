@@ -27,14 +27,10 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": [],
+      "required": [
+        "methodName"
+      ],
       "properties": {
-        "instance": {
-          "$id": "#/properties/operationData/instance",
-          "type": [
-            "object"
-          ]
-        },
         "methodName": {
           "$id": "#/properties/operationData/methodName",
           "type": [
@@ -45,12 +41,6 @@
           "$id": "#/properties/operationData/methodArguments",
           "type": [
             "array"
-          ]
-        },
-        "methodResult": {
-          "$id": "#/properties/operationData/methodResult",
-          "type": [
-            "object"
           ]
         }
       }

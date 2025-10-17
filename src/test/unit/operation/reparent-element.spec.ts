@@ -34,6 +34,22 @@ describe('reparentElement', () => {
 
     // expect
     expect(mockElement.calledRemove).to.be.true;
-    expect(mockElement.selector).to.equal(operationData.newParentSelector);
+    expect(mockElement.selector).to.equal('.parent-class');
   });
+
+  test('should remove the newParentSelector property from the operation data', () => {
+    // given
+    const mockElement = new MockElement();
+    const operationData = {
+      selectedElement: mockElement,
+      newParentSelector: '.parent-class',
+    } as any as IReparentElementOperationData;
+
+    // test
+    const newData = applyOperation(reparentElement, operationData);
+
+    // expect
+    expect('newParentSelector' in newData).to.be.false;
+  });
+
 });

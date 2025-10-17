@@ -97,4 +97,28 @@ describe('selectElement', () => {
     // expect
     expect(newData.selectedElement).to.equal(selectedElement);
   });
+
+  test('should remove the selector and useSelectedElementAsRoot from the operation data', () => {
+    // given
+    const selectedElement = {
+      length: 1,
+    };
+    const mockElement = new MockElement(selectedElement);
+    const operationData = {
+      selector: '.testClass',
+      useSelectedElementAsRoot: true,
+      selectedElement: mockElement as any as JQuery,
+    } as any as ISelectElementOperationData;
+
+    // test
+    const newData = applyOperation(
+      selectElement,
+      operationData
+    ) as ISelectElementOperationData;
+
+    // expect
+    expect('selector' in newData).to.be.false;
+    expect('useSelectedElementAsRoot' in newData).to.be.false;
+  });
+
 });

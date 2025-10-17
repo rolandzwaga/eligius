@@ -9,10 +9,10 @@ import {
   test,
 } from 'vitest';
 import type {
-  IOperationContext,
+  IOperationScope,
   TOperationData,
 } from '../../../operation/index.ts';
-import {log} from '../../../operation/log.ts';
+import {type ILogOperationData, log } from '../../../operation/log.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 type LogSuiteContext = {
@@ -42,7 +42,7 @@ describe<LogSuiteContext>('log', () => {
   });
   test<LogSuiteContext>('should log the context and operation data', ctx => {
     // given
-    const context: IOperationContext = {
+    const scope: IOperationScope = {
       currentIndex: -1,
       eventbus: {} as any,
       operations: [],
@@ -50,13 +50,47 @@ describe<LogSuiteContext>('log', () => {
     const operationData: TOperationData = {data: true};
 
     // test
-    applyOperation(log, operationData, context);
+    applyOperation(log, operationData, scope);
 
     // expect
-    expect(ctx.loggedLines[0]).to.eql({name: 'context', input: context});
+    expect(ctx.loggedLines[0]).to.eql({name: 'scope', input: scope});
     expect(ctx.loggedLines[1]).to.eql({
       name: 'operationData',
       input: operationData,
     });
   });
+
+  test<LogSuiteContext>('should log the given value', ctx => {
+    // given
+    const scope: IOperationScope = {
+      currentIndex: -1,
+      eventbus: {} as any,
+      operations: [],
+    };
+    const operationData: ILogOperationData = {logValue: 'foo'};
+
+    // test
+    applyOperation(log, operationData, scope);
+
+    // expect
+    expect(ctx.loggedLines[0]).to.eql({name: 'logValue', input: 'foo'});
+  });
+
+  test<LogSuiteContext>('should remove the logValue from the operation data', ctx => {
+    // given
+    const scope: IOperationScope = {
+      currentIndex: -1,
+      eventbus: {} as any,
+      operations: [],
+    };
+    const operationData: ILogOperationData = {logValue: 'foo'};
+
+    // test
+    const newData = applyOperation(log, operationData, scope);
+
+    // expect
+    expect('logValue' in newData).to.be.false;
+  });
+
+
 });

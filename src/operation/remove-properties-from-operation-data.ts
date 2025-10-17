@@ -3,6 +3,7 @@ import type {TOperation} from './types.ts';
 export interface IRemovePropertiesFromOperationDataOperationData {
   /**
    * @required
+   * @erased
    */
   propertyNames: string[];
 }

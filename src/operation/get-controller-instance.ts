@@ -7,6 +7,7 @@ type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {
   /**
    * @required
+   * @erased
    */
   systemName: TSystemName;
   /**
@@ -23,6 +24,8 @@ export interface IGetControllerInstanceOperationData {
 export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> =
   function (operationData: IGetControllerInstanceOperationData) {
     const {systemName} = operationData;
+
+    delete (operationData as any).systemName;
 
     operationData.controllerInstance = undefined;
     const resultCallback = (instance: IController<TOperationData>) => {

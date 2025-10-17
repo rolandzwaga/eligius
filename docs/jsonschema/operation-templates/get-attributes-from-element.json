@@ -4,7 +4,7 @@
   "$id": "http://eligius.com/schema/get-attributes-from-element-operation.json",
   "type": "object",
   "title": "The getAttributesFromElement schema",
-  "description": "This operation retrieves the values for the specified attribute names from  the given selected element.",
+  "description": "This operation retrieves the values for the specified attribute names from the given selected element.",
   "required": [
     "systemName"
   ],

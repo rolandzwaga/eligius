@@ -6,14 +6,14 @@ import {
   forEachSystemName,
 } from '../operation/for-each.ts';
 import {deepCopy} from '../operation/helper/deep-copy.ts';
-import type {IOperationContext, TOperationData} from '../operation/types.ts';
+import type {IOperationScope, TOperationData} from '../operation/types.ts';
 import {endWhenSystemName, whenSystemName} from '../operation/when.ts';
 import {isPromise} from '../util/guards/is-promise.ts';
 import type {IAction} from './types.ts';
 
 export class Action implements IAction {
   public id = '';
-  protected _contextStack: IOperationContext[] = [];
+  protected _scopeStack: IOperationScope[] = [];
 
   constructor(
     public name: string,
@@ -28,7 +28,7 @@ export class Action implements IAction {
         `${this.name ?? 'Action'} begins executing start operations`
       );
 
-    this._initializeContextStack();
+    this._initializeScopeStack();
 
     const result = new Promise<TOperationData>((resolve, reject) => {
       this.executeOperation(
@@ -59,8 +59,8 @@ export class Action implements IAction {
         });
   }
 
-  protected _initializeContextStack() {
-    this._contextStack = [
+  protected _initializeScopeStack() {
+    this._scopeStack = [
       {
         currentIndex: -1,
         eventbus: this.eventbus,
@@ -69,28 +69,28 @@ export class Action implements IAction {
     ];
   }
 
-  private _pushContext(parentContext: IOperationContext): IOperationContext {
-    const newContext = {
+  private _pushScope(parentScope: IOperationScope): IOperationScope {
+    const newScope = {
       get currentIndex() {
-        return parentContext.currentIndex;
+        return parentScope.currentIndex;
       },
       set currentIndex(value: number) {
-        parentContext.currentIndex = value;
+        parentScope.currentIndex = value;
       },
       get eventbus() {
-        return parentContext.eventbus;
+        return parentScope.eventbus;
       },
       get operations() {
-        return parentContext.operations;
+        return parentScope.operations;
       },
-      parent: parentContext,
+      parent: parentScope,
     };
-    this._contextStack.push(newContext);
-    return newContext;
+    this._scopeStack.push(newScope);
+    return newScope;
   }
 
-  private _popContext() {
-    this._contextStack.pop();
+  private _popScope() {
+    this._scopeStack.pop();
   }
 
   executeOperation(
@@ -100,13 +100,13 @@ export class Action implements IAction {
     reject: (reason?: any) => void,
     previousOperationData: TOperationData | undefined = {}
   ): void {
-    let context = this._contextStack[this._contextStack.length - 1];
-    if (context.newIndex !== undefined) {
-      operationIndex = context.newIndex;
-      delete context.newIndex;
+    let scope = this._scopeStack[this._scopeStack.length - 1];
+    if (scope.newIndex !== undefined) {
+      operationIndex = scope.newIndex;
+      delete scope.newIndex;
     }
 
-    context.currentIndex = operationIndex;
+    scope.currentIndex = operationIndex;
 
     if (operationIndex < operations.length) {
       const operationInfo = operations[operationIndex];
@@ -116,36 +116,36 @@ export class Action implements IAction {
       const mergedOperationData = Object.assign(previousOperationData, copy);
 
       if (operationInfo.systemName === whenSystemName) {
-        context = this._pushContext(context);
+        scope = this._pushScope(scope);
       } else if (
         operationInfo.systemName === forEachSystemName &&
-        context.owner !== operationInfo
+        scope.owner !== operationInfo
       ) {
-        context = this._pushContext(context);
-        context.owner = operationInfo;
+        scope = this._pushScope(scope);
+        scope.owner = operationInfo;
       }
 
       Diagnostics.active &&
         Diagnostics.send('eligius-diagnostics-operation', {
           systemName: operationInfo.systemName,
           operationData: mergedOperationData,
-          context: {
-            ...context,
+          scope: {
+            ...scope,
             eventbus: undefined,
           },
         });
 
       const operationResult = operationInfo.instance.call(
-        context,
+        scope,
         mergedOperationData
       );
 
       if (
         operationInfo.systemName === endWhenSystemName ||
         (operationInfo.systemName === endForEachSystemName &&
-          context.newIndex === undefined)
+          scope.newIndex === undefined)
       ) {
-        this._popContext();
+        this._popScope();
       }
 
       if (isPromise(operationResult)) {

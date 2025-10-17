@@ -149,9 +149,6 @@
             "$ref": "operations/request-action.json"
           },
           {
-            "$ref": "operations/resize-action.json"
-          },
-          {
             "$ref": "operations/select-element.json"
           },
           {

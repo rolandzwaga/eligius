@@ -118,4 +118,30 @@ describe('broadcastEvent', () => {
     expect(resultOperationData.eventTopic).to.be.undefined;
     expect(resultOperationData.eventName).to.be.undefined;
   });
+
+    test('should remove eventArgs, eventTopic and eventName from operation data', () => {
+    // given
+    const args = ['operationdata.arg1', 'operationdata.arg2'];
+    const operationData = {
+      arg1: 'resolved1',
+      arg2: 'resolved2',
+      eventArgs: args,
+      eventTopic: 'testTopic',
+      eventName: 'testEvent',
+    };
+    const eventbus = new MockEventbus();
+
+    // test
+    const resultOperationData = applyOperation(broadcastEvent, operationData, {
+      currentIndex: -1,
+      eventbus: eventbus as any,
+      operations: [],
+    });
+
+    // expect
+    expect('eventArgs' in resultOperationData).to.be.false;
+    expect('eventTopic' in resultOperationData).to.be.false;
+    expect('eventName' in resultOperationData).to.be.false;
+  });
+
 });

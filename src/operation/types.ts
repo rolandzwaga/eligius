@@ -5,7 +5,7 @@ export type TOperationData = Record<string, any>;
 
 export type TOperationResult<T = TOperationData> = Promise<T> | T;
 
-export interface IOperationContext {
+export interface IOperationScope {
   /**
    * When inside a loop, this is the current iteration of said loop
    */
@@ -53,7 +53,7 @@ export interface IOperationContext {
   /**
    *
    */
-  parent?: IOperationContext;
+  parent?: IOperationScope;
 
   /**
    * 
@@ -62,7 +62,7 @@ export interface IOperationContext {
 }
 
 export type TOperation<T extends TOperationData = TOperationData, RT = T> = (
-  this: IOperationContext,
+  this: IOperationScope,
   operationData: T
 ) => TOperationResult<RT>;
 

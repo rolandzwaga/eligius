@@ -10,6 +10,7 @@ export interface IGetControllerFromElementOperationData {
   /**
    * @type=ParameterType:controllerName
    * @required
+   * @erased
    */
   controllerName: string;
   /**
@@ -29,10 +30,11 @@ export const getControllerFromElement: TOperation<
   IGetControllerFromElementOperationData
 > = (operationData: IGetControllerFromElementOperationData) => {
   const {selectedElement, controllerName} = operationData;
+
+  delete (operationData as any).controllerName;
+
   const controllers = getElementControllers(selectedElement);
-  const controller = controllers?.find(ctrl => {
-    return ctrl.name === controllerName;
-  });
+  const controller = controllers?.find(ctrl => ctrl.name === controllerName);
 
   if (!controller) {
     console.warn(

@@ -23,6 +23,28 @@ describe('addClass', () => {
 
     // expect
     expect(data).to.equal(operationData);
-    expect(elementMock.className).to.equal(operationData.className);
+    expect(elementMock.className).to.equal('testClass');
   });
+
+  test('should remove the className property from the operation data', () => {
+    // given
+    const elementMock = {
+      className: '',
+      addClass: function (className: string) {
+        this.className = className;
+      },
+    };
+
+    const operationData = {
+      className: 'testClass',
+      selectedElement: elementMock as any as JQuery,
+    };
+
+    // test
+    const newData = applyOperation(addClass, operationData);
+
+    // expect
+    expect('className' in newData).to.be.false
+  });
+
 });

@@ -6,7 +6,7 @@ import {
   resolveExternalPropertyChain,
 } from '../../../../operation/helper/resolve-external-property-chain.ts';
 import {setGlobal} from '../../../../operation/helper/set-global.ts';
-import type {IOperationContext} from '../../../../operation/index.ts';
+import type {IOperationScope} from '../../../../operation/index.ts';
 
 describe('resolveExternalPropertyChain', () => {
   beforeAll(() => {
@@ -21,12 +21,12 @@ describe('resolveExternalPropertyChain', () => {
       extractedValue: 'test',
       operationDataArgument: 'operationdata.extractedValue',
     };
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
 
     // test
     const value = resolveExternalPropertyChain(
       operationData,
-      operationContext,
+      operationScope,
       operationData.operationDataArgument as ExternalProperty
     );
 
@@ -38,29 +38,29 @@ describe('resolveExternalPropertyChain', () => {
     const operationData = {
       operationDataArgument: 'globaldata.foo',
     };
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
 
     // test
     const value = resolveExternalPropertyChain(
       operationData,
-      operationContext,
+      operationScope,
       operationData.operationDataArgument as ExternalProperty
     );
 
     // expect
     expect(value).to.equal('bar');
   });
-  test('should resolve the context argument values', () => {
+  test('should resolve the scope argument values', () => {
     // given
     const operationData = {
-      operationDataArgument: 'context.currentIndex',
+      operationDataArgument: 'scope.currentIndex',
     };
-    const operationContext = {currentIndex: 100} as IOperationContext;
+    const operationScope = {currentIndex: 100} as IOperationScope;
 
     // test
     const value = resolveExternalPropertyChain(
       operationData,
-      operationContext,
+      operationScope,
       operationData.operationDataArgument as ExternalProperty
     );
 
@@ -70,12 +70,12 @@ describe('resolveExternalPropertyChain', () => {
   test('should return null if argumentValue is null', () => {
     // given
     const operationData = {};
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
 
     // test
     const value = resolveExternalPropertyChain(
       operationData,
-      operationContext,
+      operationScope,
       null
     );
 
@@ -86,12 +86,12 @@ describe('resolveExternalPropertyChain', () => {
     // given
     const operationData = {};
     const arg = {};
-    const operationContext = {} as IOperationContext;
+    const operationScope = {} as IOperationScope;
 
     // test
     const value = resolveExternalPropertyChain(
       operationData,
-      operationContext,
+      operationScope,
       arg
     );
 

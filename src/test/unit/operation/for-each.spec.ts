@@ -1,13 +1,13 @@
 import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import {forEach} from '../../../operation/for-each.ts';
-import type {IOperationContext} from '../../../operation/types.ts';
+import type {IOperationScope} from '../../../operation/types.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 describe('forEach', () => {
-  test('should set the context when a valid collection is passed in', () => {
+  test('should set the scope when a valid collection is passed in', () => {
     // given
-    const context: IOperationContext = {
+    const scope: IOperationScope = {
       currentIndex: 10,
       eventbus: {} as any,
       operations: [],
@@ -17,17 +17,17 @@ describe('forEach', () => {
     };
 
     // test
-    applyOperation(forEach, operationData, context);
+    applyOperation(forEach, operationData, scope);
 
     // expect
-    expect(context.loopIndex).to.equal(0);
-    expect(context.loopLength).to.equal(3);
-    expect(context.loopStartIndex).to.equal(10);
-    expect(context.currentItem).to.equal(1);
+    expect(scope.loopIndex).to.equal(0);
+    expect(scope.loopLength).to.equal(3);
+    expect(scope.loopStartIndex).to.equal(10);
+    expect(scope.currentItem).to.equal(1);
   });
-  test('should set the context when an empty collection is passed in', () => {
+  test('should set the scope when an empty collection is passed in', () => {
     // given
-    const context: IOperationContext = {
+    const scope: IOperationScope = {
       currentIndex: 10,
       eventbus: {} as any,
       operations: [],
@@ -37,17 +37,17 @@ describe('forEach', () => {
     };
 
     // test
-    applyOperation(forEach, operationData, context);
+    applyOperation(forEach, operationData, scope);
 
     // expect
-    expect(context.loopIndex).to.be.undefined;
-    expect(context.loopLength).to.be.undefined;
-    expect(context.loopStartIndex).to.be.undefined;
-    expect(context.currentItem).to.be.undefined;
+    expect(scope.loopIndex).to.be.undefined;
+    expect(scope.loopLength).to.be.undefined;
+    expect(scope.loopStartIndex).to.be.undefined;
+    expect(scope.currentItem).to.be.undefined;
   });
-  test('should set the context when a null collection is passed in', () => {
+  test('should set the scope when a null collection is passed in', () => {
     // given
-    const context: IOperationContext = {
+    const scope: IOperationScope = {
       currentIndex: 10,
       eventbus: {} as any,
       operations: [],
@@ -57,12 +57,12 @@ describe('forEach', () => {
     };
 
     // test
-    applyOperation(forEach, operationData, context);
+    applyOperation(forEach, operationData, scope);
 
     // expect
-    expect(context.loopIndex).to.be.undefined;
-    expect(context.loopLength).to.be.undefined;
-    expect(context.loopStartIndex).to.be.undefined;
-    expect(context.currentItem).to.be.undefined;
+    expect(scope.loopIndex).to.be.undefined;
+    expect(scope.loopLength).to.be.undefined;
+    expect(scope.loopStartIndex).to.be.undefined;
+    expect(scope.currentItem).to.be.undefined;
   });
 });

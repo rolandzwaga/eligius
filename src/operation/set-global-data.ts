@@ -4,6 +4,7 @@ import type {TOperation} from './types.ts';
 export interface ISetGlobalDataOperationData {
   /**
    * @required
+   * @erased
    */
   propertyNames: string[];
 }

@@ -28,4 +28,22 @@ describe('setGlobalData', () => {
     expect(result).to.eql({foo: 'bar', bar: 'foo', test: false});
     expect(globals).to.eql({foo: 'bar', bar: 'foo'});
   });
+
+  test('should remove the propertyNames property from the operation data', () => {
+    // given
+    const operationData = {
+      propertyNames: ['foo', 'bar'],
+      foo: 'bar',
+      bar: 'foo',
+      test: false,
+    } as ISetGlobalDataOperationData;
+
+    // test
+    const result = applyOperation(setGlobalData, operationData);
+    const globals = getGlobals();
+
+    // expect
+    expect('propertyNames' in result).to.be.false;
+  });
+
 });

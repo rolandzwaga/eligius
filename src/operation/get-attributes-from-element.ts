@@ -5,9 +5,11 @@ export interface IGetAttributesFromElementOperationData {
    * The HTML element whose attributes will be retrieved
    * @dependency
    */
-  selectedElement?: JQuery;
+  selectedElement: JQuery;
   /**
    * The specified attribute names that will be retrieved
+   * @required
+   * @erased
    */
   attributeNames: string[];
   /**
@@ -18,19 +20,21 @@ export interface IGetAttributesFromElementOperationData {
 }
 
 /**
- * This operation retrieves the values for the specified attribute names from  the given selected element.
+ * This operation retrieves the values for the specified attribute names from the given selected element.
  */
 export const getAttributesFromElement: TOperation<
   IGetAttributesFromElementOperationData
 > = (operationData: IGetAttributesFromElementOperationData) => {
   const {selectedElement, attributeNames} = operationData;
 
+  delete (operationData as any).attributeNames;
+
   operationData.attributeValues = attributeNames.reduce(
     (acc, attrName) => {
       if (attrName !== 'value') {
-        acc[attrName] = selectedElement?.attr(attrName);
+        acc[attrName] = selectedElement.attr(attrName);
       } else {
-        acc[attrName] = selectedElement?.val();
+        acc[attrName] = selectedElement.val();
       }
       return acc;
     },

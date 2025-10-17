@@ -1,6 +1,9 @@
 import type {TOperation} from './types.ts';
 
 export interface IClearOperationDataOperationData {
+  /**
+   * @erased
+   */
   properties?: string[];
 }
 

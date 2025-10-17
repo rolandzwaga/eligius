@@ -38,7 +38,7 @@ describe('setElementContent', () => {
     applyOperation(setElementContent, operationData);
 
     // expect
-    expect(mockElement.htmlContent).to.equal(operationData.template);
+    expect(mockElement.htmlContent).to.equal('<div/>');
   });
   test('should append the given element with the specified content', () => {
     // given
@@ -53,7 +53,7 @@ describe('setElementContent', () => {
     applyOperation(setElementContent, operationData);
 
     // expect
-    expect(mockElement.appendContent).to.equal(operationData.template);
+    expect(mockElement.appendContent).to.equal('<div/>');
   });
   test('should prepend the given element with the specified content', () => {
     // given
@@ -68,6 +68,24 @@ describe('setElementContent', () => {
     applyOperation(setElementContent, operationData);
 
     // expect
-    expect(mockElement.prependContent).to.equal(operationData.template);
+    expect(mockElement.prependContent).to.equal('<div/>');
   });
+
+  test('should remove the insertionType and template properties from operation data', () => {
+    // given
+    const mockElement = new MockElement();
+    const operationData: ISetElementContentOperationData = {
+      insertionType: 'prepend',
+      selectedElement: mockElement as any as JQuery,
+      template: '<div/>',
+    };
+
+    // test
+    const newData = applyOperation(setElementContent, operationData);
+
+    // expect
+    expect('insertionType' in newData).to.be.false;
+    expect('template' in newData).to.be.false;
+  });
+
 });
