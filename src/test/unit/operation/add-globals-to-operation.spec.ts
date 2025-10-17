@@ -16,4 +16,17 @@ describe('addGlobalsToOperation', () => {
 
     expect(newData.test).to.equal('testing');
   });
+
+  test('should erase globalData property from data', () => {
+    setGlobal('test', 'testing');
+
+    const operationData = {
+      globalProperties: ['test'],
+    };
+
+    const newData: any = applyOperation(addGlobalsToOperation, operationData);
+
+    expect('globalProperties' in operationData).to.be.false;
+  });
+
 });

@@ -67,4 +67,29 @@ describe('setOperationData', () => {
     expect(newData.prop2).to.equal('prop2');
     expect(newData.prop3).to.equal('testProperty1');
   });
+
+  test('should remove the override and properties properties from the operation data', () => {
+    // given
+    const operationData = {
+      unusedProperty: 'test',
+      testProperty: 'testProperty1',
+      override: true,
+      properties: {
+        prop1: 'prop1',
+        prop2: 'prop2',
+        prop3: 'operationdata.testProperty',
+      },
+    };
+
+    // test
+    const newData = applyOperation(setOperationData, operationData) as Record<
+      PropertyKey,
+      any
+    >;
+
+    // expect
+    expect('override' in newData).to.be.false;
+    expect('properties' in newData).to.be.false;
+  });
+
 });

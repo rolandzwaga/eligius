@@ -10,6 +10,7 @@ export interface IStartActionOperationData {
   actionInstance: IAction;
   /**
    * @type=ParameterType:object
+   * @erased
    */
   actionOperationData: TOperationData;
 }

@@ -17,6 +17,9 @@ export interface IGetQueryParamsOperationData {
   /**
    * The properties on this object will be assigned to the queryParams result
    * when the given property name is not part of the query string.
+   * 
+   * @erased
+   * 
    */
   defaultValues?: Record<string, string>;
 }
@@ -32,6 +35,9 @@ export const getQueryParams: TOperation<IGetQueryParamsOperationData> = (
   const queryParams = Object.fromEntries(searchParams.entries());
 
   const {defaultValues = {}} = operationData;
+
+  delete (operationData as any).defaultValues;
+
   delete (operationData as any).defaultValues;
 
   operationData.queryParams = {

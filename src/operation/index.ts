@@ -1,5 +1,6 @@
 export {addClass} from './add-class.ts';
 export {addControllerToElement} from './add-controller-to-element.ts';
+export {addGlobalsToOperation} from './add-globals-to-operation.ts';
 export {animate} from './animate.ts';
 export {animateWithClass} from './animate-with-class.ts';
 export {broadcastEvent} from './broadcast-event.ts';
@@ -30,7 +31,6 @@ export {removeElement} from './remove-element.ts';
 export {removePropertiesFromOperationData} from './remove-properties-from-operation-data.ts';
 export {reparentElement} from './reparent-element.ts';
 export {requestAction} from './request-action.ts';
-export {resizeAction} from './resize-action.ts';
 export {selectElement} from './select-element.ts';
 export {setData} from './set-data.ts';
 export {setElementAttributes} from './set-element-attributes.ts';

@@ -1,5 +1,4 @@
 import {expect} from 'chai';
-import type {ExtractReturnedOperationData} from 'operation/types.ts';
 import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   getQueryParams,
@@ -60,4 +59,20 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
 
     expect(result).to.eql({queryParams: {test: 'true', test2: 'foo'}});
   });
+
+  test('should remove the defaultValue property from the operation data', () => {
+    /// given
+    (window as any).location = {
+      search: 'test=true',
+    };
+    const operationData: IGetQueryParamsOperationData = {
+      defaultValues: {test: 'true', test2: 'foo'},
+    };
+
+    // test
+    const result = applyOperation(getQueryParams, operationData);
+
+    expect('defaultValues' in result).to.be.false;
+  });
+
 });

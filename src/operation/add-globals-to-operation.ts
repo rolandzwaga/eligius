@@ -3,7 +3,10 @@ import type {TOperation} from './types.ts';
 
 export interface IAddGlobalsToOperationData {
   /**
+   * The names of the global properties that will be copied onto the current operation data
+   * 
    * @required
+   * @erased
    */
   globalProperties: string[];
 }

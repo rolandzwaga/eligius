@@ -6,6 +6,7 @@ export interface IRequestActionOperationData {
   /**
    * @type=ParameterType:actionName
    * @required
+   * @erased
    */
   systemName: string;
   /**
@@ -24,6 +25,8 @@ export const requestAction: TOperation<
   Required<IRequestActionOperationData>
 > = function (operationData: IRequestActionOperationData) {
   const {systemName} = operationData;
+
+  delete (operationData as any).systemName;
 
   const resultCallback = (action: IAction) => {
     operationData.actionInstance = action;

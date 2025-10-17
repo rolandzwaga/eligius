@@ -11,12 +11,14 @@
   "module": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./jsonschema/*": "./jsonschema/*"
   },
   "typesVersions": {
     "*": {
       "*": [
-        "dist/*"
+        "dist/*",
+        "jsonschema/*"
       ]
     }
   },

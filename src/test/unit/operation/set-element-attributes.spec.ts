@@ -23,4 +23,23 @@ describe('setElementAttributes', () => {
     expect(testElement.attr('testProp1')).to.equal('test1');
     expect(testElement.attr('testProp2')).to.equal('test2');
   });
+
+  test('should remove the attributes property from the operation data', () => {
+    // given
+    const testElement = $('<div/>');
+    const operationData = {
+      attributes: {
+        testProp1: 'test1',
+        testProp2: 'test2',
+      },
+      selectedElement: testElement,
+    };
+
+    // test
+    const newData = applyOperation(setElementAttributes, operationData);
+
+    // expect
+    expect('attributes' in newData).to.be.false;
+  });
+
 });

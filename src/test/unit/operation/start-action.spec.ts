@@ -37,4 +37,26 @@ describe('startAction', () => {
     expect(result.actionOperationData).to.be.undefined;
     return result;
   });
+
+  test('should remove the actionOperationData property from tghe operation data', async () => {
+    // given
+    const mockAction = new MockAction() as unknown as IAction;
+
+    const operationData = {
+      actionInstance: mockAction,
+      resolved: false,
+      actionOperationData: {
+        prop: 'test',
+      },
+    };
+
+    // test
+    const result = await applyOperation(startAction, operationData);
+
+    // expect
+    //expect(result.resolved).to.be.true;
+    expect('actionOperationData' in result).to.be.false;
+    return result;
+  });
+
 });

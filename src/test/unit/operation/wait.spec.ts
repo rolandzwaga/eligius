@@ -34,4 +34,18 @@ describe<WaitSuiteContext>('wait', () => {
     expect(data).to.eql({});
     expect(context.mseconds).to.equal(1000);
   });
+
+  test<WaitSuiteContext>('should remove the milliseconds property from the operation', async context => {
+    // given
+    const operationData = {
+      milliseconds: 1000,
+    };
+
+    // test
+    const data = await applyOperation(wait, operationData);
+
+    // expect
+    expect('milliseconds' in data).to.be.false;
+  });
+
 });

@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {afterAll, describe, test} from 'vitest';
 import {getGlobals} from '../../../operation/helper/globals.ts';
 import {setGlobal} from '../../../operation/helper/set-global.ts';
-import {type IOperationContext, setData} from '../../../operation/index.ts';
+import {type IOperationScope, setData} from '../../../operation/index.ts';
 import type {ISetDataOperationData} from '../../../operation/set-data.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -14,35 +14,35 @@ describe('setData', () => {
     // given
     const operationData: ISetDataOperationData & Record<string, any> = {
       properties: {
-        'context.newIndex': 'operationdata.testValue',
-        'operationdata.testTarget': 'context.currentItem',
+        'scope.newIndex': 'operationdata.testValue',
+        'operationdata.testTarget': 'scope.currentItem',
         'globaldata.globalTarget': 'operationdata.testGlobalValue',
       },
       testTarget: undefined,
       testGlobalValue: 'bar',
       testValue: 100,
     };
-    const context = {
+    const scope = {
       currentItem: 'foo',
       newIndex: 0,
-    } as IOperationContext;
+    } as IOperationScope;
 
     // test
-    const newData = applyOperation(setData, operationData, context) as Record<
+    const newData = applyOperation(setData, operationData, scope) as Record<
       string,
       any
     >;
 
     // given
     expect(newData.testTarget).to.equal('foo');
-    expect(context.newIndex).to.equal(100);
+    expect(scope.newIndex).to.equal(100);
     expect(getGlobals('globalTarget')).to.equal('bar');
   });
   test('should set complex data', () => {
     // given
     const operationData: ISetDataOperationData & Record<string, any> = {
       properties: {
-        'context.currentItem.value': 'operationdata.testValue',
+        'scope.currentItem.value': 'operationdata.testValue',
         'operationdata.testTarget.value': 'foo',
       },
       testTarget: {
@@ -50,21 +50,21 @@ describe('setData', () => {
       },
       testValue: 100,
     };
-    const context = {
+    const scope = {
       currentItem: {
         value: 'foo',
       },
       newIndex: 0,
-    } as IOperationContext;
+    } as IOperationScope;
 
     // test
-    const newData = applyOperation(setData, operationData, context) as Record<
+    const newData = applyOperation(setData, operationData, scope) as Record<
       string,
       any
     >;
 
     // given
     expect(newData.testTarget.value).to.equal('foo');
-    expect(context.currentItem.value).to.equal(100);
+    expect(scope.currentItem.value).to.equal(100);
   });
 });

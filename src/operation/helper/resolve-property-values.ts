@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import type {IOperationContext, TOperationData} from '../../operation/types.ts';
+import type {IOperationScope, TOperationData} from '../../operation/types.ts';
 import {isObject} from '../../util/guards/is-object.ts';
 import {deepCopy} from './deep-copy.ts';
 import type {ExternalProperty} from './resolve-external-property-chain.ts';
@@ -16,7 +16,7 @@ const cache: any[] = [];
  */
 export function resolvePropertyValues<T extends TOperationData>(
   operationData: T,
-  operationContext: IOperationContext,
+  operationScope: IOperationScope,
   newProperties: Record<string, any>
 ): T {
   const copy =
@@ -25,7 +25,7 @@ export function resolvePropertyValues<T extends TOperationData>(
   const resolvePropertyChain = resolveExternalPropertyChain.bind(
     null,
     operationData,
-    operationContext
+    operationScope
   );
 
   resolveNewProperties(newProperties, copy, resolvePropertyChain);

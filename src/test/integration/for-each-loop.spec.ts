@@ -12,7 +12,7 @@ import {
 } from '../../operation/for-each.ts';
 import {
   endWhen,
-  type IOperationContext,
+  type IOperationScope,
   type TOperationData,
   when,
 } from '../../operation/index.ts';
@@ -44,7 +44,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -86,7 +86,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -132,7 +132,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -179,7 +179,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {} as any,
-      instance: function (this: IOperationContext, op) {
+      instance: function (this: IOperationScope, op) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -227,7 +227,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -247,7 +247,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newNestedCollection) {
           op.newNestedCollection = [];
         }
@@ -300,7 +300,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id2',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newCollection) {
           op.newCollection = [];
         }
@@ -320,7 +320,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id4',
       systemName: 'systemNam2',
       operationData: {},
-      instance: function (this: IOperationContext, op: any) {
+      instance: function (this: IOperationScope, op: any) {
         if (!op.newNestedCollection) {
           op.newNestedCollection = [];
         }

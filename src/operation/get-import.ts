@@ -6,6 +6,7 @@ export interface IGetImportOperationData {
   /**
    * @type=ParameterType:systemName
    * @required
+   * @erased
    */
   systemName: string;
   /**
@@ -26,6 +27,9 @@ export const getImport: TOperation<
   Omit<RequireKeys<IGetImportOperationData, 'importedInstance'>, 'systemName'>
 > = function (operationData: IGetImportOperationData) {
   const {systemName} = operationData;
+
+  delete (operationData as any).systemName;
+
   const callBack = (instance: unknown) => {
     operationData.importedInstance = instance;
   };

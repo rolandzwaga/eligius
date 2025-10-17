@@ -3,6 +3,11 @@ import {internalResolve} from './helper/internal-resolve.ts';
 import type {TOperation} from './types.ts';
 
 export interface ICustomFunctionOperationData {
+  /**
+   * @type=ParameterType:systemName
+   * @erased
+   * @required
+   */
   systemName: string;
 }
 
@@ -16,6 +21,9 @@ export interface ICustomFunctionOperationData {
 export const customFunction: TOperation<ICustomFunctionOperationData> =
   function (operationData: ICustomFunctionOperationData) {
     const {systemName} = operationData;
+
+    delete (operationData as any).systemName;
+
     return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
       const resultCallback = (func: Function) => {
         const promise = func.apply(this, [operationData]);

@@ -73,4 +73,22 @@ describe('getElementDimensions', () => {
     expect(newData.dimensions!.width).to.equal(200);
     expect(newData.dimensions!.height).to.equal(200);
   });
+
+  test("should remove the modifier property from the operaton data", () => {
+    // given
+
+    const mockElement = new MockElement(100, 0);
+
+    const operationData = {
+      selectedElement: mockElement as any as JQuery,
+      modifier: '+100',
+    };
+
+    // test
+    const newData = applyOperation(getElementDimensions, operationData);
+
+    // expect
+    expect('modifier' in newData).to.be.false;
+  });
+
 });

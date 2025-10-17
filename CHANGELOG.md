@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.2.0
+
+- Renamed operation context to operation scope
+- Publish json schema with npm package
+
+## 1.1.7
+
+- Add set-variable operation and add support in the when expression to reference those variables
+
+## 1.1.6
+
+- Previous release was borked, this fixes it.
+
 ## 1.1.5
 - Stricter typing
 

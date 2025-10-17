@@ -36,4 +36,18 @@ describe<GetImportSuiteContext>('get-import', () => {
     expect(context.systemName).to.equal('thing');
     expect(context.importedThing).to.eql(result.importedInstance);
   });
+
+  test<GetImportSuiteContext>('should remove the systemName from the operation data', context => {
+    // given
+    context.importedThing = {imported: true};
+
+    // test
+    const result = applyOperation(getImport, {systemName: 'thing'}, {
+      eventbus: context.eventbus,
+    } as any);
+
+    // expect
+    expect('systemName' in result).to.be.false;
+  });
+
 });

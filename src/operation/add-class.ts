@@ -8,6 +8,7 @@ export interface IAddClassOperationData {
   /**
    * @type=ParameterType:className
    * @required
+   * @erased
    */
   className: string;
 }
@@ -18,6 +19,8 @@ export interface IAddClassOperationData {
  */
 export const addClass: TOperation<IAddClassOperationData> = operationData => {
   const {selectedElement, className} = operationData;
+  delete (operationData as any).className;
   selectedElement.addClass(className);
+
   return operationData;
 };

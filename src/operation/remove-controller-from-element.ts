@@ -9,6 +9,8 @@ export interface IRemoveControllerFromElementOperationData {
   selectedElement: JQuery;
   /**
    * @type=ParameterType:controllerName
+   * @required
+   * @erased
    */
   controllerName: string;
 }
@@ -22,6 +24,8 @@ export interface IRemoveControllerFromElementOperationData {
 export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData> =
   function (operationData: IRemoveControllerFromElementOperationData) {
     const {selectedElement, controllerName} = operationData;
+
+    delete (controllerName as any).controllerName;
 
     const controllers = getElementControllers(selectedElement);
     const controller = controllers?.find(

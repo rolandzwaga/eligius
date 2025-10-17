@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/index.ts';
 import {customFunction} from '../../../operation/custom-function.ts';
-import type {IOperationContext, TOperation} from '../../../operation/index.ts';
+import type {IOperationScope, TOperation} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 class MockEventbus {
@@ -24,7 +24,7 @@ describe('customFunction', () => {
     };
 
     let called = false;
-    const func = function (this: IOperationContext, opData: TOperation) {
+    const func = function (this: IOperationScope, opData: TOperation) {
       called = true;
       expect(opData).to.equal(operationData);
       expect(this.eventbus).to.equal(mockEventbus);
@@ -47,7 +47,7 @@ describe('customFunction', () => {
       systemName: 'testName',
     };
     let called = false;
-    const func = function (this: IOperationContext, opData: TOperation) {
+    const func = function (this: IOperationScope, opData: TOperation) {
       return new Promise<void>(resolve => {
         called = true;
         expect(opData).to.equal(operationData);
@@ -68,4 +68,33 @@ describe('customFunction', () => {
     expect(called).to.be.true;
     return result;
   });
+
+    test('should remove the systemName property from the operation data', async () => {
+    // given
+    const operationData = {
+      systemName: 'testName',
+    };
+    let called = false;
+    const func = function (this: IOperationScope, opData: TOperation) {
+      return new Promise<void>(resolve => {
+        called = true;
+        expect(opData).to.equal(operationData);
+        expect(this.eventbus).to.equal(mockEventbus);
+        resolve();
+      });
+    };
+    const mockEventbus = new MockEventbus(func);
+
+    // test
+    const result = await applyOperation(customFunction, operationData, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect('systemName' in result).to.be.false;
+    return result;
+  });
+
 });

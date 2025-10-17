@@ -10,6 +10,7 @@ export interface IToggleClassOperationData {
    * The class that will be toggled
    * @type=ParameterType:className
    * @required
+   * @erased
    */
   className: string;
 }
@@ -25,5 +26,6 @@ export const toggleClass: TOperation<IToggleClassOperationData> = (
 ) => {
   const {selectedElement, className} = operationData;
   selectedElement.toggleClass(className);
+  delete (operationData as any).className;
   return operationData;
 };

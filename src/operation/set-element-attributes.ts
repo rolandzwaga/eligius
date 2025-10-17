@@ -3,6 +3,7 @@ import type {TOperation} from './types.ts';
 export interface ISetElementAttributesOperationData {
   /**
    * @required
+   * @erased
    */
   attributes: Record<string, unknown>;
   /**
@@ -18,6 +19,7 @@ export const setElementAttributes: TOperation<
   ISetElementAttributesOperationData
 > = (operationData: ISetElementAttributesOperationData) => {
   const {attributes, selectedElement} = operationData;
+  delete (operationData as any).attributes;
   selectedElement.attr(attributes);
   return operationData;
 };

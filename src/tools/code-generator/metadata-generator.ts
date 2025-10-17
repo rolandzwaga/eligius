@@ -272,8 +272,10 @@ const toProp = (property: PropertySignature) => {
   const docs = property.getJsDocs();
   const typeTag = getTag(docs)('type');
   const required = getTag(docs)('required')!;
+  const erased = getTag(docs)('erased')!;
+
   return `${property.getName()}: {
-        ${typeTag ? getTypeFromTag(typeTag) : getTypeFromProperty(property)},${required ? '\nrequired: true,' : ''}
+        ${typeTag ? getTypeFromTag(typeTag) : getTypeFromProperty(property)}${required ? ',\nrequired: true' : ''}${erased ? ',\nerased: true' : ''}
     }`;
 };
 

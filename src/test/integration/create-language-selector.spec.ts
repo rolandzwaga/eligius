@@ -86,7 +86,7 @@ describe<CreateOptionListContext>('Create option list', () => {
       })
       .addStartOperationByType(when, {
         expression:
-          'context.parent.currentItem.languageCode==globaldata.defaultLanguage',
+          'scope.parent.currentItem.languageCode==globaldata.defaultLanguage',
       })
       .addStartOperationByType(setOperationData, {
         properties: {
@@ -101,10 +101,10 @@ describe<CreateOptionListContext>('Create option list', () => {
       .addStartOperationByType(createElement, {
         elementName: 'option',
         attributes: {
-          value: 'context.currentItem.languageCode',
+          value: 'scope.currentItem.languageCode',
           selected: 'operationData.isSelectedItem',
         },
-        text: 'context.currentItem.label',
+        text: 'scope.currentItem.label',
       })
       .addStartOperationByType(setElementContent, {insertionType: 'append'})
       .addStartOperationByType(endForEach, {})
@@ -166,4 +166,5 @@ describe<CreateOptionListContext>('Create option list', () => {
       throw e;
     }
   });
+
 });

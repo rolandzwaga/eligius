@@ -8,6 +8,7 @@ export interface IRemoveClassOperationData {
   /**
    * @type=ParameterType:className
    * @required
+   * @erased
    */
   className: string;
 }
@@ -22,6 +23,7 @@ export const removeClass: TOperation<IRemoveClassOperationData> = (
   operationData: IRemoveClassOperationData
 ) => {
   const {selectedElement, className} = operationData;
+  delete (operationData as any).className;
   selectedElement.removeClass(className);
   return operationData;
 };

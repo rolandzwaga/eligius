@@ -6,12 +6,14 @@ export interface ILoadJSONOperationData {
   /**
    * The URL where the JSON will be retrieved from
    * @required
+   * @erased
    */
   url: string;
   /**
    * If true, the results will be added to the cache and any subsequent call will use this cache
+   * @erased
    */
-  cache: boolean;
+  cache?: boolean;
   /**
    * The JSON retrieved from the given URL
    * @output
@@ -34,6 +36,9 @@ export const loadJson: TOperation<ILoadJSONOperationData> = async (
   operationData: ILoadJSONOperationData
 ) => {
   const {url, cache} = operationData;
+
+  delete (operationData as any).url;
+  delete (operationData as any).cache;
 
   if (cache && jsonCache[url]) {
     operationData.json = jsonCache[url];

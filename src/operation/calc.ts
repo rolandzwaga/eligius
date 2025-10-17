@@ -8,16 +8,19 @@ export interface ICalcOperationData {
    * The left operand
    * @type=ParameterType:number
    * @required
+   * @erased
    */
   left: string | number;
   /**
    * The right operand
    * @type=ParameterType:number
    * @required
+   * @erased
    */
   right: string | number;
   /**
    * @required
+   * @erased
    */
   operator: TCalculationOperator;
   /**
@@ -49,6 +52,10 @@ export const calc: TOperation<ICalcOperationData> = function (
   operationData = resolvePropertyValues(operationData, this, operationData);
 
   const {left, right, operator} = operationData;
+
+  delete (operationData as any).left;
+  delete (operationData as any).right;
+  delete (operationData as any).operator;
 
   operationData.calculationResult = calcFunctions[operator](+left, +right);
 

@@ -1,4 +1,4 @@
-import type {IOperationContext, TOperationData} from '../types.ts';
+import type {IOperationScope, TOperationData} from '../types.ts';
 import {getPropertyChainValue} from './get-property-chain-value.ts';
 import {getGlobals} from './globals.ts';
 
@@ -12,7 +12,7 @@ import {getGlobals} from './globals.ts';
  */
 export function resolveExternalPropertyChain(
   sourceObject: TOperationData,
-  operationContext: IOperationContext,
+  operationScope: IOperationScope,
   propertyChainOrRegularObject:
     | ExternalProperty
     | Record<string, any>
@@ -34,8 +34,8 @@ export function resolveExternalPropertyChain(
         return getPropertyChainValue(propNames, sourceObject);
       case 'globaldata':
         return getPropertyChainValue(propNames, getGlobals());
-      case 'context':
-        return getPropertyChainValue(propNames, operationContext);
+      case 'scope':
+        return getPropertyChainValue(propNames, operationScope);
     }
   }
 
@@ -49,11 +49,13 @@ export function isExternalProperty(
     typeof value === 'string' &&
     (value.toLocaleLowerCase().startsWith('operationdata.') ||
       value.toLocaleLowerCase().startsWith('globaldata.') ||
-      value.toLocaleLowerCase().startsWith('context.'))
+      value.toLocaleLowerCase().startsWith('scope.') ||
+      value.toLocaleLowerCase().startsWith('@'))
   );
 }
 
 export type ExternalProperty =
   | `operationdata.${string}`
   | `globaldata.${string}`
-  | `context.${string}`;
+  | `scope.${string}`
+  | `@${string}`;

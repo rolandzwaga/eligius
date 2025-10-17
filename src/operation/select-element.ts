@@ -17,8 +17,12 @@ export interface ISelectElementOperationData {
   /**
    * @type=ParameterType:selector
    * @required
+   * @erased
    */
   selector: string;
+  /**
+   * @erased
+   */
   useSelectedElementAsRoot?: boolean;
   /**
    * @type=ParameterType:object
@@ -42,7 +46,11 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
     this,
     operationData.selector as ExternalProperty
   ) as string;
+
   const {selector, useSelectedElementAsRoot = false} = operationData;
+
+  delete (operationData as any).selector;
+  delete (operationData as any).useSelectedElementAsRoot;
 
   if (!selector) {
     throw new Error('selectElement: selector is either empty or not defined.');

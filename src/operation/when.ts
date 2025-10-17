@@ -1,10 +1,10 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import { getContextVar, isVariableName } from './helper/get-context-var.ts';
+import { getScopeVar, isVariableName } from './helper/get-scope-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
 } from './helper/resolve-external-property-chain.ts';
-import type {IOperationContext, TOperation} from './types.ts';
+import type {IOperationScope, TOperation} from './types.ts';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =
@@ -12,7 +12,7 @@ type TValue =
   | number
   | `operationdata.${string}`
   | `globaldata.${string}`
-  | `context.${string}`
+  | `scope.${string}`
   | `@${string}`;
 
 type TExpression = `${TValue}${TOperator}${TValue}`;
@@ -21,6 +21,7 @@ export interface IWhenOperationData {
   /**
    * @type=ParameterType:expression
    * @required
+   * @erased
    */
   expression: TExpression;
 }
@@ -38,7 +39,7 @@ export interface IWhenOperationData {
  * 100: for a constant number
  * operationData.foo: for an operation data value
  * globaldata.foo: for a global data value
- * context.loopIndex: for a context value
+ * scope.loopIndex: for a scope value
  * @foo: for a variable value
  * 
  * @example
@@ -60,6 +61,8 @@ export const when: TOperation<IWhenOperationData> = function (
     this
   );
 
+  delete (operationData as any).expression;
+
   this.whenEvaluation = evaluations[operator](left, right);
 
   if (!this.whenEvaluation) {
@@ -74,7 +77,7 @@ export const when: TOperation<IWhenOperationData> = function (
 function parseExpression(
   expression: TExpression,
   operationData: IWhenOperationData,
-  operationContext: IOperationContext
+  operationScope: IOperationScope
 ): [TValue, TOperator, TValue] {
   const [left, right] = expression.split(/!=|==|>=|<=|>|</);
 
@@ -88,17 +91,17 @@ function parseExpression(
 
   return [
     (Number.isNaN(leftNr)
-      ? isVariableName(left) ? getContextVar(operationContext.variables, left) : resolveExternalPropertyChain(
+      ? isVariableName(left) ? getScopeVar(operationScope.variables, left) : resolveExternalPropertyChain(
           operationData,
-          operationContext,
+          operationScope,
           left as ExternalProperty
         )
       : leftNr) as TValue,
     operator,
     (Number.isNaN(rightNr)
-      ? isVariableName(right) ? getContextVar(operationContext.variables, right) : resolveExternalPropertyChain(
+      ? isVariableName(right) ? getScopeVar(operationScope.variables, right) : resolveExternalPropertyChain(
           operationData,
-          operationContext,
+          operationScope,
           right as ExternalProperty
         )
       : rightNr) as TValue,
@@ -117,9 +120,9 @@ const evaluations: Record<
   '<': (left: string | number, right: string | number) => left < right,
 };
 
-function findNextFlowControlIndex(context: IOperationContext) {
-  const currentIndex = context.currentIndex + 1;
-  const list = context.operations.slice(currentIndex);
+function findNextFlowControlIndex(scope: IOperationScope) {
+  const currentIndex = scope.currentIndex + 1;
+  const list = scope.operations.slice(currentIndex);
 
   const otherWiseIndex = list.findIndex(
     findMatchingOperationIndex.bind({
@@ -142,7 +145,7 @@ function findNextFlowControlIndex(context: IOperationContext) {
 
   return endWhenIndex > -1
     ? endWhenIndex + currentIndex
-    : context.operations.length;
+    : scope.operations.length;
 }
 
 export const whenSystemName = 'when';

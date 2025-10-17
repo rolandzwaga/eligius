@@ -1,11 +1,11 @@
 import type {
   ExtractOperationData,
   ExtractReturnedOperationData,
-  IOperationContext,
+  IOperationScope,
   TOperation,
 } from '../operation/index.ts';
 
-export const defaultContext: IOperationContext = {
+export const defaultScope: IOperationScope = {
   currentIndex: -1,
   eventbus: {} as any,
   operations: []
@@ -18,7 +18,7 @@ export function applyOperation<
 >(
   operation: T,
   operationData: OD,
-  context: IOperationContext = defaultContext
+  scope: IOperationScope = defaultScope
 ): RT {
-  return operation.apply(context, [operationData]) as ReturnType<T>;
+  return operation.apply(scope, [operationData]) as ReturnType<T>;
 }

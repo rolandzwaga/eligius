@@ -1,9 +1,9 @@
-import type {IOperationContext, TOperationData} from '../../operation/types.ts';
+import type {IOperationScope, TOperationData} from '../../operation/types.ts';
 import {resolveExternalPropertyChain} from './resolve-external-property-chain.ts';
 
 export function resolveEventArguments(
   operationData: TOperationData,
-  operationContext: IOperationContext,
+  operationScope: IOperationScope,
   eventArgs?: any[]
 ) {
   if (!eventArgs) {
@@ -12,7 +12,7 @@ export function resolveEventArguments(
   const resolve = resolveExternalPropertyChain.bind(
     null,
     operationData,
-    operationContext
+    operationScope
   );
   return eventArgs.map(resolve);
 }

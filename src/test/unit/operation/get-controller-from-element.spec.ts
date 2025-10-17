@@ -39,4 +39,30 @@ describe('getControllerFromElement', () => {
     // expect
     expect(newData.controllerInstance).to.equal(controllers[1]);
   });
+
+  test('should remove the controllerName property from the operation data', () => {
+    // given
+
+    const controllers = [
+      {
+        name: 'testControllerName1',
+      },
+      {
+        name: 'testControllerName2',
+      },
+    ];
+    const mockElement = new MockElement(controllers);
+
+    const operationData = {
+      selectedElement: mockElement as any as JQuery,
+      controllerName: 'testControllerName2',
+    };
+
+    // test
+    const newData = applyOperation(getControllerFromElement, operationData);
+
+    // expect
+    expect('controllerName' in newData).to.be.false;
+  });
+
 });
