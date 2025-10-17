@@ -17,14 +17,14 @@
   "typesVersions": {
     "*": {
       "*": [
-        "dist/*",
-        "jsonschema/*"
+        "dist/*"
       ]
     }
   },
   "typings": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "jsonschema"
   ],
   "engines": {
     "node": ">=20"
