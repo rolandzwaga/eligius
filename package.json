@@ -1,7 +1,7 @@
 {
   "name": "eligius",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "license": "MIT",
   "homepage": "https://rolandzwaga.github.io/eligius/",
   "bugs": {
@@ -42,7 +42,7 @@
     "ctrls-metadata": "tsx src/tools/code-generator/ctrls-metadata-generator.ts",
     "metadata": "npm run opers-metadata && npm run ctrls-metadata",
     "ts-types": " tsc --noEmit false --emitDeclarationOnly --outDir dist",
-    "build": "rimraf dist && npm run metadata && tsdown",
+    "build": "rimraf dist && npm run metadata && npm run generate-schema && tsdown",
     "codemod": "tsx src/tools/code-generator/uvu2vitest-codemod.ts",
     "format": "biome format --write .",
     "fix": "biome check --write ."
