@@ -14,9 +14,9 @@ describe('setData', () => {
     // given
     const operationData: ISetDataOperationData & Record<string, any> = {
       properties: {
-        'scope.newIndex': 'operationdata.testValue',
-        'operationdata.testTarget': 'scope.currentItem',
-        'globaldata.globalTarget': 'operationdata.testGlobalValue',
+        '$scope.newIndex': '$operationdata.testValue',
+        '$operationdata.testTarget': '$scope.currentItem',
+        '$globaldata.globalTarget': '$operationdata.testGlobalValue',
       },
       testTarget: undefined,
       testGlobalValue: 'bar',
@@ -42,8 +42,8 @@ describe('setData', () => {
     // given
     const operationData: ISetDataOperationData & Record<string, any> = {
       properties: {
-        'scope.currentItem.value': 'operationdata.testValue',
-        'operationdata.testTarget.value': 'foo',
+        '$scope.currentItem.value': '$operationdata.testValue',
+        '$operationdata.testTarget.value': 'foo',
       },
       testTarget: {
         value: undefined,

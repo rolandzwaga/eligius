@@ -4,7 +4,7 @@
   "$id": "http://eligius.com/schema/when-operation.json",
   "type": "object",
   "title": "The when schema",
-  "description": "When the given expression evaluates to false, subsequent operations will be skipped\nuntil an {@link endWhen} or {@link otherwise} operation is encountered.\n\nPractically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.\n\nThe expression is passed in as a formatted string.\nThe left and right values of the expression can be defined like this:\n\n'constant': for a constant string\n100: for a constant number\noperationData.foo: for an operation data value\nglobaldata.foo: for a global data value\nscope.loopIndex: for a scope value",
+  "description": "When the given expression evaluates to false, subsequent operations will be skipped\nuntil an {@link endWhen} or {@link otherwise} operation is encountered.\n\nPractically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.\n\nThe expression is passed in as a formatted string.\nThe left and right values of the expression can be defined like this:\n\n'constant': for a constant string\n100: for a constant number\n$operationData.foo: for an operation data value\n$globaldata.foo: for a global data value\n$scope.loopIndex: for a scope value",
   "required": [
     "systemName"
   ],

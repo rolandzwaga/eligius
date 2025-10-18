@@ -36,7 +36,11 @@
         "value": {
           "$id": "#/properties/operationData/value",
           "type": [
-            "object"
+            "object",
+            "string",
+            "number",
+            "boolean",
+            "array"
           ]
         }
       }

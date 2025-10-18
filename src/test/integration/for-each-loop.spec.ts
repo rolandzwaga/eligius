@@ -3,6 +3,8 @@ import {beforeEach, describe, type TestContext, test} from 'vitest';
 import {Action} from '../../action/index.ts';
 import type {IResolvedOperation} from '../../configuration/types.ts';
 import {Eventbus} from '../../eventbus/index.ts';
+import { breakForEach } from '../../operation/break-for-each.ts';
+import { continueForEach } from '../../operation/continue-for-each.ts';
 import {endForEach} from '../../operation/end-for-each.ts';
 import {
   endForEachSystemName,
@@ -385,4 +387,139 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       testCollection[testCollection.length - 1]
     );
   });
+
+  test<ForEachLoopContext>('should handle continue in loop', async context => {
+    const {action} = context;
+
+    const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+    const op1: IResolvedOperation = {
+      id: 'id1',
+      systemName: forEachSystemName,
+      operationData: {
+        collection: testCollection,
+      } as unknown as IForEachOperationData,
+      instance: forEach,
+    };
+    let loopCounter = 0;
+    const op: IResolvedOperation = {
+      id: 'id_',
+      systemName: 'loopCounter',
+      operationData: {} as TOperationData,
+      instance: (data) => {
+        loopCounter++;
+        return data;
+      },
+    };
+    const op2: IResolvedOperation = {
+      id: 'id2',
+      systemName: 'continueforEach',
+      operationData: {} as TOperationData,
+      instance: continueForEach,
+    };
+    const op3: IResolvedOperation = {
+      id: 'id3',
+      systemName: 'systemNam2',
+      operationData: {} as any,
+      instance: function (this: IOperationScope, op) {
+        if (!op.newCollection) {
+          op.newCollection = [];
+        }
+        op.newCollection.push(this.currentItem);
+        return op;
+      },
+    };
+    const op4: IResolvedOperation = {
+      id: 'id4',
+      systemName: endForEachSystemName,
+      operationData: {},
+      instance: endForEach,
+    };
+    const op5: IResolvedOperation = {
+      id: 'id5',
+      systemName: 'systemNam4',
+      operationData: {test: true},
+      instance: op => op,
+    };
+    action.startOperations.push(op1);
+    action.startOperations.push(op);
+    action.startOperations.push(op2);
+    action.startOperations.push(op3);
+    action.startOperations.push(op4);
+    action.startOperations.push(op5);
+
+    // test
+    const operationData = await action.start();
+    // expect
+    expect(loopCounter).to.equal(10);
+    expect(operationData.newCollection).to.be.undefined;
+    expect(operationData.test).to.be.true;
+  });
+
+    test.only<ForEachLoopContext>('should handle break in loop', async context => {
+    const {action} = context;
+
+    const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+    const op1: IResolvedOperation = {
+      id: 'id1',
+      systemName: forEachSystemName,
+      operationData: {
+        collection: testCollection,
+      } as unknown as IForEachOperationData,
+      instance: forEach,
+    };
+    let loopCounter = 0;
+    const op: IResolvedOperation = {
+      id: 'id_',
+      systemName: 'loopCounter',
+      operationData: {} as TOperationData,
+      instance: (data) => {
+        loopCounter++;
+        return data;
+      },
+    };
+    const op2: IResolvedOperation = {
+      id: 'id2',
+      systemName: 'breakforEach',
+      operationData: {} as TOperationData,
+      instance: breakForEach,
+    };
+    const op3: IResolvedOperation = {
+      id: 'id3',
+      systemName: 'systemNam2',
+      operationData: {} as any,
+      instance: function (this: IOperationScope, op) {
+        if (!op.newCollection) {
+          op.newCollection = [];
+        }
+        op.newCollection.push(this.currentItem);
+        return op;
+      },
+    };
+    const op4: IResolvedOperation = {
+      id: 'id4',
+      systemName: endForEachSystemName,
+      operationData: {},
+      instance: endForEach,
+    };
+    const op5: IResolvedOperation = {
+      id: 'id5',
+      systemName: 'systemNam4',
+      operationData: {test: true},
+      instance: op => op,
+    };
+    action.startOperations.push(op1);
+    action.startOperations.push(op);
+    action.startOperations.push(op2);
+    action.startOperations.push(op3);
+    action.startOperations.push(op4);
+    action.startOperations.push(op5);
+
+    // test
+    const operationData = await action.start();
+    // expect
+    expect(loopCounter).to.equal(1);
+    expect(operationData.newCollection).to.be.undefined;
+    expect(operationData.test).to.be.true;
+  });
+
 });

@@ -7,6 +7,7 @@ export interface ISetVariableOperationData {
    */
   name: string;
   /**
+   * @type=ParameterType:object|ParameterType:string|ParameterType:number|ParameterType:boolean|ParameterType:array
    * @required
    * @erased
    */

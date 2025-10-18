@@ -62,7 +62,7 @@ describe('selectElement', () => {
     const mockElement = new MockElement(selectedElement);
     const eventbus = new MockEventbus(mockElement) as any as IEventbus;
     const operationData = {
-      selector: 'operationdata.customSelector',
+      selector: '$operationdata.customSelector',
       customSelector: '.testClass',
     } as any as ISelectElementOperationData;
 

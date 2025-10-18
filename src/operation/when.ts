@@ -1,5 +1,4 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import { getScopeVar, isVariableName } from './helper/get-scope-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -10,10 +9,9 @@ type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =
   | `'${string}'`
   | number
-  | `operationdata.${string}`
-  | `globaldata.${string}`
-  | `scope.${string}`
-  | `@${string}`;
+  | `$operationdata.${string}`
+  | `$globaldata.${string}`
+  | `$scope.${string}`;
 
 type TExpression = `${TValue}${TOperator}${TValue}`;
 
@@ -37,17 +35,17 @@ export interface IWhenOperationData {
  * 
  * 'constant': for a constant string
  * 100: for a constant number
- * operationData.foo: for an operation data value
- * globaldata.foo: for a global data value
- * scope.loopIndex: for a scope value
+ * $operationData.foo: for an operation data value
+ * $globaldata.foo: for a global data value
+ * $scope.loopIndex: for a scope value
  * @foo: for a variable value
  * 
  * @example
- * @foo=='bar'
+ * $scope.variables.foo=='bar'
  * @example
- * globalData.foo>@bar
+ * $globalData.foo>$scope.variables.bar
  * @example
- * operationData.foo!=100
+ * $operationData.foo!=100
  *
  * @param operationData
  * @returns
@@ -91,7 +89,7 @@ function parseExpression(
 
   return [
     (Number.isNaN(leftNr)
-      ? isVariableName(left) ? getScopeVar(operationScope.variables, left) : resolveExternalPropertyChain(
+      ? resolveExternalPropertyChain(
           operationData,
           operationScope,
           left as ExternalProperty
@@ -99,7 +97,7 @@ function parseExpression(
       : leftNr) as TValue,
     operator,
     (Number.isNaN(rightNr)
-      ? isVariableName(right) ? getScopeVar(operationScope.variables, right) : resolveExternalPropertyChain(
+      ? resolveExternalPropertyChain(
           operationData,
           operationScope,
           right as ExternalProperty

@@ -30,7 +30,17 @@
         "logValue": {
           "$id": "#/properties/operationData/logValue",
           "type": [
-            "object"
+            "object",
+            "string",
+            "number",
+            "boolean",
+            "array"
+          ]
+        },
+        "logName": {
+          "$id": "#/properties/operationData/logName",
+          "type": [
+            "string"
           ]
         }
       }

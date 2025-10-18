@@ -30,11 +30,11 @@ export function resolveExternalPropertyChain(
     const propNames = propertyChainOrRegularObject.split('.');
     const prefix = propNames.shift()!.toLowerCase();
     switch (prefix) {
-      case 'operationdata':
+      case '$operationdata':
         return getPropertyChainValue(propNames, sourceObject);
-      case 'globaldata':
+      case '$globaldata':
         return getPropertyChainValue(propNames, getGlobals());
-      case 'scope':
+      case '$scope':
         return getPropertyChainValue(propNames, operationScope);
     }
   }
@@ -47,15 +47,13 @@ export function isExternalProperty(
 ): value is ExternalProperty {
   return (
     typeof value === 'string' &&
-    (value.toLocaleLowerCase().startsWith('operationdata.') ||
-      value.toLocaleLowerCase().startsWith('globaldata.') ||
-      value.toLocaleLowerCase().startsWith('scope.') ||
-      value.toLocaleLowerCase().startsWith('@'))
+    (value.toLocaleLowerCase().startsWith('$operationdata.') ||
+      value.toLocaleLowerCase().startsWith('$globaldata.') ||
+      value.toLocaleLowerCase().startsWith('$scope.'))
   );
 }
 
 export type ExternalProperty =
-  | `operationdata.${string}`
-  | `globaldata.${string}`
-  | `scope.${string}`
-  | `@${string}`;
+  | `$operationdata.${string}`
+  | `$globaldata.${string}`
+  | `$scope.${string}`;

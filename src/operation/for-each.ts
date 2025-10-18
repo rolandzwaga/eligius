@@ -1,5 +1,6 @@
+import type {breakForEach} from './break-for-each.ts';
+import type {continueForEach} from './continue-for-each.ts';
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import { getScopeVar, isVariableName, type VariableName } from './helper/get-scope-var.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -11,17 +12,21 @@ export interface IForEachOperationData {
    * @type=ParameterType:array|ParameterType:string
    * @required
    */
-  collection: unknown[] | string | VariableName;
+  collection: unknown[] | string;
 }
 
 /**
  * This operation iterates over the given collection.
  *
  * Each iteration the current item from the specified collection is
- * assigned to the {@link IOperationScope.currentItem} property on the operation scope.
+ * assigned to the {@link IOperationScope.currentItem|currentItem} property on the {@link IOperationScope|operation scope}.
  *
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
+ * 
+ * The {@link continueForEach|continue} and {@link breakForEach|break} operations can be used to control the 
+ * loop iterations.
+ * 
  */
 export const forEach: TOperation<IForEachOperationData> = function (
   operationData: IForEachOperationData
@@ -29,7 +34,7 @@ export const forEach: TOperation<IForEachOperationData> = function (
   const {collection} = operationData;
   const resolvedCollection =
     typeof collection === 'string'
-      ? isVariableName(collection) ? getScopeVar(this.variables, collection) : (resolveExternalPropertyChain(
+      ? (resolveExternalPropertyChain(
           operationData,
           this,
           collection as ExternalProperty
@@ -42,7 +47,7 @@ export const forEach: TOperation<IForEachOperationData> = function (
     !Array.isArray(resolvedCollection)
   ) {
     throw new Error(
-      'Expected collection to be array type, string value was probably not resolved correctly'
+      'Expected resolved collection property to be array type, string value was probably not resolved correctly'
     );
   }
 

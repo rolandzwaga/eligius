@@ -33,7 +33,7 @@ describe('calc', () => {
   test('should perform calculation with resolved properties', () => {
     const operationData: ICalcOperationData = {
       left: 100,
-      right: 'operationData.left',
+      right: '$operationData.left',
       operator: '+',
     };
 

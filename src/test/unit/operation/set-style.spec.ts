@@ -18,7 +18,7 @@ describe('setStyle', () => {
       display: 'block',
       properties: {
         visible: true,
-        display: 'operationdata.display',
+        display: '$operationdata.display',
       },
       selectedElement: mockElement as any as JQuery,
     };
@@ -38,7 +38,7 @@ describe('setStyle', () => {
       display: 'block',
       properties: {
         visible: true,
-        display: 'operationdata.display',
+        display: '$operationdata.display',
       },
       selectedElement: mockElement as any as JQuery,
     };

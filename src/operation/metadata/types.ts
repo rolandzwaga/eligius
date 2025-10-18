@@ -66,4 +66,5 @@ export type TParameterTypes =
   | 'ParameterType:QuadrantPosition'
   | 'ParameterType:jQuery'
   | 'ParameterType:expression'
-  | 'ParameterType:mathfunction';
+  | 'ParameterType:mathfunction'
+  | 'ParameterType:cssProperties';

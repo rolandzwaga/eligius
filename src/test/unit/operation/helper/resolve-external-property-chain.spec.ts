@@ -19,7 +19,7 @@ describe('resolveExternalPropertyChain', () => {
     // given
     const operationData = {
       extractedValue: 'test',
-      operationDataArgument: 'operationdata.extractedValue',
+      operationDataArgument: '$operationdata.extractedValue',
     };
     const operationScope = {} as IOperationScope;
 
@@ -36,7 +36,7 @@ describe('resolveExternalPropertyChain', () => {
   test('should resolve the global data argument values', () => {
     // given
     const operationData = {
-      operationDataArgument: 'globaldata.foo',
+      operationDataArgument: '$globaldata.foo',
     };
     const operationScope = {} as IOperationScope;
 
@@ -53,7 +53,7 @@ describe('resolveExternalPropertyChain', () => {
   test('should resolve the scope argument values', () => {
     // given
     const operationData = {
-      operationDataArgument: 'scope.currentIndex',
+      operationDataArgument: '$scope.currentIndex',
     };
     const operationScope = {currentIndex: 100} as IOperationScope;
 

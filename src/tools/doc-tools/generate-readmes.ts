@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { EOL } from 'node:os';
 import path, { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type {JSONOutput} from "typedoc";
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,15 +30,17 @@ if (!fs.existsSync(controllersReadMeoutputPath)) {
 }
 
 const contents = fs.readFileSync(docsJsonPath, { encoding: 'utf-8' });
-const docs = JSON.parse(contents);
+const docs = JSON.parse(contents) as JSONOutput.ProjectReflection;
 
 writeOperationsReadMe();
 writeControllersReadMe();
 
+
+
 function writeOperationsReadMe() {
-  const operationInfos = docs.children.filter(
-    (x: any) =>
-      x.kindString === 'Function' &&
+  const operationInfos = docs.children!.filter(
+    (x) =>
+      x.kind === 32 &&
       x.sources?.[0]?.fileName?.startsWith('operation/')
   );
 
@@ -48,7 +51,7 @@ function writeOperationsReadMe() {
 
   const readme = [
     ...header,
-    ...operationInfos.map(generateLink.bind(null, 'functions')),
+    ...operationInfos.map(generateLink.bind(null, 'variables')),
   ];
 
   fs.writeFileSync(
@@ -68,9 +71,9 @@ function writeOperationsReadMe() {
 }
 
 function writeControllersReadMe() {
-  const controllerInfos = docs.children.filter(
-    (x: any) =>
-      x.kindString === 'Class' &&
+  const controllerInfos = docs.children!.filter(
+    (x) =>
+      x.kind === 128 &&
       x.sources?.[0]?.fileName?.startsWith('controllers/')
   );
 
@@ -101,7 +104,7 @@ function writeControllersReadMe() {
 }
 
 function generateLink(linkSuffix: string, itemInfo: any) {
-  if (linkSuffix === 'functions') {
+  if (linkSuffix === 'variables') {
     return `- [${itemInfo.name
       }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${itemInfo.name
       }.html${getFirstCommentLine(

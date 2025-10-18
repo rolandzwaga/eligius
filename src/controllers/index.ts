@@ -1,7 +1,14 @@
+export type {IEventListenerControllerOperationData} from './event-listener-controller.ts';
 export {EventListenerController} from './event-listener-controller.ts';
+export type {ILabelControllerMetadata} from './label-controller.ts';
 export {LabelController} from './label-controller.ts';
+export type {ILottieControllerMetadata} from './lottie-controller.ts';
 export {LottieController} from './lottie-controller.ts';
+export type {INavigationControllerOperationData} from './navigation-controller.ts';
 export {NavigationController} from './navigation-controller.ts';
+export type {IProgressbarControllerOperationData} from './progressbar-controller.ts';
 export {ProgressbarController} from './progressbar-controller.ts';
+export type {IRoutingControllerOperationData} from './routing-controller.ts';
 export {RoutingController} from './routing-controller.ts';
+export type {ISubtitlesControllerOperationData} from './subtitles-controller.ts';
 export {SubtitlesController} from './subtitles-controller.ts';

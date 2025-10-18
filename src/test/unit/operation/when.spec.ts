@@ -134,7 +134,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = 'foo';
     operationData.right = 'foo';
-    operationData.expression = 'operationdata.left==operationdata.right';
+    operationData.expression = '$operationdata.left==$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -149,7 +149,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = 'foo';
     operationData.right = 'bar';
-    operationData.expression = 'operationdata.left==operationdata.right';
+    operationData.expression = '$operationdata.left==$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -164,7 +164,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = 'foo';
     operationData.right = 'foo';
-    operationData.expression = 'operationdata.left!=operationdata.right';
+    operationData.expression = '$operationdata.left!=$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -179,7 +179,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = 'foo';
     operationData.right = 'bar';
-    operationData.expression = 'operationdata.left!=operationdata.right';
+    operationData.expression = '$operationdata.left!=$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -194,7 +194,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = 2;
     operationData.right = 1;
-    operationData.expression = 'operationdata.left>operationdata.right';
+    operationData.expression = '$operationdata.left>$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -209,7 +209,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = 1;
     operationData.right = 2;
-    operationData.expression = 'operationdata.left>operationdata.right';
+    operationData.expression = '$operationdata.left>$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -224,7 +224,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = [];
     operationData.right = 2;
-    operationData.expression = 'operationdata.left.length>operationdata.right';
+    operationData.expression = '$operationdata.left.length>$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -238,7 +238,7 @@ describe<WhenSuiteContext>('when', () => {
   }) => {
     // given
     setGlobals({ left: 'foo', right: 'bar' });
-    operationData.expression = 'globaldata.left==globaldata.right';
+    operationData.expression = '$globaldata.left==$globaldata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -256,7 +256,7 @@ describe<WhenSuiteContext>('when', () => {
       right: 'bar',
     };
     operationData.expression =
-      'scope.currentItem.left==scope.currentItem.right';
+      '$scope.currentItem.left==$scope.currentItem.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -271,7 +271,7 @@ describe<WhenSuiteContext>('when', () => {
     // given
     setGlobals({ left: 'foo', right: 'bar' });
 
-    operationData.expression = 'globaldata.left==globaldata.right';
+    operationData.expression = '$globaldata.left==$globaldata.right';
 
     operationScope.operations.push({
       systemName: 'when',
@@ -300,7 +300,7 @@ describe<WhenSuiteContext>('when', () => {
     };
 
     operationData.expression =
-      '@left==@right';
+      '$scope.variables.left==$scope.variables.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -320,7 +320,7 @@ describe<WhenSuiteContext>('when', () => {
     };
 
     operationData.expression =
-      '@left==@right';
+      '$scope.variables.left==$scope.variables.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -340,7 +340,7 @@ describe<WhenSuiteContext>('when', () => {
     };
 
     operationData.expression =
-      '@left==@right';
+      '$scope.variables.left==$scope.variables.right';
 
     // test
     const newData = applyOperation(when, operationData, operationScope);
