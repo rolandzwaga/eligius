@@ -3,6 +3,7 @@ import type {TOperation} from './types.ts';
 
 export interface ISetStyleOperationData {
   /**
+   * @type=ParameterType:cssProperties
    * @required
    * @erased
    */

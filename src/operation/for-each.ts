@@ -1,3 +1,5 @@
+import type {breakForEach} from './break-for-each.ts';
+import type {continueForEach} from './continue-for-each.ts';
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
 import {
   type ExternalProperty,
@@ -17,10 +19,14 @@ export interface IForEachOperationData {
  * This operation iterates over the given collection.
  *
  * Each iteration the current item from the specified collection is
- * assigned to the {@link IOperationScope.currentItem} property on the operation scope.
+ * assigned to the {@link IOperationScope.currentItem|currentItem} property on the {@link IOperationScope|operation scope}.
  *
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
+ * 
+ * The {@link continueForEach|continue} and {@link breakForEach|break} operations can be used to control the 
+ * loop iterations.
+ * 
  */
 export const forEach: TOperation<IForEachOperationData> = function (
   operationData: IForEachOperationData
@@ -41,7 +47,7 @@ export const forEach: TOperation<IForEachOperationData> = function (
     !Array.isArray(resolvedCollection)
   ) {
     throw new Error(
-      'Expected collection to be array type, string value was probably not resolved correctly'
+      'Expected resolved collection property to be array type, string value was probably not resolved correctly'
     );
   }
 
