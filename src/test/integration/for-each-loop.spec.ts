@@ -455,7 +455,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     expect(operationData.test).to.be.true;
   });
 
-    test.only<ForEachLoopContext>('should handle break in loop', async context => {
+    test<ForEachLoopContext>('should handle break in loop', async context => {
     const {action} = context;
 
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
