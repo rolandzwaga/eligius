@@ -6,6 +6,10 @@ The engine can be the basis for video annotations, presentation software or inte
 
 Eligius is NOT a game or animation engine, instead, it is a Story Telling Engine.
 
+## Eligian
+
+Eligius is also the runtime for the [Eligian](https://github.com/rolandzwaga/eligian) language.
+
 ## description
 
 The main concepts in Eligius are timelines, actions and operations. A timeline can be played, paused, stopped and scrubbed through.
