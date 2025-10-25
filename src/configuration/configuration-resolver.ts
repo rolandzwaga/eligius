@@ -59,6 +59,7 @@ export class ConfigurationResolver implements IConfigurationResolver {
         configuration.timelineProviderSettings
       ),
       containerSelector: configuration.containerSelector,
+      cssFiles: configuration.cssFiles,
       language: configuration.language,
       layoutTemplate: configuration.layoutTemplate,
       availableLanguages: deepCopy(configuration.availableLanguages),
