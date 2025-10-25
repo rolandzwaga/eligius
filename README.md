@@ -286,6 +286,8 @@ Obviously having to type all of that JSON by hand can be a tad overwhelming and 
 
 It is encouraged to use this API to build specialized DSL's for specific presentations.
 
+Also, there is the [Eligian](https://github.com/rolandzwaga/eligian) project that aims to become an actual programming language for the ELigius runtime.
+
 ## Source documentation
 
 [Check out this link for the full type docs](https://rolandzwaga.github.io/eligius/)
