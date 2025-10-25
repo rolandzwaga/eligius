@@ -187,6 +187,7 @@ export class ConfigurationFactory {
         systemName: 'EligiusEngine',
       },
       containerSelector: '[data-ct-container=true]',
+      cssFiles: [],
       timelineProviderSettings: {},
       language: defaultLanguage,
       availableLanguages: [],

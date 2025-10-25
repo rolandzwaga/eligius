@@ -6,6 +6,10 @@ The engine can be the basis for video annotations, presentation software or inte
 
 Eligius is NOT a game or animation engine, instead, it is a Story Telling Engine.
 
+## Eligian
+
+Eligius is also the runtime for the [Eligian](https://github.com/rolandzwaga/eligian) language.
+
 ## description
 
 The main concepts in Eligius are timelines, actions and operations. A timeline can be played, paused, stopped and scrubbed through.
@@ -281,6 +285,8 @@ console.log('Eligius engine ready for business');
 Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the [ConfigurationFactory](https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html) for a strongly typed, fluent and extensible API to construct a configuration programmatically.
 
 It is encouraged to use this API to build specialized DSL's for specific presentations.
+
+Also, there is the [Eligian](https://github.com/rolandzwaga/eligian) project that aims to become an actual programming language for the ELigius runtime.
 
 ## Source documentation
 

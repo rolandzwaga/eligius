@@ -35,6 +35,7 @@ export interface IEngineConfiguration {
   engine: IEngineInfo;
   timelineProviderSettings?: TTimelineProviderSettings;
   containerSelector: string;
+  cssFiles: string[];
   language: TLanguageCode;
   layoutTemplate: string;
   availableLanguages: ILabel[];
@@ -51,6 +52,7 @@ export interface IResolvedEngineConfiguration {
   engine: IEngineInfo;
   timelineProviderSettings: TTimelineProviderSettings;
   containerSelector: string;
+  cssFiles: string[];
   language: TLanguageCode;
   layoutTemplate: string;
   availableLanguages: ILabel[];

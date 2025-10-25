@@ -44,6 +44,7 @@ function createTestConfig(): IEngineConfiguration {
     containerSelector: 'containerSelector',
     language: 'nl-NL',
     layoutTemplate: 'layoutTemplate',
+    cssFiles: [],
     availableLanguages: [],
     initActions: [],
     actions: [],

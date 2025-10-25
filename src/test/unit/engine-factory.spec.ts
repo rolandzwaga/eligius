@@ -61,6 +61,7 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
       id: 'testEngine',
       containerSelector: 'containerSelector',
       layoutTemplate: 'layoutTemplate',
+      cssFiles: [],
       availableLanguages: [],
       engine: {
         systemName: 'EligiusEngine',

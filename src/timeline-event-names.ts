@@ -1,7 +1,7 @@
 export type TimelineEventName = keyof typeof TimelineEventNames;
 
 /**
- * These are the event names that are being braodcast and/or handled by Eligius.
+ * These are the event names that are being broadcast and/or handled by Eligius.
  */
 export class TimelineEventNames {
   // timeline requests
