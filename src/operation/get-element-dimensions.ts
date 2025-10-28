@@ -34,7 +34,7 @@ export interface IGetElementDimensionsOperationData {
  * it will add a value of 100 to the height and modify the width by a ratio of 8 to 1 relative to the height.
  */
 export const getElementDimensions: TOperation<
-  IGetElementDimensionsOperationData
+  IGetElementDimensionsOperationData, Omit<IGetElementDimensionsOperationData, 'modifier'>
 > = (operationData: IGetElementDimensionsOperationData) => {
   const {selectedElement, modifier} = operationData;
 

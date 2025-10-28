@@ -15,7 +15,7 @@ export interface IAddGlobalsToOperationData {
  * This operation adds the specified global property names to the current operation data.
  * It finally removes the `globalProperties` property from the current operation data.
  */
-export const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData> = (
+export const addGlobalsToOperation: TOperation<IAddGlobalsToOperationData, Omit<IAddGlobalsToOperationData, 'globalProperties'>> = (
   operationData: IAddGlobalsToOperationData
 ) => {
   const {globalProperties} = operationData;

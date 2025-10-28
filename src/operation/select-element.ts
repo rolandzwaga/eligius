@@ -38,7 +38,7 @@ export interface ISelectElementOperationData {
  * to the current operation data's `selectedElement` property
  * then the element will be looked for only in the descendant elements of this DOM element.
  */
-export const selectElement: TOperation<ISelectElementOperationData> = function (
+export const selectElement: TOperation<ISelectElementOperationData, Omit<ISelectElementOperationData, 'selector'|'useSelectedElementAsRoot'>> = function (
   operationData: ISelectElementOperationData
 ) {
   operationData.selector = resolveExternalPropertyChain(

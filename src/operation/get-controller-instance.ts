@@ -21,7 +21,7 @@ export interface IGetControllerInstanceOperationData {
  * This operation retrieves an instance of the given controller name.
  * It assigns this instance to the `controllerInstance` property on the current operation data
  */
-export const getControllerInstance: TOperation<IGetControllerInstanceOperationData> =
+export const getControllerInstance: TOperation<IGetControllerInstanceOperationData, Omit<IGetControllerInstanceOperationData, 'systemName'>> =
   function (operationData: IGetControllerInstanceOperationData) {
     const {systemName} = operationData;
 

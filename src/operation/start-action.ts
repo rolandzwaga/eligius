@@ -22,7 +22,7 @@ export interface IStartActionOperationData {
  * passed on to the action. After the action has completed the action operation data properties
  * are removed from the current operation data.
  */
-export const startAction: TOperation<IStartActionOperationData> = (
+export const startAction: TOperation<IStartActionOperationData, Omit<IStartActionOperationData, 'actionOperationData'>> = (
   operationData: IStartActionOperationData
 ) => {
   let {actionInstance, actionOperationData, ...newOperationData} =

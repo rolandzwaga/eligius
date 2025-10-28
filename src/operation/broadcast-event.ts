@@ -24,7 +24,7 @@ export interface IBroadcastEventOperationData {
  * This operation broadcasts the given event through the eventbus, along with the
  * event arguments and optional event topic.
  */
-export const broadcastEvent: TOperation<IBroadcastEventOperationData> =
+export const broadcastEvent: TOperation<IBroadcastEventOperationData, Omit<IBroadcastEventOperationData, 'eventArgs'|'eventTopic'|'eventName'>> =
   function (operationData: IBroadcastEventOperationData) {
     const {eventArgs, eventTopic, eventName} = operationData;
 

@@ -19,7 +19,7 @@ export interface IRemoveClassOperationData {
  * @param operationData
  * @returns
  */
-export const removeClass: TOperation<IRemoveClassOperationData> = (
+export const removeClass: TOperation<IRemoveClassOperationData, Omit<IRemoveClassOperationData, 'className'>> = (
   operationData: IRemoveClassOperationData
 ) => {
   const {selectedElement, className} = operationData;

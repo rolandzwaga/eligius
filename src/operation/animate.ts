@@ -31,7 +31,7 @@ export interface IAnimateOperationData {
  * @param operationData
  * @returns
  */
-export const animate: TOperation<IAnimateOperationData> = (
+export const animate: TOperation<IAnimateOperationData, Omit<IAnimateOperationData, 'animationEasing'|'animationProperties'|'animationDuration'>> = (
   operationData: IAnimateOperationData
 ) => {
   const {

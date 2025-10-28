@@ -30,7 +30,7 @@ export interface ISetElementContentOperationData {
  * When set to `append` the new content will be inserted after the current content.
  * When set to `prepend` the new content will be inserted before the current content.
  */
-export const setElementContent: TOperation<ISetElementContentOperationData> = (
+export const setElementContent: TOperation<ISetElementContentOperationData, Omit<ISetElementContentOperationData, 'template'|'insertionType'>> = (
   operationData: ISetElementContentOperationData
 ) => {
   const {

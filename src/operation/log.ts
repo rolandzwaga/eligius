@@ -18,7 +18,7 @@ export interface ILogOperationData {
  * This operation logs the specified value, or, when no logValue property has been assigned
  * it will log the current operation data, global data and scope to the console
  */
-export const log: TOperation<ILogOperationData> = function (
+export const log: TOperation<ILogOperationData, Omit<ILogOperationData, 'logValue'|'logName'>> = function (
   operationData: ILogOperationData
 ) {
   if ('logValue' in operationData) {

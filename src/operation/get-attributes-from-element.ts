@@ -23,7 +23,7 @@ export interface IGetAttributesFromElementOperationData {
  * This operation retrieves the values for the specified attribute names from the given selected element.
  */
 export const getAttributesFromElement: TOperation<
-  IGetAttributesFromElementOperationData
+  IGetAttributesFromElementOperationData, Omit<IGetAttributesFromElementOperationData, 'attributeNames'>
 > = (operationData: IGetAttributesFromElementOperationData) => {
   const {selectedElement, attributeNames} = operationData;
 

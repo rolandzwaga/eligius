@@ -22,7 +22,7 @@ export interface IEndActionOperationData {
  * passed on to the action. After the action has completed the action operation data properties
  * are removed from the current operation data.
  */
-export const endAction: TOperation<IEndActionOperationData> = (
+export const endAction: TOperation<IEndActionOperationData, Omit<IEndActionOperationData, 'actionOperationData'>> = (
   operationData: IEndActionOperationData
 ) => {
   let { actionOperationData, ...newOperationData } = operationData;

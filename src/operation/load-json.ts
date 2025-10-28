@@ -32,7 +32,7 @@ const addToCache = (key: string, value: any) => {
  * If the cache property is set to true and a cached value already exists, this is assigned
  * instead of re-retrieving it from the url.
  */
-export const loadJson: TOperation<ILoadJSONOperationData> = async (
+export const loadJson: TOperation<ILoadJSONOperationData, Omit<ILoadJSONOperationData, 'url'|'cache'>> = async (
   operationData: ILoadJSONOperationData
 ) => {
   const {url, cache} = operationData;

@@ -28,7 +28,7 @@ export interface IGetQueryParamsOperationData {
  * This operation retrieves the current query parameters from the browser's address bar and places
  * them on the returned operation data.
  */
-export const getQueryParams: TOperation<IGetQueryParamsOperationData> = (
+export const getQueryParams: TOperation<IGetQueryParamsOperationData, Omit<IGetQueryParamsOperationData, 'defaultValues'>> = (
   operationData: IGetQueryParamsOperationData
 ) => {
   const searchParams = new URLSearchParams(window.location.search);

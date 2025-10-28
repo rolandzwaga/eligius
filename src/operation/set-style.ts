@@ -18,7 +18,7 @@ export interface ISetStyleOperationData {
  * This operation assigns the specified CSS style properties to the
  * given selected element.
  */
-export const setStyle: TOperation<ISetStyleOperationData> = function (
+export const setStyle: TOperation<ISetStyleOperationData, Omit<ISetStyleOperationData, 'properties'>> = function (
   operationData: ISetStyleOperationData
 ) {
   const properties = resolvePropertyValues(

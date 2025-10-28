@@ -19,7 +19,7 @@ export interface IExtendControllerOperationData {
 /**
  * Extends the current controller with given extension.
  */
-export const extendController: TOperation<IExtendControllerOperationData> = (
+export const extendController: TOperation<IExtendControllerOperationData, Omit<IExtendControllerOperationData, 'controllerExtension'>> = (
   operationData: IExtendControllerOperationData
 ) => {
   const {controllerInstance, controllerExtension} = operationData;

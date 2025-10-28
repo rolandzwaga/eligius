@@ -50,7 +50,7 @@ export interface IWhenOperationData {
  * @param operationData
  * @returns
  */
-export const when: TOperation<IWhenOperationData> = function (
+export const when: TOperation<IWhenOperationData, Omit<IWhenOperationData, 'expression'>> = function (
   operationData: IWhenOperationData
 ) {
   const [left, operator, right] = parseExpression(

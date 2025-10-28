@@ -37,7 +37,7 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  */
 export const createElement: TOperation<
   ICreateElementOperationData<TTagNames>,
-  RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>
+  Omit<RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>, 'elementName'|'text'|'attributes'>
 > = function <T extends TTagNames>(
   this: IOperationScope,
   operationData: ICreateElementOperationData<T>

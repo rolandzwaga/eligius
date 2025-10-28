@@ -28,7 +28,7 @@ export interface ISetDataOperationData {
  * })
  * ```
  */
-export const setData: TOperation<ISetDataOperationData> = function (
+export const setData: TOperation<ISetDataOperationData, Omit<ISetDataOperationData, 'properties'>> = function (
   operationData: ISetDataOperationData
 ) {
   const {properties} = operationData;

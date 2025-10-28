@@ -22,7 +22,7 @@ export interface IRequestActionOperationData {
  */
 export const requestAction: TOperation<
   IRequestActionOperationData,
-  Required<IRequestActionOperationData>
+  Omit<Required<IRequestActionOperationData>, 'systemName'>
 > = function (operationData: IRequestActionOperationData) {
   const {systemName} = operationData;
 

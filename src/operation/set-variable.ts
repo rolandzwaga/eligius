@@ -17,7 +17,7 @@ export interface ISetVariableOperationData {
 /**
  * This operation sets a variable with the specified name on the scope with the specified value.
  */
-export const setVariable: TOperation<ISetVariableOperationData> = function (
+export const setVariable: TOperation<ISetVariableOperationData, Omit<ISetVariableOperationData, 'name'|'value'>> = function (
   operationData: ISetVariableOperationData
 ) {
   const {name, value} = operationData;

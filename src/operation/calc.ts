@@ -46,7 +46,7 @@ const calcFunctions: Record<
  *
  * @param operationData
  */
-export const calc: TOperation<ICalcOperationData> = function (
+export const calc: TOperation<ICalcOperationData, Omit<ICalcOperationData, 'left'|'right'|'operator'>> = function (
   operationData: ICalcOperationData
 ) {
   operationData = resolvePropertyValues(operationData, this, operationData);

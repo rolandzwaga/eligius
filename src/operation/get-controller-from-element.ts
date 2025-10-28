@@ -27,7 +27,7 @@ export interface IGetControllerFromElementOperationData {
  * @returns
  */
 export const getControllerFromElement: TOperation<
-  IGetControllerFromElementOperationData
+  IGetControllerFromElementOperationData, Omit<IGetControllerFromElementOperationData, 'controllerName'>
 > = (operationData: IGetControllerFromElementOperationData) => {
   const {selectedElement, controllerName} = operationData;
 

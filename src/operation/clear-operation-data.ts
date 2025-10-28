@@ -13,7 +13,7 @@ export interface IClearOperationDataOperationData {
  *
  */
 export const clearOperationData: TOperation<
-  IClearOperationDataOperationData
+  IClearOperationDataOperationData, Omit<IClearOperationDataOperationData, 'properties'>
 > = (operationData: IClearOperationDataOperationData) => {
   const {properties} = operationData;
 

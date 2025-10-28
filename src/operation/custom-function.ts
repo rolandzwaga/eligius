@@ -18,14 +18,14 @@ export interface ICustomFunctionOperationData {
  * @param operationData
  * @returns
  */
-export const customFunction: TOperation<ICustomFunctionOperationData> =
+export const customFunction: TOperation<ICustomFunctionOperationData, Omit<ICustomFunctionOperationData,'systemName'>> =
   function (operationData: ICustomFunctionOperationData) {
     const {systemName} = operationData;
 
     delete (operationData as any).systemName;
 
     return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
-      const resultCallback = (func: Function) => {
+      const resultCallback = (func: TOperation) => {
         const promise = func.apply(this, [operationData]);
         if (promise) {
           promise.then(() => {

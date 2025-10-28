@@ -20,7 +20,7 @@ export interface IReparentElementOperationData {
  * @param operationData
  * @returns
  */
-export const reparentElement: TOperation<IReparentElementOperationData> = (
+export const reparentElement: TOperation<IReparentElementOperationData, Omit<IReparentElementOperationData, 'newParentSelector'>> = (
   operationData: IReparentElementOperationData
 ) => {
   const {selectedElement, newParentSelector} = operationData;

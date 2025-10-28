@@ -21,7 +21,7 @@ export interface IRemoveControllerFromElementOperationData {
  * @param operationData
  * @returns
  */
-export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData> =
+export const removeControllerFromElement: TOperation<IRemoveControllerFromElementOperationData, Omit<IRemoveControllerFromElementOperationData, 'controllerName'>> =
   function (operationData: IRemoveControllerFromElementOperationData) {
     const {selectedElement, controllerName} = operationData;
 
