@@ -41,5 +41,4 @@ describe('toggleClass', () => {
     // expect
     expect('className' in newData).to.be.false;
   });
-
 });

@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IGetQueryParamsOperationData {
@@ -17,9 +18,9 @@ export interface IGetQueryParamsOperationData {
   /**
    * The properties on this object will be assigned to the queryParams result
    * when the given property name is not part of the query string.
-   * 
+   *
    * @erased
-   * 
+   *
    */
   defaultValues?: Record<string, string>;
 }
@@ -28,17 +29,16 @@ export interface IGetQueryParamsOperationData {
  * This operation retrieves the current query parameters from the browser's address bar and places
  * them on the returned operation data.
  */
-export const getQueryParams: TOperation<IGetQueryParamsOperationData> = (
-  operationData: IGetQueryParamsOperationData
-) => {
+export const getQueryParams: TOperation<
+  IGetQueryParamsOperationData,
+  Omit<IGetQueryParamsOperationData, 'defaultValues'>
+> = (operationData: IGetQueryParamsOperationData) => {
   const searchParams = new URLSearchParams(window.location.search);
   const queryParams = Object.fromEntries(searchParams.entries());
 
   const {defaultValues = {}} = operationData;
 
-  delete (operationData as any).defaultValues;
-
-  delete (operationData as any).defaultValues;
+  removeProperties(operationData, 'defaultValues');
 
   operationData.queryParams = {
     ...defaultValues,

@@ -1,4 +1,5 @@
 import {TimelineEventNames} from '../timeline-event-names.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -38,9 +39,10 @@ export interface ISelectElementOperationData {
  * to the current operation data's `selectedElement` property
  * then the element will be looked for only in the descendant elements of this DOM element.
  */
-export const selectElement: TOperation<ISelectElementOperationData> = function (
-  operationData: ISelectElementOperationData
-) {
+export const selectElement: TOperation<
+  ISelectElementOperationData,
+  Omit<ISelectElementOperationData, 'selector' | 'useSelectedElementAsRoot'>
+> = function (operationData: ISelectElementOperationData) {
   operationData.selector = resolveExternalPropertyChain(
     operationData,
     this,
@@ -49,8 +51,11 @@ export const selectElement: TOperation<ISelectElementOperationData> = function (
 
   const {selector, useSelectedElementAsRoot = false} = operationData;
 
-  delete (operationData as any).selector;
-  delete (operationData as any).useSelectedElementAsRoot;
+  removeProperties(
+    operationData,
+    'selector',
+    'useSelectedElementAsRoot'
+  );
 
   if (!selector) {
     throw new Error('selectElement: selector is either empty or not defined.');

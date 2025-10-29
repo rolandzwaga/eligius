@@ -1,4 +1,5 @@
 import {internalResolve} from './helper/internal-resolve.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IAnimateOperationData {
@@ -31,9 +32,13 @@ export interface IAnimateOperationData {
  * @param operationData
  * @returns
  */
-export const animate: TOperation<IAnimateOperationData> = (
-  operationData: IAnimateOperationData
-) => {
+export const animate: TOperation<
+  IAnimateOperationData,
+  Omit<
+    IAnimateOperationData,
+    'animationEasing' | 'animationProperties' | 'animationDuration'
+  >
+> = (operationData: IAnimateOperationData) => {
   const {
     selectedElement,
     animationEasing,
@@ -41,9 +46,12 @@ export const animate: TOperation<IAnimateOperationData> = (
     animationDuration,
   } = operationData;
 
-  delete (operationData as any).animationEasing;
-  delete (operationData as any).animationProperties;
-  delete (operationData as any).animationDuration;
+  removeProperties(
+    operationData,
+    'animationEasing',
+    'animationProperties',
+    'animationDuration'
+  );
 
   const promise = new Promise<IAnimateOperationData>((resolve, reject) => {
     try {

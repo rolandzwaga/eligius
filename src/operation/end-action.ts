@@ -1,7 +1,7 @@
-import type { IEndableAction } from '../action/types.ts';
-import { internalResolve } from './helper/internal-resolve.ts';
-import { mergeOperationData } from './helper/merge-operation-data.ts';
-import type { TOperation } from './types.ts';
+import type {IEndableAction} from '../action/types.ts';
+import {internalResolve} from './helper/internal-resolve.ts';
+import {mergeOperationData} from './helper/merge-operation-data.ts';
+import type {TOperation} from './types.ts';
 
 export interface IEndActionOperationData {
   /**
@@ -22,10 +22,11 @@ export interface IEndActionOperationData {
  * passed on to the action. After the action has completed the action operation data properties
  * are removed from the current operation data.
  */
-export const endAction: TOperation<IEndActionOperationData> = (
-  operationData: IEndActionOperationData
-) => {
-  let { actionOperationData, ...newOperationData } = operationData;
+export const endAction: TOperation<
+  IEndActionOperationData,
+  Omit<IEndActionOperationData, 'actionOperationData'>
+> = (operationData: IEndActionOperationData) => {
+  let {actionOperationData, ...newOperationData} = operationData;
 
   return new Promise<IEndActionOperationData>((resolve, reject) => {
     newOperationData = mergeOperationData(
@@ -36,10 +37,13 @@ export const endAction: TOperation<IEndActionOperationData> = (
     newOperationData.actionInstance.end(newOperationData).then(() => {
       const sanitizedData = Object.keys(newOperationData)
         .filter(key => !(key in actionOperationData))
-        .reduce((acc, key) => {
-          (acc as any)[key] = (newOperationData as any)[key];
-          return acc;
-        }, {} as typeof newOperationData);
+        .reduce(
+          (acc, key) => {
+            (acc as any)[key] = (newOperationData as any)[key];
+            return acc;
+          },
+          {} as typeof newOperationData
+        );
       internalResolve(resolve, sanitizedData);
     }, reject);
   });

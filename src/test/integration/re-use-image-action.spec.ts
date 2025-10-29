@@ -21,88 +21,85 @@ type ReuseActionsContext = {
   engine?: IEligiusEngine;
 } & TestContext;
 
-describe<ReuseActionsContext>(
-  'Re-use actions to add pictures',
-  () => {
-    global.cancelAnimationFrame = () => {};
-    beforeEach<ReuseActionsContext>(context => {
-      context.eventbus = new Eventbus();
+describe<ReuseActionsContext>('Re-use actions to add pictures', () => {
+  global.cancelAnimationFrame = () => {};
+  beforeEach<ReuseActionsContext>(context => {
+    context.eventbus = new Eventbus();
 
-      $('<div data-ct-container=true></div>').appendTo(document.body);
+    $('<div data-ct-container=true></div>').appendTo(document.body);
 
-      const factory = new ConfigurationFactory();
-      factory.init('nl-NL');
-      factory.setLayoutTemplate(
-        '<div data-test=true><div data-anim-container="true"><div id="picture1"></div><div id="picture2"/></div></div></div>'
+    const factory = new ConfigurationFactory();
+    factory.init('nl-NL');
+    factory.setLayoutTemplate(
+      '<div data-test=true><div data-anim-container="true"><div id="picture1"></div><div id="picture2"/></div></div></div>'
+    );
+    const settingsEditor = factory.editTimelineProviderSettings();
+    settingsEditor
+      .addProvider('animation')
+      .setSystemName('RequestAnimationFrameTimelineProvider')
+      .setSelector('[data-anim-container=true]');
+
+    factory
+      .addLanguage('nl-NL', 'Nederlands')
+      .addLanguage('en-GB', 'English')
+      .addTimeline(
+        'my-anim',
+        'animation',
+        100,
+        false,
+        '[data-anim-container=true]'
       );
-      const settingsEditor = factory.editTimelineProviderSettings();
-      settingsEditor
-        .addProvider('animation')
-        .setSystemName('RequestAnimationFrameTimelineProvider')
-        .setSelector('[data-anim-container=true]');
 
-      factory
-        .addLanguage('nl-NL', 'Nederlands')
-        .addLanguage('en-GB', 'English')
-        .addTimeline(
-          'my-anim',
-          'animation',
-          100,
-          false,
-          '[data-anim-container=true]'
-        );
+    factory
+      .createAction('AddImage')
+      .addStartOperationByType(selectElement, {})
+      .addStartOperationByType(createElement, {
+        elementName: 'img',
+      })
+      .addStartOperationByType(setElementContent, {});
 
-      factory
-        .createAction('AddImage')
-        .addStartOperationByType(selectElement, {})
-        .addStartOperationByType(createElement, {
-          elementName: 'img',
-        })
-        .addStartOperationByType(setElementContent, {});
-
-      factory
-        .createInitAction('Add two images')
-        .addStartOperationByType(requestAction, {systemName: 'AddImage'})
-        .addStartOperationByType(startAction, {
-          actionOperationData: {
-            selector: '#picture1',
-            attributes: {
-              src: 'images/picture1.png',
-            },
+    factory
+      .createInitAction('Add two images')
+      .addStartOperationByType(requestAction, {systemName: 'AddImage'})
+      .addStartOperationByType(startAction, {
+        actionOperationData: {
+          selector: '#picture1',
+          attributes: {
+            src: 'images/picture1.png',
           },
-        })
-        .addStartOperationByType(startAction, {
-          actionOperationData: {
-            selector: '#picture2',
-            attributes: {
-              src: 'images/picture2.png',
-            },
+        },
+      })
+      .addStartOperationByType(startAction, {
+        actionOperationData: {
+          selector: '#picture2',
+          attributes: {
+            src: 'images/picture2.png',
           },
-        });
+        },
+      });
 
-      context.configuration = factory.getConfiguration();
-    });
-    afterEach<ReuseActionsContext>(async context => {
-      await context.engine?.destroy();
-      context.eventbus.clear();
-      $('[data-ct-container=true]').remove();
-    });
-    test<ReuseActionsContext>('should add the pictures to the current template', async context => {
-      const engineFactory = new EngineFactory(
-        new EligiusResourceImporter(),
-        window,
-        {
-          eventbus: context.eventbus,
-        }
-      );
-      context.engine = engineFactory.createEngine(context.configuration);
-
-      try {
-        const result = await context.engine.init();
-        expect(result).to.not.be.undefined;
-      } catch (e) {
-        throw e;
+    context.configuration = factory.getConfiguration();
+  });
+  afterEach<ReuseActionsContext>(async context => {
+    await context.engine?.destroy();
+    context.eventbus.clear();
+    $('[data-ct-container=true]').remove();
+  });
+  test<ReuseActionsContext>('should add the pictures to the current template', async context => {
+    const engineFactory = new EngineFactory(
+      new EligiusResourceImporter(),
+      window,
+      {
+        eventbus: context.eventbus,
       }
-    });
-  }
-);
+    );
+    context.engine = engineFactory.createEngine(context.configuration);
+
+    try {
+      const result = await context.engine.init();
+      expect(result).to.not.be.undefined;
+    } catch (e) {
+      throw e;
+    }
+  });
+});

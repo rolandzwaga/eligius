@@ -41,5 +41,4 @@ describe('setElementAttributes', () => {
     // expect
     expect('attributes' in newData).to.be.false;
   });
-
 });

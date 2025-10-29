@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IReparentElementOperationData {
@@ -20,11 +21,12 @@ export interface IReparentElementOperationData {
  * @param operationData
  * @returns
  */
-export const reparentElement: TOperation<IReparentElementOperationData> = (
-  operationData: IReparentElementOperationData
-) => {
+export const reparentElement: TOperation<
+  IReparentElementOperationData,
+  Omit<IReparentElementOperationData, 'newParentSelector'>
+> = (operationData: IReparentElementOperationData) => {
   const {selectedElement, newParentSelector} = operationData;
-  delete (operationData as any).newParentSelector;
+  removeProperties(operationData, 'newParentSelector');
   selectedElement.remove().appendTo(newParentSelector);
   return operationData;
 };

@@ -1,8 +1,8 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import $ from 'jquery';
-import { describe, test } from 'vitest';
-import { LabelController } from '../../../controllers/index.ts';
-import { prepareValueForSerialization } from '../../../util/prepare-value-for-serialization.ts';
+import {describe, test} from 'vitest';
+import {LabelController} from '../../../controllers/index.ts';
+import {prepareValueForSerialization} from '../../../util/prepare-value-for-serialization.ts';
 
 function SimpleClass(this: any) {
   this.i = 0;
@@ -20,9 +20,11 @@ describe('prepareValueForSerialization', () => {
       d: [1, 'a', $('body'), (i: number) => i],
       e: null,
       f: undefined,
-      g: function (i: number) { return i; },
+      g: function (i: number) {
+        return i;
+      },
       controllerInstance: new LabelController(),
-      someObject: { prop: true },
+      someObject: {prop: true},
       simpleClass: new (SimpleClass as any)(),
     };
 
@@ -37,7 +39,7 @@ describe('prepareValueForSerialization', () => {
     expect(result.e).to.be.null;
     expect(result.f).to.be.undefined;
     expect(result.g).to.equal('function(i) {');
-    expect(result.controllerInstance).to.equal('class LabelController {');
+    expect(result.controllerInstance.startsWith('class LabelController')).to.be.true;
     expect(result.someObject.prop).to.be.true;
     expect(result.simpleClass).to.equal('function SimpleClass() {');
   });

@@ -56,9 +56,9 @@ export interface IOperationScope {
   parent?: IOperationScope;
 
   /**
-   * 
-  */
- variables?: Record<string, unknown>;
+   *
+   */
+  variables?: Record<string, unknown>;
 }
 
 export type TOperation<T extends TOperationData = TOperationData, RT = T> = (

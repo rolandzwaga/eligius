@@ -44,7 +44,6 @@ describe('addClass', () => {
     const newData = applyOperation(addClass, operationData);
 
     // expect
-    expect('className' in newData).to.be.false
+    expect('className' in newData).to.be.false;
   });
-
 });

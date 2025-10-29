@@ -39,9 +39,9 @@ describe('broadcastEvent', () => {
 
     // expect
     expect(eventbus.eventName).to.be.equal('testEvent');
-    expect(resultOperationData.eventArgs).to.be.undefined;
-    expect(resultOperationData.eventTopic).to.be.undefined;
-    expect(resultOperationData.eventName).to.be.undefined;
+    expect((resultOperationData as any).eventArgs).to.be.undefined;
+    expect((resultOperationData as any).eventTopic).to.be.undefined;
+    expect((resultOperationData as any).eventName).to.be.undefined;
   });
   test('should broadcast the event through the given eventbus using the given topic and clean up the operationdata', () => {
     // given
@@ -62,9 +62,9 @@ describe('broadcastEvent', () => {
     // expect
     expect(eventbus.eventName).to.be.equal('testEvent');
     expect(eventbus.eventTopic).to.be.equal('testTopic');
-    expect(resultOperationData.eventArgs).to.be.undefined;
-    expect(resultOperationData.eventTopic).to.be.undefined;
-    expect(resultOperationData.eventName).to.be.undefined;
+    expect((resultOperationData as any).eventArgs).to.be.undefined;
+    expect((resultOperationData as any).eventTopic).to.be.undefined;
+    expect((resultOperationData as any).eventName).to.be.undefined;
   });
   test('should broadcast the event using the specified arguments', () => {
     // given
@@ -87,9 +87,9 @@ describe('broadcastEvent', () => {
     expect(eventbus.eventName).to.be.equal('testEvent');
     expect(eventbus.eventTopic).to.be.equal('testTopic');
     expect(eventbus.eventArgs).to.have.all.members(args);
-    expect(resultOperationData.eventArgs).to.be.undefined;
-    expect(resultOperationData.eventTopic).to.be.undefined;
-    expect(resultOperationData.eventName).to.be.undefined;
+    expect((resultOperationData as any).eventArgs).to.be.undefined;
+    expect((resultOperationData as any).eventTopic).to.be.undefined;
+    expect((resultOperationData as any).eventName).to.be.undefined;
   });
   test('should broadcast the event using the resolved arguments', () => {
     // given
@@ -114,12 +114,12 @@ describe('broadcastEvent', () => {
     expect(eventbus.eventName).to.be.equal('testEvent');
     expect(eventbus.eventTopic).to.be.equal('testTopic');
     expect(eventbus.eventArgs).to.have.all.members(['resolved1', 'resolved2']);
-    expect(resultOperationData.eventArgs).to.be.undefined;
-    expect(resultOperationData.eventTopic).to.be.undefined;
-    expect(resultOperationData.eventName).to.be.undefined;
+    expect((resultOperationData as any).eventArgs).to.be.undefined;
+    expect((resultOperationData as any).eventTopic).to.be.undefined;
+    expect((resultOperationData as any).eventName).to.be.undefined;
   });
 
-    test('should remove eventArgs, eventTopic and eventName from operation data', () => {
+  test('should remove eventArgs, eventTopic and eventName from operation data', () => {
     // given
     const args = ['$operationdata.arg1', '$operationdata.arg2'];
     const operationData = {
@@ -143,5 +143,4 @@ describe('broadcastEvent', () => {
     expect('eventTopic' in resultOperationData).to.be.false;
     expect('eventName' in resultOperationData).to.be.false;
   });
-
 });

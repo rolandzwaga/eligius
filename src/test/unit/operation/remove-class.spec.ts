@@ -41,5 +41,4 @@ describe('removeClass', () => {
     // expect
     expect('className' in newData).to.be.false;
   });
-
 });

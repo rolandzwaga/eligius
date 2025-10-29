@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import {resolvePropertyValues} from './helper/resolve-property-values.ts';
 import type {TOperation} from './types.ts';
 
@@ -46,16 +47,15 @@ const calcFunctions: Record<
  *
  * @param operationData
  */
-export const calc: TOperation<ICalcOperationData> = function (
-  operationData: ICalcOperationData
-) {
+export const calc: TOperation<
+  ICalcOperationData,
+  Omit<ICalcOperationData, 'left' | 'right' | 'operator'>
+> = function (operationData: ICalcOperationData) {
   operationData = resolvePropertyValues(operationData, this, operationData);
 
   const {left, right, operator} = operationData;
 
-  delete (operationData as any).left;
-  delete (operationData as any).right;
-  delete (operationData as any).operator;
+  removeProperties(operationData, 'left', 'right', 'operator');
 
   operationData.calculationResult = calcFunctions[operator](+left, +right);
 

@@ -13,13 +13,15 @@ export type THasDescription = {
 export type TComplexPropertyMetadata = {
   type: TConstantParametersTypes[] | TParameterTypes | TParameterTypesDelimited;
   defaultValue?: unknown;
-} & THasRequired & THasErased &
+} & THasRequired &
+  THasErased &
   THasDescription;
 
 export type TArrayProperyMetadata = {
   type: 'ParameterType:array';
   itemType: TParameterTypes;
-} & THasRequired & THasErased &
+} & THasRequired &
+  THasErased &
   THasDescription;
 
 export type TConstantParametersTypes = {
@@ -32,7 +34,7 @@ export type TPropertyMetadata =
   | TArrayProperyMetadata
   | TParameterTypes;
 
-export type TPropertiesMetadata<T> = { [P in keyof T]?: TPropertyMetadata };
+export type TPropertiesMetadata<T> = {[P in keyof T]?: TPropertyMetadata};
 
 export interface IOperationMetadata<T> {
   description: string;
@@ -41,7 +43,9 @@ export interface IOperationMetadata<T> {
   outputProperties?: TPropertiesMetadata<T>;
 }
 
-export type TParameterTypesDelimited = `${TParameterTypes}` | `${TParameterTypes}|${string}`;
+export type TParameterTypesDelimited =
+  | `${TParameterTypes}`
+  | `${TParameterTypes}|${string}`;
 
 export type TParameterTypes =
   | 'ParameterType:htmlElementName'

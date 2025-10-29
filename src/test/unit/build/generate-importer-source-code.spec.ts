@@ -1,14 +1,14 @@
-import fs, { type PathLike } from 'node:fs';
-import { createProject, ts } from '@ts-morph/bootstrap';
-import { expect } from 'chai';
-import { afterEach, beforeEach, describe, type TestContext, test } from 'vitest';
-import { generateImporterSourceCode } from '../../../build/index.ts';
-import { ConfigurationFactory } from '../../../configuration/api/index.ts';
+import fs, {type PathLike} from 'node:fs';
+import {createProject, ts} from '@ts-morph/bootstrap';
+import {expect} from 'chai';
+import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {generateImporterSourceCode} from '../../../build/index.ts';
+import {ConfigurationFactory} from '../../../configuration/api/index.ts';
 
 type CustomContext = {
   readdirSync: any;
 } & TestContext;
-function withContext<T>(ctx: unknown): asserts ctx is T { }
+function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe<CustomContext>('generateImporterSourceCode', () => {
   beforeEach<CustomContext>(context => {
     withContext(context);
@@ -32,10 +32,10 @@ describe<CustomContext>('generateImporterSourceCode', () => {
     const config = factory.getConfiguration();
 
     const tsSource = generateImporterSourceCode(config, './mypath', [
-      { path: 'html', extension: '.html' },
+      {path: 'html', extension: '.html'},
     ]);
 
-    const project = await createProject({ useInMemoryFileSystem: true });
+    const project = await createProject({useInMemoryFileSystem: true});
     project.createSourceFile('importer.ts', tsSource);
     const program = project.createProgram();
     const diagnostics = ts

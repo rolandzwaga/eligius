@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import {vi} from 'vitest';
 
 // simple stub that matches the API you use in your app
 vi.mock('lottie-web', () => {
@@ -12,7 +12,11 @@ vi.mock('lottie-web', () => {
     }),
     // if they export default
     default: {
-      loadAnimation: (opts: any) => ({ play: () => {}, stop: () => {}, destroy: () => {} }),
+      loadAnimation: (opts: any) => ({
+        play: () => {},
+        stop: () => {},
+        destroy: () => {},
+      }),
     },
-  }
-})
+  };
+});

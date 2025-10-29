@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IClearOperationDataOperationData {
@@ -13,7 +14,8 @@ export interface IClearOperationDataOperationData {
  *
  */
 export const clearOperationData: TOperation<
-  IClearOperationDataOperationData
+  IClearOperationDataOperationData,
+  Omit<IClearOperationDataOperationData, 'properties'>
 > = (operationData: IClearOperationDataOperationData) => {
   const {properties} = operationData;
 
@@ -21,7 +23,7 @@ export const clearOperationData: TOperation<
     properties.forEach(name => {
       delete (operationData as any)[name];
     });
-    delete operationData.properties;
+    removeProperties(operationData, 'properties');
     return operationData;
   }
 

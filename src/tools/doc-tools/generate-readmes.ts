@@ -1,8 +1,8 @@
 import fs from 'node:fs';
-import { EOL } from 'node:os';
-import path, { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import type {JSONOutput} from "typedoc";
+import {EOL} from 'node:os';
+import path, {dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import type {JSONOutput} from 'typedoc';
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,19 +29,15 @@ if (!fs.existsSync(controllersReadMeoutputPath)) {
   process.exit(1);
 }
 
-const contents = fs.readFileSync(docsJsonPath, { encoding: 'utf-8' });
+const contents = fs.readFileSync(docsJsonPath, {encoding: 'utf-8'});
 const docs = JSON.parse(contents) as JSONOutput.ProjectReflection;
 
 writeOperationsReadMe();
 writeControllersReadMe();
 
-
-
 function writeOperationsReadMe() {
   const operationInfos = docs.children!.filter(
-    (x) =>
-      x.kind === 32 &&
-      x.sources?.[0]?.fileName?.startsWith('operation/')
+    x => x.kind === 32 && x.sources?.[0]?.fileName?.startsWith('operation/')
   );
 
   const header = ['# Operations'];
@@ -72,9 +68,7 @@ function writeOperationsReadMe() {
 
 function writeControllersReadMe() {
   const controllerInfos = docs.children!.filter(
-    (x) =>
-      x.kind === 128 &&
-      x.sources?.[0]?.fileName?.startsWith('controllers/')
+    x => x.kind === 128 && x.sources?.[0]?.fileName?.startsWith('controllers/')
   );
 
   const header = ['# Controllers'];
@@ -105,18 +99,22 @@ function writeControllersReadMe() {
 
 function generateLink(linkSuffix: string, itemInfo: any) {
   if (linkSuffix === 'variables') {
-    return `- [${itemInfo.name
-      }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${itemInfo.name
-      }.html${getFirstCommentLine(
-        itemInfo
-      )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
-        itemInfo.name
-      )}.json))`;
+    return `- [${
+      itemInfo.name
+    }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
+      itemInfo.name
+    }.html${getFirstCommentLine(
+      itemInfo
+    )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
+      itemInfo.name
+    )}.json))`;
   }
 
-  return `- [${itemInfo.name
-    }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${itemInfo.name
-    }.html${getFirstCommentLine(itemInfo)})`;
+  return `- [${
+    itemInfo.name
+  }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
+    itemInfo.name
+  }.html${getFirstCommentLine(itemInfo)})`;
 }
 
 function getFirstCommentLine(itemInfo: any) {

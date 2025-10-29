@@ -2,7 +2,7 @@ import type {TOperation} from './types.ts';
 
 export interface IInvokeObjectMethodOperationData {
   /**
-   * 
+   *
    * The given object instance
    * @dependency
    *

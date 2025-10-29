@@ -1,7 +1,7 @@
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
 import type {TOperationData} from '../operation/types.ts';
 import {TimelineEventNames} from '../timeline-event-names.ts';
-import type {IController} from './types.ts';
+import {BaseController} from './base-controller.ts';
 
 export interface IProgressbarControllerOperationData {
   /**
@@ -19,13 +19,10 @@ export interface IProgressbarControllerOperationData {
  *
  * The current progress as a percentage is rendered in the given text element.
  */
-export class ProgressbarController
-  implements IController<IProgressbarControllerOperationData>
-{
+export class ProgressbarController extends BaseController<IProgressbarControllerOperationData> {
   name: string = 'ProgressbarController';
   selectedElement: JQuery | null = null;
   textElement: JQuery | null = null;
-  eventbusRemovers: TEventbusRemover[] = [];
   duration: number = 0;
 
   init(operationData: TOperationData) {
@@ -34,12 +31,8 @@ export class ProgressbarController
   }
 
   attach(eventbus: IEventbus) {
-    this.eventbusRemovers.push(
-      eventbus.on(
-        TimelineEventNames.TIME,
-        this._positionUpdateHandler.bind(this)
-      )
-    );
+    this.addListener(eventbus, TimelineEventNames.TIME, this._positionUpdateHandler);
+
     eventbus.broadcast(TimelineEventNames.DURATION_REQUEST, [
       (duration: number) => (this.duration = duration),
     ]);
@@ -51,14 +44,12 @@ export class ProgressbarController
     if (container) {
       const clickHandler = this._clickHandler.bind(this, eventbus);
       container.on('click', clickHandler);
-      this.eventbusRemovers.push(() => container.off('click', clickHandler));
+      this.eventListeners.push(() => container.off('click', clickHandler));
     }
   }
 
-  detach(_eventbus: IEventbus) {
-    this.eventbusRemovers.forEach((func: () => void) => {
-      func();
-    });
+  detach(eventbus: IEventbus) {
+    super.detach(eventbus);
   }
 
   private _positionUpdateHandler(position: number) {

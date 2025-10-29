@@ -45,5 +45,4 @@ describe('setGlobalData', () => {
     // expect
     expect('propertyNames' in result).to.be.false;
   });
-
 });

@@ -1,5 +1,5 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 
 export default defineConfig({
   test: {
@@ -16,9 +16,16 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/coverage/**',
+        'src/build/**',
+        'src/tools/**',
+        '**/metadata/**',
+        'copy-schema.js',
+        'build/**',
       ],
     },
     include: ['src/test/**/*.spec.ts'],
-    reporters: process.env.GITHUB_ACTIONS ? ['dot', 'github-actions'] : ['default'],
+    reporters: process.env.GITHUB_ACTIONS
+      ? ['dot', 'github-actions']
+      : ['default'],
   },
 });

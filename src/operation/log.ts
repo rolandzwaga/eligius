@@ -1,6 +1,6 @@
 import {getGlobals} from './helper/globals.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
-
 
 export interface ILogOperationData {
   /**
@@ -18,13 +18,13 @@ export interface ILogOperationData {
  * This operation logs the specified value, or, when no logValue property has been assigned
  * it will log the current operation data, global data and scope to the console
  */
-export const log: TOperation<ILogOperationData> = function (
-  operationData: ILogOperationData
-) {
+export const log: TOperation<
+  ILogOperationData,
+  Omit<ILogOperationData, 'logValue' | 'logName'>
+> = function (operationData: ILogOperationData) {
   if ('logValue' in operationData) {
     console.log(operationData.logName ?? 'logValue', operationData.logValue);
-    delete operationData.logValue;
-    delete operationData.logName;
+    removeProperties(operationData, 'logValue', 'logName');
   } else {
     const globalData = getGlobals();
 
@@ -34,6 +34,6 @@ export const log: TOperation<ILogOperationData> = function (
     console.log('globalData', globalData);
     console.groupEnd();
   }
-  
+
   return operationData;
 };

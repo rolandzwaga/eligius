@@ -1,9 +1,9 @@
 import $ from 'jquery';
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
 import type {TOperationData} from '../operation/types.ts';
 import type {TResultCallback} from '../types.ts';
 import type {LabelController} from './label-controller.ts';
-import type {IController} from './types.ts';
+import {BaseController} from './base-controller.ts';
 
 export interface INavigationControllerOperationData {
   /**
@@ -16,9 +16,7 @@ export interface INavigationControllerOperationData {
   json: any;
 }
 
-export class NavigationController
-  implements IController<INavigationControllerOperationData>
-{
+export class NavigationController extends BaseController<INavigationControllerOperationData> {
   name: string = 'NavigationController';
   navigation: any[] = [];
   navLookup: Record<string, any> = {};
@@ -26,11 +24,8 @@ export class NavigationController
   ctrlLookup: Record<string, LabelController> = {};
   activeNavigationPoint: any | null = null;
   labelControllers: LabelController[] = [];
-  eventhandlers: TEventbusRemover[] = [];
   eventbus: IEventbus | null = null;
   container: JQuery | null = null;
-
-  constructor() {}
 
   init(operationData: TOperationData) {
     this.container = operationData.selectedElement;
@@ -44,24 +39,10 @@ export class NavigationController
 
     this.eventbus = eventbus;
 
-    this.eventhandlers.push(
-      eventbus.on(
-        'navigate-to-video-url',
-        this._handleNavigateVideoUrl.bind(this)
-      )
-    );
-    this.eventhandlers.push(
-      eventbus.on('highlight-navigation', this._highlightMenu.bind(this))
-    );
-    this.eventhandlers.push(
-      eventbus.on(
-        'request-current-navigation',
-        this._handleRequestCurrentNavigation.bind(this)
-      )
-    );
-    this.eventhandlers.push(
-      eventbus.on('video-complete', this._handleVideoComplete.bind(this))
-    );
+    this.addListener(eventbus, 'navigate-to-video-url', this._handleNavigateVideoUrl);
+    this.addListener(eventbus, 'highlight-navigation', this._highlightMenu);
+    this.addListener(eventbus, 'request-current-navigation', this._handleRequestCurrentNavigation);
+    this.addListener(eventbus, 'video-complete', this._handleVideoComplete);
 
     this._buildHtml(this.container, this.navigation);
     this._initHistory.bind(this);
@@ -106,9 +87,7 @@ export class NavigationController
   }
 
   detach(eventbus: IEventbus) {
-    this.eventhandlers.forEach(handler => {
-      handler();
-    });
+    super.detach(eventbus);
 
     this.labelControllers.forEach(ctrl => {
       ctrl.detach(eventbus);

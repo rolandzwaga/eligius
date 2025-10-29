@@ -1,8 +1,8 @@
 import type {TOperationData} from '../types.ts';
 
-export function mergeOperationData<T extends TOperationData, K = T>(
+export function mergeOperationData<T extends TOperationData>(
   operationData: T,
   newOperationData: TOperationData
-): K {
-  return {...(operationData as any), ...newOperationData} as K;
+): T & TOperationData {
+  return {...operationData, ...newOperationData};
 }

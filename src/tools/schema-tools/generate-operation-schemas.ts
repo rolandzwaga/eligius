@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { emptyDirSync } from 'fs-extra';
+import {emptyDirSync} from 'fs-extra';
 import * as controllers from '../../controllers/index.ts';
 import * as metadata from '../../operation/metadata/index.ts';
 import type {
@@ -15,7 +15,7 @@ import type {
 } from '../../operation/metadata/types.ts';
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 import dashToCamelCase from '../../util/dash-to-camel-case.ts';
-import { htmlTagNames } from './html-tag-names.ts';
+import {htmlTagNames} from './html-tag-names.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const outputDirectory = path.join(schemaDirectory, 'operations');
@@ -44,11 +44,11 @@ operationSchemas.forEach(([name, schema]) => {
 
 const operationSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map(name => ({ $ref: `operations/${name}.json` }));
+  .map(name => ({$ref: `operations/${name}.json`}));
 
 const operationTemplateSchemaPaths = operationSchemas
   .map(([name]) => name)
-  .map(name => ({ $ref: `operation-templates/${name}.json` }));
+  .map(name => ({$ref: `operation-templates/${name}.json`}));
 
 ['endable-action.json', 'event-action.json', 'timeline-action.json'].forEach(
   x => saveOperations(x, operationSchemaPaths)
@@ -71,7 +71,7 @@ function saveOperations(filename: string, schemaPaths: any[]) {
   fs.writeFileSync(
     path.join(schemaDirectory, filename),
     JSON.stringify(actionSchema, null, 2),
-    { encoding: 'utf-8' }
+    {encoding: 'utf-8'}
   );
 
   console.log(`${filename} was written`);
@@ -184,7 +184,7 @@ function generateProperty(name: string, propertyMetadata: TPropertyMetadata) {
 
   const type = generateSchemaType(propertyMetadata);
   if (typeof type === 'object' && 'enum' in type) {
-    result[name] = { ...type, ...result[name] };
+    result[name] = {...type, ...result[name]};
   } else {
     result[name].type = type;
   }
@@ -268,7 +268,10 @@ function isString(value: TPropertyMetadata): value is TParameterTypes {
 }
 
 function metadataType2SchemaType(
-  value: TParameterTypes | TConstantParametersTypes[] | metadata.TParameterTypesDelimited
+  value:
+    | TParameterTypes
+    | TConstantParametersTypes[]
+    | metadata.TParameterTypesDelimited
 ) {
   if (Array.isArray(value)) {
     return 'array';
@@ -283,7 +286,7 @@ function metadataType2SchemaType(
 function getSchemaType(value: string) {
   switch (value) {
     case 'ParameterType:htmlElementName':
-      return { type: 'string', enum: htmlTagNames };
+      return {type: 'string', enum: htmlTagNames};
     case 'ParameterType:controllerName':
       return {
         type: 'string',
@@ -324,7 +327,10 @@ function getSchemaType(value: string) {
 }
 
 function metadataType2SchemaPattern(
-  value: TParameterTypes | TConstantParametersTypes[] | metadata.TParameterTypesDelimited
+  value:
+    | TParameterTypes
+    | TConstantParametersTypes[]
+    | metadata.TParameterTypesDelimited
 ) {
   switch (value) {
     case 'ParameterType:className':

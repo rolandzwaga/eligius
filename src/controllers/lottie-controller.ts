@@ -6,9 +6,9 @@ import type {
   SVGRendererConfig,
 } from 'lottie-web';
 import lt from 'lottie-web';
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
 import {TimelineEventNames} from '../timeline-event-names.ts';
-import type {IController} from './types.ts';
+import {BaseController} from './base-controller.ts';
 
 const lottie = lt.default ?? lt;
 
@@ -54,21 +54,15 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
  * The url may encode freeze and end positions like this: my-url/filename[freeze=10,end=21].json
  *
  */
-export class LottieController
-  implements IController<ILottieControllerMetadata>
-{
+export class LottieController extends BaseController<ILottieControllerMetadata> {
   name = 'LottieController';
   currentLanguage: string = 'nl-NL';
   labelData: Record<string, Record<string, string>> = {};
-  eventbusRemovers: TEventbusRemover[] = [];
   animationItem: AnimationItem | null = null;
-  operationData: IInnerMetadata | null = null;
   serializedData: string | null = null;
   serializedIEData: string | null = null;
   freezePosition = -1;
   endPosition = -1;
-
-  constructor() {}
 
   init(operationData: ILottieControllerMetadata) {
     this.operationData = {...operationData};
@@ -87,10 +81,9 @@ export class LottieController
   }
 
   private _parseFilename(name: string) {
-    const params = name.substring(
-      name.indexOf('[') + 1,
-      name.indexOf(']') - name.indexOf('[') - 1
-    );
+    const startIndex = name.indexOf('[') + 1;
+    const endIndex = name.indexOf(']');
+    const params = name.substring(startIndex, endIndex);
 
     const settings = params.split(',');
 
@@ -120,11 +113,10 @@ export class LottieController
         resultHolder,
       ]);
       this.currentLanguage = resultHolder.language;
-      this.eventbusRemovers.push(
-        eventbus.on(
-          TimelineEventNames.LANGUAGE_CHANGE,
-          this._handleLanguageChange.bind(this)
-        )
+      this.addListener(
+        eventbus,
+        TimelineEventNames.LANGUAGE_CHANGE,
+        this._handleLanguageChange
       );
       eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [
         this.operationData.labelIds,
@@ -135,10 +127,8 @@ export class LottieController
     this._createAnimation();
   }
 
-  detach(_eventbus: IEventbus) {
-    this.eventbusRemovers.forEach(func => {
-      func();
-    });
+  detach(eventbus: IEventbus) {
+    super.detach(eventbus);
 
     if (this.animationItem) {
       if (this.endPosition > -1) {
@@ -176,10 +166,10 @@ export class LottieController
 
     const {labelIds} = this.operationData;
     if (labelIds && labelIds.length) {
-      labelIds.forEach(id => {
-        serialized = serialized
-          .split(`!!${id}!!`)
-          .join(this.labelData[id][this.currentLanguage]);
+      // O(n) regex-based replacement - single pass through string
+      // Replaces all !!labelId!! patterns in one operation
+      serialized = serialized.replace(/!!([^!]+)!!/g, (match, labelId) => {
+        return this.labelData[labelId]?.[this.currentLanguage] ?? match;
       });
     }
     const animationData = JSON.parse(serialized);

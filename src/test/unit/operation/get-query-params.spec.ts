@@ -74,5 +74,4 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
 
     expect('defaultValues' in result).to.be.false;
   });
-
 });

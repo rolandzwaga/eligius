@@ -1,6 +1,6 @@
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
 import type {TOperationData} from '../operation/types.ts';
-import type {IController} from './types.ts';
+import {BaseController} from './base-controller.ts';
 
 export interface IRoutingControllerOperationData {
   /**
@@ -12,32 +12,20 @@ export interface IRoutingControllerOperationData {
 /**
  * This is a work in progress, do not use this yet please....
  */
-export class RoutingController
-  implements IController<IRoutingControllerOperationData>
-{
+export class RoutingController extends BaseController<IRoutingControllerOperationData> {
   name = 'RoutingController';
   navLookup: Record<string, any> = {};
   navVidIdLookup: Record<string, any> = {};
   navigation: any = null;
-  eventhandlers: TEventbusRemover[] = [];
   eventbus: IEventbus | null = null;
-
-  constructor() {}
 
   init(operationData: TOperationData) {
     this.navigation = this._buildNavigationData(operationData.json);
   }
 
   attach(eventbus: IEventbus) {
-    this.eventhandlers.push(
-      eventbus.on(
-        'before-request-video-url',
-        this._handleBeforeRequestVideoUrl.bind(this)
-      )
-    );
-    this.eventhandlers.push(
-      eventbus.on('push-history-state', this._handlePushHistoryState.bind(this))
-    );
+    this.addListener(eventbus, 'before-request-video-url', this._handleBeforeRequestVideoUrl);
+    this.addListener(eventbus, 'push-history-state', this._handlePushHistoryState);
     this.eventbus = eventbus;
     window.onpopstate = this._handlePopstate.bind(this);
 
@@ -73,12 +61,9 @@ export class RoutingController
     ]);
   }
 
-  detach(_eventbus: IEventbus) {
-    if (this.eventhandlers) {
-      this.eventhandlers.forEach(handler => {
-        handler();
-      });
-    }
+  detach(eventbus: IEventbus) {
+    super.detach(eventbus);
+    window.onpopstate = null;
     this.eventbus = null;
   }
 

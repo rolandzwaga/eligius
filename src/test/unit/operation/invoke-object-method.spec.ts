@@ -44,5 +44,4 @@ describe('invokeObjectMethod', () => {
     expect('methodName' in result).to.be.false;
     expect('methodArguments' in result).to.be.false;
   });
-
 });

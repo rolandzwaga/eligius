@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface ISetElementContentOperationData {
@@ -15,7 +16,7 @@ export interface ISetElementContentOperationData {
    * append = the new content will be inserted after the current content
    *
    * prepend = the new content will be inserted before the current content
-   * 
+   *
    * @erased
    */
   insertionType: 'overwrite' | 'append' | 'prepend';
@@ -30,9 +31,10 @@ export interface ISetElementContentOperationData {
  * When set to `append` the new content will be inserted after the current content.
  * When set to `prepend` the new content will be inserted before the current content.
  */
-export const setElementContent: TOperation<ISetElementContentOperationData> = (
-  operationData: ISetElementContentOperationData
-) => {
+export const setElementContent: TOperation<
+  ISetElementContentOperationData,
+  Omit<ISetElementContentOperationData, 'template' | 'insertionType'>
+> = (operationData: ISetElementContentOperationData) => {
   const {
     insertionType = 'overwrite',
     selectedElement,
@@ -51,8 +53,7 @@ export const setElementContent: TOperation<ISetElementContentOperationData> = (
       break;
   }
 
-  delete (operationData as any).insertionType;
-  delete (operationData as any).template;
+  removeProperties(operationData, 'insertionType', 'template');
 
   return operationData;
 };

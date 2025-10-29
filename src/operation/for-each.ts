@@ -23,10 +23,10 @@ export interface IForEachOperationData {
  *
  * At the start of the loop, the associated {@link endForEach} operation is determined and when
  * the last iteration is completed the flow control is set to the index of that operation.
- * 
- * The {@link continueForEach|continue} and {@link breakForEach|break} operations can be used to control the 
+ *
+ * The {@link continueForEach|continue} and {@link breakForEach|break} operations can be used to control the
  * loop iterations.
- * 
+ *
  */
 export const forEach: TOperation<IForEachOperationData> = function (
   operationData: IForEachOperationData

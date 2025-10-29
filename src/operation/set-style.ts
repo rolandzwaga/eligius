@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import {resolvePropertyValues} from './helper/resolve-property-values.ts';
 import type {TOperation} from './types.ts';
 
@@ -18,9 +19,10 @@ export interface ISetStyleOperationData {
  * This operation assigns the specified CSS style properties to the
  * given selected element.
  */
-export const setStyle: TOperation<ISetStyleOperationData> = function (
-  operationData: ISetStyleOperationData
-) {
+export const setStyle: TOperation<
+  ISetStyleOperationData,
+  Omit<ISetStyleOperationData, 'properties'>
+> = function (operationData: ISetStyleOperationData) {
   const properties = resolvePropertyValues(
     operationData,
     this,
@@ -28,7 +30,7 @@ export const setStyle: TOperation<ISetStyleOperationData> = function (
   );
   operationData.selectedElement.css(properties as JQuery.PlainObject);
 
-  delete (operationData as any).properties;
+  removeProperties(operationData, 'properties');
 
   return operationData;
 };

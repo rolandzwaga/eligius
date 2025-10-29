@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface ISetVariableOperationData {
@@ -17,9 +18,10 @@ export interface ISetVariableOperationData {
 /**
  * This operation sets a variable with the specified name on the scope with the specified value.
  */
-export const setVariable: TOperation<ISetVariableOperationData> = function (
-  operationData: ISetVariableOperationData
-) {
+export const setVariable: TOperation<
+  ISetVariableOperationData,
+  Omit<ISetVariableOperationData, 'name' | 'value'>
+> = function (operationData: ISetVariableOperationData) {
   const {name, value} = operationData;
 
   if (!this.variables) {
@@ -28,8 +30,7 @@ export const setVariable: TOperation<ISetVariableOperationData> = function (
 
   this.variables[name] = value;
 
-  delete (operationData as any).name;
-  delete (operationData as any).value;
+  removeProperties(operationData, 'name', 'value');
 
   return operationData;
 };

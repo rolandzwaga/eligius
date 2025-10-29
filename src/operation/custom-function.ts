@@ -1,5 +1,6 @@
 import {TimelineEventNames} from '../timeline-event-names.ts';
 import {internalResolve} from './helper/internal-resolve.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface ICustomFunctionOperationData {
@@ -18,26 +19,28 @@ export interface ICustomFunctionOperationData {
  * @param operationData
  * @returns
  */
-export const customFunction: TOperation<ICustomFunctionOperationData> =
-  function (operationData: ICustomFunctionOperationData) {
-    const {systemName} = operationData;
+export const customFunction: TOperation<
+  ICustomFunctionOperationData,
+  Omit<ICustomFunctionOperationData, 'systemName'>
+> = function (operationData: ICustomFunctionOperationData) {
+  const {systemName} = operationData;
 
-    delete (operationData as any).systemName;
+  removeProperties(operationData, 'systemName');
 
-    return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
-      const resultCallback = (func: Function) => {
-        const promise = func.apply(this, [operationData]);
-        if (promise) {
-          promise.then(() => {
-            internalResolve(resolve, {}, operationData);
-          }, reject);
-        } else {
+  return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
+    const resultCallback = (func: TOperation) => {
+      const promise = func.apply(this, [operationData]);
+      if (promise) {
+        promise.then(() => {
           internalResolve(resolve, {}, operationData);
-        }
-      };
-      this.eventbus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
-        systemName,
-        resultCallback,
-      ]);
-    });
-  };
+        }, reject);
+      } else {
+        internalResolve(resolve, {}, operationData);
+      }
+    };
+    this.eventbus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
+      systemName,
+      resultCallback,
+    ]);
+  });
+};

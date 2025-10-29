@@ -47,5 +47,4 @@ describe<WaitSuiteContext>('wait', () => {
     // expect
     expect('milliseconds' in data).to.be.false;
   });
-
 });

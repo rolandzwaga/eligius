@@ -1,7 +1,7 @@
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
 import {TimelineEventNames} from '../timeline-event-names.ts';
 import type {IStrictDuration, ISubtitleCollection} from '../types.ts';
-import type {IController} from './types.ts';
+import {BaseController} from './base-controller.ts';
 
 export interface ISubtitlesControllerOperationData {
   /**
@@ -16,9 +16,7 @@ export interface ISubtitlesControllerOperationData {
   subtitleData: ISubtitleCollection[];
 }
 
-export class SubtitlesController
-  implements IController<ISubtitlesControllerOperationData>
-{
+export class SubtitlesController extends BaseController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
   currentLanguage: string | null = null;
   lastFunc: Function | null = null;
@@ -26,35 +24,13 @@ export class SubtitlesController
   subtitleDurations: IStrictDuration[] | null = null;
 
   attach(eventbus: IEventbus) {
-    const detachTime = eventbus.on(
-      TimelineEventNames.TIME,
-      this.onTimeHandler.bind(this)
-    );
-    const detachSeek = eventbus.on(
-      TimelineEventNames.SEEKED,
-      this.onSeekedHandler.bind(this)
-    );
-    const detachLangChange = eventbus.on(
-      TimelineEventNames.LANGUAGE_CHANGE,
-      this.languageChangeHandler.bind(this)
-    );
-    this.internalDetach = this.internalDetach.bind(this, [
-      detachTime,
-      detachLangChange,
-      detachSeek,
-    ]);
+    this.addListener(eventbus, TimelineEventNames.TIME, this.onTimeHandler);
+    this.addListener(eventbus, TimelineEventNames.SEEKED, this.onSeekedHandler);
+    this.addListener(eventbus, TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler);
   }
 
-  detach(_eventbus: IEventbus) {
-    this.internalDetach();
-  }
-
-  internalDetach(detachMethods?: TEventbusRemover[]) {
-    if (detachMethods) {
-      detachMethods.forEach(f => {
-        f();
-      });
-    }
+  detach(eventbus: IEventbus) {
+    super.detach(eventbus);
   }
 
   languageChangeHandler(newLanguage: string) {
@@ -81,7 +57,7 @@ export class SubtitlesController
     const position = args[0];
 
     const duration = this.subtitleDurations?.find(
-      x => x.start <= position || x.end >= position
+      x => x.start <= position && x.end >= position
     );
 
     const func = duration ? this.actionLookup[duration.start ?? -1] : undefined;

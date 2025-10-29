@@ -34,7 +34,7 @@ describe('startAction', () => {
     // expect
     //expect(result.resolved).to.be.true;
     expect((mockAction as any).resolved).to.be.true;
-    expect(result.actionOperationData).to.be.undefined;
+    expect((result as any).actionOperationData).to.be.undefined;
     return result;
   });
 
@@ -58,5 +58,4 @@ describe('startAction', () => {
     expect('actionOperationData' in result).to.be.false;
     return result;
   });
-
 });

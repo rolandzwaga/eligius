@@ -41,5 +41,4 @@ describe('extendController', () => {
     // expect
     expect('controllerExtension' in newData).to.be.false;
   });
-
 });

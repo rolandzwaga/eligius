@@ -1,4 +1,4 @@
-import { defineConfig } from 'tsdown';
+import {defineConfig} from 'tsdown';
 
 export default defineConfig({
   entry: ['./src/index.ts'],
@@ -10,5 +10,5 @@ export default defineConfig({
   target: 'es2022',
   exports: true,
   clean: true,
-  outDir: './dist'
+  outDir: './dist',
 });

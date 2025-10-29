@@ -60,275 +60,272 @@ type ConfigurationResolverSuiteContext = {
   eventbus: Eventbus;
 } & TestContext;
 
-describe<ConfigurationResolverSuiteContext>(
-  'ConfigurationResolver',
-  () => {
-    beforeEach<ConfigurationResolverSuiteContext>(context => {
-      context.importer = new MockImporter();
-      context.eventbus = new MockEventbus() as Eventbus;
-    });
-    test<ConfigurationResolverSuiteContext>('should create', context => {
-      // given
-      const {importer, eventbus} = context;
-      // test
-      const resolver = new ConfigurationResolver(importer, eventbus);
+describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
+  beforeEach<ConfigurationResolverSuiteContext>(context => {
+    context.importer = new MockImporter();
+    context.eventbus = new MockEventbus() as Eventbus;
+  });
+  test<ConfigurationResolverSuiteContext>('should create', context => {
+    // given
+    const {importer, eventbus} = context;
+    // test
+    const resolver = new ConfigurationResolver(importer, eventbus);
 
-      // expect
-      expect(resolver).to.not.be.null;
-    });
-    test<ConfigurationResolverSuiteContext>('should initialize event actions', context => {
-      // given
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.eventActions = [
-        {
-          id: 'test',
-          name: 'TestAction',
-          eventName: 'testEvent',
-          eventTopic: 'testTopic',
-          startOperations: [
-            {
-              id: 'test',
-              systemName: 'selectElement',
-              operationData: {
-                selector: '#progress',
-              },
+    // expect
+    expect(resolver).to.not.be.null;
+  });
+  test<ConfigurationResolverSuiteContext>('should initialize event actions', context => {
+    // given
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.eventActions = [
+      {
+        id: 'test',
+        name: 'TestAction',
+        eventName: 'testEvent',
+        eventTopic: 'testTopic',
+        startOperations: [
+          {
+            id: 'test',
+            systemName: 'selectElement',
+            operationData: {
+              selector: '#progress',
             },
-          ],
-        },
-      ];
-      const resolver = new ConfigurationResolver(importer, eventbus);
-      const registry = new MockActionRegistryListener();
+          },
+        ],
+      },
+    ];
+    const resolver = new ConfigurationResolver(importer, eventbus);
+    const registry = new MockActionRegistryListener();
 
-      // test
-      resolver.process(config, registry as any);
+    // test
+    resolver.process(config, registry as any);
 
-      // expect
-      expect(registry.eventAction).to.not.undefined;
-      expect(registry.eventName).to.equal('testEvent');
-      expect(registry.eventTopic).to.equal('testTopic');
-    });
-    test<ConfigurationResolverSuiteContext>('should initialize initActions', context => {
-      // give
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.initActions = [
-        {
-          id: 'test',
-          name: 'TestAction',
-          startOperations: [
-            {
-              id: 'test',
-              systemName: 'selectElement',
-              operationData: {
-                selector: '#progress',
-              },
+    // expect
+    expect(registry.eventAction).to.not.undefined;
+    expect(registry.eventName).to.equal('testEvent');
+    expect(registry.eventTopic).to.equal('testTopic');
+  });
+  test<ConfigurationResolverSuiteContext>('should initialize initActions', context => {
+    // give
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.initActions = [
+      {
+        id: 'test',
+        name: 'TestAction',
+        startOperations: [
+          {
+            id: 'test',
+            systemName: 'selectElement',
+            operationData: {
+              selector: '#progress',
             },
-          ],
-          endOperations: [
-            {
-              id: 'test2',
-              systemName: 'removeElement',
-              operationData: {
-                selector: '#progress',
-              },
+          },
+        ],
+        endOperations: [
+          {
+            id: 'test2',
+            systemName: 'removeElement',
+            operationData: {
+              selector: '#progress',
             },
-          ],
-        },
-      ];
-      const resolver = new ConfigurationResolver(importer, eventbus);
+          },
+        ],
+      },
+    ];
+    const resolver = new ConfigurationResolver(importer, eventbus);
 
-      // test
-      const [, processedConfig] = resolver.process(config);
+    // test
+    const [, processedConfig] = resolver.process(config);
 
-      // expect
-      const actionConfig = config.initActions[0];
-      const resolvedAction = processedConfig.initActions[0];
+    // expect
+    const actionConfig = config.initActions[0];
+    const resolvedAction = processedConfig.initActions[0];
 
-      expect(resolvedAction).to.not.be.undefined;
-      expect(resolvedAction.id).to.equal(actionConfig.id);
-      expect(resolvedAction.name).to.equal(actionConfig.name);
-      expect(resolvedAction.startOperations.length).to.equal(
-        actionConfig.startOperations.length
-      );
-      expect(resolvedAction.endOperations.length).to.equal(
-        actionConfig.endOperations.length
-      );
+    expect(resolvedAction).to.not.be.undefined;
+    expect(resolvedAction.id).to.equal(actionConfig.id);
+    expect(resolvedAction.name).to.equal(actionConfig.name);
+    expect(resolvedAction.startOperations.length).to.equal(
+      actionConfig.startOperations.length
+    );
+    expect(resolvedAction.endOperations.length).to.equal(
+      actionConfig.endOperations.length
+    );
 
-      let operationConfig = actionConfig.startOperations[0];
-      let resolvedOperation = resolvedAction.startOperations[0];
+    let operationConfig = actionConfig.startOperations[0];
+    let resolvedOperation = resolvedAction.startOperations[0];
 
-      expect(resolvedOperation.instance).to.not.be.undefined;
-      expect(resolvedOperation.id).to.equal(operationConfig.id);
-      expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
-      expect(resolvedOperation.operationData).to.eql(
-        operationConfig.operationData
-      );
+    expect(resolvedOperation.instance).to.not.be.undefined;
+    expect(resolvedOperation.id).to.equal(operationConfig.id);
+    expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
+    expect(resolvedOperation.operationData).to.eql(
+      operationConfig.operationData
+    );
 
-      operationConfig = actionConfig.endOperations[0];
-      resolvedOperation = resolvedAction.endOperations[0];
+    operationConfig = actionConfig.endOperations[0];
+    resolvedOperation = resolvedAction.endOperations[0];
 
-      expect(resolvedOperation.instance).to.not.be.undefined;
-      expect(resolvedOperation.id).to.equal(operationConfig.id);
-      expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
-      expect(resolvedOperation.operationData).to.eql(
-        operationConfig.operationData
-      );
-    });
-    test<ConfigurationResolverSuiteContext>('should initialize actions', context => {
-      // given
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.actions = [
-        {
-          id: 'test',
-          name: 'TestAction',
-          startOperations: [
-            {
-              id: 'test',
-              systemName: 'selectElement',
-              operationData: {
-                selector: '#progress',
-              },
+    expect(resolvedOperation.instance).to.not.be.undefined;
+    expect(resolvedOperation.id).to.equal(operationConfig.id);
+    expect(resolvedOperation.systemName).to.equal(operationConfig.systemName);
+    expect(resolvedOperation.operationData).to.eql(
+      operationConfig.operationData
+    );
+  });
+  test<ConfigurationResolverSuiteContext>('should initialize actions', context => {
+    // given
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.actions = [
+      {
+        id: 'test',
+        name: 'TestAction',
+        startOperations: [
+          {
+            id: 'test',
+            systemName: 'selectElement',
+            operationData: {
+              selector: '#progress',
             },
-          ],
-          endOperations: [
-            {
-              id: 'test2',
-              systemName: 'removeElement',
-              operationData: {
-                selector: '#progress',
-              },
+          },
+        ],
+        endOperations: [
+          {
+            id: 'test2',
+            systemName: 'removeElement',
+            operationData: {
+              selector: '#progress',
             },
-          ],
-        },
-      ];
-      const resolver = new ConfigurationResolver(importer, eventbus);
+          },
+        ],
+      },
+    ];
+    const resolver = new ConfigurationResolver(importer, eventbus);
 
-      // test
-      const [actionsLookup, processedConfig] = resolver.process(config);
+    // test
+    const [actionsLookup, processedConfig] = resolver.process(config);
 
-      // expect
-      const resolvedAction = actionsLookup['TestAction'];
-      expect(resolvedAction).to.not.be.null;
-      expect(processedConfig.actions).to.not.be.undefined;
-      expect(processedConfig.actions[0]).to.not.be.undefined;
-      expect(processedConfig.actions[0].startOperations[0].instance).to.not.be
-        .undefined;
-      expect(processedConfig.actions[0].endOperations[0].instance).to.not.be
-        .undefined;
-    });
-    test<ConfigurationResolverSuiteContext>('should initialize timeline actions', context => {
-      // give
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.timelines = [
-        {
-          id: '111-222-333-444',
-          uri: 'uri',
-          type: 'animation',
-          duration: 100,
-          loop: false,
-          selector: '#selector',
-          timelineActions: [
-            {
-              id: 'test',
-              name: 'TestAction',
-              duration: {
-                start: 10,
-                end: 15,
-              },
-              startOperations: [
-                {
-                  id: 'test',
-                  systemName: 'selectElement',
-                  operationData: {
-                    selector: '#progress',
-                  },
+    // expect
+    const resolvedAction = actionsLookup['TestAction'];
+    expect(resolvedAction).to.not.be.null;
+    expect(processedConfig.actions).to.not.be.undefined;
+    expect(processedConfig.actions[0]).to.not.be.undefined;
+    expect(processedConfig.actions[0].startOperations[0].instance).to.not.be
+      .undefined;
+    expect(processedConfig.actions[0].endOperations[0].instance).to.not.be
+      .undefined;
+  });
+  test<ConfigurationResolverSuiteContext>('should initialize timeline actions', context => {
+    // give
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.timelines = [
+      {
+        id: '111-222-333-444',
+        uri: 'uri',
+        type: 'animation',
+        duration: 100,
+        loop: false,
+        selector: '#selector',
+        timelineActions: [
+          {
+            id: 'test',
+            name: 'TestAction',
+            duration: {
+              start: 10,
+              end: 15,
+            },
+            startOperations: [
+              {
+                id: 'test',
+                systemName: 'selectElement',
+                operationData: {
+                  selector: '#progress',
                 },
-              ],
-              endOperations: [
-                {
-                  id: 'test2',
-                  systemName: 'removeElement',
-                  operationData: {
-                    selector: '#progress',
-                  },
+              },
+            ],
+            endOperations: [
+              {
+                id: 'test2',
+                systemName: 'removeElement',
+                operationData: {
+                  selector: '#progress',
                 },
-              ],
-            },
-          ],
-        },
-      ];
-      const resolver = new ConfigurationResolver(importer, eventbus);
+              },
+            ],
+          },
+        ],
+      },
+    ];
+    const resolver = new ConfigurationResolver(importer, eventbus);
 
-      // test
-      const [, processedConfig] = resolver.process(config);
+    // test
+    const [, processedConfig] = resolver.process(config);
 
-      // expect
-      const timeline = config.timelines[0];
-      const resolvedTimeline = processedConfig.timelines[0];
+    // expect
+    const timeline = config.timelines[0];
+    const resolvedTimeline = processedConfig.timelines[0];
 
-      expect(timeline.id).to.equal(resolvedTimeline.id);
-      expect(timeline.uri).to.equal(resolvedTimeline.uri);
-      expect(timeline.type).to.equal(resolvedTimeline.type);
-      expect(timeline.duration).to.equal(resolvedTimeline.duration);
-      expect(timeline.loop).to.equal(resolvedTimeline.loop);
-      expect(timeline.selector).to.equal(resolvedTimeline.selector);
+    expect(timeline.id).to.equal(resolvedTimeline.id);
+    expect(timeline.uri).to.equal(resolvedTimeline.uri);
+    expect(timeline.type).to.equal(resolvedTimeline.type);
+    expect(timeline.duration).to.equal(resolvedTimeline.duration);
+    expect(timeline.loop).to.equal(resolvedTimeline.loop);
+    expect(timeline.selector).to.equal(resolvedTimeline.selector);
 
-      const actionConfig = timeline.timelineActions[0];
-      const resolvedAction: any = resolvedTimeline.timelineActions[0];
-      expect(resolvedAction).to.not.null;
-      expect(resolvedAction.eventbus).to.equal(eventbus);
-      expect(resolvedAction.id).to.equal(actionConfig.id);
-      expect(resolvedAction.name).to.equal(actionConfig.name);
+    const actionConfig = timeline.timelineActions[0];
+    const resolvedAction: any = resolvedTimeline.timelineActions[0];
+    expect(resolvedAction).to.not.null;
+    expect(resolvedAction.eventbus).to.equal(eventbus);
+    expect(resolvedAction.id).to.equal(actionConfig.id);
+    expect(resolvedAction.name).to.equal(actionConfig.name);
+  });
+  test<ConfigurationResolverSuiteContext>('should resolve config: properties', context => {
+    // given
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.id = 'config:engine.systemName';
+    const resolver = new ConfigurationResolver(importer, eventbus);
+
+    // test
+    const [, processedConfig] = resolver.process(config);
+
+    // expect
+    expect(processedConfig.id).to.equal(config.engine.systemName);
+  });
+  test<ConfigurationResolverSuiteContext>('should resolve json: properties', context => {
+    // given
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.id = 'json:test';
+    const resolver = new ConfigurationResolver(importer, eventbus);
+    (importer as unknown as MockImporter).addEntry('test', {
+      test: 'testValue',
     });
-    test<ConfigurationResolverSuiteContext>('should resolve config: properties', context => {
-      // given
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.id = 'config:engine.systemName';
-      const resolver = new ConfigurationResolver(importer, eventbus);
 
-      // test
-      const [, processedConfig] = resolver.process(config);
+    // test
+    resolver.process(config);
 
-      // expect
-      expect(processedConfig.id).to.equal(config.engine.systemName);
-    });
-    test<ConfigurationResolverSuiteContext>('should resolve json: properties', context => {
-      // given
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.id = 'json:test';
-      const resolver = new ConfigurationResolver(importer, eventbus);
-      (importer as unknown as MockImporter).addEntry('test', {
-        test: 'testValue',
-      });
+    // expect
+    expect((config.id as any).test).to.equal('testValue');
+  });
+  test<ConfigurationResolverSuiteContext>('should resolve template: properties', context => {
+    // give
+    const {importer, eventbus} = context;
+    const config = createTestConfig();
+    config.layoutTemplate = 'template:test';
 
-      // test
-      resolver.process(config);
+    const resolver = new ConfigurationResolver(importer, eventbus);
+    (importer as unknown as MockImporter).addEntry(
+      'test',
+      '<div>This is my template</div>'
+    );
 
-      // expect
-      expect((config.id as any).test).to.equal('testValue');
-    });
-    test<ConfigurationResolverSuiteContext>('should resolve template: properties', context => {
-      // give
-      const {importer, eventbus} = context;
-      const config = createTestConfig();
-      config.layoutTemplate = 'template:test';
+    // test
+    resolver.process(config);
 
-      const resolver = new ConfigurationResolver(importer, eventbus);
-      (importer as unknown as MockImporter).addEntry(
-        'test',
-        '<div>This is my template</div>'
-      );
-
-      // test
-      resolver.process(config);
-
-      // expect
-      expect(config.layoutTemplate).to.equal('<div>This is my template</div>');
-    });
-  }
-);
+    // expect
+    expect(config.layoutTemplate).to.equal('<div>This is my template</div>');
+  });
+});

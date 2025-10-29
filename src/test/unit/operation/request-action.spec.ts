@@ -54,5 +54,4 @@ describe('requestAction', () => {
     // expect
     expect('systemName' in newData).to.be.false;
   });
-
 });

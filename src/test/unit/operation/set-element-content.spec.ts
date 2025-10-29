@@ -87,5 +87,4 @@ describe('setElementContent', () => {
     expect('insertionType' in newData).to.be.false;
     expect('template' in newData).to.be.false;
   });
-
 });

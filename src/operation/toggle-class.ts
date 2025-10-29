@@ -21,9 +21,10 @@ export interface IToggleClassOperationData {
  * Meaning, if the specified class name exists on the given element it will be removed,
  * otherwise it will be added.
  */
-export const toggleClass: TOperation<IToggleClassOperationData> = (
-  operationData: IToggleClassOperationData
-) => {
+export const toggleClass: TOperation<
+  IToggleClassOperationData,
+  Omit<IToggleClassOperationData, 'className'>
+> = (operationData: IToggleClassOperationData) => {
   const {selectedElement, className} = operationData;
   selectedElement.toggleClass(className);
   delete (operationData as any).className;

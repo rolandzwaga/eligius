@@ -1,5 +1,6 @@
 import type {IAction} from '../action/types.ts';
 import {TimelineEventNames} from '../timeline-event-names.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IRequestActionOperationData {
@@ -22,11 +23,11 @@ export interface IRequestActionOperationData {
  */
 export const requestAction: TOperation<
   IRequestActionOperationData,
-  Required<IRequestActionOperationData>
+  Omit<Required<IRequestActionOperationData>, 'systemName'>
 > = function (operationData: IRequestActionOperationData) {
   const {systemName} = operationData;
 
-  delete (operationData as any).systemName;
+  removeProperties(operationData, 'systemName');
 
   const resultCallback = (action: IAction) => {
     operationData.actionInstance = action;

@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import type {RequireKeys} from 'types.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import {resolvePropertyValues} from './helper/resolve-property-values.ts';
 import type {IOperationScope, TOperation} from './types.ts';
 
@@ -37,7 +38,10 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  */
 export const createElement: TOperation<
   ICreateElementOperationData<TTagNames>,
-  RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>
+  Omit<
+    RequireKeys<ICreateElementOperationData<TTagNames>, 'template'>,
+    'elementName' | 'text' | 'attributes'
+  >
 > = function <T extends TTagNames>(
   this: IOperationScope,
   operationData: ICreateElementOperationData<T>
@@ -45,10 +49,13 @@ export const createElement: TOperation<
   operationData = resolvePropertyValues(operationData, this, operationData);
 
   const {elementName, attributes, text} = operationData;
-  
-  delete (operationData as any).elementName;
-  delete (operationData as any).attributes;
-  delete (operationData as any).text;
+
+  removeProperties(
+    operationData,
+    'elementName',
+    'attributes',
+    'text'
+  );
 
   const serializedAttrs = attributes
     ? ` ${Object.entries(attributes)

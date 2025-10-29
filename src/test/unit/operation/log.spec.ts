@@ -12,7 +12,7 @@ import type {
   IOperationScope,
   TOperationData,
 } from '../../../operation/index.ts';
-import {type ILogOperationData, log } from '../../../operation/log.ts';
+import {type ILogOperationData, log} from '../../../operation/log.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 type LogSuiteContext = {
@@ -91,6 +91,4 @@ describe<LogSuiteContext>('log', () => {
     // expect
     expect('logValue' in newData).to.be.false;
   });
-
-
 });
