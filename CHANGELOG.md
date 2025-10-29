@@ -1,10 +1,16 @@
 # Change Log
 
-## Unreleased
+## 1.4.0
 
 ### Breaking Changes
 - Renamed `EventListenerController` to `DOMEventListenerController` for clarity
-- Renamed `IEventListenerControllerOperationData` to `IDOMEventListenerControllerOperationData`
+
+### Improvements
+- **Performance**: Optimized timeline operations (O(n²) → O(n), recursive → iterative execution)
+- **Type Safety**: Eliminated all `any` usage in core engine files
+- **Code Quality**: Standardized controller event management with BaseController pattern
+- **Memory Management**: Fixed memory leaks in RoutingController, added comprehensive memory leak detection tests
+- **Testing**: Added performance benchmarks and memory leak detection test suites (408 tests, 90%+ coverage)
 
 ## 1.2.0
 
