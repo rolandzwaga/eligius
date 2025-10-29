@@ -13,6 +13,8 @@ export interface IToggleElementOperationData {
  *
  * Meaning, if the element is hidden, it will be made visible, otherwise
  * it will be hidden.
+ *
+ * @category DOM
  */
 export const toggleElement: TOperation<IToggleElementOperationData> =
   function toggleElement(operationData: IToggleElementOperationData) {

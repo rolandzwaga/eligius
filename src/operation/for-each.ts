@@ -27,6 +27,7 @@ export interface IForEachOperationData {
  * The {@link continueForEach|continue} and {@link breakForEach|break} operations can be used to control the
  * loop iterations.
  *
+ * @category Control Flow
  */
 export const forEach: TOperation<IForEachOperationData> = function (
   operationData: IForEachOperationData

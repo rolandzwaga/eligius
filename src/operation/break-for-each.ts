@@ -7,6 +7,7 @@ import type {TOperation, TOperationData} from './types.ts';
  * This operation should only be used within a loop, so between a {@link forEach} and {@link endForEach}
  * operation. This operation immediately moves to the loop end index, effectively stopping the loop.
  *
+ * @category Control Flow
  */
 export const breakForEach: TOperation<TOperationData> = function (
   operationData: TOperationData

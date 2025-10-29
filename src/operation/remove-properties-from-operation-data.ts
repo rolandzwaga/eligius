@@ -11,6 +11,8 @@ export interface IRemovePropertiesFromOperationDataOperationData {
 /**
  * This operation removes the given list of properties from the current operation data.
  * It will also remove the property `propertyNames` from the result.
+ *
+ * @category Data
  */
 export const removePropertiesFromOperationData: TOperation<
   IRemovePropertiesFromOperationDataOperationData,

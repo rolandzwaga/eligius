@@ -3,6 +3,7 @@ export type TimelineEventName = keyof typeof TimelineEventNames;
 /**
  * These are the event names that are being broadcast and/or handled by Eligius.
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: This class is intentionally static-only for namespacing event names
 export class TimelineEventNames {
   // timeline requests
   /**

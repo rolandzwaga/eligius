@@ -21,6 +21,8 @@ export interface IEndActionOperationData {
  * The action operation data is first merged with the current operation data before it is
  * passed on to the action. After the action has completed the action operation data properties
  * are removed from the current operation data.
+ * 
+ * @category Action
  */
 export const endAction: TOperation<
   IEndActionOperationData,

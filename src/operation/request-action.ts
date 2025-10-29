@@ -20,6 +20,8 @@ export interface IRequestActionOperationData {
 /**
  * This operation requests an action instance with the specified name and assigns it
  * to the `actionInstance` property on the current operation data.
+ * 
+ * @category Action
  */
 export const requestAction: TOperation<
   IRequestActionOperationData,

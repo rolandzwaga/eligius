@@ -8,8 +8,8 @@ export class EligiusFlowController {
   timelineFlow?: ITimelineFlow;
 
   constructor(
-    private configuration: IResolvedEngineConfiguration,
-    private eventbus: IEventbus
+    configuration: IResolvedEngineConfiguration,
+    _eventbus: IEventbus
   ) {
     this.timelineFlow = configuration.timelineFlow;
   }

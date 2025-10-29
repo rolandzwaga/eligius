@@ -9,6 +9,8 @@ export interface IRemoveElementOperationData {
 
 /**
  * This operation removes the given selected element from the DOM.
+ *
+ * @category DOM
  */
 export const removeElement: TOperation<IRemoveElementOperationData> = (
   operationData: IRemoveElementOperationData

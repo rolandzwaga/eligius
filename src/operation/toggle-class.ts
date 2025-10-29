@@ -20,6 +20,8 @@ export interface IToggleClassOperationData {
  *
  * Meaning, if the specified class name exists on the given element it will be removed,
  * otherwise it will be added.
+ *
+ * @category DOM
  */
 export const toggleClass: TOperation<
   IToggleClassOperationData,

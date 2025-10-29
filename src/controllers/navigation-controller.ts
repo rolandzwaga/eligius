@@ -2,8 +2,8 @@ import $ from 'jquery';
 import type {IEventbus} from '../eventbus/types.ts';
 import type {TOperationData} from '../operation/types.ts';
 import type {TResultCallback} from '../types.ts';
-import type {LabelController} from './label-controller.ts';
 import {BaseController} from './base-controller.ts';
+import type {LabelController} from './label-controller.ts';
 
 export interface INavigationControllerOperationData {
   /**
@@ -39,9 +39,17 @@ export class NavigationController extends BaseController<INavigationControllerOp
 
     this.eventbus = eventbus;
 
-    this.addListener(eventbus, 'navigate-to-video-url', this._handleNavigateVideoUrl);
+    this.addListener(
+      eventbus,
+      'navigate-to-video-url',
+      this._handleNavigateVideoUrl
+    );
     this.addListener(eventbus, 'highlight-navigation', this._highlightMenu);
-    this.addListener(eventbus, 'request-current-navigation', this._handleRequestCurrentNavigation);
+    this.addListener(
+      eventbus,
+      'request-current-navigation',
+      this._handleRequestCurrentNavigation
+    );
     this.addListener(eventbus, 'video-complete', this._handleVideoComplete);
 
     this._buildHtml(this.container, this.navigation);

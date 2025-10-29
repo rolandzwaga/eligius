@@ -4,6 +4,8 @@ import type {IOperationScope, TOperation} from './types.ts';
 /**
  * If the preceeding {@link when} operation evaluates to `true` subsequent operations will
  * be skipped until an {@link endWhen} operation is encountered.
+ *
+ * @category Control Flow
  */
 export const otherwise: TOperation<Record<string, unknown>> = function (
   operationData: Record<string, unknown>

@@ -2,6 +2,8 @@ import type {TOperation, TOperationData} from './types.ts';
 
 /**
  * This operation checks if the current loop should end or start the next iteration.
+ *
+ * @category Control Flow
  */
 export const endForEach: TOperation<TOperationData> = function (
   operationData: TOperationData

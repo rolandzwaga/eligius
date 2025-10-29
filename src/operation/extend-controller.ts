@@ -19,6 +19,8 @@ export interface IExtendControllerOperationData {
 
 /**
  * Extends the current controller with given extension.
+ *
+ * @category Controller
  */
 export const extendController: TOperation<
   IExtendControllerOperationData,

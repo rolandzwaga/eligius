@@ -277,13 +277,13 @@ function metadataType2SchemaType(
     return 'array';
   } else {
     if (value.indexOf('|')) {
-      return value.split('|').map(x => getSchemaType(x.trim()));
+      return value.split('|').map(x => getSchemaType(x.trim() as TParameterTypes));
     }
-    return getSchemaType(value);
+    return getSchemaType(value as TParameterTypes);
   }
 }
 
-function getSchemaType(value: string) {
+function getSchemaType(value: TParameterTypes) {
   switch (value) {
     case 'ParameterType:htmlElementName':
       return {type: 'string', enum: htmlTagNames};
@@ -321,6 +321,8 @@ function getSchemaType(value: string) {
       return 'boolean';
     case 'ParameterType:array':
       return 'array';
+    case 'ParameterType:Date':
+      return 'date';
     default:
       return 'string';
   }

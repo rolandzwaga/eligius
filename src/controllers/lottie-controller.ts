@@ -103,7 +103,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     }
 
     const {labelIds} = this.operationData;
-    if (labelIds && labelIds.length) {
+    if (labelIds?.length) {
       const resultHolder: {
         language: string;
         labelCollections: any[];
@@ -165,7 +165,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
         : this.serializedData;
 
     const {labelIds} = this.operationData;
-    if (labelIds && labelIds.length) {
+    if (labelIds?.length) {
       // O(n) regex-based replacement - single pass through string
       // Replaces all !!labelId!! patterns in one operation
       serialized = serialized.replace(/!!([^!]+)!!/g, (match, labelId) => {
@@ -213,10 +213,10 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
   }
 
   private _isIE() {
-    const isIE = false || !!(window.document as any)['documentMode'];
+    const isIE = false || !!(window.document as any).documentMode;
 
     // Edge 20+
-    const isEdge = !isIE && !!(window as any)['StyleMedia'];
+    const isEdge = !isIE && !!(window as any).StyleMedia;
 
     return isEdge || isIE;
   }

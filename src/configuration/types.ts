@@ -74,7 +74,7 @@ export interface IResolvedEndableActionConfiguration
   endOperations: IResolvedOperation[];
 }
 
-export type ITimelineFlow = {};
+export type ITimelineFlow = Record<string, never>;
 
 export interface ITimelineProviderSettings {
   id: string;

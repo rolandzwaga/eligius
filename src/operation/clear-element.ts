@@ -10,6 +10,7 @@ export interface IClearElementOperationData {
 /**
  * This operation removes all of the children from the given selected element.
  *
+ * @category DOM
  */
 export const clearElement: TOperation<IClearElementOperationData> = (
   operationData: IClearElementOperationData

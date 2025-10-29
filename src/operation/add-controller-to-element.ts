@@ -19,6 +19,7 @@ export type IAddControllerToElementOperationData<
 /**
  * This operation adds the specified controller instance to the given selected element.
  *
+ * @category Controller
  */
 export const addControllerToElement: TOperation<IAddControllerToElementOperationData> =
   function <T extends TOperationData = TOperationData>(

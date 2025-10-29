@@ -20,6 +20,8 @@ export interface IRemoveControllerFromElementOperationData {
  *
  * @param operationData
  * @returns
+ *
+ * @category Controller
  */
 export const removeControllerFromElement: TOperation<
   IRemoveControllerFromElementOperationData,

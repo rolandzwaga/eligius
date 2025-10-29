@@ -17,6 +17,8 @@ export interface ILogOperationData {
 /**
  * This operation logs the specified value, or, when no logValue property has been assigned
  * it will log the current operation data, global data and scope to the console
+ * 
+ * @category Utility
  */
 export const log: TOperation<
   ILogOperationData,

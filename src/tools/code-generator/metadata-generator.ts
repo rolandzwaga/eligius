@@ -174,6 +174,7 @@ const createSourceFile =
       statements: writer => {
         writer.writeLine('return {');
         writer.writeLine(`description: \`${getDescription(declaration)}\`,`);
+        writer.writeLine(`category: \`${getCategory(declaration)}\`,`);
 
         const dependencies = getDependentPropertyNames(operationData);
         if (dependencies.trim().length) {
@@ -202,6 +203,16 @@ const createSourceFile =
       indentStyle: ts.IndentStyle.Smart,
     });
   };
+
+const getCategory = (declaration: VariableDeclaration) => {
+  const statement = declaration.getVariableStatement();
+
+  const tag = getTag(statement?.getJsDocs() ?? [])('category')?.getComment();
+  if (typeof tag === 'string') {
+    return tag;
+  }
+  return 'unknown';
+};
 
 const getDescription = (declaration: VariableDeclaration) => {
   const statement = declaration.getVariableStatement();
@@ -337,6 +348,8 @@ const getTypeFromProperty = (property: PropertySignature) => {
         } else {
           return `type: 'ParameterType:array',\nitemType: 'ParameterType:${itemType}'`;
         }
+      } else if (propType.startsWith('(')) {
+        return `type: 'ParameterType:function'`;
       }
       return `type: 'ParameterType:${propType}'`;
     }

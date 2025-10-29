@@ -28,6 +28,8 @@ export interface IGetQueryParamsOperationData {
 /**
  * This operation retrieves the current query parameters from the browser's address bar and places
  * them on the returned operation data.
+ * 
+ * @category Utility
  */
 export const getQueryParams: TOperation<
   IGetQueryParamsOperationData,

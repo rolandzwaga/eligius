@@ -80,7 +80,7 @@ export class EligiusEngine implements IEligiusEngine {
 
     const {layoutTemplate} = this.configuration;
 
-    if (layoutTemplate && layoutTemplate.length) {
+    if (layoutTemplate?.length) {
       container.html(layoutTemplate);
     } else {
       console.warn('layoutTemplate is empty, unable to create layout');
@@ -404,7 +404,7 @@ export class EligiusEngine implements IEligiusEngine {
       end = timeLineAction.duration.end = Infinity;
     }
 
-    if (isFinite(end)) {
+    if (Number.isFinite(end)) {
       const timelineEndPositions = this._initializeTimelinePosition(
         this._timeLineActionsLookup[uri],
         end
@@ -559,7 +559,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _handleRequestTimelinePosition(
-    floor: Function,
+    floor: (x: number) => number,
     resultCallback: TResultCallback<number>
   ) {
     resultCallback(floor(this._activeTimelineProvider?.getPosition() || -1));
@@ -583,7 +583,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _onTimeHandler(floor: (x: number) => number, position: number) {
-    if (!isNaN(position)) {
+    if (!Number.isNaN(position)) {
       const pos = floor(position);
 
       if (this._lastPosition !== pos) {
