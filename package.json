@@ -57,7 +57,7 @@
     "@types/node": "24.9.2",
     "@types/sinon": "17.0.4",
     "@types/uuid": "11.0.0",
-    "@vitest/coverage-istanbul": "3.2.4",
+    "@vitest/coverage-istanbul": "4.0.4",
     "canvas": "3.2.0",
     "chai": "6.2.0",
     "fs-extra": "11.3.2",
