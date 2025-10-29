@@ -19,14 +19,18 @@ export interface ISubtitlesControllerOperationData {
 export class SubtitlesController extends BaseController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
   currentLanguage: string | null = null;
-  lastFunc: Function | null = null;
+  lastFunc: (() => void) | null = null;
   name = 'SubtitlesController';
   subtitleDurations: IStrictDuration[] | null = null;
 
   attach(eventbus: IEventbus) {
     this.addListener(eventbus, TimelineEventNames.TIME, this.onTimeHandler);
     this.addListener(eventbus, TimelineEventNames.SEEKED, this.onSeekedHandler);
-    this.addListener(eventbus, TimelineEventNames.LANGUAGE_CHANGE, this.languageChangeHandler);
+    this.addListener(
+      eventbus,
+      TimelineEventNames.LANGUAGE_CHANGE,
+      this.languageChangeHandler
+    );
   }
 
   detach(eventbus: IEventbus) {

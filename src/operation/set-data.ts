@@ -28,6 +28,8 @@ export interface ISetDataOperationData {
  *  '$scope.newIndex': 100,                    // The constant 100 will be assigned to $scope.newIndex
  * })
  * ```
+ *
+ * @category Data
  */
 export const setData: TOperation<
   ISetDataOperationData,

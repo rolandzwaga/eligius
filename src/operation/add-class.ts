@@ -16,6 +16,7 @@ export interface IAddClassOperationData {
 /**
  * This operation adds the specified class name to the specified selected element.
  *
+ * @category DOM
  */
 export const addClass: TOperation<
   IAddClassOperationData,

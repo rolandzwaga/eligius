@@ -104,7 +104,7 @@ export class RequestAnimationFrameTimelineProvider
 
   start() {
     if (this.playState === 'running') {
-      if (this._currentPosition == 0) {
+      if (this._currentPosition === 0) {
         this._callbackPosition();
       }
       return;
@@ -118,7 +118,7 @@ export class RequestAnimationFrameTimelineProvider
       this._firstFramePending = false;
       this._onFirstFrame?.();
     }
-    if (this._currentPosition == 0) {
+    if (this._currentPosition === 0) {
       this._callbackPosition();
     }
 

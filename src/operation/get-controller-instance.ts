@@ -21,6 +21,8 @@ export interface IGetControllerInstanceOperationData {
 /**
  * This operation retrieves an instance of the given controller name.
  * It assigns this instance to the `controllerInstance` property on the current operation data
+ *
+ * @category Controller
  */
 export const getControllerInstance: TOperation<
   IGetControllerInstanceOperationData,

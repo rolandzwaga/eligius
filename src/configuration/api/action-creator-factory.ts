@@ -1,7 +1,6 @@
 import {v4 as uuidv4} from 'uuid';
 import {deepCopy} from '../../operation/helper/deep-copy.ts';
 import * as operations from '../../operation/index.ts';
-import type {TOperation, TOperationData} from '../../operation/types.ts';
 import type {
   ExtractOperationDataType,
   GetOperationByName,
@@ -262,6 +261,7 @@ export class EndableActionCreator<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
   >(systemName: TOperationName, operationData: O) {
+    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
     if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }

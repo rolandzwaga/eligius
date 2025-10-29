@@ -17,6 +17,8 @@ export interface ISetOperationData {
 /**
  * This operation assigns the specified properties to the current operation data.
  * When override is set to true the properties replace the current operation data entirely.
+ *
+ * @category Data
  */
 export const setOperationData: TOperation<
   ISetOperationData,

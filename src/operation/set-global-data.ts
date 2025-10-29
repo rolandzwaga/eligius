@@ -11,6 +11,8 @@ export interface ISetGlobalDataOperationData {
 
 /**
  * This operation copies the specified properties from the operationData to the global data.
+ *
+ * @category Data
  */
 export const setGlobalData: TOperation<
   ISetGlobalDataOperationData,

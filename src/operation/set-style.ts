@@ -18,6 +18,8 @@ export interface ISetStyleOperationData {
 /**
  * This operation assigns the specified CSS style properties to the
  * given selected element.
+ *
+ * @category DOM
  */
 export const setStyle: TOperation<
   ISetStyleOperationData,

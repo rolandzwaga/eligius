@@ -30,6 +30,8 @@ export interface ISetElementContentOperationData {
  * by the given template.
  * When set to `append` the new content will be inserted after the current content.
  * When set to `prepend` the new content will be inserted before the current content.
+ *
+ * @category DOM
  */
 export const setElementContent: TOperation<
   ISetElementContentOperationData,

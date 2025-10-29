@@ -9,7 +9,7 @@ export class MockJQueryElement {
   private _innerHTML = '';
   private _attributes: Record<string, string> = {};
   private _data: Record<string, any> = {};
-  private _listeners = new Map<string, Function[]>();
+  private _listeners = new Map<string, ((...args: any[]) => void)[]>();
   private _cssProperties: Record<string, string> = {};
   private _children: MockJQueryElement[] = [];
 
@@ -113,7 +113,7 @@ export class MockJQueryElement {
   }
 
   // Event handling
-  on(event: string, handler: Function): this {
+  on(event: string, handler: (...args: any[]) => void): this {
     if (!this._listeners.has(event)) {
       this._listeners.set(event, []);
     }
@@ -121,7 +121,7 @@ export class MockJQueryElement {
     return this;
   }
 
-  off(event: string, handler?: Function): this {
+  off(event: string, handler?: (...args: any[]) => void): this {
     if (handler) {
       const handlers = this._listeners.get(event) || [];
       this._listeners.set(
@@ -141,21 +141,21 @@ export class MockJQueryElement {
   }
 
   // Mouse events (chainable shortcuts)
-  click(handler?: Function): this {
+  click(handler?: (...args: any[]) => void): this {
     if (handler) {
       return this.on('click', handler);
     }
     return this.trigger('click');
   }
 
-  mouseup(handler?: Function): this {
+  mouseup(handler?: (...args: any[]) => void): this {
     if (handler) {
       return this.on('mouseup', handler);
     }
     return this.trigger('mouseup');
   }
 
-  mousedown(handler?: Function): this {
+  mousedown(handler?: (...args: any[]) => void): this {
     if (handler) {
       return this.on('mousedown', handler);
     }
@@ -163,7 +163,7 @@ export class MockJQueryElement {
   }
 
   // DOM traversal
-  find(selector: string): MockJQueryElement {
+  find(_selector: string): MockJQueryElement {
     return new MockJQueryElement();
   }
 
@@ -171,11 +171,11 @@ export class MockJQueryElement {
     return new MockJQueryElement();
   }
 
-  children(selector?: string): MockJQueryElement {
+  children(_selector?: string): MockJQueryElement {
     return new MockJQueryElement();
   }
 
-  eq(index: number): MockJQueryElement {
+  eq(_index: number): MockJQueryElement {
     return this;
   }
 
@@ -220,7 +220,7 @@ export class MockJQueryElement {
       this._cssProperties.width = `${value}px`;
       return this;
     }
-    return Number.parseInt(this._cssProperties.width) || 0;
+    return Number.parseInt(this._cssProperties.width, 10) || 0;
   }
 
   height(value?: number): this | number {
@@ -228,7 +228,7 @@ export class MockJQueryElement {
       this._cssProperties.height = `${value}px`;
       return this;
     }
-    return Number.parseInt(this._cssProperties.height) || 0;
+    return Number.parseInt(this._cssProperties.height, 10) || 0;
   }
 
   // Visibility
@@ -247,7 +247,7 @@ export class MockJQueryElement {
     return this._className.trim();
   }
 
-  getListeners(event: string): Function[] {
+  getListeners(event: string): ((...args: any[]) => void)[] {
     return this._listeners.get(event) || [];
   }
 

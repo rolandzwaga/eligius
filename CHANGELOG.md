@@ -1,5 +1,22 @@
 # Change Log
 
+## 1.4.1
+
+### New Operations (32 atomic operations added)
+- **Form Operations**: `getFormData`, `setFormValue`, `validateForm`, `toggleFormElement`
+- **Text Operations**: `getTextContent`, `formatText`, `replaceText`, `substringText`, `concatenateStrings`, `splitString`, `replaceString`
+- **Storage Operations**: `saveToStorage`, `loadFromStorage`, `clearStorage`
+- **Array Operations**: `filterArray`, `mapArray`, `sortArray`, `findInArray`
+- **Scroll Operations**: `scrollToElement`, `scrollToPosition`, `getScrollPosition`, `isElementInViewport`
+- **HTTP Operations**: `httpPost`, `httpPut`, `httpDelete`
+- **Focus/Accessibility**: `setFocus`, `getFocusedElement`, `setAriaAttribute`, `announceToScreenReader`
+- **Date Operations**: `formatDate`, `getCurrentTime`, `compareDate`
+
+### Improvements
+- **Code Quality**: Eliminated all lint and type errors across entire codebase
+- **Type Safety**: Improved generic type handling in operation helpers
+- **Standards Compliance**: Applied modern JavaScript patterns (optional chaining, `Number.isNaN`, strict equality)
+
 ## 1.4.0
 
 ### Breaking Changes

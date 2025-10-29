@@ -15,6 +15,8 @@ export interface ISetElementAttributesOperationData {
 
 /**
  * This operation sets the specified set of attributes on the given selected element.
+ *
+ * @category DOM
  */
 export const setElementAttributes: TOperation<
   ISetElementAttributesOperationData,

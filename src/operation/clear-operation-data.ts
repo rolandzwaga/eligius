@@ -12,6 +12,7 @@ export interface IClearOperationDataOperationData {
  * This operation removes all of the properties on the current operation date.
  * Or, if the `properties` property is set only removes the properties defined by that list.
  *
+ * @category Data
  */
 export const clearOperationData: TOperation<
   IClearOperationDataOperationData,

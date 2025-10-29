@@ -41,8 +41,6 @@ export class DOMEventListenerController
   actionInstanceInfos?: IActionInstanceInfo[];
   name = 'DOMEventListenerController';
 
-  constructor() {}
-
   init(operationData: IDOMEventListenerControllerOperationData) {
     this.operationData = {
       selectedElement: operationData.selectedElement,

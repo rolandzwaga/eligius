@@ -23,5 +23,5 @@
     "verbatimModuleSyntax": true,
     "noErrorTruncation": true
   },
-  "exclude": ["./tsdown.config.ts"]
+  "exclude": ["./tsdown.config.ts", "./specs/**/*"]
 }

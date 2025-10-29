@@ -17,6 +17,8 @@ export interface ISetVariableOperationData {
 
 /**
  * This operation sets a variable with the specified name on the scope with the specified value.
+ *
+ * @category Data
  */
 export const setVariable: TOperation<
   ISetVariableOperationData,

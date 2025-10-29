@@ -33,6 +33,8 @@ export interface IGetElementDimensionsOperationData {
  *
  * For example, this modifier '+100h|w[ar=8-1]' will modifiy the dimensions like this:
  * it will add a value of 100 to the height and modify the width by a ratio of 8 to 1 relative to the height.
+ *
+ * @category DOM
  */
 export const getElementDimensions: TOperation<
   IGetElementDimensionsOperationData,

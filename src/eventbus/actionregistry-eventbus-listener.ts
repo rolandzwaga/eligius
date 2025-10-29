@@ -13,7 +13,7 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
     eventName: string,
     eventTopic?: string
   ): void {
-    if (eventTopic && eventTopic.length) {
+    if (eventTopic?.length) {
       eventName = `${eventName}:${eventTopic}`;
     }
     if (!this._actionRegistry.has(eventName)) {

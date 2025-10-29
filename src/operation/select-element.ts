@@ -38,6 +38,8 @@ export interface ISelectElementOperationData {
  * If `useSelectedElementAsRoot` is set to true and a valid DOM element is assigned
  * to the current operation data's `selectedElement` property
  * then the element will be looked for only in the descendant elements of this DOM element.
+ *
+ * @category DOM
  */
 export const selectElement: TOperation<
   ISelectElementOperationData,

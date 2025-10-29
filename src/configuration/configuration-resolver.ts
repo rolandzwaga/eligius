@@ -242,7 +242,7 @@ function resolvePlaceholders(
   }
 
   if (Array.isArray(configFragment)) {
-    configFragment.forEach((item, index) => {
+    configFragment.forEach(item => {
       resolvePlaceholders(item, rootConfig, importer);
     });
   } else if (isObject(configFragment)) {

@@ -4,7 +4,7 @@ import {vi} from 'vitest';
 vi.mock('lottie-web', () => {
   return {
     // adapt to the exports you consume
-    loadAnimation: (opts: any) => ({
+    loadAnimation: (_opts: any) => ({
       play: () => {},
       stop: () => {},
       destroy: () => {},
@@ -12,7 +12,7 @@ vi.mock('lottie-web', () => {
     }),
     // if they export default
     default: {
-      loadAnimation: (opts: any) => ({
+      loadAnimation: (_opts: any) => ({
         play: () => {},
         stop: () => {},
         destroy: () => {},

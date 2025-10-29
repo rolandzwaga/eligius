@@ -31,6 +31,8 @@ export interface IAnimateOperationData {
  *
  * @param operationData
  * @returns
+ *
+ * @category Animation
  */
 export const animate: TOperation<
   IAnimateOperationData,

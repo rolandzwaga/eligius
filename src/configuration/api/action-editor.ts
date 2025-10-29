@@ -290,6 +290,7 @@ export class EndableActionEditor<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
   >(systemName: TOperationName, operationData: O) {
+    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
     if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }
@@ -308,6 +309,7 @@ export class EndableActionEditor<
 
     this.actionConfig.endOperations = endOperations;
 
+    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
     const operationCsl = operations[systemName];
     return new OperationEditor<this, typeof operationCsl>(newConfig, this);
   }
@@ -407,7 +409,7 @@ export class TimelineActionEditor extends EndableActionEditor<ITimelineActionCon
    * @returns
    */
   setDuration(start: number, end?: number) {
-    if (end != undefined && start > end) {
+    if (end !== undefined && start > end) {
       throw Error('start position cannot be higher than end position');
     }
 
@@ -483,6 +485,7 @@ export class OperationEditor<
    * @returns
    */
   setSystemName(systemName: TOperationName) {
+    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
     if (!operations[systemName]) {
       throw Error(`Unknown operation: ${systemName}`);
     }

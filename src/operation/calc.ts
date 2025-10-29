@@ -46,6 +46,8 @@ const calcFunctions: Record<
  * This operation calculates the given left and right hand operands using the specified operator.
  *
  * @param operationData
+ * 
+ * @category Utility
  */
 export const calc: TOperation<
   ICalcOperationData,

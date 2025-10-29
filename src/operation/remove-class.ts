@@ -18,6 +18,7 @@ export interface IRemoveClassOperationData {
  *
  * @param operationData
  * @returns
+ * @category DOM
  */
 export const removeClass: TOperation<
   IRemoveClassOperationData,

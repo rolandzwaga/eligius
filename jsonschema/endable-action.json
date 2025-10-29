@@ -4,13 +4,19 @@
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
   "type": "object",
   "title": "The Endable Action Schema",
-  "required": ["name", "startOperations", "endOperations"],
+  "required": [
+    "name",
+    "startOperations",
+    "endOperations"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "name": {
@@ -18,7 +24,9 @@
       "type": "string",
       "title": "The Name Schema",
       "default": "",
-      "examples": ["ProgressbarSetup"],
+      "examples": [
+        "ProgressbarSetup"
+      ],
       "pattern": "^(.*)$"
     },
     "startOperations": {
@@ -43,6 +51,12 @@
             "$ref": "operations/animate-with-class.json"
           },
           {
+            "$ref": "operations/announce-to-screen-reader.json"
+          },
+          {
+            "$ref": "operations/break-for-each.json"
+          },
+          {
             "$ref": "operations/broadcast-event.json"
           },
           {
@@ -53,6 +67,18 @@
           },
           {
             "$ref": "operations/clear-operation-data.json"
+          },
+          {
+            "$ref": "operations/clear-storage.json"
+          },
+          {
+            "$ref": "operations/compare-date.json"
+          },
+          {
+            "$ref": "operations/concatenate-strings.json"
+          },
+          {
+            "$ref": "operations/continue-for-each.json"
           },
           {
             "$ref": "operations/create-element.json"
@@ -73,7 +99,19 @@
             "$ref": "operations/extend-controller.json"
           },
           {
+            "$ref": "operations/filter-array.json"
+          },
+          {
+            "$ref": "operations/find-in-array.json"
+          },
+          {
             "$ref": "operations/for-each.json"
+          },
+          {
+            "$ref": "operations/format-date.json"
+          },
+          {
+            "$ref": "operations/format-text.json"
           },
           {
             "$ref": "operations/get-attributes-from-element.json"
@@ -85,7 +123,16 @@
             "$ref": "operations/get-controller-instance.json"
           },
           {
+            "$ref": "operations/get-current-time.json"
+          },
+          {
             "$ref": "operations/get-element-dimensions.json"
+          },
+          {
+            "$ref": "operations/get-focused-element.json"
+          },
+          {
+            "$ref": "operations/get-form-data.json"
           },
           {
             "$ref": "operations/get-import.json"
@@ -94,13 +141,37 @@
             "$ref": "operations/get-query-params.json"
           },
           {
+            "$ref": "operations/get-scroll-position.json"
+          },
+          {
+            "$ref": "operations/get-text-content.json"
+          },
+          {
+            "$ref": "operations/http-delete.json"
+          },
+          {
+            "$ref": "operations/http-post.json"
+          },
+          {
+            "$ref": "operations/http-put.json"
+          },
+          {
             "$ref": "operations/invoke-object-method.json"
+          },
+          {
+            "$ref": "operations/is-element-in-viewport.json"
+          },
+          {
+            "$ref": "operations/load-from-storage.json"
           },
           {
             "$ref": "operations/load-json.json"
           },
           {
             "$ref": "operations/log.json"
+          },
+          {
+            "$ref": "operations/map-array.json"
           },
           {
             "$ref": "operations/math.json"
@@ -124,7 +195,22 @@
             "$ref": "operations/reparent-element.json"
           },
           {
+            "$ref": "operations/replace-string.json"
+          },
+          {
+            "$ref": "operations/replace-text.json"
+          },
+          {
             "$ref": "operations/request-action.json"
+          },
+          {
+            "$ref": "operations/save-to-storage.json"
+          },
+          {
+            "$ref": "operations/scroll-to-element.json"
+          },
+          {
+            "$ref": "operations/scroll-to-position.json"
           },
           {
             "$ref": "operations/select-element.json"
@@ -139,6 +225,12 @@
             "$ref": "operations/set-element-content.json"
           },
           {
+            "$ref": "operations/set-focus.json"
+          },
+          {
+            "$ref": "operations/set-form-value.json"
+          },
+          {
             "$ref": "operations/set-global-data.json"
           },
           {
@@ -151,13 +243,28 @@
             "$ref": "operations/set-variable.json"
           },
           {
+            "$ref": "operations/sort-array.json"
+          },
+          {
+            "$ref": "operations/split-string.json"
+          },
+          {
             "$ref": "operations/start-action.json"
+          },
+          {
+            "$ref": "operations/substring-text.json"
           },
           {
             "$ref": "operations/toggle-class.json"
           },
           {
             "$ref": "operations/toggle-element.json"
+          },
+          {
+            "$ref": "operations/toggle-form-element.json"
+          },
+          {
+            "$ref": "operations/validate-form.json"
           },
           {
             "$ref": "operations/wait.json"
@@ -190,6 +297,12 @@
             "$ref": "operations/animate-with-class.json"
           },
           {
+            "$ref": "operations/announce-to-screen-reader.json"
+          },
+          {
+            "$ref": "operations/break-for-each.json"
+          },
+          {
             "$ref": "operations/broadcast-event.json"
           },
           {
@@ -200,6 +313,18 @@
           },
           {
             "$ref": "operations/clear-operation-data.json"
+          },
+          {
+            "$ref": "operations/clear-storage.json"
+          },
+          {
+            "$ref": "operations/compare-date.json"
+          },
+          {
+            "$ref": "operations/concatenate-strings.json"
+          },
+          {
+            "$ref": "operations/continue-for-each.json"
           },
           {
             "$ref": "operations/create-element.json"
@@ -220,7 +345,19 @@
             "$ref": "operations/extend-controller.json"
           },
           {
+            "$ref": "operations/filter-array.json"
+          },
+          {
+            "$ref": "operations/find-in-array.json"
+          },
+          {
             "$ref": "operations/for-each.json"
+          },
+          {
+            "$ref": "operations/format-date.json"
+          },
+          {
+            "$ref": "operations/format-text.json"
           },
           {
             "$ref": "operations/get-attributes-from-element.json"
@@ -232,7 +369,16 @@
             "$ref": "operations/get-controller-instance.json"
           },
           {
+            "$ref": "operations/get-current-time.json"
+          },
+          {
             "$ref": "operations/get-element-dimensions.json"
+          },
+          {
+            "$ref": "operations/get-focused-element.json"
+          },
+          {
+            "$ref": "operations/get-form-data.json"
           },
           {
             "$ref": "operations/get-import.json"
@@ -241,13 +387,37 @@
             "$ref": "operations/get-query-params.json"
           },
           {
+            "$ref": "operations/get-scroll-position.json"
+          },
+          {
+            "$ref": "operations/get-text-content.json"
+          },
+          {
+            "$ref": "operations/http-delete.json"
+          },
+          {
+            "$ref": "operations/http-post.json"
+          },
+          {
+            "$ref": "operations/http-put.json"
+          },
+          {
             "$ref": "operations/invoke-object-method.json"
+          },
+          {
+            "$ref": "operations/is-element-in-viewport.json"
+          },
+          {
+            "$ref": "operations/load-from-storage.json"
           },
           {
             "$ref": "operations/load-json.json"
           },
           {
             "$ref": "operations/log.json"
+          },
+          {
+            "$ref": "operations/map-array.json"
           },
           {
             "$ref": "operations/math.json"
@@ -271,7 +441,22 @@
             "$ref": "operations/reparent-element.json"
           },
           {
+            "$ref": "operations/replace-string.json"
+          },
+          {
+            "$ref": "operations/replace-text.json"
+          },
+          {
             "$ref": "operations/request-action.json"
+          },
+          {
+            "$ref": "operations/save-to-storage.json"
+          },
+          {
+            "$ref": "operations/scroll-to-element.json"
+          },
+          {
+            "$ref": "operations/scroll-to-position.json"
           },
           {
             "$ref": "operations/select-element.json"
@@ -286,6 +471,12 @@
             "$ref": "operations/set-element-content.json"
           },
           {
+            "$ref": "operations/set-focus.json"
+          },
+          {
+            "$ref": "operations/set-form-value.json"
+          },
+          {
             "$ref": "operations/set-global-data.json"
           },
           {
@@ -298,13 +489,28 @@
             "$ref": "operations/set-variable.json"
           },
           {
+            "$ref": "operations/sort-array.json"
+          },
+          {
+            "$ref": "operations/split-string.json"
+          },
+          {
             "$ref": "operations/start-action.json"
+          },
+          {
+            "$ref": "operations/substring-text.json"
           },
           {
             "$ref": "operations/toggle-class.json"
           },
           {
             "$ref": "operations/toggle-element.json"
+          },
+          {
+            "$ref": "operations/toggle-form-element.json"
+          },
+          {
+            "$ref": "operations/validate-form.json"
           },
           {
             "$ref": "operations/wait.json"

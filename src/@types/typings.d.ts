@@ -148,7 +148,7 @@ declare namespace mediaelementjs {
     // If error happens, set up HTML message via string or function
     customError?: any;
     // Array of keyboard actions such as play/pause
-    keyActions?: Function[];
+    keyActions?: ((...args: any[]) => any)[];
     // Hide WAI-ARIA video player title so it can be added externally on the website
     hideScreenReaderTitle?: boolean;
   }

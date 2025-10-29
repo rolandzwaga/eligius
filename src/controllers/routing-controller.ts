@@ -24,8 +24,16 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
   }
 
   attach(eventbus: IEventbus) {
-    this.addListener(eventbus, 'before-request-video-url', this._handleBeforeRequestVideoUrl);
-    this.addListener(eventbus, 'push-history-state', this._handlePushHistoryState);
+    this.addListener(
+      eventbus,
+      'before-request-video-url',
+      this._handleBeforeRequestVideoUrl
+    );
+    this.addListener(
+      eventbus,
+      'push-history-state',
+      this._handlePushHistoryState
+    );
     this.eventbus = eventbus;
     window.onpopstate = this._handlePopstate.bind(this);
 
@@ -100,7 +108,7 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
   }
 
   private _pushState(state: any) {
-    if (state && state.navigationData && state.navigationData.visible) {
+    if (state?.navigationData?.visible) {
       let currentPosition = state.position !== undefined ? state.position : -1;
       if (currentPosition < 0) {
         const resultCallback = (position: number) => {

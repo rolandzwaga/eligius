@@ -35,6 +35,7 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  *
  * @param operationData
  * @returns
+ * @category DOM
  */
 export const createElement: TOperation<
   ICreateElementOperationData<TTagNames>,

@@ -50,6 +50,8 @@ export interface IWhenOperationData {
  *
  * @param operationData
  * @returns
+ *
+ * @category Control Flow
  */
 export const when: TOperation<
   IWhenOperationData,

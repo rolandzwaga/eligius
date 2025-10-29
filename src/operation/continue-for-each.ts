@@ -8,6 +8,7 @@ import type {TOperation, TOperationData} from './types.ts';
  * operation. This operation immediately moves to the next loop index, effectively canceling the rest
  * of the operations in the current iteration.
  *
+ * @category Control Flow
  */
 export const continueForEach: TOperation<TOperationData> = function (
   operationData: TOperationData

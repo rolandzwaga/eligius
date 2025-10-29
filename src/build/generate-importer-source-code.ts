@@ -68,7 +68,7 @@ function _generateSourceCode(importPaths: ImportInfo[]) {
   );
   result.push('import(name: string): Record<string, any> {');
   result.push('if (imports.hasOwnProperty(name)) { return imports[name]; }');
-  result.push('throw Error(`Unknown systemName: ${name}`);');
+  result.push('throw Error("Unknown systemName: " + name);');
   result.push('}}');
   result.push('');
   result.push('export default EligiusResourceImporter;');
@@ -204,8 +204,8 @@ function _gatherControllerImportPaths(
 
   return operationConfigs
     .filter(operationConfig => {
-      if (operationConfig.operationData?.hasOwnProperty('systemName')) {
-        return operationConfig.operationData.systemName.endsWith('Controller');
+      if (Object.hasOwn(operationConfig.operationData ?? {}, 'systemName')) {
+        return operationConfig.operationData!.systemName.endsWith('Controller');
       }
       return false;
     })

@@ -20,7 +20,8 @@ export interface IGetImportOperationData {
  * assigns it to the `importedInstance` property on the current operaton date.
  *
  * @param operationData
- * @returns
+ * 
+ * @category Utility
  */
 export const getImport: TOperation<
   IGetImportOperationData,

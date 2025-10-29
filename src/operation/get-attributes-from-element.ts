@@ -22,6 +22,8 @@ export interface IGetAttributesFromElementOperationData {
 
 /**
  * This operation retrieves the values for the specified attribute names from the given selected element.
+ *
+ * @category DOM
  */
 export const getAttributesFromElement: TOperation<
   IGetAttributesFromElementOperationData,

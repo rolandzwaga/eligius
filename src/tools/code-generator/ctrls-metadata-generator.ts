@@ -2,6 +2,7 @@ import {dirname, relative} from 'node:path';
 import {
   type ClassDeclaration,
   type ExportDeclarationStructure,
+  type HeritageClause,
   type InterfaceDeclaration,
   type JSDoc,
   type JSDocTag,
@@ -13,7 +14,6 @@ import {
   type TypeAliasDeclaration,
   type TypeParameterDeclaration,
   ts,
-  type VariableDeclaration,
 } from 'ts-morph';
 import {uppercaseFirstChar} from 'util/uppercase-first-char.ts';
 import camelCaseToDash from '../../util/camel-case-to-dash.ts';
@@ -27,6 +27,35 @@ const project = new Project({
 });
 project.addSourceFilesAtPaths('./src/controllers/*.ts');
 
+const getImplementedInterface = (
+  classDecl: ClassDeclaration
+): HeritageClause | undefined => {
+  // First check direct implementation
+  const heritageClause = classDecl
+    .getHeritageClauses()
+    .find(h => h.getToken() === ts.SyntaxKind.ImplementsKeyword);
+  
+  if (heritageClause) {
+    return heritageClause;
+  }
+  
+  // Check if the class extends another class
+  const extendsClause = classDecl
+    .getHeritageClauses()
+    .find(h => h.getToken() === ts.SyntaxKind.ExtendsKeyword);
+  
+  if (extendsClause) {
+    const baseType = extendsClause.getTypeNodes()[0];
+    const baseClass = baseType.getType().getSymbol()?.getDeclarations()[0];
+    
+    if (baseClass?.getKind() === SyntaxKind.ClassDeclaration) {
+      return extendsClause;
+    }
+  }
+  
+  return undefined;
+};
+
 const createControllerMetadata = (sourceFile: SourceFile) => {
   const classDeclaration = sourceFile
     .getClasses()
@@ -37,12 +66,10 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
     );
     return;
   }
-  const heritageClause = classDeclaration
-    .getHeritageClauses()
-    .find(h => h.getToken() === ts.SyntaxKind.ImplementsKeyword);
+  const heritageClause = getImplementedInterface(classDeclaration);
   if (!heritageClause) {
     console.error(
-      `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} does not implement an interface`
+      `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} does not implement an interface.`
     );
     return;
   }
@@ -309,6 +336,8 @@ const getTypeFromProperty = (property: PropertySignature) => {
         } else {
           return `type: 'ParameterType:array',\nitemType: 'ParameterType:${itemType}'`;
         }
+      } else if (propType.startsWith('(')) {
+        return `type: 'ParameterType:function'`;
       }
       return `type: 'ParameterType:${propType}'`;
     }
@@ -353,7 +382,7 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
   );
   outputSourceFile.addExportDeclarations(
     fileNames.map(name => {
-      const namedExport = uppercaseFirstChar(
+      const namedExport = (name.startsWith('dom-')) ? 'DOMEventListenerController' : uppercaseFirstChar(
         dashToCamelCase(name.slice(0, -3))
       );
       return {
@@ -369,7 +398,7 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
 const controllerFiles = project
   .getSourceFiles()
   .filter(
-    src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts'
+    src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts' && src.getBaseName() !== 'base-controller.ts'
   );
 
 toIndexFile(

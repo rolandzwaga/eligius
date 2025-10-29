@@ -51,7 +51,7 @@ export abstract class BaseController<T extends TOperationData>
   protected addListener(
     eventbus: IEventbus,
     eventName: string,
-    handler: Function
+    handler: (...args: any[]) => void
   ): void {
     const boundHandler = handler.bind(this);
     const remover = eventbus.on(eventName, boundHandler as any);
@@ -66,7 +66,7 @@ export abstract class BaseController<T extends TOperationData>
    */
   protected attachMultiple(
     eventbus: IEventbus,
-    listeners: Array<{eventName: string; handler: Function}>
+    listeners: Array<{eventName: string; handler: (...args: any[]) => void}>
   ): void {
     listeners.forEach(({eventName, handler}) => {
       this.addListener(eventbus, eventName, handler);

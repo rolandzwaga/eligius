@@ -26,6 +26,8 @@ export interface IGetControllerFromElementOperationData {
  *
  * @param operationData
  * @returns
+ *
+ * @category Controller
  */
 export const getControllerFromElement: TOperation<
   IGetControllerFromElementOperationData,

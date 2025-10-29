@@ -20,6 +20,8 @@ export interface IReparentElementOperationData {
  *
  * @param operationData
  * @returns
+ *
+ * @category DOM
  */
 export const reparentElement: TOperation<
   IReparentElementOperationData,
