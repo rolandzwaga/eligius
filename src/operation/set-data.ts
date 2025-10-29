@@ -1,5 +1,6 @@
 import {getPropertyChainValue} from './helper/get-property-chain-value.ts';
 import {getGlobals, type TGlobalCache} from './helper/globals.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import {resolveExternalPropertyChain} from './helper/resolve-external-property-chain.ts';
 import type {IOperationScope, TOperation, TOperationData} from './types.ts';
 
@@ -28,11 +29,12 @@ export interface ISetDataOperationData {
  * })
  * ```
  */
-export const setData: TOperation<ISetDataOperationData, Omit<ISetDataOperationData, 'properties'>> = function (
-  operationData: ISetDataOperationData
-) {
+export const setData: TOperation<
+  ISetDataOperationData,
+  Omit<ISetDataOperationData, 'properties'>
+> = function (operationData: ISetDataOperationData) {
   const {properties} = operationData;
-  delete (operationData as any).properties;
+  removeProperties(operationData, 'properties');
 
   resolveTargets(properties, operationData, this);
 

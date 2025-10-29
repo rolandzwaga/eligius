@@ -17,7 +17,10 @@ export interface IAddClassOperationData {
  * This operation adds the specified class name to the specified selected element.
  *
  */
-export const addClass: TOperation<IAddClassOperationData, Omit<IAddClassOperationData, 'className'>> = operationData => {
+export const addClass: TOperation<
+  IAddClassOperationData,
+  Omit<IAddClassOperationData, 'className'>
+> = operationData => {
   const {selectedElement, className} = operationData;
   delete (operationData as any).className;
   selectedElement.addClass(className);

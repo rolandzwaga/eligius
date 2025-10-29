@@ -1,12 +1,6 @@
 import {expect} from 'chai';
 import $ from 'jquery';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  type TestContext,
-  test,
-} from 'vitest';
+import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {ConfigurationFactory} from '../../configuration/api/configuration-factory.ts';
 import type {IEngineConfiguration} from '../../configuration/types.ts';
 import {EngineFactory} from '../../engine-factory.ts';
@@ -109,7 +103,7 @@ describe<CreateOptionListContext>('Create option list', () => {
       .addStartOperationByType(setElementContent, {insertionType: 'append'})
       .addStartOperationByType(endForEach, {})
       .addStartOperationByType(getControllerInstance, {
-        systemName: 'EventListenerController',
+        systemName: 'DOMEventListenerController',
       })
       .addStartOperationByType(addControllerToElement, {
         eventName: 'change',
@@ -119,7 +113,7 @@ describe<CreateOptionListContext>('Create option list', () => {
         selector: '[data-language-selector=true]',
       })
       .addEndOperationByType(removeControllerFromElement, {
-        controllerName: 'EventListenerController',
+        controllerName: 'DOMEventListenerController',
       });
 
     const eventActionCreator = factory.createEventAction(
@@ -166,5 +160,4 @@ describe<CreateOptionListContext>('Create option list', () => {
       throw e;
     }
   });
-
 });

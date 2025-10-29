@@ -1,4 +1,5 @@
 import {modifyDimensions} from './helper/modify-dimensions.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IGetElementDimensionsOperationData {
@@ -34,11 +35,12 @@ export interface IGetElementDimensionsOperationData {
  * it will add a value of 100 to the height and modify the width by a ratio of 8 to 1 relative to the height.
  */
 export const getElementDimensions: TOperation<
-  IGetElementDimensionsOperationData, Omit<IGetElementDimensionsOperationData, 'modifier'>
+  IGetElementDimensionsOperationData,
+  Omit<IGetElementDimensionsOperationData, 'modifier'>
 > = (operationData: IGetElementDimensionsOperationData) => {
   const {selectedElement, modifier} = operationData;
 
-  delete (operationData as any).modifier;
+  removeProperties(operationData, 'modifier');
 
   let dimensions = {
     width: selectedElement.innerWidth() ?? 0,

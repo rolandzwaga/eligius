@@ -2,7 +2,7 @@
 
 This is a list of all the available controllers with links to their respective documentation
 
-- [EventListenerController](https://rolandzwaga.github.io/eligius/classes/EventListenerController.html)
+- [DOMEventListenerController](https://rolandzwaga.github.io/eligius/classes/DOMEventListenerController.html)
 
 - [LabelController](https://rolandzwaga.github.io/eligius/classes/LabelController.html)
 

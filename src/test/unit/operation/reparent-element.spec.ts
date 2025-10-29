@@ -51,5 +51,4 @@ describe('reparentElement', () => {
     // expect
     expect('newParentSelector' in newData).to.be.false;
   });
-
 });

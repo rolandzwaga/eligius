@@ -49,5 +49,4 @@ describe('setStyle', () => {
     // expect
     expect('properties' in newData).to.be.false;
   });
-
 });

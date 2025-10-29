@@ -1,5 +1,5 @@
-export type {IEventListenerControllerOperationData} from './event-listener-controller.ts';
-export {EventListenerController} from './event-listener-controller.ts';
+export type {IDOMEventListenerControllerOperationData} from './dom-event-listener-controller.ts';
+export {DOMEventListenerController} from './dom-event-listener-controller.ts';
 export type {ILabelControllerMetadata} from './label-controller.ts';
 export {LabelController} from './label-controller.ts';
 export type {ILottieControllerMetadata} from './lottie-controller.ts';

@@ -1,4 +1,5 @@
 import type {IController} from '../controllers/types.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation, TOperationData} from './types.ts';
 
 /**
@@ -19,12 +20,13 @@ export interface IExtendControllerOperationData {
 /**
  * Extends the current controller with given extension.
  */
-export const extendController: TOperation<IExtendControllerOperationData, Omit<IExtendControllerOperationData, 'controllerExtension'>> = (
-  operationData: IExtendControllerOperationData
-) => {
+export const extendController: TOperation<
+  IExtendControllerOperationData,
+  Omit<IExtendControllerOperationData, 'controllerExtension'>
+> = (operationData: IExtendControllerOperationData) => {
   const {controllerInstance, controllerExtension} = operationData;
 
-  delete (operationData as any).controllerExtension;
+  removeProperties(operationData, 'controllerExtension');
 
   operationData.controllerInstance = Object.assign(
     controllerInstance,

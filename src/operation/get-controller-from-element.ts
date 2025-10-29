@@ -1,5 +1,6 @@
 import type {IController} from '../controllers/types.ts';
 import {getElementControllers} from './helper/get-element-data.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IGetControllerFromElementOperationData {
@@ -27,11 +28,12 @@ export interface IGetControllerFromElementOperationData {
  * @returns
  */
 export const getControllerFromElement: TOperation<
-  IGetControllerFromElementOperationData, Omit<IGetControllerFromElementOperationData, 'controllerName'>
+  IGetControllerFromElementOperationData,
+  Omit<IGetControllerFromElementOperationData, 'controllerName'>
 > = (operationData: IGetControllerFromElementOperationData) => {
   const {selectedElement, controllerName} = operationData;
 
-  delete (operationData as any).controllerName;
+  removeProperties(operationData, 'controllerName');
 
   const controllers = getElementControllers(selectedElement);
   const controller = controllers?.find(ctrl => ctrl.name === controllerName);

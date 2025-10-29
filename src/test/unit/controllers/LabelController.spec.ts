@@ -39,8 +39,6 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     const {controller} = context;
 
     expect(controller.name).to.equal('LabelController');
-    expect(controller.listeners).to.not.be.null;
-    expect(controller.listeners.length).to.equal(0);
     expect(controller.currentLanguage).to.be.null;
     expect(controller.operationData).to.be.null;
     expect(controller.labelData).to.not.be.null;

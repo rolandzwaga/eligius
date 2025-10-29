@@ -112,7 +112,7 @@ describe('createElement', () => {
     );
   });
 
-    test('should remove elementName, attributes and text properties from operation data', () => {
+  test('should remove elementName, attributes and text properties from operation data', () => {
     // given
     const operationData = {
       elementName: 'div',
@@ -131,5 +131,4 @@ describe('createElement', () => {
     expect('attributes' in newData).to.be.false;
     expect('text' in newData).to.be.false;
   });
-
 });

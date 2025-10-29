@@ -1,4 +1,5 @@
 import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -29,17 +30,17 @@ export interface IWhenOperationData {
  * until an {@link endWhen} or {@link otherwise} operation is encountered.
  *
  * Practically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.
- * 
+ *
  * The expression is passed in as a formatted string.
  * The left and right values of the expression can be defined like this:
- * 
+ *
  * 'constant': for a constant string
  * 100: for a constant number
  * $operationData.foo: for an operation data value
  * $globaldata.foo: for a global data value
  * $scope.loopIndex: for a scope value
  * @foo: for a variable value
- * 
+ *
  * @example
  * $scope.variables.foo=='bar'
  * @example
@@ -50,24 +51,23 @@ export interface IWhenOperationData {
  * @param operationData
  * @returns
  */
-export const when: TOperation<IWhenOperationData, Omit<IWhenOperationData, 'expression'>> = function (
-  operationData: IWhenOperationData
-) {
+export const when: TOperation<
+  IWhenOperationData,
+  Omit<IWhenOperationData, 'expression'>
+> = function (operationData: IWhenOperationData) {
   const [left, operator, right] = parseExpression(
     operationData.expression,
     operationData,
     this
   );
 
-  delete (operationData as any).expression;
+  removeProperties(operationData, 'expression');
 
   this.whenEvaluation = evaluations[operator](left, right);
 
   if (!this.whenEvaluation) {
     this.newIndex = findNextFlowControlIndex(this);
   }
-
-  delete (operationData as any).expression;
 
   return operationData;
 };

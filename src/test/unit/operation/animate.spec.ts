@@ -81,5 +81,4 @@ describe('animate', () => {
     expect('animationProperties' in operationData).to.be.false;
     expect('animationDuration' in operationData).to.be.false;
   });
-
 });

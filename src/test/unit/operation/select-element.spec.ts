@@ -120,5 +120,4 @@ describe('selectElement', () => {
     expect('selector' in newData).to.be.false;
     expect('useSelectedElementAsRoot' in newData).to.be.false;
   });
-
 });

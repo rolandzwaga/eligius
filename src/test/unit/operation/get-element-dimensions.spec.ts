@@ -74,7 +74,7 @@ describe('getElementDimensions', () => {
     expect(newData.dimensions!.height).to.equal(200);
   });
 
-  test("should remove the modifier property from the operaton data", () => {
+  test('should remove the modifier property from the operaton data', () => {
     // given
 
     const mockElement = new MockElement(100, 0);
@@ -90,5 +90,4 @@ describe('getElementDimensions', () => {
     // expect
     expect('modifier' in newData).to.be.false;
   });
-
 });

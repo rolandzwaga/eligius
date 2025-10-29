@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {describe, test} from 'vitest';
-import {type IOperationScope, otherwise } from '../../../operation/index.ts';
+import {type IOperationScope, otherwise} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 describe('otherwise', () => {

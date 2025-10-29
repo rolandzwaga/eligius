@@ -21,9 +21,9 @@ import dashToCamelCase from '../../util/dash-to-camel-case.ts';
 
 const project = new Project({
   compilerOptions: {
-    noEmit: true,  // Prevent emitting .js/.d.ts files for source files
+    noEmit: true, // Prevent emitting .js/.d.ts files for source files
   },
-  skipAddingFilesFromTsConfig: true,  // Don't load files from tsconfig
+  skipAddingFilesFromTsConfig: true, // Don't load files from tsconfig
 });
 project.addSourceFilesAtPaths('./src/controllers/*.ts');
 

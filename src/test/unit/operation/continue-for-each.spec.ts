@@ -1,23 +1,20 @@
-import { expect } from 'chai';
-import { describe, test } from 'vitest';
-import {
-  continueForEach,
-} from '../../../operation/continue-for-each.ts';
-import type { IOperationScope } from '../../../operation/types.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {describe, test} from 'vitest';
+import {continueForEach} from '../../../operation/continue-for-each.ts';
+import type {IOperationScope} from '../../../operation/types.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 describe('continueForEach', () => {
-
   test('should set the newindex to the loop end index', () => {
     const scope = {
       loopEndIndex: 100,
       loopIndex: 5,
       loopLength: 10,
       loopStartIndex: 10,
-      currentItem: {}
+      currentItem: {},
     } as IOperationScope;
     const operationData = {
-      foo: 'bar'
+      foo: 'bar',
     };
 
     const result = applyOperation(continueForEach, operationData, scope);
@@ -32,15 +29,14 @@ describe('continueForEach', () => {
       loopIndex: 5,
       loopLength: 10,
       loopStartIndex: 10,
-      currentItem: {}
+      currentItem: {},
     } as IOperationScope;
     const operationData = {
-      foo: 'bar'
+      foo: 'bar',
     };
 
     applyOperation(continueForEach, operationData, scope);
 
     expect('currentItem' in scope).to.be.false;
   });
-
 });

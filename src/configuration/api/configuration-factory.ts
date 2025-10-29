@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-import { deepCopy } from '../../operation/helper/deep-copy.ts';
+import {v4 as uuidv4} from 'uuid';
+import {deepCopy} from '../../operation/helper/deep-copy.ts';
 import type {
   ILabel,
   ILanguageLabel,
@@ -7,21 +7,21 @@ import type {
   TimelineTypes,
   TLanguageCode,
 } from '../../types.ts';
-import { mergeIfMissing } from '../../util/merge-if-missing.ts';
+import {mergeIfMissing} from '../../util/merge-if-missing.ts';
 import type {
   IActionConfiguration,
   IEngineConfiguration,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
 } from '../types.ts';
-import { ActionCreatorFactory } from './action-creator-factory.ts';
+import {ActionCreatorFactory} from './action-creator-factory.ts';
 import {
   ActionEditor,
   EndableActionEditor,
   TimelineActionEditor,
 } from './action-editor.ts';
-import { LabelEditor } from './label-editor.ts';
-import { TimelineProvidersSettingsEditor } from './timeline-provider-settings-editor.ts';
+import {LabelEditor} from './label-editor.ts';
+import {TimelineProvidersSettingsEditor} from './timeline-provider-settings-editor.ts';
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
@@ -138,13 +138,13 @@ export class ConfigurationFactory {
   static extend<
     T extends ConfigurationFactory,
     K extends PropertyKey,
-    C extends (this: T & { [P in K]: C }, ...args: any[]) => any,
-  >(factory: T, extensionMethodName: K, extensionMethod: C): T & { [P in K]: C } {
-    return Object.defineProperty<T & { [P in K]: C }>(
+    C extends (this: T & {[P in K]: C}, ...args: any[]) => any,
+  >(factory: T, extensionMethodName: K, extensionMethod: C): T & {[P in K]: C} {
+    return Object.defineProperty<T & {[P in K]: C}>(
       factory as any,
       extensionMethodName,
       {
-        value: function (this: T & { [P in K]: C }, ...args: Parameters<C>) {
+        value: function (this: T & {[P in K]: C}, ...args: Parameters<C>) {
           return extensionMethod.apply(this, args);
         },
         writable: true,
@@ -163,7 +163,7 @@ export class ConfigurationFactory {
   static extendMultiple<
     T extends ConfigurationFactory,
     C extends ConfigurationFactoryExtension<T>,
-    D extends { [name: string]: C; },
+    D extends {[name: string]: C},
   >(factory: T, extensions: D) {
     return Object.entries(extensions).reduce<T & typeof extensions>(
       (acc, [name, method]) =>

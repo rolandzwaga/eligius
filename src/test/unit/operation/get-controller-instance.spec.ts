@@ -60,5 +60,4 @@ describe('getControllerInstance', () => {
     // expect
     expect('systemName' in newData).to.be.false;
   });
-
 });

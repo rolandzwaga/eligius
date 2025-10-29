@@ -42,7 +42,9 @@
         "noNonNullAssertion": "off"
       },
       "suspicious": {
-        "noExplicitAny": "off"
+        "noExplicitAny": "off",
+        "useIterableCallbackReturn": "off",
+        "noAssignInExpressions": "off"
       }
     }
   }

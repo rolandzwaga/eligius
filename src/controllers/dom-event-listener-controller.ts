@@ -10,7 +10,7 @@ interface IActionInstanceInfo {
   action: IEndableAction;
 }
 
-export interface IEventListenerControllerOperationData {
+export interface IDOMEventListenerControllerOperationData {
   /**
    * @dependency
    */
@@ -28,22 +28,22 @@ export interface IEventListenerControllerOperationData {
 }
 
 /**
- * This controller attaches to the given selected element and adds an event listener for the specified event name that
+ * This controller attaches to the given selected element and adds a DOM event listener for the specified event name that
  * executes the given actions with the given operation data.
  *
  * By default the `start` operations of the specified actions are executed. To execute the `end` operations instead,
  * prefix the action name with `end:`.
  */
-export class EventListenerController
-  implements IController<IEventListenerControllerOperationData>
+export class DOMEventListenerController
+  implements IController<IDOMEventListenerControllerOperationData>
 {
-  operationData?: IEventListenerControllerOperationData;
+  operationData?: IDOMEventListenerControllerOperationData;
   actionInstanceInfos?: IActionInstanceInfo[];
-  name = 'EventListenerController';
+  name = 'DOMEventListenerController';
 
   constructor() {}
 
-  init(operationData: IEventListenerControllerOperationData) {
+  init(operationData: IDOMEventListenerControllerOperationData) {
     this.operationData = {
       selectedElement: operationData.selectedElement,
       eventName: operationData.eventName,

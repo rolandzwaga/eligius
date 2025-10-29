@@ -3,8 +3,8 @@ import {beforeEach, describe, type TestContext, test} from 'vitest';
 import {Action} from '../../action/index.ts';
 import type {IResolvedOperation} from '../../configuration/types.ts';
 import {Eventbus} from '../../eventbus/index.ts';
-import { breakForEach } from '../../operation/break-for-each.ts';
-import { continueForEach } from '../../operation/continue-for-each.ts';
+import {breakForEach} from '../../operation/break-for-each.ts';
+import {continueForEach} from '../../operation/continue-for-each.ts';
 import {endForEach} from '../../operation/end-for-each.ts';
 import {
   endForEachSystemName,
@@ -405,7 +405,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id_',
       systemName: 'loopCounter',
       operationData: {} as TOperationData,
-      instance: (data) => {
+      instance: data => {
         loopCounter++;
         return data;
       },
@@ -455,7 +455,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     expect(operationData.test).to.be.true;
   });
 
-    test<ForEachLoopContext>('should handle break in loop', async context => {
+  test<ForEachLoopContext>('should handle break in loop', async context => {
     const {action} = context;
 
     const testCollection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
@@ -472,7 +472,7 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
       id: 'id_',
       systemName: 'loopCounter',
       operationData: {} as TOperationData,
-      instance: (data) => {
+      instance: data => {
         loopCounter++;
         return data;
       },
@@ -521,5 +521,4 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     expect(operationData.newCollection).to.be.undefined;
     expect(operationData.test).to.be.true;
   });
-
 });

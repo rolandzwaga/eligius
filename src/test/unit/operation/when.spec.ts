@@ -1,17 +1,17 @@
-import { expect } from 'chai';
-import { beforeEach, describe, type TestContext, test } from 'vitest';
-import type { IResolvedOperation } from '../../../configuration/types.ts';
-import { setGlobals } from '../../../operation/helper/globals.ts';
-import type { IOperationScope } from '../../../operation/index.ts';
-import { type IWhenOperationData, when } from '../../../operation/when.ts';
-import { applyOperation } from '../../../util/apply-operation.ts';
+import {expect} from 'chai';
+import {beforeEach, describe, type TestContext, test} from 'vitest';
+import type {IResolvedOperation} from '../../../configuration/types.ts';
+import {setGlobals} from '../../../operation/helper/globals.ts';
+import type {IOperationScope} from '../../../operation/index.ts';
+import {type IWhenOperationData, when} from '../../../operation/when.ts';
+import {applyOperation} from '../../../util/apply-operation.ts';
 
 type WhenSuiteContext = {
   operationScope: IOperationScope;
-  operationData: IWhenOperationData & { left?: any; right?: any; };
+  operationData: IWhenOperationData & {left?: any; right?: any};
 } & TestContext;
 
-function withContext<T>(_ctx: unknown): asserts _ctx is T { }
+function withContext<T>(_ctx: unknown): asserts _ctx is T {}
 describe<WhenSuiteContext>('when', () => {
   beforeEach(context => {
     withContext<WhenSuiteContext>(context);
@@ -224,7 +224,8 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationData.left = [];
     operationData.right = 2;
-    operationData.expression = '$operationdata.left.length>$operationdata.right';
+    operationData.expression =
+      '$operationdata.left.length>$operationdata.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -237,7 +238,7 @@ describe<WhenSuiteContext>('when', () => {
     operationData,
   }) => {
     // given
-    setGlobals({ left: 'foo', right: 'bar' });
+    setGlobals({left: 'foo', right: 'bar'});
     operationData.expression = '$globaldata.left==$globaldata.right';
 
     // test
@@ -269,7 +270,7 @@ describe<WhenSuiteContext>('when', () => {
     operationData,
   }) => {
     // given
-    setGlobals({ left: 'foo', right: 'bar' });
+    setGlobals({left: 'foo', right: 'bar'});
 
     operationData.expression = '$globaldata.left==$globaldata.right';
 
@@ -296,11 +297,10 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationScope.variables = {
       left: 1,
-      right: 2
+      right: 2,
     };
 
-    operationData.expression =
-      '$scope.variables.left==$scope.variables.right';
+    operationData.expression = '$scope.variables.left==$scope.variables.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -316,11 +316,10 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationScope.variables = {
       left: 1,
-      right: 1
+      right: 1,
     };
 
-    operationData.expression =
-      '$scope.variables.left==$scope.variables.right';
+    operationData.expression = '$scope.variables.left==$scope.variables.right';
 
     // test
     applyOperation(when, operationData, operationScope);
@@ -336,11 +335,10 @@ describe<WhenSuiteContext>('when', () => {
     // given
     operationScope.variables = {
       left: 1,
-      right: 1
+      right: 1,
     };
 
-    operationData.expression =
-      '$scope.variables.left==$scope.variables.right';
+    operationData.expression = '$scope.variables.left==$scope.variables.right';
 
     // test
     const newData = applyOperation(when, operationData, operationScope);
@@ -348,6 +346,4 @@ describe<WhenSuiteContext>('when', () => {
     // expect
     expect('expression' in newData).to.be.false;
   });
-
-
 });

@@ -91,5 +91,4 @@ describe('setOperationData', () => {
     expect('override' in newData).to.be.false;
     expect('properties' in newData).to.be.false;
   });
-
 });

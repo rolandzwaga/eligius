@@ -8,17 +8,13 @@ import type {
 export const defaultScope: IOperationScope = {
   currentIndex: -1,
   eventbus: {} as any,
-  operations: []
+  operations: [],
 };
 
 export function applyOperation<
   T extends TOperation<any> = TOperation<any>,
   OD = ExtractOperationData<T>,
   RT = ExtractReturnedOperationData<T>,
->(
-  operation: T,
-  operationData: OD,
-  scope: IOperationScope = defaultScope
-): RT {
+>(operation: T, operationData: OD, scope: IOperationScope = defaultScope): RT {
   return operation.apply(scope, [operationData]) as ReturnType<T>;
 }

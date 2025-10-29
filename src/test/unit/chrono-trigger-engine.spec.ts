@@ -33,7 +33,10 @@ function setupEventbus(context: SuiteContext) {
 
 describe<SuiteContext>('EligiusEngine', () => {
   beforeEach<SuiteContext>(context => {
-    context.configuration = {};
+    context.configuration = {
+      initActions: [],
+      actions: [],
+    };
     context.eventbus = {} as unknown as IEventbus;
     context.providers = {};
     context.languageManager = {};

@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 const jsonCache: Record<string, unknown> = {};
@@ -32,13 +33,13 @@ const addToCache = (key: string, value: any) => {
  * If the cache property is set to true and a cached value already exists, this is assigned
  * instead of re-retrieving it from the url.
  */
-export const loadJson: TOperation<ILoadJSONOperationData, Omit<ILoadJSONOperationData, 'url'|'cache'>> = async (
-  operationData: ILoadJSONOperationData
-) => {
+export const loadJson: TOperation<
+  ILoadJSONOperationData,
+  Omit<ILoadJSONOperationData, 'url' | 'cache'>
+> = async (operationData: ILoadJSONOperationData) => {
   const {url, cache} = operationData;
 
-  delete (operationData as any).url;
-  delete (operationData as any).cache;
+  removeProperties(operationData, 'url', 'cache');
 
   if (cache && jsonCache[url]) {
     operationData.json = jsonCache[url];

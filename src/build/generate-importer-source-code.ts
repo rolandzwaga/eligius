@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { TOperationData } from 'operation/types.ts';
+import type {TOperationData} from 'operation/types.ts';
 import type {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -137,7 +137,7 @@ function _gatherProviders(config: any) {
 
 function _gatherEngines(config: any) {
   if (config.engine) {
-    const { systemName } = config.engine;
+    const {systemName} = config.engine;
     return [
       {
         systemName,
@@ -210,7 +210,7 @@ function _gatherControllerImportPaths(
       return false;
     })
     .map(operationConfig => {
-      const { systemName } = operationConfig.operationData ?? {};
+      const {systemName} = operationConfig.operationData ?? {};
       return {
         systemName,
       };
@@ -223,7 +223,7 @@ function _gatherOperationImportPaths(operationConfigs: any[]): ImportInfo[] {
   }
 
   return operationConfigs.map(operationConfig => {
-    const { systemName } = operationConfig;
+    const {systemName} = operationConfig;
     return {
       systemName,
     };

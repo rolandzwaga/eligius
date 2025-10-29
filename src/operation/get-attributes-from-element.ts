@@ -1,3 +1,4 @@
+import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
 export interface IGetAttributesFromElementOperationData {
@@ -23,11 +24,12 @@ export interface IGetAttributesFromElementOperationData {
  * This operation retrieves the values for the specified attribute names from the given selected element.
  */
 export const getAttributesFromElement: TOperation<
-  IGetAttributesFromElementOperationData, Omit<IGetAttributesFromElementOperationData, 'attributeNames'>
+  IGetAttributesFromElementOperationData,
+  Omit<IGetAttributesFromElementOperationData, 'attributeNames'>
 > = (operationData: IGetAttributesFromElementOperationData) => {
   const {selectedElement, attributeNames} = operationData;
 
-  delete (operationData as any).attributeNames;
+  removeProperties(operationData, 'attributeNames');
 
   operationData.attributeValues = attributeNames.reduce(
     (acc, attrName) => {

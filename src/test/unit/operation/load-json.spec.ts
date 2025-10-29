@@ -80,5 +80,4 @@ describe<LoadJsonContext>('loadJSON', () => {
     expect('url' in newData).to.be.false;
     expect('cache' in newData).to.be.false;
   });
-
 });

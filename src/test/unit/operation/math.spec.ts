@@ -76,5 +76,4 @@ describe('math', () => {
       expect('functionName' in newData).to.be.false;
     });
   });
-
 });

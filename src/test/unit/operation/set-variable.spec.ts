@@ -1,7 +1,10 @@
 import {expect} from 'chai';
-import type { IOperationScope } from 'operation/types.ts';
+import type {IOperationScope} from 'operation/types.ts';
 import {describe, test} from 'vitest';
-import { type ISetVariableOperationData, setVariable } from '../../../operation/set-variable.ts';
+import {
+  type ISetVariableOperationData,
+  setVariable,
+} from '../../../operation/set-variable.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 describe('setVariable', () => {
@@ -9,10 +12,10 @@ describe('setVariable', () => {
     // given
     const operationData = {
       name: 'foo',
-      value: 'bar'
+      value: 'bar',
     } as ISetVariableOperationData;
     const scope = {
-      variables: {}
+      variables: {},
     } as IOperationScope;
 
     // test
@@ -26,10 +29,10 @@ describe('setVariable', () => {
     // given
     const operationData = {
       name: 'foo',
-      value: 'bar'
+      value: 'bar',
     } as ISetVariableOperationData;
     const scope = {
-      variables: {}
+      variables: {},
     } as IOperationScope;
 
     // test
@@ -39,5 +42,4 @@ describe('setVariable', () => {
     expect('name' in operationData).to.be.false;
     expect('value' in operationData).to.be.false;
   });
-
 });

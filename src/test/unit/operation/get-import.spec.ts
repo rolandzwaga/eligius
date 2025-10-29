@@ -49,5 +49,4 @@ describe<GetImportSuiteContext>('get-import', () => {
     // expect
     expect('systemName' in result).to.be.false;
   });
-
 });

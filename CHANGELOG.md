@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+### Breaking Changes
+- Renamed `EventListenerController` to `DOMEventListenerController` for clarity
+- Renamed `IEventListenerControllerOperationData` to `IDOMEventListenerControllerOperationData`
+
 ## 1.2.0
 
 - Renamed operation context to operation scope

@@ -13,9 +13,10 @@ export interface IWaitOperationData {
 /**
  * This operation waits for the specified amount of milliseconds.
  */
-export const wait: TOperation<IWaitOperationData, Omit<IWaitOperationData, 'milliseconds'>> = (
-  operationData: IWaitOperationData
-) => {
+export const wait: TOperation<
+  IWaitOperationData,
+  Omit<IWaitOperationData, 'milliseconds'>
+> = (operationData: IWaitOperationData) => {
   const {milliseconds, ...newOperationData} = operationData;
 
   return new Promise(resolve => {

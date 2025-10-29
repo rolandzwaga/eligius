@@ -1,7 +1,7 @@
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.ts';
+import type {IEventbus} from '../eventbus/types.ts';
 import {TimelineEventNames} from '../timeline-event-names.ts';
 import type {ILabel} from '../types.ts';
-import type {IController} from './types.ts';
+import {BaseController} from './base-controller.ts';
 
 export interface ILabelControllerMetadata {
   /**
@@ -27,10 +27,8 @@ export interface ILabelControllerMetadata {
  * The controller also listen for the `LANGUAGE_CHANGE` event and re-renders the text with the new language after such an event.
  *
  */
-export class LabelController implements IController<ILabelControllerMetadata> {
-  listeners: TEventbusRemover[] = [];
+export class LabelController extends BaseController<ILabelControllerMetadata> {
   currentLanguage: string | null = null;
-  operationData: ILabelControllerMetadata | null = null;
   labelData: Record<string, string> = {};
   name = 'LabelController';
   requestLabelDataBound?: (labelId: string) => void;
@@ -61,11 +59,10 @@ export class LabelController implements IController<ILabelControllerMetadata> {
     this.requestLabelDataBound(this.operationData.labelId);
 
     this._setLabel();
-    this.listeners.push(
-      eventbus.on(
-        TimelineEventNames.LANGUAGE_CHANGE,
-        this._handleLanguageChange.bind(this)
-      )
+    this.addListener(
+      eventbus,
+      TimelineEventNames.LANGUAGE_CHANGE,
+      this._handleLanguageChange
     );
   }
 
@@ -96,8 +93,8 @@ export class LabelController implements IController<ILabelControllerMetadata> {
     }
   }
 
-  detach(_eventbus: IEventbus) {
-    this.listeners.forEach(func => func());
+  detach(eventbus: IEventbus) {
+    super.detach(eventbus);
     this.requestLabelDataBound = undefined;
   }
 

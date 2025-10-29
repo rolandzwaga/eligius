@@ -28,5 +28,4 @@ describe('addGlobalsToOperation', () => {
 
     expect('globalProperties' in operationData).to.be.false;
   });
-
 });

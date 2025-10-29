@@ -69,7 +69,7 @@ describe('customFunction', () => {
     return result;
   });
 
-    test('should remove the systemName property from the operation data', async () => {
+  test('should remove the systemName property from the operation data', async () => {
     // given
     const operationData = {
       systemName: 'testName',
@@ -96,5 +96,4 @@ describe('customFunction', () => {
     expect('systemName' in result).to.be.false;
     return result;
   });
-
 });

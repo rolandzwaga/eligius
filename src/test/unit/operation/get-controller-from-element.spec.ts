@@ -64,5 +64,4 @@ describe('getControllerFromElement', () => {
     // expect
     expect('controllerName' in newData).to.be.false;
   });
-
 });
