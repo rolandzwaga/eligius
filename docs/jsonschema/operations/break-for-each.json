@@ -4,7 +4,7 @@
   "$id": "http://eligius.com/schema/break-for-each-operation.json",
   "type": "object",
   "title": "The breakForEach schema",
-  "description": "\nThis operation should only be used within a loop, so between a {@link forEach} and {@link endForEach}\noperation. This operation immediately moves to the loop end index, effectively stopping the loop.",
+  "description": "This operation should only be used within a loop, so between a {@link forEach} and {@link endForEach}\noperation. This operation immediately moves to the loop end index, effectively stopping the loop.",
   "required": [
     "systemName"
   ],

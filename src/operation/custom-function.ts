@@ -17,7 +17,7 @@ export interface ICustomFunctionOperationData {
  * and invokes it with the current operation data and eventbus.
  *
  * @param operationData
- * 
+ *
  * @category Utility
  */
 export const customFunction: TOperation<

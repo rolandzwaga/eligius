@@ -8,6 +8,8 @@ This is a list of all the available controllers with links to their respective d
 
 - [LottieController](https://rolandzwaga.github.io/eligius/classes/LottieController.html)
 
+- [MutationObserverController](https://rolandzwaga.github.io/eligius/classes/MutationObserverController.html)
+
 - [NavigationController](https://rolandzwaga.github.io/eligius/classes/NavigationController.html)
 
 - [ProgressbarController](https://rolandzwaga.github.io/eligius/classes/ProgressbarController.html)

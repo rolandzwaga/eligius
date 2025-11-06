@@ -4,6 +4,11 @@ export type {ILabelControllerMetadata} from './label-controller.ts';
 export {LabelController} from './label-controller.ts';
 export type {ILottieControllerMetadata} from './lottie-controller.ts';
 export {LottieController} from './lottie-controller.ts';
+export type {
+  IMutationEventPayload,
+  IMutationObserverControllerMetadata,
+} from './mutation-observer-controller.ts';
+export {MutationObserverController} from './mutation-observer-controller.ts';
 export type {INavigationControllerOperationData} from './navigation-controller.ts';
 export {NavigationController} from './navigation-controller.ts';
 export type {IProgressbarControllerOperationData} from './progressbar-controller.ts';

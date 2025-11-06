@@ -36,7 +36,7 @@ export interface IHttpDeleteOperationData {
  * // result.response = {} or null
  * // result.status = 204
  * ```
- * 
+ *
  * @category HTTP
  */
 export const httpDelete: TOperation<

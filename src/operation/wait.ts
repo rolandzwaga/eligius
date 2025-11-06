@@ -12,7 +12,7 @@ export interface IWaitOperationData {
 
 /**
  * This operation waits for the specified amount of milliseconds.
- * 
+ *
  * @category Utility
  */
 export const wait: TOperation<

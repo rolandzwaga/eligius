@@ -18,8 +18,8 @@ export const getFocusedElement: TOperation<
   IGetFocusedElementOperationData,
   IGetFocusedElementOperationData
 > = (operationData: IGetFocusedElementOperationData) => {
-  operationData.focusedElement = document.activeElement 
-  ? $(document.activeElement as HTMLElement) 
-  : $();
+  operationData.focusedElement = document.activeElement
+    ? $(document.activeElement as HTMLElement)
+    : $();
   return operationData;
 };

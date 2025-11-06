@@ -36,6 +36,7 @@
                 "DOMEventListenerController",
                 "LabelController",
                 "LottieController",
+                "MutationObserverController",
                 "NavigationController",
                 "ProgressbarController",
                 "RoutingController",
