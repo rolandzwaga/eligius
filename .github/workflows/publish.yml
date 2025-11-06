@@ -77,10 +77,7 @@ jobs:
         run: npm run build
 
       - name: Test
-        run: |
-          npx vitest run --poolOptions.threads.singleThread --config src/vitest.config.ts --coverage --reporter=verbose 2>&1 | tee test-output.log
-          echo "Process exited with code: ${PIPESTATUS[0]}"
-        continue-on-error: true
+        run: npm run test:ci
 
       - name: Publish
         uses: JS-DevTools/npm-publish@v4
