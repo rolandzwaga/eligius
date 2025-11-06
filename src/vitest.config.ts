@@ -1,11 +1,14 @@
-/// <reference types="vitest" />
-import {defineConfig} from 'vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     setupFiles: 'src/test/setup.ts',
     globals: true, // Enables global test functions like `describe`, `it`, etc.
     environment: 'jsdom', // Use 'jsdom' if you're testing browser-based code
+    clearMocks: true,
+    restoreMocks: true,
+    unstubEnvs: true,
+    unstubGlobals: true,
     coverage: {
       provider: 'istanbul', // Enables coverage reports
       reporter: ['text', 'json', 'html'],
