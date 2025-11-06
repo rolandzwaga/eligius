@@ -4,14 +4,18 @@
   "$id": "http://eligius.com/schema/for-each-operation.json",
   "type": "object",
   "title": "The forEach schema",
-  "description": "This operation iterates over the given collection.\n\nEach iteration the current item from the specified collection is\nassigned to the {@link IOperationScope.currentItem} property on the operation scope.\n\nAt the start of the loop, the associated {@link endForEach} operation is determined and when\nthe last iteration is completed the flow control is set to the index of that operation.",
-  "required": ["systemName"],
+  "description": "This operation iterates over the given collection.\n\nEach iteration the current item from the specified collection is\nassigned to the {@link IOperationScope.currentItem |currentItem} property on the {@link IOperationScope |operation scope}.\n\nAt the start of the loop, the associated {@link endForEach} operation is determined and when\nthe last iteration is completed the flow control is set to the index of that operation.\n\nThe {@link continueForEach |continue} and {@link breakForEach |break} operations can be used to control the\nloop iterations.",
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,7 +29,10 @@
       "properties": {
         "collection": {
           "$id": "#/properties/operationData/collection",
-          "type": ["array", "string"]
+          "type": [
+            "array",
+            "string"
+          ]
         }
       }
     }

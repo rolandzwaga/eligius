@@ -1,0 +1,26 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/break-for-each-operation.json",
+  "type": "object",
+  "title": "The breakForEach schema",
+  "description": "\nThis operation should only be used within a loop, so between a {@link forEach} and {@link endForEach}\noperation. This operation immediately moves to the loop end index, effectively stopping the loop.",
+  "required": [
+    "systemName"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "breakForEach"
+    }
+  }
+}

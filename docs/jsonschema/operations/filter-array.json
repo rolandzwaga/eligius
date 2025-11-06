@@ -1,0 +1,53 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/filter-array-operation.json",
+  "type": "object",
+  "title": "The filterArray schema",
+  "description": "Filters an array based on property equality or custom predicate function.\n\nOperates on arrayData passed from previous operations.\nSupports two filtering modes:\n1. Property equality: `filterProperty` and `filterValue` to filter by property match\n2. Custom predicate: `filterPredicate` function for complex filtering logic",
+  "required": [
+    "systemName",
+    "operationData"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "filterArray"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "required": [],
+      "properties": {
+        "filterProperty": {
+          "$id": "#/properties/operationData/filterProperty",
+          "type": [
+            "string"
+          ]
+        },
+        "filterValue": {
+          "$id": "#/properties/operationData/filterValue",
+          "type": [
+            "object"
+          ]
+        },
+        "filterPredicate": {
+          "$id": "#/properties/operationData/filterPredicate",
+          "type": [
+            "string"
+          ]
+        }
+      }
+    }
+  }
+}

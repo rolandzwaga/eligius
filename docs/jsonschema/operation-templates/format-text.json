@@ -1,0 +1,37 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/format-text-operation.json",
+  "type": "object",
+  "title": "The formatText schema",
+  "description": "Transforms text using format operations: uppercase, lowercase, capitalize, titlecase, or trim.\n\nOperates on textContent passed from previous operations (e.g., getTextContent).\n\nTransformations:\n- `uppercase`: Convert all characters to uppercase\n- `lowercase`: Convert all characters to lowercase\n- `capitalize`: Capitalize only the first letter\n- `titlecase`: Capitalize first letter of each word\n- `trim`: Remove leading and trailing whitespace",
+  "required": [
+    "systemName"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "formatText"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "properties": {
+        "transformation": {
+          "$id": "#/properties/operationData/transformation",
+          "type": "array"
+        }
+      }
+    }
+  }
+}

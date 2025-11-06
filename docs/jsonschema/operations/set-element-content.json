@@ -5,13 +5,18 @@
   "type": "object",
   "title": "The setElementContent schema",
   "description": "This operation sets the specified content defined by the value assigned to the template property\nto the given selected element.\n\nWhen the `insertionType` is set to `overwrite` the contents of the selected element are replaced\nby the given template.\nWhen set to `append` the new content will be inserted after the current content.\nWhen set to `prepend` the new content will be inserted before the current content.",
-  "required": ["systemName", "operationData"],
+  "required": [
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {

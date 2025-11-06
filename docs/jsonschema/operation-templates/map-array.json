@@ -1,0 +1,39 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/map-array-operation.json",
+  "type": "object",
+  "title": "The mapArray schema",
+  "description": "Transforms each element of an array using a mapping function.\n\nOperates on arrayData passed from previous operations.\nThe mapFunction receives each item and optionally its index.",
+  "required": [
+    "systemName"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "mapArray"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "properties": {
+        "mapFunction": {
+          "$id": "#/properties/operationData/mapFunction",
+          "type": [
+            "string"
+          ]
+        }
+      }
+    }
+  }
+}

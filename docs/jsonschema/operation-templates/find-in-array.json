@@ -1,0 +1,51 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/find-in-array-operation.json",
+  "type": "object",
+  "title": "The findInArray schema",
+  "description": "Finds the first element in an array matching criteria.\n\nOperates on arrayData passed from previous operations.\nSupports two search modes:\n1. Property equality: `findProperty` and `findValue` to find by property match\n2. Custom predicate: `findPredicate` function for complex search logic\n\nReturns `undefined` for `foundItem` and `-1` for `foundIndex` if no match found.",
+  "required": [
+    "systemName"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "findInArray"
+    },
+    "operationData": {
+      "$id": "#/properties/operationData",
+      "type": "object",
+      "title": "The Operationdata Schema",
+      "properties": {
+        "findProperty": {
+          "$id": "#/properties/operationData/findProperty",
+          "type": [
+            "string"
+          ]
+        },
+        "findValue": {
+          "$id": "#/properties/operationData/findValue",
+          "type": [
+            "object"
+          ]
+        },
+        "findPredicate": {
+          "$id": "#/properties/operationData/findPredicate",
+          "type": [
+            "string"
+          ]
+        }
+      }
+    }
+  }
+}

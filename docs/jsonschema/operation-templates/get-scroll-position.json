@@ -1,0 +1,26 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://eligius.com/schema/get-scroll-position-operation.json",
+  "type": "object",
+  "title": "The getScrollPosition schema",
+  "description": "Gets the current scroll position of the viewport.\n\nReturns x (horizontal) and y (vertical) scroll positions in pixels.\nUses cross-browser compatible methods to retrieve scroll position.",
+  "required": [
+    "systemName"
+  ],
+  "properties": {
+    "id": {
+      "$id": "#/properties/id",
+      "type": "string",
+      "title": "The Id Schema",
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "systemName": {
+      "$id": "#/properties/systemName",
+      "const": "getScrollPosition"
+    }
+  }
+}
