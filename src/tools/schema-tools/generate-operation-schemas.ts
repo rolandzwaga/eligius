@@ -277,7 +277,9 @@ function metadataType2SchemaType(
     return 'array';
   } else {
     if (value.indexOf('|')) {
-      return value.split('|').map(x => getSchemaType(x.trim() as TParameterTypes));
+      return value
+        .split('|')
+        .map(x => getSchemaType(x.trim() as TParameterTypes));
     }
     return getSchemaType(value as TParameterTypes);
   }

@@ -51,12 +51,7 @@ export const createElement: TOperation<
 
   const {elementName, attributes, text} = operationData;
 
-  removeProperties(
-    operationData,
-    'elementName',
-    'attributes',
-    'text'
-  );
+  removeProperties(operationData, 'elementName', 'attributes', 'text');
 
   const serializedAttrs = attributes
     ? ` ${Object.entries(attributes)

@@ -1,16 +1,16 @@
 {
   "name": "eligius",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "license": "MIT",
   "homepage": "https://rolandzwaga.github.io/eligius/",
   "bugs": {
     "url": "https://github.com/rolandzwaga/eligius/issues?q=is%3Aissue+is%3Aopen+label%3ABug"
   },
   "type": "module",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "exports": {
-    ".": "./dist/index.js",
+    ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -90,6 +90,6 @@
     "ts-is-present": "1.2.2",
     "uuid": "13.0.0"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts"
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.mts"
 }

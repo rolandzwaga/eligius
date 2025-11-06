@@ -32,7 +32,7 @@ export interface IMathOperationData {
 
 /**
  * This operation performs the given math function with the specified arguments.
- * 
+ *
  * @category Utility
  */
 export const math: TOperation<

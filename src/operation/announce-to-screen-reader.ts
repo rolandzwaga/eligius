@@ -16,7 +16,7 @@ export interface IAnnounceToScreenReaderOperationData {
 
 /**
  * Announces a message to screen readers using an ARIA live region.
- * 
+ *
  * @category Accessibility
  */
 export const announceToScreenReader: TOperation<

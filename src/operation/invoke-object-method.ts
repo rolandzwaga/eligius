@@ -31,7 +31,7 @@ export interface IInvokeObjectMethodOperationData {
  * and assigns the result to the `methodResult` operationdata property.
  *
  * @param operationData
- * 
+ *
  * @category Utility
  */
 export const invokeObjectMethod: TOperation<

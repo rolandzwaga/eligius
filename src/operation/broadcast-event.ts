@@ -24,7 +24,7 @@ export interface IBroadcastEventOperationData {
 /**
  * This operation broadcasts the given event through the eventbus, along with the
  * event arguments and optional event topic.
- * 
+ *
  * @category Utility
  */
 export const broadcastEvent: TOperation<
@@ -33,12 +33,7 @@ export const broadcastEvent: TOperation<
 > = function (operationData: IBroadcastEventOperationData) {
   const {eventArgs, eventTopic, eventName} = operationData;
 
-  removeProperties(
-    operationData,
-    'eventArgs',
-    'eventTopic',
-    'eventName'
-  );
+  removeProperties(operationData, 'eventArgs', 'eventTopic', 'eventName');
 
   const eventArguments = resolveEventArguments(operationData, this, eventArgs);
 

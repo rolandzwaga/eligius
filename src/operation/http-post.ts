@@ -42,7 +42,7 @@ export interface IHttpPostOperationData {
  * // result.response = { id: 123, name: 'John', ... }
  * // result.status = 201
  * ```
- * 
+ *
  * @category HTTP
  */
 export const httpPost: TOperation<

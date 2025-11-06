@@ -76,20 +76,20 @@ export type TParameterTypes =
   | 'ParameterType:function'
   | 'ParameterType:Date';
 
-export type TOperationCategory = 
-'DOM' | //DOM manipulation and element operations
-'Controller' | //Controller lifecycle management
-'Data' | //Data storage, operation data, and global state
-'Control Flow' | //Conditionals, loops, and flow control
-'Animation' | //CSS and jQuery animations
-'Form' | //Form field manipulation and validation
-'Scroll' | //Viewport scrolling operations
-'Focus' | //Focus management
-'Array' | //Array transformations and queries
-'String' | //String manipulation
-'Text' | //Text content operations
-'Date' | //Date comparison and formatting
-'HTTP' | //HTTP requests (POST, PUT, DELETE)
-'Action' | //Action lifecycle operations
-'Utility' | //Logging, math, events, and miscellaneous
-'Accessibility'; //Screen reader announcements
+export type TOperationCategory =
+  | 'DOM' //DOM manipulation and element operations
+  | 'Controller' //Controller lifecycle management
+  | 'Data' //Data storage, operation data, and global state
+  | 'Control Flow' //Conditionals, loops, and flow control
+  | 'Animation' //CSS and jQuery animations
+  | 'Form' //Form field manipulation and validation
+  | 'Scroll' //Viewport scrolling operations
+  | 'Focus' //Focus management
+  | 'Array' //Array transformations and queries
+  | 'String' //String manipulation
+  | 'Text' //Text content operations
+  | 'Date' //Date comparison and formatting
+  | 'HTTP' //HTTP requests (POST, PUT, DELETE)
+  | 'Action' //Action lifecycle operations
+  | 'Utility' //Logging, math, events, and miscellaneous
+  | 'Accessibility'; //Screen reader announcements

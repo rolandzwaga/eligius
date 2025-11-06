@@ -89,4 +89,11 @@ export class TimelineEventNames {
   static REQUEST_LABEL_COLLECTIONS = 'request-label-collections';
   static REQUEST_CURRENT_LANGUAGE = 'request-current-language';
   static LANGUAGE_CHANGE = 'language-change';
+
+  // controller events
+  /**
+   * Broadcasting this event announces DOM mutations detected by MutationObserverController.
+   * The event payload contains mutation records, target element, and timestamp.
+   */
+  static DOM_MUTATION = 'dom-mutation';
 }

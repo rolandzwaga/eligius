@@ -34,25 +34,25 @@ const getImplementedInterface = (
   const heritageClause = classDecl
     .getHeritageClauses()
     .find(h => h.getToken() === ts.SyntaxKind.ImplementsKeyword);
-  
+
   if (heritageClause) {
     return heritageClause;
   }
-  
+
   // Check if the class extends another class
   const extendsClause = classDecl
     .getHeritageClauses()
     .find(h => h.getToken() === ts.SyntaxKind.ExtendsKeyword);
-  
+
   if (extendsClause) {
     const baseType = extendsClause.getTypeNodes()[0];
     const baseClass = baseType.getType().getSymbol()?.getDeclarations()[0];
-    
+
     if (baseClass?.getKind() === SyntaxKind.ClassDeclaration) {
       return extendsClause;
     }
   }
-  
+
   return undefined;
 };
 
@@ -382,9 +382,9 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
   );
   outputSourceFile.addExportDeclarations(
     fileNames.map(name => {
-      const namedExport = (name.startsWith('dom-')) ? 'DOMEventListenerController' : uppercaseFirstChar(
-        dashToCamelCase(name.slice(0, -3))
-      );
+      const namedExport = name.startsWith('dom-')
+        ? 'DOMEventListenerController'
+        : uppercaseFirstChar(dashToCamelCase(name.slice(0, -3)));
       return {
         kind: StructureKind.ExportDeclaration,
         moduleSpecifier: `./${name}`,
@@ -398,7 +398,10 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
 const controllerFiles = project
   .getSourceFiles()
   .filter(
-    src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts' && src.getBaseName() !== 'base-controller.ts'
+    src =>
+      src.getBaseName() !== 'index.ts' &&
+      src.getBaseName() !== 'types.ts' &&
+      src.getBaseName() !== 'base-controller.ts'
   );
 
 toIndexFile(

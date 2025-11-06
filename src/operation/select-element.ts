@@ -53,11 +53,7 @@ export const selectElement: TOperation<
 
   const {selector, useSelectedElementAsRoot = false} = operationData;
 
-  removeProperties(
-    operationData,
-    'selector',
-    'useSelectedElementAsRoot'
-  );
+  removeProperties(operationData, 'selector', 'useSelectedElementAsRoot');
 
   if (!selector) {
     throw new Error('selectElement: selector is either empty or not defined.');

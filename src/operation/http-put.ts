@@ -42,7 +42,7 @@ export interface IHttpPutOperationData {
  * // result.response = { id: 123, name: 'John Updated', ... }
  * // result.status = 200
  * ```
- * 
+ *
  * @category HTTP
  */
 export const httpPut: TOperation<
