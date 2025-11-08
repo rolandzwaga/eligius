@@ -38,9 +38,6 @@ export const customFunction: TOperation<
         internalResolve(resolve, {}, operationData);
       }
     };
-    this.eventbus.broadcast('request-function', [
-      systemName,
-      resultCallback,
-    ]);
+    this.eventbus.broadcast('request-function', [systemName, resultCallback]);
   });
 };

@@ -1,4 +1,4 @@
-import {relative, dirname} from 'node:path';
+import {dirname, relative} from 'node:path';
 import {
   type ExportDeclarationStructure,
   type InterfaceDeclaration,
@@ -196,7 +196,10 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
   outputSourceFile.addExportDeclaration({moduleSpecifier: './types.ts'});
 };
 
-const toTypesFile = (project: Project, eventData: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}>) => {
+const toTypesFile = (
+  project: Project,
+  eventData: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}>
+) => {
   const outputSourceFile = project.createSourceFile(
     `./src/eventbus/events/types.ts`,
     '',
@@ -232,7 +235,7 @@ const toTypesFile = (project: Project, eventData: Array<{iface: InterfaceDeclara
   outputSourceFile.addTypeAlias({
     name: 'EventMap',
     isExported: true,
-    type: '{[K in AllEvents as K[\'name\']]: K[\'args\']}',
+    type: "{[K in AllEvents as K['name']]: K['args']}",
   });
 
   // Create EventName type
@@ -255,13 +258,12 @@ const toTypesFile = (project: Project, eventData: Array<{iface: InterfaceDeclara
 const eventFiles = project
   .getSourceFiles()
   .filter(
-    src =>
-      src.getBaseName() !== 'index.ts' &&
-      src.getBaseName() !== 'types.ts'
+    src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts'
   );
 
 // Process all events and collect non-private interfaces with their source files
-const eventData: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}> = [];
+const eventData: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}> =
+  [];
 eventFiles.forEach(file => {
   const result = createEventMetadata(file);
   if (result) {

@@ -52,7 +52,7 @@
  */
 export interface EventInterface<
   TName extends string,
-  TArgs extends readonly any[]
+  TArgs extends readonly any[],
 > {
   /**
    * Unique event name as string literal type.

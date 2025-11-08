@@ -42,10 +42,11 @@ for (const [constantName, eventName] of eventEntries) {
   if (typeof eventName !== 'string') continue;
 
   // Generate interface name from constant name
-  const interfaceName = constantName
-    .split('_')
-    .map(part => part.charAt(0) + part.slice(1).toLowerCase())
-    .join('') + 'Event';
+  const interfaceName =
+    constantName
+      .split('_')
+      .map(part => part.charAt(0) + part.slice(1).toLowerCase())
+      .join('') + 'Event';
 
   // Determine category from constant name prefix
   let category = 'Timeline';
@@ -66,19 +67,23 @@ for (const [constantName, eventName] of eventEntries) {
     argsComment = '\n * @param position - The timeline position to seek to';
   } else if (eventName === 'timeline-container-request') {
     args = '[callback: (element: HTMLElement) => void]';
-    argsComment = '\n * @param callback - Callback that receives the container element';
+    argsComment =
+      '\n * @param callback - Callback that receives the container element';
   } else if (eventName === 'timeline-duration-request') {
     args = '[callback: (duration: number) => void]';
     argsComment = '\n * @param callback - Callback that receives the duration';
   } else if (eventName === 'request-current-language') {
     args = '[callback: (language: string) => void]';
-    argsComment = '\n * @param callback - Callback that receives the current language';
+    argsComment =
+      '\n * @param callback - Callback that receives the current language';
   } else if (eventName === 'request-label-collection') {
     args = '[language: string, callback: (collection: any) => void]';
-    argsComment = '\n * @param language - The language code\n * @param callback - Callback that receives the label collection';
+    argsComment =
+      '\n * @param language - The language code\n * @param callback - Callback that receives the label collection';
   } else if (eventName === 'request-label-collections') {
     args = '[callback: (collections: any) => void]';
-    argsComment = '\n * @param callback - Callback that receives all label collections';
+    argsComment =
+      '\n * @param callback - Callback that receives all label collections';
   } else if (eventName === 'dom-mutation') {
     args = '[payload: any]';
     argsComment = '\n * @param payload - Mutation observer payload';
@@ -98,10 +103,7 @@ export interface ${interfaceName} {
 `;
 
   const fileName = eventName.replace(/-/g, '-');
-  writeFileSync(
-    `./src/eventbus/events/${fileName}.ts`,
-    fileContent
-  );
+  writeFileSync(`./src/eventbus/events/${fileName}.ts`, fileContent);
 }
 
 console.log(`Generated ${eventEntries.length} event interface files`);

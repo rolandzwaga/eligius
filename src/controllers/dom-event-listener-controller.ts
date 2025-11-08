@@ -68,10 +68,7 @@ export class DOMEventListenerController
 
       actions.forEach((actionName: string) => {
         const [isStart, name] = this._isStartAction(actionName);
-        eventbus.broadcast('request-action', [
-          name,
-          resultCallback(isStart),
-        ]);
+        eventbus.broadcast('request-action', [name, resultCallback(isStart)]);
       });
 
       selectedElement.on(eventName, this._eventHandler.bind(this));

@@ -58,11 +58,7 @@ export class LabelController extends BaseController<ILabelControllerMetadata> {
     this.requestLabelDataBound(this.operationData.labelId);
 
     this._setLabel();
-    this.addListener(
-      eventbus,
-      'language-change',
-      this._handleLanguageChange
-    );
+    this.addListener(eventbus, 'language-change', this._handleLanguageChange);
   }
 
   private _requestLabelData(eventbus: IEventbus, labelId: string) {

@@ -34,9 +34,6 @@ export const requestAction: TOperation<
     operationData.actionInstance = action;
   };
 
-  this.eventbus.broadcast('request-action', [
-    systemName,
-    resultCallback,
-  ]);
+  this.eventbus.broadcast('request-action', [systemName, resultCallback]);
   return operationData as Required<IRequestActionOperationData>;
 };

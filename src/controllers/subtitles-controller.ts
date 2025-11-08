@@ -25,11 +25,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
   attach(eventbus: IEventbus) {
     this.addListener(eventbus, 'timeline-time', this.onTimeHandler);
     this.addListener(eventbus, 'timeline-seeked', this.onSeekedHandler);
-    this.addListener(
-      eventbus,
-      'language-change',
-      this.languageChangeHandler
-    );
+    this.addListener(eventbus, 'language-change', this.languageChangeHandler);
   }
 
   detach(eventbus: IEventbus) {

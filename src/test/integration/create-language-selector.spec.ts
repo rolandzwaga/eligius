@@ -133,12 +133,9 @@ describe<CreateOptionListContext>('Create option list', () => {
   });
   test<CreateOptionListContext>('should create a selector and attach a change controller', async context => {
     let selectedLang = '';
-    context.eventbus.on(
-      'language-change',
-      (languageCode: string) => {
-        selectedLang = languageCode;
-      }
-    );
+    context.eventbus.on('language-change', (languageCode: string) => {
+      selectedLang = languageCode;
+    });
 
     const engineFactory = new EngineFactory(
       new EligiusResourceImporter(),

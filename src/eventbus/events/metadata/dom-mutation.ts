@@ -1,5 +1,5 @@
-import { type DomMutationEvent } from "../dom-mutation.ts";
-import { type IEventMetadata } from "./types.ts";
+import type {DomMutationEvent} from '../dom-mutation.ts';
+import type {IEventMetadata} from './types.ts';
 
 export function domMutation(): IEventMetadata<DomMutationEvent['args']> {
   return {
@@ -8,7 +8,8 @@ export function domMutation(): IEventMetadata<DomMutationEvent['args']> {
     args: [
       {
         name: 'payload',
-        type: 'any'
-      }]
+        type: 'any',
+      },
+    ],
   };
 }

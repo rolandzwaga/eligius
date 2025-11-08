@@ -1,9 +1,9 @@
 import type {TControllerName, TOperationName} from 'configuration/types.ts';
 import * as controllers from '../../controllers/index.ts';
+import type {EventName} from '../../eventbus/events/types.ts';
 import * as operations from '../../operation/index.ts';
 import * as operationMetadata from '../../operation/metadata/index.ts';
 import type {IOperationMetadata} from '../../operation/metadata/types.ts';
-import type {EventName} from '../../eventbus/events/types.ts';
 
 /**
  *

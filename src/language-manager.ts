@@ -56,10 +56,7 @@ export class LanguageManager {
       )
     );
     this._eventbusRemovers.push(
-      eventbus.on(
-        'language-change',
-        this._handleLanguageChange.bind(this)
-      )
+      eventbus.on('language-change', this._handleLanguageChange.bind(this))
     );
   }
 
@@ -96,9 +93,7 @@ export class LanguageManager {
       const lang = this._extractPrimaryLanguage(language);
       $(rootSelector).attr('lang', lang);
     };
-    this._eventbus.broadcast('request-engine-root', [
-      callBack,
-    ]);
+    this._eventbus.broadcast('request-engine-root', [callBack]);
   }
 
   _extractPrimaryLanguage(culture: TLanguageCode) {

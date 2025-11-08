@@ -79,10 +79,7 @@ export class EngineFactory implements IEngineFactory {
       )
     );
     this._eventRemovers.push(
-      this._eventbus.on(
-        'request-action',
-        this._requestActionHandler.bind(this)
-      )
+      this._eventbus.on('request-action', this._requestActionHandler.bind(this))
     );
     this._eventRemovers.push(
       this._eventbus.on(

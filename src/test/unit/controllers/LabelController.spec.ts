@@ -54,30 +54,24 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on(
-      'request-current-language',
-      (...args: any[]) => {
-        args[0]('en-GB');
-      }
-    );
+    eventbus.on('request-current-language', (...args: any[]) => {
+      args[0]('en-GB');
+    });
 
-    eventbus.on(
-      'request-label-collection',
-      (...args: any[]) => {
-        args[1]([
-          {
-            id: '1111',
-            languageCode: 'nl-NL',
-            label: 'hallo',
-          },
-          {
-            id: '2222',
-            languageCode: 'en-GB',
-            label: 'hello',
-          },
-        ]);
-      }
-    );
+    eventbus.on('request-label-collection', (...args: any[]) => {
+      args[1]([
+        {
+          id: '1111',
+          languageCode: 'nl-NL',
+          label: 'hallo',
+        },
+        {
+          id: '2222',
+          languageCode: 'en-GB',
+          label: 'hello',
+        },
+      ]);
+    });
 
     // test
     controller.attach(eventbus);
@@ -91,12 +85,9 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on(
-      'request-current-language',
-      (...args: any[]) => {
-        args[0]('en-GB');
-      }
-    );
+    eventbus.on('request-current-language', (...args: any[]) => {
+      args[0]('en-GB');
+    });
 
     const firstLabels = (...args: any[]) => {
       args[1]([
@@ -117,23 +108,20 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // test
     controller.attach(eventbus);
     eventbus.off('request-label-collection', firstLabels);
-    eventbus.on(
-      'request-label-collection',
-      (...args: any[]) => {
-        args[1]([
-          {
-            id: '3333',
-            languageCode: 'nl-NL',
-            label: 'tot ziens',
-          },
-          {
-            id: '4444',
-            languageCode: 'en-GB',
-            label: 'goodbye',
-          },
-        ]);
-      }
-    );
+    eventbus.on('request-label-collection', (...args: any[]) => {
+      args[1]([
+        {
+          id: '3333',
+          languageCode: 'nl-NL',
+          label: 'tot ziens',
+        },
+        {
+          id: '4444',
+          languageCode: 'en-GB',
+          label: 'goodbye',
+        },
+      ]);
+    });
     controller.setLabelId('test2');
 
     // expect

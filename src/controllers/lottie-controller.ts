@@ -108,15 +108,9 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
         labelCollections: any[];
       } = {} as any;
 
-      eventbus.broadcast('request-current-language', [
-        resultHolder,
-      ]);
+      eventbus.broadcast('request-current-language', [resultHolder]);
       this.currentLanguage = resultHolder.language;
-      this.addListener(
-        eventbus,
-        'language-change',
-        this._handleLanguageChange
-      );
+      this.addListener(eventbus, 'language-change', this._handleLanguageChange);
       eventbus.broadcast('request-label-collections', [
         this.operationData.labelIds,
         resultHolder,

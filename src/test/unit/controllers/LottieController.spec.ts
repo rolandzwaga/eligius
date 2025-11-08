@@ -146,10 +146,7 @@ describe('LottieController', () => {
       // Setup mock eventbus to provide label collection data
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === 'request-label-collections' &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
         }
         if (eventName === 'request-current-language' && args) {
@@ -186,10 +183,7 @@ describe('LottieController', () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === 'request-label-collections' &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
         }
         if (eventName === 'request-current-language' && args) {
@@ -288,10 +282,7 @@ describe('LottieController', () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === 'request-label-collections' &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
         }
         if (eventName === 'request-current-language' && args) {
@@ -334,10 +325,7 @@ describe('LottieController', () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === 'request-label-collections' &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Hello'}]];
         }
         if (eventName === 'request-current-language' && args) {
@@ -401,10 +389,7 @@ describe('LottieController', () => {
       // Mock broadcast to provide initial data without breaking handler invocation
       const originalBroadcast = testEventbus.broadcast;
       (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (
-          eventName === 'request-label-collections' &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Hello'}]];
         }
         if (eventName === 'request-current-language' && args) {

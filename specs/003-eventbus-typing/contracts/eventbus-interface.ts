@@ -16,18 +16,15 @@ export type EventName = keyof EventMap;
  * Generated from all event interface definitions.
  */
 export type EventMap = {
-  [K in AllEvents as K['name']]: K['args']
+  [K in AllEvents as K['name']]: K['args'];
 };
 
 /**
  * Union of all event interfaces.
  * Used to construct EventMap.
  */
-export type AllEvents =
-  | TimelinePlayRequestEvent
-  | TimelineSeekRequestEvent
-  // ... all other event interfaces
-  ;
+export type AllEvents = TimelinePlayRequestEvent | TimelineSeekRequestEvent;
+// ... all other event interfaces
 
 /**
  * Type-safe EventBus interface.
@@ -145,10 +142,7 @@ export interface IEventbus {
    * eventbus.broadcast('timeline-seek-request', []); // ❌ TypeScript error (missing position)
    * ```
    */
-  broadcast<E extends EventName>(
-    eventName: E,
-    args: EventMap[E]
-  ): void;
+  broadcast<E extends EventName>(eventName: E, args: EventMap[E]): void;
 
   /**
    * Broadcast an event to handlers registered for a specific topic.
