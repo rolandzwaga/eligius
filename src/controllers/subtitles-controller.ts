@@ -56,14 +56,12 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     }
   }
 
-  onSeekedHandler(args: any[]) {
-    const position = args[0];
-
-    const duration = this.subtitleDurations?.find(
+  onSeekedHandler(position: number, _duration: number) {
+    const subtitleDuration = this.subtitleDurations?.find(
       x => x.start <= position && x.end >= position
     );
 
-    const func = duration ? this.actionLookup[duration.start ?? -1] : undefined;
+    const func = subtitleDuration ? this.actionLookup[subtitleDuration.start ?? -1] : undefined;
     if (func && this.lastFunc !== func) {
       this.lastFunc = func;
       func();
@@ -74,7 +72,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
 
   setTitle(
     container: JQuery,
-    titleLanguageLookup: Record<TLanguageCode, string>
+    titleLanguageLookup: Record<string, string>
   ) {
     if (this.currentLanguage) {
       container.html(titleLanguageLookup[this.currentLanguage]);
@@ -90,7 +88,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     const subtitleTimeLookup: Record<number, () => void> = {};
 
     for (let i = 0, ii = titles.length; i < ii; i++) {
-      const titleLanguageLookup: Record<TLanguageCode, string> = {};
+      const titleLanguageLookup: Record<string, string> = {};
 
       for (let j = 0, jj = subtitleData.length; j < jj; j++) {
         const subs = subtitleData[j];

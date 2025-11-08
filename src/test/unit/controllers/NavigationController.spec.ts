@@ -302,7 +302,8 @@ describe('NavigationController', () => {
       mockEventbus.broadcast('video-complete', [0]);
 
       expect(mockEventbus.broadcast).toHaveBeenCalledWith(
-        'request-video-cleanup'
+        'request-video-cleanup',
+        []
       );
     });
   });

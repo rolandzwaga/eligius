@@ -7,6 +7,7 @@ import type {
 } from 'lottie-web';
 import lt from 'lottie-web';
 import type {IEventbus} from '../eventbus/types.ts';
+import type {TLanguageCode} from '../types.ts';
 import {BaseController} from './base-controller.ts';
 
 const lottie = lt.default ?? lt;
@@ -55,7 +56,7 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
  */
 export class LottieController extends BaseController<ILottieControllerMetadata> {
   name = 'LottieController';
-  currentLanguage: string = 'nl-NL';
+  currentLanguage: TLanguageCode = 'nl-NL';
   labelData: Record<string, Record<string, string>> = {};
   animationItem: AnimationItem | null = null;
   serializedData: string | null = null;
@@ -103,11 +104,11 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
 
     const {labelIds} = this.operationData;
     if (labelIds?.length) {
-      let currentLanguage: string = '';
+      let currentLanguage: TLanguageCode = 'en-US';
       let labelCollections: any[] = [];
 
       eventbus.broadcast('request-current-language', [
-        (language: string) => {
+        (language: TLanguageCode) => {
           currentLanguage = language;
         },
       ]);
@@ -205,7 +206,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     });
   }
 
-  private _handleLanguageChange(code: string) {
+  private _handleLanguageChange(code: TLanguageCode) {
     this.currentLanguage = code;
     this._createAnimation();
   }
