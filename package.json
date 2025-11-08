@@ -58,7 +58,7 @@
     "@types/node": "24.10.0",
     "@types/sinon": "17.0.4",
     "@types/uuid": "11.0.0",
-    "@vitest/coverage-istanbul": "4.0.7",
+    "@vitest/coverage-istanbul": "4.0.8",
     "canvas": "3.2.0",
     "chai": "6.2.0",
     "fs-extra": "11.3.2",
@@ -70,7 +70,7 @@
     "sinon": "21.0.0",
     "ts-morph": "27.0.2",
     "tsconfig-paths": "4.2.0",
-    "tsdown": "0.16.0",
+    "tsdown": "0.16.1",
     "tslib": "2.8.1",
     "tsx": "4.20.6",
     "typedoc": "0.28.14",
@@ -78,7 +78,7 @@
     "typescript": "5.9.3",
     "uvu": "0.5.6",
     "video.js": "8.23.4",
-    "vitest": "4.0.7",
+    "vitest": "4.0.8",
     "watchlist": "0.3.1"
   },
   "peerDependencies": {

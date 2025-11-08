@@ -5,16 +5,37 @@ export type TEventbusRemover = () => void;
 
 export interface IEventbus {
   clear(): void;
+
+  // Type-safe on() overloads
+  on<E extends EventName>(
+    eventName: E,
+    eventHandler: (...args: EventMap[E]) => void,
+    eventTopic?: string
+  ): TEventbusRemover;
   on(
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
   ): TEventbusRemover;
+
+  // Type-safe off() overloads
+  off<E extends EventName>(
+    eventName: E,
+    eventHandler: (...args: EventMap[E]) => void,
+    eventTopic?: string
+  ): void;
   off(
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
   ): void;
+
+  // Type-safe once() overloads
+  once<E extends EventName>(
+    eventName: E,
+    eventHandler: (...args: EventMap[E]) => void,
+    eventTopic?: string
+  ): TEventbusRemover;
   once(
     eventName: string,
     eventHandler: TEventHandler,
