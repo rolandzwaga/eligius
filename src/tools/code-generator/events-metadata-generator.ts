@@ -1,16 +1,13 @@
-import {dirname, relative} from 'node:path';
 import {
   type ExportDeclarationStructure,
   type InterfaceDeclaration,
   type JSDoc,
-  type JSDocTag,
   Project,
   type SourceFile,
   StructureKind,
   SyntaxKind,
   ts,
 } from 'ts-morph';
-import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 import dashToCamelCase from '../../util/dash-to-camel-case.ts';
 
 const project = new Project({

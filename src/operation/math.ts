@@ -44,7 +44,7 @@ export const math: TOperation<
 
   const {args, functionName, ...newOperationData} = operationData;
 
-  newOperationData.mathResult = (Math[functionName] as Function).apply(
+  newOperationData.mathResult = (Math[functionName] as (...args: any[]) => any).apply(
     null,
     args
   );

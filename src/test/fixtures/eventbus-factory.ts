@@ -38,9 +38,9 @@ export function createMockEventbus(): IEventbus {
       (eventName: string, eventHandler: TEventHandler): TEventbusRemover => {
         const onceHandler: TEventHandler = (...args: any[]) => {
           eventHandler(...args);
-          mockEventbus.off(eventName, onceHandler);
+          mockEventbus.off(eventName as any, onceHandler);
         };
-        return mockEventbus.on(eventName, onceHandler);
+        return mockEventbus.on(eventName as any, onceHandler);
       }
     ),
 
@@ -54,7 +54,7 @@ export function createMockEventbus(): IEventbus {
     broadcastForTopic: vi.fn(
       (eventName: string, _eventTopic: string, args?: any[]) => {
         // Simple implementation for testing
-        mockEventbus.broadcast(eventName, args);
+        mockEventbus.broadcast(eventName as any, args as any);
       }
     ),
 

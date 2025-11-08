@@ -1,4 +1,8 @@
-import type {IEventbus, TEventbusRemover} from '../eventbus/types.js';
+import type {
+  EventName,
+  IEventbus,
+  TEventbusRemover,
+} from '../eventbus/types.js';
 import type {TOperationData} from '../operation/types.js';
 import type {IController} from './types.js';
 
@@ -50,7 +54,7 @@ export abstract class BaseController<T extends TOperationData>
    */
   protected addListener(
     eventbus: IEventbus,
-    eventName: string,
+    eventName: EventName,
     handler: (...args: any[]) => void
   ): void {
     const boundHandler = handler.bind(this);
@@ -69,7 +73,7 @@ export abstract class BaseController<T extends TOperationData>
     listeners: Array<{eventName: string; handler: (...args: any[]) => void}>
   ): void {
     listeners.forEach(({eventName, handler}) => {
-      this.addListener(eventbus, eventName, handler);
+      this.addListener(eventbus, eventName as EventName, handler);
     });
   }
 

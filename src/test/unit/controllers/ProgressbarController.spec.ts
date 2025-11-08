@@ -144,7 +144,7 @@ describe('ProgressbarController', () => {
           args[0](100); // 100 seconds duration
         }
         // Call original to invoke registered handlers
-        originalBroadcast.call(testEventbus, eventName, args);
+        originalBroadcast.call(testEventbus, eventName as any, args as any);
       };
 
       controller.init(operationData);
@@ -173,7 +173,7 @@ describe('ProgressbarController', () => {
           args[0](100); // 100 seconds duration
         }
         // Call original to invoke registered handlers
-        originalBroadcast.call(testEventbus, eventName, args);
+        originalBroadcast.call(testEventbus, eventName as any, args as any);
       };
 
       controller.init(operationData);

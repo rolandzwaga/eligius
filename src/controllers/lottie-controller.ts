@@ -103,20 +103,25 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
 
     const {labelIds} = this.operationData;
     if (labelIds?.length) {
-      const resultHolder: {
-        language: string;
-        labelCollections: any[];
-      } = {} as any;
+      let currentLanguage: string = '';
+      let labelCollections: any[] = [];
 
-      eventbus.broadcast('request-current-language', [resultHolder]);
-      this.currentLanguage = resultHolder.language;
+      eventbus.broadcast('request-current-language', [
+        (language: string) => {
+          currentLanguage = language;
+        },
+      ]);
+      this.currentLanguage = currentLanguage;
       this.addListener(eventbus, 'language-change', this._handleLanguageChange);
       eventbus.broadcast('request-label-collections', [
         this.operationData.labelIds,
-        resultHolder,
+        (collections: any) => {
+          labelCollections = collections;
+        },
       ]);
-      this._createTextDataLookup(resultHolder.labelCollections);
+      this._createTextDataLookup(labelCollections);
     }
+    this._createAnimation();
     this._createAnimation();
   }
 

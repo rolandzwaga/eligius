@@ -18,7 +18,7 @@
  * };
  * ```
  */
-export interface IEventMetadata<TArgs extends any[] = any[]> {
+export interface IEventMetadata<_TArgs extends any[] = any[]> {
   /** Human-readable description of the event, typically "Event: {event-name}" */
   description: string;
 

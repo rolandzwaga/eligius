@@ -42,11 +42,10 @@ for (const [constantName, eventName] of eventEntries) {
   if (typeof eventName !== 'string') continue;
 
   // Generate interface name from constant name
-  const interfaceName =
-    constantName
-      .split('_')
-      .map(part => part.charAt(0) + part.slice(1).toLowerCase())
-      .join('') + 'Event';
+  const interfaceName = `${constantName
+    .split('_')
+    .map(part => part.charAt(0) + part.slice(1).toLowerCase())
+    .join('')}Event`;
 
   // Determine category from constant name prefix
   let category = 'Timeline';

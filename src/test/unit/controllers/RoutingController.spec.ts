@@ -204,7 +204,7 @@ describe('RoutingController', () => {
         if (eventName === 'request-current-video-position' && args) {
           args[0](10); // Current position 10 seconds
         }
-        originalBroadcast.call(testEventbus, eventName, args);
+        originalBroadcast.call(testEventbus, eventName as any, args as any);
       };
 
       controller.init(operationData);

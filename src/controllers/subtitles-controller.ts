@@ -1,5 +1,9 @@
 import type {IEventbus} from '../eventbus/types.ts';
-import type {IStrictDuration, ISubtitleCollection} from '../types.ts';
+import type {
+  IStrictDuration,
+  ISubtitleCollection,
+  TLanguageCode,
+} from '../types.ts';
 import {BaseController} from './base-controller.ts';
 
 export interface ISubtitlesControllerOperationData {
@@ -7,7 +11,7 @@ export interface ISubtitlesControllerOperationData {
    * @dependency
    */
   selectedElement: JQuery;
-  language: string;
+  language: TLanguageCode;
   /**
    * @type=ParameterType:array
    * @itemType=ParameterType:object
@@ -17,7 +21,7 @@ export interface ISubtitlesControllerOperationData {
 
 export class SubtitlesController extends BaseController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
-  currentLanguage: string | null = null;
+  currentLanguage: TLanguageCode | null = null;
   lastFunc: (() => void) | null = null;
   name = 'SubtitlesController';
   subtitleDurations: IStrictDuration[] | null = null;
@@ -32,7 +36,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     super.detach(eventbus);
   }
 
-  languageChangeHandler(newLanguage: string) {
+  languageChangeHandler(newLanguage: TLanguageCode) {
     this.currentLanguage = newLanguage;
     if (this.lastFunc) {
       this.lastFunc();
@@ -68,7 +72,10 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     }
   }
 
-  setTitle(container: JQuery, titleLanguageLookup: Record<string, string>) {
+  setTitle(
+    container: JQuery,
+    titleLanguageLookup: Record<TLanguageCode, string>
+  ) {
     if (this.currentLanguage) {
       container.html(titleLanguageLookup[this.currentLanguage]);
     }
@@ -83,7 +90,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     const subtitleTimeLookup: Record<number, () => void> = {};
 
     for (let i = 0, ii = titles.length; i < ii; i++) {
-      const titleLanguageLookup: Record<string, string> = {};
+      const titleLanguageLookup: Record<TLanguageCode, string> = {};
 
       for (let j = 0, jj = subtitleData.length; j < jj; j++) {
         const subs = subtitleData[j];

@@ -53,7 +53,7 @@ describe('SubtitlesController', () => {
     it('should initialize with subtitle data and language', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -67,7 +67,7 @@ describe('SubtitlesController', () => {
     it('should create action lookup for all subtitle timings', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -83,7 +83,7 @@ describe('SubtitlesController', () => {
     it('should store subtitle durations', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -142,7 +142,7 @@ describe('SubtitlesController', () => {
     it('should display subtitle when timeline position matches start time', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -159,7 +159,7 @@ describe('SubtitlesController', () => {
     it('should remove subtitle when timeline position matches end time', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -178,7 +178,7 @@ describe('SubtitlesController', () => {
     it('should not re-display same subtitle on repeated time events', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -200,7 +200,7 @@ describe('SubtitlesController', () => {
     it('should update current language on LANGUAGE_CHANGE event', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -218,7 +218,7 @@ describe('SubtitlesController', () => {
     it('should redisplay current subtitle in new language', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -241,7 +241,7 @@ describe('SubtitlesController', () => {
     it('should display correct subtitle when seeking to position', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -249,7 +249,7 @@ describe('SubtitlesController', () => {
       controller.attach(mockEventbus);
 
       // Seek to position 2 (within first subtitle range 0-5)
-      mockEventbus.broadcast('timeline-seeked', [[2]]);
+      mockEventbus.broadcast('timeline-seeked', [2, 100]);
 
       expect(mockContainer.html()).toBe('Hello World');
     });
@@ -257,7 +257,7 @@ describe('SubtitlesController', () => {
     it('should remove subtitle when seeking outside subtitle range', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -269,7 +269,7 @@ describe('SubtitlesController', () => {
       expect(mockContainer.html()).toBe('Hello World');
 
       // Seek to position 7 (outside any subtitle range)
-      mockEventbus.broadcast('timeline-seeked', [[7]]);
+      mockEventbus.broadcast('timeline-seeked', [7, 100]);
 
       expect(mockContainer.html()).toBe('');
     });
@@ -277,7 +277,7 @@ describe('SubtitlesController', () => {
     it('should display second subtitle when seeking to its range', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -285,7 +285,7 @@ describe('SubtitlesController', () => {
       controller.attach(mockEventbus);
 
       // Seek to position 12 (within second subtitle range 10-15)
-      mockEventbus.broadcast('timeline-seeked', [[12]]);
+      mockEventbus.broadcast('timeline-seeked', [12, 100]);
 
       expect(mockContainer.html()).toBe('Goodbye World');
     });
@@ -295,7 +295,7 @@ describe('SubtitlesController', () => {
     it('should empty container when called', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 
@@ -310,7 +310,7 @@ describe('SubtitlesController', () => {
     it('should clear lastFunc reference', () => {
       const operationData = {
         selectedElement: mockContainer,
-        language: 'en-US',
+        language: 'en-US' as const,
         subtitleData: createSubtitleData(),
       };
 

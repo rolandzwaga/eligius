@@ -396,7 +396,7 @@ describe('LottieController', () => {
           args[0].language = 'en-US';
         }
         // Call original to invoke handlers
-        originalBroadcast.call(testEventbus, eventName, args);
+        originalBroadcast.call(testEventbus, eventName as any, args as any);
       };
 
       controller.attach(testEventbus);

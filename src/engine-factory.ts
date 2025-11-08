@@ -103,7 +103,7 @@ export class EngineFactory implements IEngineFactory {
     _hotkeysEvent: HotkeysEvent
   ): void | boolean {
     keyboardEvent.preventDefault();
-    this._eventbus.broadcast('timeline-play-toggle-request');
+    this._eventbus.broadcast('timeline-play-toggle-request', []);
     return false;
   }
 
@@ -124,17 +124,17 @@ export class EngineFactory implements IEngineFactory {
           if (message.type === 'playcontrol') {
             switch (message.data.kind) {
               case 'play':
-                this._eventbus.broadcast('timeline-play-request');
+                this._eventbus.broadcast('timeline-play-request', []);
                 break;
               case 'stop':
-                this._eventbus.broadcast('timeline-stop-request');
+                this._eventbus.broadcast('timeline-stop-request', []);
                 break;
               case 'pause':
-                this._eventbus.broadcast('timeline-pause-request');
+                this._eventbus.broadcast('timeline-pause-request', []);
                 break;
               case 'seek':
                 this._eventbus.broadcast('timeline-seek-request', [
-                  message.data.args,
+                  (message.data.args ?? 0) as number,
                 ]);
                 break;
             }
@@ -174,7 +174,7 @@ export class EngineFactory implements IEngineFactory {
       this._resizeTimeout = -1;
     }
     this._resizeTimeout = setTimeout(() => {
-      this._eventbus.broadcast('timeline-resize');
+      this._eventbus.broadcast('timeline-resize', []);
     }, 200);
   }
 

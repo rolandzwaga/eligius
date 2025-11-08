@@ -173,7 +173,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     const originalBroadcast = eventbus.broadcast.bind(eventbus);
     eventbus.broadcast = vi.fn((eventName: string, ...args: any[]) => {
       broadcastEventName = eventName;
-      return originalBroadcast(eventName, ...args);
+      return originalBroadcast(eventName as any, args as any);
     }) as any;
 
     controller.attach(eventbus);

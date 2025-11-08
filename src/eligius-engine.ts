@@ -5,6 +5,7 @@ import type {
   IResolvedTimelineConfiguration,
 } from './configuration/types.ts';
 import type {
+  EventName,
   IEventbus,
   TEventbusRemover,
   TEventHandler,
@@ -124,18 +125,18 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _onCompleteCallback() {
-    this.eventbus.broadcast('timeline-complete');
+    this.eventbus.broadcast('timeline-complete', []);
   }
 
   private _onFirstFrameCallback() {
-    this.eventbus.broadcast('timeline-firstframe');
+    this.eventbus.broadcast('timeline-firstframe', []);
     this.eventbus.broadcast('timeline-duration', [
       this._activeTimelineProvider?.getDuration,
     ]);
   }
 
   private _onRestartCallback() {
-    this.eventbus.broadcast('timeline-restart');
+    this.eventbus.broadcast('timeline-restart', []);
   }
 
   private async _cleanUp() {
@@ -179,7 +180,7 @@ export class EligiusEngine implements IEligiusEngine {
     eventTopic?: string
   ) {
     this._eventbusRemovers.push(
-      this.eventbus.on(eventName, eventHandler, eventTopic)
+      this.eventbus.on(eventName as EventName, eventHandler, eventTopic)
     );
   }
 
@@ -295,7 +296,7 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     this._activeTimelineProvider.pause();
-    this.eventbus.broadcast('timeline-pause');
+    this.eventbus.broadcast('timeline-pause', []);
   }
 
   private _stopRequest() {
@@ -304,7 +305,7 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     this._activeTimelineProvider.stop();
-    this.eventbus.broadcast('timeline-stop');
+    this.eventbus.broadcast('timeline-stop', []);
   }
 
   private _playRequest() {
@@ -313,7 +314,7 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     this._activeTimelineProvider.start();
-    this.eventbus.broadcast('timeline-play');
+    this.eventbus.broadcast('timeline-play', []);
   }
 
   private _toggleplay() {
@@ -503,7 +504,7 @@ export class EligiusEngine implements IEligiusEngine {
 
         this._activeTimelineProvider.pause();
         this.eventbus.broadcast('timeline-duration', [
-          this._activeTimelineProvider.getDuration(),
+          this._activeTimelineProvider.getDuration,
         ]);
 
         await this._executeStartActions();

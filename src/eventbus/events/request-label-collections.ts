@@ -1,9 +1,10 @@
 /**
  * Event: request-label-collections
- * @param callback - Callback that receives all label collections
+ * @param labelIds - Array of label IDs to retrieve
+ * @param callback - Callback that receives the label collections
  * @category Engine Request
  */
 export interface RequestLabelCollectionsEvent {
   name: 'request-label-collections';
-  args: [callback: (collections: any) => void];
+  args: [labelIds: string[], callback: (collections: any) => void];
 }

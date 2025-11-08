@@ -56,7 +56,10 @@ export class LanguageManager {
       )
     );
     this._eventbusRemovers.push(
-      eventbus.on('language-change', this._handleLanguageChange.bind(this))
+      eventbus.on(
+        'language-change',
+        this._handleLanguageChange.bind(this) as any
+      )
     );
   }
 
