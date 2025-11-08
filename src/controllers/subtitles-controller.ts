@@ -1,5 +1,4 @@
 import type {IEventbus} from '../eventbus/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import type {IStrictDuration, ISubtitleCollection} from '../types.ts';
 import {BaseController} from './base-controller.ts';
 
@@ -24,11 +23,11 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
   subtitleDurations: IStrictDuration[] | null = null;
 
   attach(eventbus: IEventbus) {
-    this.addListener(eventbus, TimelineEventNames.TIME, this.onTimeHandler);
-    this.addListener(eventbus, TimelineEventNames.SEEKED, this.onSeekedHandler);
+    this.addListener(eventbus, 'timeline-time', this.onTimeHandler);
+    this.addListener(eventbus, 'timeline-seeked', this.onSeekedHandler);
     this.addListener(
       eventbus,
-      TimelineEventNames.LANGUAGE_CHANGE,
+      'language-change',
       this.languageChangeHandler
     );
   }

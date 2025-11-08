@@ -76,7 +76,6 @@
     "typedoc": "0.28.14",
     "typedoc-plugin-missing-exports": "4.1.2",
     "typescript": "5.9.3",
-    "uvu": "0.5.6",
     "video.js": "8.23.4",
     "vitest": "4.0.8",
     "watchlist": "0.3.1"

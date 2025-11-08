@@ -1,7 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {ProgressbarController} from '../../../controllers/progressbar-controller.js';
 import type {IEventbus} from '../../../eventbus/types.js';
-import {TimelineEventNames} from '../../../timeline-event-names.js';
 import {createMockEventbus} from '../../fixtures/eventbus-factory.js';
 import {createMockJQueryElement} from '../../fixtures/jquery-factory.js';
 
@@ -49,7 +48,7 @@ describe('ProgressbarController', () => {
       controller.attach(mockEventbus);
 
       expect(mockEventbus.on).toHaveBeenCalledWith(
-        TimelineEventNames.TIME,
+        'timeline-time',
         expect.any(Function)
       );
     });
@@ -63,7 +62,7 @@ describe('ProgressbarController', () => {
       // Mock broadcast to provide duration
       (mockEventbus.broadcast as any).mockImplementation(
         (eventName: string, args?: any[]) => {
-          if (eventName === TimelineEventNames.DURATION_REQUEST && args) {
+          if (eventName === 'timeline-duration-request' && args) {
             const callback = args[0];
             callback(100); // Set duration to 100 seconds
           }
@@ -74,7 +73,7 @@ describe('ProgressbarController', () => {
       controller.attach(mockEventbus);
 
       expect(mockEventbus.broadcast).toHaveBeenCalledWith(
-        TimelineEventNames.DURATION_REQUEST,
+        'timeline-duration-request',
         expect.any(Array)
       );
       expect(controller.duration).toBe(100);
@@ -141,7 +140,7 @@ describe('ProgressbarController', () => {
 
       // Set duration via broadcast wrapper
       (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (eventName === TimelineEventNames.DURATION_REQUEST && args) {
+        if (eventName === 'timeline-duration-request' && args) {
           args[0](100); // 100 seconds duration
         }
         // Call original to invoke registered handlers
@@ -152,7 +151,7 @@ describe('ProgressbarController', () => {
       controller.attach(testEventbus);
 
       // Trigger TIME event with position 50 seconds
-      testEventbus.broadcast(TimelineEventNames.TIME, [50]);
+      testEventbus.broadcast('timeline-time', [50]);
 
       // 50/100 * 100 = 50%
       expect(mockSelectedElement.getCssProperties().width).toBe('50%');
@@ -170,7 +169,7 @@ describe('ProgressbarController', () => {
 
       // Set duration via broadcast wrapper
       (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (eventName === TimelineEventNames.DURATION_REQUEST && args) {
+        if (eventName === 'timeline-duration-request' && args) {
           args[0](100); // 100 seconds duration
         }
         // Call original to invoke registered handlers
@@ -181,7 +180,7 @@ describe('ProgressbarController', () => {
       controller.attach(testEventbus);
 
       // Trigger TIME event with position 75 seconds
-      testEventbus.broadcast(TimelineEventNames.TIME, [75]);
+      testEventbus.broadcast('timeline-time', [75]);
 
       // Floor(75%) = 75%
       expect(mockTextElement.text()).toBe('75%');
@@ -198,7 +197,7 @@ describe('ProgressbarController', () => {
       // Set duration
       (mockEventbus.broadcast as any).mockImplementation(
         (eventName: string, args?: any[]) => {
-          if (eventName === TimelineEventNames.DURATION_REQUEST && args) {
+          if (eventName === 'timeline-duration-request' && args) {
             args[0](100); // 100 seconds duration
           }
         }
@@ -223,7 +222,7 @@ describe('ProgressbarController', () => {
 
       // Should broadcast SEEK_REQUEST with position: 100 * 0.5 = 50 seconds
       expect(mockEventbus.broadcast).toHaveBeenCalledWith(
-        TimelineEventNames.SEEK_REQUEST,
+        'timeline-seek-request',
         [50]
       );
     });

@@ -1,5 +1,4 @@
 import type {IAction} from '../action/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
 
@@ -35,7 +34,7 @@ export const requestAction: TOperation<
     operationData.actionInstance = action;
   };
 
-  this.eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [
+  this.eventbus.broadcast('request-action', [
     systemName,
     resultCallback,
   ]);

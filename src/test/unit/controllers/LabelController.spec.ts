@@ -5,7 +5,6 @@ import {
   LabelController,
 } from '../../../controllers/label-controller.ts';
 import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
-import {TimelineEventNames} from '../../../timeline-event-names.ts';
 
 class MockElement {
   content: string = '';
@@ -56,14 +55,14 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
     eventbus.on(
-      TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+      'request-current-language',
       (...args: any[]) => {
         args[0]('en-GB');
       }
     );
 
     eventbus.on(
-      TimelineEventNames.REQUEST_LABEL_COLLECTION,
+      'request-label-collection',
       (...args: any[]) => {
         args[1]([
           {
@@ -93,7 +92,7 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
     eventbus.on(
-      TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+      'request-current-language',
       (...args: any[]) => {
         args[0]('en-GB');
       }
@@ -113,13 +112,13 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
         },
       ]);
     };
-    eventbus.on(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
+    eventbus.on('request-label-collection', firstLabels);
 
     // test
     controller.attach(eventbus);
-    eventbus.off(TimelineEventNames.REQUEST_LABEL_COLLECTION, firstLabels);
+    eventbus.off('request-label-collection', firstLabels);
     eventbus.on(
-      TimelineEventNames.REQUEST_LABEL_COLLECTION,
+      'request-label-collection',
       (...args: any[]) => {
         args[1]([
           {

@@ -1,10 +1,42 @@
 import {writeFileSync} from 'node:fs';
-import {TimelineEventNames} from '../../timeline-event-names.ts';
 
-// Parse the TimelineEventNames class to extract all event definitions
-const eventEntries = Object.entries(TimelineEventNames).filter(
-  ([key]) => key !== 'length' && key !== 'prototype' && key !== 'name'
-);
+// Event name mappings (previously from TimelineEventNames class)
+const eventEntries = [
+  ['PLAY_TOGGLE_REQUEST', 'timeline-play-toggle-request'],
+  ['PLAY_REQUEST', 'timeline-play-request'],
+  ['STOP_REQUEST', 'timeline-stop-request'],
+  ['PAUSE_REQUEST', 'timeline-pause-request'],
+  ['SEEK_REQUEST', 'timeline-seek-request'],
+  ['RESIZE_REQUEST', 'timeline-resize-request'],
+  ['CONTAINER_REQUEST', 'timeline-container-request'],
+  ['DURATION_REQUEST', 'timeline-duration-request'],
+  ['REQUEST_CURRENT_TIMELINE', 'timeline-request-current-timeline'],
+  ['DURATION', 'timeline-duration'],
+  ['TIME', 'timeline-time'],
+  ['SEEKED', 'timeline-seeked'],
+  ['COMPLETE', 'timeline-complete'],
+  ['RESTART', 'timeline-restart'],
+  ['PLAY', 'timeline-play'],
+  ['STOP', 'timeline-stop'],
+  ['PAUSE', 'timeline-pause'],
+  ['SEEK', 'timeline-seek'],
+  ['RESIZE', 'timeline-resize'],
+  ['CURRENT_TIMELINE_CHANGE', 'timeline-current-timeline-change'],
+  ['FIRST_FRAME', 'timeline-firstframe'],
+  ['REQUEST_INSTANCE', 'request-instance'],
+  ['REQUEST_ACTION', 'request-action'],
+  ['REQUEST_FUNCTION', 'request-function'],
+  ['REQUEST_TIMELINE_URI', 'request-timeline-uri'],
+  ['BEFORE_REQUEST_TIMELINE_URI', 'before-request-timeline-uri'],
+  ['REQUEST_ENGINE_ROOT', 'request-engine-root'],
+  ['REQUEST_CURRENT_TIMELINE_POSITION', 'request-current-timeline-position'],
+  ['REQUEST_TIMELINE_CLEANUP', 'request-timeline-cleanup'],
+  ['REQUEST_LABEL_COLLECTION', 'request-label-collection'],
+  ['REQUEST_LABEL_COLLECTIONS', 'request-label-collections'],
+  ['REQUEST_CURRENT_LANGUAGE', 'request-current-language'],
+  ['LANGUAGE_CHANGE', 'language-change'],
+  ['DOM_MUTATION', 'dom-mutation'],
+];
 
 for (const [constantName, eventName] of eventEntries) {
   if (typeof eventName !== 'string') continue;

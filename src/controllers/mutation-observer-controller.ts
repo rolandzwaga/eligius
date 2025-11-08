@@ -1,5 +1,4 @@
 import type {IEventbus} from '../eventbus/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {BaseController} from './base-controller.ts';
 
 /**
@@ -113,7 +112,7 @@ export interface IMutationEventPayload {
  * }
  *
  * // Listen for mutations
- * eventbus.on(TimelineEventNames.DOM_MUTATION, (payload: IMutationEventPayload) => {
+ * eventbus.on('dom-mutation', (payload: IMutationEventPayload) => {
  *   console.log('Mutations detected:', payload.mutations);
  * });
  * ```
@@ -230,6 +229,6 @@ export class MutationObserverController extends BaseController<IMutationObserver
       timestamp: Date.now(),
     };
 
-    eventbus.broadcast(TimelineEventNames.DOM_MUTATION, [payload]);
+    eventbus.broadcast('dom-mutation', [payload]);
   }
 }

@@ -1,6 +1,5 @@
 import type * as controllers from '../controllers/index.ts';
 import type {IController} from '../controllers/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation, TOperationData} from './types.ts';
 
@@ -36,7 +35,7 @@ export const getControllerInstance: TOperation<
   const resultCallback = (instance: IController<TOperationData>) => {
     operationData.controllerInstance = instance;
   };
-  this.eventbus.broadcast(TimelineEventNames.REQUEST_INSTANCE, [
+  this.eventbus.broadcast('request-instance', [
     systemName,
     resultCallback,
   ]);

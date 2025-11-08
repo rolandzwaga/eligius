@@ -7,7 +7,6 @@ import type {
 } from 'lottie-web';
 import lt from 'lottie-web';
 import type {IEventbus} from '../eventbus/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {BaseController} from './base-controller.ts';
 
 const lottie = lt.default ?? lt;
@@ -109,16 +108,16 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
         labelCollections: any[];
       } = {} as any;
 
-      eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [
+      eventbus.broadcast('request-current-language', [
         resultHolder,
       ]);
       this.currentLanguage = resultHolder.language;
       this.addListener(
         eventbus,
-        TimelineEventNames.LANGUAGE_CHANGE,
+        'language-change',
         this._handleLanguageChange
       );
-      eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [
+      eventbus.broadcast('request-label-collections', [
         this.operationData.labelIds,
         resultHolder,
       ]);

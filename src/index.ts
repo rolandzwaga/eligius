@@ -16,7 +16,6 @@ export {LanguageManager} from './language-manager.ts';
 export * from './operation/index.ts';
 export * as metadata from './operation/metadata/index.ts';
 export * from './operation/types.ts';
-export {TimelineEventNames} from './timeline-event-names.ts';
 export * from './timelineproviders/index.ts';
 export * from './timelineproviders/types.ts';
 export * from './types.ts';

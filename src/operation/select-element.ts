@@ -1,4 +1,3 @@
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {removeProperties} from './helper/remove-operation-properties.ts';
 import {
   type ExternalProperty,
@@ -71,7 +70,7 @@ export const selectElement: TOperation<
   const rootCallback = (root: JQuery) => {
     operationData.selectedElement = findElementBySelector(root, selector);
   };
-  this.eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [
+  this.eventbus.broadcast('request-engine-root', [
     rootCallback,
   ]);
 

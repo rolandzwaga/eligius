@@ -6,7 +6,6 @@ import {
   MutationObserverController,
 } from '../../../controllers/mutation-observer-controller.ts';
 import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
-import {TimelineEventNames} from '../../../timeline-event-names.ts';
 
 // Mock jQuery wrapper that returns real DOM element
 class MockJQueryElement {
@@ -57,7 +56,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
 
     // Setup event listener to capture broadcasted events
     context.eventbus.on(
-      TimelineEventNames.DOM_MUTATION,
+      'dom-mutation',
       (payload: IMutationEventPayload) => {
         context.receivedPayload = payload;
       }
@@ -191,7 +190,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     });
 
     // then
-    expect(broadcastEventName).to.equal(TimelineEventNames.DOM_MUTATION);
+    expect(broadcastEventName).to.equal('dom-mutation');
     expect((eventbus.broadcast as any).mock.calls.length).to.be.greaterThan(0);
   });
 
@@ -245,7 +244,7 @@ describe<MutationObserverControllerSuiteContext>(
       };
 
       context.eventbus.on(
-        TimelineEventNames.DOM_MUTATION,
+        'dom-mutation',
         (payload: IMutationEventPayload) => {
           context.receivedPayload = payload;
         }

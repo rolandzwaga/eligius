@@ -1,5 +1,4 @@
 import type {RequireKeys} from 'types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import type {TOperation} from './types.ts';
 
 export interface IGetImportOperationData {
@@ -34,7 +33,7 @@ export const getImport: TOperation<
   const callBack = (instance: unknown) => {
     operationData.importedInstance = instance;
   };
-  this.eventbus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
+  this.eventbus.broadcast('request-function', [
     systemName,
     callBack,
   ]);

@@ -1,6 +1,5 @@
 import type {IEventbus} from '../eventbus/types.ts';
 import type {TOperationData} from '../operation/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {BaseController} from './base-controller.ts';
 
 export interface IProgressbarControllerOperationData {
@@ -33,11 +32,11 @@ export class ProgressbarController extends BaseController<IProgressbarController
   attach(eventbus: IEventbus) {
     this.addListener(
       eventbus,
-      TimelineEventNames.TIME,
+      'timeline-time',
       this._positionUpdateHandler
     );
 
-    eventbus.broadcast(TimelineEventNames.DURATION_REQUEST, [
+    eventbus.broadcast('timeline-duration-request', [
       (duration: number) => (this.duration = duration),
     ]);
 
@@ -70,7 +69,7 @@ export class ProgressbarController extends BaseController<IProgressbarController
 
     const percentage = (100 / rect.width) * x;
 
-    eventbus.broadcast(TimelineEventNames.SEEK_REQUEST, [
+    eventbus.broadcast('timeline-seek-request', [
       Math.round((this.duration / 100) * percentage),
     ]);
   }
