@@ -7,7 +7,7 @@ import type {
 } from 'lottie-web';
 import lt from 'lottie-web';
 import type {IEventbus} from '../eventbus/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
+import type {TLanguageCode} from '../types.ts';
 import {BaseController} from './base-controller.ts';
 
 const lottie = lt.default ?? lt;
@@ -56,7 +56,7 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
  */
 export class LottieController extends BaseController<ILottieControllerMetadata> {
   name = 'LottieController';
-  currentLanguage: string = 'nl-NL';
+  currentLanguage: TLanguageCode = 'nl-NL';
   labelData: Record<string, Record<string, string>> = {};
   animationItem: AnimationItem | null = null;
   serializedData: string | null = null;
@@ -104,26 +104,25 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
 
     const {labelIds} = this.operationData;
     if (labelIds?.length) {
-      const resultHolder: {
-        language: string;
-        labelCollections: any[];
-      } = {} as any;
+      let currentLanguage: TLanguageCode = 'en-US';
+      let labelCollections: any[] = [];
 
-      eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [
-        resultHolder,
+      eventbus.broadcast('request-current-language', [
+        (language: TLanguageCode) => {
+          currentLanguage = language;
+        },
       ]);
-      this.currentLanguage = resultHolder.language;
-      this.addListener(
-        eventbus,
-        TimelineEventNames.LANGUAGE_CHANGE,
-        this._handleLanguageChange
-      );
-      eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTIONS, [
+      this.currentLanguage = currentLanguage;
+      this.addListener(eventbus, 'language-change', this._handleLanguageChange);
+      eventbus.broadcast('request-label-collections', [
         this.operationData.labelIds,
-        resultHolder,
+        (collections: any) => {
+          labelCollections = collections;
+        },
       ]);
-      this._createTextDataLookup(resultHolder.labelCollections);
+      this._createTextDataLookup(labelCollections);
     }
+    this._createAnimation();
     this._createAnimation();
   }
 
@@ -207,7 +206,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     });
   }
 
-  private _handleLanguageChange(code: string) {
+  private _handleLanguageChange(code: TLanguageCode) {
     this.currentLanguage = code;
     this._createAnimation();
   }

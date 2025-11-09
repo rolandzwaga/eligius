@@ -1,6 +1,9 @@
 import type {IEventbus} from '../eventbus/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
-import type {IStrictDuration, ISubtitleCollection} from '../types.ts';
+import type {
+  IStrictDuration,
+  ISubtitleCollection,
+  TLanguageCode,
+} from '../types.ts';
 import {BaseController} from './base-controller.ts';
 
 export interface ISubtitlesControllerOperationData {
@@ -8,7 +11,7 @@ export interface ISubtitlesControllerOperationData {
    * @dependency
    */
   selectedElement: JQuery;
-  language: string;
+  language: TLanguageCode;
   /**
    * @type=ParameterType:array
    * @itemType=ParameterType:object
@@ -18,26 +21,22 @@ export interface ISubtitlesControllerOperationData {
 
 export class SubtitlesController extends BaseController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
-  currentLanguage: string | null = null;
+  currentLanguage: TLanguageCode | null = null;
   lastFunc: (() => void) | null = null;
   name = 'SubtitlesController';
   subtitleDurations: IStrictDuration[] | null = null;
 
   attach(eventbus: IEventbus) {
-    this.addListener(eventbus, TimelineEventNames.TIME, this.onTimeHandler);
-    this.addListener(eventbus, TimelineEventNames.SEEKED, this.onSeekedHandler);
-    this.addListener(
-      eventbus,
-      TimelineEventNames.LANGUAGE_CHANGE,
-      this.languageChangeHandler
-    );
+    this.addListener(eventbus, 'timeline-time', this.onTimeHandler);
+    this.addListener(eventbus, 'timeline-seeked', this.onSeekedHandler);
+    this.addListener(eventbus, 'language-change', this.languageChangeHandler);
   }
 
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
   }
 
-  languageChangeHandler(newLanguage: string) {
+  languageChangeHandler(newLanguage: TLanguageCode) {
     this.currentLanguage = newLanguage;
     if (this.lastFunc) {
       this.lastFunc();
@@ -57,14 +56,12 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     }
   }
 
-  onSeekedHandler(args: any[]) {
-    const position = args[0];
-
-    const duration = this.subtitleDurations?.find(
+  onSeekedHandler(position: number, _duration: number) {
+    const subtitleDuration = this.subtitleDurations?.find(
       x => x.start <= position && x.end >= position
     );
 
-    const func = duration ? this.actionLookup[duration.start ?? -1] : undefined;
+    const func = subtitleDuration ? this.actionLookup[subtitleDuration.start ?? -1] : undefined;
     if (func && this.lastFunc !== func) {
       this.lastFunc = func;
       func();
@@ -73,7 +70,10 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     }
   }
 
-  setTitle(container: JQuery, titleLanguageLookup: Record<string, string>) {
+  setTitle(
+    container: JQuery,
+    titleLanguageLookup: Record<string, string>
+  ) {
     if (this.currentLanguage) {
       container.html(titleLanguageLookup[this.currentLanguage]);
     }

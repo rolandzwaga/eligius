@@ -1,5 +1,4 @@
 import type {IEventbus} from '../eventbus/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import type {ILabel} from '../types.ts';
 import {BaseController} from './base-controller.ts';
 
@@ -49,7 +48,7 @@ export class LabelController extends BaseController<ILabelControllerMetadata> {
       return;
     }
 
-    eventbus.broadcast(TimelineEventNames.REQUEST_CURRENT_LANGUAGE, [
+    eventbus.broadcast('request-current-language', [
       (language: string) => {
         this.currentLanguage = language;
       },
@@ -59,15 +58,11 @@ export class LabelController extends BaseController<ILabelControllerMetadata> {
     this.requestLabelDataBound(this.operationData.labelId);
 
     this._setLabel();
-    this.addListener(
-      eventbus,
-      TimelineEventNames.LANGUAGE_CHANGE,
-      this._handleLanguageChange
-    );
+    this.addListener(eventbus, 'language-change', this._handleLanguageChange);
   }
 
   private _requestLabelData(eventbus: IEventbus, labelId: string) {
-    eventbus.broadcast(TimelineEventNames.REQUEST_LABEL_COLLECTION, [
+    eventbus.broadcast('request-label-collection', [
       labelId,
       (labelCollection: ILabel[]) => {
         if (labelCollection) {

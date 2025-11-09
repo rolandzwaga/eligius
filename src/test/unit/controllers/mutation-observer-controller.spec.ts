@@ -6,7 +6,6 @@ import {
   MutationObserverController,
 } from '../../../controllers/mutation-observer-controller.ts';
 import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
-import {TimelineEventNames} from '../../../timeline-event-names.ts';
 
 // Mock jQuery wrapper that returns real DOM element
 class MockJQueryElement {
@@ -56,12 +55,9 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     };
 
     // Setup event listener to capture broadcasted events
-    context.eventbus.on(
-      TimelineEventNames.DOM_MUTATION,
-      (payload: IMutationEventPayload) => {
-        context.receivedPayload = payload;
-      }
-    );
+    context.eventbus.on('dom-mutation', (payload: IMutationEventPayload) => {
+      context.receivedPayload = payload;
+    });
   });
 
   // T007: Write test for MutationObserver instance creation
@@ -177,7 +173,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     const originalBroadcast = eventbus.broadcast.bind(eventbus);
     eventbus.broadcast = vi.fn((eventName: string, ...args: any[]) => {
       broadcastEventName = eventName;
-      return originalBroadcast(eventName, ...args);
+      return originalBroadcast(eventName as any, args as any);
     }) as any;
 
     controller.attach(eventbus);
@@ -191,7 +187,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     });
 
     // then
-    expect(broadcastEventName).to.equal(TimelineEventNames.DOM_MUTATION);
+    expect(broadcastEventName).to.equal('dom-mutation');
     expect((eventbus.broadcast as any).mock.calls.length).to.be.greaterThan(0);
   });
 
@@ -224,161 +220,137 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
   });
 });
 
-describe<MutationObserverControllerSuiteContext>(
-  'MutationObserverController - User Story 2: Automatic Lifecycle Management',
-  () => {
-    beforeEach(context => {
-      withContext<MutationObserverControllerSuiteContext>(context);
+describe<MutationObserverControllerSuiteContext>('MutationObserverController - User Story 2: Automatic Lifecycle Management', () => {
+  beforeEach(context => {
+    withContext<MutationObserverControllerSuiteContext>(context);
 
-      context.controller = new MutationObserverController();
-      context.eventbus = new Eventbus();
-      context.nativeElement = document.createElement('div');
-      document.body.appendChild(context.nativeElement);
-      context.selectedElement = new MockJQueryElement(
-        context.nativeElement
-      ) as unknown as JQuery;
-      context.receivedPayload = null;
-      context.operationData = {
-        selectedElement: context.selectedElement,
-        observeAttributes: true,
-        observeChildList: true,
-      };
+    context.controller = new MutationObserverController();
+    context.eventbus = new Eventbus();
+    context.nativeElement = document.createElement('div');
+    document.body.appendChild(context.nativeElement);
+    context.selectedElement = new MockJQueryElement(
+      context.nativeElement
+    ) as unknown as JQuery;
+    context.receivedPayload = null;
+    context.operationData = {
+      selectedElement: context.selectedElement,
+      observeAttributes: true,
+      observeChildList: true,
+    };
 
-      context.eventbus.on(
-        TimelineEventNames.DOM_MUTATION,
-        (payload: IMutationEventPayload) => {
-          context.receivedPayload = payload;
-        }
-      );
+    context.eventbus.on('dom-mutation', (payload: IMutationEventPayload) => {
+      context.receivedPayload = payload;
+    });
+  });
+
+  // T022: Write test for init() method setting operationData
+  test<MutationObserverControllerSuiteContext>('should store operationData copy in init method', context => {
+    // given
+    const {controller, operationData} = context;
+
+    // when
+    controller.init(operationData);
+
+    // then
+    expect(controller.operationData).to.not.be.null;
+    expect(controller.operationData).to.not.equal(operationData); // Should be a copy
+    expect(controller.operationData?.selectedElement).to.equal(
+      operationData.selectedElement
+    );
+  });
+
+  // T023: Write test for attach() guard when operationData is null
+  test<MutationObserverControllerSuiteContext>('should not create observer if operationData is null', context => {
+    // given
+    const {controller, eventbus} = context;
+    // Don't call init - operationData will be null
+
+    // when
+    controller.attach(eventbus);
+
+    // then
+    expect((controller as any).observer).to.be.null;
+  });
+
+  // T024: Write test for detach() disconnecting observer
+  test<MutationObserverControllerSuiteContext>('should disconnect observer on detach', async context => {
+    // given
+    const {controller, operationData, eventbus, nativeElement} = context;
+    controller.init(operationData);
+    controller.attach(eventbus);
+
+    // Verify observer was created
+    expect((controller as any).observer).to.not.be.null;
+
+    // when
+    controller.detach(eventbus);
+
+    // then
+    expect((controller as any).observer).to.be.null;
+  });
+
+  // T025: Write test verifying no events after detach
+  test<MutationObserverControllerSuiteContext>('should not emit events after detach', async context => {
+    // given
+    const {controller, operationData, eventbus, nativeElement} = context;
+    controller.init(operationData);
+    controller.attach(eventbus);
+
+    // Verify observation works
+    nativeElement.setAttribute('data-test', 'initial');
+    await vi.waitFor(() => {
+      expect(context.receivedPayload).to.not.be.null;
     });
 
-    // T022: Write test for init() method setting operationData
-    test<MutationObserverControllerSuiteContext>(
-      'should store operationData copy in init method',
-      context => {
-        // given
-        const {controller, operationData} = context;
+    // when - detach and clear payload
+    controller.detach(eventbus);
+    context.receivedPayload = null;
 
-        // when
-        controller.init(operationData);
+    // Make another change after detach
+    nativeElement.setAttribute('data-test', 'after-detach');
 
-        // then
-        expect(controller.operationData).to.not.be.null;
-        expect(controller.operationData).to.not.equal(operationData); // Should be a copy
-        expect(controller.operationData?.selectedElement).to.equal(
-          operationData.selectedElement
-        );
-      }
-    );
+    // Wait a bit to ensure no mutation is captured
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    // T023: Write test for attach() guard when operationData is null
-    test<MutationObserverControllerSuiteContext>(
-      'should not create observer if operationData is null',
-      context => {
-        // given
-        const {controller, eventbus} = context;
-        // Don't call init - operationData will be null
+    // then - no new events should have been received
+    expect(context.receivedPayload).to.be.null;
+  });
 
-        // when
-        controller.attach(eventbus);
+  // T026: Write test for multiple attach/detach cycles (memory leak prevention)
+  test<MutationObserverControllerSuiteContext>('should handle multiple attach/detach cycles without leaks', context => {
+    // given
+    const {controller, operationData, eventbus} = context;
 
-        // then
-        expect((controller as any).observer).to.be.null;
-      }
-    );
+    // when - perform multiple attach/detach cycles
+    for (let i = 0; i < 10; i++) {
+      controller.init(operationData);
+      controller.attach(eventbus);
+      expect((controller as any).observer).to.not.be.null;
 
-    // T024: Write test for detach() disconnecting observer
-    test<MutationObserverControllerSuiteContext>(
-      'should disconnect observer on detach',
-      async context => {
-        // given
-        const {controller, operationData, eventbus, nativeElement} = context;
-        controller.init(operationData);
-        controller.attach(eventbus);
+      controller.detach(eventbus);
+      expect((controller as any).observer).to.be.null;
+    }
 
-        // Verify observer was created
-        expect((controller as any).observer).to.not.be.null;
+    // then - no errors should have occurred
+    expect(controller.operationData).to.not.be.null;
+  });
 
-        // when
-        controller.detach(eventbus);
+  // T027: Write test for duplicate attach() calls (guard against multiple observers)
+  test<MutationObserverControllerSuiteContext>('should handle duplicate attach calls safely', context => {
+    // given
+    const {controller, operationData, eventbus} = context;
+    controller.init(operationData);
 
-        // then
-        expect((controller as any).observer).to.be.null;
-      }
-    );
+    // when - attach multiple times
+    controller.attach(eventbus);
+    const firstObserver = (controller as any).observer;
 
-    // T025: Write test verifying no events after detach
-    test<MutationObserverControllerSuiteContext>(
-      'should not emit events after detach',
-      async context => {
-        // given
-        const {controller, operationData, eventbus, nativeElement} = context;
-        controller.init(operationData);
-        controller.attach(eventbus);
+    controller.attach(eventbus);
+    const secondObserver = (controller as any).observer;
 
-        // Verify observation works
-        nativeElement.setAttribute('data-test', 'initial');
-        await vi.waitFor(() => {
-          expect(context.receivedPayload).to.not.be.null;
-        });
-
-        // when - detach and clear payload
-        controller.detach(eventbus);
-        context.receivedPayload = null;
-
-        // Make another change after detach
-        nativeElement.setAttribute('data-test', 'after-detach');
-
-        // Wait a bit to ensure no mutation is captured
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // then - no new events should have been received
-        expect(context.receivedPayload).to.be.null;
-      }
-    );
-
-    // T026: Write test for multiple attach/detach cycles (memory leak prevention)
-    test<MutationObserverControllerSuiteContext>(
-      'should handle multiple attach/detach cycles without leaks',
-      context => {
-        // given
-        const {controller, operationData, eventbus} = context;
-
-        // when - perform multiple attach/detach cycles
-        for (let i = 0; i < 10; i++) {
-          controller.init(operationData);
-          controller.attach(eventbus);
-          expect((controller as any).observer).to.not.be.null;
-
-          controller.detach(eventbus);
-          expect((controller as any).observer).to.be.null;
-        }
-
-        // then - no errors should have occurred
-        expect(controller.operationData).to.not.be.null;
-      }
-    );
-
-    // T027: Write test for duplicate attach() calls (guard against multiple observers)
-    test<MutationObserverControllerSuiteContext>(
-      'should handle duplicate attach calls safely',
-      context => {
-        // given
-        const {controller, operationData, eventbus} = context;
-        controller.init(operationData);
-
-        // when - attach multiple times
-        controller.attach(eventbus);
-        const firstObserver = (controller as any).observer;
-
-        controller.attach(eventbus);
-        const secondObserver = (controller as any).observer;
-
-        // then - should have created new observer each time
-        expect(firstObserver).to.not.be.null;
-        expect(secondObserver).to.not.be.null;
-        // Note: This creates multiple observers. In Phase 6, we'll add guard logic.
-      }
-    );
-  }
-);
+    // then - should have created new observer each time
+    expect(firstObserver).to.not.be.null;
+    expect(secondObserver).to.not.be.null;
+    // Note: This creates multiple observers. In Phase 6, we'll add guard logic.
+  });
+});

@@ -2,7 +2,6 @@ import type {IEndableAction} from '../action/types.ts';
 import type {IEventbus} from '../eventbus/types.ts';
 import {deepCopy} from '../operation/helper/deep-copy.ts';
 import type {TOperationData} from '../operation/types.ts';
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import type {IController} from './types.ts';
 
 interface IActionInstanceInfo {
@@ -69,10 +68,7 @@ export class DOMEventListenerController
 
       actions.forEach((actionName: string) => {
         const [isStart, name] = this._isStartAction(actionName);
-        eventbus.broadcast(TimelineEventNames.REQUEST_ACTION, [
-          name,
-          resultCallback(isStart),
-        ]);
+        eventbus.broadcast('request-action', [name, resultCallback(isStart)]);
       });
 
       selectedElement.on(eventName, this._eventHandler.bind(this));

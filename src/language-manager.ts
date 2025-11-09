@@ -1,7 +1,6 @@
 import $ from 'jquery';
 import type {IEventbus, TEventbusRemover} from './eventbus/types.ts';
 import {setGlobal} from './operation/helper/set-global.ts';
-import {TimelineEventNames} from './timeline-event-names.ts';
 import type {
   ILabel,
   ILanguageLabel,
@@ -12,7 +11,7 @@ import type {
 /**
  * This class manages the labels for an {@link IEligiusEngine} instance.
  *
- * It handles the {@link TimelineEventNames.REQUEST_LABEL_COLLECTION}, {@link TimelineEventNames.REQUEST_LABEL_COLLECTIONS}, {@link TimelineEventNames.REQUEST_CURRENT_LANGUAGE} and {@link TimelineEventNames.LANGUAGE_CHANGE} events.
+ * It handles the request-label-collection, request-label-collections, request-current-language and language-change events.
  *
  */
 export class LanguageManager {
@@ -40,26 +39,26 @@ export class LanguageManager {
   _addEventbusListeners(eventbus: IEventbus) {
     this._eventbusRemovers.push(
       eventbus.on(
-        TimelineEventNames.REQUEST_LABEL_COLLECTION,
+        'request-label-collection',
         this._handleRequestLabelCollection.bind(this)
       )
     );
     this._eventbusRemovers.push(
       eventbus.on(
-        TimelineEventNames.REQUEST_LABEL_COLLECTIONS,
+        'request-label-collections',
         this._handleRequestLabelCollections.bind(this)
       )
     );
     this._eventbusRemovers.push(
       eventbus.on(
-        TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+        'request-current-language',
         this._handleRequestCurrentLanguage.bind(this)
       )
     );
     this._eventbusRemovers.push(
       eventbus.on(
-        TimelineEventNames.LANGUAGE_CHANGE,
-        this._handleLanguageChange.bind(this)
+        'language-change',
+        this._handleLanguageChange.bind(this) as any
       )
     );
   }
@@ -97,9 +96,7 @@ export class LanguageManager {
       const lang = this._extractPrimaryLanguage(language);
       $(rootSelector).attr('lang', lang);
     };
-    this._eventbus.broadcast(TimelineEventNames.REQUEST_ENGINE_ROOT, [
-      callBack,
-    ]);
+    this._eventbus.broadcast('request-engine-root', [callBack]);
   }
 
   _extractPrimaryLanguage(culture: TLanguageCode) {

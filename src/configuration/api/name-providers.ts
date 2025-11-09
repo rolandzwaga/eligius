@@ -1,12 +1,9 @@
 import type {TControllerName, TOperationName} from 'configuration/types.ts';
 import * as controllers from '../../controllers/index.ts';
+import type {EventName} from '../../eventbus/events/types.ts';
 import * as operations from '../../operation/index.ts';
 import * as operationMetadata from '../../operation/metadata/index.ts';
 import type {IOperationMetadata} from '../../operation/metadata/types.ts';
-import {
-  type TimelineEventName,
-  TimelineEventNames,
-} from '../../timeline-event-names.ts';
 
 /**
  *
@@ -59,6 +56,41 @@ export class OperationMetadataProvider {
  */
 export class TimeLineEventNamesProvider {
   getEventNames() {
-    return Object.values(TimelineEventNames) as unknown as TimelineEventName;
+    return [
+      'timeline-play-toggle-request',
+      'timeline-play-request',
+      'timeline-stop-request',
+      'timeline-pause-request',
+      'timeline-seek-request',
+      'timeline-resize-request',
+      'timeline-container-request',
+      'timeline-duration-request',
+      'timeline-request-current-timeline',
+      'timeline-duration',
+      'timeline-time',
+      'timeline-seeked',
+      'timeline-complete',
+      'timeline-restart',
+      'timeline-play',
+      'timeline-stop',
+      'timeline-pause',
+      'timeline-seek',
+      'timeline-resize',
+      'timeline-current-timeline-change',
+      'timeline-firstframe',
+      'request-instance',
+      'request-action',
+      'request-function',
+      'request-timeline-uri',
+      'before-request-timeline-uri',
+      'request-engine-root',
+      'request-current-timeline-position',
+      'request-timeline-cleanup',
+      'request-label-collection',
+      'request-label-collections',
+      'request-current-language',
+      'language-change',
+      'dom-mutation',
+    ] as unknown as EventName[];
   }
 }

@@ -1,7 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {LottieController} from '../../../controllers/lottie-controller.js';
 import type {IEventbus} from '../../../eventbus/types.js';
-import {TimelineEventNames} from '../../../timeline-event-names.js';
 import {createMockEventbus} from '../../fixtures/eventbus-factory.js';
 import {createMockJQueryElement} from '../../fixtures/jquery-factory.js';
 
@@ -147,13 +146,10 @@ describe('LottieController', () => {
       // Setup mock eventbus to provide label collection data
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === TimelineEventNames.REQUEST_LABEL_COLLECTIONS &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
         }
-        if (eventName === TimelineEventNames.REQUEST_CURRENT_LANGUAGE && args) {
+        if (eventName === 'request-current-language' && args) {
           args[0].language = 'en-US';
         }
       });
@@ -178,7 +174,7 @@ describe('LottieController', () => {
       controller.attach(mockEventbus);
 
       expect(mockEventbus.broadcast).toHaveBeenCalledWith(
-        TimelineEventNames.REQUEST_CURRENT_LANGUAGE,
+        'request-current-language',
         expect.any(Array)
       );
     });
@@ -187,13 +183,10 @@ describe('LottieController', () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === TimelineEventNames.REQUEST_LABEL_COLLECTIONS &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
         }
-        if (eventName === TimelineEventNames.REQUEST_CURRENT_LANGUAGE && args) {
+        if (eventName === 'request-current-language' && args) {
           args[0].language = 'en-US';
         }
       });
@@ -218,7 +211,7 @@ describe('LottieController', () => {
       controller.attach(mockEventbus);
 
       expect(mockEventbus.on).toHaveBeenCalledWith(
-        TimelineEventNames.LANGUAGE_CHANGE,
+        'language-change',
         expect.any(Function)
       );
     });
@@ -289,13 +282,10 @@ describe('LottieController', () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === TimelineEventNames.REQUEST_LABEL_COLLECTIONS &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
         }
-        if (eventName === TimelineEventNames.REQUEST_CURRENT_LANGUAGE && args) {
+        if (eventName === 'request-current-language' && args) {
           args[0].language = 'en-US';
         }
       });
@@ -335,13 +325,10 @@ describe('LottieController', () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (
-          eventName === TimelineEventNames.REQUEST_LABEL_COLLECTIONS &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Hello'}]];
         }
-        if (eventName === TimelineEventNames.REQUEST_CURRENT_LANGUAGE && args) {
+        if (eventName === 'request-current-language' && args) {
           args[0].language = 'en-US';
         }
       });
@@ -402,17 +389,14 @@ describe('LottieController', () => {
       // Mock broadcast to provide initial data without breaking handler invocation
       const originalBroadcast = testEventbus.broadcast;
       (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (
-          eventName === TimelineEventNames.REQUEST_LABEL_COLLECTIONS &&
-          args
-        ) {
+        if (eventName === 'request-label-collections' && args) {
           args[1].labelCollections = [[{code: 'en-US', label: 'Hello'}]];
         }
-        if (eventName === TimelineEventNames.REQUEST_CURRENT_LANGUAGE && args) {
+        if (eventName === 'request-current-language' && args) {
           args[0].language = 'en-US';
         }
         // Call original to invoke handlers
-        originalBroadcast.call(testEventbus, eventName, args);
+        originalBroadcast.call(testEventbus, eventName as any, args as any);
       };
 
       controller.attach(testEventbus);
@@ -420,7 +404,7 @@ describe('LottieController', () => {
       expect(controller.currentLanguage).toBe('en-US');
 
       // Now broadcast language change - this will invoke the registered handler
-      testEventbus.broadcast(TimelineEventNames.LANGUAGE_CHANGE, ['nl-NL']);
+      testEventbus.broadcast('language-change', ['nl-NL']);
 
       // Animation should be recreated with new language
       expect(controller.currentLanguage).toBe('nl-NL');

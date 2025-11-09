@@ -22,7 +22,6 @@ import {
   setOperationData,
   when,
 } from '../../operation/index.ts';
-import {TimelineEventNames} from '../../timeline-event-names.ts';
 import type {IEligiusEngine} from '../../types.ts';
 
 type CreateOptionListContext = {
@@ -120,7 +119,7 @@ describe<CreateOptionListContext>('Create option list', () => {
       'BroadcastLanguageChange'
     );
     eventActionCreator.addStartOperationByType(broadcastEvent, {
-      eventName: TimelineEventNames.LANGUAGE_CHANGE,
+      eventName: 'language-change',
       eventArgs: ['$operationData.eventTarget.value'],
     });
 
@@ -134,12 +133,9 @@ describe<CreateOptionListContext>('Create option list', () => {
   });
   test<CreateOptionListContext>('should create a selector and attach a change controller', async context => {
     let selectedLang = '';
-    context.eventbus.on(
-      TimelineEventNames.LANGUAGE_CHANGE,
-      (languageCode: string) => {
-        selectedLang = languageCode;
-      }
-    );
+    context.eventbus.on('language-change', (languageCode: string) => {
+      selectedLang = languageCode;
+    });
 
     const engineFactory = new EngineFactory(
       new EligiusResourceImporter(),

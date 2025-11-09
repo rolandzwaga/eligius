@@ -11,6 +11,9 @@ src/operation/metadata/*.ts
 !src/operation/metadata/types.ts
 src/controllers/metadata/*.ts
 !src/controllers/metadata/types.ts
+src/eventbus/events/metadata/*.ts
+!src/eventbus/events/metadata/types.ts
+src/eventbus/events/types.ts
 coverage/
 *.log
 /.claude/settings.local.json

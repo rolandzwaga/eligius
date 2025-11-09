@@ -16,12 +16,12 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     const {eventbus} = context;
 
     let called = 0;
-    eventbus.on('test', val => {
+    eventbus.on('test' as any, val => {
       called += val;
     });
 
     // test
-    eventbus.broadcast('test', [1]);
+    eventbus.broadcast('test' as any, [1]);
 
     // expect
     expect(called).to.equal(1);
@@ -30,13 +30,13 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     // given
     const {eventbus} = context;
     let called = 0;
-    eventbus.once('test', val => {
+    eventbus.once('test' as any, val => {
       called += val;
     });
 
     // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcast('test', [1]);
+    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('test' as any, [1]);
 
     // expect
     expect(called).to.be.equal(1);
@@ -45,13 +45,13 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     // given
     const {eventbus} = context;
     let called = 0;
-    const remover = eventbus.once('test', val => {
+    const remover = eventbus.once('test' as any, val => {
       called += val;
     });
 
     // test
     remover();
-    eventbus.broadcast('test', [1]);
+    eventbus.broadcast('test' as any, [1]);
 
     // expect
     expect(called).to.be.equal(0);
@@ -62,7 +62,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     let called = 0;
     const topic = 'topic';
     eventbus.on(
-      'test',
+      'test' as any,
       val => {
         called += val;
       },
@@ -70,8 +70,8 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     );
 
     // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcastForTopic('test', topic, [1]);
+    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcastForTopic('test' as any, topic, [1]);
 
     // expect
     expect(called).to.be.equal(1);
@@ -89,8 +89,8 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.registerInterceptor('test', interceptor);
 
     // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcast('test2', [1]);
+    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('test2' as any, [1]);
 
     // expect
     expect(called).to.equal(1);
@@ -109,7 +109,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
 
     // test
     remover();
-    eventbus.broadcast('test', [1]);
+    eventbus.broadcast('test' as any, [1]);
 
     // expect
     expect(called).to.equal(0);
@@ -128,8 +128,8 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.registerInterceptor('test', interceptor, topic);
 
     // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcastForTopic('test', topic, [1]);
+    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcastForTopic('test' as any, topic, [1]);
 
     // expect
     expect(called).to.be.equal(1);
@@ -146,11 +146,11 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       },
     };
     eventbus.registerInterceptor('test', interceptor);
-    eventbus.on('test', val => {
+    eventbus.on('test' as any, val => {
       called1 += val;
     });
     eventbus.on(
-      'test',
+      'test' as any,
       val => {
         called2 += val;
       },
@@ -158,8 +158,8 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     );
 
     // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcastForTopic('test', topic, [1]);
+    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcastForTopic('test' as any, topic, [1]);
 
     // expect
     expect(called1).to.be.equal(10);
@@ -178,8 +178,8 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.registerEventlistener(listener);
 
     // test
-    eventbus.broadcast('test', [1]);
-    eventbus.broadcastForTopic('test2', topic, [100]);
+    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcastForTopic('test2' as any as any, topic, [100]);
 
     // expect
     expect(received.length).to.be.equal(2);
@@ -188,7 +188,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     expect(received[0][1]).to.be.undefined;
     expect(received[0][2][0]).to.equal(1);
 
-    expect(received[1][0]).to.equal('test2');
+    expect(received[1][0]).to.equal('test2' as any);
     expect(received[1][1]).to.equal(topic);
     expect(received[1][2][0]).to.equal(100);
   });
@@ -206,7 +206,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
 
     // test
     remover();
-    eventbus.broadcast('test', [1]);
+    eventbus.broadcast('test' as any, [1]);
 
     // expect
     expect(received.length).to.be.equal(0);

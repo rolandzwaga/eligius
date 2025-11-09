@@ -1,25 +1,38 @@
+import type {EventMap, EventName} from './events/types.ts';
+
+export type {EventMap, EventName};
+
 export type TEventHandler = (...args: any[]) => void;
 export type TEventbusRemover = () => void;
 
 export interface IEventbus {
   clear(): void;
-  on(
-    eventName: string,
-    eventHandler: TEventHandler,
+
+  on<E extends EventName>(
+    eventName: E,
+    eventHandler: (...args: EventMap[E]) => void,
     eventTopic?: string
   ): TEventbusRemover;
-  off(
-    eventName: string,
-    eventHandler: TEventHandler,
+
+  off<E extends EventName>(
+    eventName: E,
+    eventHandler: (...args: EventMap[E]) => void,
     eventTopic?: string
   ): void;
-  once(
-    eventName: string,
-    eventHandler: TEventHandler,
+
+  once<E extends EventName>(
+    eventName: E,
+    eventHandler: (...args: EventMap[E]) => void,
     eventTopic?: string
   ): TEventbusRemover;
-  broadcast(eventName: string, args?: any[]): void;
-  broadcastForTopic(eventName: string, eventTopic: string, args?: any[]): void;
+
+  broadcast<E extends EventName>(eventName: E, args: EventMap[E]): void;
+
+  broadcastForTopic<E extends EventName>(
+    eventName: E,
+    eventTopic: string,
+    args: EventMap[E]
+  ): void;
   registerEventlistener(eventbusListener: IEventbusListener): TEventbusRemover;
   registerInterceptor(
     eventName: string,

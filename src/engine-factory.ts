@@ -21,7 +21,6 @@ import {
   type TEventbusRemover,
 } from './eventbus/index.ts';
 import {LanguageManager} from './language-manager.ts';
-import {TimelineEventNames} from './timeline-event-names.ts';
 import type {
   IConfigurationResolver,
   IEligiusEngine,
@@ -75,19 +74,16 @@ export class EngineFactory implements IEngineFactory {
 
     this._eventRemovers.push(
       this._eventbus.on(
-        TimelineEventNames.REQUEST_INSTANCE,
+        'request-instance',
         this._requestInstanceHandler.bind(this)
       )
     );
     this._eventRemovers.push(
-      this._eventbus.on(
-        TimelineEventNames.REQUEST_ACTION,
-        this._requestActionHandler.bind(this)
-      )
+      this._eventbus.on('request-action', this._requestActionHandler.bind(this))
     );
     this._eventRemovers.push(
       this._eventbus.on(
-        TimelineEventNames.REQUEST_FUNCTION,
+        'request-function',
         this._requestFunctionHandler.bind(this)
       )
     );
@@ -107,7 +103,7 @@ export class EngineFactory implements IEngineFactory {
     _hotkeysEvent: HotkeysEvent
   ): void | boolean {
     keyboardEvent.preventDefault();
-    this._eventbus.broadcast(TimelineEventNames.PLAY_TOGGLE_REQUEST);
+    this._eventbus.broadcast('timeline-play-toggle-request', []);
     return false;
   }
 
@@ -128,17 +124,17 @@ export class EngineFactory implements IEngineFactory {
           if (message.type === 'playcontrol') {
             switch (message.data.kind) {
               case 'play':
-                this._eventbus.broadcast(TimelineEventNames.PLAY_REQUEST);
+                this._eventbus.broadcast('timeline-play-request', []);
                 break;
               case 'stop':
-                this._eventbus.broadcast(TimelineEventNames.STOP_REQUEST);
+                this._eventbus.broadcast('timeline-stop-request', []);
                 break;
               case 'pause':
-                this._eventbus.broadcast(TimelineEventNames.PAUSE_REQUEST);
+                this._eventbus.broadcast('timeline-pause-request', []);
                 break;
               case 'seek':
-                this._eventbus.broadcast(TimelineEventNames.SEEK_REQUEST, [
-                  message.data.args,
+                this._eventbus.broadcast('timeline-seek-request', [
+                  (message.data.args ?? 0) as number,
                 ]);
                 break;
             }
@@ -178,7 +174,7 @@ export class EngineFactory implements IEngineFactory {
       this._resizeTimeout = -1;
     }
     this._resizeTimeout = setTimeout(() => {
-      this._eventbus.broadcast(TimelineEventNames.RESIZE);
+      this._eventbus.broadcast('timeline-resize', []);
     }, 200);
   }
 
@@ -235,7 +231,7 @@ export class EngineFactory implements IEngineFactory {
 
     this._eventRemovers.push(
       this._eventbus.registerInterceptor(
-        TimelineEventNames.REQUEST_TIMELINE_URI,
+        'request-timeline-uri',
         new RequestVideoUriInterceptor(this._eventbus)
       )
     );

@@ -194,7 +194,7 @@ export class NavigationController extends BaseController<INavigationControllerOp
         navData.next.videoUrlIndex,
       ]);
     } else {
-      this.eventbus?.broadcast('request-video-cleanup');
+      this.eventbus?.broadcast('request-video-cleanup', []);
     }
   }
 

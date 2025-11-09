@@ -1,4 +1,3 @@
-import {TimelineEventNames} from '../timeline-event-names.ts';
 import {internalResolve} from './helper/internal-resolve.ts';
 import {removeProperties} from './helper/remove-operation-properties.ts';
 import type {TOperation} from './types.ts';
@@ -39,9 +38,6 @@ export const customFunction: TOperation<
         internalResolve(resolve, {}, operationData);
       }
     };
-    this.eventbus.broadcast(TimelineEventNames.REQUEST_FUNCTION, [
-      systemName,
-      resultCallback,
-    ]);
+    this.eventbus.broadcast('request-function', [systemName, resultCallback]);
   });
 };

@@ -1,7 +1,6 @@
 import {expect} from 'chai';
 import {beforeEach, describe, type TestContext, test} from 'vitest';
 import {getImport} from '../../../operation/get-import.ts';
-import {TimelineEventNames} from '../../../timeline-event-names.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
 type GetImportSuiteContext = {
@@ -32,7 +31,7 @@ describe<GetImportSuiteContext>('get-import', () => {
     } as any);
 
     // expect
-    expect(context.eventName).to.equal(TimelineEventNames.REQUEST_FUNCTION);
+    expect(context.eventName).to.equal('request-function');
     expect(context.systemName).to.equal('thing');
     expect(context.importedThing).to.eql(result.importedInstance);
   });

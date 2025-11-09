@@ -47,7 +47,7 @@ describe('BaseController', () => {
       controller.addListener(mockEventbus, 'test-event', testMethod);
 
       // Trigger the event
-      mockEventbus.broadcast('test-event');
+      mockEventbus.broadcast('test-event' as any, []);
 
       expect(testMethod).toHaveBeenCalled();
     });
@@ -70,9 +70,9 @@ describe('BaseController', () => {
       expect(controller.eventListeners).toHaveLength(3);
 
       // Verify all handlers registered
-      mockEventbus.broadcast('event1');
-      mockEventbus.broadcast('event2');
-      mockEventbus.broadcast('event3');
+      mockEventbus.broadcast('event1' as any, []);
+      mockEventbus.broadcast('event2' as any, []);
+      mockEventbus.broadcast('event3' as any, []);
 
       expect(handler1).toHaveBeenCalled();
       expect(handler2).toHaveBeenCalled();
@@ -114,7 +114,7 @@ describe('BaseController', () => {
       controller.detach(mockEventbus);
 
       // Broadcast after detach should not call handler
-      mockEventbus.broadcast('test-event');
+      mockEventbus.broadcast('test-event' as any, []);
 
       // Handler should only have been called 0 times (never after detach)
       expect(handler).not.toHaveBeenCalled();

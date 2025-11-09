@@ -1,3 +1,4 @@
+import type {EventName} from '../eventbus/types.ts';
 import {removeProperties} from './helper/remove-operation-properties.ts';
 import {resolveEventArguments} from './helper/resolve-event-arguments.ts';
 import type {TOperation} from './types.ts';
@@ -36,11 +37,14 @@ export const broadcastEvent: TOperation<
   removeProperties(operationData, 'eventArgs', 'eventTopic', 'eventName');
 
   const eventArguments = resolveEventArguments(operationData, this, eventArgs);
-
   if (eventTopic) {
-    this.eventbus.broadcastForTopic(eventName, eventTopic, eventArguments);
+    this.eventbus.broadcastForTopic(
+      eventName as EventName,
+      eventTopic,
+      eventArguments as any
+    );
   } else {
-    this.eventbus.broadcast(eventName, eventArguments);
+    this.eventbus.broadcast(eventName as EventName, eventArguments as any);
   }
 
   return operationData;

@@ -119,7 +119,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     context.eventbus.on = vi.fn(
       (eventName: string, handler: (...args: any[]) => void) => {
         attachCount++;
-        return originalOn(eventName, handler);
+        return originalOn(eventName as any, handler as any);
       }
     );
 
@@ -169,7 +169,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     context.eventbus.on = vi.fn(
       (eventName: string, handler: (...args: any[]) => void) => {
         attachCount++;
-        return originalOn(eventName, handler);
+        return originalOn(eventName as any, handler as any);
       }
     );
 
@@ -214,7 +214,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     context.eventbus.on = vi.fn(
       (eventName: string, handler: (...args: any[]) => void) => {
         attachCount++;
-        return originalOn(eventName, handler);
+        return originalOn(eventName as any, handler as any);
       }
     );
 
@@ -274,7 +274,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     context.eventbus.on = vi.fn(
       (eventName: string, handler: (...args: any[]) => void) => {
         attachCount++;
-        return originalOn(eventName, handler);
+        return originalOn(eventName as any, handler as any);
       }
     );
 
@@ -325,7 +325,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     context.eventbus.on = vi.fn(
       (eventName: string, handler: (...args: any[]) => void) => {
         attachCount++;
-        return originalOn(eventName, handler);
+        return originalOn(eventName as any, handler as any);
       }
     );
 
@@ -390,7 +390,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     context.eventbus.on = vi.fn(
       (eventName: string, handler: (...args: any[]) => void) => {
         attachCount++;
-        return originalOn(eventName, handler);
+        return originalOn(eventName as any, handler as any);
       }
     );
 
