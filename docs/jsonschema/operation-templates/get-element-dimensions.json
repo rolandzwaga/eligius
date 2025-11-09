@@ -5,13 +5,17 @@
   "type": "object",
   "title": "The getElementDimensions schema",
   "description": "This operation calculates the width and height of the given selected element.\nIt assigns this struct to the dimensions property on the current operation data.\nOptionally the width and height can be modified using the given modifier string.\n\nThe modifier string is formatted in the following way:\n\n<operator><amount><optional-side><optional-precentage>|<ratio-definition>\n\nWhere the ratio modifier is formatted in the following way:\n<side>[ar=<ratio-left>-<ratio-right>]\n\nFor example, this modifier '+100h|w[ar=8-1]' will modifiy the dimensions like this:\nit will add a value of 100 to the height and modify the width by a ratio of 8 to 1 relative to the height.",
-  "required": ["systemName"],
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,7 +29,9 @@
       "properties": {
         "modifier": {
           "$id": "#/properties/operationData/modifier",
-          "type": ["string"]
+          "type": [
+            "string"
+          ]
         }
       }
     }
