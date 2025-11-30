@@ -36,8 +36,6 @@ This section describes the different parts of this configuration.
 
 In the rest of this section the property name `systemName` will be shown often. The value of this property describes a named import.
 Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://rolandzwaga.github.io/eligius/classes/EligiusResourceImporter.html).
-However, this importer contains all of Eligius classes, function, providers, etc. So, bundling this with a presentation will bloat the bundle.
-Eligius offers a generator function for this: [`generateImporterSourceCode`](https://rolandzwaga.github.io/eligius/functions/generateImporterSourceCode.html). This function is able to generate source code (Typescript) for a custom resource importer based on a given Eligius configuration. This will result in an importer that only includes the code that is referenced in the configuration.
 
 ### engine
 

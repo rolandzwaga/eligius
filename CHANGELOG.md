@@ -1,5 +1,10 @@
 # Change Log
 
+## 1.5.2
+- Bug fixes in VideoJsTimelineProvider
+- Removed generateImporterSourceCode and subsequently remove the dependency on node libraries
+- Removed a lot of unused libraries and refactored the test suite to remove even more
+
 ## 1.5.1
 
 ### Fixes
