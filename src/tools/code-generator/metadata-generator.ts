@@ -51,10 +51,11 @@ const toPathAlias = (filePath: string): string => {
 };
 
 const project = new Project({
+  tsConfigFilePath: './tsconfig.json',
   compilerOptions: {
     noEmit: true, // Prevent emitting .js/.d.ts files for source files
   },
-  skipAddingFilesFromTsConfig: true, // Don't load files from tsconfig
+  skipAddingFilesFromTsConfig: true, // Don't load files from tsconfig (we'll add them manually)
 });
 project.addSourceFilesAtPaths('./src/operation/*.ts');
 
@@ -95,9 +96,11 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     return;
   }
 
+  // Use the type node's text (AST) rather than the resolved type (type checker)
+  // This preserves the original written type name (e.g., "IAddControllerToElementOperationData")
+  // instead of the resolved type which may be "any" for complex generic types
   const typeName =
     typeArgs[0]
-      .getType()
       .getText()
       .replace(/<[^>]+>/g, '')
       .split('.')
@@ -128,13 +131,37 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
 const toImport =
   (_sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
     const constraint = typeParam.getConstraint()!;
+    let declarationSourceFile: SourceFile | null = null;
 
-    const symbol =
-      constraint.getType().getAliasSymbol() ?? constraint.getType().getSymbol();
+    // First approach: If constraint is a TypeReference, use getDefinitionNodes()
+    // This follows through imports to find the actual definition location
+    if (constraint.isKind(SyntaxKind.TypeReference)) {
+      const typeName = constraint.getTypeName();
+      // Only Identifier has getDefinitionNodes(), not QualifiedName
+      if (typeName.isKind(SyntaxKind.Identifier)) {
+        // getDefinitionNodes() resolves through imports to find the actual definition
+        const definitionNodes = typeName.getDefinitionNodes();
+        if (definitionNodes.length > 0) {
+          declarationSourceFile = definitionNodes[0].getSourceFile();
+        }
+      }
+    }
 
-    const declarationSourceFile =
-      symbol?.getDeclarations()[0].getSourceFile() ??
-      constraint.getSourceFile();
+    // Second approach: Try via the type's alias symbol or symbol
+    if (!declarationSourceFile) {
+      const constraintType = constraint.getType();
+      const symbol =
+        constraintType.getAliasSymbol() ?? constraintType.getSymbol();
+      const declarations = symbol?.getDeclarations();
+      if (declarations && declarations.length > 0) {
+        declarationSourceFile = declarations[0].getSourceFile();
+      }
+    }
+
+    // Final fallback to the constraint's source file
+    if (!declarationSourceFile) {
+      declarationSourceFile = constraint.getSourceFile();
+    }
 
     const toPath = declarationSourceFile.getFilePath();
     const importPath = toPathAlias(toPath);

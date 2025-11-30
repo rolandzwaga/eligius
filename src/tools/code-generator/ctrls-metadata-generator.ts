@@ -53,10 +53,11 @@ const toPathAlias = (filePath: string): string => {
 };
 
 const project = new Project({
+  tsConfigFilePath: './tsconfig.json',
   compilerOptions: {
     noEmit: true, // Prevent emitting .js/.d.ts files for source files
   },
-  skipAddingFilesFromTsConfig: true, // Don't load files from tsconfig
+  skipAddingFilesFromTsConfig: true, // Don't load files from tsconfig (we'll add them manually)
 });
 project.addSourceFilesAtPaths('./src/controllers/*.ts');
 
@@ -130,8 +131,27 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
 const toImport =
   (_sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
     const constraint = typeParam.getConstraint()!;
+    let declarationSourceFile: SourceFile | null = null;
 
-    const declarationSourceFile = constraint.getSourceFile();
+    // First approach: If constraint is a TypeReference, use getDefinitionNodes()
+    // This follows through imports to find the actual definition location
+    if (constraint.isKind(SyntaxKind.TypeReference)) {
+      const typeName = constraint.getTypeName();
+      // Only Identifier has getDefinitionNodes(), not QualifiedName
+      if (typeName.isKind(SyntaxKind.Identifier)) {
+        // getDefinitionNodes() resolves through imports to find the actual definition
+        const definitionNodes = typeName.getDefinitionNodes();
+        if (definitionNodes.length > 0) {
+          declarationSourceFile = definitionNodes[0].getSourceFile();
+        }
+      }
+    }
+
+    // Fallback to the constraint's source file
+    if (!declarationSourceFile) {
+      declarationSourceFile = constraint.getSourceFile();
+    }
+
     const toPath = declarationSourceFile.getFilePath();
     const importPath = toPathAlias(toPath);
     return {
