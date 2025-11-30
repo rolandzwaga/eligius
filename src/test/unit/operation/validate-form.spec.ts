@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IValidateFormOperationData,
@@ -49,7 +48,7 @@ describe('validateForm', () => {
     });
 
     // Assert
-    expect(result.isValid).to.be.false;
+    expect(result.isValid).toBe(false);
     expect(result.validationErrors?.email).to.exist;
     expect(result.validationErrors?.name).to.not.exist;
   });
@@ -76,8 +75,8 @@ describe('validateForm', () => {
     });
 
     // Assert
-    expect(result.isValid).to.be.true;
-    expect(result.validationErrors).to.deep.equal({});
+    expect(result.isValid).toBe(true);
+    expect(result.validationErrors).toEqual({});
   });
 
   test('should validate with custom rules', () => {
@@ -106,8 +105,8 @@ describe('validateForm', () => {
     });
 
     // Assert
-    expect(result.isValid).to.be.false;
-    expect(result.validationErrors?.password).to.contain(
+    expect(result.isValid).toBe(false);
+    expect(result.validationErrors?.password).toContain(
       'at least 8 characters'
     );
   });
@@ -138,8 +137,8 @@ describe('validateForm', () => {
     });
 
     // Assert
-    expect(result.isValid).to.be.false;
-    expect(result.validationErrors?.email).to.contain('valid email');
+    expect(result.isValid).toBe(false);
+    expect(result.validationErrors?.email).toContain('valid email');
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -153,7 +152,7 @@ describe('validateForm', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('validateForm: selectedElement is required');
+    }).toThrow('validateForm: selectedElement is required');
   });
 
   test('should erase validationRules from operation data', () => {
@@ -176,6 +175,6 @@ describe('validateForm', () => {
     });
 
     // Assert
-    expect('validationRules' in operationData).to.be.false;
+    expect('validationRules' in operationData).toBe(false);
   });
 });

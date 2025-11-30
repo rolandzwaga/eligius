@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   getElementControllers,
   getElementData,
@@ -22,7 +21,7 @@ describe('getElementData', () => {
     getElementData(name, mockElement as any as JQuery);
 
     // expect
-    expect(mockElement.name).to.equal(name);
+    expect(mockElement.name).toBe(name);
   });
   test('should retrieve the eligiusEngineControllers data', () => {
     // given
@@ -32,6 +31,6 @@ describe('getElementData', () => {
     getElementControllers(mockElement as any as JQuery);
 
     // expect
-    expect(mockElement.name).to.equal('eligiusEngineControllers');
+    expect(mockElement.name).toBe('eligiusEngineControllers');
   });
 });

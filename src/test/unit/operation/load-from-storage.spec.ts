@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ILoadFromStorageOperationData,
@@ -37,7 +36,7 @@ describe('loadFromStorage', () => {
     });
 
     // Assert
-    expect(result.loadedValue).to.deep.equal({theme: 'dark', language: 'en'});
+    expect(result.loadedValue).toEqual({theme: 'dark', language: 'en'});
   });
 
   test('should load data from sessionStorage', () => {
@@ -57,7 +56,7 @@ describe('loadFromStorage', () => {
     });
 
     // Assert
-    expect(result.loadedValue).to.deep.equal({id: 123});
+    expect(result.loadedValue).toEqual({id: 123});
   });
 
   test('should return null when key not found', () => {
@@ -76,7 +75,7 @@ describe('loadFromStorage', () => {
     });
 
     // Assert
-    expect(result.loadedValue).to.be.null;
+    expect(result.loadedValue).toBeNull();
   });
 
   test('should load string value', () => {
@@ -96,7 +95,7 @@ describe('loadFromStorage', () => {
     });
 
     // Assert
-    expect(result.loadedValue).to.equal('simple value');
+    expect(result.loadedValue).toBe('simple value');
   });
 
   test('should load number value', () => {
@@ -116,7 +115,7 @@ describe('loadFromStorage', () => {
     });
 
     // Assert
-    expect(result.loadedValue).to.equal(42);
+    expect(result.loadedValue).toBe(42);
   });
 
   test('should throw error if key not provided', () => {
@@ -134,7 +133,7 @@ describe('loadFromStorage', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('loadFromStorage: key is required');
+    }).toThrow('loadFromStorage: key is required');
   });
 
   test('should erase storageType property', () => {
@@ -154,6 +153,6 @@ describe('loadFromStorage', () => {
     });
 
     // Assert
-    expect('storageType' in operationData).to.be.false;
+    expect('storageType' in operationData).toBe(false);
   });
 });

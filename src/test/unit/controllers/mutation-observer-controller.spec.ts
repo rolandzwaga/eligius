@@ -1,5 +1,5 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test, vi} from 'vitest';
+
+import {expect, beforeEach, describe, type TestContext, test, vi} from 'vitest';
 import {
   type IMutationEventPayload,
   type IMutationObserverControllerMetadata,
@@ -70,8 +70,8 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     controller.attach(eventbus);
 
     // then
-    expect((controller as any).observer).to.not.be.null;
-    expect((controller as any).observer).to.be.instanceOf(MutationObserver);
+    expect((controller as any).observer).not.toBeNull();
+    expect((controller as any).observer).toBeInstanceOf(MutationObserver);
   });
 
   // T008: Write test for attribute mutation observation
@@ -86,14 +86,14 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
 
     // Wait for MutationObserver callback to fire
     await vi.waitFor(() => {
-      expect(context.receivedPayload).to.not.be.null;
+      expect(context.receivedPayload).not.toBeNull();
     });
 
     // then
-    expect(context.receivedPayload).to.not.be.null;
-    expect(context.receivedPayload?.mutations).to.have.length.greaterThan(0);
-    expect(context.receivedPayload?.mutations[0].type).to.equal('attributes');
-    expect(context.receivedPayload?.target).to.equal(nativeElement);
+    expect(context.receivedPayload).not.toBeNull();
+    expect(context.receivedPayload?.mutations.length).toBeGreaterThan(0);
+    expect(context.receivedPayload?.mutations[0].type).toBe('attributes');
+    expect(context.receivedPayload?.target).toBe(nativeElement);
   });
 
   // T009: Write test for childList mutation observation
@@ -109,14 +109,14 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
 
     // Wait for MutationObserver callback to fire
     await vi.waitFor(() => {
-      expect(context.receivedPayload).to.not.be.null;
+      expect(context.receivedPayload).not.toBeNull();
     });
 
     // then
-    expect(context.receivedPayload).to.not.be.null;
-    expect(context.receivedPayload?.mutations).to.have.length.greaterThan(0);
-    expect(context.receivedPayload?.mutations[0].type).to.equal('childList');
-    expect(context.receivedPayload?.mutations[0].addedNodes).to.have.length(1);
+    expect(context.receivedPayload).not.toBeNull();
+    expect(context.receivedPayload?.mutations.length).toBeGreaterThan(0);
+    expect(context.receivedPayload?.mutations[0].type).toBe('childList');
+    expect(context.receivedPayload?.mutations[0].addedNodes).toHaveLength(1);
   });
 
   // T010: Write test for characterData mutation observation
@@ -152,7 +152,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
           const hasCharacterData = context.receivedPayload.mutations.some(
             m => m.type === 'characterData'
           );
-          expect(hasCharacterData).to.be.true;
+          expect(hasCharacterData).toBe(true);
         }
       },
       {timeout: 1000}
@@ -183,12 +183,12 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
 
     // Wait for mutation to be processed
     await vi.waitFor(() => {
-      expect(broadcastEventName).to.not.be.null;
+      expect(broadcastEventName).not.toBeNull();
     });
 
     // then
-    expect(broadcastEventName).to.equal('dom-mutation');
-    expect((eventbus.broadcast as any).mock.calls.length).to.be.greaterThan(0);
+    expect(broadcastEventName).toBe('dom-mutation');
+    expect((eventbus.broadcast as any).mock.calls.length).toBeGreaterThan(0);
   });
 
   // T012: Write test for mutation event payload structure
@@ -203,20 +203,20 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
 
     // Wait for mutation to be processed
     await vi.waitFor(() => {
-      expect(context.receivedPayload).to.not.be.null;
+      expect(context.receivedPayload).not.toBeNull();
     });
 
     // then - verify payload structure
     const payload = context.receivedPayload;
-    expect(payload).to.not.be.null;
-    expect(payload).to.have.property('mutations');
-    expect(payload).to.have.property('target');
-    expect(payload).to.have.property('timestamp');
+    expect(payload).not.toBeNull();
+    expect(payload).toHaveProperty('mutations');
+    expect(payload).toHaveProperty('target');
+    expect(payload).toHaveProperty('timestamp');
 
-    expect(payload?.mutations).to.be.an('array');
-    expect(payload?.target).to.equal(nativeElement);
-    expect(payload?.timestamp).to.be.a('number');
-    expect(payload?.timestamp).to.be.greaterThan(0);
+    expect(Array.isArray(payload?.mutations)).toBe(true);
+    expect(payload?.target).toBe(nativeElement);
+    expect(typeof payload?.timestamp).toBe('number');
+    expect(payload?.timestamp).toBeGreaterThan(0);
   });
 });
 
@@ -252,9 +252,9 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     controller.init(operationData);
 
     // then
-    expect(controller.operationData).to.not.be.null;
-    expect(controller.operationData).to.not.equal(operationData); // Should be a copy
-    expect(controller.operationData?.selectedElement).to.equal(
+    expect(controller.operationData).not.toBeNull();
+    expect(controller.operationData).not.toBe(operationData); // Should be a copy
+    expect(controller.operationData?.selectedElement).toBe(
       operationData.selectedElement
     );
   });
@@ -269,7 +269,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     controller.attach(eventbus);
 
     // then
-    expect((controller as any).observer).to.be.null;
+    expect((controller as any).observer).toBeNull();
   });
 
   // T024: Write test for detach() disconnecting observer
@@ -280,13 +280,13 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     controller.attach(eventbus);
 
     // Verify observer was created
-    expect((controller as any).observer).to.not.be.null;
+    expect((controller as any).observer).not.toBeNull();
 
     // when
     controller.detach(eventbus);
 
     // then
-    expect((controller as any).observer).to.be.null;
+    expect((controller as any).observer).toBeNull();
   });
 
   // T025: Write test verifying no events after detach
@@ -299,7 +299,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     // Verify observation works
     nativeElement.setAttribute('data-test', 'initial');
     await vi.waitFor(() => {
-      expect(context.receivedPayload).to.not.be.null;
+      expect(context.receivedPayload).not.toBeNull();
     });
 
     // when - detach and clear payload
@@ -313,7 +313,7 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     await new Promise(resolve => setTimeout(resolve, 100));
 
     // then - no new events should have been received
-    expect(context.receivedPayload).to.be.null;
+    expect(context.receivedPayload).toBeNull();
   });
 
   // T026: Write test for multiple attach/detach cycles (memory leak prevention)
@@ -325,14 +325,14 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     for (let i = 0; i < 10; i++) {
       controller.init(operationData);
       controller.attach(eventbus);
-      expect((controller as any).observer).to.not.be.null;
+      expect((controller as any).observer).not.toBeNull();
 
       controller.detach(eventbus);
-      expect((controller as any).observer).to.be.null;
+      expect((controller as any).observer).toBeNull();
     }
 
     // then - no errors should have occurred
-    expect(controller.operationData).to.not.be.null;
+    expect(controller.operationData).not.toBeNull();
   });
 
   // T027: Write test for duplicate attach() calls (guard against multiple observers)
@@ -349,8 +349,8 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     const secondObserver = (controller as any).observer;
 
     // then - should have created new observer each time
-    expect(firstObserver).to.not.be.null;
-    expect(secondObserver).to.not.be.null;
+    expect(firstObserver).not.toBeNull();
+    expect(secondObserver).not.toBeNull();
     // Note: This creates multiple observers. In Phase 6, we'll add guard logic.
   });
 });

@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISplitStringOperationData,
@@ -25,7 +24,7 @@ describe('splitString', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.resultArray).to.deep.equal(['apple', 'banana', 'cherry']);
+    expect(result.resultArray).toEqual(['apple', 'banana', 'cherry']);
   });
 
   test('should split string with limit', () => {
@@ -40,7 +39,7 @@ describe('splitString', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.resultArray).to.deep.equal(['a', 'b']);
+    expect(result.resultArray).toEqual(['a', 'b']);
   });
 
   test('should throw error if textContent not provided', () => {
@@ -55,6 +54,6 @@ describe('splitString', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('textContent is required');
+    }).toThrow('textContent is required');
   });
 });

@@ -1,5 +1,5 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
 
 type EventbusSuiteContext = {eventbus: IEventbus} & TestContext;
@@ -24,7 +24,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcast('test' as any, [1]);
 
     // expect
-    expect(called).to.equal(1);
+    expect(called).toBe(1);
   });
   test<EventbusSuiteContext>('should register an event handler once and let it get called only once', context => {
     // given
@@ -39,7 +39,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcast('test' as any, [1]);
 
     // expect
-    expect(called).to.be.equal(1);
+    expect(called).toBe(1);
   });
   test<EventbusSuiteContext>('should register an event handler once, but not be called after it was removed', context => {
     // given
@@ -54,7 +54,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcast('test' as any, [1]);
 
     // expect
-    expect(called).to.be.equal(0);
+    expect(called).toBe(0);
   });
   test<EventbusSuiteContext>('should only call handler for specified topic', context => {
     // given
@@ -74,7 +74,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcastForTopic('test' as any, topic, [1]);
 
     // expect
-    expect(called).to.be.equal(1);
+    expect(called).toBe(1);
   });
   test<EventbusSuiteContext>('should register and call the event interceptor', context => {
     // given
@@ -93,7 +93,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcast('test2' as any, [1]);
 
     // expect
-    expect(called).to.equal(1);
+    expect(called).toBe(1);
   });
   test<EventbusSuiteContext>('should register and not call the event interceptor after it was removed', context => {
     // given
@@ -112,7 +112,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcast('test' as any, [1]);
 
     // expect
-    expect(called).to.equal(0);
+    expect(called).toBe(0);
   });
   test<EventbusSuiteContext>('should register and call the event interceptor for the specified topic', context => {
     // given
@@ -132,7 +132,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcastForTopic('test' as any, topic, [1]);
 
     // expect
-    expect(called).to.be.equal(1);
+    expect(called).toBe(1);
   });
   test<EventbusSuiteContext>('should register and call the event interceptor and pass the new args to the event handler', context => {
     // given
@@ -162,8 +162,8 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcastForTopic('test' as any, topic, [1]);
 
     // expect
-    expect(called1).to.be.equal(10);
-    expect(called2).to.be.equal(1);
+    expect(called1).toBe(10);
+    expect(called2).toBe(1);
   });
   test<EventbusSuiteContext>('should register and call the specified eventlistener', context => {
     // given
@@ -182,15 +182,15 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcastForTopic('test2' as any as any, topic, [100]);
 
     // expect
-    expect(received.length).to.be.equal(2);
+    expect(received.length).toBe(2);
 
-    expect(received[0][0]).to.equal('test');
-    expect(received[0][1]).to.be.undefined;
-    expect(received[0][2][0]).to.equal(1);
+    expect(received[0][0]).toBe('test');
+    expect(received[0][1]).toBeUndefined();
+    expect(received[0][2][0]).toBe(1);
 
-    expect(received[1][0]).to.equal('test2' as any);
-    expect(received[1][1]).to.equal(topic);
-    expect(received[1][2][0]).to.equal(100);
+    expect(received[1][0]).toBe('test2' as any);
+    expect(received[1][1]).toBe(topic);
+    expect(received[1][2][0]).toBe(100);
   });
   test<EventbusSuiteContext>('should register and not call the specified eventlistener after it was removed', context => {
     // given
@@ -209,6 +209,6 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     eventbus.broadcast('test' as any, [1]);
 
     // expect
-    expect(received.length).to.be.equal(0);
+    expect(received.length).toBe(0);
   });
 });

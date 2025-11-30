@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   type IReparentElementOperationData,
   reparentElement,
@@ -33,8 +32,8 @@ describe('reparentElement', () => {
     applyOperation(reparentElement, operationData);
 
     // expect
-    expect(mockElement.calledRemove).to.be.true;
-    expect(mockElement.selector).to.equal('.parent-class');
+    expect(mockElement.calledRemove).toBe(true);
+    expect(mockElement.selector).toBe('.parent-class');
   });
 
   test('should remove the newParentSelector property from the operation data', () => {
@@ -49,6 +48,6 @@ describe('reparentElement', () => {
     const newData = applyOperation(reparentElement, operationData);
 
     // expect
-    expect('newParentSelector' in newData).to.be.false;
+    expect('newParentSelector' in newData).toBe(false);
   });
 });

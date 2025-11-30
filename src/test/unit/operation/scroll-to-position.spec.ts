@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IScrollToPositionOperationData,
@@ -48,9 +47,9 @@ describe('scrollToPosition', () => {
     });
 
     // Assert
-    expect(scrollX).to.equal(100);
-    expect(scrollY).to.equal(500);
-    expect(scrollOptions.behavior).to.equal('smooth');
+    expect(scrollX).toBe(100);
+    expect(scrollY).toBe(500);
+    expect(scrollOptions.behavior).toBe('smooth');
   });
 
   test('should scroll to position with auto behavior by default', () => {
@@ -73,7 +72,7 @@ describe('scrollToPosition', () => {
     });
 
     // Assert
-    expect(scrollOptions.behavior).to.equal('auto');
+    expect(scrollOptions.behavior).toBe('auto');
   });
 
   test('should throw error if x and y not provided', () => {
@@ -90,7 +89,7 @@ describe('scrollToPosition', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('scrollToPosition: x and y coordinates are required');
+    }).toThrow('scrollToPosition: x and y coordinates are required');
   });
 
   test('should erase x, y, and behavior properties', () => {
@@ -110,8 +109,8 @@ describe('scrollToPosition', () => {
     });
 
     // Assert
-    expect('x' in operationData).to.be.false;
-    expect('y' in operationData).to.be.false;
-    expect('behavior' in operationData).to.be.false;
+    expect('x' in operationData).toBe(false);
+    expect('y' in operationData).toBe(false);
+    expect('behavior' in operationData).toBe(false);
   });
 });

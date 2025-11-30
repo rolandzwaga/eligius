@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {TimelineActionEditor} from '../../../../configuration/api/action-editor.ts';
 import type {ConfigurationFactory} from '../../../../configuration/api/index.ts';
 import type {ITimelineActionConfiguration} from '../../../../configuration/types.ts';
@@ -40,8 +39,8 @@ describe<TimelineActionEditorSuiteContext>('TimelineActionEditor', () => {
 
     // test
     timelineActionEditor.setDuration(12, 40).getConfiguration(config => {
-      expect(config.duration.start).to.equal(12);
-      expect(config.duration.end).to.equal(40);
+      expect(config.duration.start).toBe(12);
+      expect(config.duration.end).toBe(40);
       return undefined;
     });
   });
@@ -51,8 +50,8 @@ describe<TimelineActionEditorSuiteContext>('TimelineActionEditor', () => {
 
     // test
     timelineActionEditor.setDuration(12).getConfiguration(config => {
-      expect(config.duration.start).to.equal(12);
-      expect(Object.hasOwn(config.duration, 'end')).to.be.false;
+      expect(config.duration.start).toBe(12);
+      expect(Object.hasOwn(config.duration, 'end')).toBe(false);
       return undefined;
     });
   });
@@ -61,7 +60,7 @@ describe<TimelineActionEditorSuiteContext>('TimelineActionEditor', () => {
     const {timelineActionEditor} = context;
 
     // expect
-    expect(() => timelineActionEditor.setDuration(12, 10)).throws(
+    expect(() => timelineActionEditor.setDuration(12, 10)).toThrow(
       'start position cannot be higher than end position'
     );
   });

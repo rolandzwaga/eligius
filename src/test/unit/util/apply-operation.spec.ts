@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IOperationScope} from '../../../operation/types.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -19,6 +18,6 @@ describe('applyOperation', () => {
     );
 
     // expect
-    expect(newOperationData.applied).to.be.true;
+    expect(newOperationData.applied).toBe(true);
   });
 });

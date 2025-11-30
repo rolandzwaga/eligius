@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   type IMathOperationData,
   type MathFunctionKeys,
@@ -29,7 +28,7 @@ describe('math', () => {
 
       // expect
       expect(result.mathResult).is.not.undefined;
-      expect(isNaN(result.mathResult!)).to.equal(false);
+      expect(isNaN(result.mathResult!)).toBe(false);
     });
   });
   test('Should resolve Math constants in args', () => {
@@ -50,7 +49,7 @@ describe('math', () => {
       const result = applyOperation(math, operationData);
 
       // expect
-      expect(result.mathResult).to.equal(Math[propName]);
+      expect(result.mathResult).toBe(Math[propName]);
     });
   });
 
@@ -72,8 +71,8 @@ describe('math', () => {
       const newData = applyOperation(math, operationData);
 
       // expect
-      expect('args' in newData).to.be.false;
-      expect('functionName' in newData).to.be.false;
+      expect('args' in newData).toBe(false);
+      expect('functionName' in newData).toBe(false);
     });
   });
 });

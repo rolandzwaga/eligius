@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import $ from 'jquery';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {LabelController} from '../../../controllers/index.ts';
 import {prepareValueForSerialization} from '../../../util/prepare-value-for-serialization.ts';
 
@@ -32,16 +31,16 @@ describe('prepareValueForSerialization', () => {
     const result = prepareValueForSerialization(object);
 
     // expect
-    expect(result.a).to.equal(1);
-    expect(result.b).to.equal('[jQuery object]');
-    expect(result.c).to.equal('(i) => i');
-    expect(result.d).to.eql([1, 'a', '[jQuery object]', '(i) => i']);
-    expect(result.e).to.be.null;
-    expect(result.f).to.be.undefined;
-    expect(result.g).to.equal('function(i) {');
+    expect(result.a).toBe(1);
+    expect(result.b).toBe('[jQuery object]');
+    expect(result.c).toBe('(i) => i');
+    expect(result.d).toEqual([1, 'a', '[jQuery object]', '(i) => i']);
+    expect(result.e).toBeNull();
+    expect(result.f).toBeUndefined();
+    expect(result.g).toBe('function(i) {');
     expect(result.controllerInstance.startsWith('class LabelController')).to.be
       .true;
-    expect(result.someObject.prop).to.be.true;
-    expect(result.simpleClass).to.equal('function SimpleClass() {');
+    expect(result.someObject.prop).toBe(true);
+    expect(result.simpleClass).toBe('function SimpleClass() {');
   });
 });

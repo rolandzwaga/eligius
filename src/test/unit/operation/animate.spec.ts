@@ -1,37 +1,31 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test, vi} from 'vitest';
 import {animate} from '../../../operation/animate.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-class MockElement {
-  properties: any;
-  duration: number = -1;
-  easing: string | (() => void) = '';
-  callback: () => void = () => undefined;
-
-  animate(
-    properties: any,
-    duration: number,
-    easing: string | (() => void),
-    callback: () => void
-  ) {
-    this.properties = properties;
-    this.duration = duration;
-    if (typeof easing === 'string') {
-      this.easing = easing;
-      this.callback = callback;
-      callback();
-    } else if (typeof easing === 'function') {
-      this.callback = easing;
-      easing();
-    }
-  }
+function createMockElement() {
+  return {
+    animate: vi.fn(
+      (
+        _properties: any,
+        _duration: number,
+        easing: string | (() => void),
+        callback?: () => void
+      ) => {
+        // Invoke callback immediately to simulate animation completion
+        if (typeof easing === 'function') {
+          easing();
+        } else if (typeof callback === 'function') {
+          callback();
+        }
+      }
+    ),
+  };
 }
 
 describe('animate', () => {
   test('should animate with easing when defined', async () => {
     // given
-    const mockElement = new MockElement();
+    const mockElement = createMockElement();
 
     const operationData = {
       animationEasing: 'slow',
@@ -44,11 +38,13 @@ describe('animate', () => {
     const data = await applyOperation(animate, operationData);
 
     // expect
-    expect(data.selectedElement).to.equal(operationData.selectedElement);
+    expect(data.selectedElement).toBe(operationData.selectedElement);
+    expect(mockElement.animate).toHaveBeenCalledWith({}, 5, 'slow', expect.any(Function));
   });
+
   test('should animate without easing when not defined', async () => {
     // given
-    const mockElement = new MockElement();
+    const mockElement = createMockElement();
 
     const operationData = {
       selectedElement: mockElement as any as JQuery,
@@ -60,12 +56,13 @@ describe('animate', () => {
     const data = await applyOperation(animate, operationData);
 
     // expect
-    expect(data.selectedElement).to.equal(operationData.selectedElement);
+    expect(data.selectedElement).toBe(operationData.selectedElement);
+    expect(mockElement.animate).toHaveBeenCalledWith({}, 5, expect.any(Function));
   });
 
   test('should remove animationEasing, animationProperties and animationDuration from operation data', async () => {
     // given
-    const mockElement = new MockElement();
+    const mockElement = createMockElement();
 
     const operationData = {
       selectedElement: mockElement as any as JQuery,
@@ -77,8 +74,8 @@ describe('animate', () => {
     const data = await applyOperation(animate, operationData);
 
     // expect
-    expect('animationEasing' in operationData).to.be.false;
-    expect('animationProperties' in operationData).to.be.false;
-    expect('animationDuration' in operationData).to.be.false;
+    expect('animationEasing' in operationData).toBe(false);
+    expect('animationProperties' in operationData).toBe(false);
+    expect('animationDuration' in operationData).toBe(false);
   });
 });

@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {toggleClass} from '../../../operation/toggle-class.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -23,8 +22,8 @@ describe('toggleClass', () => {
     const newData = applyOperation(toggleClass, operationData);
 
     // expect
-    expect((mockElement as any).className).to.equal('testClass');
-    expect(newData).to.equal(operationData);
+    expect((mockElement as any).className).toBe('testClass');
+    expect(newData).toBe(operationData);
   });
 
   test('should remove the className property from the operation data', () => {
@@ -39,6 +38,6 @@ describe('toggleClass', () => {
     const newData = applyOperation(toggleClass, operationData);
 
     // expect
-    expect('className' in newData).to.be.false;
+    expect('className' in newData).toBe(false);
   });
 });

@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   EndableActionEditor,
   OperationEditor,
@@ -43,14 +42,14 @@ describe<EndableActionEditorSuiteContext>('EndableActionEditor', () => {
     const editor = endableActionEditor.editEndOperation('test');
 
     // expect
-    expect(editor).to.be.an.instanceOf(OperationEditor);
+    expect(editor).toBeInstanceOf(OperationEditor);
   });
   test<EndableActionEditorSuiteContext>('should throw an operation not found error', context => {
     // given
     const {endableActionEditor} = context;
 
     // expect
-    expect(() => endableActionEditor.editEndOperation('test2')).throws(
+    expect(() => endableActionEditor.editEndOperation('test2')).toThrow(
       'operation not found for id test2'
     );
   });
@@ -62,7 +61,7 @@ describe<EndableActionEditorSuiteContext>('EndableActionEditor', () => {
 
     // expect
     endableActionEditor.getConfiguration(config => {
-      expect(config.endOperations.length).to.equal(0);
+      expect(config.endOperations.length).toBe(0);
       return undefined;
     });
   });

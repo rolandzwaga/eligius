@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   OperationMetadataProvider,
   TimeLineEventNamesProvider,
@@ -14,8 +13,8 @@ describe('name-providers', () => {
     const eventNames = provider.getEventNames();
 
     // expect
-    expect(eventNames).to.not.be.undefined;
-    expect(eventNames.length > 0).to.be.true;
+    expect(eventNames).not.toBeUndefined();
+    expect(eventNames.length > 0).toBe(true);
   });
   test('should return the metadata for the given operation name', () => {
     // given
@@ -25,6 +24,6 @@ describe('name-providers', () => {
     const metadata = provider.getOperationMetadata('addClass');
 
     // expect
-    expect(metadata).to.not.be.undefined;
+    expect(metadata).not.toBeUndefined();
   });
 });

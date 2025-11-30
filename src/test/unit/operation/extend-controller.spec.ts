@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IController} from '../../../controllers/types.ts';
 import {extendController} from '../../../operation/extend-controller.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -20,8 +19,8 @@ describe('extendController', () => {
     const newData = applyOperation(extendController, operationData);
 
     // expect
-    expect((newData.controllerInstance as any).prop1).to.equal('prop1');
-    expect((newData.controllerInstance as any).prop2).to.equal('prop2');
+    expect((newData.controllerInstance as any).prop1).toBe('prop1');
+    expect((newData.controllerInstance as any).prop2).toBe('prop2');
   });
 
   test('should remove the extension from th operation data', () => {
@@ -39,6 +38,6 @@ describe('extendController', () => {
     const newData = applyOperation(extendController, operationData);
 
     // expect
-    expect('controllerExtension' in newData).to.be.false;
+    expect('controllerExtension' in newData).toBe(false);
   });
 });

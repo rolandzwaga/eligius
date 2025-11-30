@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   getFormData,
@@ -53,7 +52,7 @@ describe('getFormData', () => {
     });
 
     // Assert
-    expect(result.formData).to.deep.equal({
+    expect(result.formData).toEqual({
       email: 'test@example.com',
       age: '25',
       country: 'us',
@@ -71,7 +70,7 @@ describe('getFormData', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('getFormData: selectedElement is required');
+    }).toThrow('getFormData: selectedElement is required');
   });
 
   test('should throw error if selectedElement is not a form', () => {
@@ -89,7 +88,7 @@ describe('getFormData', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('getFormData: selectedElement must be a form element');
+    }).toThrow('getFormData: selectedElement must be a form element');
   });
 
   test('should handle empty form', () => {
@@ -108,7 +107,7 @@ describe('getFormData', () => {
     });
 
     // Assert
-    expect(result.formData).to.deep.equal({});
+    expect(result.formData).toEqual({});
   });
 
   test('should handle checkboxes and radio buttons', () => {
@@ -133,7 +132,7 @@ describe('getFormData', () => {
     });
 
     // Assert
-    expect(result.formData).to.deep.equal({
+    expect(result.formData).toEqual({
       subscribe: 'yes',
       gender: 'male',
     });
@@ -162,7 +161,7 @@ describe('getFormData', () => {
     });
 
     // Assert
-    expect(result.formData!.name).to.equal('John');
+    expect(result.formData!.name).toBe('John');
     // jQuery serializeArray handles multiple values by creating array or taking last value
     expect(result.formData!.interests).to.exist;
   });

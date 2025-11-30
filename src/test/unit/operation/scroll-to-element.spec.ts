@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IScrollToElementOperationData,
@@ -56,9 +55,9 @@ describe('scrollToElement', () => {
     });
 
     // Assert
-    expect(scrollCalled).to.be.true;
-    expect(scrollOptions.behavior).to.equal('smooth');
-    expect(scrollOptions.block).to.equal('start');
+    expect(scrollCalled).toBe(true);
+    expect(scrollOptions.behavior).toBe('smooth');
+    expect(scrollOptions.block).toBe('start');
   });
 
   test('should scroll to element with auto behavior by default', () => {
@@ -83,8 +82,8 @@ describe('scrollToElement', () => {
     });
 
     // Assert
-    expect(scrollOptions.behavior).to.equal('auto');
-    expect(scrollOptions.block).to.equal('start');
+    expect(scrollOptions.behavior).toBe('auto');
+    expect(scrollOptions.block).toBe('start');
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -100,7 +99,7 @@ describe('scrollToElement', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('scrollToElement: selectedElement is required');
+    }).toThrow('scrollToElement: selectedElement is required');
   });
 
   test('should erase behavior, block, and inline properties', () => {
@@ -124,8 +123,8 @@ describe('scrollToElement', () => {
     });
 
     // Assert
-    expect('behavior' in operationData).to.be.false;
-    expect('block' in operationData).to.be.false;
-    expect('inline' in operationData).to.be.false;
+    expect('behavior' in operationData).toBe(false);
+    expect('block' in operationData).toBe(false);
+    expect('inline' in operationData).toBe(false);
   });
 });

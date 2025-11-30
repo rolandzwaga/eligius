@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {clearOperationData} from '../../../operation/clear-operation-data.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -16,7 +15,7 @@ describe('clearOperationData', () => {
     const newOperationData = applyOperation(clearOperationData, operationData);
 
     // expect
-    expect(newOperationData).to.not.equal(operationData);
+    expect(newOperationData).not.toBe(operationData);
   });
   test('should clear the given properties on the given operation data', () => {
     // given
@@ -34,9 +33,9 @@ describe('clearOperationData', () => {
     ) as typeof operationData;
 
     // expect
-    expect(newOperationData.bla).to.be.undefined;
-    expect(newOperationData.bla3).to.be.undefined;
-    expect(newOperationData.properties).to.be.undefined;
-    expect(newOperationData.bla2).to.be.true;
+    expect(newOperationData.bla).toBeUndefined();
+    expect(newOperationData.bla3).toBeUndefined();
+    expect(newOperationData.properties).toBeUndefined();
+    expect(newOperationData.bla2).toBe(true);
   });
 });

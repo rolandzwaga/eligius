@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   announceToScreenReader,
@@ -37,8 +36,8 @@ describe('announceToScreenReader', () => {
 
     const liveRegion = document.getElementById('aria-live-region');
     expect(liveRegion).to.exist;
-    expect(liveRegion?.textContent).to.equal('Test announcement');
-    expect(liveRegion?.getAttribute('aria-live')).to.equal('polite');
+    expect(liveRegion?.textContent).toBe('Test announcement');
+    expect(liveRegion?.getAttribute('aria-live')).toBe('polite');
   });
 
   test('should throw error if message not provided', () => {
@@ -52,7 +51,7 @@ describe('announceToScreenReader', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('message is required');
+    }).toThrow('message is required');
   });
 
   test('should erase message and priority properties', () => {
@@ -67,7 +66,7 @@ describe('announceToScreenReader', () => {
       operations: [],
     });
 
-    expect('message' in operationData).to.be.false;
-    expect('priority' in operationData).to.be.false;
+    expect('message' in operationData).toBe(false);
+    expect('priority' in operationData).toBe(false);
   });
 });

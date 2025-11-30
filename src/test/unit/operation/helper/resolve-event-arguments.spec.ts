@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {resolveEventArguments} from '../../../../operation/helper/resolve-event-arguments.ts';
 import type {IOperationScope} from '../../../../operation/index.ts';
 
@@ -13,7 +12,7 @@ describe('resolveEventArguments', () => {
     const resolved = resolveEventArguments(operationData, operationScope);
 
     // expect
-    expect(resolved).to.be.undefined;
+    expect(resolved).toBeUndefined();
   });
   test('should resolve the given event argument', () => {
     // given
@@ -33,7 +32,7 @@ describe('resolveEventArguments', () => {
     );
 
     // expect
-    expect(resolved?.length).to.equal(1);
-    expect(resolved?.[0]).to.equal('test');
+    expect(resolved?.length).toBe(1);
+    expect(resolved?.[0]).toBe('test');
   });
 });

@@ -1,19 +1,15 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test, vi} from 'vitest';
 import type {IEventbus} from '../../../eventbus/index.ts';
 import {customFunction} from '../../../operation/custom-function.ts';
 import type {IOperationScope, TOperation} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-class MockEventbus {
-  testFunction: Function;
-  constructor(testFunction: Function) {
-    this.testFunction = testFunction;
-  }
-
-  broadcast(_eventName: string, args: any[]) {
-    args[1](this.testFunction);
-  }
+function createMockEventbusWithFunction(testFunction: Function) {
+  return {
+    broadcast: vi.fn((_eventName: string, args: any[]) => {
+      args[1](testFunction);
+    }),
+  };
 }
 
 describe('customFunction', () => {
@@ -24,12 +20,13 @@ describe('customFunction', () => {
     };
 
     let called = false;
-    const func = function (this: IOperationScope, opData: TOperation) {
-      called = true;
-      expect(opData).to.equal(operationData);
-      expect(this.eventbus).to.equal(mockEventbus);
-    };
-    const mockEventbus = new MockEventbus(func);
+    const mockEventbus = createMockEventbusWithFunction(
+      function (this: IOperationScope, opData: TOperation) {
+        called = true;
+        expect(opData).toBe(operationData);
+        expect(this.eventbus).toBe(mockEventbus);
+      }
+    );
 
     // test
     await applyOperation(customFunction, operationData, {
@@ -39,23 +36,29 @@ describe('customFunction', () => {
     });
 
     // expect
-    expect(called).to.be.true;
+    expect(called).toBe(true);
+    expect(mockEventbus.broadcast).toHaveBeenCalledWith(
+      'request-function',
+      expect.any(Array)
+    );
   });
+
   test('should resolve and execute the specified function that itself returns a promise', async () => {
     // given
     const operationData = {
       systemName: 'testName',
     };
     let called = false;
-    const func = function (this: IOperationScope, opData: TOperation) {
-      return new Promise<void>(resolve => {
-        called = true;
-        expect(opData).to.equal(operationData);
-        expect(this.eventbus).to.equal(mockEventbus);
-        resolve();
-      });
-    };
-    const mockEventbus = new MockEventbus(func);
+    const mockEventbus = createMockEventbusWithFunction(
+      function (this: IOperationScope, opData: TOperation) {
+        return new Promise<void>(resolve => {
+          called = true;
+          expect(opData).toBe(operationData);
+          expect(this.eventbus).toBe(mockEventbus);
+          resolve();
+        });
+      }
+    );
 
     // test
     const result = await applyOperation(customFunction, operationData, {
@@ -65,7 +68,7 @@ describe('customFunction', () => {
     });
 
     // expect
-    expect(called).to.be.true;
+    expect(called).toBe(true);
     return result;
   });
 
@@ -75,15 +78,16 @@ describe('customFunction', () => {
       systemName: 'testName',
     };
     let called = false;
-    const func = function (this: IOperationScope, opData: TOperation) {
-      return new Promise<void>(resolve => {
-        called = true;
-        expect(opData).to.equal(operationData);
-        expect(this.eventbus).to.equal(mockEventbus);
-        resolve();
-      });
-    };
-    const mockEventbus = new MockEventbus(func);
+    const mockEventbus = createMockEventbusWithFunction(
+      function (this: IOperationScope, opData: TOperation) {
+        return new Promise<void>(resolve => {
+          called = true;
+          expect(opData).toBe(operationData);
+          expect(this.eventbus).toBe(mockEventbus);
+          resolve();
+        });
+      }
+    );
 
     // test
     const result = await applyOperation(customFunction, operationData, {
@@ -93,7 +97,7 @@ describe('customFunction', () => {
     });
 
     // expect
-    expect('systemName' in result).to.be.false;
+    expect('systemName' in result).toBe(false);
     return result;
   });
 });

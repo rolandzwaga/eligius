@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeAll, describe, test} from 'vitest';
+import {expect, beforeAll, describe, test} from 'vitest';
 import {clearGlobals, getGlobals} from '../../../operation/helper/globals.ts';
 import {
   type ISetGlobalDataOperationData,
@@ -25,8 +24,8 @@ describe('setGlobalData', () => {
     const globals = getGlobals();
 
     // expect
-    expect(result).to.eql({foo: 'bar', bar: 'foo', test: false});
-    expect(globals).to.eql({foo: 'bar', bar: 'foo'});
+    expect(result).toEqual({foo: 'bar', bar: 'foo', test: false});
+    expect(globals).toEqual({foo: 'bar', bar: 'foo'});
   });
 
   test('should remove the propertyNames property from the operation data', () => {
@@ -43,6 +42,6 @@ describe('setGlobalData', () => {
     const globals = getGlobals();
 
     // expect
-    expect('propertyNames' in result).to.be.false;
+    expect('propertyNames' in result).toBe(false);
   });
 });

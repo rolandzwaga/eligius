@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IToggleFormElementOperationData,
@@ -44,7 +43,7 @@ describe('toggleFormElement', () => {
     });
 
     // Assert
-    expect($input.prop('disabled')).to.be.true;
+    expect($input.prop('disabled')).toBe(true);
   });
 
   test('should enable input element', () => {
@@ -64,7 +63,7 @@ describe('toggleFormElement', () => {
     });
 
     // Assert
-    expect($input.prop('disabled')).to.be.false;
+    expect($input.prop('disabled')).toBe(false);
   });
 
   test('should disable button element', () => {
@@ -84,7 +83,7 @@ describe('toggleFormElement', () => {
     });
 
     // Assert
-    expect($button.prop('disabled')).to.be.true;
+    expect($button.prop('disabled')).toBe(true);
   });
 
   test('should disable select element', () => {
@@ -105,7 +104,7 @@ describe('toggleFormElement', () => {
     });
 
     // Assert
-    expect($select.prop('disabled')).to.be.true;
+    expect($select.prop('disabled')).toBe(true);
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -121,7 +120,7 @@ describe('toggleFormElement', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('toggleFormElement: selectedElement is required');
+    }).toThrow('toggleFormElement: selectedElement is required');
   });
 
   test('should erase enabled property from operation data', () => {
@@ -141,6 +140,6 @@ describe('toggleFormElement', () => {
     });
 
     // Assert
-    expect('enabled' in operationData).to.be.false;
+    expect('enabled' in operationData).toBe(false);
   });
 });

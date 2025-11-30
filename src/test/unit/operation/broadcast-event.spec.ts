@@ -1,26 +1,20 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test, vi, beforeEach} from 'vitest';
 import {broadcastEvent} from '../../../operation/broadcast-event.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-class MockEventbus {
-  eventName: string = '';
-  eventTopic: string = '';
-  eventArgs: any;
-
-  broadcast(eventName: string, eventArgs: any) {
-    this.eventName = eventName;
-    this.eventArgs = eventArgs;
-  }
-
-  broadcastForTopic(eventName: string, eventTopic: string, eventArgs: any) {
-    this.eventName = eventName;
-    this.eventArgs = eventArgs;
-    this.eventTopic = eventTopic;
-  }
-}
-
 describe('broadcastEvent', () => {
+  let mockEventbus: {
+    broadcast: ReturnType<typeof vi.fn>;
+    broadcastForTopic: ReturnType<typeof vi.fn>;
+  };
+
+  beforeEach(() => {
+    mockEventbus = {
+      broadcast: vi.fn(),
+      broadcastForTopic: vi.fn(),
+    };
+  });
+
   test('should broadcast the event through the given eventbus and clean up the operationdata', () => {
     // given
     const operationData = {
@@ -28,21 +22,21 @@ describe('broadcastEvent', () => {
       eventTopic: null,
       eventName: 'testEvent',
     };
-    const eventbus = new MockEventbus();
 
     // test
     const resultOperationData = applyOperation(broadcastEvent, operationData, {
       currentIndex: -1,
-      eventbus: eventbus as any,
+      eventbus: mockEventbus as any,
       operations: [],
     });
 
     // expect
-    expect(eventbus.eventName).to.be.equal('testEvent');
-    expect((resultOperationData as any).eventArgs).to.be.undefined;
-    expect((resultOperationData as any).eventTopic).to.be.undefined;
-    expect((resultOperationData as any).eventName).to.be.undefined;
+    expect(mockEventbus.broadcast).toHaveBeenCalledWith('testEvent', undefined);
+    expect((resultOperationData as any).eventArgs).toBeUndefined();
+    expect((resultOperationData as any).eventTopic).toBeUndefined();
+    expect((resultOperationData as any).eventName).toBeUndefined();
   });
+
   test('should broadcast the event through the given eventbus using the given topic and clean up the operationdata', () => {
     // given
     const operationData = {
@@ -50,22 +44,25 @@ describe('broadcastEvent', () => {
       eventTopic: 'testTopic',
       eventName: 'testEvent',
     };
-    const eventbus = new MockEventbus();
 
     // test
     const resultOperationData = applyOperation(broadcastEvent, operationData, {
       currentIndex: -1,
-      eventbus: eventbus as any,
+      eventbus: mockEventbus as any,
       operations: [],
     });
 
     // expect
-    expect(eventbus.eventName).to.be.equal('testEvent');
-    expect(eventbus.eventTopic).to.be.equal('testTopic');
-    expect((resultOperationData as any).eventArgs).to.be.undefined;
-    expect((resultOperationData as any).eventTopic).to.be.undefined;
-    expect((resultOperationData as any).eventName).to.be.undefined;
+    expect(mockEventbus.broadcastForTopic).toHaveBeenCalledWith(
+      'testEvent',
+      'testTopic',
+      undefined
+    );
+    expect((resultOperationData as any).eventArgs).toBeUndefined();
+    expect((resultOperationData as any).eventTopic).toBeUndefined();
+    expect((resultOperationData as any).eventName).toBeUndefined();
   });
+
   test('should broadcast the event using the specified arguments', () => {
     // given
     const args = ['arg1', 'arg2'];
@@ -74,23 +71,25 @@ describe('broadcastEvent', () => {
       eventTopic: 'testTopic',
       eventName: 'testEvent',
     };
-    const eventbus = new MockEventbus();
 
     // test
     const resultOperationData = applyOperation(broadcastEvent, operationData, {
       currentIndex: -1,
-      eventbus: eventbus as any,
+      eventbus: mockEventbus as any,
       operations: [],
     });
 
     // expect
-    expect(eventbus.eventName).to.be.equal('testEvent');
-    expect(eventbus.eventTopic).to.be.equal('testTopic');
-    expect(eventbus.eventArgs).to.have.all.members(args);
-    expect((resultOperationData as any).eventArgs).to.be.undefined;
-    expect((resultOperationData as any).eventTopic).to.be.undefined;
-    expect((resultOperationData as any).eventName).to.be.undefined;
+    expect(mockEventbus.broadcastForTopic).toHaveBeenCalledWith(
+      'testEvent',
+      'testTopic',
+      expect.arrayContaining(args)
+    );
+    expect((resultOperationData as any).eventArgs).toBeUndefined();
+    expect((resultOperationData as any).eventTopic).toBeUndefined();
+    expect((resultOperationData as any).eventName).toBeUndefined();
   });
+
   test('should broadcast the event using the resolved arguments', () => {
     // given
     const args = ['$operationdata.arg1', '$operationdata.arg2'];
@@ -101,22 +100,23 @@ describe('broadcastEvent', () => {
       eventTopic: 'testTopic',
       eventName: 'testEvent',
     };
-    const eventbus = new MockEventbus();
 
     // test
     const resultOperationData = applyOperation(broadcastEvent, operationData, {
       currentIndex: -1,
-      eventbus: eventbus as any,
+      eventbus: mockEventbus as any,
       operations: [],
     });
 
     // expect
-    expect(eventbus.eventName).to.be.equal('testEvent');
-    expect(eventbus.eventTopic).to.be.equal('testTopic');
-    expect(eventbus.eventArgs).to.have.all.members(['resolved1', 'resolved2']);
-    expect((resultOperationData as any).eventArgs).to.be.undefined;
-    expect((resultOperationData as any).eventTopic).to.be.undefined;
-    expect((resultOperationData as any).eventName).to.be.undefined;
+    expect(mockEventbus.broadcastForTopic).toHaveBeenCalledWith(
+      'testEvent',
+      'testTopic',
+      expect.arrayContaining(['resolved1', 'resolved2'])
+    );
+    expect((resultOperationData as any).eventArgs).toBeUndefined();
+    expect((resultOperationData as any).eventTopic).toBeUndefined();
+    expect((resultOperationData as any).eventName).toBeUndefined();
   });
 
   test('should remove eventArgs, eventTopic and eventName from operation data', () => {
@@ -129,18 +129,17 @@ describe('broadcastEvent', () => {
       eventTopic: 'testTopic',
       eventName: 'testEvent',
     };
-    const eventbus = new MockEventbus();
 
     // test
     const resultOperationData = applyOperation(broadcastEvent, operationData, {
       currentIndex: -1,
-      eventbus: eventbus as any,
+      eventbus: mockEventbus as any,
       operations: [],
     });
 
     // expect
-    expect('eventArgs' in resultOperationData).to.be.false;
-    expect('eventTopic' in resultOperationData).to.be.false;
-    expect('eventName' in resultOperationData).to.be.false;
+    expect('eventArgs' in resultOperationData).toBe(false);
+    expect('eventTopic' in resultOperationData).toBe(false);
+    expect('eventName' in resultOperationData).toBe(false);
   });
 });

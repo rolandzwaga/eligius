@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISubstringTextOperationData,
@@ -26,7 +25,7 @@ describe('substringText', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.substring).to.equal('Hello');
+    expect(result.substring).toBe('Hello');
   });
 
   test('should extract substring without end', () => {
@@ -40,7 +39,7 @@ describe('substringText', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.substring).to.equal('World');
+    expect(result.substring).toBe('World');
   });
 
   test('should throw error if textContent not provided', () => {
@@ -55,6 +54,6 @@ describe('substringText', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('textContent is required');
+    }).toThrow('textContent is required');
   });
 });

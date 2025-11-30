@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {endWhen} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -15,7 +14,7 @@ describe('endWhen', () => {
     const result = applyOperation(endWhen, operationData, scope);
 
     // expect
-    expect(scope.whenEvaluation).to.be.undefined;
-    expect(result).to.be.equal(operationData);
+    expect(scope.whenEvaluation).toBeUndefined();
+    expect(result).toBe(operationData);
   });
 });

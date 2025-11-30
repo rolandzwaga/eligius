@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import camelCaseToDash from '../../../util/camel-case-to-dash.ts';
 
 describe('camel-case-to-dash', () => {
@@ -11,7 +10,7 @@ describe('camel-case-to-dash', () => {
     const output = camelCaseToDash(input);
 
     // expect
-    expect(output).to.equal('i-am-very-camel-cased');
+    expect(output).toBe('i-am-very-camel-cased');
   });
 
   test('should leave an already dashed string the same', () => {
@@ -22,7 +21,7 @@ describe('camel-case-to-dash', () => {
     const output = camelCaseToDash(input);
 
     // expect
-    expect(output).to.equal('i-am-very-camel-cased');
+    expect(output).toBe('i-am-very-camel-cased');
   });
 
   test('should leave normal string the same', () => {
@@ -33,6 +32,6 @@ describe('camel-case-to-dash', () => {
     const output = camelCaseToDash(input);
 
     // expect
-    expect(output).to.equal('i have nothing to do with dashes');
+    expect(output).toBe('i have nothing to do with dashes');
   });
 });

@@ -1,13 +1,5 @@
-import {expect} from 'chai';
 import $ from 'jquery';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  type TestContext,
-  test,
-  vi,
-} from 'vitest';
+import {expect, afterEach, beforeEach, describe, type TestContext, test, vi, } from 'vitest';
 import {RequestAnimationFrameTimelineProvider} from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
 
 type RequestAnimationFrameTimelineProviderSuiteContext = {
@@ -49,7 +41,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     provider.init();
 
     provider.start();
-    expect(provider.playState).to.equal('running');
+    expect(provider.playState).toBe('running');
   });
   test<RequestAnimationFrameTimelineProviderSuiteContext>('should pause and set correct play state', context => {
     const {provider} = context;
@@ -57,9 +49,9 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     provider.init();
 
     provider.start();
-    expect(provider.playState).to.equal('running');
+    expect(provider.playState).toBe('running');
     provider.pause();
-    expect(provider.playState).to.equal('stopped');
+    expect(provider.playState).toBe('stopped');
   });
   test<RequestAnimationFrameTimelineProviderSuiteContext>('should stop, set correct play state and reset position to zero', context => {
     const {provider} = context;
@@ -67,10 +59,10 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     provider.init();
 
     provider.start();
-    expect(provider.playState).to.equal('running');
+    expect(provider.playState).toBe('running');
     provider.stop();
-    expect(provider.playState).to.equal('stopped');
-    expect(provider.getPosition()).to.equal(0);
+    expect(provider.playState).toBe('stopped');
+    expect(provider.getPosition()).toBe(0);
   });
   test<RequestAnimationFrameTimelineProviderSuiteContext>('should dispatch TimelineEventNames.TIME 4 times', async context => {
     const {provider} = context;
@@ -88,6 +80,6 @@ describe('RequestAnimationFrameTimelineProvider', () => {
       }, 4000);
     });
 
-    expect(result.length).to.equal(4);
+    expect(result.length).toBe(4);
   });
 });

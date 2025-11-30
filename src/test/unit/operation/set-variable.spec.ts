@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import type {IOperationScope} from 'operation/types.ts';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   type ISetVariableOperationData,
   setVariable,
@@ -22,7 +21,7 @@ describe('setVariable', () => {
     applyOperation(setVariable, operationData, scope);
 
     // expect
-    expect(scope.variables?.foo).to.equal('bar');
+    expect(scope.variables?.foo).toBe('bar');
   });
 
   test('should remove the name and value props from the data', () => {
@@ -39,7 +38,7 @@ describe('setVariable', () => {
     applyOperation(setVariable, operationData, scope);
 
     // expect
-    expect('name' in operationData).to.be.false;
-    expect('value' in operationData).to.be.false;
+    expect('name' in operationData).toBe(false);
+    expect('value' in operationData).toBe(false);
   });
 });

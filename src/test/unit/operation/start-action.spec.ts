@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IAction} from '../../../action/types.ts';
 import type {TOperationData} from '../../../operation/index.ts';
 import {startAction} from '../../../operation/start-action.ts';
@@ -32,9 +31,9 @@ describe('startAction', () => {
     const result = await applyOperation(startAction, operationData);
 
     // expect
-    //expect(result.resolved).to.be.true;
-    expect((mockAction as any).resolved).to.be.true;
-    expect((result as any).actionOperationData).to.be.undefined;
+    //expect(result.resolved).toBe(true);
+    expect((mockAction as any).resolved).toBe(true);
+    expect((result as any).actionOperationData).toBeUndefined();
     return result;
   });
 
@@ -54,8 +53,8 @@ describe('startAction', () => {
     const result = await applyOperation(startAction, operationData);
 
     // expect
-    //expect(result.resolved).to.be.true;
-    expect('actionOperationData' in result).to.be.false;
+    //expect(result.resolved).toBe(true);
+    expect('actionOperationData' in result).toBe(false);
     return result;
   });
 });

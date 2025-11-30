@@ -1,57 +1,43 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {DOMEventListenerController} from '../../../controllers/dom-event-listener-controller.ts';
 import type {IEventbus} from '../../../eventbus/index.ts';
+import {createMockAction} from '../../fixtures/action-factory.ts';
 
-class MockAction {
-  name: string;
-  startOperationData: any;
-  endOperationData: any;
-  constructor(actionName: string) {
-    this.name = actionName;
-  }
-
-  start(operationData: any) {
-    this.startOperationData = operationData;
-    return new Promise(resolve => resolve(operationData));
-  }
-
-  end(operationData: any) {
-    this.endOperationData = operationData;
-    return new Promise(resolve => resolve(operationData));
-  }
+function createMockEventbusWithActionCallback() {
+  return {
+    broadcast: vi.fn((eventName: string, args: any[]) => {
+      const [actionName, callBack] = args;
+      callBack(createMockAction(actionName));
+    }),
+  };
 }
 
-class MockEventbus {
-  eventname: string = '';
-  args: any;
-  broadcast(eventName: string, args: any[]) {
-    this.eventname = eventName;
-    this.args = args;
-    const [actionName, callBack] = args;
-    callBack(new MockAction(actionName));
-  }
-}
+function createMockElement(tagName = 'select') {
+  let storedEventName = '';
+  let storedEventHandler: Function = () => '';
 
-class MockElement {
-  eventName: string = '';
-  eventHandler: Function = () => '';
-  tagName = 'select';
-
-  on(eventName: string, eventHandler: Function) {
-    this.eventName = eventName;
-    this.eventHandler = eventHandler;
-  }
-
-  off(eventName: string) {
-    this.eventName = eventName;
-  }
+  return {
+    tagName,
+    get eventName() {
+      return storedEventName;
+    },
+    get eventHandler() {
+      return storedEventHandler;
+    },
+    on: vi.fn((eventName: string, eventHandler: Function) => {
+      storedEventName = eventName;
+      storedEventHandler = eventHandler;
+    }),
+    off: vi.fn((eventName: string) => {
+      storedEventName = eventName;
+    }),
+  };
 }
 
 type DOMEventListenerControllerSuiteContext = {
   controller: DOMEventListenerController;
   eventbus: IEventbus;
-  selectedElement: MockElement;
+  selectedElement: ReturnType<typeof createMockElement>;
   operationData: any;
 } & TestContext;
 
@@ -61,8 +47,8 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     withContext<DOMEventListenerControllerSuiteContext>(context);
 
     context.controller = new DOMEventListenerController();
-    context.eventbus = new MockEventbus() as unknown as IEventbus;
-    context.selectedElement = new MockElement();
+    context.eventbus = createMockEventbusWithActionCallback() as unknown as IEventbus;
+    context.selectedElement = createMockElement();
     context.operationData = {
       selectedElement: context.selectedElement,
       eventName: 'test',
@@ -76,9 +62,9 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     // given
     const {controller} = context;
 
-    expect(controller.name).to.equal('DOMEventListenerController');
-    expect(controller.operationData).to.be.undefined;
-    expect(controller.actionInstanceInfos).to.be.undefined;
+    expect(controller.name).toBe('DOMEventListenerController');
+    expect(controller.operationData).toBeUndefined();
+    expect(controller.actionInstanceInfos).toBeUndefined();
   });
   test<DOMEventListenerControllerSuiteContext>('should initialize the DOMEventListenerController', context => {
     // given
@@ -87,14 +73,14 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     controller.init(operationData);
 
     // expect
-    expect(controller.operationData?.selectedElement).to.equal(
+    expect(controller.operationData?.selectedElement).toBe(
       operationData.selectedElement
     );
-    expect(controller.operationData?.eventName).to.equal(
+    expect(controller.operationData?.eventName).toBe(
       operationData.eventName
     );
-    expect(controller.operationData?.actions.length).to.equal(2);
-    expect(controller.operationData?.actionOperationData?.test).to.equal(
+    expect(controller.operationData?.actions.length).toBe(2);
+    expect(controller.operationData?.actionOperationData?.test).toBe(
       'test'
     );
   });
@@ -108,16 +94,16 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     controller.attach(eventbus);
 
     // expect
-    expect(controller.actionInstanceInfos?.length).to.equal(2);
-    expect(controller.actionInstanceInfos?.[0].action?.name).to.equal(
+    expect(controller.actionInstanceInfos?.length).toBe(2);
+    expect(controller.actionInstanceInfos?.[0].action?.name).toBe(
       'actionName1'
     );
-    expect(controller.actionInstanceInfos?.[1].action?.name).to.equal(
+    expect(controller.actionInstanceInfos?.[1].action?.name).toBe(
       'actionName2'
     );
-    expect(controller.actionInstanceInfos?.[0].start).to.be.true;
-    expect(controller.actionInstanceInfos?.[1].start).to.be.true;
-    expect(operationData.selectedElement.eventName).to.equal('test');
+    expect(controller.actionInstanceInfos?.[0].start).toBe(true);
+    expect(controller.actionInstanceInfos?.[1].start).toBe(true);
+    expect(operationData.selectedElement.eventName).toBe('test');
   });
   test<DOMEventListenerControllerSuiteContext>('should detach properly', context => {
     // given
@@ -129,7 +115,7 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     controller.detach(eventbus as any as IEventbus);
 
     // expect
-    expect(operationData.selectedElement.eventName).to.equal('test');
+    expect(operationData.selectedElement.eventName).toBe('test');
   });
   test<DOMEventListenerControllerSuiteContext>('should call the select event handler', async context => {
     // given
@@ -163,29 +149,38 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     });
 
     expect(
-      (controller.actionInstanceInfos?.[0].action as unknown as MockAction)
+      (controller.actionInstanceInfos?.[0].action as unknown as ReturnType<typeof createMockAction>)
         .startOperationData
-    ).to.eql(expectedOperatonData);
+    ).toEqual(expectedOperatonData);
     expect(
-      (controller.actionInstanceInfos?.[1].action as unknown as MockAction)
+      (controller.actionInstanceInfos?.[1].action as unknown as ReturnType<typeof createMockAction>)
         .startOperationData
-    ).to.eql(expectedOperatonData);
+    ).toEqual(expectedOperatonData);
   });
+
   test<DOMEventListenerControllerSuiteContext>('should call the textinput event handler', async context => {
     // given
-    const {controller, operationData, eventbus} = context;
+    const {controller, eventbus} = context;
+    const inputElement = createMockElement('input');
 
     const event = {
       target: {
         value: 'testTextInput',
       },
     };
-    operationData.selectedElement.tagName = 'input';
+    const operationData = {
+      selectedElement: inputElement,
+      eventName: 'test',
+      actions: ['actionName1', 'actionName2'],
+      actionOperationData: {
+        test: 'test',
+      },
+    };
     controller.init(operationData);
     controller.attach(eventbus as any);
 
     // test
-    operationData.selectedElement.eventHandler(event);
+    inputElement.eventHandler(event);
 
     // expect
     const expectedOperatonData = Object.assign(
@@ -204,12 +199,12 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     });
 
     expect(
-      (controller.actionInstanceInfos?.[0].action as unknown as MockAction)
+      (controller.actionInstanceInfos?.[0].action as unknown as ReturnType<typeof createMockAction>)
         .startOperationData
-    ).to.eql(expectedOperatonData);
+    ).toEqual(expectedOperatonData);
     expect(
-      (controller.actionInstanceInfos?.[1].action as unknown as MockAction)
+      (controller.actionInstanceInfos?.[1].action as unknown as ReturnType<typeof createMockAction>)
         .startOperationData
-    ).to.eql(expectedOperatonData);
+    ).toEqual(expectedOperatonData);
   });
 });

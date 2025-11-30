@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   getCurrentTime,
@@ -32,6 +31,6 @@ describe('getCurrentTime', () => {
 
     expect(result.timestamp).to.be.at.least(before);
     expect(result.timestamp).to.be.at.most(after);
-    expect(result.date).to.be.instanceof(Date);
+    expect(result.date).toBeInstanceOf(Date);
   });
 });

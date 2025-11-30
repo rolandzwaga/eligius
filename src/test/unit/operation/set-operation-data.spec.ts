@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {setOperationData} from '../../../operation/set-operation-data.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -30,15 +29,15 @@ describe('setOperationData', () => {
     >;
 
     // expect
-    expect(newData.unusedProperty).to.equal('test');
-    expect(newData.prop1).to.equal('prop1');
-    expect(newData.prop2).to.equal('prop2');
-    expect(newData.prop3).to.equal('testProperty1');
-    expect(newData.prop4).to.equal(100);
-    expect(newData.prop5).to.equal(true);
-    expect(newData.prop6).to.equal(null);
-    expect(newData.prop7).to.equal(undefined);
-    expect('properties' in newData).to.be.false;
+    expect(newData.unusedProperty).toBe('test');
+    expect(newData.prop1).toBe('prop1');
+    expect(newData.prop2).toBe('prop2');
+    expect(newData.prop3).toBe('testProperty1');
+    expect(newData.prop4).toBe(100);
+    expect(newData.prop5).toBe(true);
+    expect(newData.prop6).toBe(null);
+    expect(newData.prop7).toBe(undefined);
+    expect('properties' in newData).toBe(false);
   });
   test('should override all the existing operationdata with the specified data', () => {
     // given
@@ -60,12 +59,12 @@ describe('setOperationData', () => {
     >;
 
     // expect
-    expect(newData.unusedProperty).to.be.undefined;
-    expect(newData.testProperty).to.be.undefined;
-    expect(newData.override).to.be.undefined;
-    expect(newData.prop1).to.equal('prop1');
-    expect(newData.prop2).to.equal('prop2');
-    expect(newData.prop3).to.equal('testProperty1');
+    expect(newData.unusedProperty).toBeUndefined();
+    expect(newData.testProperty).toBeUndefined();
+    expect(newData.override).toBeUndefined();
+    expect(newData.prop1).toBe('prop1');
+    expect(newData.prop2).toBe('prop2');
+    expect(newData.prop3).toBe('testProperty1');
   });
 
   test('should remove the override and properties properties from the operation data', () => {
@@ -88,7 +87,7 @@ describe('setOperationData', () => {
     >;
 
     // expect
-    expect('override' in newData).to.be.false;
-    expect('properties' in newData).to.be.false;
+    expect('override' in newData).toBe(false);
+    expect('properties' in newData).toBe(false);
   });
 });

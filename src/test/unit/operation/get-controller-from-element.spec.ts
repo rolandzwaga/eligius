@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {getControllerFromElement} from '../../../operation/get-controller-from-element.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -37,7 +36,7 @@ describe('getControllerFromElement', () => {
     const newData = applyOperation(getControllerFromElement, operationData);
 
     // expect
-    expect(newData.controllerInstance).to.equal(controllers[1]);
+    expect(newData.controllerInstance).toBe(controllers[1]);
   });
 
   test('should remove the controllerName property from the operation data', () => {
@@ -62,6 +61,6 @@ describe('getControllerFromElement', () => {
     const newData = applyOperation(getControllerFromElement, operationData);
 
     // expect
-    expect('controllerName' in newData).to.be.false;
+    expect('controllerName' in newData).toBe(false);
   });
 });

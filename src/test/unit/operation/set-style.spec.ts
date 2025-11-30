@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {setStyle} from '../../../operation/set-style.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -27,8 +26,8 @@ describe('setStyle', () => {
     applyOperation(setStyle, operationData);
 
     // expect
-    expect(mockElement.cssProps.visible).to.be.true;
-    expect(mockElement.cssProps.display).to.equal('block');
+    expect(mockElement.cssProps.visible).toBe(true);
+    expect(mockElement.cssProps.display).toBe('block');
   });
 
   test('should remove the properties property from the operation data', () => {
@@ -47,6 +46,6 @@ describe('setStyle', () => {
     const newData = applyOperation(setStyle, operationData);
 
     // expect
-    expect('properties' in newData).to.be.false;
+    expect('properties' in newData).toBe(false);
   });
 });

@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IController} from '../../../controllers/types.ts';
 import {
   type IInvokeObjectMethodOperationData,
@@ -23,7 +22,7 @@ describe('invokeObjectMethod', () => {
     const result = applyOperation(invokeObjectMethod, operationData);
 
     // expect
-    expect(result.methodResult).to.equal(20);
+    expect(result.methodResult).toBe(20);
   });
 
   test('should remove the methodName and methodArguments from the operation data', () => {
@@ -41,7 +40,7 @@ describe('invokeObjectMethod', () => {
     const result = applyOperation(invokeObjectMethod, operationData);
 
     // expect
-    expect('methodName' in result).to.be.false;
-    expect('methodArguments' in result).to.be.false;
+    expect('methodName' in result).toBe(false);
+    expect('methodArguments' in result).toBe(false);
   });
 });

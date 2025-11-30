@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   calc,
   type ICalcOperationData,
@@ -24,7 +23,7 @@ describe('calc', () => {
         const result = applyOperation(calc, operationData);
 
         // expect
-        expect((result as any).calculationResult).to.equal(
+        expect((result as any).calculationResult).toBe(
           eval(`${left} ${operator} ${right}`)
         );
       }
@@ -41,6 +40,6 @@ describe('calc', () => {
     const result = applyOperation(calc, operationData);
 
     // expect
-    expect((result as any).calculationResult).to.equal(200);
+    expect((result as any).calculationResult).toBe(200);
   });
 });

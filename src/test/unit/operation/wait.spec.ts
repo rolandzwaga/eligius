@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {wait} from '../../../operation/wait.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -31,8 +30,8 @@ describe<WaitSuiteContext>('wait', () => {
     const data = await applyOperation(wait, operationData);
 
     // expect
-    expect(data).to.eql({});
-    expect(context.mseconds).to.equal(1000);
+    expect(data).toEqual({});
+    expect(context.mseconds).toBe(1000);
   });
 
   test<WaitSuiteContext>('should remove the milliseconds property from the operation', async context => {
@@ -45,6 +44,6 @@ describe<WaitSuiteContext>('wait', () => {
     const data = await applyOperation(wait, operationData);
 
     // expect
-    expect('milliseconds' in data).to.be.false;
+    expect('milliseconds' in data).toBe(false);
   });
 });

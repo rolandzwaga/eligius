@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISetFocusOperationData,
@@ -42,7 +41,7 @@ describe('setFocus', () => {
       operations: [],
     });
 
-    expect(focusCalled).to.be.true;
+    expect(focusCalled).toBe(true);
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -56,6 +55,6 @@ describe('setFocus', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('selectedElement is required');
+    }).toThrow('selectedElement is required');
   });
 });

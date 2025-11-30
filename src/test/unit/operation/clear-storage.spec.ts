@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   clearStorage,
@@ -37,8 +36,8 @@ describe('clearStorage', () => {
     });
 
     // Assert
-    expect(localStorage.getItem('key1')).to.be.null;
-    expect(localStorage.getItem('key2')).to.equal('value2');
+    expect(localStorage.getItem('key1')).toBeNull();
+    expect(localStorage.getItem('key2')).toBe('value2');
   });
 
   test('should clear specific key from sessionStorage', () => {
@@ -57,7 +56,7 @@ describe('clearStorage', () => {
     });
 
     // Assert
-    expect(sessionStorage.getItem('session-key')).to.be.null;
+    expect(sessionStorage.getItem('session-key')).toBeNull();
   });
 
   test('should clear all localStorage when key not provided', () => {
@@ -76,7 +75,7 @@ describe('clearStorage', () => {
     });
 
     // Assert
-    expect(localStorage.length).to.equal(0);
+    expect(localStorage.length).toBe(0);
   });
 
   test('should clear all sessionStorage when key not provided', () => {
@@ -95,7 +94,7 @@ describe('clearStorage', () => {
     });
 
     // Assert
-    expect(sessionStorage.length).to.equal(0);
+    expect(sessionStorage.length).toBe(0);
   });
 
   test('should not throw error when clearing nonexistent key', () => {
@@ -112,7 +111,7 @@ describe('clearStorage', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.not.throw();
+    }).not.toThrow();
   });
 
   test('should erase key and storageType properties', () => {
@@ -131,7 +130,7 @@ describe('clearStorage', () => {
     });
 
     // Assert
-    expect('key' in operationData).to.be.false;
-    expect('storageType' in operationData).to.be.false;
+    expect('key' in operationData).toBe(false);
+    expect('storageType' in operationData).toBe(false);
   });
 });

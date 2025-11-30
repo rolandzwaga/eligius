@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {afterAll, beforeAll, describe, test} from 'vitest';
+import {expect, afterAll, beforeAll, describe, test} from 'vitest';
 import {removeGlobal} from '../../../../operation/helper/remove-global.ts';
 import {
   type ExternalProperty,
@@ -31,7 +30,7 @@ describe('resolveExternalPropertyChain', () => {
     );
 
     // expect
-    expect(value).to.equal(operationData.extractedValue);
+    expect(value).toBe(operationData.extractedValue);
   });
   test('should resolve the global data argument values', () => {
     // given
@@ -48,7 +47,7 @@ describe('resolveExternalPropertyChain', () => {
     );
 
     // expect
-    expect(value).to.equal('bar');
+    expect(value).toBe('bar');
   });
   test('should resolve the scope argument values', () => {
     // given
@@ -65,7 +64,7 @@ describe('resolveExternalPropertyChain', () => {
     );
 
     // expect
-    expect(value).to.equal(100);
+    expect(value).toBe(100);
   });
   test('should return null if argumentValue is null', () => {
     // given
@@ -80,7 +79,7 @@ describe('resolveExternalPropertyChain', () => {
     );
 
     // expect
-    expect(value).to.be.null;
+    expect(value).toBeNull();
   });
   test('should return argumentValue when argumentValue is complex value', () => {
     // given
@@ -96,6 +95,6 @@ describe('resolveExternalPropertyChain', () => {
     );
 
     // expect
-    expect(value).to.equal(arg);
+    expect(value).toBe(arg);
   });
 });

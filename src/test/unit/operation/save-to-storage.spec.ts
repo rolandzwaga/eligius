@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISaveToStorageOperationData,
@@ -37,7 +36,7 @@ describe('saveToStorage', () => {
 
     // Assert
     const stored = localStorage.getItem('user-settings');
-    expect(stored).to.equal('{"theme":"dark","language":"en"}');
+    expect(stored).toBe('{"theme":"dark","language":"en"}');
   });
 
   test('should save data to sessionStorage', () => {
@@ -57,7 +56,7 @@ describe('saveToStorage', () => {
 
     // Assert
     const stored = sessionStorage.getItem('session-data');
-    expect(stored).to.equal('{"id":123}');
+    expect(stored).toBe('{"id":123}');
   });
 
   test('should save string value without JSON encoding', () => {
@@ -76,7 +75,7 @@ describe('saveToStorage', () => {
     });
 
     // Assert
-    expect(localStorage.getItem('simple-key')).to.equal('"simple value"');
+    expect(localStorage.getItem('simple-key')).toBe('"simple value"');
   });
 
   test('should default to localStorage when storageType not specified', () => {
@@ -115,7 +114,7 @@ describe('saveToStorage', () => {
     });
 
     // Assert
-    expect(localStorage.getItem('existing-key')).to.equal('"new value"');
+    expect(localStorage.getItem('existing-key')).toBe('"new value"');
   });
 
   test('should throw error if key not provided', () => {
@@ -133,7 +132,7 @@ describe('saveToStorage', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('saveToStorage: key is required');
+    }).toThrow('saveToStorage: key is required');
   });
 
   test('should erase value and storageType properties', () => {
@@ -152,7 +151,7 @@ describe('saveToStorage', () => {
     });
 
     // Assert
-    expect('value' in operationData).to.be.false;
-    expect('storageType' in operationData).to.be.false;
+    expect('value' in operationData).toBe(false);
+    expect('storageType' in operationData).toBe(false);
   });
 });

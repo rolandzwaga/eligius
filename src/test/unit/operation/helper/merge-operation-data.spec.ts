@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {mergeOperationData} from '../../../../operation/helper/merge-operation-data.ts';
 import type {TOperationData} from '../../../../operation/types.ts';
 
@@ -17,9 +16,9 @@ describe('mergeOperationData', () => {
     const newData: TOperationData = mergeOperationData(data1, data2);
 
     // expect
-    expect(Object.hasOwn(newData, 'test1')).to.be.true;
-    expect(Object.hasOwn(newData, 'test2')).to.be.true;
-    expect(newData.test1).to.equal('test1');
-    expect(newData.test2).to.equal('test2');
+    expect(Object.hasOwn(newData, 'test1')).toBe(true);
+    expect(Object.hasOwn(newData, 'test2')).toBe(true);
+    expect(newData.test1).toBe('test1');
+    expect(newData.test2).toBe('test2');
   });
 });

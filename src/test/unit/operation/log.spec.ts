@@ -1,13 +1,4 @@
-import {expect} from 'chai';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  type TestContext,
-  test,
-} from 'vitest';
+import {expect, afterAll, afterEach, beforeAll, beforeEach, describe, type TestContext, test, } from 'vitest';
 import type {
   IOperationScope,
   TOperationData,
@@ -53,8 +44,8 @@ describe<LogSuiteContext>('log', () => {
     applyOperation(log, operationData, scope);
 
     // expect
-    expect(ctx.loggedLines[0]).to.eql({name: 'scope', input: scope});
-    expect(ctx.loggedLines[1]).to.eql({
+    expect(ctx.loggedLines[0]).toEqual({name: 'scope', input: scope});
+    expect(ctx.loggedLines[1]).toEqual({
       name: 'operationData',
       input: operationData,
     });
@@ -73,7 +64,7 @@ describe<LogSuiteContext>('log', () => {
     applyOperation(log, operationData, scope);
 
     // expect
-    expect(ctx.loggedLines[0]).to.eql({name: 'logValue', input: 'foo'});
+    expect(ctx.loggedLines[0]).toEqual({name: 'logValue', input: 'foo'});
   });
 
   test<LogSuiteContext>('should remove the logValue from the operation data', ctx => {
@@ -89,6 +80,6 @@ describe<LogSuiteContext>('log', () => {
     const newData = applyOperation(log, operationData, scope);
 
     // expect
-    expect('logValue' in newData).to.be.false;
+    expect('logValue' in newData).toBe(false);
   });
 });

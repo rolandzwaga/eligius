@@ -1,5 +1,5 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+
+import {expect, describe, test} from 'vitest';
 import {requestAction} from '../../../operation/request-action.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -31,9 +31,9 @@ describe('requestAction', () => {
     });
 
     // expect
-    expect(eventbus.systemName).to.equal('testActionName');
-    expect(eventbus.eventName).to.equal('request-action');
-    expect(newData.actionInstance).to.equal(eventbus.mockAction);
+    expect(eventbus.systemName).toBe('testActionName');
+    expect(eventbus.eventName).toBe('request-action');
+    expect(newData.actionInstance).toBe(eventbus.mockAction);
   });
 
   test('should remove the systemName from the operation data', () => {
@@ -51,6 +51,6 @@ describe('requestAction', () => {
     });
 
     // expect
-    expect('systemName' in newData).to.be.false;
+    expect('systemName' in newData).toBe(false);
   });
 });

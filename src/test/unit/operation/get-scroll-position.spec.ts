@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   getScrollPosition,
@@ -50,8 +49,8 @@ describe('getScrollPosition', () => {
     });
 
     // Assert
-    expect(result.scrollX).to.equal(150);
-    expect(result.scrollY).to.equal(400);
+    expect(result.scrollX).toBe(150);
+    expect(result.scrollY).toBe(400);
   });
 
   test('should get scroll position using scrollX/scrollY fallback', () => {
@@ -74,8 +73,8 @@ describe('getScrollPosition', () => {
     });
 
     // Assert
-    expect(result.scrollX).to.equal(200);
-    expect(result.scrollY).to.equal(500);
+    expect(result.scrollX).toBe(200);
+    expect(result.scrollY).toBe(500);
   });
 
   test('should get scroll position using documentElement fallback', () => {
@@ -100,8 +99,8 @@ describe('getScrollPosition', () => {
     });
 
     // Assert
-    expect(result.scrollX).to.equal(100);
-    expect(result.scrollY).to.equal(300);
+    expect(result.scrollX).toBe(100);
+    expect(result.scrollY).toBe(300);
   });
 
   test('should return zero if no scroll position available', () => {
@@ -125,7 +124,7 @@ describe('getScrollPosition', () => {
     });
 
     // Assert
-    expect(result.scrollX).to.equal(0);
-    expect(result.scrollY).to.equal(0);
+    expect(result.scrollX).toBe(0);
+    expect(result.scrollY).toBe(0);
   });
 });

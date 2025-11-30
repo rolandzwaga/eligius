@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {breakForEach} from '../../../operation/break-for-each.ts';
 import type {IOperationScope} from '../../../operation/types.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -19,8 +18,8 @@ describe('breakForEach', () => {
 
     const result = applyOperation(breakForEach, operationData, scope);
 
-    expect(scope.newIndex).to.equal(100);
-    expect(result).to.eql(operationData);
+    expect(scope.newIndex).toBe(100);
+    expect(result).toEqual(operationData);
   });
 
   test('should remove all of the loop properties from the scope', () => {
@@ -37,10 +36,10 @@ describe('breakForEach', () => {
 
     applyOperation(breakForEach, operationData, scope);
 
-    expect('loopEndIndex' in scope).to.be.false;
-    expect('loopIndex' in scope).to.be.false;
-    expect('loopLength' in scope).to.be.false;
-    expect('loopStartIndex' in scope).to.be.false;
-    expect('currentItem' in scope).to.be.false;
+    expect('loopEndIndex' in scope).toBe(false);
+    expect('loopIndex' in scope).toBe(false);
+    expect('loopLength' in scope).toBe(false);
+    expect('loopStartIndex' in scope).toBe(false);
+    expect('currentItem' in scope).toBe(false);
   });
 });

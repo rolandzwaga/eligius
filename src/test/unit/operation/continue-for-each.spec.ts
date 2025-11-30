@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {continueForEach} from '../../../operation/continue-for-each.ts';
 import type {IOperationScope} from '../../../operation/types.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -19,8 +18,8 @@ describe('continueForEach', () => {
 
     const result = applyOperation(continueForEach, operationData, scope);
 
-    expect(scope.newIndex).to.equal(100);
-    expect(result).to.eql(operationData);
+    expect(scope.newIndex).toBe(100);
+    expect(result).toEqual(operationData);
   });
 
   test('should remove the currentItem from the scope', () => {
@@ -37,6 +36,6 @@ describe('continueForEach', () => {
 
     applyOperation(continueForEach, operationData, scope);
 
-    expect('currentItem' in scope).to.be.false;
+    expect('currentItem' in scope).toBe(false);
   });
 });

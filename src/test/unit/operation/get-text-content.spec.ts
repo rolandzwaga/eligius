@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   getTextContent,
@@ -44,7 +43,7 @@ describe('getTextContent', () => {
     });
 
     // Assert
-    expect(result.textContent).to.equal('Hello World!');
+    expect(result.textContent).toBe('Hello World!');
   });
 
   test('should handle empty elements', () => {
@@ -63,7 +62,7 @@ describe('getTextContent', () => {
     });
 
     // Assert
-    expect(result.textContent).to.equal('');
+    expect(result.textContent).toBe('');
   });
 
   test('should handle nested HTML', () => {
@@ -83,8 +82,8 @@ describe('getTextContent', () => {
     });
 
     // Assert
-    expect(result.textContent).to.contain('First');
-    expect(result.textContent).to.contain('Second');
+    expect(result.textContent).toContain('First');
+    expect(result.textContent).toContain('Second');
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -98,6 +97,6 @@ describe('getTextContent', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('getTextContent: selectedElement is required');
+    }).toThrow('getTextContent: selectedElement is required');
   });
 });

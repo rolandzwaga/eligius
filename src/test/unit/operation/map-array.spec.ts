@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IMapArrayOperationData,
@@ -32,7 +31,7 @@ describe('mapArray', () => {
     });
 
     // Assert
-    expect(result.mappedArray).to.deep.equal([2, 4, 6, 8]);
+    expect(result.mappedArray).toEqual([2, 4, 6, 8]);
   });
 
   test('should map array of objects extracting property', () => {
@@ -54,7 +53,7 @@ describe('mapArray', () => {
     });
 
     // Assert
-    expect(result.mappedArray).to.deep.equal(['Alice', 'Bob']);
+    expect(result.mappedArray).toEqual(['Alice', 'Bob']);
   });
 
   test('should map with index parameter', () => {
@@ -73,7 +72,7 @@ describe('mapArray', () => {
     });
 
     // Assert
-    expect(result.mappedArray).to.deep.equal(['0-a', '1-b', '2-c']);
+    expect(result.mappedArray).toEqual(['0-a', '1-b', '2-c']);
   });
 
   test('should throw error if arrayData not provided', () => {
@@ -91,7 +90,7 @@ describe('mapArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('mapArray: arrayData is required');
+    }).toThrow('mapArray: arrayData is required');
   });
 
   test('should throw error if mapFunction not provided', () => {
@@ -109,7 +108,7 @@ describe('mapArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('mapArray: mapFunction is required');
+    }).toThrow('mapArray: mapFunction is required');
   });
 
   test('should erase mapFunction property', () => {
@@ -128,6 +127,6 @@ describe('mapArray', () => {
     });
 
     // Assert
-    expect('mapFunction' in operationData).to.be.false;
+    expect('mapFunction' in operationData).toBe(false);
   });
 });

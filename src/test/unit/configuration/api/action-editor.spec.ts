@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   ActionEditor,
   OperationEditor,
@@ -38,7 +37,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     actionEditor.getConfiguration(cf => (config = cf));
 
     // expect
-    expect(config).is.eql(context.actionConfig);
+    expect(config).toEqual(context.actionConfig);
   });
   test<ActionEditorSuiteContext>('should set the name', context => {
     // given
@@ -48,7 +47,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     actionEditor.setName('TestName');
 
     // expect
-    expect(actionEditor.getName()).to.equal('TestName');
+    expect(actionEditor.getName()).toBe('TestName');
   });
   test<ActionEditorSuiteContext>('should return an operation editor', context => {
     // given
@@ -59,14 +58,14 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     const editor = actionEditor.editStartOperation('test');
 
     // expect
-    expect(editor).to.be.an.instanceOf(OperationEditor);
+    expect(editor).toBeInstanceOf(OperationEditor);
   });
   test<ActionEditorSuiteContext>('should throw an operation not found error', context => {
     // given
     const {actionEditor} = context;
 
     // expect
-    expect(() => actionEditor.editStartOperation('test')).throws(
+    expect(() => actionEditor.editStartOperation('test')).toThrow(
       'start operation not found for id test'
     );
   });
@@ -80,7 +79,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.length).to.equal(0);
+      expect(config.startOperations.length).toBe(0);
       return undefined;
     });
   });
@@ -107,7 +106,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.findIndex(x => x.id === op1.id)).to.equal(
+      expect(config.startOperations.findIndex(x => x.id === op1.id)).toBe(
         1
       );
       return undefined;
@@ -136,7 +135,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.findIndex(x => x.id === op2.id)).to.equal(
+      expect(config.startOperations.findIndex(x => x.id === op2.id)).toBe(
         0
       );
       return undefined;
@@ -148,7 +147,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     const result = actionEditor.next();
 
     // expect
-    expect(result).to.equal(configurationFactory);
+    expect(result).toBe(configurationFactory);
   });
   test<ActionEditorSuiteContext>('should pass the configuration to the getConfiguration callback', context => {
     // given
@@ -159,7 +158,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
     actionEditor.getConfiguration(c => (config = c));
 
     // expect
-    expect(config).to.not.be.null;
+    expect(config).not.toBeNull();
   });
   test<ActionEditorSuiteContext>('should substitute the actionConfig with the instance returned from the getConfiguration callback', context => {
     // given
@@ -173,7 +172,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
 
     // expect
     actionEditor.getConfiguration(cf => {
-      expect(config).to.eql(cf);
+      expect(config).toEqual(cf);
       return undefined;
     });
   });

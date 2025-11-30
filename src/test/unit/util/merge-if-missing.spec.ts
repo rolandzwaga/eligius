@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {mergeIfMissing} from '../../../util/merge-if-missing.ts';
 
 describe('mergeIfMissing', () => {
@@ -24,7 +23,7 @@ describe('mergeIfMissing', () => {
     const newSource = mergeIfMissing(source, target);
 
     // expect
-    expect(newSource).to.eql({
+    expect(newSource).toEqual({
       prop1: 'prop',
       prop2: true,
       prop3: 123,

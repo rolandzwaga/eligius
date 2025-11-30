@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IReplaceTextOperationData,
@@ -33,8 +32,8 @@ describe('replaceText', () => {
     });
 
     // Assert
-    expect(result.textContent).to.equal('Hello John!');
-    expect(result.replacementCount).to.equal(1);
+    expect(result.textContent).toBe('Hello John!');
+    expect(result.replacementCount).toBe(1);
   });
 
   test('should replace with regex pattern', () => {
@@ -54,8 +53,8 @@ describe('replaceText', () => {
     });
 
     // Assert
-    expect(result.textContent).to.equal('Test NUM and NUM');
-    expect(result.replacementCount).to.equal(2);
+    expect(result.textContent).toBe('Test NUM and NUM');
+    expect(result.replacementCount).toBe(2);
   });
 
   test('should handle no matches', () => {
@@ -75,8 +74,8 @@ describe('replaceText', () => {
     });
 
     // Assert
-    expect(result.textContent).to.equal('Hello World');
-    expect(result.replacementCount).to.equal(0);
+    expect(result.textContent).toBe('Hello World');
+    expect(result.replacementCount).toBe(0);
   });
 
   test('should throw error if textContent not provided', () => {
@@ -95,7 +94,7 @@ describe('replaceText', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('replaceText: textContent is required');
+    }).toThrow('replaceText: textContent is required');
   });
 
   test('should erase search properties', () => {
@@ -115,7 +114,7 @@ describe('replaceText', () => {
     });
 
     // Assert
-    expect('searchPattern' in operationData).to.be.false;
-    expect('replacement' in operationData).to.be.false;
+    expect('searchPattern' in operationData).toBe(false);
+    expect('replacement' in operationData).toBe(false);
   });
 });

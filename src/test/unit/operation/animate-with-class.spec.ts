@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {animateWithClass} from '../../../operation/animate-with-class.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -17,12 +16,12 @@ class MockElement {
   }
 
   addClass(className: string) {
-    expect(className).to.equal(this.expectedClass);
+    expect(className).toBe(this.expectedClass);
   }
 
   removeClass(className: string) {
     this.removedCalled = true;
-    expect(className).to.equal(this.expectedClass);
+    expect(className).toBe(this.expectedClass);
   }
 }
 
@@ -39,7 +38,7 @@ describe('animateWithClass', () => {
     // test
 
     applyOperation(animateWithClass, operationData).then(() => {
-      expect(mockElement.removedCalled).to.be.true;
+      expect(mockElement.removedCalled).toBe(true);
     });
     mockElement.handler();
   });
@@ -56,7 +55,7 @@ describe('animateWithClass', () => {
     // test
 
     applyOperation(animateWithClass, operationData).then(() => {
-      expect(mockElement.removedCalled).to.be.false;
+      expect(mockElement.removedCalled).toBe(false);
     });
     mockElement.handler();
   });

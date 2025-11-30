@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IReplaceStringOperationData,
@@ -26,7 +25,7 @@ describe('replaceString', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.result).to.equal('Hello Universe');
+    expect(result.result).toBe('Hello Universe');
   });
 
   test('should replace with regex', () => {
@@ -41,7 +40,7 @@ describe('replaceString', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.result).to.equal('Test NUM');
+    expect(result.result).toBe('Test NUM');
   });
 
   test('should throw error if textContent not provided', () => {
@@ -57,6 +56,6 @@ describe('replaceString', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('textContent is required');
+    }).toThrow('textContent is required');
   });
 });

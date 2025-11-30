@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test, vi} from 'vitest';
+import {expect, beforeEach, describe, test, vi} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   httpDelete,
@@ -45,8 +44,8 @@ describe('httpDelete', () => {
     });
 
     // Assert
-    expect(result.response).to.deep.equal(mockResponse);
-    expect(result.status).to.equal(200);
+    expect(result.response).toEqual(mockResponse);
+    expect(result.status).toBe(200);
   });
 
   test('should handle DELETE request with no content (204)', async () => {
@@ -74,8 +73,8 @@ describe('httpDelete', () => {
     });
 
     // Assert
-    expect(result.response).to.be.null;
-    expect(result.status).to.equal(204);
+    expect(result.response).toBeNull();
+    expect(result.status).toBe(204);
   });
 
   test('should throw error on HTTP error status', async () => {
@@ -104,8 +103,8 @@ describe('httpDelete', () => {
       error = e as Error;
     }
 
-    expect(error).to.not.be.null;
-    expect(error?.message).to.include('HTTP error 403');
+    expect(error).not.toBeNull();
+    expect(error?.message).toContain('HTTP error 403');
   });
 
   test('should throw error if url not provided', async () => {
@@ -128,8 +127,8 @@ describe('httpDelete', () => {
       error = e as Error;
     }
 
-    expect(error).to.not.be.null;
-    expect(error?.message).to.include('url is required');
+    expect(error).not.toBeNull();
+    expect(error?.message).toContain('url is required');
   });
 
   test('should erase url and headers properties', async () => {
@@ -155,7 +154,7 @@ describe('httpDelete', () => {
     });
 
     // Assert
-    expect('url' in operationData).to.be.false;
-    expect('headers' in operationData).to.be.false;
+    expect('url' in operationData).toBe(false);
+    expect('headers' in operationData).toBe(false);
   });
 });

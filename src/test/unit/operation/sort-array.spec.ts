@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISortArrayOperationData,
@@ -37,9 +36,9 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray[0].age).to.equal(20);
-    expect(result.sortedArray[1].age).to.equal(25);
-    expect(result.sortedArray[2].age).to.equal(30);
+    expect(result.sortedArray[0].age).toBe(20);
+    expect(result.sortedArray[1].age).toBe(25);
+    expect(result.sortedArray[2].age).toBe(30);
   });
 
   test('should sort array by property descending', () => {
@@ -63,9 +62,9 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray[0].age).to.equal(30);
-    expect(result.sortedArray[1].age).to.equal(25);
-    expect(result.sortedArray[2].age).to.equal(20);
+    expect(result.sortedArray[0].age).toBe(30);
+    expect(result.sortedArray[1].age).toBe(25);
+    expect(result.sortedArray[2].age).toBe(20);
   });
 
   test('should sort primitive array ascending', () => {
@@ -84,7 +83,7 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray).to.deep.equal([1, 2, 5, 8, 9]);
+    expect(result.sortedArray).toEqual([1, 2, 5, 8, 9]);
   });
 
   test('should sort with custom comparator function', () => {
@@ -104,7 +103,7 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray).to.deep.equal([
+    expect(result.sortedArray).toEqual([
       'apple',
       'Banana',
       'cherry',
@@ -127,7 +126,7 @@ describe('sortArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('sortArray: arrayData is required');
+    }).toThrow('sortArray: arrayData is required');
   });
 
   test('should erase sort properties', () => {
@@ -146,8 +145,8 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect('sortProperty' in operationData).to.be.false;
-    expect('sortOrder' in operationData).to.be.false;
-    expect('sortComparator' in operationData).to.be.false;
+    expect('sortProperty' in operationData).toBe(false);
+    expect('sortOrder' in operationData).toBe(false);
+    expect('sortComparator' in operationData).toBe(false);
   });
 });

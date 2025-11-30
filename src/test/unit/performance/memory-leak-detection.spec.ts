@@ -1,6 +1,6 @@
-import {expect} from 'chai';
+
 import $ from 'jquery';
-import {afterEach, beforeEach, describe, test, vi} from 'vitest';
+import {expect, afterEach, beforeEach, describe, test, vi} from 'vitest';
 import {LabelController} from '../../../controllers/label-controller.ts';
 import {LottieController} from '../../../controllers/lottie-controller.ts';
 import {NavigationController} from '../../../controllers/navigation-controller.ts';
@@ -136,12 +136,12 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       const removersAfter = (controller as any).eventListeners.length;
       detachCount += removersBefore;
 
-      expect(removersAfter).to.equal(0);
+      expect(removersAfter).toBe(0);
     }
 
     // expect: All registered listeners were properly removed
-    expect(attachCount).to.equal(detachCount);
-    expect((controller as any).eventListeners.length).to.equal(0);
+    expect(attachCount).toBe(detachCount);
+    expect((controller as any).eventListeners.length).toBe(0);
 
     console.log(
       `LottieController: ${attachCount} listeners attached and removed over 1000 cycles`
@@ -182,11 +182,11 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       const removersAfter = (controller as any).eventListeners.length;
 
       detachCount += removersBefore;
-      expect(removersAfter).to.equal(0);
+      expect(removersAfter).toBe(0);
     }
 
     // expect: All registered listeners were properly removed
-    expect(attachCount).to.equal(detachCount);
+    expect(attachCount).toBe(detachCount);
 
     console.log(
       `LabelController: ${attachCount} listeners attached and removed over 1000 cycles`
@@ -226,20 +226,20 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       // 1. TIME event via addListener (eventbus listener)
       // 2. jQuery click handler via manual push to eventListeners array
       const removersBefore = (controller as any).eventListeners.length;
-      expect(removersBefore).to.equal(2);
+      expect(removersBefore).toBe(2);
 
       controller.detach(context.eventbus);
       const removersAfter = (controller as any).eventListeners.length;
 
       detachCount += removersBefore;
-      expect(removersAfter).to.equal(0);
+      expect(removersAfter).toBe(0);
     }
 
     // expect: All registered listeners were properly removed
     // Note: attachCount only counts eventbus.on calls (1 per cycle)
     // detachCount includes both eventbus listener + jQuery click handler (2 per cycle)
-    expect(attachCount).to.equal(1000); // 1 eventbus listener per cycle
-    expect(detachCount).to.equal(2000); // 2 total listeners per cycle
+    expect(attachCount).toBe(1000); // 1 eventbus listener per cycle
+    expect(detachCount).toBe(2000); // 2 total listeners per cycle
 
     console.log(
       `ProgressbarController: ${detachCount} listeners (eventbus + jQuery) attached and removed over 1000 cycles`
@@ -287,11 +287,11 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       const removersAfter = (controller as any).eventListeners.length;
 
       detachCount += removersBefore;
-      expect(removersAfter).to.equal(0);
+      expect(removersAfter).toBe(0);
     }
 
     // expect: All registered listeners were properly removed
-    expect(attachCount).to.equal(detachCount);
+    expect(attachCount).toBe(detachCount);
 
     console.log(
       `NavigationController: ${attachCount} listeners attached and removed over 1000 cycles`
@@ -336,22 +336,22 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       const removersBefore = (controller as any).eventListeners.length;
 
       // Verify window.onpopstate was set
-      expect(window.onpopstate).to.not.be.null;
+      expect(window.onpopstate).not.toBeNull();
 
       controller.detach(context.eventbus);
 
       const removersAfter = (controller as any).eventListeners.length;
 
       // CRITICAL: Verify window.onpopstate was cleaned up (fixes memory leak)
-      expect(window.onpopstate).to.be.null;
+      expect(window.onpopstate).toBeNull();
 
       detachCount += removersBefore;
-      expect(removersAfter).to.equal(0);
+      expect(removersAfter).toBe(0);
     }
 
     // expect: All registered listeners were properly removed
-    expect(attachCount).to.equal(detachCount);
-    expect(window.onpopstate).to.be.null; // Final verification
+    expect(attachCount).toBe(detachCount);
+    expect(window.onpopstate).toBeNull(); // Final verification
 
     console.log(
       `RoutingController: ${attachCount} listeners attached and removed over 1000 cycles`
@@ -400,17 +400,17 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
 
       // SubtitlesController registers 3 listeners: TIME, SEEKED, LANGUAGE_CHANGE
       const removersBefore = (controller as any).eventListeners.length;
-      expect(removersBefore).to.equal(3);
+      expect(removersBefore).toBe(3);
 
       controller.detach(context.eventbus);
       const removersAfter = (controller as any).eventListeners.length;
 
       detachCount += removersBefore;
-      expect(removersAfter).to.equal(0);
+      expect(removersAfter).toBe(0);
     }
 
     // expect: All registered listeners were properly removed
-    expect(attachCount).to.equal(detachCount); // 3 listeners per cycle
+    expect(attachCount).toBe(detachCount); // 3 listeners per cycle
 
     console.log(
       `SubtitlesController: ${attachCount} listeners attached and removed over 1000 cycles`
@@ -442,7 +442,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       expect((controller as any).detach).to.be.a('function');
 
       // Verify eventListeners starts empty
-      expect((controller as any).eventListeners.length).to.equal(0);
+      expect((controller as any).eventListeners.length).toBe(0);
     });
 
     console.log(

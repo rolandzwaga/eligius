@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {Action} from '../../action/index.ts';
 import {Eventbus} from '../../eventbus/index.ts';
 import {endWhen} from '../../operation/end-when.ts';
@@ -50,7 +49,7 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.foo).to.be.true;
+    expect(operationData?.foo).toBe(true);
   });
   test<WhenConstructionContext>('should leave operationdata.foo undefined because expression evaluates to false', async context => {
     const {action} = context;
@@ -83,7 +82,7 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.foo).to.be.undefined;
+    expect(operationData?.foo).toBeUndefined();
   });
   test<WhenConstructionContext>('should continue executing after endWhen when expression evaluates to false', async context => {
     const {action} = context;
@@ -129,8 +128,8 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.foo).to.be.undefined;
-    expect(operationData?.continued).to.be.true;
+    expect(operationData?.foo).toBeUndefined();
+    expect(operationData?.continued).toBe(true);
   });
   test<WhenConstructionContext>('should continue executing after otherwise when expression evaluates to false', async context => {
     const {action} = context;
@@ -193,9 +192,9 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.foo).to.be.undefined;
-    expect(operationData?.bar).to.be.true;
-    expect(operationData?.continued).to.be.true;
+    expect(operationData?.foo).toBeUndefined();
+    expect(operationData?.bar).toBe(true);
+    expect(operationData?.continued).toBe(true);
   });
   test<WhenConstructionContext>('should stop executing after otherwise when expression evaluates to true', async context => {
     const {action} = context;
@@ -258,9 +257,9 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.foo).to.be.true;
-    expect(operationData?.bar).to.be.undefined;
-    expect(operationData?.continued).to.be.true;
+    expect(operationData?.foo).toBe(true);
+    expect(operationData?.bar).toBeUndefined();
+    expect(operationData?.continued).toBe(true);
   });
   test<WhenConstructionContext>('should support nested when/otherwises with nested when evaluating to false', async context => {
     const {action} = context;
@@ -307,7 +306,7 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.notSet).to.be.undefined;
+    expect(operationData?.notSet).toBeUndefined();
   });
   test<WhenConstructionContext>("should support nested when/otherwises with inner 'when' evaluating to true", async context => {
     const {action} = context;
@@ -354,7 +353,7 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.notSet).to.be.true;
+    expect(operationData?.notSet).toBe(true);
   });
   test<WhenConstructionContext>("should support nested when/otherwises with outer 'when' evaluating to false", async context => {
     const {action} = context;
@@ -401,6 +400,6 @@ describe<WhenConstructionContext>('whenConstruction', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData?.notSet).to.be.undefined;
+    expect(operationData?.notSet).toBeUndefined();
   });
 });

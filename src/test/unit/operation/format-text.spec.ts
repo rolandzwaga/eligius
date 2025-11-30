@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   formatText,
@@ -32,7 +31,7 @@ describe('formatText', () => {
     });
 
     // Assert
-    expect(result.formattedText).to.equal('HELLO WORLD');
+    expect(result.formattedText).toBe('HELLO WORLD');
   });
 
   test('should format text to lowercase', () => {
@@ -51,7 +50,7 @@ describe('formatText', () => {
     });
 
     // Assert
-    expect(result.formattedText).to.equal('hello world');
+    expect(result.formattedText).toBe('hello world');
   });
 
   test('should capitalize first letter', () => {
@@ -70,7 +69,7 @@ describe('formatText', () => {
     });
 
     // Assert
-    expect(result.formattedText).to.equal('Hello world');
+    expect(result.formattedText).toBe('Hello world');
   });
 
   test('should format text to titlecase', () => {
@@ -89,7 +88,7 @@ describe('formatText', () => {
     });
 
     // Assert
-    expect(result.formattedText).to.equal('Hello World Test');
+    expect(result.formattedText).toBe('Hello World Test');
   });
 
   test('should trim whitespace', () => {
@@ -108,7 +107,7 @@ describe('formatText', () => {
     });
 
     // Assert
-    expect(result.formattedText).to.equal('hello world');
+    expect(result.formattedText).toBe('hello world');
   });
 
   test('should throw error for unknown transformation', () => {
@@ -126,7 +125,7 @@ describe('formatText', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('formatText: unknown transformation type "unknown"');
+    }).toThrow('formatText: unknown transformation type "unknown"');
   });
 
   test('should throw error if textContent not provided', () => {
@@ -144,7 +143,7 @@ describe('formatText', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('formatText: textContent is required');
+    }).toThrow('formatText: textContent is required');
   });
 
   test('should erase transformation property', () => {
@@ -163,6 +162,6 @@ describe('formatText', () => {
     });
 
     // Assert
-    expect('transformation' in operationData).to.be.false;
+    expect('transformation' in operationData).toBe(false);
   });
 });

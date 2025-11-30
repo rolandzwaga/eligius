@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {uppercaseFirstChar} from '../../../util/uppercase-first-char.ts';
 
 describe('upper-case-first-char', () => {
@@ -11,7 +10,7 @@ describe('upper-case-first-char', () => {
     const output = uppercaseFirstChar(input);
 
     // expect
-    expect(output).to.equal('MyFirstCharIsNotUpperCase');
+    expect(output).toBe('MyFirstCharIsNotUpperCase');
   });
 
   test('should leave an already upper cased first character the same', () => {
@@ -22,6 +21,6 @@ describe('upper-case-first-char', () => {
     const output = uppercaseFirstChar(input);
 
     // expect
-    expect(output).to.equal('MyFirstCharIsUpperCase');
+    expect(output).toBe('MyFirstCharIsUpperCase');
   });
 });

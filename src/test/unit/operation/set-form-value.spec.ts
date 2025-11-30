@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISetFormValueOperationData,
@@ -44,7 +43,7 @@ describe('setFormValue', () => {
     });
 
     // Assert
-    expect($input.val()).to.equal('test@example.com');
+    expect($input.val()).toBe('test@example.com');
   });
 
   test('should set value of select element', () => {
@@ -69,7 +68,7 @@ describe('setFormValue', () => {
     });
 
     // Assert
-    expect($select.val()).to.equal('uk');
+    expect($select.val()).toBe('uk');
   });
 
   test('should set value of textarea', () => {
@@ -89,7 +88,7 @@ describe('setFormValue', () => {
     });
 
     // Assert
-    expect($textarea.val()).to.equal('This is a comment');
+    expect($textarea.val()).toBe('This is a comment');
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -105,7 +104,7 @@ describe('setFormValue', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('setFormValue: selectedElement is required');
+    }).toThrow('setFormValue: selectedElement is required');
   });
 
   test('should handle numeric values', () => {
@@ -125,7 +124,7 @@ describe('setFormValue', () => {
     });
 
     // Assert
-    expect($input.val()).to.equal('25');
+    expect($input.val()).toBe('25');
   });
 
   test('should handle boolean values', () => {
@@ -145,7 +144,7 @@ describe('setFormValue', () => {
     });
 
     // Assert
-    expect($checkbox.prop('checked')).to.be.true;
+    expect($checkbox.prop('checked')).toBe(true);
   });
 
   test('should erase value property from operation data', () => {
@@ -165,6 +164,6 @@ describe('setFormValue', () => {
     });
 
     // Assert
-    expect('value' in operationData).to.be.false;
+    expect('value' in operationData).toBe(false);
   });
 });

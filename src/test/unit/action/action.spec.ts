@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import type {IResolvedOperation} from 'configuration/types.ts';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {Action} from '../../../action/index.ts';
 import {Eventbus} from '../../../eventbus/index.ts';
 import type {IOperationScope} from '../../../operation/types.ts';
@@ -23,8 +22,8 @@ describe<ActionContext>('Action', () => {
     //test
 
     // expect
-    expect(action.startOperations.length).to.equal(0);
-    expect(action.name).to.equal('test');
+    expect(action.startOperations.length).toBe(0);
+    expect(action.name).toBe('test');
   });
   test<ActionContext>('should execute simple operations in sequence', async context => {
     // given
@@ -56,8 +55,8 @@ describe<ActionContext>('Action', () => {
     const operationData = await action.start();
 
     // expect
-    expect(operationData.result[0]).to.be.equal('op1');
-    expect(operationData.result[1]).to.be.equal('op2');
+    expect(operationData.result[0]).toBe('op1');
+    expect(operationData.result[1]).toBe('op2');
   });
   test<ActionContext>('should execute async operations in sequence', async context => {
     // given
@@ -92,8 +91,8 @@ describe<ActionContext>('Action', () => {
     // test
     const operationData = await action.start();
 
-    expect(operationData.result[0]).to.be.equal('op1');
-    expect(operationData.result[1]).to.be.equal('op2');
+    expect(operationData.result[0]).toBe('op1');
+    expect(operationData.result[1]).toBe('op2');
   });
   test<ActionContext>('should execute async and simple operations mixed in sequence', async context => {
     // given
@@ -143,9 +142,9 @@ describe<ActionContext>('Action', () => {
     // test
     const operationData = await action.start();
 
-    expect(operationData.result[0]).to.be.equal('op1');
-    expect(operationData.result[1]).to.be.equal('op2');
-    expect(operationData.result[2]).to.be.equal('op3');
+    expect(operationData.result[0]).toBe('op1');
+    expect(operationData.result[1]).toBe('op2');
+    expect(operationData.result[2]).toBe('op3');
   });
   test<ActionContext>('should attach a context to the operation', async context => {
     const {action} = context;
@@ -165,7 +164,7 @@ describe<ActionContext>('Action', () => {
     // test
     const operationData = await action.start();
     // expect
-    expect(operationData.result[0]).to.not.be.undefined;
+    expect(operationData.result[0]).not.toBeUndefined();
   });
   test<ActionContext>('should add current operation index number to the context given to the operation', async context => {
     const {action} = context;
@@ -195,7 +194,7 @@ describe<ActionContext>('Action', () => {
 
     // test
     const operationData = await action.start();
-    expect(operationData.result[0]).to.be.equal(0);
-    expect(operationData.result[1]).to.be.equal(1);
+    expect(operationData.result[0]).toBe(0);
+    expect(operationData.result[1]).toBe(1);
   });
 });

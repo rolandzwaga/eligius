@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {getElementDimensions} from '../../../operation/get-element-dimensions.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -36,8 +35,8 @@ describe('getElementDimensions', () => {
     const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect(newData.dimensions!.width).to.equal(100);
-    expect(newData.dimensions!.height).to.equal(200);
+    expect(newData.dimensions!.width).toBe(100);
+    expect(newData.dimensions!.height).toBe(200);
   });
   test("should get the given element's dimensions and set the height to the width if the height is 0", () => {
     // given
@@ -53,8 +52,8 @@ describe('getElementDimensions', () => {
     const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect(newData.dimensions!.width).to.equal(100);
-    expect(newData.dimensions!.height).to.equal(100);
+    expect(newData.dimensions!.width).toBe(100);
+    expect(newData.dimensions!.height).toBe(100);
   });
   test("should get the given element's dimensions and use the given modifier", () => {
     // given
@@ -70,8 +69,8 @@ describe('getElementDimensions', () => {
     const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect(newData.dimensions!.width).to.equal(200);
-    expect(newData.dimensions!.height).to.equal(200);
+    expect(newData.dimensions!.width).toBe(200);
+    expect(newData.dimensions!.height).toBe(200);
   });
 
   test('should remove the modifier property from the operaton data', () => {
@@ -88,6 +87,6 @@ describe('getElementDimensions', () => {
     const newData = applyOperation(getElementDimensions, operationData);
 
     // expect
-    expect('modifier' in newData).to.be.false;
+    expect('modifier' in newData).toBe(false);
   });
 });

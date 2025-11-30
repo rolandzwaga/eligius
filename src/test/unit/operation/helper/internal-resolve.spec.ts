@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {internalResolve} from '../../../../operation/helper/internal-resolve.ts';
 
 describe('internalResolve', () => {
@@ -15,7 +14,7 @@ describe('internalResolve', () => {
     internalResolve(resolve, operationData);
 
     // expect
-    expect(receivedData).to.equal(operationData);
+    expect(receivedData).toBe(operationData);
   });
   test('it should call the given resolve with the merged operationdatas', () => {
     // given
@@ -34,9 +33,9 @@ describe('internalResolve', () => {
     internalResolve(resolve, operationData, newOperationData);
 
     // expect
-    expect(Object.hasOwn(receivedData, 'test1')).to.be.true;
-    expect(Object.hasOwn(receivedData, 'test2')).to.be.true;
-    expect(receivedData.test1).to.be.equal(operationData.test1);
-    expect(receivedData.test2).to.be.equal(newOperationData.test2);
+    expect(Object.hasOwn(receivedData, 'test1')).toBe(true);
+    expect(Object.hasOwn(receivedData, 'test2')).toBe(true);
+    expect(receivedData.test1).toBe(operationData.test1);
+    expect(receivedData.test2).toBe(newOperationData.test2);
   });
 });

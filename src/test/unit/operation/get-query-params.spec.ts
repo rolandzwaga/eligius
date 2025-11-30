@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   getQueryParams,
   type IGetQueryParamsOperationData,
@@ -31,7 +30,7 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
     // test
     const result = applyOperation(getQueryParams, operationData);
 
-    expect(result).to.eql({queryParams: {test: 'true', test2: 'false'}});
+    expect(result).toEqual({queryParams: {test: 'true', test2: 'false'}});
   });
   test('should add an empty queryParams object to the operation data when no query params are present', () => {
     /// given
@@ -43,7 +42,7 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
     // test
     const result = applyOperation(getQueryParams, operationData);
 
-    expect(result).to.eql({queryParams: {}});
+    expect(result).toEqual({queryParams: {}});
   });
   test('should add the default values when query params not set', () => {
     /// given
@@ -57,7 +56,7 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
     // test
     const result = applyOperation(getQueryParams, operationData);
 
-    expect(result).to.eql({queryParams: {test: 'true', test2: 'foo'}});
+    expect(result).toEqual({queryParams: {test: 'true', test2: 'foo'}});
   });
 
   test('should remove the defaultValue property from the operation data', () => {
@@ -72,6 +71,6 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
     // test
     const result = applyOperation(getQueryParams, operationData);
 
-    expect('defaultValues' in result).to.be.false;
+    expect('defaultValues' in result).toBe(false);
   });
 });

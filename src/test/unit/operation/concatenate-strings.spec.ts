@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   concatenateStrings,
@@ -24,7 +23,7 @@ describe('concatenateStrings', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.result).to.equal('HelloWorld');
+    expect(result.result).toBe('HelloWorld');
   });
 
   test('should concatenate strings with separator', () => {
@@ -38,7 +37,7 @@ describe('concatenateStrings', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect(result.result).to.equal('apple, banana, cherry');
+    expect(result.result).toBe('apple, banana, cherry');
   });
 
   test('should throw error if strings not an array', () => {
@@ -52,7 +51,7 @@ describe('concatenateStrings', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('strings must be an array');
+    }).toThrow('strings must be an array');
   });
 
   test('should erase strings and separator properties', () => {
@@ -66,7 +65,7 @@ describe('concatenateStrings', () => {
       eventbus: mockEventbus,
       operations: [],
     });
-    expect('strings' in operationData).to.be.false;
-    expect('separator' in operationData).to.be.false;
+    expect('strings' in operationData).toBe(false);
+    expect('separator' in operationData).toBe(false);
   });
 });

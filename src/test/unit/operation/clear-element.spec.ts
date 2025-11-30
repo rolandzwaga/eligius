@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {clearElement} from '../../../operation/clear-element.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 

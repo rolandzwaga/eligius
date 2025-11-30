@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import $ from 'jquery';
-import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {ConfigurationFactory} from '../../configuration/api/configuration-factory.ts';
 import type {IEngineConfiguration} from '../../configuration/types.ts';
 import {EngineFactory} from '../../engine-factory.ts';
@@ -97,7 +96,7 @@ describe<ReuseActionsContext>('Re-use actions to add pictures', () => {
 
     try {
       const result = await context.engine.init();
-      expect(result).to.not.be.undefined;
+      expect(result).not.toBeUndefined();
     } catch (e) {
       throw e;
     }

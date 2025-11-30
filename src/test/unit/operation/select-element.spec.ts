@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test, vi} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type ISelectElementOperationData,
@@ -7,28 +6,18 @@ import {
 } from '../../../operation/select-element.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-class MockEventbus {
-  rootElement: any;
-  constructor(rootElement: any) {
-    this.rootElement = rootElement;
-  }
-
-  broadcast(_eventName: string, args: any[]) {
-    args[0](this.rootElement);
-  }
+function createMockElement(selectedElement: any) {
+  return {
+    find: vi.fn().mockReturnValue(selectedElement),
+  };
 }
 
-class MockElement {
-  selectedElement: any;
-  selector: string = '';
-  constructor(selectedElement: any) {
-    this.selectedElement = selectedElement;
-  }
-
-  find(selector: string) {
-    this.selector = selector;
-    return this.selectedElement;
-  }
+function createMockEventbusWithRoot(rootElement: any) {
+  return {
+    broadcast: vi.fn((_eventName: string, args: any[]) => {
+      args[0](rootElement);
+    }),
+  };
 }
 
 describe('selectElement', () => {
@@ -37,8 +26,8 @@ describe('selectElement', () => {
     const selectedElement = {
       length: 1,
     };
-    const mockElement = new MockElement(selectedElement);
-    const eventbus = new MockEventbus(mockElement) as any as IEventbus;
+    const mockElement = createMockElement(selectedElement);
+    const eventbus = createMockEventbusWithRoot(mockElement) as any as IEventbus;
     const operationData = {
       selector: '.testClass',
     } as any as ISelectElementOperationData;
@@ -51,16 +40,17 @@ describe('selectElement', () => {
     }) as ISelectElementOperationData;
 
     // expect
-    expect(newData.selectedElement).to.equal(selectedElement);
-    expect(mockElement.selector).to.equal('.testClass');
+    expect(newData.selectedElement).toBe(selectedElement);
+    expect(mockElement.find).toHaveBeenCalledWith('.testClass');
   });
+
   test('should select the element based on the resolved selector', () => {
     // given
     const selectedElement = {
       length: 1,
     };
-    const mockElement = new MockElement(selectedElement);
-    const eventbus = new MockEventbus(mockElement) as any as IEventbus;
+    const mockElement = createMockElement(selectedElement);
+    const eventbus = createMockEventbusWithRoot(mockElement) as any as IEventbus;
     const operationData = {
       selector: '$operationdata.customSelector',
       customSelector: '.testClass',
@@ -74,14 +64,16 @@ describe('selectElement', () => {
     }) as ISelectElementOperationData;
 
     // expect
-    expect(newData.selectedElement).to.equal(selectedElement);
+    expect(newData.selectedElement).toBe(selectedElement);
+    expect(mockElement.find).toHaveBeenCalledWith('.testClass');
   });
+
   test('should select the element based on the specified selector from the existing root', () => {
     // given
     const selectedElement = {
       length: 1,
     };
-    const mockElement = new MockElement(selectedElement);
+    const mockElement = createMockElement(selectedElement);
     const operationData = {
       selector: '.testClass',
       useSelectedElementAsRoot: true,
@@ -95,7 +87,8 @@ describe('selectElement', () => {
     ) as ISelectElementOperationData;
 
     // expect
-    expect(newData.selectedElement).to.equal(selectedElement);
+    expect(newData.selectedElement).toBe(selectedElement);
+    expect(mockElement.find).toHaveBeenCalledWith('.testClass');
   });
 
   test('should remove the selector and useSelectedElementAsRoot from the operation data', () => {
@@ -103,7 +96,7 @@ describe('selectElement', () => {
     const selectedElement = {
       length: 1,
     };
-    const mockElement = new MockElement(selectedElement);
+    const mockElement = createMockElement(selectedElement);
     const operationData = {
       selector: '.testClass',
       useSelectedElementAsRoot: true,
@@ -117,7 +110,7 @@ describe('selectElement', () => {
     ) as ISelectElementOperationData;
 
     // expect
-    expect('selector' in newData).to.be.false;
-    expect('useSelectedElementAsRoot' in newData).to.be.false;
+    expect('selector' in newData).toBe(false);
+    expect('useSelectedElementAsRoot' in newData).toBe(false);
   });
 });

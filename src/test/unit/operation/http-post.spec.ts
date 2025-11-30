@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test, vi} from 'vitest';
+import {expect, beforeEach, describe, test, vi} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   httpPost,
@@ -43,8 +42,8 @@ describe('httpPost', () => {
     });
 
     // Assert
-    expect(result.response).to.deep.equal(mockResponse);
-    expect(result.status).to.equal(201);
+    expect(result.response).toEqual(mockResponse);
+    expect(result.status).toBe(201);
   });
 
   test('should throw error on HTTP error status', async () => {
@@ -74,8 +73,8 @@ describe('httpPost', () => {
       error = e as Error;
     }
 
-    expect(error).to.not.be.null;
-    expect(error?.message).to.include('HTTP error 400');
+    expect(error).not.toBeNull();
+    expect(error?.message).toContain('HTTP error 400');
   });
 
   test('should throw error if url not provided', async () => {
@@ -98,8 +97,8 @@ describe('httpPost', () => {
       error = e as Error;
     }
 
-    expect(error).to.not.be.null;
-    expect(error?.message).to.include('url is required');
+    expect(error).not.toBeNull();
+    expect(error?.message).toContain('url is required');
   });
 
   test('should erase url, body, and headers properties', async () => {
@@ -126,8 +125,8 @@ describe('httpPost', () => {
     });
 
     // Assert
-    expect('url' in operationData).to.be.false;
-    expect('body' in operationData).to.be.false;
-    expect('headers' in operationData).to.be.false;
+    expect('url' in operationData).toBe(false);
+    expect('body' in operationData).toBe(false);
+    expect('headers' in operationData).toBe(false);
   });
 });

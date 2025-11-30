@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   filterArray,
@@ -37,9 +36,9 @@ describe('filterArray', () => {
     });
 
     // Assert
-    expect(result.filteredArray).to.have.length(2);
-    expect(result.filteredArray[0]).to.deep.equal({name: 'Alice', age: 25});
-    expect(result.filteredArray[1]).to.deep.equal({name: 'Charlie', age: 25});
+    expect(result.filteredArray).toHaveLength(2);
+    expect(result.filteredArray[0]).toEqual({name: 'Alice', age: 25});
+    expect(result.filteredArray[1]).toEqual({name: 'Charlie', age: 25});
   });
 
   test('should filter array with custom predicate function', () => {
@@ -58,7 +57,7 @@ describe('filterArray', () => {
     });
 
     // Assert
-    expect(result.filteredArray).to.deep.equal([2, 4, 6]);
+    expect(result.filteredArray).toEqual([2, 4, 6]);
   });
 
   test('should return empty array when no matches', () => {
@@ -78,7 +77,7 @@ describe('filterArray', () => {
     });
 
     // Assert
-    expect(result.filteredArray).to.deep.equal([]);
+    expect(result.filteredArray).toEqual([]);
   });
 
   test('should throw error if arrayData not provided', () => {
@@ -97,7 +96,7 @@ describe('filterArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('filterArray: arrayData is required');
+    }).toThrow('filterArray: arrayData is required');
   });
 
   test('should throw error if neither filterProperty nor filterPredicate provided', () => {
@@ -114,7 +113,7 @@ describe('filterArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw(
+    }).toThrow(
       'filterArray: filterProperty/filterValue or filterPredicate is required'
     );
   });
@@ -135,8 +134,8 @@ describe('filterArray', () => {
     });
 
     // Assert
-    expect('filterProperty' in operationData).to.be.false;
-    expect('filterValue' in operationData).to.be.false;
-    expect('filterPredicate' in operationData).to.be.false;
+    expect('filterProperty' in operationData).toBe(false);
+    expect('filterValue' in operationData).toBe(false);
+    expect('filterPredicate' in operationData).toBe(false);
   });
 });

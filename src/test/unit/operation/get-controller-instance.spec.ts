@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IController} from '../../../controllers/types.ts';
 import type {IEventbus} from '../../../eventbus/index.ts';
 import {
@@ -38,8 +37,8 @@ describe('getControllerInstance', () => {
     });
 
     // expect
-    expect(eventbus.eventName).to.equal('LabelController');
-    expect(newData.controllerInstance).to.equal(controller);
+    expect(eventbus.eventName).toBe('LabelController');
+    expect(newData.controllerInstance).toBe(controller);
   });
 
   test('should remove the systemName property from the operation data', () => {
@@ -58,6 +57,6 @@ describe('getControllerInstance', () => {
     });
 
     // expect
-    expect('systemName' in newData).to.be.false;
+    expect('systemName' in newData).toBe(false);
   });
 });

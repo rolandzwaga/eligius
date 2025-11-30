@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {addGlobalsToOperation} from '../../../operation/add-globals-to-operation.ts';
 import {setGlobal} from '../../../operation/helper/set-global.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -14,7 +13,7 @@ describe('addGlobalsToOperation', () => {
 
     const newData: any = applyOperation(addGlobalsToOperation, operationData);
 
-    expect(newData.test).to.equal('testing');
+    expect(newData.test).toBe('testing');
   });
 
   test('should erase globalData property from data', () => {
@@ -26,6 +25,6 @@ describe('addGlobalsToOperation', () => {
 
     const newData: any = applyOperation(addGlobalsToOperation, operationData);
 
-    expect('globalProperties' in operationData).to.be.false;
+    expect('globalProperties' in operationData).toBe(false);
   });
 });

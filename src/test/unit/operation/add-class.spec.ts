@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {addClass} from '../../../operation/add-class.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -22,8 +21,8 @@ describe('addClass', () => {
     const data = applyOperation(addClass, operationData);
 
     // expect
-    expect(data).to.equal(operationData);
-    expect(elementMock.className).to.equal('testClass');
+    expect(data).toBe(operationData);
+    expect(elementMock.className).toBe('testClass');
   });
 
   test('should remove the className property from the operation data', () => {
@@ -44,6 +43,6 @@ describe('addClass', () => {
     const newData = applyOperation(addClass, operationData);
 
     // expect
-    expect('className' in newData).to.be.false;
+    expect('className' in newData).toBe(false);
   });
 });

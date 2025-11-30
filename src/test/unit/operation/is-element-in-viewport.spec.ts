@@ -1,7 +1,6 @@
-import {expect} from 'chai';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   type IIsElementInViewportOperationData,
@@ -67,7 +66,7 @@ describe('isElementInViewport', () => {
     });
 
     // Assert
-    expect(result.isInViewport).to.be.true;
+    expect(result.isInViewport).toBe(true);
   });
 
   test('should detect element outside viewport (above)', () => {
@@ -97,7 +96,7 @@ describe('isElementInViewport', () => {
     });
 
     // Assert
-    expect(result.isInViewport).to.be.false;
+    expect(result.isInViewport).toBe(false);
   });
 
   test('should detect element outside viewport (below)', () => {
@@ -127,7 +126,7 @@ describe('isElementInViewport', () => {
     });
 
     // Assert
-    expect(result.isInViewport).to.be.false;
+    expect(result.isInViewport).toBe(false);
   });
 
   test('should throw error if selectedElement not provided', () => {
@@ -144,6 +143,6 @@ describe('isElementInViewport', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('isElementInViewport: selectedElement is required');
+    }).toThrow('isElementInViewport: selectedElement is required');
   });
 });

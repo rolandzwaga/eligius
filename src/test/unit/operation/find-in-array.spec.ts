@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   findInArray,
@@ -38,8 +37,8 @@ describe('findInArray', () => {
     });
 
     // Assert
-    expect(result.foundItem).to.deep.equal({id: 2, name: 'Bob'});
-    expect(result.foundIndex).to.equal(1);
+    expect(result.foundItem).toEqual({id: 2, name: 'Bob'});
+    expect(result.foundIndex).toBe(1);
   });
 
   test('should find item with custom predicate function', () => {
@@ -59,8 +58,8 @@ describe('findInArray', () => {
     });
 
     // Assert
-    expect(result.foundItem).to.equal(45);
-    expect(result.foundIndex).to.equal(3);
+    expect(result.foundItem).toBe(45);
+    expect(result.foundIndex).toBe(3);
   });
 
   test('should return undefined and -1 when no match found', () => {
@@ -81,8 +80,8 @@ describe('findInArray', () => {
     });
 
     // Assert
-    expect(result.foundItem).to.be.undefined;
-    expect(result.foundIndex).to.equal(-1);
+    expect(result.foundItem).toBeUndefined();
+    expect(result.foundIndex).toBe(-1);
   });
 
   test('should find first matching item', () => {
@@ -107,8 +106,8 @@ describe('findInArray', () => {
     });
 
     // Assert
-    expect(result.foundItem.value).to.equal(1);
-    expect(result.foundIndex).to.equal(0);
+    expect(result.foundItem.value).toBe(1);
+    expect(result.foundIndex).toBe(0);
   });
 
   test('should throw error if arrayData not provided', () => {
@@ -128,7 +127,7 @@ describe('findInArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('findInArray: arrayData is required');
+    }).toThrow('findInArray: arrayData is required');
   });
 
   test('should throw error if neither findProperty nor findPredicate provided', () => {
@@ -146,7 +145,7 @@ describe('findInArray', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw(
+    }).toThrow(
       'findInArray: findProperty/findValue or findPredicate is required'
     );
   });
@@ -168,8 +167,8 @@ describe('findInArray', () => {
     });
 
     // Assert
-    expect('findProperty' in operationData).to.be.false;
-    expect('findValue' in operationData).to.be.false;
-    expect('findPredicate' in operationData).to.be.false;
+    expect('findProperty' in operationData).toBe(false);
+    expect('findValue' in operationData).toBe(false);
+    expect('findPredicate' in operationData).toBe(false);
   });
 });

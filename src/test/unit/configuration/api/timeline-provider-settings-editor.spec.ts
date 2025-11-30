@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {TimelineProviderSettingsEditor} from '../../../../configuration/api/timeline-provider-settings-editor.ts';
 
 type TimelineProviderSettingsEditorSuiteContext = {
@@ -30,7 +29,7 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     editor.setVendor(vendor);
 
     // expect
-    expect(configuration.vendor).to.equal(vendor);
+    expect(configuration.vendor).toBe(vendor);
   });
   test<TimelineProviderSettingsEditorSuiteContext>('should set the selector', context => {
     // given
@@ -41,7 +40,7 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     editor.setSelector(selector);
 
     // expect
-    expect(configuration.selector).to.equal(selector);
+    expect(configuration.selector).toBe(selector);
   });
   test<TimelineProviderSettingsEditorSuiteContext>('should set the systemName', context => {
     // given
@@ -52,7 +51,7 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     editor.setSystemName(systemName);
 
     // expect
-    expect(configuration.systemName).to.equal(systemName);
+    expect(configuration.systemName).toBe(systemName);
   });
   test<TimelineProviderSettingsEditorSuiteContext>('should throw an error when an unknown system name is given', context => {
     // given
@@ -60,7 +59,7 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     const systemName = 'UnknownTimelineProvider';
 
     // expect
-    expect(() => editor.setSystemName(systemName)).throws(
+    expect(() => editor.setSystemName(systemName)).toThrow(
       'Unknown timeline provider system name: UnknownTimelineProvider'
     );
   });
@@ -72,6 +71,6 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     const result = editor.next();
 
     // expect
-    expect(result).to.eql(factory);
+    expect(result).toEqual(factory);
   });
 });

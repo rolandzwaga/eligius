@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {endAction} from '../../../operation/end-action.ts';
 import type {TOperation} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -29,6 +28,6 @@ describe('endAction', () => {
 
     delete (operationData as any).actionOperationData;
 
-    expect(result).to.eql(operationData);
+    expect(result).toEqual(operationData);
   });
 });

@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {getPropertyChainValue} from '../../../../operation/helper/get-property-chain-value.ts';
 
 describe('getNestedValue', () => {
@@ -20,7 +19,7 @@ describe('getNestedValue', () => {
     );
 
     // expect
-    expect(value).to.equal('test');
+    expect(value).toBe('test');
   });
   test('should get the nested value and suffix it with the given value', () => {
     // given
@@ -39,6 +38,6 @@ describe('getNestedValue', () => {
     );
 
     // expect
-    expect(value).to.equal('100px');
+    expect(value).toBe('100px');
   });
 });

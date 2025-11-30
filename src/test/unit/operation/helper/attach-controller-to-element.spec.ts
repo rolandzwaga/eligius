@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {attachControllerToElement} from '../../../../operation/helper/attach-controller-to-element.ts';
 
 class MockElement {
@@ -24,6 +23,6 @@ describe('attachControllerToElement', () => {
     attachControllerToElement(element as any as JQuery, controller);
 
     // expect
-    expect(element.list).to.contain(controller);
+    expect(element.list).toContain(controller);
   });
 });

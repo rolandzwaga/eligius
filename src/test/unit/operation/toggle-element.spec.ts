@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {toggleElement} from '../../../operation/toggle-element.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -22,7 +21,7 @@ describe('toggleElement', () => {
     const newData = applyOperation(toggleElement, operationData);
 
     // expect
-    expect(newData).to.equal(operationData);
-    expect((mockElement as unknown as MockElement).isToggled).to.be.true;
+    expect(newData).toBe(operationData);
+    expect((mockElement as unknown as MockElement).isToggled).toBe(true);
   });
 });

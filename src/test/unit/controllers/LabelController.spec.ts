@@ -1,5 +1,5 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   type ILabelControllerMetadata,
   LabelController,
@@ -37,10 +37,10 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller} = context;
 
-    expect(controller.name).to.equal('LabelController');
-    expect(controller.currentLanguage).to.be.null;
-    expect(controller.operationData).to.be.null;
-    expect(controller.labelData).to.not.be.null;
+    expect(controller.name).toBe('LabelController');
+    expect(controller.currentLanguage).toBeNull();
+    expect(controller.operationData).toBeNull();
+    expect(controller.labelData).not.toBeNull();
   });
   test<LabelControllerSuiteContext>('should clone the operationData in init method', context => {
     // given
@@ -48,7 +48,7 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // test
     controller.init(operationData);
     // expect
-    expect(operationData).to.not.equal(controller.operationData);
+    expect(operationData).not.toBe(controller.operationData);
   });
   test<LabelControllerSuiteContext>('should attach properly', context => {
     // given
@@ -79,7 +79,7 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // expect
     expect(
       (operationData.selectedElement as unknown as MockElement).content
-    ).to.equal('hello');
+    ).toBe('hello');
   });
   test<LabelControllerSuiteContext>('should set the text based on the new id', context => {
     // given
@@ -127,6 +127,6 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // expect
     expect(
       (operationData.selectedElement as unknown as MockElement).content
-    ).to.equal('goodbye');
+    ).toBe('goodbye');
   });
 });

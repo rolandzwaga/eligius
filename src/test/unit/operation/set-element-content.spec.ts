@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {
   type ISetElementContentOperationData,
   setElementContent,
@@ -38,7 +37,7 @@ describe('setElementContent', () => {
     applyOperation(setElementContent, operationData);
 
     // expect
-    expect(mockElement.htmlContent).to.equal('<div/>');
+    expect(mockElement.htmlContent).toBe('<div/>');
   });
   test('should append the given element with the specified content', () => {
     // given
@@ -53,7 +52,7 @@ describe('setElementContent', () => {
     applyOperation(setElementContent, operationData);
 
     // expect
-    expect(mockElement.appendContent).to.equal('<div/>');
+    expect(mockElement.appendContent).toBe('<div/>');
   });
   test('should prepend the given element with the specified content', () => {
     // given
@@ -68,7 +67,7 @@ describe('setElementContent', () => {
     applyOperation(setElementContent, operationData);
 
     // expect
-    expect(mockElement.prependContent).to.equal('<div/>');
+    expect(mockElement.prependContent).toBe('<div/>');
   });
 
   test('should remove the insertionType and template properties from operation data', () => {
@@ -84,7 +83,7 @@ describe('setElementContent', () => {
     const newData = applyOperation(setElementContent, operationData);
 
     // expect
-    expect('insertionType' in newData).to.be.false;
-    expect('template' in newData).to.be.false;
+    expect('insertionType' in newData).toBe(false);
+    expect('template' in newData).toBe(false);
   });
 });

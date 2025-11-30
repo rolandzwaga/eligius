@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {SubtitleEditor} from '../../../../configuration/api/index.ts';
 
 type SubtitleEditorSuiteContext = {
@@ -20,8 +19,8 @@ describe<SubtitleEditorSuiteContext>('SubtitleEditor', () => {
 
     const collection = subtitleEditor.export();
 
-    expect(collection[0].languageCode).to.equal('en-US');
-    expect(collection[1].languageCode).to.equal('nl-NL');
+    expect(collection[0].languageCode).toBe('en-US');
+    expect(collection[1].languageCode).toBe('nl-NL');
   });
   test<SubtitleEditorSuiteContext>('Should add subtitle for given duration and languages', ({
     subtitleEditor,
@@ -36,16 +35,16 @@ describe<SubtitleEditorSuiteContext>('SubtitleEditor', () => {
 
     const collection = subtitleEditor.export();
 
-    expect(collection[0].titles[0].duration).to.eql({start: 0, end: 5});
-    expect(collection[1].titles[0].duration).to.eql({start: 0, end: 5});
-    expect(collection[0].titles[0].text).to.equal('Foe');
-    expect(collection[1].titles[0].text).to.equal('Foo');
+    expect(collection[0].titles[0].duration).toEqual({start: 0, end: 5});
+    expect(collection[1].titles[0].duration).toEqual({start: 0, end: 5});
+    expect(collection[0].titles[0].text).toBe('Foe');
+    expect(collection[1].titles[0].text).toBe('Foo');
   });
   test<SubtitleEditorSuiteContext>('Should throw when duplicate language is added', ({
     subtitleEditor,
   }) => {
     expect(() =>
       subtitleEditor.addLanguage('nl-NL').addLanguage('nl-NL')
-    ).to.throw('Language nl-NL already exists.');
+    ).toThrow('Language nl-NL already exists.');
   });
 });

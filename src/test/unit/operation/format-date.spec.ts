@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   formatDate,
@@ -27,7 +26,7 @@ describe('formatDate', () => {
       operations: [],
     });
 
-    expect(result.formattedDate).to.equal('2025-10-29 14:30:45');
+    expect(result.formattedDate).toBe('2025-10-29 14:30:45');
   });
 
   test('should format date from string', () => {
@@ -43,7 +42,7 @@ describe('formatDate', () => {
       operations: [],
     });
 
-    expect(result.formattedDate).to.include('2025/10/29');
+    expect(result.formattedDate).toContain('2025/10/29');
   });
 
   test('should throw error if date not provided', () => {
@@ -59,7 +58,7 @@ describe('formatDate', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('date is required');
+    }).toThrow('date is required');
   });
 
   test('should throw error for invalid date', () => {
@@ -75,7 +74,7 @@ describe('formatDate', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('invalid date');
+    }).toThrow('invalid date');
   });
 
   test('should erase format property', () => {
@@ -91,6 +90,6 @@ describe('formatDate', () => {
       operations: [],
     });
 
-    expect('format' in operationData).to.be.false;
+    expect('format' in operationData).toBe(false);
   });
 });

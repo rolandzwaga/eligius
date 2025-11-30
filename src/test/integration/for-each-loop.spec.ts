@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {Action} from '../../action/index.ts';
 import type {IResolvedOperation} from '../../configuration/types.ts';
 import {Eventbus} from '../../eventbus/index.ts';
@@ -67,9 +66,9 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = (await action.start()) as TOperationData;
     // expect
-    expect(operationData.newCollection.length).to.equal(testCollection.length);
+    expect(operationData.newCollection.length).toBe(testCollection.length);
     operationData.newCollection.forEach((letter: string, index: number) => {
-      expect(letter).to.equal(testCollection[index]);
+      expect(letter).toBe(testCollection[index]);
     });
   });
   test<ForEachLoopContext>('should loop the given async operation 10 times', async context => {
@@ -113,9 +112,9 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = await action.start();
     // expect
-    expect(operationData.newCollection.length).to.equal(testCollection.length);
+    expect(operationData.newCollection.length).toBe(testCollection.length);
     operationData.newCollection.forEach((letter: string, index: number) => {
-      expect(letter).to.equal(testCollection[index]);
+      expect(letter).toBe(testCollection[index]);
     });
   });
   test<ForEachLoopContext>('should skip the loop for an empty collection', async context => {
@@ -162,8 +161,8 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = await action.start();
     // expect
-    expect(operationData.newCollection).to.be.undefined;
-    expect(operationData.test).to.be.true;
+    expect(operationData.newCollection).toBeUndefined();
+    expect(operationData.test).toBe(true);
   });
   test<ForEachLoopContext>('should skip the loop for a null collection', async context => {
     const {action} = context;
@@ -209,8 +208,8 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = await action.start();
     // expect
-    expect(operationData.newCollection).to.be.undefined;
-    expect(operationData.test).to.be.true;
+    expect(operationData.newCollection).toBeUndefined();
+    expect(operationData.test).toBe(true);
   });
   test<ForEachLoopContext>('should correctly handle nested loops', async context => {
     const {action} = context;
@@ -279,11 +278,11 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = (await action.start()) as TOperationData;
     // expect
-    expect(operationData.newCollection.length).to.equal(testCollection.length);
+    expect(operationData.newCollection.length).toBe(testCollection.length);
     operationData.newCollection.forEach((letter: string, index: number) => {
-      expect(letter).to.equal(testCollection[index]);
+      expect(letter).toBe(testCollection[index]);
     });
-    expect(operationData.newNestedCollection.length).to.equal(20);
+    expect(operationData.newNestedCollection.length).toBe(20);
   });
   test<ForEachLoopContext>('should correctly handle nested loops with nested when/otherwise blocks', async context => {
     const {action} = context;
@@ -377,13 +376,13 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = (await action.start()) as TOperationData;
     // expect
-    expect(operationData.newCollection.length).to.equal(testCollection.length);
+    expect(operationData.newCollection.length).toBe(testCollection.length);
     operationData.newCollection.forEach((letter: string, index: number) => {
-      expect(letter).to.equal(testCollection[index]);
+      expect(letter).toBe(testCollection[index]);
     });
-    expect(operationData.newNestedCollection.length).to.equal(20);
-    expect(operationData.nestedWhen).to.be.true;
-    expect(operationData.parentItem).to.equal(
+    expect(operationData.newNestedCollection.length).toBe(20);
+    expect(operationData.nestedWhen).toBe(true);
+    expect(operationData.parentItem).toBe(
       testCollection[testCollection.length - 1]
     );
   });
@@ -450,9 +449,9 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = await action.start();
     // expect
-    expect(loopCounter).to.equal(10);
-    expect(operationData.newCollection).to.be.undefined;
-    expect(operationData.test).to.be.true;
+    expect(loopCounter).toBe(10);
+    expect(operationData.newCollection).toBeUndefined();
+    expect(operationData.test).toBe(true);
   });
 
   test<ForEachLoopContext>('should handle break in loop', async context => {
@@ -517,8 +516,8 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     // test
     const operationData = await action.start();
     // expect
-    expect(loopCounter).to.equal(1);
-    expect(operationData.newCollection).to.be.undefined;
-    expect(operationData.test).to.be.true;
+    expect(loopCounter).toBe(1);
+    expect(operationData.newCollection).toBeUndefined();
+    expect(operationData.test).toBe(true);
   });
 });

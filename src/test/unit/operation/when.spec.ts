@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import type {IResolvedOperation} from '../../../configuration/types.ts';
 import {setGlobals} from '../../../operation/helper/globals.ts';
 import type {IOperationScope} from '../../../operation/index.ts';
@@ -34,7 +33,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to zero when left and right numbers are not equal', ({
     operationScope,
@@ -47,7 +46,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to undefined when left and right numbers are not equal and check is for inequality', ({
     operationScope,
@@ -60,7 +59,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to zero when left and right numbers are equal and check is for inequality', ({
     operationScope,
@@ -73,7 +72,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to undefined when left number is greater than right', ({
     operationScope,
@@ -86,7 +85,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to zero when left number is not greater than right', ({
     operationScope,
@@ -99,7 +98,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to undefined when left number is greater or equal than right', ({
     operationScope,
@@ -112,7 +111,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to zero when left number is not greater or equal than right', ({
     operationScope,
@@ -125,7 +124,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to undefined when left operationdata value is equal to right operationdata value', ({
     operationScope,
@@ -140,7 +139,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to zero when left operationdata value is not equal to right operationdata value', ({
     operationScope,
@@ -155,7 +154,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to zero when left operationdata value is equal to right operationdata value and the check is for inequality', ({
     operationScope,
@@ -170,7 +169,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to undefined when left operationdata value is not equal to right operationdata value and the check is for inequality', ({
     operationScope,
@@ -185,7 +184,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to undefined when left operationdata value is greater than right operationdata value', ({
     operationScope,
@@ -200,7 +199,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
   test<WhenSuiteContext>('should set newIndex to zero when left operationdata value is not greater than right operationdata value', ({
     operationScope,
@@ -215,7 +214,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to zero when left operationdata complex value is not greater than right operationdata value', ({
     operationScope,
@@ -231,7 +230,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to zero when left globaldata value is not equal to right globaldata value', ({
     operationScope,
@@ -245,7 +244,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to zero when left globaldata value is not equal to right globaldata value', ({
     operationScope,
@@ -263,7 +262,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
   test<WhenSuiteContext>('should set newIndex to endWhen index when left globaldata value is not equal to right globaldata value', ({
     operationScope,
@@ -288,7 +287,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(2);
+    expect(operationScope.newIndex).toBe(2);
   });
   test<WhenSuiteContext>('should set newIndex to zero when left variable value is not equal to right variable value', ({
     operationScope,
@@ -306,7 +305,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.equal(0);
+    expect(operationScope.newIndex).toBe(0);
   });
 
   test<WhenSuiteContext>('should leave newIndex undefined when left variable value is equal to right variable value', ({
@@ -325,7 +324,7 @@ describe<WhenSuiteContext>('when', () => {
     applyOperation(when, operationData, operationScope);
 
     // expect
-    expect(operationScope.newIndex).to.be.undefined;
+    expect(operationScope.newIndex).toBeUndefined();
   });
 
   test<WhenSuiteContext>('should remove the expression property from the operation data', ({
@@ -344,6 +343,6 @@ describe<WhenSuiteContext>('when', () => {
     const newData = applyOperation(when, operationData, operationScope);
 
     // expect
-    expect('expression' in newData).to.be.false;
+    expect('expression' in newData).toBe(false);
   });
 });

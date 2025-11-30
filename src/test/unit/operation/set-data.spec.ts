@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {afterAll, describe, test} from 'vitest';
+import {expect, afterAll, describe, test} from 'vitest';
 import {getGlobals} from '../../../operation/helper/globals.ts';
 import {setGlobal} from '../../../operation/helper/set-global.ts';
 import {type IOperationScope, setData} from '../../../operation/index.ts';
@@ -34,9 +33,9 @@ describe('setData', () => {
     >;
 
     // given
-    expect(newData.testTarget).to.equal('foo');
-    expect(scope.newIndex).to.equal(100);
-    expect(getGlobals('globalTarget')).to.equal('bar');
+    expect(newData.testTarget).toBe('foo');
+    expect(scope.newIndex).toBe(100);
+    expect(getGlobals('globalTarget')).toBe('bar');
   });
   test('should set complex data', () => {
     // given
@@ -64,7 +63,7 @@ describe('setData', () => {
     >;
 
     // given
-    expect(newData.testTarget.value).to.equal('foo');
-    expect(scope.currentItem.value).to.equal(100);
+    expect(newData.testTarget.value).toBe('foo');
+    expect(scope.currentItem.value).toBe(100);
   });
 });

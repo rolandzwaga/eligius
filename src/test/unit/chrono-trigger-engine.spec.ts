@@ -1,17 +1,7 @@
-import {expect} from 'chai';
 import $ from 'jquery';
-import sinon from 'sinon';
-import {afterEach, beforeEach, describe, test} from 'vitest';
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 import {EligiusEngine} from '../../eligius-engine.ts';
 import type {IEventbus} from '../../eventbus/index.ts';
-
-class LanguageManagerStub {
-  constructor(
-    public language: string,
-    public labels: any[],
-    public eventbus: any
-  ) {}
-}
 
 interface SuiteContext {
   configuration: any;
@@ -27,7 +17,7 @@ function setupLayoutInit(context: SuiteContext) {
 
 function setupEventbus(context: SuiteContext) {
   context.eventbus = {
-    on: sinon.stub(),
+    on: vi.fn(),
   } as unknown as IEventbus;
 }
 
@@ -55,7 +45,7 @@ describe<SuiteContext>('EligiusEngine', () => {
     );
 
     // expect
-    expect(engine).to.not.equal(null);
+    expect(engine).not.toBe(null);
   });
   test<SuiteContext>('should create the layout template', context => {
     // given
@@ -70,7 +60,7 @@ describe<SuiteContext>('EligiusEngine', () => {
 
     // test
     (engine as any)._createLayoutTemplate();
-    expect($('.layout').length).to.be.greaterThan(0);
+    expect($('.layout').length).toBeGreaterThan(0);
   });
   test<SuiteContext>('should throw an error when container selector cannot be resolved', context => {
     // given
@@ -91,8 +81,8 @@ describe<SuiteContext>('EligiusEngine', () => {
     }
 
     // expect
-    expect(error).to.not.equal(null);
-    expect(error.message).to.equal(
+    expect(error).not.toBe(null);
+    expect(error.message).toBe(
       'Container selector not found: .test_does_not_exist'
     );
   });
@@ -155,9 +145,9 @@ describe<SuiteContext>('EligiusEngine', () => {
     // expect
     expect(
       context.configuration.timelines[0].timelineActions[0].duration.end
-    ).to.equal(Infinity);
+    ).toBe(Infinity);
     expect(
       context.configuration.timelines[0].timelineActions[1].duration.end
-    ).to.equal(10);
+    ).toBe(10);
   });
 });

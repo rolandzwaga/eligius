@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import $ from 'jquery';
-import {afterEach, beforeEach, describe, test} from 'vitest';
+import {expect, afterEach, beforeEach, describe, test} from 'vitest';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
@@ -157,11 +156,11 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     // expect: Initialization completes in reasonable time
     const duration = endTime - startTime;
-    expect(duration).to.be.lessThan(100); // Should complete in <100ms
+    expect(duration).toBeLessThan(100); // Should complete in <100ms
 
     // Verify engine created successfully with all timelines
-    expect(engine).to.not.be.null;
-    expect((engine as any)._timeLineActionsLookup).to.not.be.undefined;
+    expect(engine).not.toBeNull();
+    expect((engine as any)._timeLineActionsLookup).not.toBeUndefined();
 
     console.log(
       `Timeline initialization (10 timelines, 100 actions): ${duration.toFixed(2)}ms`
@@ -217,7 +216,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     // expect: 100 lookups complete quickly (O(1) Map access)
     const duration = endTime - startTime;
-    expect(duration).to.be.lessThan(50); // Should complete in <50ms with Map cache
+    expect(duration).toBeLessThan(50); // Should complete in <50ms with Map cache
 
     console.log(
       `Timeline lookup (100 iterations, 20 timelines): ${duration.toFixed(2)}ms`
@@ -278,8 +277,8 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     // expect: All actions executed in reasonable time
     const duration = endTime - startTime;
-    expect(executionCount).to.equal(10);
-    expect(duration).to.be.lessThan(200); // Should complete in <200ms (includes 10x1ms delays)
+    expect(executionCount).toBe(10);
+    expect(duration).toBeLessThan(200); // Should complete in <200ms (includes 10x1ms delays)
 
     console.log(
       `Action execution (10 actions with async work): ${duration.toFixed(2)}ms`
@@ -342,7 +341,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     // expect: Complete operation in reasonable time
     const duration = endTime - startTime;
-    expect(duration).to.be.lessThan(200); // Full initialization + operations <200ms
+    expect(duration).toBeLessThan(200); // Full initialization + operations <200ms
 
     console.log(
       `Integrated benchmark (5 timelines, 100 actions, 10 switches): ${duration.toFixed(2)}ms`

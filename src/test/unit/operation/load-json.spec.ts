@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {clearCache, loadJson} from '../../../operation/load-json.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -42,7 +41,7 @@ describe<LoadJsonContext>('loadJSON', () => {
     const newData = await applyOperation(loadJson, operationData);
 
     // expect
-    expect(newData.json).to.eql(context.result);
+    expect(newData.json).toEqual(context.result);
   });
   test<LoadJsonContext>('should return the cached json the second time its called', async context => {
     // given
@@ -56,13 +55,13 @@ describe<LoadJsonContext>('loadJSON', () => {
     let newData = await applyOperation(loadJson, operationData);
 
     // expect
-    expect(newData.json).to.equal(context.result);
+    expect(newData.json).toBe(context.result);
     context.result = {test: false};
     newData = await applyOperation(loadJson, {
       url: '/test.json',
       cache: true,
     });
-    expect(newData.json).to.not.eql(context.result);
+    expect(newData.json).not.toEqual(context.result);
   });
 
   test<LoadJsonContext>('should remove the url and cache properties from the operation data', async context => {
@@ -77,7 +76,7 @@ describe<LoadJsonContext>('loadJSON', () => {
     let newData = await applyOperation(loadJson, operationData);
 
     // expect
-    expect('url' in newData).to.be.false;
-    expect('cache' in newData).to.be.false;
+    expect('url' in newData).toBe(false);
+    expect('cache' in newData).toBe(false);
   });
 });

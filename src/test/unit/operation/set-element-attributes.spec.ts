@@ -1,6 +1,5 @@
-import {expect} from 'chai';
 import $ from 'jquery';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {setElementAttributes} from '../../../operation/set-element-attributes.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -20,8 +19,8 @@ describe('setElementAttributes', () => {
     applyOperation(setElementAttributes, operationData);
 
     // expect
-    expect(testElement.attr('testProp1')).to.equal('test1');
-    expect(testElement.attr('testProp2')).to.equal('test2');
+    expect(testElement.attr('testProp1')).toBe('test1');
+    expect(testElement.attr('testProp2')).toBe('test2');
   });
 
   test('should remove the attributes property from the operation data', () => {
@@ -39,6 +38,6 @@ describe('setElementAttributes', () => {
     const newData = applyOperation(setElementAttributes, operationData);
 
     // expect
-    expect('attributes' in newData).to.be.false;
+    expect('attributes' in newData).toBe(false);
   });
 });

@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IGetAttributesFromElementOperationData} from '../../../operation/get-attributes-from-element.ts';
 import {getAttributesFromElement} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -18,6 +17,6 @@ describe('getAttibutesFromElement', () => {
     const newData = applyOperation(getAttributesFromElement, operationData);
 
     // expect
-    expect(newData.attributeValues).to.eql({foo: 'fooValue', bar: 'barValue'});
+    expect(newData.attributeValues).toEqual({foo: 'fooValue', bar: 'barValue'});
   });
 });

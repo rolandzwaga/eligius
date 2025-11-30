@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/index.ts';
 import {createElement} from '../../../operation/create-element.ts';
 import type {IOperationScope} from '../../../operation/index.ts';
@@ -14,7 +13,7 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData);
 
     // expect
-    expect(newData.template.prop('outerHTML')).to.equal('<div></div>');
+    expect(newData.template.prop('outerHTML')).toBe('<div></div>');
   });
   test('should create a simple element with text', () => {
     // given
@@ -24,7 +23,7 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData);
 
     // expect
-    expect(newData.template.prop('outerHTML')).to.equal('<div>test</div>');
+    expect(newData.template.prop('outerHTML')).toBe('<div>test</div>');
   });
   test('should create an element with attributes', () => {
     // given
@@ -40,7 +39,7 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData);
 
     // expect
-    expect(newData.template.prop('outerHTML')).to.equal(
+    expect(newData.template.prop('outerHTML')).toBe(
       '<div class="test" id="testmore"></div>'
     );
   });
@@ -59,7 +58,7 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData);
 
     // expect
-    expect(newData.template.prop('outerHTML')).to.equal(
+    expect(newData.template.prop('outerHTML')).toBe(
       '<div class="testClass" id="testId">test text</div>'
     );
   });
@@ -88,7 +87,7 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData, scope);
 
     // expect
-    expect(newData.template.prop('outerHTML')).to.equal(
+    expect(newData.template.prop('outerHTML')).toBe(
       '<div class="resolved-class" id="testId">foo bar</div>'
     );
   });
@@ -107,7 +106,7 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData);
 
     // expect
-    expect(newData.template.prop('outerHTML')).to.equal(
+    expect(newData.template.prop('outerHTML')).toBe(
       '<div id="testId">test text</div>'
     );
   });
@@ -127,8 +126,8 @@ describe('createElement', () => {
     const newData = applyOperation(createElement, operationData);
 
     // expect
-    expect('elementName' in newData).to.be.false;
-    expect('attributes' in newData).to.be.false;
-    expect('text' in newData).to.be.false;
+    expect('elementName' in newData).toBe(false);
+    expect('attributes' in newData).toBe(false);
+    expect('text' in newData).toBe(false);
   });
 });

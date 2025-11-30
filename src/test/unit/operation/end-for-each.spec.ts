@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {endForEach} from '../../../operation/end-for-each.ts';
 import type {IOperationScope} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
@@ -18,7 +17,7 @@ describe('endForEach', () => {
     const result = applyOperation(endForEach, operationData, context);
 
     // expect
-    expect(result).to.be.equal(operationData);
+    expect(result).toBe(operationData);
   });
   test('should increment loopIndex and restart the newIndex when the current is lower than the loopLength', () => {
     // given
@@ -37,9 +36,9 @@ describe('endForEach', () => {
     applyOperation(endForEach, operationData, context);
 
     // expect
-    expect(context.loopIndex).to.be.equal(2);
-    expect(context.loopLength).to.be.equal(10);
-    expect(context.loopStartIndex).to.be.equal(5);
-    expect(context.newIndex).to.be.equal(5);
+    expect(context.loopIndex).toBe(2);
+    expect(context.loopLength).toBe(10);
+    expect(context.loopStartIndex).toBe(5);
+    expect(context.newIndex).toBe(5);
   });
 });

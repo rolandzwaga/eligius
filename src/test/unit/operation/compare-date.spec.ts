@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, test} from 'vitest';
+import {expect, beforeEach, describe, test} from 'vitest';
 import type {IEventbus} from '../../../eventbus/types.ts';
 import {
   compareDate,
@@ -30,10 +29,10 @@ describe('compareDate', () => {
       operations: [],
     });
 
-    expect(result.comparison).to.equal(-1);
-    expect(result.isBefore).to.be.true;
-    expect(result.isAfter).to.be.false;
-    expect(result.isEqual).to.be.false;
+    expect(result.comparison).toBe(-1);
+    expect(result.isBefore).toBe(true);
+    expect(result.isAfter).toBe(false);
+    expect(result.isEqual).toBe(false);
   });
 
   test('should compare dates - after', () => {
@@ -52,10 +51,10 @@ describe('compareDate', () => {
       operations: [],
     });
 
-    expect(result.comparison).to.equal(1);
-    expect(result.isAfter).to.be.true;
-    expect(result.isBefore).to.be.false;
-    expect(result.isEqual).to.be.false;
+    expect(result.comparison).toBe(1);
+    expect(result.isAfter).toBe(true);
+    expect(result.isBefore).toBe(false);
+    expect(result.isEqual).toBe(false);
   });
 
   test('should compare dates - equal', () => {
@@ -75,10 +74,10 @@ describe('compareDate', () => {
       operations: [],
     });
 
-    expect(result.comparison).to.equal(0);
-    expect(result.isEqual).to.be.true;
-    expect(result.isBefore).to.be.false;
-    expect(result.isAfter).to.be.false;
+    expect(result.comparison).toBe(0);
+    expect(result.isEqual).toBe(true);
+    expect(result.isBefore).toBe(false);
+    expect(result.isAfter).toBe(false);
   });
 
   test('should throw error if dates not provided', () => {
@@ -97,7 +96,7 @@ describe('compareDate', () => {
         eventbus: mockEventbus,
         operations: [],
       });
-    }).to.throw('both dates are required');
+    }).toThrow('both dates are required');
   });
 
   test('should erase date1 and date2 properties', () => {
@@ -116,7 +115,7 @@ describe('compareDate', () => {
       operations: [],
     });
 
-    expect('date1' in operationData).to.be.false;
-    expect('date2' in operationData).to.be.false;
+    expect('date1' in operationData).toBe(false);
+    expect('date2' in operationData).toBe(false);
   });
 });

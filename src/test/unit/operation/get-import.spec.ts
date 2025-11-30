@@ -1,5 +1,5 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {getImport} from '../../../operation/get-import.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -31,9 +31,9 @@ describe<GetImportSuiteContext>('get-import', () => {
     } as any);
 
     // expect
-    expect(context.eventName).to.equal('request-function');
-    expect(context.systemName).to.equal('thing');
-    expect(context.importedThing).to.eql(result.importedInstance);
+    expect(context.eventName).toBe('request-function');
+    expect(context.systemName).toBe('thing');
+    expect(context.importedThing).toEqual(result.importedInstance);
   });
 
   test<GetImportSuiteContext>('should remove the systemName from the operation data', context => {
@@ -46,6 +46,6 @@ describe<GetImportSuiteContext>('get-import', () => {
     } as any);
 
     // expect
-    expect('systemName' in result).to.be.false;
+    expect('systemName' in result).toBe(false);
   });
 });

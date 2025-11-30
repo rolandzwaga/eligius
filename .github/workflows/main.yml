@@ -10,59 +10,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  # Cairo dependency versions - update these to change versions
-  GTK_BUNDLE_VERSION: "2.22.1-20101229"
-  LIBJPEG_TURBO_VERSION: "3.0.1"
-
 jobs:
   build:
-    name: Build, lint, and test on Node 20 and windows-latest
+    name: Build, lint, and test on Node 20
 
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
-
-      - name: Cache gtk and libjpg downloads
-        id: cache-cairo-deps
-        uses: actions/cache@v4
-        with:
-          # Cache key includes the versions, so cache is invalidated on version change
-          key: ${{ runner.os }}-cairo-deps-gtk-${{ env.GTK_BUNDLE_VERSION }}-libjpeg-${{ env.LIBJPEG_TURBO_VERSION }}
-          path: |
-            C:\libjpeg.exe
-            C:\GTK
-
-      - name: Put GTK on PATH for this job
-        run: |
-          $env:PATH = 'C:\GTK\bin;' + $env:PATH
-          [Environment]::SetEnvironmentVariable('PATH', $env:PATH, 'Process')
-          Write-Host "Updated PATH: $env:PATH"
-
-      - name: Download Cairo dependencies
-        if: steps.cache-cairo-deps.outputs.cache-hit != 'true'
-        run: |
-          # Using HTTPS where possible
-          $gtkUrl = "https://ftp.gnome.org/pub/GNOME/binaries/win64/gtk+/2.22/gtk+-bundle_${{ env.GTK_BUNDLE_VERSION }}_win64.zip"
-          $libjpegUrl = "https://sourceforge.net/projects/libjpeg-turbo/files/3.0.1/libjpeg-turbo-3.0.1-vc64.exe/download"
-
-          Write-Host "Downloading GTK bundle version ${{ env.GTK_BUNDLE_VERSION }}"
-          Invoke-WebRequest $gtkUrl -OutFile "C:\gtk.zip" -MaximumRetryCount 3 -UserAgent NativeHost
-          Expand-Archive C:\gtk.zip -DestinationPath "C:\GTK"
-
-          Write-Host "Downloading libjpeg-turbo version ${{ env.LIBJPEG_TURBO_VERSION }}"
-          Invoke-WebRequest $libjpegUrl -OutFile "C:\libjpeg.exe" -MaximumRetryCount 3 -UserAgent NativeHost
-
-      - name: Install Cairo dependencies
-        run: |
-          C:\libjpeg.exe /S
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v2
-        with:
-          vs-version: "latest"
 
       - name: Use Node 20
         uses: actions/setup-node@v6

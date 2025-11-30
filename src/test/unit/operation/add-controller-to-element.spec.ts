@@ -1,48 +1,34 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
-import type {Eventbus} from '../../../eventbus/index.ts';
+import {expect, describe, test, vi} from 'vitest';
 import {addControllerToElement} from '../../../operation/add-controller-to-element.ts';
-import type {TOperation} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
-class MockElement {
-  name: string = '';
-  list: any[] = [];
-
-  data(name: string, list: any[]) {
-    this.name = name;
-    if (list) {
-      this.list = list;
-    }
-    return this.list;
-  }
+function createMockElement() {
+  const storedData: any[] = [];
+  return {
+    data: vi.fn((name: string, list?: any[]) => {
+      if (list) {
+        storedData.push(...list);
+      }
+      return storedData;
+    }),
+  };
 }
 
-class MockController {
-  returnPromise?: Promise<any>;
-  initData?: TOperation;
-  eventbus?: Eventbus;
-
-  constructor(returnPromise?: Promise<any>) {
-    this.returnPromise = returnPromise;
-  }
-
-  init(initData: TOperation) {
-    this.initData = initData;
-  }
-
-  attach(eventbus: Eventbus) {
-    this.eventbus = eventbus;
-    return this.returnPromise;
-  }
+function createMockController(returnPromise?: Promise<any>) {
+  return {
+    init: vi.fn(),
+    attach: vi.fn().mockReturnValue(returnPromise),
+    eventbus: undefined as any,
+  };
 }
 
 describe('addControllerToElement', () => {
   test('should attach the controller without a promise result', () => {
     // given
+    const mockController = createMockController();
     const operationData = {
-      selectedElement: new MockElement(),
-      controllerInstance: new MockController(),
+      selectedElement: createMockElement(),
+      controllerInstance: mockController,
     };
     const eventbus = {} as any;
 
@@ -54,24 +40,25 @@ describe('addControllerToElement', () => {
     });
 
     // expect
-    expect(data).to.equal(operationData);
-    expect(operationData.controllerInstance.eventbus).to.equal(eventbus);
+    expect(data).toBe(operationData);
+    expect(mockController.attach).toHaveBeenCalledWith(eventbus);
   });
+
   test('should attach the controller with a promise result', async () => {
     // given
-    const promise = new Promise<void>(resolve => {
-      resolve();
-    });
+    const promise = Promise.resolve();
+    const mockController = createMockController(promise);
 
     const operationData = {
-      selectedElement: new MockElement(),
-      controllerInstance: new MockController(promise),
+      selectedElement: createMockElement(),
+      controllerInstance: mockController,
     };
 
     // test
     const data = await applyOperation(addControllerToElement, operationData);
 
     // expect
-    expect(data).to.equal(operationData);
+    expect(data).toBe(operationData);
+    expect(mockController.attach).toHaveBeenCalled();
   });
 });

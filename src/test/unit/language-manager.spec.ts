@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import type {IEventbus} from '../../eventbus/index.ts';
 import {LanguageManager} from '../../language-manager.ts';
 import type {ILanguageLabel, TLanguageCode} from '../../types.ts';
@@ -13,7 +12,7 @@ type LanguageManagerSuiteContext = {
 /*it('should return the current language', () => {
     const languageManager = new LanguageManager(language, labels, eventbus);
     languageManager._handleRequestCurrentLanguage((current) => {
-      expect(current).to.equal(language);
+      expect(current).toBe(language);
     });
   });
 
@@ -27,7 +26,7 @@ type LanguageManagerSuiteContext = {
     ];
     const languageManager = new LanguageManager(language, labels, eventbus);
     languageManager._handleRequestLabelCollection(labelId, (labelCollection) => {
-      expect(labelCollection).to.equal(labels[0].labels);
+      expect(labelCollection).toBe(labels[0].labels);
     });
   });
 
@@ -46,8 +45,8 @@ type LanguageManagerSuiteContext = {
     ];
     const languageManager = new LanguageManager(language, labels, eventbus);
     languageManager._handleRequestLabelCollections([labelId1, labelId2], (labelCollections) => {
-      expect(labelCollections[0]).to.equal(labels[0].labels);
-      expect(labelCollections[1]).to.equal(labels[1].labels);
+      expect(labelCollections[0]).toBe(labels[0].labels);
+      expect(labelCollections[1]).toBe(labels[1].labels);
     });
   });
 
@@ -60,7 +59,7 @@ type LanguageManagerSuiteContext = {
     languageManager._handleLanguageChange(newLanguage);
 
     // expect
-    expect(languageManager._currentLanguage).to.equal(newLanguage);
+    expect(languageManager._currentLanguage).toBe(newLanguage);
   });
 
   it('should refuse a null value for the given language', () => {
@@ -76,7 +75,7 @@ type LanguageManagerSuiteContext = {
     }
 
     // expect
-    expect(error).to.not.equal(null);
+    expect(error).not.toBe(null);
   });
 
   it('should refuse an empty value for the given language', () => {
@@ -92,7 +91,7 @@ type LanguageManagerSuiteContext = {
     }
 
     // expect
-    expect(error).to.not.equal(null);
+    expect(error).not.toBe(null);
   });
   */
 function withContext<T>(ctx: unknown): asserts ctx is T {}
@@ -114,7 +113,7 @@ describe<LanguageManagerSuiteContext>('LanguageManager', () => {
   test<LanguageManagerSuiteContext>('should create an instance and add the needed event listeners', context => {
     const {language, labels, eventbus, subscriptions} = context;
     const languageManager = new LanguageManager(language, labels, eventbus);
-    expect(languageManager).to.be.not.undefined;
-    expect(subscriptions.length).to.equal(4);
+    expect(languageManager).toBeDefined();
+    expect(subscriptions.length).toBe(4);
   });
 });

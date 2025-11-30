@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {beforeEach, describe, type TestContext, test} from 'vitest';
+import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import type {IEngineConfiguration} from '../../configuration/types.ts';
 import {EngineFactory} from '../../engine-factory.ts';
 import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
@@ -51,7 +50,7 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
     const {factory} = context;
 
     // expect
-    expect(factory).not.to.be.undefined;
+    expect(factory).not.toBeUndefined();
   });
   test<EngineFactorySuiteContext>('should create the engine', context => {
     // given

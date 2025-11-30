@@ -1,5 +1,4 @@
-import {expect} from 'chai';
-import {describe, test} from 'vitest';
+import {expect, describe, test} from 'vitest';
 import {type IOperationScope, otherwise} from '../../../operation/index.ts';
 import {applyOperation} from '../../../util/apply-operation.ts';
 
@@ -16,8 +15,8 @@ describe('otherwise', () => {
     const result = applyOperation(otherwise, operationData, scope);
 
     // expect
-    expect(scope.newIndex).to.be.undefined;
-    expect(result).to.be.equal(operationData);
+    expect(scope.newIndex).toBeUndefined();
+    expect(result).toBe(operationData);
   });
   test('should do nothing when whenEvaluation is true', () => {
     // given
@@ -31,7 +30,7 @@ describe('otherwise', () => {
     const result = applyOperation(otherwise, operationData, scope);
 
     // expect
-    expect(scope.newIndex).to.equal(0);
-    expect(result).to.be.equal(operationData);
+    expect(scope.newIndex).toBe(0);
+    expect(result).toBe(operationData);
   });
 });
