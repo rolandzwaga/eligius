@@ -1,5 +1,13 @@
 ---
 description: Execute the implementation planning workflow using the plan template to generate design artifacts.
+handoffs: 
+  - label: Create Tasks
+    agent: speckit.tasks
+    prompt: Break the plan into tasks
+    send: true
+  - label: Create Checklist
+    agent: speckit.checklist
+    prompt: Create a checklist for the following domain...
 ---
 
 ## User Input
@@ -31,33 +39,26 @@ You **MUST** consider the user input before proceeding (if not empty).
 
 ### Phase 0: Outline & Research
 
-**MANDATORY**: Use Context7 MCP server for all library/technology research (Constitution Principle XX)
-
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
-   - **CRITICAL**: Before researching libraries (jQuery, Vitest, TypeScript, lottie-web, video.js, etc.):
-     1. Use `mcp__context7__resolve-library-id` to find library ID
-     2. Use `mcp__context7__get-library-docs` to fetch current documentation
-   - Document API patterns, signatures, and examples from Context7
 
    ```text
    For each unknown in Technical Context:
-     Task: "Research {unknown} for {feature context} using Context7 MCP server"
+     Task: "Research {unknown} for {feature context}"
    For each technology choice:
-     Task: "Find best practices for {tech} in {domain} using Context7 MCP server"
+     Task: "Find best practices for {tech} in {domain}"
    ```
 
 3. **Consolidate findings** in `research.md` using format:
    - Decision: [what was chosen]
    - Rationale: [why chosen]
    - Alternatives considered: [what else evaluated]
-   - Documentation source: [Context7 library ID and version]
 
-**Output**: research.md with all NEEDS CLARIFICATION resolved and Context7-verified documentation
+**Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ### Phase 1: Design & Contracts
 

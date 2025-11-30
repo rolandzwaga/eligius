@@ -1,6 +1,5 @@
 export * from './action/index.ts';
 export * from './action/types.ts';
-export * from './build/index.ts';
 export * from './configuration/api/index.ts';
 export {ConfigurationResolver} from './configuration/configuration-resolver.ts';
 export * from './configuration/types.ts';
