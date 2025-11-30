@@ -64,4 +64,63 @@ describe('forEach', () => {
     expect(scope.loopStartIndex).toBeUndefined();
     expect(scope.currentItem).toBeUndefined();
   });
+
+  test('should set the scope when an undefined collection is passed in', () => {
+    // given
+    const scope: IOperationScope = {
+      currentIndex: 10,
+      eventbus: {} as any,
+      operations: [],
+    };
+    const operationData = {
+      collection: undefined,
+    };
+
+    // test
+    applyOperation(forEach, operationData, scope);
+
+    // expect
+    expect(scope.loopIndex).toBeUndefined();
+    expect(scope.loopLength).toBeUndefined();
+    expect(scope.loopStartIndex).toBeUndefined();
+    expect(scope.currentItem).toBeUndefined();
+  });
+
+  test('should throw error when resolved collection is not an array', () => {
+    // given
+    const scope: IOperationScope = {
+      currentIndex: 10,
+      eventbus: {} as any,
+      operations: [],
+    };
+    const operationData = {
+      collection: {notAnArray: true} as any,
+    };
+
+    // test & expect
+    expect(() => applyOperation(forEach, operationData, scope)).toThrow(
+      'Expected resolved collection property to be array type'
+    );
+  });
+
+  test('should handle single-item collection correctly', () => {
+    // given
+    const scope: IOperationScope = {
+      currentIndex: 5,
+      eventbus: {} as any,
+      operations: [],
+    };
+    const operationData = {
+      collection: ['onlyItem'],
+    };
+
+    // test
+    applyOperation(forEach, operationData, scope);
+
+    // expect
+    expect(scope.loopIndex).toBe(0);
+    expect(scope.loopLength).toBe(0);
+    expect(scope.loopStartIndex).toBe(5);
+    expect(scope.currentItem).toBe('onlyItem');
+  });
 });

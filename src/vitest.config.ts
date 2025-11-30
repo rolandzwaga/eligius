@@ -26,6 +26,11 @@ export default defineConfig({
         'copy-schema.js',
         'build/**',
         'docs/**',
+        // Exclude devtools integration that requires browser extension
+        '**/devtool-event-listener.ts',
+        // Exclude type-only and index files
+        '**/types.ts',
+        '**/index.ts',
       ],
     },
     include: ['src/test/**/*.spec.ts'],

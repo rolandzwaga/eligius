@@ -116,7 +116,7 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
     expect(registry.eventTopic).toBe('testTopic');
   });
   test<ConfigurationResolverSuiteContext>('should initialize initActions', context => {
-    // give
+    // given
     const {importer, eventbus} = context;
     const config = createTestConfig();
     config.initActions = [
@@ -230,7 +230,7 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
     expect(processedConfig.actions[0].endOperations[0].instance).not.toBeUndefined();
   });
   test<ConfigurationResolverSuiteContext>('should initialize timeline actions', context => {
-    // give
+    // given
     const {importer, eventbus} = context;
     const config = createTestConfig();
     config.timelines = [
@@ -335,7 +335,7 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
   });
 
   test<ConfigurationResolverSuiteContext>('should resolve template: properties', context => {
-    // give
+    // given
     const {importer, eventbus} = context;
     const config = createTestConfig();
     config.layoutTemplate = 'template:test';

@@ -97,15 +97,18 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
 
   start(): void {
     this._player?.play();
+    this._playState = 'running';
   }
 
   stop(): void {
     this._player?.pause();
     this._player?.currentTime(0);
+    this._playState = 'stopped';
   }
 
   pause(): void {
     this._player?.pause();
+    this._playState = 'stopped';
   }
 
   seek(position: number): Promise<number> {
@@ -118,9 +121,15 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
   }
 
   playlistItem(uri: string): void {
-    if (this._urls.includes(uri)) {
-      this._player?.selectSource([uri]);
+    if (uri === null || !uri.length || this._urls.length === 0) {
+      return;
     }
+
+    if (!this._urls.includes(uri)) {
+      throw new Error(`Unknown playlist uri: ${uri}`);
+    }
+
+    this._player?.selectSource([uri]);
   }
 
   getPosition(): number {

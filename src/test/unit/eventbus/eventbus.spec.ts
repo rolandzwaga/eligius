@@ -1,5 +1,5 @@
-
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
+import type {EventName} from '../../../eventbus/events/types.ts';
 import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
 
 type EventbusSuiteContext = {eventbus: IEventbus} & TestContext;
@@ -15,190 +15,200 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     // given
     const {eventbus} = context;
 
-    let called = 0;
-    eventbus.on('test' as any, val => {
-      called += val;
+    let receivedPosition = 0;
+    eventbus.on('timeline-seek-request', position => {
+      receivedPosition = position;
     });
 
     // test
-    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('timeline-seek-request', [5]);
 
     // expect
-    expect(called).toBe(1);
+    expect(receivedPosition).toBe(5);
   });
   test<EventbusSuiteContext>('should register an event handler once and let it get called only once', context => {
     // given
     const {eventbus} = context;
-    let called = 0;
-    eventbus.once('test' as any, val => {
-      called += val;
+    let callCount = 0;
+    eventbus.once('timeline-seek-request', () => {
+      callCount += 1;
     });
 
     // test
-    eventbus.broadcast('test' as any, [1]);
-    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcast('timeline-seek-request', [2]);
 
     // expect
-    expect(called).toBe(1);
+    expect(callCount).toBe(1);
   });
   test<EventbusSuiteContext>('should register an event handler once, but not be called after it was removed', context => {
     // given
     const {eventbus} = context;
-    let called = 0;
-    const remover = eventbus.once('test' as any, val => {
-      called += val;
+    let callCount = 0;
+    const remover = eventbus.once('timeline-seek-request', () => {
+      callCount += 1;
     });
 
     // test
     remover();
-    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
 
     // expect
-    expect(called).toBe(0);
+    expect(callCount).toBe(0);
   });
   test<EventbusSuiteContext>('should only call handler for specified topic', context => {
     // given
     const {eventbus} = context;
-    let called = 0;
-    const topic = 'topic';
+    let receivedPosition = 0;
+    const topic = 'timeline-1';
     eventbus.on(
-      'test' as any,
-      val => {
-        called += val;
+      'timeline-seek-request',
+      position => {
+        receivedPosition = position;
       },
       topic
     );
 
     // test
-    eventbus.broadcast('test' as any, [1]);
-    eventbus.broadcastForTopic('test' as any, topic, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcastForTopic('timeline-seek-request', topic, [5]);
 
     // expect
-    expect(called).toBe(1);
+    expect(receivedPosition).toBe(5);
   });
   test<EventbusSuiteContext>('should register and call the event interceptor', context => {
     // given
     const {eventbus} = context;
-    let called = 0;
+    let interceptedPosition = 0;
     const interceptor = {
-      intercept: (args: number[]) => {
-        called += args[0];
+      intercept: (args: [number]) => {
+        interceptedPosition = args[0];
         return args;
       },
     };
-    eventbus.registerInterceptor('test', interceptor);
+    eventbus.registerInterceptor('timeline-seek-request', interceptor);
 
     // test
-    eventbus.broadcast('test' as any, [1]);
-    eventbus.broadcast('test2' as any, [1]);
+    eventbus.broadcast('timeline-seek-request', [5]);
+    eventbus.broadcast('timeline-play-request', []);
 
     // expect
-    expect(called).toBe(1);
+    expect(interceptedPosition).toBe(5);
   });
   test<EventbusSuiteContext>('should register and not call the event interceptor after it was removed', context => {
     // given
     const {eventbus} = context;
-    let called = 0;
+    let callCount = 0;
     const interceptor = {
-      intercept: (args: number[]) => {
-        called += args[0];
+      intercept: (args: [number]) => {
+        callCount += 1;
         return args;
       },
     };
-    const remover = eventbus.registerInterceptor('test', interceptor);
+    const remover = eventbus.registerInterceptor(
+      'timeline-seek-request',
+      interceptor
+    );
 
     // test
     remover();
-    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
 
     // expect
-    expect(called).toBe(0);
+    expect(callCount).toBe(0);
   });
   test<EventbusSuiteContext>('should register and call the event interceptor for the specified topic', context => {
     // given
     const {eventbus} = context;
-    let called = 0;
-    const topic = 'topic';
+    let interceptedPosition = 0;
+    const topic = 'timeline-1';
     const interceptor = {
-      intercept: (args: number[]) => {
-        called += args[0];
+      intercept: (args: [number]) => {
+        interceptedPosition = args[0];
         return args;
       },
     };
-    eventbus.registerInterceptor('test', interceptor, topic);
+    eventbus.registerInterceptor('timeline-seek-request', interceptor, topic);
 
     // test
-    eventbus.broadcast('test' as any, [1]);
-    eventbus.broadcastForTopic('test' as any, topic, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcastForTopic('timeline-seek-request', topic, [10]);
 
     // expect
-    expect(called).toBe(1);
+    expect(interceptedPosition).toBe(10);
   });
   test<EventbusSuiteContext>('should register and call the event interceptor and pass the new args to the event handler', context => {
     // given
     const {eventbus} = context;
-    let called1 = 0;
-    let called2 = 0;
-    const topic = 'topic';
+    let receivedGlobal = 0;
+    let receivedTopic = 0;
+    const topic = 'timeline-1';
     const interceptor = {
-      intercept: (_args: unknown[]) => {
-        return [10];
+      intercept: (_args: [number]): [number] => {
+        return [99];
       },
     };
-    eventbus.registerInterceptor('test', interceptor);
-    eventbus.on('test' as any, val => {
-      called1 += val;
+    eventbus.registerInterceptor('timeline-seek-request', interceptor);
+    eventbus.on('timeline-seek-request', position => {
+      receivedGlobal = position;
     });
     eventbus.on(
-      'test' as any,
-      val => {
-        called2 += val;
+      'timeline-seek-request',
+      position => {
+        receivedTopic = position;
       },
       topic
     );
 
     // test
-    eventbus.broadcast('test' as any, [1]);
-    eventbus.broadcastForTopic('test' as any, topic, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcastForTopic('timeline-seek-request', topic, [5]);
 
     // expect
-    expect(called1).toBe(10);
-    expect(called2).toBe(1);
+    expect(receivedGlobal).toBe(99);
+    expect(receivedTopic).toBe(5);
   });
   test<EventbusSuiteContext>('should register and call the specified eventlistener', context => {
     // given
     const {eventbus} = context;
-    const received: [string, string, any[]][] = [];
-    const topic = 'topic';
+    const received: [EventName, string | undefined, unknown[]][] = [];
+    const topic = 'timeline-1';
     const listener = {
-      handleEvent: (eventName: string, eventTopic: string, args: any[]) => {
+      handleEvent: (
+        eventName: EventName,
+        eventTopic: string | undefined,
+        args: unknown[]
+      ) => {
         received.push([eventName, eventTopic, args]);
       },
     };
     eventbus.registerEventlistener(listener);
 
     // test
-    eventbus.broadcast('test' as any, [1]);
-    eventbus.broadcastForTopic('test2' as any as any, topic, [100]);
+    eventbus.broadcast('timeline-seek-request', [5]);
+    eventbus.broadcastForTopic('timeline-play-request', topic, []);
 
     // expect
     expect(received.length).toBe(2);
 
-    expect(received[0][0]).toBe('test');
+    expect(received[0][0]).toBe('timeline-seek-request');
     expect(received[0][1]).toBeUndefined();
-    expect(received[0][2][0]).toBe(1);
+    expect(received[0][2][0]).toBe(5);
 
-    expect(received[1][0]).toBe('test2' as any);
+    expect(received[1][0]).toBe('timeline-play-request');
     expect(received[1][1]).toBe(topic);
-    expect(received[1][2][0]).toBe(100);
+    expect(received[1][2]).toEqual([]);
   });
   test<EventbusSuiteContext>('should register and not call the specified eventlistener after it was removed', context => {
     // given
     const {eventbus} = context;
-    const received: [string, string, any[]][] = [];
-    const topic = 'topic';
+    const received: [EventName, string | undefined, unknown[]][] = [];
     const listener = {
-      handleEvent: (eventName: string, eventTopic: string, args: any[]) => {
+      handleEvent: (
+        eventName: EventName,
+        eventTopic: string | undefined,
+        args: unknown[]
+      ) => {
         received.push([eventName, eventTopic, args]);
       },
     };
@@ -206,7 +216,7 @@ describe<EventbusSuiteContext>('Eventbus', () => {
 
     // test
     remover();
-    eventbus.broadcast('test' as any, [1]);
+    eventbus.broadcast('timeline-seek-request', [1]);
 
     // expect
     expect(received.length).toBe(0);

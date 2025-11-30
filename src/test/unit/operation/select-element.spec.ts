@@ -113,4 +113,26 @@ describe('selectElement', () => {
     expect('selector' in newData).toBe(false);
     expect('useSelectedElementAsRoot' in newData).toBe(false);
   });
+
+  test('should throw error when selector is empty string', () => {
+    // given
+    const operationData = {
+      selector: '',
+    } as ISelectElementOperationData;
+
+    // test & expect
+    expect(() =>
+      applyOperation(selectElement, operationData)
+    ).toThrow('selectElement: selector is either empty or not defined.');
+  });
+
+  test('should throw error when selector is undefined', () => {
+    // given
+    const operationData = {} as ISelectElementOperationData;
+
+    // test & expect
+    expect(() =>
+      applyOperation(selectElement, operationData)
+    ).toThrow('selectElement: selector is either empty or not defined.');
+  });
 });

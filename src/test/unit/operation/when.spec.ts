@@ -345,4 +345,92 @@ describe<WhenSuiteContext>('when', () => {
     // expect
     expect('expression' in newData).toBe(false);
   });
+
+  test<WhenSuiteContext>('should handle comparison of undefined operationdata values', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression =
+      '$operationdata.nonexistent==$operationdata.alsoNonexistent';
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect - both undefined should be equal
+    expect(operationScope.newIndex).toBeUndefined();
+  });
+
+  test<WhenSuiteContext>('should handle comparison of undefined to defined value', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.left = 'defined';
+    operationData.expression =
+      '$operationdata.left==$operationdata.nonexistent';
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect - defined !== undefined
+    expect(operationScope.newIndex).toBe(0);
+  });
+
+  test<WhenSuiteContext>('should evaluate to false when comparing string to number with equality', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.left = '1';
+    operationData.expression = '$operationdata.left==1';
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect - strict equality: '1' !== 1
+    expect(operationScope.newIndex).toBe(0);
+  });
+
+  test<WhenSuiteContext>('should handle less than or equal comparison', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression = '5<=5';
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.newIndex).toBeUndefined();
+  });
+
+  test<WhenSuiteContext>('should handle less than comparison', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression = '3<5';
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.newIndex).toBeUndefined();
+  });
+
+  test<WhenSuiteContext>('should set newIndex when less than comparison fails', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression = '5<3';
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.newIndex).toBe(0);
+  });
 });
