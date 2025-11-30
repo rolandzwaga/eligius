@@ -1,6 +1,6 @@
-import {expect, describe, test, vi, beforeEach} from 'vitest';
-import {broadcastEvent} from '../../../operation/broadcast-event.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {broadcastEvent} from '@operation/broadcast-event.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test, vi} from 'vitest';
 
 describe('broadcastEvent', () => {
   let mockEventbus: {

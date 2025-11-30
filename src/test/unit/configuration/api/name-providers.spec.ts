@@ -1,8 +1,8 @@
-import {expect, describe, test} from 'vitest';
 import {
   OperationMetadataProvider,
   TimeLineEventNamesProvider,
-} from '../../../../configuration/api/name-providers.ts';
+} from '@configuration/api/name-providers.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('name-providers', () => {
   test('should return a list of event names', () => {

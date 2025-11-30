@@ -1,16 +1,19 @@
-import type {IEventbus} from '../eventbus/types.ts';
+import {BaseController} from '@controllers/base-controller.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import type {
   IStrictDuration,
   ISubtitleCollection,
   TLanguageCode,
 } from '../types.ts';
-import {BaseController} from './base-controller.ts';
 
 export interface ISubtitlesControllerOperationData {
   /**
    * @dependency
    */
   selectedElement: JQuery;
+  /**
+   * @type=ParameterType:languagecode
+   */
   language: TLanguageCode;
   /**
    * @type=ParameterType:array
@@ -61,7 +64,9 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
       x => x.start <= position && x.end >= position
     );
 
-    const func = subtitleDuration ? this.actionLookup[subtitleDuration.start ?? -1] : undefined;
+    const func = subtitleDuration
+      ? this.actionLookup[subtitleDuration.start ?? -1]
+      : undefined;
     if (func && this.lastFunc !== func) {
       this.lastFunc = func;
       func();
@@ -70,10 +75,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     }
   }
 
-  setTitle(
-    container: JQuery,
-    titleLanguageLookup: Record<string, string>
-  ) {
+  setTitle(container: JQuery, titleLanguageLookup: Record<string, string>) {
     if (this.currentLanguage) {
       container.html(titleLanguageLookup[this.currentLanguage]);
     }

@@ -1,9 +1,9 @@
-﻿import * as ctrls from '../controllers/index.ts';
+﻿import * as ctrls from '@controllers/index.ts';
+import * as evtb from '@eventbus/index.ts';
+import * as ops from '@operation/index.ts';
+import type {TOperation} from '@operation/types.ts';
+import * as prvdrs from '@timelineproviders/index.ts';
 import {EligiusEngine} from '../eligius-engine.ts';
-import * as evtb from '../eventbus/index.ts';
-import * as ops from '../operation/index.ts';
-import type {TOperation} from '../operation/types.ts';
-import * as prvdrs from '../timelineproviders/index.ts';
 import type {IResourceImporter} from '../types.ts';
 
 const operations: Record<string, TOperation<any>> = ops as any;

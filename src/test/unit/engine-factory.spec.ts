@@ -1,5 +1,5 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import type {IEngineConfiguration} from '../../configuration/types.ts';
+import type {IEngineConfiguration} from '@configuration/types.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 import {EngineFactory} from '../../engine-factory.ts';
 import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
 

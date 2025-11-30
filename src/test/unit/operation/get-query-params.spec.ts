@@ -1,9 +1,16 @@
-import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   getQueryParams,
   type IGetQueryParamsOperationData,
-} from '../../../operation/get-query-params.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/get-query-params.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+} from 'vitest';
 
 type GetQueryParamsSuiteContext = {
   location: any;

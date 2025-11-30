@@ -1,11 +1,10 @@
-
-import {expect, beforeEach, describe, type TestContext, test, vi} from 'vitest';
 import {
   type IMutationEventPayload,
   type IMutationObserverControllerMetadata,
   MutationObserverController,
-} from '../../../controllers/mutation-observer-controller.ts';
-import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
+} from '@controllers/mutation-observer-controller.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 // Mock jQuery wrapper that returns real DOM element
 class MockJQueryElement {

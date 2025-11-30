@@ -1,8 +1,12 @@
-import {getPropertyChainValue} from './helper/get-property-chain-value.ts';
-import {getGlobals, type TGlobalCache} from './helper/globals.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import {resolveExternalPropertyChain} from './helper/resolve-external-property-chain.ts';
-import type {IOperationScope, TOperation, TOperationData} from './types.ts';
+import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
+import {getGlobals, type TGlobalCache} from '@operation/helper/globals.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import {resolveExternalPropertyChain} from '@operation/helper/resolve-external-property-chain.ts';
+import type {
+  IOperationScope,
+  TOperation,
+  TOperationData,
+} from '@operation/types.ts';
 
 export type TDataTarget =
   | `$scope.${string}`

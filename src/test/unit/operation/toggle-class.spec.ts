@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {toggleClass} from '../../../operation/toggle-class.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {toggleClass} from '@operation/toggle-class.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   className: string = '';

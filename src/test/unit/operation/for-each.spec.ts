@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import {forEach} from '../../../operation/for-each.ts';
-import type {IOperationScope} from '../../../operation/types.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {forEach} from '@operation/for-each.ts';
+import type {IOperationScope} from '@operation/types.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('forEach', () => {
   test('should set the scope when a valid collection is passed in', () => {

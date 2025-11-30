@@ -1,10 +1,7 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
-import {
-  type IMapArrayOperationData,
-  mapArray,
-} from '../../../operation/map-array.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import {type IMapArrayOperationData, mapArray} from '@operation/map-array.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('mapArray', () => {
   let mockEventbus: IEventbus;

@@ -1,8 +1,8 @@
+import type {IRemoveElementOperationData} from '@operation/remove-element.js';
+import {removeElement} from '@operation/remove-element.js';
+import {createMockJQueryElement} from '@test/fixtures/jquery-factory.js';
+import {applyOperation} from '@util/apply-operation.js';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import type {IRemoveElementOperationData} from '../../../operation/remove-element.js';
-import {removeElement} from '../../../operation/remove-element.js';
-import {applyOperation} from '../../../util/apply-operation.js';
-import {createMockJQueryElement} from '../../fixtures/jquery-factory.js';
 
 describe('remove-element operation', () => {
   let mockElement: any;

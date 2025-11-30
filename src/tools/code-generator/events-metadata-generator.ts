@@ -1,3 +1,4 @@
+import dashToCamelCase from '@util/dash-to-camel-case.ts';
 import {
   type ExportDeclarationStructure,
   type InterfaceDeclaration,
@@ -8,7 +9,11 @@ import {
   SyntaxKind,
   ts,
 } from 'ts-morph';
-import dashToCamelCase from '../../util/dash-to-camel-case.ts';
+
+/**
+ * Path alias for eventbus events directory
+ */
+const EVENTBUS_EVENTS_ALIAS = '@eventbus/events';
 
 const project = new Project({
   compilerOptions: {
@@ -75,12 +80,16 @@ const createSourceFile = (
 
   // Import the event interface
   outputSourceFile
-    .addImportDeclaration({moduleSpecifier: `../${fileName}.ts`})
+    .addImportDeclaration({
+      moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/${fileName}.ts`,
+    })
     .addNamedImport({name: eventName, isTypeOnly: true});
 
   // Import IEventMetadata
   outputSourceFile
-    .addImportDeclaration({moduleSpecifier: './types.ts'})
+    .addImportDeclaration({
+      moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/metadata/types.ts`,
+    })
     .addNamedImport({name: 'IEventMetadata', isTypeOnly: true});
 
   // Get args tuple from the interface property type node (not the type object)
@@ -185,12 +194,14 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
       const namedExport = dashToCamelCase(name.slice(0, -3));
       return {
         kind: StructureKind.ExportDeclaration,
-        moduleSpecifier: `./${name}`,
+        moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/metadata/${name}`,
         namedExports: [namedExport],
       } as ExportDeclarationStructure;
     })
   );
-  outputSourceFile.addExportDeclaration({moduleSpecifier: './types.ts'});
+  outputSourceFile.addExportDeclaration({
+    moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/metadata/types.ts`,
+  });
 };
 
 const toTypesFile = (
@@ -208,7 +219,9 @@ const toTypesFile = (
     const eventName = iface.getName();
     const fileName = sourceFile.getBaseName().replace(/\.ts$/, '');
     outputSourceFile
-      .addImportDeclaration({moduleSpecifier: `./${fileName}.ts`})
+      .addImportDeclaration({
+        moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/${fileName}.ts`,
+      })
       .addNamedImport({name: eventName, isTypeOnly: true});
   });
 

@@ -1,7 +1,7 @@
 {
   "name": "eligius",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "license": "MIT",
   "homepage": "https://rolandzwaga.github.io/eligius/",
   "bugs": {
@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
+    "@rollup/plugin-alias": "^6.0.0",
     "@ts-morph/bootstrap": "0.28.1",
     "@types/fs-extra": "11.0.4",
     "@types/jquery": "3.5.33",
@@ -72,6 +73,7 @@
     "typedoc-plugin-missing-exports": "4.1.2",
     "typescript": "5.9.3",
     "video.js": "8.23.4",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "4.0.14",
     "watchlist": "0.3.1"
   },

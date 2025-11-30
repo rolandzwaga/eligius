@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {getElementDimensions} from '../../../operation/get-element-dimensions.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {getElementDimensions} from '@operation/get-element-dimensions.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   width: number;

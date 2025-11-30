@@ -1,6 +1,6 @@
-import {expect, describe, test, vi} from 'vitest';
-import {animate} from '../../../operation/animate.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {animate} from '@operation/animate.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test, vi} from 'vitest';
 
 function createMockElement() {
   return {
@@ -39,7 +39,12 @@ describe('animate', () => {
 
     // expect
     expect(data.selectedElement).toBe(operationData.selectedElement);
-    expect(mockElement.animate).toHaveBeenCalledWith({}, 5, 'slow', expect.any(Function));
+    expect(mockElement.animate).toHaveBeenCalledWith(
+      {},
+      5,
+      'slow',
+      expect.any(Function)
+    );
   });
 
   test('should animate without easing when not defined', async () => {
@@ -57,7 +62,11 @@ describe('animate', () => {
 
     // expect
     expect(data.selectedElement).toBe(operationData.selectedElement);
-    expect(mockElement.animate).toHaveBeenCalledWith({}, 5, expect.any(Function));
+    expect(mockElement.animate).toHaveBeenCalledWith(
+      {},
+      5,
+      expect.any(Function)
+    );
   });
 
   test('should remove animationEasing, animationProperties and animationDuration from operation data', async () => {

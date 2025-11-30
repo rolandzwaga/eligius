@@ -1,9 +1,4 @@
-import {isDefined} from 'ts-is-present';
-import {v4 as uuidv4} from 'uuid';
-import {deepCopy} from '../../operation/helper/deep-copy.ts';
-import * as operations from '../../operation/index.ts';
-import type {TOperation, TOperationData} from '../../operation/types.ts';
-import type {IDuration} from '../../types.ts';
+import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {
   ExtractOperationDataType,
   GetOperationByName,
@@ -13,8 +8,13 @@ import type {
   ITimelineActionConfiguration,
   TOperationName,
   TOperationType,
-} from '../types.ts';
-import type {ConfigurationFactory} from './configuration-factory.ts';
+} from '@configuration/types.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
+import * as operations from '@operation/index.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
+import {isDefined} from 'ts-is-present';
+import {v4 as uuidv4} from 'uuid';
+import type {IDuration} from '../../types.ts';
 
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {

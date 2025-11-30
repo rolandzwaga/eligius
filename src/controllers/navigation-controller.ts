@@ -1,9 +1,9 @@
+import {BaseController} from '@controllers/base-controller.ts';
+import type {LabelController} from '@controllers/label-controller.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import type {TOperationData} from '@operation/types.ts';
 import $ from 'jquery';
-import type {IEventbus} from '../eventbus/types.ts';
-import type {TOperationData} from '../operation/types.ts';
 import type {TResultCallback} from '../types.ts';
-import {BaseController} from './base-controller.ts';
-import type {LabelController} from './label-controller.ts';
 
 export interface INavigationControllerOperationData {
   /**

@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {type IOperationScope, otherwise} from '../../../operation/index.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {type IOperationScope, otherwise} from '@operation/index.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('otherwise', () => {
   test('should set newIndex to undefined when it is false', () => {

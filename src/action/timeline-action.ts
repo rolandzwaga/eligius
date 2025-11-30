@@ -1,9 +1,9 @@
-import type {IResolvedOperation} from '../configuration/types.ts';
-import type {IEventbus} from '../eventbus/types.ts';
-import type {TOperationData} from '../operation/types.ts';
+import {EndableAction} from '@action/endable-action.ts';
+import type {ITimelineAction} from '@action/types.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import type {TOperationData} from '@operation/types.ts';
 import type {IStrictDuration} from '../types.ts';
-import {EndableAction} from './endable-action.ts';
-import type {ITimelineAction} from './types.ts';
 
 export class TimelineAction extends EndableAction implements ITimelineAction {
   private _active: boolean = false;

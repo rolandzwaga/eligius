@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import {breakForEach} from '../../../operation/break-for-each.ts';
-import type {IOperationScope} from '../../../operation/types.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {breakForEach} from '@operation/break-for-each.ts';
+import type {IOperationScope} from '@operation/types.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('breakForEach', () => {
   test('should set the newindex to the loop end index', () => {

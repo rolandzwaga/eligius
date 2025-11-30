@@ -1,6 +1,13 @@
-import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
-import {clearCache, loadJson} from '../../../operation/load-json.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {clearCache, loadJson} from '@operation/load-json.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+} from 'vitest';
 
 function getResult(context: LoadJsonContext) {
   return () =>

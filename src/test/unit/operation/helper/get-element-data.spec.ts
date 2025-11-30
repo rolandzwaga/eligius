@@ -1,8 +1,8 @@
-import {expect, describe, test} from 'vitest';
 import {
   getElementControllers,
   getElementData,
-} from '../../../../operation/helper/get-element-data.ts';
+} from '@operation/helper/get-element-data.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   name: string = '';

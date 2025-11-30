@@ -1,7 +1,7 @@
-import type {EventName} from '../eventbus/types.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import {resolveEventArguments} from './helper/resolve-event-arguments.ts';
-import type {TOperation} from './types.ts';
+import type {EventName} from '@eventbus/types.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import {resolveEventArguments} from '@operation/helper/resolve-event-arguments.ts';
+import type {TOperation} from '@operation/types.ts';
 
 export interface IBroadcastEventOperationData {
   /**

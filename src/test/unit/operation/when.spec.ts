@@ -1,9 +1,9 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import type {IResolvedOperation} from '../../../configuration/types.ts';
-import {setGlobals} from '../../../operation/helper/globals.ts';
-import type {IOperationScope} from '../../../operation/index.ts';
-import {type IWhenOperationData, when} from '../../../operation/when.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
+import {setGlobals} from '@operation/helper/globals.ts';
+import type {IOperationScope} from '@operation/index.ts';
+import {type IWhenOperationData, when} from '@operation/when.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type WhenSuiteContext = {
   operationScope: IOperationScope;

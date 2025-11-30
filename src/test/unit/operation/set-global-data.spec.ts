@@ -1,10 +1,10 @@
-import {expect, beforeAll, describe, test} from 'vitest';
-import {clearGlobals, getGlobals} from '../../../operation/helper/globals.ts';
+import {clearGlobals, getGlobals} from '@operation/helper/globals.ts';
 import {
   type ISetGlobalDataOperationData,
   setGlobalData,
-} from '../../../operation/set-global-data.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/set-global-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeAll, describe, expect, test} from 'vitest';
 
 describe('setGlobalData', () => {
   beforeAll(() => {

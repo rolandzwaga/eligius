@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {addClass} from '../../../operation/add-class.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {addClass} from '@operation/add-class.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('addClass', () => {
   test('should add the specified class to the element', () => {

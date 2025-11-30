@@ -1,5 +1,5 @@
-import type {IEventbus} from '../eventbus/types.ts';
-import {BaseController} from './base-controller.ts';
+import {BaseController} from '@controllers/base-controller.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 
 /**
  * Metadata configuration for MutationObserverController

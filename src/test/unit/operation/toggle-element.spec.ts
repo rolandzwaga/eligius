@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {toggleElement} from '../../../operation/toggle-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {toggleElement} from '@operation/toggle-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   isToggled: boolean = false;

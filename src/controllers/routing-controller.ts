@@ -1,6 +1,6 @@
-import type {IEventbus} from '../eventbus/types.ts';
-import type {TOperationData} from '../operation/types.ts';
-import {BaseController} from './base-controller.ts';
+import {BaseController} from '@controllers/base-controller.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import type {TOperationData} from '@operation/types.ts';
 
 export interface IRoutingControllerOperationData {
   /**

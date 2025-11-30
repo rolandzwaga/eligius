@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {setStyle} from '../../../operation/set-style.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {setStyle} from '@operation/set-style.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   cssProps: any;

@@ -1,12 +1,12 @@
-import $ from 'jquery';
-import {JSDOM} from 'jsdom';
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   type IScrollToElementOperationData,
   scrollToElement,
-} from '../../../operation/scroll-to-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/scroll-to-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import $ from 'jquery';
+import {JSDOM} from 'jsdom';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('scrollToElement', () => {
   let dom: JSDOM;

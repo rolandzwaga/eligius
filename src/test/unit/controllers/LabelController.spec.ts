@@ -1,10 +1,9 @@
-
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   type ILabelControllerMetadata,
   LabelController,
-} from '../../../controllers/label-controller.ts';
-import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
+} from '@controllers/label-controller.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 class MockElement {
   content: string = '';

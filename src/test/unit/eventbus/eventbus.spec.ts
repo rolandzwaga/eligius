@@ -1,6 +1,6 @@
+import type {EventName} from '@eventbus/events/types.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
 import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
-import type {EventName} from '../../../eventbus/events/types.ts';
-import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
 
 type EventbusSuiteContext = {eventbus: IEventbus} & TestContext;
 

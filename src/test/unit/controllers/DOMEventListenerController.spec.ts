@@ -1,7 +1,7 @@
+import {DOMEventListenerController} from '@controllers/dom-event-listener-controller.ts';
+import type {IEventbus} from '@eventbus/index.ts';
+import {createMockAction} from '@test/fixtures/action-factory.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {DOMEventListenerController} from '../../../controllers/dom-event-listener-controller.ts';
-import type {IEventbus} from '../../../eventbus/index.ts';
-import {createMockAction} from '../../fixtures/action-factory.ts';
 
 function createMockEventbusWithActionCallback() {
   return {
@@ -47,7 +47,8 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     withContext<DOMEventListenerControllerSuiteContext>(context);
 
     context.controller = new DOMEventListenerController();
-    context.eventbus = createMockEventbusWithActionCallback() as unknown as IEventbus;
+    context.eventbus =
+      createMockEventbusWithActionCallback() as unknown as IEventbus;
     context.selectedElement = createMockElement();
     context.operationData = {
       selectedElement: context.selectedElement,
@@ -76,13 +77,9 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     expect(controller.operationData?.selectedElement).toBe(
       operationData.selectedElement
     );
-    expect(controller.operationData?.eventName).toBe(
-      operationData.eventName
-    );
+    expect(controller.operationData?.eventName).toBe(operationData.eventName);
     expect(controller.operationData?.actions.length).toBe(2);
-    expect(controller.operationData?.actionOperationData?.test).toBe(
-      'test'
-    );
+    expect(controller.operationData?.actionOperationData?.test).toBe('test');
   });
   test<DOMEventListenerControllerSuiteContext>('should attach properly', context => {
     // given
@@ -149,12 +146,18 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     });
 
     expect(
-      (controller.actionInstanceInfos?.[0].action as unknown as ReturnType<typeof createMockAction>)
-        .startOperationData
+      (
+        controller.actionInstanceInfos?.[0].action as unknown as ReturnType<
+          typeof createMockAction
+        >
+      ).startOperationData
     ).toEqual(expectedOperatonData);
     expect(
-      (controller.actionInstanceInfos?.[1].action as unknown as ReturnType<typeof createMockAction>)
-        .startOperationData
+      (
+        controller.actionInstanceInfos?.[1].action as unknown as ReturnType<
+          typeof createMockAction
+        >
+      ).startOperationData
     ).toEqual(expectedOperatonData);
   });
 
@@ -199,12 +202,18 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     });
 
     expect(
-      (controller.actionInstanceInfos?.[0].action as unknown as ReturnType<typeof createMockAction>)
-        .startOperationData
+      (
+        controller.actionInstanceInfos?.[0].action as unknown as ReturnType<
+          typeof createMockAction
+        >
+      ).startOperationData
     ).toEqual(expectedOperatonData);
     expect(
-      (controller.actionInstanceInfos?.[1].action as unknown as ReturnType<typeof createMockAction>)
-        .startOperationData
+      (
+        controller.actionInstanceInfos?.[1].action as unknown as ReturnType<
+          typeof createMockAction
+        >
+      ).startOperationData
     ).toEqual(expectedOperatonData);
   });
 });

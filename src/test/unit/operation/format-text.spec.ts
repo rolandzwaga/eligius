@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   formatText,
   type IFormatTextOperationData,
-} from '../../../operation/format-text.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/format-text.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('formatText', () => {
   let mockEventbus: IEventbus;

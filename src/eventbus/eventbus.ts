@@ -4,7 +4,7 @@ import type {
   IEventbusListener,
   TEventbusRemover,
   TEventHandler,
-} from './types.ts';
+} from '@eventbus/types.ts';
 
 export class Eventbus implements IEventbus {
   private eventHandlers = new Map<string, TEventHandler[]>();

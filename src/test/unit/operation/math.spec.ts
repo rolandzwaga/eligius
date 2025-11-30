@@ -1,11 +1,11 @@
-import {expect, describe, test} from 'vitest';
 import {
   type IMathOperationData,
   type MathFunctionKeys,
   type MathNonFunctionKeys,
   math,
-} from '../../../operation/math.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/math.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('math', () => {
   test('should perform all the math calculations', () => {

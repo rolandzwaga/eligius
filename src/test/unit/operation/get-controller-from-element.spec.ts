@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {getControllerFromElement} from '../../../operation/get-controller-from-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {getControllerFromElement} from '@operation/get-controller-from-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   controllers: any[];

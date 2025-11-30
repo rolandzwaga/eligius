@@ -1,11 +1,11 @@
-import {expect, afterAll, beforeAll, describe, test} from 'vitest';
-import {removeGlobal} from '../../../../operation/helper/remove-global.ts';
+import {removeGlobal} from '@operation/helper/remove-global.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
-} from '../../../../operation/helper/resolve-external-property-chain.ts';
-import {setGlobal} from '../../../../operation/helper/set-global.ts';
-import type {IOperationScope} from '../../../../operation/index.ts';
+} from '@operation/helper/resolve-external-property-chain.ts';
+import {setGlobal} from '@operation/helper/set-global.ts';
+import type {IOperationScope} from '@operation/index.ts';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
 describe('resolveExternalPropertyChain', () => {
   beforeAll(() => {

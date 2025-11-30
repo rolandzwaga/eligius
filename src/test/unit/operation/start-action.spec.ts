@@ -1,8 +1,8 @@
-import {expect, describe, test} from 'vitest';
-import type {IAction} from '../../../action/types.ts';
-import type {TOperationData} from '../../../operation/index.ts';
-import {startAction} from '../../../operation/start-action.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IAction} from '@action/types.ts';
+import type {TOperationData} from '@operation/index.ts';
+import {startAction} from '@operation/start-action.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockAction {
   resolved: boolean = false;

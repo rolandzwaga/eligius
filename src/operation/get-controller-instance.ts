@@ -1,7 +1,7 @@
-import type * as controllers from '../controllers/index.ts';
-import type {IController} from '../controllers/types.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import type {TOperation, TOperationData} from './types.ts';
+import type * as controllers from '@controllers/index.ts';
+import type {IController} from '@controllers/types.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 
 type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {

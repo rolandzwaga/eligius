@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {removePropertiesFromOperationData} from '../../../operation/remove-properties-from-operation-data.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {removePropertiesFromOperationData} from '@operation/remove-properties-from-operation-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('removePropertiesFromOperationData', () => {
   test('should remove the specified properties from the given operationData', () => {

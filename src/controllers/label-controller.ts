@@ -1,6 +1,6 @@
-import type {IEventbus} from '../eventbus/types.ts';
+import {BaseController} from '@controllers/base-controller.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import type {ILabel} from '../types.ts';
-import {BaseController} from './base-controller.ts';
 
 export interface ILabelControllerMetadata {
   /**

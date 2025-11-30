@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.5.3
+- Fix metadata generation for controllers
+- Refactor all typescript import paths to use path aliases
+
 ## 1.5.2
 - Bug fixes in VideoJsTimelineProvider
 - Removed generateImporterSourceCode and subsequently remove the dependency on node libraries

@@ -1,11 +1,11 @@
-import {expect, describe, test} from 'vitest';
-import type {IController} from '../../../controllers/types.ts';
-import type {IEventbus} from '../../../eventbus/index.ts';
+import type {IController} from '@controllers/types.ts';
+import type {IEventbus} from '@eventbus/index.ts';
 import {
   getControllerInstance,
   type IGetControllerInstanceOperationData,
-} from '../../../operation/get-controller-instance.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/get-controller-instance.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockEventbus {
   controller: any;

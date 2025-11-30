@@ -1,8 +1,8 @@
+import type {IResolvedEngineConfiguration} from '@configuration/types.ts';
+import type {ITimelineProvider, TPlayState} from '@timelineproviders/types.ts';
 import $ from 'jquery';
 import {v4 as uuidv4} from 'uuid';
 import vjs from 'video.js';
-import type {IResolvedEngineConfiguration} from '../configuration/types.ts';
-import type {ITimelineProvider, TPlayState} from './types.ts';
 
 const videojs = vjs.default ?? vjs;
 

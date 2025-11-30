@@ -1,7 +1,7 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {TimelineActionEditor} from '../../../../configuration/api/action-editor.ts';
-import type {ConfigurationFactory} from '../../../../configuration/api/index.ts';
-import type {ITimelineActionConfiguration} from '../../../../configuration/types.ts';
+import {TimelineActionEditor} from '@configuration/api/action-editor.ts';
+import type {ConfigurationFactory} from '@configuration/api/index.ts';
+import type {ITimelineActionConfiguration} from '@configuration/types.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type TimelineActionEditorSuiteContext = {
   timelineActionEditor: TimelineActionEditor;

@@ -1,7 +1,7 @@
-import {isFunction} from '../util/guards/is-function.ts';
-import {isString} from '../util/guards/is-string.ts';
-import {resolvePropertyValues} from './helper/resolve-property-values.ts';
-import type {TOperation} from './types.ts';
+import {resolvePropertyValues} from '@operation/helper/resolve-property-values.ts';
+import type {TOperation} from '@operation/types.ts';
+import {isFunction} from '@util/guards/is-function.ts';
+import {isString} from '@util/guards/is-string.ts';
 
 export type MathFunctionKeys = {
   [K in keyof Math]: Math[K] extends (...args: any) => any ? K : never;
@@ -44,10 +44,9 @@ export const math: TOperation<
 
   const {args, functionName, ...newOperationData} = operationData;
 
-  newOperationData.mathResult = (Math[functionName] as (...args: any[]) => any).apply(
-    null,
-    args
-  );
+  newOperationData.mathResult = (
+    Math[functionName] as (...args: any[]) => any
+  ).apply(null, args);
 
   return newOperationData;
 };

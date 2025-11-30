@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   findInArray,
   type IFindInArrayOperationData,
-} from '../../../operation/find-in-array.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/find-in-array.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('findInArray', () => {
   let mockEventbus: IEventbus;

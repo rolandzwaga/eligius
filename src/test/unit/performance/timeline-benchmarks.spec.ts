@@ -1,13 +1,13 @@
-import $ from 'jquery';
-import {expect, afterEach, beforeEach, describe, test} from 'vitest';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
-} from '../../../configuration/types.ts';
-import {LottieController} from '../../../controllers/lottie-controller.ts';
+} from '@configuration/types.ts';
+import {LottieController} from '@controllers/lottie-controller.ts';
+import {Eventbus} from '@eventbus/index.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import $ from 'jquery';
+import {afterEach, beforeEach, describe, expect, test} from 'vitest';
 import {EligiusEngine} from '../../../eligius-engine.ts';
-import {Eventbus} from '../../../eventbus/index.ts';
-import type {IEventbus} from '../../../eventbus/types.ts';
 
 /**
  * Performance Benchmarks for Timeline Optimizations (Phase 6 - User Story 4)

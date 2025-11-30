@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {resolveEventArguments} from '../../../../operation/helper/resolve-event-arguments.ts';
-import type {IOperationScope} from '../../../../operation/index.ts';
+import {resolveEventArguments} from '@operation/helper/resolve-event-arguments.ts';
+import type {IOperationScope} from '@operation/index.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('resolveEventArguments', () => {
   test('should return undefined when eventArgs is undefined', () => {

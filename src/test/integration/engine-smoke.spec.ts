@@ -1,12 +1,12 @@
-import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
-} from '../../configuration/types.ts';
+} from '@configuration/types.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import type {ITimelineProvider} from '@timelineproviders/types.ts';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EligiusEngine} from '../../eligius-engine.ts';
-import {Eventbus, type IEventbus} from '../../eventbus/index.ts';
 import {LanguageManager} from '../../language-manager.ts';
-import type {ITimelineProvider} from '../../timelineproviders/types.ts';
 import type {ITimelineProviderInfo, TimelineTypes} from '../../types.ts';
 
 // Mock jQuery

@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {emptyDirSync} from 'fs-extra';
-import * as controllers from '../../controllers/index.ts';
-import * as metadata from '../../operation/metadata/index.ts';
+import * as controllers from '@controllers/index.ts';
+import * as metadata from '@operation/metadata/index.ts';
 import type {
   IOperationMetadata,
   TComplexPropertyMetadata,
@@ -12,9 +11,10 @@ import type {
   TParameterTypes,
   TPropertiesMetadata,
   TPropertyMetadata,
-} from '../../operation/metadata/types.ts';
-import camelCaseToDash from '../../util/camel-case-to-dash.ts';
-import dashToCamelCase from '../../util/dash-to-camel-case.ts';
+} from '@operation/metadata/types.ts';
+import camelCaseToDash from '@util/camel-case-to-dash.ts';
+import dashToCamelCase from '@util/dash-to-camel-case.ts';
+import {emptyDirSync} from 'fs-extra';
 import {htmlTagNames} from './html-tag-names.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');

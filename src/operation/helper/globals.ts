@@ -1,4 +1,4 @@
-import {deepCopy} from './deep-copy.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
 export type TGlobalCache = Record<string, any>;
 const cache: TGlobalCache = {};
 

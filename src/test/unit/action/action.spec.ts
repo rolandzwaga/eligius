@@ -1,8 +1,8 @@
-import type {IResolvedOperation} from 'configuration/types.ts';
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {Action} from '../../../action/index.ts';
-import {Eventbus} from '../../../eventbus/index.ts';
-import type {IOperationScope} from '../../../operation/types.ts';
+import {Action} from '@action/index.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
+import {Eventbus} from '@eventbus/index.ts';
+import type {IOperationScope} from '@operation/types.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type ActionContext = {
   action: Action;

@@ -1,12 +1,12 @@
-import $ from 'jquery';
-import {JSDOM} from 'jsdom';
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   getFormData,
   type IGetFormDataOperationData,
-} from '../../../operation/get-form-data.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/get-form-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import $ from 'jquery';
+import {JSDOM} from 'jsdom';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('getFormData', () => {
   let dom: JSDOM;

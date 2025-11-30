@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   type ISortArrayOperationData,
   sortArray,
-} from '../../../operation/sort-array.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/sort-array.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('sortArray', () => {
   let mockEventbus: IEventbus;
@@ -103,12 +103,7 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray).toEqual([
-      'apple',
-      'Banana',
-      'cherry',
-      'Date',
-    ]);
+    expect(result.sortedArray).toEqual(['apple', 'Banana', 'cherry', 'Date']);
   });
 
   test('should throw error if arrayData not provided', () => {

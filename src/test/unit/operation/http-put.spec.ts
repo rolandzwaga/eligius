@@ -1,10 +1,7 @@
-import {expect, beforeEach, describe, test, vi} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
-import {
-  httpPut,
-  type IHttpPutOperationData,
-} from '../../../operation/http-put.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import {httpPut, type IHttpPutOperationData} from '@operation/http-put.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test, vi} from 'vitest';
 
 describe('httpPut', () => {
   let mockEventbus: IEventbus;

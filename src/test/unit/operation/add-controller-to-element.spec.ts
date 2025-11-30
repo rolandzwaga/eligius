@@ -1,6 +1,6 @@
-import {expect, describe, test, vi} from 'vitest';
-import {addControllerToElement} from '../../../operation/add-controller-to-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {addControllerToElement} from '@operation/add-controller-to-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test, vi} from 'vitest';
 
 function createMockElement() {
   const storedData: any[] = [];

@@ -1,5 +1,5 @@
+import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {ILanguageLabel, TLanguageCode} from '../../types.ts';
-import type {ConfigurationFactory} from './configuration-factory.ts';
 
 /**
  * Factory that assists with editing a label

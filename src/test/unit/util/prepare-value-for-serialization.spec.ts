@@ -1,7 +1,7 @@
+import {LabelController} from '@controllers/index.ts';
+import {prepareValueForSerialization} from '@util/prepare-value-for-serialization.ts';
 import $ from 'jquery';
-import {expect, describe, test} from 'vitest';
-import {LabelController} from '../../../controllers/index.ts';
-import {prepareValueForSerialization} from '../../../util/prepare-value-for-serialization.ts';
+import {describe, expect, test} from 'vitest';
 
 function SimpleClass(this: any) {
   this.i = 0;

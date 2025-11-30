@@ -1,7 +1,7 @@
-import {expect, afterAll, beforeAll, describe, test} from 'vitest';
-import {getGlobals} from '../../../../operation/helper/globals.ts';
-import {removeGlobal} from '../../../../operation/helper/remove-global.ts';
-import {setGlobal} from '../../../../operation/helper/set-global.ts';
+import {getGlobals} from '@operation/helper/globals.ts';
+import {removeGlobal} from '@operation/helper/remove-global.ts';
+import {setGlobal} from '@operation/helper/set-global.ts';
+import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
 describe('setGlobal', () => {
   beforeAll(() => {

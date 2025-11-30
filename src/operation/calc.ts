@@ -1,6 +1,6 @@
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import {resolvePropertyValues} from './helper/resolve-property-values.ts';
-import type {TOperation} from './types.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import {resolvePropertyValues} from '@operation/helper/resolve-property-values.ts';
+import type {TOperation} from '@operation/types.ts';
 
 export type TCalculationOperator = '+' | '-' | '*' | '/' | '%' | '**';
 

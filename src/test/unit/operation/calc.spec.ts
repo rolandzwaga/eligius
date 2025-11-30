@@ -1,10 +1,10 @@
-import {expect, describe, test} from 'vitest';
 import {
   calc,
   type ICalcOperationData,
   type TCalculationOperator,
-} from '../../../operation/calc.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/calc.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('calc', () => {
   test('should perform the calculations', () => {

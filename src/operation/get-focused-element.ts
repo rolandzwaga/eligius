@@ -1,5 +1,5 @@
+import type {TOperation} from '@operation/types.ts';
 import $ from 'jquery';
-import type {TOperation} from './types.ts';
 
 export interface IGetFocusedElementOperationData {
   /**

@@ -1,6 +1,6 @@
-import type {IController} from '../controllers/types.ts';
-import {getElementControllers} from './helper/get-element-data.ts';
-import type {TOperation} from './types.ts';
+import type {IController} from '@controllers/types.ts';
+import {getElementControllers} from '@operation/helper/get-element-data.ts';
+import type {TOperation} from '@operation/types.ts';
 
 export interface IRemoveControllerFromElementOperationData {
   /**

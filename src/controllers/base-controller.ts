@@ -1,10 +1,6 @@
-import type {
-  EventName,
-  IEventbus,
-  TEventbusRemover,
-} from '../eventbus/types.js';
-import type {TOperationData} from '../operation/types.js';
-import type {IController} from './types.js';
+import type {IController} from '@controllers/types.js';
+import type {EventName, IEventbus, TEventbusRemover} from '@eventbus/types.js';
+import type {TOperationData} from '@operation/types.js';
 
 /**
  * Abstract base class for controllers providing standardized event listener management

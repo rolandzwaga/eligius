@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import {uppercaseFirstChar} from '../../../util/uppercase-first-char.ts';
+import {uppercaseFirstChar} from '@util/uppercase-first-char.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('upper-case-first-char', () => {
   test('should upper case the first character', () => {

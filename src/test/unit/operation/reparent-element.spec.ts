@@ -1,9 +1,9 @@
-import {expect, describe, test} from 'vitest';
 import {
   type IReparentElementOperationData,
   reparentElement,
-} from '../../../operation/reparent-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/reparent-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   selector: string = '';

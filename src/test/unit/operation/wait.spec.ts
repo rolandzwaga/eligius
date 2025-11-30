@@ -1,6 +1,13 @@
-import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
-import {wait} from '../../../operation/wait.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {wait} from '@operation/wait.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+} from 'vitest';
 
 type WaitSuiteContext = {
   timeout: typeof window.setTimeout;

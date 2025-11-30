@@ -1,4 +1,4 @@
-import type {IController} from '../../controllers/types.ts';
+import type {IController} from '@controllers/types.ts';
 
 const controllersDataName = 'eligiusEngineControllers';
 

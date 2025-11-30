@@ -1,7 +1,7 @@
+import type {IEventbus} from '@eventbus/index.ts';
 import $ from 'jquery';
 import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 import {EligiusEngine} from '../../eligius-engine.ts';
-import type {IEventbus} from '../../eventbus/index.ts';
 
 interface SuiteContext {
   configuration: any;

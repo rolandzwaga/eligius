@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import {endForEach} from '../../../operation/end-for-each.ts';
-import type {IOperationScope} from '../../../operation/index.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {endForEach} from '@operation/end-for-each.ts';
+import type {IOperationScope} from '@operation/index.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('endForEach', () => {
   test('should return the operation data', () => {

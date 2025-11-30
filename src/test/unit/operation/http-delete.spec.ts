@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test, vi} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   httpDelete,
   type IHttpDeleteOperationData,
-} from '../../../operation/http-delete.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/http-delete.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test, vi} from 'vitest';
 
 describe('httpDelete', () => {
   let mockEventbus: IEventbus;

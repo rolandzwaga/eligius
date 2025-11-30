@@ -1,7 +1,6 @@
-
-import {expect, describe, test} from 'vitest';
-import {requestAction} from '../../../operation/request-action.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {requestAction} from '@operation/request-action.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockEventbus {
   mockAction: any = {};

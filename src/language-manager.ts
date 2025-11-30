@@ -1,6 +1,6 @@
+import type {IEventbus, TEventbusRemover} from '@eventbus/types.ts';
+import {setGlobal} from '@operation/helper/set-global.ts';
 import $ from 'jquery';
-import type {IEventbus, TEventbusRemover} from './eventbus/types.ts';
-import {setGlobal} from './operation/helper/set-global.ts';
 import type {
   ILabel,
   ILanguageLabel,

@@ -1,10 +1,10 @@
-import $ from 'jquery';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
-} from '../configuration/types.ts';
-import {animationInterval} from '../util/animation-interval.ts';
-import type {ITimelineProvider, TPlayState} from './types.ts';
+} from '@configuration/types.ts';
+import type {ITimelineProvider, TPlayState} from '@timelineproviders/types.ts';
+import {animationInterval} from '@util/animation-interval.ts';
+import $ from 'jquery';
 
 type TUpdateMethod = (now: number) => void;
 

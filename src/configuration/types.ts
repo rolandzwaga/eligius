@@ -1,7 +1,7 @@
-import type {IEndableAction, ITimelineAction} from '../action/types.ts';
-import type * as controllers from '../controllers/index.ts';
-import type * as operations from '../operation/index.ts';
-import type {TOperation, TOperationData} from '../operation/types.ts';
+import type {IEndableAction, ITimelineAction} from '@action/types.ts';
+import type * as controllers from '@controllers/index.ts';
+import type * as operations from '@operation/index.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 import type {
   IDuration,
   ILabel,
@@ -20,9 +20,8 @@ export type TOperationName = keyof Operations;
 export type TOperationType = Operations[TOperationName];
 export type GetOperationByName<T extends TOperationName> = Operations[T];
 
-export type ExtractOperationDataType<P> = P extends TOperation<infer T, any>
-  ? T
-  : never;
+export type ExtractOperationDataType<P> =
+  P extends TOperation<infer T, any> ? T : never;
 export interface IEngineInfo {
   systemName: string;
 }

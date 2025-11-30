@@ -1,5 +1,5 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {TimelineProviderSettingsEditor} from '../../../../configuration/api/timeline-provider-settings-editor.ts';
+import {TimelineProviderSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type TimelineProviderSettingsEditorSuiteContext = {
   editor: TimelineProviderSettingsEditor;

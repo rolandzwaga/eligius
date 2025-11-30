@@ -1,22 +1,22 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {Action} from '../../action/index.ts';
-import type {IResolvedOperation} from '../../configuration/types.ts';
-import {Eventbus} from '../../eventbus/index.ts';
-import {breakForEach} from '../../operation/break-for-each.ts';
-import {continueForEach} from '../../operation/continue-for-each.ts';
-import {endForEach} from '../../operation/end-for-each.ts';
+import {Action} from '@action/index.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
+import {Eventbus} from '@eventbus/index.ts';
+import {breakForEach} from '@operation/break-for-each.ts';
+import {continueForEach} from '@operation/continue-for-each.ts';
+import {endForEach} from '@operation/end-for-each.ts';
 import {
   endForEachSystemName,
   forEach,
   forEachSystemName,
   type IForEachOperationData,
-} from '../../operation/for-each.ts';
+} from '@operation/for-each.ts';
 import {
   endWhen,
   type IOperationScope,
   type TOperationData,
   when,
-} from '../../operation/index.ts';
+} from '@operation/index.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type ForEachLoopContext = {action: Action} & TestContext;
 

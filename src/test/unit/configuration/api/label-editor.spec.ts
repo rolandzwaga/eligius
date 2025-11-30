@@ -1,6 +1,6 @@
+import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
+import {LabelEditor} from '@configuration/api/label-editor.ts';
 import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
-import type {ConfigurationFactory} from '../../../../configuration/api/configuration-factory.ts';
-import {LabelEditor} from '../../../../configuration/api/label-editor.ts';
 import type {ILanguageLabel} from '../../../../types.ts';
 
 type LabelEditorSuiteContext = {
@@ -24,7 +24,10 @@ describe<LabelEditorSuiteContext>('LabelEditor', () => {
       ],
     };
     context.mockFactory = {} as ConfigurationFactory;
-    context.editor = new LabelEditor(context.mockFactory, context.languageLabel);
+    context.editor = new LabelEditor(
+      context.mockFactory,
+      context.languageLabel
+    );
   });
 
   test<LabelEditorSuiteContext>('should create LabelEditor instance', context => {
@@ -69,7 +72,9 @@ describe<LabelEditorSuiteContext>('LabelEditor', () => {
     // expect
     expect(result).toBe(editor);
     expect(languageLabel.labels.length).toBe(2);
-    expect(languageLabel.labels.find(l => l.languageCode === 'de-DE')).toBeUndefined();
+    expect(
+      languageLabel.labels.find(l => l.languageCode === 'de-DE')
+    ).toBeUndefined();
   });
 
   test<LabelEditorSuiteContext>('should throw error when removing label for non-existent language code', context => {

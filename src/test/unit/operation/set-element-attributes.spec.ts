@@ -1,7 +1,7 @@
+import {setElementAttributes} from '@operation/set-element-attributes.ts';
+import {applyOperation} from '@util/apply-operation.ts';
 import $ from 'jquery';
-import {expect, describe, test} from 'vitest';
-import {setElementAttributes} from '../../../operation/set-element-attributes.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('setElementAttributes', () => {
   test('should set the given attributes on the specified element', () => {

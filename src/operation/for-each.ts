@@ -1,11 +1,11 @@
-import type {breakForEach} from './break-for-each.ts';
-import type {continueForEach} from './continue-for-each.ts';
-import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
+import type {breakForEach} from '@operation/break-for-each.ts';
+import type {continueForEach} from '@operation/continue-for-each.ts';
+import {findMatchingOperationIndex} from '@operation/helper/find-matching-operation-index.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
-} from './helper/resolve-external-property-chain.ts';
-import type {IOperationScope, TOperation} from './types.ts';
+} from '@operation/helper/resolve-external-property-chain.ts';
+import type {IOperationScope, TOperation} from '@operation/types.ts';
 
 export interface IForEachOperationData {
   /**

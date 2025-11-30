@@ -1,8 +1,8 @@
+import {LottieController} from '@controllers/lottie-controller.js';
+import type {IEventbus} from '@eventbus/types.js';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
+import {createMockJQueryElement} from '@test/fixtures/jquery-factory.js';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {LottieController} from '../../../controllers/lottie-controller.js';
-import type {IEventbus} from '../../../eventbus/types.js';
-import {createMockEventbus} from '../../fixtures/eventbus-factory.js';
-import {createMockJQueryElement} from '../../fixtures/jquery-factory.js';
 
 // Mock lottie-web
 vi.mock('lottie-web', () => {

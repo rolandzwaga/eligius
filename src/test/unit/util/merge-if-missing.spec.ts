@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import {mergeIfMissing} from '../../../util/merge-if-missing.ts';
+import {mergeIfMissing} from '@util/merge-if-missing.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('mergeIfMissing', () => {
   test('should only merge properties that do not exists on the source', () => {

@@ -1,8 +1,8 @@
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import {resolvePropertyValues} from '@operation/helper/resolve-property-values.ts';
+import type {IOperationScope, TOperation} from '@operation/types.ts';
 import $ from 'jquery';
-import type {RequireKeys} from 'types.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import {resolvePropertyValues} from './helper/resolve-property-values.ts';
-import type {IOperationScope, TOperation} from './types.ts';
+import type {RequireKeys} from '@/types.ts';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 

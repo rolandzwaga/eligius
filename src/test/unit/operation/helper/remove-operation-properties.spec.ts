@@ -1,5 +1,5 @@
+import {removeProperties} from '@operation/helper/remove-operation-properties.js';
 import {describe, expect, it} from 'vitest';
-import {removeProperties} from '../../../../operation/helper/remove-operation-properties.js';
 
 describe('removeProperties', () => {
   it('should remove 1 property successfully', () => {

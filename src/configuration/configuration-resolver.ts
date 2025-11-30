@@ -1,17 +1,5 @@
-import type {TOperationData} from 'operation/types.ts';
-import {isDefined} from 'ts-is-present';
-import {Action, EndableAction, TimelineAction} from '../action/index.ts';
-import type {IAction} from '../action/types.ts';
-import type {ActionRegistryEventbusListener} from '../eventbus/index.ts';
-import type {IEventbus} from '../eventbus/types.ts';
-import {deepCopy} from '../operation/helper/deep-copy.ts';
-import {resolvePropertyChain} from '../operation/helper/resolve-property-chain.ts';
-import type {
-  IConfigurationResolver,
-  ISimpleResourceImporter,
-} from '../types.ts';
-import {isObject} from '../util/guards/is-object.ts';
-import {isString} from '../util/guards/is-string.ts';
+import {Action, EndableAction, TimelineAction} from '@action/index.ts';
+import type {IAction} from '@action/types.ts';
 import type {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -25,7 +13,19 @@ import type {
   IResolvedTimelineConfiguration,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
-} from './types.ts';
+} from '@configuration/types.ts';
+import type {ActionRegistryEventbusListener} from '@eventbus/index.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
+import {resolvePropertyChain} from '@operation/helper/resolve-property-chain.ts';
+import type {TOperationData} from '@operation/types.ts';
+import {isObject} from '@util/guards/is-object.ts';
+import {isString} from '@util/guards/is-string.ts';
+import {isDefined} from 'ts-is-present';
+import type {
+  IConfigurationResolver,
+  ISimpleResourceImporter,
+} from '../types.ts';
 
 /**
  * Takes an `IEngineConfiguration` instance and return an `IResolvedEngineConfiguration`.

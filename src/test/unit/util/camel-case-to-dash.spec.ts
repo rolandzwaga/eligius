@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import camelCaseToDash from '../../../util/camel-case-to-dash.ts';
+import camelCaseToDash from '@util/camel-case-to-dash.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('camel-case-to-dash', () => {
   test('should convert a camel cased string to a dashed string', () => {

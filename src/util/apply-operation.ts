@@ -3,7 +3,7 @@ import type {
   ExtractReturnedOperationData,
   IOperationScope,
   TOperation,
-} from '../operation/index.ts';
+} from '@operation/index.ts';
 
 export const defaultScope: IOperationScope = {
   currentIndex: -1,

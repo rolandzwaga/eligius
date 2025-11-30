@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {setOperationData} from '../../../operation/set-operation-data.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {setOperationData} from '@operation/set-operation-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('setOperationData', () => {
   test('should set the specified operation data', () => {

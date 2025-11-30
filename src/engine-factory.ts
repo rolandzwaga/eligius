@@ -1,25 +1,26 @@
-import hk, {type HotkeysEvent} from 'hotkeys-js';
-import $ from 'jquery';
-import type {IAction} from './action/types.ts';
-import {ConfigurationResolver} from './configuration/configuration-resolver.ts';
+import type {IAction} from '@action/types.ts';
+import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
-} from './configuration/types.ts';
-import {DevToolEventListener} from './diagnostics/devtool-event-listener.ts';
-import {Diagnostics} from './diagnostics/diagnostics.ts';
+} from '@configuration/types.ts';
+import {DevToolEventListener} from '@diagnostics/devtool-event-listener.ts';
+import {Diagnostics} from '@diagnostics/diagnostics.ts';
 import {
   DEV_TOOLS_KEY,
   type TDiagnosticType,
   type TWindowWithDevtools,
-} from './diagnostics/types.ts';
+} from '@diagnostics/types.ts';
 import {
   ActionRegistryEventbusListener,
   Eventbus,
   type IEventbus,
   RequestVideoUriInterceptor,
   type TEventbusRemover,
-} from './eventbus/index.ts';
+} from '@eventbus/index.ts';
+import {prepareValueForSerialization} from '@util/prepare-value-for-serialization.ts';
+import hk, {type HotkeysEvent} from 'hotkeys-js';
+import $ from 'jquery';
 import {LanguageManager} from './language-manager.ts';
 import type {
   IConfigurationResolver,
@@ -31,7 +32,6 @@ import type {
   TimelineTypes,
   TResultCallback,
 } from './types.ts';
-import {prepareValueForSerialization} from './util/prepare-value-for-serialization.ts';
 
 const hotkeys = hk.default || hk;
 

@@ -1,4 +1,4 @@
-import type {TOperation} from './types.ts';
+import type {TOperation} from '@operation/types.ts';
 
 /**
  * This operation cleans up after the {@link when}/{@link otherwise}/{@link endWhen} control flow ends.

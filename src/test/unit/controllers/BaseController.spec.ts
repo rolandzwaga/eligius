@@ -1,8 +1,8 @@
+import {BaseController} from '@controllers/base-controller.js';
+import type {IEventbus} from '@eventbus/types.js';
+import type {TOperationData} from '@operation/types.js';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {BaseController} from '../../../controllers/base-controller.js';
-import type {IEventbus} from '../../../eventbus/types.js';
-import type {TOperationData} from '../../../operation/types.js';
-import {createMockEventbus} from '../../fixtures/eventbus-factory.js';
 
 // Concrete implementation for testing
 class TestController extends BaseController<TOperationData> {

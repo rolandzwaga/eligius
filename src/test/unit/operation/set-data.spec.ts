@@ -1,9 +1,9 @@
-import {expect, afterAll, describe, test} from 'vitest';
-import {getGlobals} from '../../../operation/helper/globals.ts';
-import {setGlobal} from '../../../operation/helper/set-global.ts';
-import {type IOperationScope, setData} from '../../../operation/index.ts';
-import type {ISetDataOperationData} from '../../../operation/set-data.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {getGlobals} from '@operation/helper/globals.ts';
+import {setGlobal} from '@operation/helper/set-global.ts';
+import {type IOperationScope, setData} from '@operation/index.ts';
+import type {ISetDataOperationData} from '@operation/set-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {afterAll, describe, expect, test} from 'vitest';
 
 describe('setData', () => {
   afterAll(() => {

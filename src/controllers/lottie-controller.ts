@@ -1,3 +1,5 @@
+import {BaseController} from '@controllers/base-controller.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import type {
   AnimationConfigWithData,
   AnimationItem,
@@ -6,9 +8,7 @@ import type {
   SVGRendererConfig,
 } from 'lottie-web';
 import lt from 'lottie-web';
-import type {IEventbus} from '../eventbus/types.ts';
 import type {TLanguageCode} from '../types.ts';
-import {BaseController} from './base-controller.ts';
 
 const lottie = lt.default ?? lt;
 

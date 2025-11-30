@@ -1,9 +1,9 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   EndableActionEditor,
   OperationEditor,
-} from '../../../../configuration/api/action-editor.ts';
-import type {ConfigurationFactory} from '../../../../configuration/api/index.ts';
+} from '@configuration/api/action-editor.ts';
+import type {ConfigurationFactory} from '@configuration/api/index.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type EndableActionEditorSuiteContext = {
   configurationFactory: ConfigurationFactory;

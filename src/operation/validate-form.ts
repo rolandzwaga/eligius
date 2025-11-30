@@ -1,6 +1,6 @@
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import type {TOperation} from '@operation/types.ts';
 import $ from 'jquery';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import type {TOperation} from './types.ts';
 
 export interface IValidationRules {
   required?: boolean;

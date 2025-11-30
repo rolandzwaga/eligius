@@ -1,9 +1,9 @@
+import type {IRemoveControllerFromElementOperationData} from '@operation/remove-controller-from-element.js';
+import {removeControllerFromElement} from '@operation/remove-controller-from-element.js';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
+import {createMockJQueryElement} from '@test/fixtures/jquery-factory.js';
+import {applyOperation} from '@util/apply-operation.js';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import type {IRemoveControllerFromElementOperationData} from '../../../operation/remove-controller-from-element.js';
-import {removeControllerFromElement} from '../../../operation/remove-controller-from-element.js';
-import {applyOperation} from '../../../util/apply-operation.js';
-import {createMockEventbus} from '../../fixtures/eventbus-factory.js';
-import {createMockJQueryElement} from '../../fixtures/jquery-factory.js';
 
 describe('remove-controller-from-element operation', () => {
   let mockElement: any;

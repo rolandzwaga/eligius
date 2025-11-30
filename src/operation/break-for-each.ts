@@ -1,6 +1,6 @@
-import type {endForEach} from './end-for-each.ts';
-import type {forEach} from './for-each.ts';
-import type {TOperation, TOperationData} from './types.ts';
+import type {endForEach} from '@operation/end-for-each.ts';
+import type {forEach} from '@operation/for-each.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 
 /**
  *

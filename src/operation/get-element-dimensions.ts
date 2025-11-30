@@ -1,6 +1,6 @@
-import {modifyDimensions} from './helper/modify-dimensions.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import type {TOperation} from './types.ts';
+import {modifyDimensions} from '@operation/helper/modify-dimensions.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import type {TOperation} from '@operation/types.ts';
 
 export interface IGetElementDimensionsOperationData {
   /**

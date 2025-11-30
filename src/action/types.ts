@@ -1,5 +1,5 @@
-import type {IResolvedOperation} from '../configuration/types.ts';
-import type {TOperationData} from '../operation/types.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
+import type {TOperationData} from '@operation/types.ts';
 import type {IStrictDuration} from '../types.ts';
 
 export interface IAction {

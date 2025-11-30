@@ -1,3 +1,5 @@
+import type {IResolvedEngineConfiguration} from '@configuration/types.ts';
+import {VideoJsTimelineProvider} from '@timelineproviders/video-js-timeline-provider.ts';
 import $ from 'jquery';
 import {
   afterEach,
@@ -8,8 +10,6 @@ import {
   test,
   vi,
 } from 'vitest';
-import type {IResolvedEngineConfiguration} from '../../../configuration/types.ts';
-import {VideoJsTimelineProvider} from '../../../timelineproviders/video-js-timeline-provider.ts';
 
 // Use vi.hoisted to define mock state that vi.mock can access
 // This is the recommended pattern per Vitest docs:
@@ -662,6 +662,8 @@ describe('VideoJsTimelineProvider', () => {
     await initPromise;
 
     // when/expect - should not throw when no URLs configured
-    expect(() => provider.playlistItem('http://example.com/video.mp4')).not.toThrow();
+    expect(() =>
+      provider.playlistItem('http://example.com/video.mp4')
+    ).not.toThrow();
   });
 });

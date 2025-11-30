@@ -1,5 +1,5 @@
-import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import type {IOperationScope, TOperation} from './types.ts';
+import {findMatchingOperationIndex} from '@operation/helper/find-matching-operation-index.ts';
+import type {IOperationScope, TOperation} from '@operation/types.ts';
 
 /**
  * If the preceeding {@link when} operation evaluates to `true` subsequent operations will

@@ -1,5 +1,5 @@
-import {setGlobals} from './helper/globals.ts';
-import type {TOperation} from './types.ts';
+import {setGlobals} from '@operation/helper/globals.ts';
+import type {TOperation} from '@operation/types.ts';
 
 export interface ISetGlobalDataOperationData {
   /**

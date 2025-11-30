@@ -1,10 +1,10 @@
-import {findMatchingOperationIndex} from './helper/find-matching-operation-index.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
+import {findMatchingOperationIndex} from '@operation/helper/find-matching-operation-index.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
-} from './helper/resolve-external-property-chain.ts';
-import type {IOperationScope, TOperation} from './types.ts';
+} from '@operation/helper/resolve-external-property-chain.ts';
+import type {IOperationScope, TOperation} from '@operation/types.ts';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =

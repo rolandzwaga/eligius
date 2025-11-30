@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   ActionEditor,
   OperationEditor,
-} from '../../../../configuration/api/action-editor.ts';
-import type {ConfigurationFactory} from '../../../../configuration/api/index.ts';
-import type {IActionConfiguration} from '../../../../configuration/types.ts';
+} from '@configuration/api/action-editor.ts';
+import type {ConfigurationFactory} from '@configuration/api/index.ts';
+import type {IActionConfiguration} from '@configuration/types.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type ActionEditorSuiteContext = {
   configurationFactory: ConfigurationFactory;
@@ -106,9 +106,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.findIndex(x => x.id === op1.id)).toBe(
-        1
-      );
+      expect(config.startOperations.findIndex(x => x.id === op1.id)).toBe(1);
       return undefined;
     });
   });
@@ -135,9 +133,7 @@ describe<ActionEditorSuiteContext>('ActionEditorSuite', () => {
 
     // expect
     actionEditor.getConfiguration(config => {
-      expect(config.startOperations.findIndex(x => x.id === op2.id)).toBe(
-        0
-      );
+      expect(config.startOperations.findIndex(x => x.id === op2.id)).toBe(0);
       return undefined;
     });
   });

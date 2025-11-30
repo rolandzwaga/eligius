@@ -1,7 +1,7 @@
+import {TimelineAction} from '@action/timeline-action.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {TimelineAction} from '../../../action/timeline-action.ts';
-import type {IResolvedOperation} from '../../../configuration/types.ts';
-import {Eventbus, type IEventbus} from '../../../eventbus/index.ts';
 
 function createMockOperation(
   id: string,

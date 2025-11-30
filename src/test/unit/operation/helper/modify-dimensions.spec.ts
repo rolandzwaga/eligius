@@ -1,5 +1,5 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {modifyDimensions} from '../../../../operation/helper/modify-dimensions.ts';
+import {modifyDimensions} from '@operation/helper/modify-dimensions.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 import type {IDimensions} from '../../../../types.ts';
 
 type ModifyDimensionsSuiteContext = {dimensions: IDimensions} & TestContext;

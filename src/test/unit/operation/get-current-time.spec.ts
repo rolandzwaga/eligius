@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   getCurrentTime,
   type IGetCurrentTimeOperationData,
-} from '../../../operation/get-current-time.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/get-current-time.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('getCurrentTime', () => {
   let mockEventbus: IEventbus;

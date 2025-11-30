@@ -1,9 +1,9 @@
-import {expect, describe, test} from 'vitest';
 import {
   type ISetElementContentOperationData,
   setElementContent,
-} from '../../../operation/set-element-content.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/set-element-content.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   htmlContent: string = '';

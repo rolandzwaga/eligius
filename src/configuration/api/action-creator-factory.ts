@@ -1,6 +1,4 @@
-import {v4 as uuidv4} from 'uuid';
-import {deepCopy} from '../../operation/helper/deep-copy.ts';
-import * as operations from '../../operation/index.ts';
+import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {
   ExtractOperationDataType,
   GetOperationByName,
@@ -9,8 +7,10 @@ import type {
   ITimelineActionConfiguration,
   TOperationName,
   TOperationType,
-} from '../types.ts';
-import type {ConfigurationFactory} from './configuration-factory.ts';
+} from '@configuration/types.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
+import * as operations from '@operation/index.ts';
+import {v4 as uuidv4} from 'uuid';
 
 /**
  *

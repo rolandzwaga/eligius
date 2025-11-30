@@ -1,10 +1,10 @@
-import type {IAction} from './action/types.ts';
+import type {IAction} from '@action/types.ts';
 import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
-} from './configuration/types.ts';
-import type {IEventbus, IEventbusListener} from './eventbus/types.ts';
-import type {ITimelineProvider} from './timelineproviders/types.ts';
+} from '@configuration/types.ts';
+import type {IEventbus, IEventbusListener} from '@eventbus/types.ts';
+import type {ITimelineProvider} from '@timelineproviders/types.ts';
 
 export type KeysOfType<T, U> = {
   [P in keyof T]-?: T[P] extends U | undefined ? P : never;

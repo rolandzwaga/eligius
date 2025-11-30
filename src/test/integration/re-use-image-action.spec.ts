@@ -1,17 +1,24 @@
-import $ from 'jquery';
-import {expect, afterEach, beforeEach, describe, type TestContext, test} from 'vitest';
-import {ConfigurationFactory} from '../../configuration/api/configuration-factory.ts';
-import type {IEngineConfiguration} from '../../configuration/types.ts';
-import {EngineFactory} from '../../engine-factory.ts';
-import {Eventbus, type IEventbus} from '../../eventbus/index.ts';
-import {EligiusResourceImporter} from '../../importer/index.ts';
+import {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
+import type {IEngineConfiguration} from '@configuration/types.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import {EligiusResourceImporter} from '@importer/index.ts';
 import {
   createElement,
   requestAction,
   selectElement,
   setElementContent,
   startAction,
-} from '../../operation/index.ts';
+} from '@operation/index.ts';
+import $ from 'jquery';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+} from 'vitest';
+import {EngineFactory} from '../../engine-factory.ts';
 import type {IEligiusEngine} from '../../types.ts';
 
 type ReuseActionsContext = {

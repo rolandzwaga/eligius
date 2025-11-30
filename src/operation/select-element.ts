@@ -1,9 +1,9 @@
-import {removeProperties} from './helper/remove-operation-properties.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
-} from './helper/resolve-external-property-chain.ts';
-import type {TOperation} from './types.ts';
+} from '@operation/helper/resolve-external-property-chain.ts';
+import type {TOperation} from '@operation/types.ts';
 
 function findElementBySelector(root: JQuery, selector: string) {
   const element = root.find(selector);

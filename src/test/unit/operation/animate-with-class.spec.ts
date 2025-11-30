@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {animateWithClass} from '../../../operation/animate-with-class.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {animateWithClass} from '@operation/animate-with-class.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   removedCalled = false;

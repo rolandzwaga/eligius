@@ -1,12 +1,12 @@
-import $ from 'jquery';
-import {JSDOM} from 'jsdom';
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   type IToggleFormElementOperationData,
   toggleFormElement,
-} from '../../../operation/toggle-form-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/toggle-form-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import $ from 'jquery';
+import {JSDOM} from 'jsdom';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('toggleFormElement', () => {
   let dom: JSDOM;

@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {removeClass} from '../../../operation/remove-class.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {removeClass} from '@operation/remove-class.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   removedClassName: string = '';

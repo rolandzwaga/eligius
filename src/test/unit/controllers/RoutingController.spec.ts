@@ -1,7 +1,7 @@
+import {RoutingController} from '@controllers/routing-controller.js';
+import type {IEventbus} from '@eventbus/types.js';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {RoutingController} from '../../../controllers/routing-controller.js';
-import type {IEventbus} from '../../../eventbus/types.js';
-import {createMockEventbus} from '../../fixtures/eventbus-factory.js';
 
 describe('RoutingController', () => {
   let controller: RoutingController;

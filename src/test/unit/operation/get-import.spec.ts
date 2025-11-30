@@ -1,7 +1,6 @@
-
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {getImport} from '../../../operation/get-import.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {getImport} from '@operation/get-import.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type GetImportSuiteContext = {
   eventbus: any;

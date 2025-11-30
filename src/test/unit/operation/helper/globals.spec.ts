@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import {getGlobals, setGlobals} from '../../../../operation/helper/globals.ts';
+import {getGlobals, setGlobals} from '@operation/helper/globals.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('globals', () => {
   test('should get the globals', () => {

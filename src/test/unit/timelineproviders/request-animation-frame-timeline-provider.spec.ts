@@ -1,6 +1,14 @@
+import {RequestAnimationFrameTimelineProvider} from '@timelineproviders/request-animation-frame-timeline-provider.ts';
 import $ from 'jquery';
-import {expect, afterEach, beforeEach, describe, type TestContext, test, vi, } from 'vitest';
-import {RequestAnimationFrameTimelineProvider} from '../../../timelineproviders/request-animation-frame-timeline-provider.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+  vi,
+} from 'vitest';
 
 type RequestAnimationFrameTimelineProviderSuiteContext = {
   provider: RequestAnimationFrameTimelineProvider;

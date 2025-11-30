@@ -1,6 +1,19 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@action/*": ["src/action/*"],
+      "@configuration/*": ["src/configuration/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@diagnostics/*": ["src/diagnostics/*"],
+      "@eventbus/*": ["src/eventbus/*"],
+      "@importer/*": ["src/importer/*"],
+      "@operation/*": ["src/operation/*"],
+      "@timelineproviders/*": ["src/timelineproviders/*"],
+      "@util/*": ["src/util/*"],
+      "@test/*": ["src/test/*"]
+    },
     "module": "NodeNext",
     "target": "ESNext",
     "lib": ["dom", "ESNext"],

@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   type ISaveToStorageOperationData,
   saveToStorage,
-} from '../../../operation/save-to-storage.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/save-to-storage.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('saveToStorage', () => {
   let mockEventbus: IEventbus;

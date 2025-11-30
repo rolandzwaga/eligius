@@ -1,15 +1,14 @@
-
+import {LabelController} from '@controllers/label-controller.ts';
+import {LottieController} from '@controllers/lottie-controller.ts';
+import {NavigationController} from '@controllers/navigation-controller.ts';
+import {ProgressbarController} from '@controllers/progressbar-controller.ts';
+import {RoutingController} from '@controllers/routing-controller.ts';
+import {SubtitlesController} from '@controllers/subtitles-controller.ts';
+import {Eventbus} from '@eventbus/index.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import {createMockJQueryElement} from '@test/fixtures/jquery-factory.ts';
 import $ from 'jquery';
-import {expect, afterEach, beforeEach, describe, test, vi} from 'vitest';
-import {LabelController} from '../../../controllers/label-controller.ts';
-import {LottieController} from '../../../controllers/lottie-controller.ts';
-import {NavigationController} from '../../../controllers/navigation-controller.ts';
-import {ProgressbarController} from '../../../controllers/progressbar-controller.ts';
-import {RoutingController} from '../../../controllers/routing-controller.ts';
-import {SubtitlesController} from '../../../controllers/subtitles-controller.ts';
-import {Eventbus} from '../../../eventbus/index.ts';
-import type {IEventbus} from '../../../eventbus/types.ts';
-import {createMockJQueryElement} from '../../fixtures/jquery-factory.ts';
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 
 /**
  * Memory Leak Detection Tests (Phase 10 - User Story 8)

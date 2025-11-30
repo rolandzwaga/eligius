@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import type {IOperationScope} from '../../../operation/types.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IOperationScope} from '@operation/types.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('applyOperation', () => {
   test('should apply the operation with the given scope and data', () => {

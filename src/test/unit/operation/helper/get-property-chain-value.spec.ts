@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import {getPropertyChainValue} from '../../../../operation/helper/get-property-chain-value.ts';
+import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('getNestedValue', () => {
   test('should get the nested value', () => {

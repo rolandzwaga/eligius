@@ -1,6 +1,6 @@
-import type {IEventbusListener} from '../eventbus/index.ts';
-import {prepareValueForSerialization} from '../util/prepare-value-for-serialization.ts';
-import type {IDiagnosticsAgent} from './types.ts';
+import type {IDiagnosticsAgent} from '@diagnostics/types.ts';
+import type {IEventbusListener} from '@eventbus/index.ts';
+import {prepareValueForSerialization} from '@util/prepare-value-for-serialization.ts';
 
 export class DevToolEventListener implements IEventbusListener {
   constructor(private agent: IDiagnosticsAgent) {}

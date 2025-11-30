@@ -1,10 +1,16 @@
-import {expect, afterAll, afterEach, beforeAll, beforeEach, describe, type TestContext, test, } from 'vitest';
-import type {
-  IOperationScope,
-  TOperationData,
-} from '../../../operation/index.ts';
-import {type ILogOperationData, log} from '../../../operation/log.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IOperationScope, TOperationData} from '@operation/index.ts';
+import {type ILogOperationData, log} from '@operation/log.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+} from 'vitest';
 
 type LogSuiteContext = {
   groupFunc: (message: any) => void;

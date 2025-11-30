@@ -1,16 +1,16 @@
-import type {TLanguageCode} from 'types.ts';
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
 import {
   ActionEditor,
   EndableActionEditor,
   TimelineActionEditor,
-} from '../../../../configuration/api/action-editor.ts';
-import {ConfigurationFactory} from '../../../../configuration/api/configuration-factory.ts';
-import {TimelineProvidersSettingsEditor} from '../../../../configuration/api/timeline-provider-settings-editor.ts';
+} from '@configuration/api/action-editor.ts';
+import {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
+import {TimelineProvidersSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
 import type {
   IActionConfiguration,
   ITimelineActionConfiguration,
-} from '../../../../configuration/types.ts';
+} from '@configuration/types.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
+import type {TLanguageCode} from '@/types.ts';
 
 type ConfigurationFactorySuiteContext = {
   configurationFactory: ConfigurationFactory;
@@ -30,9 +30,7 @@ describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
     const {configuration} = configurationFactory;
     expect(configuration.id).not.toBeUndefined();
     expect(configuration.engine.systemName).toBe('EligiusEngine');
-    expect(configuration.containerSelector).toBe(
-      '[data-ct-container=true]'
-    );
+    expect(configuration.containerSelector).toBe('[data-ct-container=true]');
     expect(configuration.timelineProviderSettings).toEqual({});
     expect(configuration.language).toBe('nl-NL');
     expect(configuration.availableLanguages.length).toBe(0);

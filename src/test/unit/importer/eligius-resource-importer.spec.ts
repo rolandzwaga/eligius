@@ -1,8 +1,8 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import * as controllerImports from '../../../controllers/index.ts';
-import {EligiusResourceImporter} from '../../../importer/eligius-resource-importer.ts';
-import * as operationImports from '../../../operation/index.ts';
-import * as providerImports from '../../../timelineproviders/index.ts';
+import * as controllerImports from '@controllers/index.ts';
+import {EligiusResourceImporter} from '@importer/eligius-resource-importer.ts';
+import * as operationImports from '@operation/index.ts';
+import * as providerImports from '@timelineproviders/index.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type EligiusResourceImporterSuiteContext = {
   importer: EligiusResourceImporter;

@@ -1,6 +1,6 @@
-import type {IController} from '../controllers/types.ts';
-import {removeProperties} from './helper/remove-operation-properties.ts';
-import type {TOperation, TOperationData} from './types.ts';
+import type {IController} from '@controllers/types.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 
 /**
  * This operation extends the specified controller instance with the specified extension.

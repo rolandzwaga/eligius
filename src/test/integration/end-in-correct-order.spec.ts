@@ -1,15 +1,14 @@
-import $ from 'jquery';
-
-import {describe, test} from 'vitest';
-import {ConfigurationFactory} from '../../configuration/api/index.ts';
-import {EngineFactory} from '../../engine-factory.ts';
-import {Eventbus} from '../../eventbus/index.ts';
-import {EligiusResourceImporter} from '../../importer/index.ts';
+import {ConfigurationFactory} from '@configuration/api/index.ts';
+import {Eventbus} from '@eventbus/index.ts';
+import {EligiusResourceImporter} from '@importer/index.ts';
 import {
   removeElement,
   selectElement,
   setElementContent,
-} from '../../operation/index.ts';
+} from '@operation/index.ts';
+import $ from 'jquery';
+import {describe, test} from 'vitest';
+import {EngineFactory} from '../../engine-factory.ts';
 
 describe('EndInCorrectOrder', () => {
   test('The ending of actions need to be called in reverse order', async () => {

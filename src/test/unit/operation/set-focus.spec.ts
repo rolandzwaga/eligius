@@ -1,12 +1,9 @@
+import type {IEventbus} from '@eventbus/types.ts';
+import {type ISetFocusOperationData, setFocus} from '@operation/set-focus.ts';
+import {applyOperation} from '@util/apply-operation.ts';
 import $ from 'jquery';
 import {JSDOM} from 'jsdom';
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
-import {
-  type ISetFocusOperationData,
-  setFocus,
-} from '../../../operation/set-focus.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('setFocus', () => {
   let dom: JSDOM;

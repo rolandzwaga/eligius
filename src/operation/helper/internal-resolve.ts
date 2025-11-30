@@ -1,5 +1,5 @@
-import type {TOperationData} from '../types.ts';
-import {mergeOperationData} from './merge-operation-data.ts';
+import {mergeOperationData} from '@operation/helper/merge-operation-data.ts';
+import type {TOperationData} from '@operation/types.ts';
 
 export function internalResolve<T extends TOperationData = TOperationData>(
   resolve: (data: T | PromiseLike<T>) => void,

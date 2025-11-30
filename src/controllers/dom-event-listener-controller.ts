@@ -1,8 +1,8 @@
-import type {IEndableAction} from '../action/types.ts';
-import type {IEventbus} from '../eventbus/types.ts';
-import {deepCopy} from '../operation/helper/deep-copy.ts';
-import type {TOperationData} from '../operation/types.ts';
-import type {IController} from './types.ts';
+import type {IEndableAction} from '@action/types.ts';
+import type {IController} from '@controllers/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
+import type {TOperationData} from '@operation/types.ts';
 
 interface IActionInstanceInfo {
   start: boolean;

@@ -1,5 +1,5 @@
-import {internalResolve} from './helper/internal-resolve.ts';
-import type {TOperation} from './types.ts';
+import {internalResolve} from '@operation/helper/internal-resolve.ts';
+import type {TOperation} from '@operation/types.ts';
 
 export interface IWaitOperationData {
   /**

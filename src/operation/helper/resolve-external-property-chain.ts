@@ -1,6 +1,6 @@
-import type {IOperationScope, TOperationData} from '../types.ts';
-import {getPropertyChainValue} from './get-property-chain-value.ts';
-import {getGlobals} from './globals.ts';
+import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
+import {getGlobals} from '@operation/helper/globals.ts';
+import type {IOperationScope, TOperationData} from '@operation/types.ts';
 
 /**
  * Resolves operation and global data property chains.

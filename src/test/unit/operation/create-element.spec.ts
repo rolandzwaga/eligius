@@ -1,8 +1,8 @@
-import {expect, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/index.ts';
-import {createElement} from '../../../operation/create-element.ts';
-import type {IOperationScope} from '../../../operation/index.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IEventbus} from '@eventbus/index.ts';
+import {createElement} from '@operation/create-element.ts';
+import type {IOperationScope} from '@operation/index.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('createElement', () => {
   test('should create a simple element', () => {

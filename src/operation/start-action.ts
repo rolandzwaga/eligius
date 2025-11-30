@@ -1,7 +1,7 @@
-import type {IAction} from '../action/types.ts';
-import {internalResolve} from './helper/internal-resolve.ts';
-import {mergeOperationData} from './helper/merge-operation-data.ts';
-import type {TOperation, TOperationData} from './types.ts';
+import type {IAction} from '@action/types.ts';
+import {internalResolve} from '@operation/helper/internal-resolve.ts';
+import {mergeOperationData} from '@operation/helper/merge-operation-data.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 
 export interface IStartActionOperationData {
   /**

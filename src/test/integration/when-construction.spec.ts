@@ -1,9 +1,9 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {Action} from '../../action/index.ts';
-import {Eventbus} from '../../eventbus/index.ts';
-import {endWhen} from '../../operation/end-when.ts';
-import {otherwise} from '../../operation/index.ts';
-import {type IWhenOperationData, when} from '../../operation/when.ts';
+import {Action} from '@action/index.ts';
+import {Eventbus} from '@eventbus/index.ts';
+import {endWhen} from '@operation/end-when.ts';
+import {otherwise} from '@operation/index.ts';
+import {type IWhenOperationData, when} from '@operation/when.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type WhenConstructionContext = {action: Action} & TestContext;
 

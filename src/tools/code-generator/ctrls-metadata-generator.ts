@@ -1,8 +1,10 @@
-import {dirname, relative} from 'node:path';
+import camelCaseToDash from '@util/camel-case-to-dash.ts';
+import dashToCamelCase from '@util/dash-to-camel-case.ts';
+import {uppercaseFirstChar} from '@util/uppercase-first-char.ts';
 import {
   type ClassDeclaration,
   type ExportDeclarationStructure,
-  type HeritageClause,
+  type ExpressionWithTypeArguments,
   type InterfaceDeclaration,
   type JSDoc,
   type JSDocTag,
@@ -15,9 +17,40 @@ import {
   type TypeParameterDeclaration,
   ts,
 } from 'ts-morph';
-import {uppercaseFirstChar} from 'util/uppercase-first-char.ts';
-import camelCaseToDash from '../../util/camel-case-to-dash.ts';
-import dashToCamelCase from '../../util/dash-to-camel-case.ts';
+
+/**
+ * Converts a file path to use path aliases based on the project's tsconfig paths.
+ * @param filePath - The file path to convert (can be relative or absolute)
+ * @returns The path with alias prefix if applicable
+ */
+const toPathAlias = (filePath: string): string => {
+  // Normalize path separators
+  const normalizedPath = filePath.replaceAll('\\', '/');
+
+  // Map of directory patterns to their aliases
+  const aliasMap: Record<string, string> = {
+    'src/action/': '@action/',
+    'src/configuration/': '@configuration/',
+    'src/controllers/': '@controllers/',
+    'src/diagnostics/': '@diagnostics/',
+    'src/eventbus/': '@eventbus/',
+    'src/importer/': '@importer/',
+    'src/operation/': '@operation/',
+    'src/timelineproviders/': '@timelineproviders/',
+    'src/util/': '@util/',
+    'src/test/': '@test/',
+    'src/': '@/',
+  };
+
+  for (const [pattern, alias] of Object.entries(aliasMap)) {
+    const index = normalizedPath.indexOf(pattern);
+    if (index !== -1) {
+      return alias + normalizedPath.substring(index + pattern.length);
+    }
+  }
+
+  return normalizedPath;
+};
 
 const project = new Project({
   compilerOptions: {
@@ -29,27 +62,22 @@ project.addSourceFilesAtPaths('./src/controllers/*.ts');
 
 const getImplementedInterface = (
   classDecl: ClassDeclaration
-): HeritageClause | undefined => {
-  // First check direct implementation
-  const heritageClause = classDecl
+): ExpressionWithTypeArguments | undefined => {
+  // First check direct implementation (implements IController<T>)
+  const implementsClause = classDecl
     .getHeritageClauses()
     .find(h => h.getToken() === ts.SyntaxKind.ImplementsKeyword);
 
-  if (heritageClause) {
-    return heritageClause;
+  if (implementsClause) {
+    return implementsClause.getTypeNodes()[0];
   }
 
-  // Check if the class extends another class
-  const extendsClause = classDecl
-    .getHeritageClauses()
-    .find(h => h.getToken() === ts.SyntaxKind.ExtendsKeyword);
-
-  if (extendsClause) {
-    const baseType = extendsClause.getTypeNodes()[0];
-    const baseClass = baseType.getType().getSymbol()?.getDeclarations()[0];
-
-    if (baseClass?.getKind() === SyntaxKind.ClassDeclaration) {
-      return extendsClause;
+  // Check if the class extends a generic base class (extends BaseController<T>)
+  const extendsExpression = classDecl.getExtends();
+  if (extendsExpression) {
+    const typeArgs = extendsExpression.getTypeArguments();
+    if (typeArgs.length > 0) {
+      return extendsExpression;
     }
   }
 
@@ -66,19 +94,18 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
     );
     return;
   }
-  const heritageClause = getImplementedInterface(classDeclaration);
-  if (!heritageClause) {
+  const implementedType = getImplementedInterface(classDeclaration);
+  if (!implementedType) {
     console.error(
-      `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} does not implement an interface.`
+      `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} does not implement an interface or extend a generic base class.`
     );
     return;
   }
 
-  const implementedType = heritageClause.getTypeNodes()[0]; // Get the first implemented interface
   const typeArguments = implementedType.getTypeArguments();
   if (typeArguments.length === 0) {
     console.error(
-      `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} implements ${implementedType.getText()}, but this interface has no generic arguments`
+      `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} extends/implements ${implementedType.getText()}, but has no generic arguments`
     );
     return;
   }
@@ -101,13 +128,12 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
 };
 
 const toImport =
-  (sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
+  (_sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
     const constraint = typeParam.getConstraint()!;
 
     const declarationSourceFile = constraint.getSourceFile();
-    const fromPath = dirname(sourceFile.getFilePath());
     const toPath = declarationSourceFile.getFilePath();
-    const importPath = relative(fromPath, toPath).replaceAll('\\', '/');
+    const importPath = toPathAlias(toPath);
     return {
       types: [constraint.getText()],
       importPath,
@@ -154,11 +180,11 @@ const createSourceFile =
 
     if (importName) {
       outputSourceFile
-        .addImportDeclaration({moduleSpecifier: `../${fileName}.ts`})
+        .addImportDeclaration({moduleSpecifier: `@controllers/${fileName}.ts`})
         .addNamedImport({name: importName, isTypeOnly: true});
     }
     outputSourceFile
-      .addImportDeclaration({moduleSpecifier: './types.ts'})
+      .addImportDeclaration({moduleSpecifier: '@controllers/metadata/types.ts'})
       .addNamedImport({name: 'IControllerMetadata', isTypeOnly: true});
     imports.forEach(imp => {
       const importDeclaration = outputSourceFile.addImportDeclaration({
@@ -387,12 +413,14 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
         : uppercaseFirstChar(dashToCamelCase(name.slice(0, -3)));
       return {
         kind: StructureKind.ExportDeclaration,
-        moduleSpecifier: `./${name}`,
+        moduleSpecifier: `@controllers/metadata/${name}`,
         namedExports: [namedExport],
       } as ExportDeclarationStructure;
     })
   );
-  outputSourceFile.addExportDeclaration({moduleSpecifier: './types.ts'});
+  outputSourceFile.addExportDeclaration({
+    moduleSpecifier: '@controllers/metadata/types.ts',
+  });
 };
 
 const controllerFiles = project

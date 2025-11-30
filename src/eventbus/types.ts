@@ -1,4 +1,4 @@
-import type {EventMap, EventName} from './events/types.ts';
+import type {EventMap, EventName} from '@eventbus/events/types.ts';
 
 export type {EventMap, EventName};
 

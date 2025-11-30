@@ -1,5 +1,5 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import {SubtitleEditor} from '../../../../configuration/api/index.ts';
+import {SubtitleEditor} from '@configuration/api/index.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type SubtitleEditorSuiteContext = {
   subtitleEditor: SubtitleEditor;

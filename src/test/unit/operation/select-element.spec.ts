@@ -1,10 +1,10 @@
-import {expect, describe, test, vi} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   type ISelectElementOperationData,
   selectElement,
-} from '../../../operation/select-element.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/select-element.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test, vi} from 'vitest';
 
 function createMockElement(selectedElement: any) {
   return {
@@ -27,7 +27,9 @@ describe('selectElement', () => {
       length: 1,
     };
     const mockElement = createMockElement(selectedElement);
-    const eventbus = createMockEventbusWithRoot(mockElement) as any as IEventbus;
+    const eventbus = createMockEventbusWithRoot(
+      mockElement
+    ) as any as IEventbus;
     const operationData = {
       selector: '.testClass',
     } as any as ISelectElementOperationData;
@@ -50,7 +52,9 @@ describe('selectElement', () => {
       length: 1,
     };
     const mockElement = createMockElement(selectedElement);
-    const eventbus = createMockEventbusWithRoot(mockElement) as any as IEventbus;
+    const eventbus = createMockEventbusWithRoot(
+      mockElement
+    ) as any as IEventbus;
     const operationData = {
       selector: '$operationdata.customSelector',
       customSelector: '.testClass',
@@ -121,9 +125,9 @@ describe('selectElement', () => {
     } as ISelectElementOperationData;
 
     // test & expect
-    expect(() =>
-      applyOperation(selectElement, operationData)
-    ).toThrow('selectElement: selector is either empty or not defined.');
+    expect(() => applyOperation(selectElement, operationData)).toThrow(
+      'selectElement: selector is either empty or not defined.'
+    );
   });
 
   test('should throw error when selector is undefined', () => {
@@ -131,8 +135,8 @@ describe('selectElement', () => {
     const operationData = {} as ISelectElementOperationData;
 
     // test & expect
-    expect(() =>
-      applyOperation(selectElement, operationData)
-    ).toThrow('selectElement: selector is either empty or not defined.');
+    expect(() => applyOperation(selectElement, operationData)).toThrow(
+      'selectElement: selector is either empty or not defined.'
+    );
   });
 });

@@ -1,4 +1,5 @@
-import {dirname, relative} from 'node:path';
+import camelCaseToDash from '@util/camel-case-to-dash.ts';
+import dashToCamelCase from '@util/dash-to-camel-case.ts';
 import {
   type ExportDeclarationStructure,
   type InterfaceDeclaration,
@@ -14,8 +15,40 @@ import {
   ts,
   type VariableDeclaration,
 } from 'ts-morph';
-import camelCaseToDash from '../../util/camel-case-to-dash.ts';
-import dashToCamelCase from '../../util/dash-to-camel-case.ts';
+
+/**
+ * Converts a file path to use path aliases based on the project's tsconfig paths.
+ * @param filePath - The file path to convert (can be relative or absolute)
+ * @returns The path with alias prefix if applicable
+ */
+const toPathAlias = (filePath: string): string => {
+  // Normalize path separators
+  const normalizedPath = filePath.replaceAll('\\', '/');
+
+  // Map of directory patterns to their aliases
+  const aliasMap: Record<string, string> = {
+    'src/action/': '@action/',
+    'src/configuration/': '@configuration/',
+    'src/controllers/': '@controllers/',
+    'src/diagnostics/': '@diagnostics/',
+    'src/eventbus/': '@eventbus/',
+    'src/importer/': '@importer/',
+    'src/operation/': '@operation/',
+    'src/timelineproviders/': '@timelineproviders/',
+    'src/util/': '@util/',
+    'src/test/': '@test/',
+    'src/': '@/',
+  };
+
+  for (const [pattern, alias] of Object.entries(aliasMap)) {
+    const index = normalizedPath.indexOf(pattern);
+    if (index !== -1) {
+      return alias + normalizedPath.substring(index + pattern.length);
+    }
+  }
+
+  return normalizedPath;
+};
 
 const project = new Project({
   compilerOptions: {
@@ -93,7 +126,7 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
 };
 
 const toImport =
-  (sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
+  (_sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
     const constraint = typeParam.getConstraint()!;
 
     const symbol =
@@ -103,9 +136,8 @@ const toImport =
       symbol?.getDeclarations()[0].getSourceFile() ??
       constraint.getSourceFile();
 
-    const fromPath = dirname(sourceFile.getFilePath());
     const toPath = declarationSourceFile.getFilePath();
-    const importPath = relative(fromPath, toPath).replaceAll('\\', '/');
+    const importPath = toPathAlias(toPath);
     return {
       types: [constraint.getText()],
       importPath,
@@ -152,11 +184,11 @@ const createSourceFile =
 
     if (importName) {
       outputSourceFile
-        .addImportDeclaration({moduleSpecifier: `../${fileName}.ts`})
+        .addImportDeclaration({moduleSpecifier: `@operation/${fileName}.ts`})
         .addNamedImport({name: importName, isTypeOnly: true});
     }
     outputSourceFile
-      .addImportDeclaration({moduleSpecifier: './types.ts'})
+      .addImportDeclaration({moduleSpecifier: '@operation/metadata/types.ts'})
       .addNamedImport({name: 'IOperationMetadata', isTypeOnly: true});
     imports.forEach(imp => {
       const importDeclaration = outputSourceFile.addImportDeclaration({
@@ -397,12 +429,14 @@ const toIndexFile = (project: Project, fileNames: string[]) => {
       const namedExport = dashToCamelCase(name.slice(0, -3));
       return {
         kind: StructureKind.ExportDeclaration,
-        moduleSpecifier: `./${name}`,
+        moduleSpecifier: `@operation/metadata/${name}`,
         namedExports: [namedExport],
       } as ExportDeclarationStructure;
     })
   );
-  outputSourceFile.addExportDeclaration({moduleSpecifier: './types.ts'});
+  outputSourceFile.addExportDeclaration({
+    moduleSpecifier: '@operation/metadata/types.ts',
+  });
 };
 
 const operationFiles = project

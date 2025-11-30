@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import {attachControllerToElement} from '../../../../operation/helper/attach-controller-to-element.ts';
+import {attachControllerToElement} from '@operation/helper/attach-controller-to-element.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockElement {
   name: string = '';

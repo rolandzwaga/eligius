@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import {endAction} from '../../../operation/end-action.ts';
-import type {TOperation} from '../../../operation/index.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {endAction} from '@operation/end-action.ts';
+import type {TOperation} from '@operation/index.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 class MockAction {
   end(operationData: TOperation) {

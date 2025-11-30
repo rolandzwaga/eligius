@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import type {IController} from '../../../controllers/types.ts';
-import {extendController} from '../../../operation/extend-controller.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IController} from '@controllers/types.ts';
+import {extendController} from '@operation/extend-controller.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('extendController', () => {
   test('should extend the given controller', () => {

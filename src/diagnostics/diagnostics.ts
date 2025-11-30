@@ -1,4 +1,4 @@
-import type {TDiagnosticType} from './types.ts';
+import type {TDiagnosticType} from '@diagnostics/types.ts';
 
 let active: boolean;
 

@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import type {IGetAttributesFromElementOperationData} from '../../../operation/get-attributes-from-element.ts';
-import {getAttributesFromElement} from '../../../operation/index.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import type {IGetAttributesFromElementOperationData} from '@operation/get-attributes-from-element.ts';
+import {getAttributesFromElement} from '@operation/index.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('getAttibutesFromElement', () => {
   test('should extend the given controller', () => {

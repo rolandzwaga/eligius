@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {endWhen} from '../../../operation/index.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {endWhen} from '@operation/index.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('endWhen', () => {
   test('should delete whenEvaluation from scope', () => {

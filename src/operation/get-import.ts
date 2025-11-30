@@ -1,5 +1,5 @@
-import type {RequireKeys} from 'types.ts';
-import type {TOperation} from './types.ts';
+import type {TOperation} from '@operation/types.ts';
+import type {RequireKeys} from '@/types.ts';
 
 export interface IGetImportOperationData {
   /**

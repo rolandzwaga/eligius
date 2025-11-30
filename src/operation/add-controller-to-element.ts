@@ -1,7 +1,11 @@
-import type {IController} from '../controllers/types.ts';
-import {attachControllerToElement} from './helper/attach-controller-to-element.ts';
-import {internalResolve} from './helper/internal-resolve.ts';
-import type {IOperationScope, TOperation, TOperationData} from './types.ts';
+import type {IController} from '@controllers/types.ts';
+import {attachControllerToElement} from '@operation/helper/attach-controller-to-element.ts';
+import {internalResolve} from '@operation/helper/internal-resolve.ts';
+import type {
+  IOperationScope,
+  TOperation,
+  TOperationData,
+} from '@operation/types.ts';
 
 export type IAddControllerToElementOperationData<
   T extends TOperationData = TOperationData,

@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import {EOL} from 'node:os';
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import camelCaseToDash from '@util/camel-case-to-dash.ts';
 import type {JSONOutput} from 'typedoc';
-import camelCaseToDash from '../../util/camel-case-to-dash.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

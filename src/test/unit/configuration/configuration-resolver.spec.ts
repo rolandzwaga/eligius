@@ -1,7 +1,7 @@
+import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
+import type {IEngineConfiguration} from '@configuration/types.ts';
+import type {Eventbus} from '@eventbus/index.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {ConfigurationResolver} from '../../../configuration/configuration-resolver.ts';
-import type {IEngineConfiguration} from '../../../configuration/types.ts';
-import type {Eventbus} from '../../../eventbus/index.ts';
 import type {ISimpleResourceImporter} from '../../../types.ts';
 
 function createMockImporter() {
@@ -226,8 +226,12 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
     expect(resolvedAction).not.toBeNull();
     expect(processedConfig.actions).not.toBeUndefined();
     expect(processedConfig.actions[0]).not.toBeUndefined();
-    expect(processedConfig.actions[0].startOperations[0].instance).not.toBeUndefined();
-    expect(processedConfig.actions[0].endOperations[0].instance).not.toBeUndefined();
+    expect(
+      processedConfig.actions[0].startOperations[0].instance
+    ).not.toBeUndefined();
+    expect(
+      processedConfig.actions[0].endOperations[0].instance
+    ).not.toBeUndefined();
   });
   test<ConfigurationResolverSuiteContext>('should initialize timeline actions', context => {
     // given

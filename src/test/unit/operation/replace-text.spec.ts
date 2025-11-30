@@ -1,10 +1,10 @@
-import {expect, beforeEach, describe, test} from 'vitest';
-import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
 import {
   type IReplaceTextOperationData,
   replaceText,
-} from '../../../operation/replace-text.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/replace-text.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('replaceText', () => {
   let mockEventbus: IEventbus;

@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {mergeOperationData} from '../../../../operation/helper/merge-operation-data.ts';
-import type {TOperationData} from '../../../../operation/types.ts';
+import {mergeOperationData} from '@operation/helper/merge-operation-data.ts';
+import type {TOperationData} from '@operation/types.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('mergeOperationData', () => {
   test('should merge the given operation datas', () => {

@@ -1,4 +1,4 @@
-import type {IResolvedOperation} from '../../configuration/types.ts';
+import type {IResolvedOperation} from '@configuration/types.ts';
 
 /**
  * This function can be used to find the index of a matching closing operation within a list of operations.

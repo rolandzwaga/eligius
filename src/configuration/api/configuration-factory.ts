@@ -1,5 +1,20 @@
+import {ActionCreatorFactory} from '@configuration/api/action-creator-factory.ts';
+import {
+  ActionEditor,
+  EndableActionEditor,
+  TimelineActionEditor,
+} from '@configuration/api/action-editor.ts';
+import {LabelEditor} from '@configuration/api/label-editor.ts';
+import {TimelineProvidersSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
+import type {
+  IActionConfiguration,
+  IEngineConfiguration,
+  ITimelineActionConfiguration,
+  ITimelineConfiguration,
+} from '@configuration/types.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
+import {mergeIfMissing} from '@util/merge-if-missing.ts';
 import {v4 as uuidv4} from 'uuid';
-import {deepCopy} from '../../operation/helper/deep-copy.ts';
 import type {
   ILabel,
   ILanguageLabel,
@@ -7,21 +22,6 @@ import type {
   TimelineTypes,
   TLanguageCode,
 } from '../../types.ts';
-import {mergeIfMissing} from '../../util/merge-if-missing.ts';
-import type {
-  IActionConfiguration,
-  IEngineConfiguration,
-  ITimelineActionConfiguration,
-  ITimelineConfiguration,
-} from '../types.ts';
-import {ActionCreatorFactory} from './action-creator-factory.ts';
-import {
-  ActionEditor,
-  EndableActionEditor,
-  TimelineActionEditor,
-} from './action-editor.ts';
-import {LabelEditor} from './label-editor.ts';
-import {TimelineProvidersSettingsEditor} from './timeline-provider-settings-editor.ts';
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;

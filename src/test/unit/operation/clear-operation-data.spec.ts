@@ -1,6 +1,6 @@
-import {expect, describe, test} from 'vitest';
-import {clearOperationData} from '../../../operation/clear-operation-data.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+import {clearOperationData} from '@operation/clear-operation-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('clearOperationData', () => {
   test('should clear the given operation data', () => {

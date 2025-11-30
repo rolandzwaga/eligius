@@ -1,7 +1,7 @@
-import {expect, describe, test} from 'vitest';
-import {resolvePropertyValues} from '../../../../operation/helper/resolve-property-values.ts';
-import {setGlobal} from '../../../../operation/helper/set-global.ts';
-import type {IOperationScope} from '../../../../operation/index.ts';
+import {resolvePropertyValues} from '@operation/helper/resolve-property-values.ts';
+import {setGlobal} from '@operation/helper/set-global.ts';
+import type {IOperationScope} from '@operation/index.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('resolvePropertyValues', () => {
   test('should resolve the given property values', () => {

@@ -74,7 +74,8 @@ export type TParameterTypes =
   | 'ParameterType:mathfunction'
   | 'ParameterType:cssProperties'
   | 'ParameterType:function'
-  | 'ParameterType:Date';
+  | 'ParameterType:Date'
+  | 'ParameterType:languagecode';
 
 export type TOperationCategory =
   | 'DOM' //DOM manipulation and element operations

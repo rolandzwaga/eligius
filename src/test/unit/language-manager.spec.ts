@@ -1,5 +1,5 @@
-import {expect, beforeEach, describe, type TestContext, test} from 'vitest';
-import type {IEventbus} from '../../eventbus/index.ts';
+import type {IEventbus} from '@eventbus/index.ts';
+import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 import {LanguageManager} from '../../language-manager.ts';
 import type {ILanguageLabel, TLanguageCode} from '../../types.ts';
 

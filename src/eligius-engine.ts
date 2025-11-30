@@ -1,17 +1,17 @@
-import $ from 'jquery';
-import type {IEndableAction, ITimelineAction} from './action/types.ts';
+import type {IEndableAction, ITimelineAction} from '@action/types.ts';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
-} from './configuration/types.ts';
+} from '@configuration/types.ts';
 import type {
   EventName,
   IEventbus,
   TEventbusRemover,
   TEventHandler,
-} from './eventbus/types.ts';
+} from '@eventbus/types.ts';
+import type {ITimelineProvider} from '@timelineproviders/types.ts';
+import $ from 'jquery';
 import type {LanguageManager} from './language-manager.ts';
-import type {ITimelineProvider} from './timelineproviders/types.ts';
 import type {
   IEligiusEngine,
   ITimelineProviderInfo,

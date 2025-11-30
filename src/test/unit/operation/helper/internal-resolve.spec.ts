@@ -1,5 +1,5 @@
-import {expect, describe, test} from 'vitest';
-import {internalResolve} from '../../../../operation/helper/internal-resolve.ts';
+import {internalResolve} from '@operation/helper/internal-resolve.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('internalResolve', () => {
   test('it should call the given resolve with the given operationdata', () => {

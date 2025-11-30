@@ -1,10 +1,10 @@
-import {expect, describe, test} from 'vitest';
-import type {IController} from '../../../controllers/types.ts';
+import type {IController} from '@controllers/types.ts';
 import {
   type IInvokeObjectMethodOperationData,
   invokeObjectMethod,
-} from '../../../operation/invoke-object-method.ts';
-import {applyOperation} from '../../../util/apply-operation.ts';
+} from '@operation/invoke-object-method.ts';
+import {applyOperation} from '@util/apply-operation.ts';
+import {describe, expect, test} from 'vitest';
 
 describe('invokeObjectMethod', () => {
   test('should call the specified method on the given object', () => {

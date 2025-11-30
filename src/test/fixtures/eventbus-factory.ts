@@ -1,9 +1,9 @@
-import {vi} from 'vitest';
 import type {
   IEventbus,
   TEventbusRemover,
   TEventHandler,
-} from '../../eventbus/types.js';
+} from '@eventbus/types.js';
+import {vi} from 'vitest';
 
 /**
  * Creates a mock eventbus for testing controller event handling

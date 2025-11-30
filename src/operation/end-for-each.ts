@@ -1,4 +1,4 @@
-import type {TOperation, TOperationData} from './types.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 
 /**
  * This operation checks if the current loop should end or start the next iteration.
