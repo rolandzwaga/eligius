@@ -12,20 +12,20 @@ concurrency:
 
 jobs:
   build:
-    name: Build, lint, and test on Node 20
+    name: Build, lint, and test on Node 24
 
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
-      - name: Use Node 20
+      - name: Use Node 24
         uses: actions/setup-node@v6
         env:
           FORCE_COLOR: 0
         with:
-          node-version: 20
+          node-version: 24
           cache: "npm"
 
       - name: Install dependencies
