@@ -1,5 +1,18 @@
 # Change Log
 
+## 1.5.1
+
+### Fixes
+- Export the metadata types
+
+## 1.5.0
+
+### Improvements
+- Stricter eventbus typing
+
+### Additions
+- Implement MutationObserverController
+
 ## 1.4.1
 
 ### New Operations (32 atomic operations added)
