@@ -933,11 +933,32 @@ npm test -- --grep "should add class"
 npm test -- --watch
 
 # Coverage report
-npm run coverage
+npm run test:coverage -- --run
 
 # CI mode (verbose output)
 npm run test:ci
 ```
+
+### Viewing Coverage Reports
+
+The coverage table is printed at the end of the test output, after all test results. On Windows with PowerShell, use `Select-Object` to extract the relevant portion:
+
+```powershell
+# View the coverage table (last 60 lines contain the table)
+powershell.exe -Command "cd 'f:\projects\eligius\eligius' ; npm run test:coverage -- --run 2>&1 | Select-Object -Last 60"
+
+# Search for a specific file's coverage
+powershell.exe -Command "cd 'f:\projects\eligius\eligius' ; npm run test:coverage -- --run 2>&1 | Select-Object -Last 80" | Select-String "my-file"
+```
+
+**Coverage Table Columns:**
+- `% Stmts` - Statement coverage
+- `% Branch` - Branch coverage (if/else, ternary, etc.)
+- `% Funcs` - Function coverage
+- `% Lines` - Line coverage
+- `Uncovered Line #s` - Specific lines not covered by tests
+
+**Note:** The script is `npm run test:coverage`, not `npm run coverage`.
 
 ### Debugging
 
