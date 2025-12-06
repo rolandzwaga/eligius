@@ -80,6 +80,9 @@ export class EngineFactory implements IEngineFactory {
     );
   }
 
+  /**
+   * Destroys the factory and cleans up all registered request handlers.
+   */
   destroy() {
     this._eventRemovers.forEach(x => x());
   }
@@ -111,6 +114,19 @@ export class EngineFactory implements IEngineFactory {
     }
   }
 
+  /**
+   * Creates a fully wired engine with adapters and event handlers.
+   *
+   * This method:
+   * - Resolves the configuration
+   * - Creates timeline providers
+   * - Instantiates the engine and language manager
+   * - Creates and connects adapters for eventbus integration
+   *
+   * @param configuration - The engine configuration
+   * @param resolver - Optional custom configuration resolver
+   * @returns Engine result with engine, language manager, eventbus, and destroy function
+   */
   createEngine(
     configuration: IEngineConfiguration,
     resolver?: IConfigurationResolver

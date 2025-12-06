@@ -7,6 +7,28 @@ import type {
   TRequestResponder,
 } from '@eventbus/types.ts';
 
+/**
+ * Central event bus for pub/sub communication and synchronous request/response queries.
+ *
+ * The eventbus supports:
+ * - **Pub/Sub**: `on()`, `once()`, `off()`, `broadcast()`, `broadcastForTopic()`
+ * - **Request/Response**: `onRequest()`, `request()`, `requestForTopic()` for synchronous queries
+ * - **Interceptors**: Transform event arguments before handlers receive them
+ * - **Listeners**: Global event observers for logging/debugging
+ *
+ * @example Pub/Sub pattern
+ * ```ts
+ * const remover = eventbus.on('timeline-play', () => console.log('Playing'));
+ * eventbus.broadcast('timeline-play', []);
+ * remover(); // Unsubscribe
+ * ```
+ *
+ * @example Request/Response pattern
+ * ```ts
+ * eventbus.onRequest('request-instance', (name) => new MyClass(name));
+ * const instance = eventbus.request<MyClass>('request-instance', 'test');
+ * ```
+ */
 export class Eventbus implements IEventbus {
   private eventHandlers = new Map<string, TEventHandler[]>();
   private eventInterceptors = new Map<string, IEventbusInterceptor[]>();
@@ -17,6 +39,9 @@ export class Eventbus implements IEventbus {
     this.clear();
   }
 
+  /**
+   * Clears all handlers, listeners, interceptors, and request responders.
+   */
   clear() {
     this.eventHandlers = new Map<string, TEventHandler[]>();
     this.eventListeners = [];
