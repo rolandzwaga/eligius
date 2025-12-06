@@ -59,22 +59,19 @@ describe('ProgressbarController', () => {
         textElement: mockTextElement,
       };
 
-      // Mock broadcast to provide duration
-      (mockEventbus.broadcast as any).mockImplementation(
-        (eventName: string, args?: any[]) => {
-          if (eventName === 'timeline-duration-request' && args) {
-            const callback = args[0];
-            callback(100); // Set duration to 100 seconds
-          }
+      // Mock request to provide duration
+      (mockEventbus.request as any).mockImplementation((eventName: string) => {
+        if (eventName === 'timeline-duration-request') {
+          return 100; // Set duration to 100 seconds
         }
-      );
+        return undefined;
+      });
 
       controller.init(operationData);
       controller.attach(mockEventbus);
 
-      expect(mockEventbus.broadcast).toHaveBeenCalledWith(
-        'timeline-duration-request',
-        expect.any(Array)
+      expect(mockEventbus.request).toHaveBeenCalledWith(
+        'timeline-duration-request'
       );
       expect(controller.duration).toBe(100);
     });
@@ -136,16 +133,14 @@ describe('ProgressbarController', () => {
 
       // Create fresh eventbus for this test
       const testEventbus = createMockEventbus();
-      const originalBroadcast = testEventbus.broadcast;
 
-      // Set duration via broadcast wrapper
-      (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (eventName === 'timeline-duration-request' && args) {
-          args[0](100); // 100 seconds duration
+      // Set duration via request mock
+      (testEventbus.request as any).mockImplementation((eventName: string) => {
+        if (eventName === 'timeline-duration-request') {
+          return 100; // 100 seconds duration
         }
-        // Call original to invoke registered handlers
-        originalBroadcast.call(testEventbus, eventName as any, args as any);
-      };
+        return undefined;
+      });
 
       controller.init(operationData);
       controller.attach(testEventbus);
@@ -165,16 +160,14 @@ describe('ProgressbarController', () => {
 
       // Create fresh eventbus for this test
       const testEventbus = createMockEventbus();
-      const originalBroadcast = testEventbus.broadcast;
 
-      // Set duration via broadcast wrapper
-      (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (eventName === 'timeline-duration-request' && args) {
-          args[0](100); // 100 seconds duration
+      // Set duration via request mock
+      (testEventbus.request as any).mockImplementation((eventName: string) => {
+        if (eventName === 'timeline-duration-request') {
+          return 100; // 100 seconds duration
         }
-        // Call original to invoke registered handlers
-        originalBroadcast.call(testEventbus, eventName as any, args as any);
-      };
+        return undefined;
+      });
 
       controller.init(operationData);
       controller.attach(testEventbus);
@@ -194,14 +187,13 @@ describe('ProgressbarController', () => {
         textElement: mockTextElement,
       };
 
-      // Set duration
-      (mockEventbus.broadcast as any).mockImplementation(
-        (eventName: string, args?: any[]) => {
-          if (eventName === 'timeline-duration-request' && args) {
-            args[0](100); // 100 seconds duration
-          }
+      // Set duration via request mock
+      (mockEventbus.request as any).mockImplementation((eventName: string) => {
+        if (eventName === 'timeline-duration-request') {
+          return 100; // 100 seconds duration
         }
-      );
+        return undefined;
+      });
 
       controller.init(operationData);
       controller.attach(mockEventbus);

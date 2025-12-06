@@ -7,7 +7,6 @@ export * from '@controllers/index.ts';
 export * as ctrlmetadata from '@controllers/metadata/index.ts';
 export * from '@controllers/metadata/types.ts';
 export * from '@controllers/types.ts';
-export * from '@diagnostics/index.ts';
 export * from '@eventbus/events/index.ts';
 export * as eventmetadata from '@eventbus/events/metadata/index.ts';
 export * from '@eventbus/events/metadata/types.ts';

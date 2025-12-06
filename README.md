@@ -66,10 +66,10 @@ The engine setting defines the engine for which this configuration is written. C
 }
 ```
 
-These settings describe the providers that are availab;e for the different kinds of timelines.
-There are three kinds: `audio`, `video` and `animation`.
+These settings describe the providers that are available for the different kinds of timelines.
+There are two kinds: `animation` and `mediaplayer`.
 For `animation` there is `RequestAnimationFrameTimelineProvider`.
-For `audio` and `video` the `MediaElementTimelineProvider` can be used, but unfortunately that class is disabled for now.
+For `mediaplayer` there is `VideoJsTimelineProvider` (requires video.js as a peer dependency).
 
 ### container selector
 
@@ -271,11 +271,58 @@ import * as engineConfig from './my-eligius-config.json';
 
 const factory = new EngineFactory(new EligiusResourceImporter(), window);
 
-const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
+// createEngine returns { engine, adapters } - adapters bridge engine/eventbus
+const { engine } = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
 await engine.init();
 
 console.log('Eligius engine ready for business');
+```
+
+### Subscribing to Engine Events
+
+The engine exposes a type-safe event API using `TypedEventEmitter`:
+
+```javascript
+// Subscribe to engine events directly
+const unsubscribe = engine.on('time', (position) => {
+  console.log('Current position:', position);
+});
+
+engine.on('start', () => console.log('Playback started'));
+engine.on('pause', () => console.log('Playback paused'));
+engine.on('timelineComplete', () => console.log('Timeline finished'));
+
+// Unsubscribe when done
+unsubscribe();
+```
+
+### Engine Properties
+
+The engine exposes clean, read-only properties:
+
+```javascript
+engine.position        // Current timeline position (number)
+engine.duration        // Timeline duration (number | undefined)
+engine.playState       // 'stopped' | 'playing' | 'paused'
+engine.currentTimelineUri  // Current timeline URI (string)
+engine.container       // Timeline container element (JQuery)
+engine.engineRoot      // Engine root element (JQuery)
+```
+
+### Adapter Pattern
+
+The factory creates adapters that bridge engine events to the eventbus. This separation allows for:
+
+- **Testability**: Test engine logic without eventbus
+- **Flexibility**: Use engine directly or via eventbus
+- **Clean architecture**: Core logic decoupled from messaging
+
+```javascript
+const { engine, adapters } = factory.createEngine(config);
+
+// Adapters are auto-connected, but you can disconnect them:
+adapters.forEach(adapter => adapter.disconnect());
 ```
 
 ## Configuration API

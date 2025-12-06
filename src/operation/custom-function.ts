@@ -27,17 +27,20 @@ export const customFunction: TOperation<
 
   removeProperties(operationData, 'systemName');
 
-  return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
-    const resultCallback = (func: TOperation) => {
-      const promise = func.apply(this, [operationData]);
-      if (promise) {
-        promise.then(() => {
-          internalResolve(resolve, {}, operationData);
-        }, reject);
-      } else {
+  const func = this.eventbus.request<TOperation>('request-function', systemName);
+
+  if (!func) {
+    return operationData;
+  }
+
+  const promise = func.apply(this, [operationData]);
+  if (promise) {
+    return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
+      promise.then(() => {
         internalResolve(resolve, {}, operationData);
-      }
-    };
-    this.eventbus.broadcast('request-function', [systemName, resultCallback]);
-  });
+      }, reject);
+    });
+  }
+
+  return operationData;
 };

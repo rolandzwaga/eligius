@@ -4,12 +4,14 @@ import type {
   IEventbusListener,
   TEventbusRemover,
   TEventHandler,
+  TRequestResponder,
 } from '@eventbus/types.ts';
 
 export class Eventbus implements IEventbus {
   private eventHandlers = new Map<string, TEventHandler[]>();
   private eventInterceptors = new Map<string, IEventbusInterceptor[]>();
   private eventListeners: IEventbusListener[] = [];
+  private requestResponders = new Map<string, TRequestResponder[]>();
 
   constructor() {
     this.clear();
@@ -19,6 +21,7 @@ export class Eventbus implements IEventbus {
     this.eventHandlers = new Map<string, TEventHandler[]>();
     this.eventListeners = [];
     this.eventInterceptors = new Map<string, IEventbusInterceptor[]>();
+    this.requestResponders = new Map<string, TRequestResponder[]>();
   }
 
   _getEventInterceptors(
@@ -115,6 +118,59 @@ export class Eventbus implements IEventbus {
         interceptors.splice(index, 1);
       }
     };
+  }
+
+  onRequest<T>(
+    eventName: string,
+    responder: TRequestResponder<T>,
+    eventTopic?: string
+  ): TEventbusRemover {
+    const responders = this._getRequestResponders(eventName, eventTopic);
+    responders.push(responder);
+    return () => {
+      const index = responders.indexOf(responder);
+      if (index > -1) {
+        responders.splice(index, 1);
+      }
+    };
+  }
+
+  request<T>(eventName: string, ...args: unknown[]): T | undefined {
+    return this._callResponder<T>(eventName, undefined, args);
+  }
+
+  requestForTopic<T>(
+    eventName: string,
+    eventTopic: string,
+    ...args: unknown[]
+  ): T | undefined {
+    return this._callResponder<T>(eventName, eventTopic, args);
+  }
+
+  private _getRequestResponders(
+    eventName: string,
+    eventTopic?: string
+  ): TRequestResponder[] {
+    if (eventTopic) {
+      eventName = `${eventName}:${eventTopic}`;
+    }
+    if (!this.requestResponders.has(eventName)) {
+      this.requestResponders.set(eventName, []);
+    }
+    return this.requestResponders.get(eventName) as TRequestResponder[];
+  }
+
+  private _callResponder<T>(
+    eventName: string,
+    eventTopic: string | undefined,
+    args: unknown[]
+  ): T | undefined {
+    const responders = this._getRequestResponders(eventName, eventTopic);
+    if (responders.length === 0) {
+      return undefined;
+    }
+    // First responder wins
+    return responders[0](...args) as T;
   }
 
   _callHandlers(

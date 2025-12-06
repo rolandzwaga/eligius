@@ -5,9 +5,8 @@ import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 function createMockEventbusWithActionCallback() {
   return {
-    broadcast: vi.fn((eventName: string, args: any[]) => {
-      const [actionName, callBack] = args;
-      callBack(createMockAction(actionName));
+    request: vi.fn((_topic: string, actionName: string) => {
+      return createMockAction(actionName);
     }),
   };
 }
@@ -172,7 +171,7 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
       },
     };
     const operationData = {
-      selectedElement: inputElement,
+      selectedElement: inputElement as unknown as JQuery<HTMLElement>,
       eventName: 'test',
       actions: ['actionName1', 'actionName2'],
       actionOperationData: {

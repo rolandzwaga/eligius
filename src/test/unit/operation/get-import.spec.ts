@@ -4,18 +4,18 @@ import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 type GetImportSuiteContext = {
   eventbus: any;
-  eventName: string;
-  systemName: string;
+  requestedTopic: string;
+  requestedArg: string;
   importedThing: any;
 } & TestContext;
 
 describe<GetImportSuiteContext>('get-import', () => {
   beforeEach<GetImportSuiteContext>(context => {
     context.eventbus = {
-      broadcast: (eventName: string, args: [string, (...args: any) => any]) => {
-        context.eventName = eventName;
-        context.systemName = args[0];
-        args[1](context.importedThing);
+      request: (topic: string, arg: string) => {
+        context.requestedTopic = topic;
+        context.requestedArg = arg;
+        return context.importedThing;
       },
     };
   });
@@ -30,8 +30,8 @@ describe<GetImportSuiteContext>('get-import', () => {
     } as any);
 
     // expect
-    expect(context.eventName).toBe('request-function');
-    expect(context.systemName).toBe('thing');
+    expect(context.requestedTopic).toBe('request-function');
+    expect(context.requestedArg).toBe('thing');
     expect(context.importedThing).toEqual(result.importedInstance);
   });
 

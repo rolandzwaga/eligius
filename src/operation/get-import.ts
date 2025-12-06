@@ -30,11 +30,11 @@ export const getImport: TOperation<
 
   delete (operationData as any).systemName;
 
-  const callBack = (instance: unknown) => {
-    operationData.importedInstance = instance;
-  };
-  this.eventbus.broadcast('request-function', [systemName, callBack]);
-  delete (operationData as any).systemName;
+  operationData.importedInstance = this.eventbus.request<unknown>(
+    'request-function',
+    systemName
+  );
+
   return operationData as Omit<
     RequireKeys<IGetImportOperationData, 'importedInstance'>,
     'systemName'

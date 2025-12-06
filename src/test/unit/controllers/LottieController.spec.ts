@@ -143,15 +143,15 @@ describe('LottieController', () => {
     });
 
     it('should request current language when labelIds provided', () => {
-      // Setup mock eventbus to provide label collection data
-      const mockBroadcast = mockEventbus.broadcast as any;
-      mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (eventName === 'request-label-collections' && args) {
-          args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
+      // Setup mock eventbus to provide request responses
+      (mockEventbus.request as any).mockImplementation((eventName: string) => {
+        if (eventName === 'request-current-language') {
+          return 'en-US';
         }
-        if (eventName === 'request-current-language' && args) {
-          args[0].language = 'en-US';
+        if (eventName === 'request-label-collections') {
+          return [[{languageCode: 'en-US', label: 'Test'}]];
         }
+        return undefined;
       });
 
       const operationData = {
@@ -173,9 +173,8 @@ describe('LottieController', () => {
       controller.init(operationData);
       controller.attach(mockEventbus);
 
-      expect(mockEventbus.broadcast).toHaveBeenCalledWith(
-        'request-current-language',
-        expect.any(Array)
+      expect(mockEventbus.request).toHaveBeenCalledWith(
+        'request-current-language'
       );
     });
 

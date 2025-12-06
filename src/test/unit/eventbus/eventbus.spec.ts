@@ -221,4 +221,144 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     // expect
     expect(received.length).toBe(0);
   });
+
+  describe('request/onRequest', () => {
+    test<EventbusSuiteContext>('should return undefined when no responder is registered', context => {
+      // given
+      const {eventbus} = context;
+
+      // test
+      const result = eventbus.request<number>('request-current-timeline-position');
+
+      // expect
+      expect(result).toBeUndefined();
+    });
+
+    test<EventbusSuiteContext>('should return value from registered responder', context => {
+      // given
+      const {eventbus} = context;
+      eventbus.onRequest('request-current-timeline-position', () => 42);
+
+      // test
+      const result = eventbus.request<number>('request-current-timeline-position');
+
+      // expect
+      expect(result).toBe(42);
+    });
+
+    test<EventbusSuiteContext>('should pass arguments to responder', context => {
+      // given
+      const {eventbus} = context;
+      eventbus.onRequest('request-label-collection', (labelId: string) => {
+        return [{id: labelId, label: 'Test', languageCode: 'en-US'}];
+      });
+
+      // test
+      const result = eventbus.request<any[]>('request-label-collection', 'my-label');
+
+      // expect
+      expect(result).toEqual([{id: 'my-label', label: 'Test', languageCode: 'en-US'}]);
+    });
+
+    test<EventbusSuiteContext>('should pass multiple arguments to responder', context => {
+      // given
+      const {eventbus} = context;
+      eventbus.onRequest('request-label-collections', (ids: string[]) => {
+        return ids.map(id => [{id, label: 'Test', languageCode: 'en-US'}]);
+      });
+
+      // test
+      const result = eventbus.request<any[][]>(
+        'request-label-collections',
+        ['label-1', 'label-2']
+      );
+
+      // expect
+      expect(result).toHaveLength(2);
+      expect(result![0][0].id).toBe('label-1');
+      expect(result![1][0].id).toBe('label-2');
+    });
+
+    test<EventbusSuiteContext>('should return value from first responder when multiple are registered', context => {
+      // given
+      const {eventbus} = context;
+      eventbus.onRequest('request-current-timeline-position', () => 10);
+      eventbus.onRequest('request-current-timeline-position', () => 20);
+
+      // test
+      const result = eventbus.request<number>('request-current-timeline-position');
+
+      // expect
+      expect(result).toBe(10);
+    });
+
+    test<EventbusSuiteContext>('should not call responder after it is removed', context => {
+      // given
+      const {eventbus} = context;
+      let callCount = 0;
+      const remover = eventbus.onRequest('request-current-timeline-position', () => {
+        callCount++;
+        return 42;
+      });
+
+      // test
+      remover();
+      const result = eventbus.request<number>('request-current-timeline-position');
+
+      // expect
+      expect(callCount).toBe(0);
+      expect(result).toBeUndefined();
+    });
+
+    test<EventbusSuiteContext>('should support topic-specific responders', context => {
+      // given
+      const {eventbus} = context;
+      const topic = 'timeline-1';
+      eventbus.onRequest('request-current-timeline-position', () => 100, topic);
+      eventbus.onRequest('request-current-timeline-position', () => 200);
+
+      // test
+      const globalResult = eventbus.request<number>('request-current-timeline-position');
+      const topicResult = eventbus.requestForTopic<number>(
+        'request-current-timeline-position',
+        topic
+      );
+
+      // expect
+      expect(globalResult).toBe(200);
+      expect(topicResult).toBe(100);
+    });
+
+    test<EventbusSuiteContext>('should allow responder to return undefined explicitly', context => {
+      // given
+      const {eventbus} = context;
+      let wasCalled = false;
+      eventbus.onRequest('timeline-container-request', () => {
+        wasCalled = true;
+        return undefined;
+      });
+
+      // test
+      const result = eventbus.request<JQuery<HTMLElement> | undefined>(
+        'timeline-container-request'
+      );
+
+      // expect
+      expect(wasCalled).toBe(true);
+      expect(result).toBeUndefined();
+    });
+
+    test<EventbusSuiteContext>('should be cleared when eventbus.clear() is called', context => {
+      // given
+      const {eventbus} = context;
+      eventbus.onRequest('request-current-timeline-position', () => 42);
+
+      // test
+      eventbus.clear();
+      const result = eventbus.request<number>('request-current-timeline-position');
+
+      // expect
+      expect(result).toBeUndefined();
+    });
+  });
 });

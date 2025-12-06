@@ -58,17 +58,18 @@ export class DOMEventListenerController
     if (!this.actionInstanceInfos) {
       this.actionInstanceInfos = [];
 
-      const resultCallback =
-        (isStart: boolean) => (actionInstance: IEndableAction) => {
+      actions.forEach((actionName: string) => {
+        const [isStart, name] = this._isStartAction(actionName);
+        const actionInstance = eventbus.request<IEndableAction>(
+          'request-action',
+          name
+        );
+        if (actionInstance) {
           this.actionInstanceInfos?.push({
             start: isStart,
             action: actionInstance,
           });
-        };
-
-      actions.forEach((actionName: string) => {
-        const [isStart, name] = this._isStartAction(actionName);
-        eventbus.broadcast('request-action', [name, resultCallback(isStart)]);
+        }
       });
 
       selectedElement.on(eventName, this._eventHandler.bind(this));

@@ -9,14 +9,16 @@ import {describe, expect, test} from 'vitest';
 
 class MockEventbus {
   controller: any;
-  eventName: string = '';
+  requestedTopic: string = '';
+  requestedArg: string = '';
   constructor(controller: IController<any>) {
     this.controller = controller;
   }
 
-  broadcast(_eventName: string, args: any[]) {
-    this.eventName = args[0];
-    args[1](this.controller);
+  request(topic: string, arg: string) {
+    this.requestedTopic = topic;
+    this.requestedArg = arg;
+    return this.controller;
   }
 }
 
@@ -37,7 +39,8 @@ describe('getControllerInstance', () => {
     });
 
     // expect
-    expect(eventbus.eventName).toBe('LabelController');
+    expect(eventbus.requestedTopic).toBe('request-instance');
+    expect(eventbus.requestedArg).toBe('LabelController');
     expect(newData.controllerInstance).toBe(controller);
   });
 

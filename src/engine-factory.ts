@@ -1,16 +1,14 @@
 import type {IAction} from '@action/types.ts';
+import {
+  EngineEventbusAdapter,
+  EngineInputAdapter,
+  LanguageEventbusAdapter,
+} from '@adapters/index.ts';
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
 } from '@configuration/types.ts';
-import {DevToolEventListener} from '@diagnostics/devtool-event-listener.ts';
-import {Diagnostics} from '@diagnostics/diagnostics.ts';
-import {
-  DEV_TOOLS_KEY,
-  type TDiagnosticType,
-  type TWindowWithDevtools,
-} from '@diagnostics/types.ts';
 import {
   ActionRegistryEventbusListener,
   Eventbus,
@@ -18,22 +16,16 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
-import {prepareValueForSerialization} from '@util/prepare-value-for-serialization.ts';
-import hk, {type HotkeysEvent} from 'hotkeys-js';
-import $ from 'jquery';
 import {LanguageManager} from './language-manager.ts';
 import type {
   IConfigurationResolver,
-  IEligiusEngine,
   IEngineFactory,
   IEngineFactoryOptions,
+  IEngineFactoryResult,
   ISimpleResourceImporter,
   ITimelineProviderInfo,
   TimelineTypes,
-  TResultCallback,
 } from './types.ts';
-
-const hotkeys = hk.default || hk;
 
 /**
  * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.
@@ -42,12 +34,12 @@ const hotkeys = hk.default || hk;
  *
  * @example Loading a configuration and creating an IEligiusEngine instance
  * ```ts
- * import { IEngineConfiguration, EngineFactory, WebpackResourceImporter } from 'eligius';
+ * import { IEngineConfiguration, EngineFactory, EligiusResourceImporter } from 'eligius';
  * import * as engineConfig from './my-eligius-config.json';
  *
- * const factory = new EngineFactory(new WebpackResourceImporter(), window);
+ * const factory = new EngineFactory(new EligiusResourceImporter(), window);
  *
- * const engine = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
+ * const { engine } = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
  *
  * engine.init().then(()=> {console.log('Eligius engine ready for business');});
  * ```
@@ -57,7 +49,7 @@ export class EngineFactory implements IEngineFactory {
   private _eventbus: IEventbus;
   private _eventRemovers: TEventbusRemover[] = [];
   private _importer: ISimpleResourceImporter;
-  private _resizeTimeout: any = -1;
+  private _windowRef: Window;
 
   constructor(
     importer: ISimpleResourceImporter,
@@ -65,117 +57,31 @@ export class EngineFactory implements IEngineFactory {
     options?: IEngineFactoryOptions
   ) {
     this._importer = importer;
+    this._windowRef = windowRef;
     this._eventbus = options?.eventbus ?? new Eventbus();
 
-    Diagnostics.active = options?.devtools ?? false;
-    if (Diagnostics.active) {
-      this._initializeDevtools(this._eventbus);
-    }
-
     this._eventRemovers.push(
-      this._eventbus.on(
+      this._eventbus.onRequest(
         'request-instance',
         this._requestInstanceHandler.bind(this)
       )
     );
     this._eventRemovers.push(
-      this._eventbus.on('request-action', this._requestActionHandler.bind(this))
+      this._eventbus.onRequest(
+        'request-action',
+        this._requestActionHandler.bind(this)
+      )
     );
     this._eventRemovers.push(
-      this._eventbus.on(
+      this._eventbus.onRequest(
         'request-function',
         this._requestFunctionHandler.bind(this)
       )
     );
-
-    const handleSpaceBound = this._handleSpacePress.bind(this);
-    hotkeys('space', handleSpaceBound);
-    this._eventRemovers.push(() => hotkeys.unbind('space', handleSpaceBound));
-
-    const resizeBound = this._resizeHandler.bind(this);
-    const jqWin = $(windowRef);
-    jqWin.on('resize', resizeBound);
-    this._eventRemovers.push(() => jqWin.off('resize', resizeBound));
-  }
-
-  private _handleSpacePress(
-    keyboardEvent: KeyboardEvent,
-    _hotkeysEvent: HotkeysEvent
-  ): void | boolean {
-    keyboardEvent.preventDefault();
-    this._eventbus.broadcast('timeline-play-toggle-request', []);
-    return false;
-  }
-
-  private _initializeDevtools(eventbus: IEventbus) {
-    const diagnosticInfo = (window as unknown as TWindowWithDevtools)[
-      DEV_TOOLS_KEY
-    ];
-
-    if (diagnosticInfo) {
-      const {agent} = diagnosticInfo;
-
-      this._eventRemovers.push(
-        eventbus.registerEventlistener(new DevToolEventListener(agent))
-      );
-
-      this._eventRemovers.push(
-        agent.subscribe(message => {
-          if (message.type === 'playcontrol') {
-            switch (message.data.kind) {
-              case 'play':
-                this._eventbus.broadcast('timeline-play-request', []);
-                break;
-              case 'stop':
-                this._eventbus.broadcast('timeline-stop-request', []);
-                break;
-              case 'pause':
-                this._eventbus.broadcast('timeline-pause-request', []);
-                break;
-              case 'seek':
-                this._eventbus.broadcast('timeline-seek-request', [
-                  (message.data.args ?? 0) as number,
-                ]);
-                break;
-            }
-          }
-        })
-      );
-
-      Diagnostics.send = (name: TDiagnosticType, messageData: any) => {
-        const message = prepareValueForSerialization(messageData);
-        try {
-          agent.postMessage(name, message);
-        } catch (e) {
-          console.error('postmessage failed');
-          console.error(e);
-          console.log('message', message);
-        }
-      };
-
-      Diagnostics.send(
-        'eligius-diagnostics-factory',
-        'Diagnostics initialized'
-      );
-    } else {
-      console.warn(
-        `${DEV_TOOLS_KEY} property not found on window, please install the Eligius Devtools extension.`
-      );
-    }
   }
 
   destroy() {
     this._eventRemovers.forEach(x => x());
-  }
-
-  private _resizeHandler() {
-    if (this._resizeTimeout) {
-      clearTimeout(this._resizeTimeout);
-      this._resizeTimeout = -1;
-    }
-    this._resizeTimeout = setTimeout(() => {
-      this._eventbus.broadcast('timeline-resize', []);
-    }, 200);
   }
 
   private _importSystemEntryWithEventbusDependency(systemName: string): any {
@@ -187,37 +93,28 @@ export class EngineFactory implements IEngineFactory {
     return this._importer.import(systemName)[systemName];
   }
 
-  private _requestInstanceHandler(
-    systemName: string,
-    resultCallback: TResultCallback<any>
-  ) {
-    resultCallback(this._importSystemEntryWithEventbusDependency(systemName));
+  private _requestInstanceHandler(systemName: string): any {
+    return this._importSystemEntryWithEventbusDependency(systemName);
   }
 
-  private _requestFunctionHandler(
-    systemName: string,
-    resultCallback: TResultCallback<any>
-  ) {
-    resultCallback(this._importSystemEntry(systemName));
+  private _requestFunctionHandler(systemName: string): any {
+    return this._importSystemEntry(systemName);
   }
 
-  private _requestActionHandler(
-    systemName: string,
-    resultCallback: TResultCallback<IAction | null>
-  ) {
+  private _requestActionHandler(systemName: string): IAction | null {
     const action = this._actionsLookup[systemName];
     if (action) {
-      resultCallback(action);
+      return action;
     } else {
       console.error(`Unknown action: ${systemName}`);
-      resultCallback(null);
+      return null;
     }
   }
 
   createEngine(
     configuration: IEngineConfiguration,
     resolver?: IConfigurationResolver
-  ): IEligiusEngine {
+  ): IEngineFactoryResult {
     const {systemName} = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
@@ -249,11 +146,7 @@ export class EngineFactory implements IEngineFactory {
     );
 
     const {language, labels} = configuration;
-    const languageManager = new LanguageManager(
-      language,
-      labels,
-      this._eventbus
-    );
+    const languageManager = new LanguageManager(language, labels);
 
     const engineInstance = new EngineClass(
       resolvedConfiguration,
@@ -262,7 +155,43 @@ export class EngineFactory implements IEngineFactory {
       languageManager
     );
 
-    return engineInstance;
+    // Create and connect adapters
+    const engineEventbusAdapter = new EngineEventbusAdapter(
+      engineInstance,
+      this._eventbus
+    );
+    const languageEventbusAdapter = new LanguageEventbusAdapter(
+      languageManager,
+      this._eventbus,
+      engineInstance
+    );
+    const engineInputAdapter = new EngineInputAdapter(
+      engineInstance,
+      this._eventbus,
+      this._windowRef
+    );
+
+    // Connect all adapters
+    engineEventbusAdapter.connect();
+    languageEventbusAdapter.connect();
+    engineInputAdapter.connect();
+
+    // Return the factory result
+    return {
+      engine: engineInstance,
+      languageManager,
+      eventbus: this._eventbus,
+      destroy: async () => {
+        // Disconnect adapters first
+        engineInputAdapter.disconnect();
+        languageEventbusAdapter.disconnect();
+        engineEventbusAdapter.disconnect();
+
+        // Then destroy engine and language manager
+        await engineInstance.destroy();
+        languageManager.destroy();
+      },
+    };
   }
 
   private _createTimelineProviders(

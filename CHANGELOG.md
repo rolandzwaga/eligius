@@ -1,5 +1,65 @@
 # Change Log
 
+## 2.0.0
+
+### Breaking Changes
+
+- **Eventbus request pattern replaces callback pattern**
+  - Operations and controllers now use synchronous `eventbus.request()` instead of `broadcast()` with callbacks
+  - `EngineFactory` now registers handlers via `onRequest()` instead of `on()`
+  - Affected operations: `getImport`, `getControllerInstance`, `requestAction`, `customFunction`
+  - Affected controllers: `DOMEventListenerController`, `NavigationController`
+  - Migration: If you have custom eventbus listeners for `request-instance`, `request-action`, or `request-function`, use `eventbus.onRequest()` and return the value directly instead of using a callback
+
+- **EngineFactory.createEngine() return type changed**
+  - Was: `IEligiusEngine` directly
+  - Now: `{ engine: IEligiusEngine, adapters: IAdapter[] }`
+  - Migration: Change `const engine = factory.createEngine(config)` to `const { engine } = factory.createEngine(config)`
+
+- **EligiusEngine now uses TypedEventEmitter**
+  - Engine events are now subscribed via `engine.on('eventName', handler)` returning an unsubscribe function
+  - Eventbus integration is handled by adapters, not the engine directly
+
+- **LanguageManager constructor signature changed**
+  - Removed `eventbus` parameter from constructor
+  - Now uses `TypedEventEmitter` internally with `on()` method for event subscriptions
+
+- **Removed devtools/diagnostics module**
+  - The `@diagnostics` module has been removed entirely
+  - Removed `devtools` option from `IEngineFactoryOptions`
+  - Removed `EngineInputAdapterOptions` interface
+  - Diagnostic logging removed from `Action` and `EndableAction` classes
+
+- **Event type definitions corrected**
+  - `request-timeline-uri`: Now correctly typed as `[uri: string, position?: number]`
+  - `request-current-timeline-position`: Now correctly typed as `[callback: TResultCallback<number>]`
+  - `timeline-request-current-timeline`: Now correctly typed as `[callback: TResultCallback<string>]`
+
+### New Features
+
+- **Adapter Pattern for Clean Separation**
+  - New `IAdapter` interface with `connect()` and `disconnect()` methods
+  - `EngineEventbusAdapter`: Bridges engine events to/from eventbus
+  - `LanguageEventbusAdapter`: Bridges language manager events to/from eventbus
+  - Adapters are automatically created and connected by `EngineFactory`
+
+- **TypedEventEmitter Utility**
+  - New generic, type-safe event emitter implementation
+  - Located at `src/util/typed-event-emitter.ts`
+  - Features: type-safe event subscriptions, `on()`, `once()`, `off()`, `emit()`, `removeAllListeners()`
+  - Error isolation: one failing handler doesn't break others
+
+- **Pure API for Engine and LanguageManager**
+  - `IEligiusEngine` now exposes clean properties: `position`, `duration`, `playState`, `currentTimelineUri`, `container`, `engineRoot`
+  - `ILanguageManager` exposes: `language`, `availableLanguages`, `on()`, `setLanguage()`, `getLabelCollection()`, `getLabelCollections()`
+  - Both can be used and tested without eventbus dependency
+
+### Improvements
+
+- **Better Testability**: Engine and LanguageManager can now be unit tested in isolation without eventbus mocking
+- **Clearer Architecture**: Separation of concerns between core logic and eventbus integration
+- **Type Safety**: Improved TypeScript types throughout, especially for event handling
+
 ## 1.5.3
 - Fix metadata generation for controllers
 - Refactor all typescript import paths to use path aliases

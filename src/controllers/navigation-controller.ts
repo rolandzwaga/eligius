@@ -203,16 +203,16 @@ export class NavigationController extends BaseController<INavigationControllerOp
       selectedElement: parentElm,
       labelId: labelId,
     };
-    const resultCallback = (instance: LabelController) => {
+    const instance = this.eventbus?.request<LabelController>(
+      'request-instance',
+      'LabelController'
+    );
+    if (instance) {
       instance.init(data);
       instance.attach(this.eventbus as IEventbus);
       this.labelControllers.push(instance);
       this.ctrlLookup[labelId] = instance;
-    };
-    this.eventbus?.broadcast('request-instance', [
-      'LabelController',
-      resultCallback,
-    ]);
+    }
   }
 
   private _buildNavigationData(data: any) {

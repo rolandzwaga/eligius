@@ -48,11 +48,8 @@ export class LabelController extends BaseController<ILabelControllerMetadata> {
       return;
     }
 
-    eventbus.broadcast('request-current-language', [
-      (language: string) => {
-        this.currentLanguage = language;
-      },
-    ]);
+    this.currentLanguage =
+      eventbus.request<string>('request-current-language') ?? null;
 
     this.requestLabelDataBound = this._requestLabelData.bind(this, eventbus);
     this.requestLabelDataBound(this.operationData.labelId);
@@ -62,16 +59,15 @@ export class LabelController extends BaseController<ILabelControllerMetadata> {
   }
 
   private _requestLabelData(eventbus: IEventbus, labelId: string) {
-    eventbus.broadcast('request-label-collection', [
-      labelId,
-      (labelCollection: ILabel[]) => {
-        if (labelCollection) {
-          this._createTextDataLookup(labelCollection);
-        } else {
-          throw new Error(`Label id '${labelId}' does not exist!`);
-        }
-      },
-    ]);
+    const labelCollection = eventbus.request<ILabel[]>(
+      'request-label-collection',
+      labelId
+    );
+    if (labelCollection) {
+      this._createTextDataLookup(labelCollection);
+    } else {
+      throw new Error(`Label id '${labelId}' does not exist!`);
+    }
   }
 
   private _setLabel() {

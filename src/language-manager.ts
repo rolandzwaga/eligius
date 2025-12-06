@@ -1,112 +1,136 @@
-import type {IEventbus, TEventbusRemover} from '@eventbus/types.ts';
 import {setGlobal} from '@operation/helper/set-global.ts';
-import $ from 'jquery';
+import {TypedEventEmitter} from '@util/typed-event-emitter.ts';
 import type {
   ILabel,
   ILanguageLabel,
+  ILanguageManager,
+  LanguageEvents,
   TLanguageCode,
-  TResultCallback,
 } from './types.ts';
 
 /**
+ * Manages multi-language labels with explicit, testable API.
+ *
  * This class manages the labels for an {@link IEligiusEngine} instance.
+ * It provides a pure API for language management and emits events for language changes.
  *
- * It handles the request-label-collection, request-label-collections, request-current-language and language-change events.
- *
+ * Eventbus integration is handled by LanguageEventbusAdapter.
  */
-export class LanguageManager {
+export class LanguageManager implements ILanguageManager {
   private _labelLookup: Record<string, ILabel[]>;
-  private _eventbusRemovers: TEventbusRemover[] = [];
+  private _emitter = new TypedEventEmitter<LanguageEvents>();
+  private _availableLanguages: string[] = [];
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STATE - ILanguageManager interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /** Current language code (e.g., 'en-US', 'nl-NL') */
+  get language(): string {
+    return this._currentLanguage;
+  }
+
+  /** List of available language codes, derived from unique languages in label collections */
+  get availableLanguages(): string[] {
+    return this._availableLanguages;
+  }
 
   constructor(
     private _currentLanguage: TLanguageCode,
-    labels: ILanguageLabel[],
-    private _eventbus: IEventbus
+    labels: ILanguageLabel[]
   ) {
     if (!_currentLanguage) {
       throw new Error('language ctor arg cannot have zero length');
     }
     setGlobal('defaultLanguage', _currentLanguage);
-    this._setRootElementLang(_currentLanguage);
     this._labelLookup = this._createLabelLookup(labels);
-    this._addEventbusListeners(_eventbus);
+    this._availableLanguages = this._extractAvailableLanguages(labels);
   }
 
-  destroy() {
-    this._eventbusRemovers.forEach(x => x());
+  // ─────────────────────────────────────────────────────────────────────────
+  // EVENTS - ILanguageManager interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Subscribe to language manager events
+   * @param event - Event name
+   * @param handler - Event handler
+   * @returns Unsubscribe function
+   */
+  on<K extends keyof LanguageEvents>(
+    event: K,
+    handler: (...args: LanguageEvents[K]) => void
+  ): () => void {
+    return this._emitter.on(event, handler);
   }
 
-  _addEventbusListeners(eventbus: IEventbus) {
-    this._eventbusRemovers.push(
-      eventbus.on(
-        'request-label-collection',
-        this._handleRequestLabelCollection.bind(this)
-      )
-    );
-    this._eventbusRemovers.push(
-      eventbus.on(
-        'request-label-collections',
-        this._handleRequestLabelCollections.bind(this)
-      )
-    );
-    this._eventbusRemovers.push(
-      eventbus.on(
-        'request-current-language',
-        this._handleRequestCurrentLanguage.bind(this)
-      )
-    );
-    this._eventbusRemovers.push(
-      eventbus.on(
-        'language-change',
-        this._handleLanguageChange.bind(this) as any
-      )
-    );
-  }
+  // ─────────────────────────────────────────────────────────────────────────
+  // COMMANDS - ILanguageManager interface
+  // ─────────────────────────────────────────────────────────────────────────
 
-  _handleRequestCurrentLanguage(
-    resultCallback: TResultCallback<TLanguageCode>
-  ) {
-    resultCallback(this._currentLanguage);
-  }
+  /**
+   * Change the current language
+   * @param language - New language code
+   * @throws If language code is empty or null
+   */
+  setLanguage(language: TLanguageCode): void {
+    if (!language || language.length === 0) {
+      throw new Error('Language cannot be empty');
+    }
 
-  _handleRequestLabelCollection(
-    labelId: string,
-    resultCallback: TResultCallback<ILabel[]>
-  ) {
-    resultCallback(this._labelLookup[labelId]);
-  }
-
-  _handleRequestLabelCollections(
-    labelIds: string[],
-    resultCallback: TResultCallback<ILabel[][]>
-  ) {
-    const labelCollections = labelIds.map(labelId => {
-      return this._labelLookup[labelId];
-    });
-    resultCallback(labelCollections);
-  }
-
-  _handleLanguageChange(language: TLanguageCode) {
+    const previousLanguage = this._currentLanguage;
     this._currentLanguage = language;
-    this._setRootElementLang(this._currentLanguage);
+
+    this._emitter.emit('change', language, previousLanguage);
   }
 
-  _setRootElementLang(language: TLanguageCode) {
-    const callBack = (rootSelector: string) => {
-      const lang = this._extractPrimaryLanguage(language);
-      $(rootSelector).attr('lang', lang);
-    };
-    this._eventbus.broadcast('request-engine-root', [callBack]);
+  /**
+   * Get a label collection by ID
+   * @param collectionId - Label collection ID
+   * @returns Label array or undefined if not found
+   */
+  getLabelCollection(collectionId: string): ILabel[] | undefined {
+    return this._labelLookup[collectionId];
   }
 
-  _extractPrimaryLanguage(culture: TLanguageCode) {
-    return culture.split('-').shift() as string;
+  /**
+   * Get multiple label collections by IDs
+   * @param collectionIds - Array of label collection IDs
+   * @returns Array of label arrays (undefined for not found collections)
+   */
+  getLabelCollections(collectionIds: string[]): (ILabel[] | undefined)[] {
+    return collectionIds.map(id => this._labelLookup[id]);
   }
 
-  _createLabelLookup(labels: ILanguageLabel[]) {
+  // ─────────────────────────────────────────────────────────────────────────
+  // LIFECYCLE - ILanguageManager interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Clean up resources
+   */
+  destroy(): void {
+    this._emitter.removeAllListeners();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Private helpers
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private _createLabelLookup(labels: ILanguageLabel[]) {
     return labels.reduce<Record<string, ILabel[]>>((acc, label) => {
       acc[label.id] = label.labels;
       return acc;
     }, {});
+  }
+
+  private _extractAvailableLanguages(labels: ILanguageLabel[]): string[] {
+    const languages = new Set<string>();
+    for (const labelCollection of labels) {
+      for (const label of labelCollection.labels) {
+        languages.add(label.languageCode);
+      }
+    }
+    return Array.from(languages);
   }
 }

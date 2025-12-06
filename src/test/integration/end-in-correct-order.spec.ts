@@ -66,7 +66,7 @@ describe('EndInCorrectOrder', () => {
         eventbus: new Eventbus(),
       }
     );
-    const engine = engineFactory.createEngine(configuration);
+    const {engine} = engineFactory.createEngine(configuration);
 
     await engine.init();
 

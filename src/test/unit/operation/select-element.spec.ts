@@ -14,8 +14,12 @@ function createMockElement(selectedElement: any) {
 
 function createMockEventbusWithRoot(rootElement: any) {
   return {
-    broadcast: vi.fn((_eventName: string, args: any[]) => {
-      args[0](rootElement);
+    broadcast: vi.fn(),
+    request: vi.fn((eventName: string) => {
+      if (eventName === 'request-engine-root') {
+        return rootElement;
+      }
+      return undefined;
     }),
   };
 }

@@ -95,8 +95,8 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
     }
   }
 
-  start(): void {
-    this._player?.play();
+  async start(): Promise<void> {
+    await this._player?.play();
     this._playState = 'running';
   }
 

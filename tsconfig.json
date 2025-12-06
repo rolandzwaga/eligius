@@ -4,9 +4,9 @@
     "paths": {
       "@/*": ["src/*"],
       "@action/*": ["src/action/*"],
+      "@adapters/*": ["src/adapters/*"],
       "@configuration/*": ["src/configuration/*"],
       "@controllers/*": ["src/controllers/*"],
-      "@diagnostics/*": ["src/diagnostics/*"],
       "@eventbus/*": ["src/eventbus/*"],
       "@importer/*": ["src/importer/*"],
       "@operation/*": ["src/operation/*"],

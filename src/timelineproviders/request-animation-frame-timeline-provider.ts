@@ -102,7 +102,7 @@ export class RequestAnimationFrameTimelineProvider
     this._onTime?.(this._currentPosition);
   }
 
-  start() {
+  async start(): Promise<void> {
     if (this.playState === 'running') {
       if (this._currentPosition === 0) {
         this._callbackPosition();

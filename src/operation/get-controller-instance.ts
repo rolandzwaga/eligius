@@ -31,10 +31,9 @@ export const getControllerInstance: TOperation<
 
   removeProperties(operationData, 'systemName');
 
-  operationData.controllerInstance = undefined;
-  const resultCallback = (instance: IController<TOperationData>) => {
-    operationData.controllerInstance = instance;
-  };
-  this.eventbus.broadcast('request-instance', [systemName, resultCallback]);
+  operationData.controllerInstance = this.eventbus.request<
+    IController<TOperationData>
+  >('request-instance', systemName);
+
   return operationData;
 };

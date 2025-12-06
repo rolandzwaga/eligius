@@ -188,13 +188,13 @@ describe('NavigationController', () => {
         json: createNavigationData(),
       };
 
-      // Mock request-instance to provide label controller
-      (mockEventbus.broadcast as any).mockImplementation(
-        (eventName: string, args?: any[]) => {
-          if (eventName === 'request-instance' && args) {
-            const callback = args[1];
-            callback(mockLabelController);
+      // Mock request to return the label controller when 'request-instance' is called
+      (mockEventbus.request as any).mockImplementation(
+        (topic: string, _arg: string) => {
+          if (topic === 'request-instance') {
+            return mockLabelController;
           }
+          return undefined;
         }
       );
 

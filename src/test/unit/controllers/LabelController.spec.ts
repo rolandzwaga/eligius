@@ -53,24 +53,20 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on('request-current-language', (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.onRequest('request-current-language', () => 'en-GB');
 
-    eventbus.on('request-label-collection', (...args: any[]) => {
-      args[1]([
-        {
-          id: '1111',
-          languageCode: 'nl-NL',
-          label: 'hallo',
-        },
-        {
-          id: '2222',
-          languageCode: 'en-GB',
-          label: 'hello',
-        },
-      ]);
-    });
+    eventbus.onRequest('request-label-collection', () => [
+      {
+        id: '1111',
+        languageCode: 'nl-NL',
+        label: 'hallo',
+      },
+      {
+        id: '2222',
+        languageCode: 'en-GB',
+        label: 'hello',
+      },
+    ]);
 
     // test
     controller.attach(eventbus);
@@ -84,43 +80,37 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on('request-current-language', (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.onRequest('request-current-language', () => 'en-GB');
 
-    const firstLabels = (...args: any[]) => {
-      args[1]([
-        {
-          id: '1111',
-          languageCode: 'nl-NL',
-          label: 'hallo',
-        },
-        {
-          id: '2222',
-          languageCode: 'en-GB',
-          label: 'hello',
-        },
-      ]);
-    };
-    eventbus.on('request-label-collection', firstLabels);
+    const firstLabels = () => [
+      {
+        id: '1111',
+        languageCode: 'nl-NL',
+        label: 'hallo',
+      },
+      {
+        id: '2222',
+        languageCode: 'en-GB',
+        label: 'hello',
+      },
+    ];
+    const firstRemover = eventbus.onRequest('request-label-collection', firstLabels);
 
     // test
     controller.attach(eventbus);
-    eventbus.off('request-label-collection', firstLabels);
-    eventbus.on('request-label-collection', (...args: any[]) => {
-      args[1]([
-        {
-          id: '3333',
-          languageCode: 'nl-NL',
-          label: 'tot ziens',
-        },
-        {
-          id: '4444',
-          languageCode: 'en-GB',
-          label: 'goodbye',
-        },
-      ]);
-    });
+    firstRemover();
+    eventbus.onRequest('request-label-collection', () => [
+      {
+        id: '3333',
+        languageCode: 'nl-NL',
+        label: 'tot ziens',
+      },
+      {
+        id: '4444',
+        languageCode: 'en-GB',
+        label: 'goodbye',
+      },
+    ]);
     controller.setLabelId('test2');
 
     // expect
@@ -133,14 +123,10 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on('request-current-language', (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.onRequest('request-current-language', () => 'en-GB');
 
-    eventbus.on('request-label-collection', (...args: any[]) => {
-      // Simulate label not found - pass null/undefined
-      args[1](null);
-    });
+    // Simulate label not found - return null/undefined
+    eventbus.onRequest('request-label-collection', () => null);
 
     // test & expect
     expect(() => controller.attach(eventbus)).toThrow(
@@ -154,14 +140,15 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // Don't call init() - operationData will be null
 
     let languageRequestCalled = false;
-    eventbus.on('request-current-language', () => {
+    eventbus.onRequest('request-current-language', () => {
       languageRequestCalled = true;
+      return 'en-GB';
     });
 
     // test
     controller.attach(eventbus);
 
-    // expect - should return early without broadcasting
+    // expect - should return early without requesting
     expect(languageRequestCalled).toBe(false);
   });
 
@@ -169,24 +156,20 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on('request-current-language', (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.onRequest('request-current-language', () => 'en-GB');
 
-    eventbus.on('request-label-collection', (...args: any[]) => {
-      args[1]([
-        {
-          id: '1111',
-          languageCode: 'nl-NL',
-          label: 'hallo',
-        },
-        {
-          id: '2222',
-          languageCode: 'en-GB',
-          label: 'hello',
-        },
-      ]);
-    });
+    eventbus.onRequest('request-label-collection', () => [
+      {
+        id: '1111',
+        languageCode: 'nl-NL',
+        label: 'hallo',
+      },
+      {
+        id: '2222',
+        languageCode: 'en-GB',
+        label: 'hello',
+      },
+    ]);
 
     controller.attach(eventbus);
     expect(
@@ -206,24 +189,20 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.on('request-current-language', (...args: any[]) => {
-      args[0]('en-GB');
-    });
+    eventbus.onRequest('request-current-language', () => 'en-GB');
 
-    eventbus.on('request-label-collection', (...args: any[]) => {
-      args[1]([
-        {
-          id: '1111',
-          languageCode: 'nl-NL',
-          label: 'hallo',
-        },
-        {
-          id: '2222',
-          languageCode: 'en-GB',
-          label: 'hello',
-        },
-      ]);
-    });
+    eventbus.onRequest('request-label-collection', () => [
+      {
+        id: '1111',
+        languageCode: 'nl-NL',
+        label: 'hallo',
+      },
+      {
+        id: '2222',
+        languageCode: 'en-GB',
+        label: 'hello',
+      },
+    ]);
 
     controller.attach(eventbus);
 

@@ -10,9 +10,11 @@ import type {
   TEventHandler,
 } from '@eventbus/types.ts';
 import type {ITimelineProvider} from '@timelineproviders/types.ts';
+import {TypedEventEmitter} from '@util/typed-event-emitter.ts';
 import $ from 'jquery';
 import type {LanguageManager} from './language-manager.ts';
 import type {
+  EngineEvents,
   IEligiusEngine,
   ITimelineProviderInfo,
   TimelineTypes,
@@ -30,8 +32,10 @@ interface ActionMethodMetadata {
 }
 
 /**
- * This is where the magic happens. The engine is responsible for starting and stopping
- * the given timeline provider and triggering the actions associated with the positions along the timeline.
+ * The Eligius timeline engine with explicit, testable API.
+ *
+ * This engine is responsible for starting and stopping the given timeline provider
+ * and triggering the actions associated with positions along the timeline.
  */
 export class EligiusEngine implements IEligiusEngine {
   private _timeLineActionsLookup: Record<
@@ -44,6 +48,42 @@ export class EligiusEngine implements IEligiusEngine {
   private _currentTimelineUri: string = '';
   private _activeTimelineProvider: ITimelineProvider | undefined = undefined;
   private _lastPosition: number = -1;
+  private _playState: 'playing' | 'paused' | 'stopped' = 'stopped';
+  private _emitter = new TypedEventEmitter<EngineEvents>();
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // STATE (synchronous reads) - IEligiusEngine interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /** Current timeline position in seconds */
+  get position(): number {
+    return Math.floor(this._activeTimelineProvider?.getPosition() ?? 0);
+  }
+
+  /** Timeline duration in seconds, undefined if not yet available */
+  get duration(): number | undefined {
+    return this._activeTimelineProvider?.getDuration();
+  }
+
+  /** Current playback state */
+  get playState(): 'playing' | 'paused' | 'stopped' {
+    return this._playState;
+  }
+
+  /** URI of the currently active timeline */
+  get currentTimelineUri(): string {
+    return this._currentTimelineUri;
+  }
+
+  /** Container element for the active timeline provider */
+  get container(): JQuery<HTMLElement> | undefined {
+    return this._activeTimelineProvider?.getContainer();
+  }
+
+  /** Root element of the engine (container selector) */
+  get engineRoot(): JQuery<HTMLElement> {
+    return $(this.configuration.containerSelector);
+  }
 
   constructor(
     private configuration: IResolvedEngineConfiguration,
@@ -51,6 +91,175 @@ export class EligiusEngine implements IEligiusEngine {
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
     private languageManager: LanguageManager
   ) {}
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EVENTS - IEligiusEngine interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Subscribe to engine events
+   * @param event - Event name
+   * @param handler - Event handler
+   * @returns Unsubscribe function
+   */
+  on<K extends keyof EngineEvents>(
+    event: K,
+    handler: (...args: EngineEvents[K]) => void
+  ): () => void {
+    return this._emitter.on(event, handler);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PLAYBACK COMMANDS - IEligiusEngine interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Start playback
+   * @throws If autoplay is blocked (video provider)
+   */
+  async start(): Promise<void> {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    await this._activeTimelineProvider.start();
+    this._playState = 'playing';
+    this._emitter.emit('start');
+    this.eventbus.broadcast('timeline-play', []);
+  }
+
+  /**
+   * Pause playback
+   */
+  pause(): void {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    this._activeTimelineProvider.pause();
+    this._playState = 'paused';
+    this._emitter.emit('pause');
+    this.eventbus.broadcast('timeline-pause', []);
+  }
+
+  /**
+   * Stop playback and reset to beginning
+   */
+  stop(): void {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    this._activeTimelineProvider.stop();
+    this._playState = 'stopped';
+    this._emitter.emit('stop');
+    this.eventbus.broadcast('timeline-stop', []);
+  }
+
+  /**
+   * Seek to a specific position
+   * @param position - Target position in seconds
+   * @returns Actual position after seek
+   */
+  async seek(position: number): Promise<number> {
+    if (!this._activeTimelineProvider) {
+      return 0;
+    }
+
+    const seekPosition = Math.floor(position);
+    const duration = this._activeTimelineProvider.getDuration();
+    const currentPosition = this._activeTimelineProvider.getPosition();
+
+    if (seekPosition < 0 || seekPosition > duration) {
+      return currentPosition;
+    }
+
+    this._emitter.emit('seekStart', seekPosition, currentPosition, duration);
+    this.eventbus.broadcast('timeline-seek', [
+      seekPosition,
+      currentPosition,
+      duration,
+    ]);
+
+    await this._activeTimelineProvider.seek(seekPosition);
+    await this._executeSeekActions(seekPosition);
+
+    const finalPosition = this._activeTimelineProvider.getPosition();
+
+    this._emitter.emit('seekComplete', finalPosition, duration);
+    this.eventbus.broadcast('timeline-seeked', [finalPosition, duration]);
+
+    this._emitter.emit('time', finalPosition);
+    this.eventbus.broadcast('timeline-time', [finalPosition]);
+
+    if (this._activeTimelineProvider?.playState === 'running') {
+      await this._activeTimelineProvider.start();
+    }
+
+    return finalPosition;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TIMELINE MANAGEMENT - IEligiusEngine interface
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Switch to a different timeline
+   * @param uri - Timeline URI to switch to
+   * @param position - Optional starting position
+   */
+  async switchTimeline(uri: string, position: number = 0): Promise<void> {
+    if (!this._activeTimelineProvider) {
+      return;
+    }
+
+    this._activeTimelineProvider.stop();
+    await this._cleanUpTimeline();
+
+    const timelineConfig = this._timelineLookupCache.get(uri);
+    if (
+      !timelineConfig ||
+      !this._activeTimelineProvider ||
+      this._currentTimelineUri === timelineConfig.uri
+    ) {
+      return;
+    }
+
+    this._currentTimelineUri = timelineConfig.uri;
+    this._emitter.emit('timelineChange', this._currentTimelineUri);
+    this.eventbus.broadcast('timeline-current-timeline-change', [
+      this._currentTimelineUri,
+    ]);
+
+    const newProviderSettings = this.timelineProviders[timelineConfig.type];
+
+    if (this._activeTimelineProvider !== newProviderSettings.provider) {
+      this._activeTimelineProvider.destroy();
+      this._activeTimelineProvider = newProviderSettings.provider;
+    }
+
+    this._activeTimelineProvider.loop = timelineConfig.loop;
+
+    if (!this._activeTimelineProvider.loop && position > 0) {
+      this.eventbus.once('timeline-firstframe', async () => {
+        if (!this._activeTimelineProvider) {
+          return;
+        }
+
+        this._activeTimelineProvider.pause();
+        this.eventbus.broadcast('timeline-duration', [
+          this._activeTimelineProvider.getDuration,
+        ]);
+
+        await this._executeStartActions();
+
+        const seekPosition = await this._activeTimelineProvider.seek(position);
+        await this.seek(seekPosition);
+      });
+    }
+
+    this._activeTimelineProvider.playlistItem(uri);
+  }
 
   /**
    * Initializes the engine by creating the HTML layout and the first time line
@@ -121,21 +330,31 @@ export class EligiusEngine implements IEligiusEngine {
 
     await this._activeTimelineProvider.init();
     await this._executeActions(this.configuration.initActions, 'start');
+    this._emitter.emit('initialized');
     return this._activeTimelineProvider;
   }
 
   private _onCompleteCallback() {
+    this._playState = 'stopped';
+    this._emitter.emit('timelineComplete');
     this.eventbus.broadcast('timeline-complete', []);
   }
 
   private _onFirstFrameCallback() {
+    this._emitter.emit('timelineFirstFrame');
     this.eventbus.broadcast('timeline-firstframe', []);
+
+    const duration = this._activeTimelineProvider?.getDuration();
+    if (duration !== undefined) {
+      this._emitter.emit('duration', duration);
+    }
     this.eventbus.broadcast('timeline-duration', [
       this._activeTimelineProvider?.getDuration,
     ]);
   }
 
   private _onRestartCallback() {
+    this._emitter.emit('timelineRestart');
     this.eventbus.broadcast('timeline-restart', []);
   }
 
@@ -172,6 +391,9 @@ export class EligiusEngine implements IEligiusEngine {
     const {containerSelector} = this.configuration;
     const container = $(containerSelector);
     container.empty();
+
+    this._emitter.emit('destroyed');
+    this._emitter.removeAllListeners();
   }
 
   private _addEventListener(
@@ -230,102 +452,52 @@ export class EligiusEngine implements IEligiusEngine {
 
     this._addEventListener(
       'timeline-container-request',
-      this.containerRequest.bind(this)
+      this._containerRequest.bind(this)
     );
 
     this._addEventListener(
       'timeline-duration-request',
-      this.durationRequest.bind(this)
+      this._durationRequest.bind(this)
     );
 
     this._addEventListener(
       'timeline-seek-request',
-      this.seekRequest.bind(this)
+      this._seekRequest.bind(this)
     );
   }
 
-  private async seekRequest(position: number) {
-    if (!this._activeTimelineProvider) {
-      return;
-    }
-    const seekPosition = Math.floor(position);
-
-    const duration = this._activeTimelineProvider.getDuration();
-    const currentPosition = this._activeTimelineProvider.getPosition();
-
-    if (seekPosition < 0 || seekPosition > duration) {
-      return;
-    }
-
-    this.eventbus.broadcast('timeline-seek', [
-      seekPosition,
-      currentPosition,
-      duration,
-    ]);
-
-    await this._activeTimelineProvider.seek(seekPosition);
-    await this._executeSeekActions(seekPosition);
-
-    this.eventbus.broadcast('timeline-seeked', [
-      this._activeTimelineProvider.getPosition(),
-      duration,
-    ]);
-
-    this.eventbus.broadcast('timeline-time', [
-      this._activeTimelineProvider.getPosition(),
-    ]);
-
-    if (this._activeTimelineProvider?.playState === 'running') {
-      this._activeTimelineProvider?.start();
-    }
+  // Legacy eventbus handlers - delegate to public API methods
+  private async _seekRequest(position: number) {
+    await this.seek(position);
   }
 
-  private durationRequest(callBack: TResultCallback<number | undefined>) {
-    callBack(this._activeTimelineProvider?.getDuration());
+  private _durationRequest(callBack: TResultCallback<number | undefined>) {
+    callBack(this.duration);
   }
 
-  private containerRequest(
+  private _containerRequest(
     callBack: TResultCallback<JQuery<HTMLElement> | undefined>
   ) {
-    callBack(this._activeTimelineProvider?.getContainer());
+    callBack(this.container);
   }
 
   private _pauseRequest() {
-    if (!this._activeTimelineProvider) {
-      return;
-    }
-
-    this._activeTimelineProvider.pause();
-    this.eventbus.broadcast('timeline-pause', []);
+    this.pause();
   }
 
   private _stopRequest() {
-    if (!this._activeTimelineProvider) {
-      return;
-    }
-
-    this._activeTimelineProvider.stop();
-    this.eventbus.broadcast('timeline-stop', []);
+    this.stop();
   }
 
-  private _playRequest() {
-    if (!this._activeTimelineProvider) {
-      return;
-    }
-
-    this._activeTimelineProvider.start();
-    this.eventbus.broadcast('timeline-play', []);
+  private async _playRequest() {
+    await this.start();
   }
 
   private _toggleplay() {
-    if (!this._activeTimelineProvider) {
-      return;
-    }
-
-    if (this._activeTimelineProvider.playState === 'running') {
-      this._activeTimelineProvider.pause();
+    if (this._activeTimelineProvider?.playState === 'running') {
+      this.pause();
     } else {
-      this._activeTimelineProvider.start();
+      this.start();
     }
   }
 
@@ -465,56 +637,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private async _handleRequestTimelineUri(uri: string, position: number = 0) {
-    if (!this._activeTimelineProvider) {
-      return;
-    }
-
-    this._activeTimelineProvider.stop();
-
-    await this._cleanUpTimeline();
-
-    const timelineConfig = this._timelineLookupCache.get(uri);
-    if (
-      !timelineConfig ||
-      !this._activeTimelineProvider ||
-      this._currentTimelineUri === timelineConfig.uri
-    ) {
-      return;
-    }
-    this._currentTimelineUri = timelineConfig.uri;
-
-    this.eventbus.broadcast('timeline-current-timeline-change', [
-      this._currentTimelineUri,
-    ]);
-
-    const newProviderSettings = this.timelineProviders[timelineConfig.type];
-
-    if (this._activeTimelineProvider !== newProviderSettings.provider) {
-      this._activeTimelineProvider.destroy();
-      this._activeTimelineProvider = newProviderSettings.provider;
-    }
-
-    this._activeTimelineProvider.loop = timelineConfig.loop;
-
-    if (!this._activeTimelineProvider.loop && position > 0) {
-      this.eventbus.once('timeline-firstframe', async () => {
-        if (!this._activeTimelineProvider) {
-          return;
-        }
-
-        this._activeTimelineProvider.pause();
-        this.eventbus.broadcast('timeline-duration', [
-          this._activeTimelineProvider.getDuration,
-        ]);
-
-        await this._executeStartActions();
-
-        const seekPosition = await this._activeTimelineProvider.seek(position);
-        this.seekRequest(seekPosition);
-      });
-    }
-
-    this._activeTimelineProvider.playlistItem(uri);
+    await this.switchTimeline(uri, position);
   }
 
   private _cleanUpTimeline() {
@@ -588,6 +711,7 @@ export class EligiusEngine implements IEligiusEngine {
 
       if (this._lastPosition !== pos) {
         this._executeActionsForPosition(pos);
+        this._emitter.emit('time', pos);
         this.eventbus.broadcast('timeline-time', [pos]);
       }
     }

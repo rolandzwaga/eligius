@@ -150,7 +150,8 @@ describe<CreateOptionListContext>('Create option list', () => {
         eventbus: context.eventbus,
       }
     );
-    context.engine = engineFactory.createEngine(context.configuration);
+    const {engine} = engineFactory.createEngine(context.configuration);
+    context.engine = engine;
 
     try {
       const result = await context.engine.init();

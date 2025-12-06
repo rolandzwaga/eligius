@@ -6,9 +6,9 @@ import {
   beforeEach,
   describe,
   expect,
+  type Mock,
   test,
   vi,
-  type Mock,
 } from 'vitest';
 import {EligiusEngine} from '../../eligius-engine.ts';
 import type {LanguageManager} from '../../language-manager.ts';
@@ -97,6 +97,240 @@ describe('EligiusEngine', () => {
   describe('constructor', () => {
     test<EligiusEngineSuiteContext>('should create an engine instance', context => {
       expect(context.engine).toBeDefined();
+    });
+  });
+
+  describe('state properties', () => {
+    test<EligiusEngineSuiteContext>('position should return current provider position', async context => {
+      await context.engine.init();
+      (context.mockProvider.getPosition as Mock).mockReturnValue(5.7);
+
+      expect(context.engine.position).toBe(5);
+    });
+
+    test<EligiusEngineSuiteContext>('position should return 0 when no provider', context => {
+      expect(context.engine.position).toBe(0);
+    });
+
+    test<EligiusEngineSuiteContext>('duration should return provider duration', async context => {
+      await context.engine.init();
+      (context.mockProvider.getDuration as Mock).mockReturnValue(60);
+
+      expect(context.engine.duration).toBe(60);
+    });
+
+    test<EligiusEngineSuiteContext>('duration should return undefined when no provider', context => {
+      expect(context.engine.duration).toBeUndefined();
+    });
+
+    test<EligiusEngineSuiteContext>('playState should initially be stopped', context => {
+      expect(context.engine.playState).toBe('stopped');
+    });
+
+    test<EligiusEngineSuiteContext>('currentTimelineUri should return current timeline URI', async context => {
+      await context.engine.init();
+
+      expect(context.engine.currentTimelineUri).toBe('timeline-1');
+    });
+
+    test<EligiusEngineSuiteContext>('container should return provider container', async context => {
+      const mockContainer = $('<div class="mock-container"/>');
+      (context.mockProvider.getContainer as Mock).mockReturnValue(
+        mockContainer
+      );
+      await context.engine.init();
+
+      expect(context.engine.container).toBe(mockContainer);
+    });
+
+    test<EligiusEngineSuiteContext>('engineRoot should return container element', async context => {
+      await context.engine.init();
+
+      expect(context.engine.engineRoot.hasClass('test-container')).toBe(true);
+    });
+  });
+
+  describe('on() - event subscription', () => {
+    test<EligiusEngineSuiteContext>('should subscribe to start event', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+
+      context.engine.on('start', handler);
+      await context.engine.start();
+
+      expect(handler).toHaveBeenCalled();
+    });
+
+    test<EligiusEngineSuiteContext>('should return unsubscribe function', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+
+      const unsubscribe = context.engine.on('start', handler);
+      unsubscribe();
+      await context.engine.start();
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    test<EligiusEngineSuiteContext>('should emit time event with position', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+
+      context.engine.on('time', handler);
+      // Simulate onTime callback from provider
+      const onTimeCallback = (context.mockProvider.onTime as Mock).mock
+        .calls[0][0];
+      onTimeCallback(5.5);
+
+      expect(handler).toHaveBeenCalledWith(5);
+    });
+
+    test<EligiusEngineSuiteContext>('should emit initialized event after init', async context => {
+      const handler = vi.fn();
+      context.engine.on('initialized', handler);
+
+      await context.engine.init();
+
+      expect(handler).toHaveBeenCalled();
+    });
+  });
+
+  describe('start()', () => {
+    test<EligiusEngineSuiteContext>('should start provider and set playState to playing', async context => {
+      await context.engine.init();
+
+      await context.engine.start();
+
+      expect(context.mockProvider.start).toHaveBeenCalled();
+      expect(context.engine.playState).toBe('playing');
+    });
+
+    test<EligiusEngineSuiteContext>('should emit start event', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+      context.engine.on('start', handler);
+
+      await context.engine.start();
+
+      expect(handler).toHaveBeenCalled();
+    });
+
+    test<EligiusEngineSuiteContext>('should do nothing when no provider', async context => {
+      await context.engine.start();
+      // Should not throw
+    });
+  });
+
+  describe('pause()', () => {
+    test<EligiusEngineSuiteContext>('should pause provider and set playState to paused', async context => {
+      await context.engine.init();
+      await context.engine.start();
+
+      context.engine.pause();
+
+      expect(context.mockProvider.pause).toHaveBeenCalled();
+      expect(context.engine.playState).toBe('paused');
+    });
+
+    test<EligiusEngineSuiteContext>('should emit pause event', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+      context.engine.on('pause', handler);
+
+      context.engine.pause();
+
+      expect(handler).toHaveBeenCalled();
+    });
+  });
+
+  describe('stop()', () => {
+    test<EligiusEngineSuiteContext>('should stop provider and set playState to stopped', async context => {
+      await context.engine.init();
+      await context.engine.start();
+
+      context.engine.stop();
+
+      expect(context.mockProvider.stop).toHaveBeenCalled();
+      expect(context.engine.playState).toBe('stopped');
+    });
+
+    test<EligiusEngineSuiteContext>('should emit stop event', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+      context.engine.on('stop', handler);
+
+      context.engine.stop();
+
+      expect(handler).toHaveBeenCalled();
+    });
+  });
+
+  describe('seek()', () => {
+    test<EligiusEngineSuiteContext>('should seek to position and return final position', async context => {
+      await context.engine.init();
+      (context.mockProvider.getDuration as Mock).mockReturnValue(100);
+      (context.mockProvider.getPosition as Mock).mockReturnValue(50);
+
+      const result = await context.engine.seek(50);
+
+      expect(context.mockProvider.seek).toHaveBeenCalledWith(50);
+      expect(result).toBe(50);
+    });
+
+    test<EligiusEngineSuiteContext>('should emit seekStart and seekComplete events', async context => {
+      const seekStartHandler = vi.fn();
+      const seekCompleteHandler = vi.fn();
+      await context.engine.init();
+      (context.mockProvider.getDuration as Mock).mockReturnValue(100);
+      (context.mockProvider.getPosition as Mock).mockReturnValue(25);
+      context.engine.on('seekStart', seekStartHandler);
+      context.engine.on('seekComplete', seekCompleteHandler);
+
+      await context.engine.seek(50);
+
+      expect(seekStartHandler).toHaveBeenCalledWith(50, 25, 100);
+      expect(seekCompleteHandler).toHaveBeenCalledWith(25, 100);
+    });
+
+    test<EligiusEngineSuiteContext>('should return current position when out of bounds', async context => {
+      await context.engine.init();
+      (context.mockProvider.getDuration as Mock).mockReturnValue(100);
+      (context.mockProvider.getPosition as Mock).mockReturnValue(25);
+
+      const result = await context.engine.seek(150);
+
+      expect(result).toBe(25);
+      expect(context.mockProvider.seek).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('switchTimeline()', () => {
+    test<EligiusEngineSuiteContext>('should emit timelineChange event', async context => {
+      context.configuration.timelines.push({
+        type: 'animation',
+        uri: 'timeline-2',
+        duration: 20,
+        selector: '.content',
+        loop: false,
+        timelineActions: [],
+      });
+      const handler = vi.fn();
+      await context.engine.init();
+      context.engine.on('timelineChange', handler);
+
+      await context.engine.switchTimeline('timeline-2');
+
+      expect(handler).toHaveBeenCalledWith('timeline-2');
+    });
+
+    test<EligiusEngineSuiteContext>('should not switch to same timeline', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+      context.engine.on('timelineChange', handler);
+
+      await context.engine.switchTimeline('timeline-1');
+
+      expect(handler).not.toHaveBeenCalled();
     });
   });
 
@@ -302,6 +536,8 @@ describe('EligiusEngine', () => {
       await context.engine.init();
 
       context.eventbus.broadcast('timeline-play-request', []);
+      // Wait for async handler to complete
+      await Promise.resolve();
 
       expect(context.mockProvider.start).toHaveBeenCalled();
     });
@@ -310,6 +546,8 @@ describe('EligiusEngine', () => {
       await context.engine.init();
 
       context.eventbus.broadcast('timeline-play-request', []);
+      // Wait for async handler to complete
+      await Promise.resolve();
 
       expect(context.eventbus.broadcast).toHaveBeenCalledWith(
         'timeline-play',
@@ -375,6 +613,8 @@ describe('EligiusEngine', () => {
       (context.mockProvider as any).playState = 'stopped';
 
       context.eventbus.broadcast('timeline-play-toggle-request', []);
+      // Wait for async handler to complete
+      await Promise.resolve();
 
       expect(context.mockProvider.start).toHaveBeenCalled();
     });
@@ -397,11 +637,10 @@ describe('EligiusEngine', () => {
 
       context.eventbus.broadcast('timeline-seek-request', [50]);
 
-      expect(context.eventbus.broadcast).toHaveBeenCalledWith('timeline-seek', [
-        50,
-        25,
-        100,
-      ]);
+      expect(context.eventbus.broadcast).toHaveBeenCalledWith(
+        'timeline-seek',
+        [50, 25, 100]
+      );
     });
 
     test<EligiusEngineSuiteContext>('should broadcast timeline-seeked event after seeking', async context => {
@@ -464,7 +703,9 @@ describe('EligiusEngine', () => {
     test<EligiusEngineSuiteContext>('should call callback with provider container', async context => {
       await context.engine.init();
       const mockContainer = $('<div class="provider-container"/>');
-      (context.mockProvider.getContainer as Mock).mockReturnValue(mockContainer);
+      (context.mockProvider.getContainer as Mock).mockReturnValue(
+        mockContainer
+      );
       const callback = vi.fn();
 
       context.eventbus.broadcast('timeline-container-request', [callback]);
@@ -612,9 +853,10 @@ describe('EligiusEngine', () => {
       // Fire time update
       onTimeCallback(5);
 
-      expect(context.eventbus.broadcast).toHaveBeenCalledWith('timeline-time', [
-        5,
-      ]);
+      expect(context.eventbus.broadcast).toHaveBeenCalledWith(
+        'timeline-time',
+        [5]
+      );
     });
 
     test<EligiusEngineSuiteContext>('should not broadcast timeline-time when position unchanged', async context => {
@@ -642,9 +884,10 @@ describe('EligiusEngine', () => {
 
       onTimeCallback(5.7);
 
-      expect(context.eventbus.broadcast).toHaveBeenCalledWith('timeline-time', [
-        5,
-      ]);
+      expect(context.eventbus.broadcast).toHaveBeenCalledWith(
+        'timeline-time',
+        [5]
+      );
     });
   });
 
@@ -973,11 +1216,14 @@ describe('EligiusEngine', () => {
   describe('static methods', () => {
     describe('sortActionsPerPosition', () => {
       test('should sort end methods before start methods', () => {
-        const startMethod = Object.assign(() => {}, {
+        const startMethod = Object.assign(async () => ({}), {
           id: 'start',
           isStart: true,
-        });
-        const endMethod = Object.assign(() => {}, {id: 'end', isStart: false});
+        }) as any;
+        const endMethod = Object.assign(async () => ({}), {
+          id: 'end',
+          isStart: false,
+        }) as any;
 
         const result = EligiusEngine.sortActionsPerPosition([
           startMethod,
@@ -989,16 +1235,16 @@ describe('EligiusEngine', () => {
       });
 
       test('should sort end methods by highest start position first', () => {
-        const endMethod1 = Object.assign(() => {}, {
+        const endMethod1 = Object.assign(async () => ({}), {
           id: 'end1',
           isStart: false,
           startPosition: 5,
-        });
-        const endMethod2 = Object.assign(() => {}, {
+        }) as any;
+        const endMethod2 = Object.assign(async () => ({}), {
           id: 'end2',
           isStart: false,
           startPosition: 10,
-        });
+        }) as any;
 
         const result = EligiusEngine.sortActionsPerPosition([
           endMethod1,

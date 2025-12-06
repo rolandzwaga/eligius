@@ -250,7 +250,7 @@ describe('VideoJsTimelineProvider', () => {
     expect(provider.playState).toBe('stopped');
 
     // when
-    provider.start();
+    await provider.start();
 
     // expect
     expect(provider.playState).toBe('running');
@@ -272,7 +272,7 @@ describe('VideoJsTimelineProvider', () => {
     // given
     const {provider} = context;
     await initProvider(provider);
-    provider.start();
+    await provider.start();
     expect(provider.playState).toBe('running');
 
     // when
@@ -299,7 +299,7 @@ describe('VideoJsTimelineProvider', () => {
     // given
     const {provider} = context;
     await initProvider(provider);
-    provider.start();
+    await provider.start();
     expect(provider.playState).toBe('running');
 
     // when

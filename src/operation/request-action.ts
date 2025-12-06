@@ -30,10 +30,10 @@ export const requestAction: TOperation<
 
   removeProperties(operationData, 'systemName');
 
-  const resultCallback = (action: IAction) => {
-    operationData.actionInstance = action;
-  };
+  operationData.actionInstance = this.eventbus.request<IAction>(
+    'request-action',
+    systemName
+  );
 
-  this.eventbus.broadcast('request-action', [systemName, resultCallback]);
   return operationData as Required<IRequestActionOperationData>;
 };

@@ -6,8 +6,8 @@ import {describe, expect, test, vi} from 'vitest';
 
 function createMockEventbusWithFunction(testFunction: Function) {
   return {
-    broadcast: vi.fn((_eventName: string, args: any[]) => {
-      args[1](testFunction);
+    request: vi.fn((_topic: string, _arg: string) => {
+      return testFunction;
     }),
   };
 }
@@ -38,9 +38,9 @@ describe('customFunction', () => {
 
     // expect
     expect(called).toBe(true);
-    expect(mockEventbus.broadcast).toHaveBeenCalledWith(
+    expect(mockEventbus.request).toHaveBeenCalledWith(
       'request-function',
-      expect.any(Array)
+      'testName'
     );
   });
 

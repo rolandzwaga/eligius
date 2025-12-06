@@ -67,10 +67,10 @@ export const selectElement: TOperation<
     return operationData;
   }
 
-  const rootCallback = (root: JQuery) => {
+  const root = this.eventbus.request<JQuery>('request-engine-root');
+  if (root) {
     operationData.selectedElement = findElementBySelector(root, selector);
-  };
-  this.eventbus.broadcast('request-engine-root', [rootCallback]);
+  }
 
   return operationData;
 };

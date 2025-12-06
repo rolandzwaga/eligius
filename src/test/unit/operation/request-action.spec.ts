@@ -4,13 +4,13 @@ import {describe, expect, test} from 'vitest';
 
 class MockEventbus {
   mockAction: any = {};
-  systemName: string = '';
-  eventName: string = '';
+  requestedTopic: string = '';
+  requestedArg: string = '';
 
-  broadcast(eventName: string, args: any[]) {
-    this.systemName = args[0];
-    this.eventName = eventName;
-    args[1](this.mockAction);
+  request(topic: string, arg: string) {
+    this.requestedTopic = topic;
+    this.requestedArg = arg;
+    return this.mockAction;
   }
 }
 
@@ -30,8 +30,8 @@ describe('requestAction', () => {
     });
 
     // expect
-    expect(eventbus.systemName).toBe('testActionName');
-    expect(eventbus.eventName).toBe('request-action');
+    expect(eventbus.requestedTopic).toBe('request-action');
+    expect(eventbus.requestedArg).toBe('testActionName');
     expect(newData.actionInstance).toBe(eventbus.mockAction);
   });
 

@@ -26,6 +26,10 @@ class MockEngine {
     this.provider = provider;
     this.languageManager = languageManager;
   }
+
+  on(_event: string, _handler: (...args: any[]) => void): () => void {
+    return () => {};
+  }
 }
 
 class MockTimelineProvider {}
@@ -36,13 +40,20 @@ type EngineFactorySuiteContext = {
   factory: IEngineFactory;
 } & TestContext;
 
+function createMockWindow(): any {
+  return {
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  };
+}
+
 function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe<EngineFactorySuiteContext>('EngineFactory', () => {
   beforeEach(context => {
     withContext<EngineFactorySuiteContext>(context);
 
     context.importer = new MockImporter();
-    context.windowRef = {};
+    context.windowRef = createMockWindow();
     context.factory = new EngineFactory(context.importer, context.windowRef);
   });
   test<EngineFactorySuiteContext>('should create', context => {

@@ -30,7 +30,6 @@ const toPathAlias = (filePath: string): string => {
     'src/action/': '@action/',
     'src/configuration/': '@configuration/',
     'src/controllers/': '@controllers/',
-    'src/diagnostics/': '@diagnostics/',
     'src/eventbus/': '@eventbus/',
     'src/importer/': '@importer/',
     'src/operation/': '@operation/',

@@ -44,7 +44,7 @@ function createMockTimelineProvider(): ITimelineProvider {
     onFirstFrame: vi.fn(),
     onRestart: vi.fn(),
     loop: false,
-    playState: 'idle' as const,
+    playState: 'stopped' as const,
   };
 }
 
@@ -65,10 +65,9 @@ function createMinimalConfig(
     language: 'en-US',
     layoutTemplate: '<div id="content"></div>',
     cssFiles: [],
-    availableLanguages: ['en-US'],
+    availableLanguages: [],
     initActions: [],
     actions: [],
-    eventActions: [],
     timelines: [
       {
         id: 'timeline-1',
@@ -99,19 +98,15 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     withContext<EngineSmokeTestContext>(context);
 
     context.eventbus = new Eventbus();
-    context.languageManager = new LanguageManager(
-      'en-US',
-      [],
-      context.eventbus
-    );
+    context.languageManager = new LanguageManager('en-US', []);
     context.timelineProviders = {
       animation: {
         id: 'raf-provider',
         vendor: 'eligius',
         provider: createMockTimelineProvider(),
       },
-      video: {
-        id: 'video-provider',
+      mediaplayer: {
+        id: 'mediaplayer-provider',
         vendor: 'eligius',
         provider: createMockTimelineProvider(),
       },
@@ -181,7 +176,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
         {
           id: 'timeline-1',
           uri: 'timeline-1',
-          type: 'video', // Video type configured but no video provider
+          type: 'mediaplayer', // Mediaplayer type configured but no mediaplayer provider
           duration: 100,
           loop: false,
           selector: '#content',
@@ -190,7 +185,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       ],
     });
 
-    // Only provide animation provider, not video
+    // Only provide animation provider, not mediaplayer
     const incompleteProviders = {
       animation: {
         id: 'raf-provider',
@@ -208,7 +203,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
     // test & expect
     await expect(engine.init()).rejects.toThrow(
-      'No timeline provider configured for type video'
+      'No timeline provider configured for type mediaplayer'
     );
   });
 
@@ -312,6 +307,6 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
     // expect
     expect(timelineProviders.animation.provider.destroy).toHaveBeenCalled();
-    expect(timelineProviders.video.provider.destroy).toHaveBeenCalled();
+    expect(timelineProviders.mediaplayer.provider.destroy).toHaveBeenCalled();
   });
 });

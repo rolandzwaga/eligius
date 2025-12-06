@@ -157,9 +157,11 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     const controller = new LabelController();
     controller.init(operationData);
 
-    // Mock label data lookup
-    controller.labelData = {'en-US': 'Test Label'};
-    controller.currentLanguage = 'en-US';
+    // Register request responders for LabelController.attach() to use
+    context.eventbus.onRequest('request-current-language', () => 'en-US');
+    context.eventbus.onRequest('request-label-collection', () => [
+      {id: '1', languageCode: 'en-US', label: 'Test Label'},
+    ]);
 
     let attachCount = 0;
     let detachCount = 0;

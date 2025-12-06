@@ -2,6 +2,7 @@ import type {
   IEventbus,
   TEventbusRemover,
   TEventHandler,
+  TRequestResponder,
 } from '@eventbus/types.js';
 import {vi} from 'vitest';
 
@@ -10,10 +11,12 @@ import {vi} from 'vitest';
  */
 export function createMockEventbus(): IEventbus {
   const listeners = new Map<string, Set<TEventHandler>>();
+  const requestResponders = new Map<string, TRequestResponder[]>();
 
   const mockEventbus: IEventbus = {
     clear: vi.fn(() => {
       listeners.clear();
+      requestResponders.clear();
     }),
 
     on: vi.fn(
@@ -65,6 +68,49 @@ export function createMockEventbus(): IEventbus {
     registerInterceptor: vi.fn((): TEventbusRemover => {
       return () => {}; // No-op remover
     }),
+
+    onRequest: vi.fn(
+      <T>(
+        eventName: string,
+        responder: TRequestResponder<T>,
+        eventTopic?: string
+      ): TEventbusRemover => {
+        const key = eventTopic ? `${eventName}:${eventTopic}` : eventName;
+        if (!requestResponders.has(key)) {
+          requestResponders.set(key, []);
+        }
+        requestResponders.get(key)!.push(responder);
+
+        return () => {
+          const responders = requestResponders.get(key);
+          if (responders) {
+            const index = responders.indexOf(responder);
+            if (index > -1) {
+              responders.splice(index, 1);
+            }
+          }
+        };
+      }
+    ),
+
+    request: vi.fn((eventName: string, ...args: unknown[]) => {
+      const responders = requestResponders.get(eventName);
+      if (!responders || responders.length === 0) {
+        return undefined;
+      }
+      return responders[0](...args);
+    }) as IEventbus['request'],
+
+    requestForTopic: vi.fn(
+      (eventName: string, eventTopic: string, ...args: unknown[]) => {
+        const key = `${eventName}:${eventTopic}`;
+        const responders = requestResponders.get(key);
+        if (!responders || responders.length === 0) {
+          return undefined;
+        }
+        return responders[0](...args);
+      }
+    ) as IEventbus['requestForTopic'],
   };
 
   return mockEventbus;
