@@ -13,7 +13,7 @@
 
 - **EngineFactory.createEngine() return type changed**
   - Was: `IEligiusEngine` directly
-  - Now: `{ engine: IEligiusEngine, adapters: IAdapter[] }`
+  - Now: `IEngineFactoryResult` containing `{ engine, languageManager, eventbus, destroy }`
   - Migration: Change `const engine = factory.createEngine(config)` to `const { engine } = factory.createEngine(config)`
 
 - **EligiusEngine now uses TypedEventEmitter**
@@ -27,13 +27,7 @@
 - **Removed devtools/diagnostics module**
   - The `@diagnostics` module has been removed entirely
   - Removed `devtools` option from `IEngineFactoryOptions`
-  - Removed `EngineInputAdapterOptions` interface
   - Diagnostic logging removed from `Action` and `EndableAction` classes
-
-- **Event type definitions corrected**
-  - `request-timeline-uri`: Now correctly typed as `[uri: string, position?: number]`
-  - `request-current-timeline-position`: Now correctly typed as `[callback: TResultCallback<number>]`
-  - `timeline-request-current-timeline`: Now correctly typed as `[callback: TResultCallback<string>]`
 
 ### New Features
 
@@ -41,6 +35,7 @@
   - New `IAdapter` interface with `connect()` and `disconnect()` methods
   - `EngineEventbusAdapter`: Bridges engine events to/from eventbus
   - `LanguageEventbusAdapter`: Bridges language manager events to/from eventbus
+  - `EngineInputAdapter`: Handles external inputs (hotkeys, window resize)
   - Adapters are automatically created and connected by `EngineFactory`
 
 - **TypedEventEmitter Utility**

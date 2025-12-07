@@ -1,5 +1,6 @@
 export * from '@action/index.ts';
 export * from '@action/types.ts';
+export * from '@adapters/index.ts';
 export * from '@configuration/api/index.ts';
 export {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 export * from '@configuration/types.ts';
@@ -20,6 +21,7 @@ export * from '@operation/metadata/types.ts';
 export * from '@operation/types.ts';
 export * from '@timelineproviders/index.ts';
 export * from '@timelineproviders/types.ts';
+export * from '@util/typed-event-emitter.ts';
 export {EligiusEngine} from './eligius-engine.ts';
 export {EngineFactory} from './engine-factory.ts';
 export {LanguageManager} from './language-manager.ts';
