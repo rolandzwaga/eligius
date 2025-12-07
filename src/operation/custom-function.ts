@@ -27,7 +27,10 @@ export const customFunction: TOperation<
 
   removeProperties(operationData, 'systemName');
 
-  const func = this.eventbus.request<TOperation>('request-function', systemName);
+  const func = this.eventbus.request<TOperation>(
+    'request-function',
+    systemName
+  );
 
   if (!func) {
     return operationData;

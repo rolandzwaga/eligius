@@ -228,7 +228,9 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
       const {adapter, eventbus} = context;
       adapter.connect();
 
-      const result = eventbus.request<number>('request-current-timeline-position');
+      const result = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
 
       expect(result).toBe(5);
     });
@@ -248,7 +250,9 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
       (engine as any).container = mockContainer;
       adapter.connect();
 
-      const result = eventbus.request<JQuery<HTMLElement>>('timeline-container-request');
+      const result = eventbus.request<JQuery<HTMLElement>>(
+        'timeline-container-request'
+      );
 
       expect(result).toBe(mockContainer);
     });
@@ -259,7 +263,9 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
       (engine as any).engineRoot = mockRoot;
       adapter.connect();
 
-      const result = eventbus.request<JQuery<HTMLElement>>('request-engine-root');
+      const result = eventbus.request<JQuery<HTMLElement>>(
+        'request-engine-root'
+      );
 
       expect(result).toBe(mockRoot);
     });
@@ -268,7 +274,9 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
       const {adapter, eventbus} = context;
       adapter.connect();
 
-      const result = eventbus.request<string>('timeline-request-current-timeline');
+      const result = eventbus.request<string>(
+        'timeline-request-current-timeline'
+      );
 
       expect(result).toBe('timeline-1');
     });

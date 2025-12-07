@@ -8,6 +8,7 @@ import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
+  TPositionSourceType,
 } from '@configuration/types.ts';
 import {
   ActionRegistryEventbusListener,
@@ -16,6 +17,11 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
+import {DomContainerProvider} from '@timelineproviders/container-providers/dom-container-provider.ts';
+import {TimelineProviderFacade} from '@timelineproviders/legacy/timeline-provider-facade.ts';
+import {RafPositionSource} from '@timelineproviders/position-sources/raf-position-source.ts';
+import {ScrollPositionSource} from '@timelineproviders/position-sources/scroll-position-source.ts';
+import type {IPositionSource} from '@timelineproviders/types.ts';
 import {LanguageManager} from './language-manager.ts';
 import type {
   IConfigurationResolver,
@@ -247,5 +253,79 @@ export class EngineFactory implements IEngineFactory {
     );
 
     return result;
+  }
+
+  /**
+   * Creates a position source based on configuration.
+   *
+   * This method supports the new decomposed architecture where position sources
+   * can be created and configured independently.
+   *
+   * @param type - The position source type ('raf', 'video', 'scroll')
+   * @param duration - The timeline duration in seconds
+   * @param containerSelector - Optional container selector for the position source
+   * @returns A configured position source
+   */
+  createPositionSource(
+    type: TPositionSourceType,
+    duration: number,
+    containerSelector?: string
+  ): IPositionSource {
+    switch (type) {
+      case 'raf':
+        return new RafPositionSource({duration});
+      case 'scroll':
+        if (!containerSelector) {
+          throw new Error(
+            'Scroll position source requires a container selector'
+          );
+        }
+        return new ScrollPositionSource({
+          selector: containerSelector,
+          duration,
+        });
+      case 'video':
+        // Video position source requires video.js setup which is handled
+        // by the VideoPositionSource class directly
+        throw new Error(
+          'Video position source should be created via VideoPositionSource class directly'
+        );
+      default:
+        throw new Error(`Unknown position source type: ${type}`);
+    }
+  }
+
+  /**
+   * Creates a container provider based on a CSS selector.
+   *
+   * @param selector - CSS selector for the container element
+   * @returns A configured container provider
+   */
+  createContainerProvider(selector: string): DomContainerProvider {
+    return new DomContainerProvider({selector});
+  }
+
+  /**
+   * Creates a timeline provider facade from decomposed components.
+   *
+   * This method assembles a facade-wrapped timeline provider from the new
+   * decomposed architecture components (position source, container provider).
+   *
+   * @param positionSource - The position source to wrap
+   * @param containerSelector - Optional container selector (creates DomContainerProvider if provided)
+   * @returns A TimelineProviderFacade wrapping the components
+   */
+  createFacadeProvider(
+    positionSource: IPositionSource,
+    containerSelector?: string
+  ): TimelineProviderFacade {
+    const containerProvider = containerSelector
+      ? this.createContainerProvider(containerSelector)
+      : undefined;
+
+    return new TimelineProviderFacade({
+      positionSource,
+      containerProvider,
+    });
   }
 }

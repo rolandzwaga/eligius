@@ -1,12 +1,5 @@
 import type {IEngineConfiguration} from '@configuration/types.ts';
-import {
-  beforeEach,
-  describe,
-  expect,
-  type TestContext,
-  test,
-  vi,
-} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EngineFactory} from '../../engine-factory.ts';
 import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
 
@@ -179,10 +172,7 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
         const badImporter = {
           import: (_name: string) => ({}), // Returns empty object, no matching key
         };
-        const factory = new EngineFactory(
-          badImporter,
-          context.windowRef
-        );
+        const factory = new EngineFactory(badImporter, context.windowRef);
         const config = createMinimalConfig();
 
         expect(() => factory.createEngine(config)).toThrow(
@@ -199,10 +189,7 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
             return {}; // Returns empty object for timeline provider
           },
         };
-        const factory = new EngineFactory(
-          badImporter,
-          context.windowRef
-        );
+        const factory = new EngineFactory(badImporter, context.windowRef);
         const config = createMinimalConfig();
 
         expect(() => factory.createEngine(config)).toThrow(
