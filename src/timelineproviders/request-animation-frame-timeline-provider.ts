@@ -180,7 +180,7 @@ export class RequestAnimationFrameTimelineProvider
 
   pause() {
     this._stopAnimationInterval(false);
-    this._playState = 'stopped';
+    this._playState = 'paused';
   }
 
   seek(position: number) {

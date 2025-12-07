@@ -108,7 +108,7 @@ export class VideoJsTimelineProvider implements ITimelineProvider {
 
   pause(): void {
     this._player?.pause();
-    this._playState = 'stopped';
+    this._playState = 'paused';
   }
 
   seek(position: number): Promise<number> {

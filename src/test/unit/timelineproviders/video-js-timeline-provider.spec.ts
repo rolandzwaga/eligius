@@ -268,7 +268,7 @@ describe('VideoJsTimelineProvider', () => {
     expect(mockPlayer.pause).toHaveBeenCalled();
   });
 
-  test<VideoJsTimelineProviderSuiteContext>('should set playState to stopped when pause is called', async context => {
+  test<VideoJsTimelineProviderSuiteContext>('should set playState to paused when pause is called', async context => {
     // given
     const {provider} = context;
     await initProvider(provider);
@@ -279,7 +279,7 @@ describe('VideoJsTimelineProvider', () => {
     provider.pause();
 
     // expect
-    expect(provider.playState).toBe('stopped');
+    expect(provider.playState).toBe('paused');
   });
 
   test<VideoJsTimelineProviderSuiteContext>('should stop playback and reset to beginning', async context => {

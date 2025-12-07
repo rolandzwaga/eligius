@@ -1,4 +1,4 @@
-export type TPlayState = 'stopped' | 'running';
+export type TPlayState = 'stopped' | 'running' | 'paused';
 
 /**
  * Timeline provider interface with async start

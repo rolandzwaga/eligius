@@ -79,7 +79,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
       expect(provider.playState).toBe('running');
 
       provider.pause();
-      expect(provider.playState).toBe('stopped');
+      expect(provider.playState).toBe('paused');
     });
 
     test<RequestAnimationFrameTimelineProviderSuiteContext>('should stop, set correct play state and reset position to zero', async context => {
@@ -126,7 +126,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
 
       provider.pause();
 
-      expect(provider.playState).toBe('stopped');
+      expect(provider.playState).toBe('paused');
       expect(provider.getPosition()).toBe(2);
     });
   });
