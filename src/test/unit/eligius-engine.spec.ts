@@ -1213,6 +1213,128 @@ describe('EligiusEngine', () => {
     });
   });
 
+  describe('regression tests', () => {
+    describe('_toggleplay should properly await start()', () => {
+      test<EligiusEngineSuiteContext>('should await start() when toggling from stopped to playing', async context => {
+        await context.engine.init();
+        (context.mockProvider as any).playState = 'stopped';
+
+        // Make start() take some time to verify await is working
+        let startResolved = false;
+        (context.mockProvider.start as Mock).mockImplementation(async () => {
+          await new Promise(resolve => setTimeout(resolve, 10));
+          startResolved = true;
+        });
+
+        // Trigger toggle via eventbus
+        const togglePromise = new Promise<void>(resolve => {
+          context.eventbus.broadcast('timeline-play-toggle-request', []);
+          // Give time for async handler to complete
+          setTimeout(resolve, 50);
+        });
+
+        await togglePromise;
+
+        // If await was missing, startResolved might still be false
+        expect(startResolved).toBe(true);
+        expect(context.mockProvider.start).toHaveBeenCalled();
+      });
+    });
+
+    describe('switchTimeline should not double-seek', () => {
+      test<EligiusEngineSuiteContext>('should call provider.seek only once when switching timeline with position', async context => {
+        context.configuration.timelines = [
+          {
+            type: 'animation',
+            uri: 'timeline-1',
+            duration: 10,
+            selector: '.content',
+            loop: false,
+            timelineActions: [],
+          },
+          {
+            type: 'animation',
+            uri: 'timeline-2',
+            duration: 20,
+            selector: '.content',
+            loop: false, // non-looping to trigger the position seek logic
+            timelineActions: [],
+          },
+        ];
+        context.engine = new EligiusEngine(
+          context.configuration,
+          context.eventbus,
+          context.providers,
+          context.languageManager
+        );
+        await context.engine.init();
+
+        // Clear previous seek calls
+        (context.mockProvider.seek as Mock).mockClear();
+
+        // Switch to timeline-2 with a specific position
+        context.eventbus.broadcast('request-timeline-uri', ['timeline-2', 5]);
+
+        // Trigger the firstframe event to simulate the callback
+        await vi.waitFor(() => {
+          expect(context.eventbus.once).toHaveBeenCalledWith(
+            'timeline-firstframe',
+            expect.any(Function)
+          );
+        });
+
+        // Get the firstframe callback and call it
+        const onceCall = (context.eventbus.once as Mock).mock.calls.find(
+          (call: any[]) => call[0] === 'timeline-firstframe'
+        );
+        if (onceCall) {
+          await onceCall[1](); // Execute the callback
+        }
+
+        // Verify seek was called only once with the position
+        const seekCalls = (context.mockProvider.seek as Mock).mock.calls;
+        expect(seekCalls.length).toBe(1);
+        expect(seekCalls[0][0]).toBe(5);
+      });
+    });
+
+    describe('_executeSeekActions should handle empty timeline actions', () => {
+      test<EligiusEngineSuiteContext>('should not throw when timeline has no actions', async context => {
+        // Timeline with no actions
+        context.configuration.timelines[0].timelineActions = [];
+        await context.engine.init();
+        (context.mockProvider.getDuration as Mock).mockReturnValue(100);
+        (context.mockProvider.getPosition as Mock).mockReturnValue(0);
+
+        // This should not throw even though there are no timeline actions
+        await expect(context.engine.seek(50)).resolves.not.toThrow();
+      });
+
+      test<EligiusEngineSuiteContext>('should properly execute seek actions when switching from position with active actions', async context => {
+        const actionStart = vi.fn().mockResolvedValue({});
+        const actionEnd = vi.fn().mockResolvedValue({});
+        context.configuration.timelines[0].timelineActions = [
+          {
+            id: 'test-action',
+            duration: {start: 0, end: 30},
+            start: actionStart,
+            end: actionEnd,
+            active: true, // Action is currently active
+          },
+        ];
+        await context.engine.init();
+        (context.mockProvider.getDuration as Mock).mockReturnValue(100);
+        (context.mockProvider.getPosition as Mock).mockReturnValue(10);
+
+        // Seek to position 50, which is outside the action's duration (0-30)
+        await context.engine.seek(50);
+
+        // The active action should have its end method called
+        expect(actionEnd).toHaveBeenCalled();
+      });
+    });
+  });
+
   describe('static methods', () => {
     describe('sortActionsPerPosition', () => {
       test('should sort end methods before start methods', () => {

@@ -253,8 +253,8 @@ export class EligiusEngine implements IEligiusEngine {
 
         await this._executeStartActions();
 
-        const seekPosition = await this._activeTimelineProvider.seek(position);
-        await this.seek(seekPosition);
+        await this._activeTimelineProvider.seek(position);
+        await this._executeSeekActions(position);
       });
     }
 
@@ -493,11 +493,11 @@ export class EligiusEngine implements IEligiusEngine {
     await this.start();
   }
 
-  private _toggleplay() {
+  private async _toggleplay() {
     if (this._activeTimelineProvider?.playState === 'running') {
       this.pause();
     } else {
-      this.start();
+      await this.start();
     }
   }
 
@@ -729,46 +729,27 @@ export class EligiusEngine implements IEligiusEngine {
 
   private async _executeSeekActions(position: number) {
     const timelineActions = this._getTimelineActionsForCurrentTimeline();
-
-    if (!timelineActions) {
-      return Promise.resolve();
-    }
-
     const currentActions = this._getActiveActions(timelineActions).filter(
       action =>
         !(action.duration.start <= position && action.duration.end >= position)
     );
     const newActions = this._getActionsForPosition(position, timelineActions);
     await this._executeActions(currentActions, 'end');
-    return this._executeActions(newActions, 'start');
+    await this._executeActions(newActions, 'start');
   }
 }
 
 const sortActionsHighestStartPositionFirst = (
   a: ITimelineAction,
   b: ITimelineAction
-) => {
-  if (b.duration.start < a.duration.start) {
-    return -1;
-  } else if (b.duration.start > a.duration.start) {
-    return 1;
-  } else {
-    return 0;
-  }
-};
+) => b.duration.start - a.duration.start;
 
 const sortActionMethodsHighestStartPositionFirst = (
   a: ActionMethod,
   b: ActionMethod
 ) => {
-  if (b.startPosition === undefined || a.startPosition === undefined) {
+  if (a.startPosition === undefined || b.startPosition === undefined) {
     return 0;
   }
-  if (b.startPosition < a.startPosition) {
-    return -1;
-  } else if (b.startPosition > a.startPosition) {
-    return 1;
-  } else {
-    return 0;
-  }
+  return b.startPosition - a.startPosition;
 };

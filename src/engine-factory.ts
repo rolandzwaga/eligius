@@ -85,6 +85,8 @@ export class EngineFactory implements IEngineFactory {
    */
   destroy() {
     this._eventRemovers.forEach(x => x());
+    this._eventRemovers = [];
+    this._actionsLookup = {};
   }
 
   private _importSystemEntryWithEventbusDependency(systemName: string): any {
@@ -93,7 +95,14 @@ export class EngineFactory implements IEngineFactory {
   }
 
   private _importSystemEntry(systemName: string): any {
-    return this._importer.import(systemName)[systemName];
+    const module = this._importer.import(systemName);
+    const entry = module?.[systemName];
+    if (!entry) {
+      throw new Error(
+        `Failed to import '${systemName}': module does not export '${systemName}'`
+      );
+    }
+    return entry;
   }
 
   private _requestInstanceHandler(systemName: string): any {
@@ -203,9 +212,10 @@ export class EngineFactory implements IEngineFactory {
         languageEventbusAdapter.disconnect();
         engineEventbusAdapter.disconnect();
 
-        // Then destroy engine and language manager
+        // Destroy engine (which also destroys languageManager internally)
         await engineInstance.destroy();
-        languageManager.destroy();
+        // Note: languageManager.destroy() is NOT called here because
+        // engineInstance.destroy() already calls it
       },
     };
   }
