@@ -271,17 +271,20 @@ import * as engineConfig from './my-eligius-config.json';
 
 const factory = new EngineFactory(new EligiusResourceImporter(), window);
 
-// createEngine returns { engine, adapters } - adapters bridge engine/eventbus
-const { engine } = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
+// createEngine returns { engine, languageManager, eventbus, destroy }
+const { engine, destroy } = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
 await engine.init();
 
 console.log('Eligius engine ready for business');
+
+// When done, clean up everything
+await destroy();
 ```
 
 ### Subscribing to Engine Events
 
-The engine exposes a type-safe event API using `TypedEventEmitter`:
+The engine exposes a type-safe event API:
 
 ```javascript
 // Subscribe to engine events directly
@@ -299,30 +302,25 @@ unsubscribe();
 
 ### Engine Properties
 
-The engine exposes clean, read-only properties:
+The engine exposes read-only properties:
 
 ```javascript
-engine.position        // Current timeline position (number)
-engine.duration        // Timeline duration (number | undefined)
-engine.playState       // 'stopped' | 'playing' | 'paused'
-engine.currentTimelineUri  // Current timeline URI (string)
-engine.container       // Timeline container element (JQuery)
-engine.engineRoot      // Engine root element (JQuery)
+engine.position           // Current timeline position (number)
+engine.duration           // Timeline duration (number | undefined)
+engine.playState          // 'stopped' | 'playing' | 'paused'
+engine.currentTimelineUri // Current timeline URI (string)
+engine.container          // Timeline container element (JQuery)
+engine.engineRoot         // Engine root element (JQuery)
 ```
 
-### Adapter Pattern
-
-The factory creates adapters that bridge engine events to the eventbus. This separation allows for:
-
-- **Testability**: Test engine logic without eventbus
-- **Flexibility**: Use engine directly or via eventbus
-- **Clean architecture**: Core logic decoupled from messaging
+### Engine Playback Control
 
 ```javascript
-const { engine, adapters } = factory.createEngine(config);
-
-// Adapters are auto-connected, but you can disconnect them:
-adapters.forEach(adapter => adapter.disconnect());
+await engine.start();        // Start playback
+engine.pause();              // Pause playback
+engine.stop();               // Stop and reset to beginning
+await engine.seek(10);       // Seek to position (seconds)
+await engine.switchTimeline('timeline-uri', 5);  // Switch timeline, optionally at position
 ```
 
 ## Configuration API

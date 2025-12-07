@@ -74,6 +74,8 @@ export class RequestAnimationFrameTimelineProvider
     }
 
     this._currentPlaylistItem = item;
+    this._resetToStartPosition();
+    this._firstFramePending = true;
   }
 
   private _update(_now: number): void {
@@ -88,6 +90,7 @@ export class RequestAnimationFrameTimelineProvider
         this._resetToStartPosition();
         this._onRestart?.();
         this._callbackPosition();
+        return; // Don't call _callbackPosition again after the if block
       } else {
         this.stop();
         this._onComplete?.();
@@ -147,6 +150,12 @@ export class RequestAnimationFrameTimelineProvider
   }
 
   init(): Promise<void> {
+    if (!this._playlist.length) {
+      throw new Error(
+        'No animation timelines configured. At least one timeline with type "animation" is required.'
+      );
+    }
+
     this._currentPlaylistItem = this._playlist[0];
     this._containerElement = $(this._currentPlaylistItem.selector);
 

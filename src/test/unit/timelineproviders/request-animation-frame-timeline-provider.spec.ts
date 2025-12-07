@@ -416,6 +416,108 @@ describe('RequestAnimationFrameTimelineProvider', () => {
     });
   });
 
+  // Regression tests
+  describe('regression tests', () => {
+    describe('empty playlist handling', () => {
+      test('should throw descriptive error when no animation timelines exist', () => {
+        const emptyAnimationConfig = {
+          timelines: [
+            {
+              type: 'video', // No animation type
+              duration: 10,
+              selector: '#video',
+              uri: 'video-only',
+            },
+          ],
+        };
+        const provider = new RequestAnimationFrameTimelineProvider(
+          emptyAnimationConfig as any
+        );
+
+        expect(() => provider.init()).toThrow(
+          /no animation timelines/i
+        );
+      });
+
+      test('should throw descriptive error when timelines array is empty', () => {
+        const emptyConfig = {timelines: []};
+        const provider = new RequestAnimationFrameTimelineProvider(
+          emptyConfig as any
+        );
+
+        expect(() => provider.init()).toThrow(
+          /no animation timelines/i
+        );
+      });
+    });
+
+    describe('playlist switch should reset state', () => {
+      test<RequestAnimationFrameTimelineProviderSuiteContext>('should reset position to 0 when switching playlist items', async context => {
+        const {provider} = context;
+        await provider.init();
+
+        // Start and advance position
+        provider.start();
+        for (let i = 0; i < 3; i++) {
+          await vi.advanceTimersByTimeAsync(1016);
+        }
+        expect(provider.getPosition()).toBe(3);
+
+        provider.pause();
+
+        // Switch to different timeline
+        provider.playlistItem('timeline-2');
+
+        // Position should be reset to 0
+        expect(provider.getPosition()).toBe(0);
+      });
+
+      test<RequestAnimationFrameTimelineProviderSuiteContext>('should fire onFirstFrame when starting new playlist item', async context => {
+        const {provider} = context;
+        await provider.init();
+
+        const firstFrameCallback = vi.fn();
+        provider.onFirstFrame(firstFrameCallback);
+
+        // First timeline
+        provider.start();
+        expect(firstFrameCallback).toHaveBeenCalledTimes(1);
+
+        provider.stop();
+
+        // Switch to second timeline
+        provider.playlistItem('timeline-2');
+
+        // Start second timeline - should fire onFirstFrame again
+        provider.start();
+        expect(firstFrameCallback).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    describe('loop restart should not double-callback', () => {
+      test<RequestAnimationFrameTimelineProviderSuiteContext>('should call onTime exactly once per position during loop restart', async context => {
+        const {provider} = context;
+        await provider.init();
+
+        const positions: number[] = [];
+        provider.onTime((position: number) => positions.push(position));
+        provider.loop = true;
+
+        provider.start();
+
+        // Advance to trigger loop restart (duration is 5, need 6 ticks)
+        for (let i = 0; i < 6; i++) {
+          await vi.advanceTimersByTimeAsync(1016);
+        }
+
+        // Count how many times position 0 appears
+        // It should appear exactly twice: once at start, once after restart
+        const zeroCount = positions.filter(p => p === 0).length;
+        expect(zeroCount).toBe(2); // Initial + restart, NOT 3 (with double callback)
+      });
+    });
+  });
+
   // Edge cases
   describe('edge cases', () => {
     test<RequestAnimationFrameTimelineProviderSuiteContext>('should call onTime callback at position 0 when start called while already running at position 0', async context => {
