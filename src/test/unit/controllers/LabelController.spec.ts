@@ -94,7 +94,10 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
         label: 'hello',
       },
     ];
-    const firstRemover = eventbus.onRequest('request-label-collection', firstLabels);
+    const firstRemover = eventbus.onRequest(
+      'request-label-collection',
+      firstLabels
+    );
 
     // test
     controller.attach(eventbus);

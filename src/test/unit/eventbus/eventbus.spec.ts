@@ -228,7 +228,9 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       const {eventbus} = context;
 
       // test
-      const result = eventbus.request<number>('request-current-timeline-position');
+      const result = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
 
       // expect
       expect(result).toBeUndefined();
@@ -240,7 +242,9 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       eventbus.onRequest('request-current-timeline-position', () => 42);
 
       // test
-      const result = eventbus.request<number>('request-current-timeline-position');
+      const result = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
 
       // expect
       expect(result).toBe(42);
@@ -254,10 +258,15 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       });
 
       // test
-      const result = eventbus.request<any[]>('request-label-collection', 'my-label');
+      const result = eventbus.request<any[]>(
+        'request-label-collection',
+        'my-label'
+      );
 
       // expect
-      expect(result).toEqual([{id: 'my-label', label: 'Test', languageCode: 'en-US'}]);
+      expect(result).toEqual([
+        {id: 'my-label', label: 'Test', languageCode: 'en-US'},
+      ]);
     });
 
     test<EventbusSuiteContext>('should pass multiple arguments to responder', context => {
@@ -268,10 +277,10 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       });
 
       // test
-      const result = eventbus.request<any[][]>(
-        'request-label-collections',
-        ['label-1', 'label-2']
-      );
+      const result = eventbus.request<any[][]>('request-label-collections', [
+        'label-1',
+        'label-2',
+      ]);
 
       // expect
       expect(result).toHaveLength(2);
@@ -286,7 +295,9 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       eventbus.onRequest('request-current-timeline-position', () => 20);
 
       // test
-      const result = eventbus.request<number>('request-current-timeline-position');
+      const result = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
 
       // expect
       expect(result).toBe(10);
@@ -296,14 +307,19 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       // given
       const {eventbus} = context;
       let callCount = 0;
-      const remover = eventbus.onRequest('request-current-timeline-position', () => {
-        callCount++;
-        return 42;
-      });
+      const remover = eventbus.onRequest(
+        'request-current-timeline-position',
+        () => {
+          callCount++;
+          return 42;
+        }
+      );
 
       // test
       remover();
-      const result = eventbus.request<number>('request-current-timeline-position');
+      const result = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
 
       // expect
       expect(callCount).toBe(0);
@@ -318,7 +334,9 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       eventbus.onRequest('request-current-timeline-position', () => 200);
 
       // test
-      const globalResult = eventbus.request<number>('request-current-timeline-position');
+      const globalResult = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
       const topicResult = eventbus.requestForTopic<number>(
         'request-current-timeline-position',
         topic
@@ -355,7 +373,9 @@ describe<EventbusSuiteContext>('Eventbus', () => {
 
       // test
       eventbus.clear();
-      const result = eventbus.request<number>('request-current-timeline-position');
+      const result = eventbus.request<number>(
+        'request-current-timeline-position'
+      );
 
       // expect
       expect(result).toBeUndefined();

@@ -32,8 +32,7 @@ export class ProgressbarController extends BaseController<IProgressbarController
   attach(eventbus: IEventbus) {
     this.addListener(eventbus, 'timeline-time', this._positionUpdateHandler);
 
-    this.duration =
-      eventbus.request<number>('timeline-duration-request') ?? 0;
+    this.duration = eventbus.request<number>('timeline-duration-request') ?? 0;
 
     this.selectedElement?.css({'pointer-events': 'none'});
 

@@ -91,7 +91,26 @@ export interface IResolvedTimelineConfiguration {
   loop: boolean;
   selector: string;
   timelineActions: ITimelineAction[];
+  /**
+   * Optional container selector for the timeline.
+   * Defaults to the timeline selector if not specified.
+   */
+  container?: string;
+  /**
+   * Optional position source type.
+   * Defaults to type-specific default (e.g., 'raf' for animation, 'video' for mediaplayer).
+   */
+  positionSource?: TPositionSourceType;
 }
+
+/**
+ * Type of position source to use for the timeline.
+ *
+ * - `'raf'`: RAF-based position source (animation timelines)
+ * - `'video'`: Video.js-based position source (media playback)
+ * - `'scroll'`: Scroll-based position source (scroll-driven animations)
+ */
+export type TPositionSourceType = 'raf' | 'video' | 'scroll';
 
 export interface ITimelineConfiguration {
   id: string;
@@ -101,6 +120,17 @@ export interface ITimelineConfiguration {
   loop: boolean;
   selector: string;
   timelineActions: ITimelineActionConfiguration[];
+  /**
+   * Optional container selector for the timeline.
+   * Defaults to the timeline selector if not specified.
+   * Used by position sources that don't have an intrinsic container.
+   */
+  container?: string;
+  /**
+   * Optional position source type.
+   * Defaults to type-specific default (e.g., 'raf' for animation, 'video' for mediaplayer).
+   */
+  positionSource?: TPositionSourceType;
 }
 
 export interface IOperationConfiguration<T extends TOperationData> {

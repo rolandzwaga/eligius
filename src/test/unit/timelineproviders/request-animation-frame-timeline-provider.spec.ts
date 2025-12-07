@@ -434,9 +434,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
           emptyAnimationConfig as any
         );
 
-        expect(() => provider.init()).toThrow(
-          /no animation timelines/i
-        );
+        expect(() => provider.init()).toThrow(/no animation timelines/i);
       });
 
       test('should throw descriptive error when timelines array is empty', () => {
@@ -445,9 +443,7 @@ describe('RequestAnimationFrameTimelineProvider', () => {
           emptyConfig as any
         );
 
-        expect(() => provider.init()).toThrow(
-          /no animation timelines/i
-        );
+        expect(() => provider.init()).toThrow(/no animation timelines/i);
       });
     });
 
