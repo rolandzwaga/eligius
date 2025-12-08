@@ -60,7 +60,7 @@
     "@vitest/coverage-istanbul": "4.0.15",
     "fs-extra": "11.3.2",
     "jquery": "3.7.1",
-    "jsdom": "27.2.0",
+    "jsdom": "27.3.0",
     "lottie-web": "5.13.0",
     "rimraf": "6.1.2",
     "ts-morph": "27.0.2",
