@@ -58,18 +58,51 @@ The engine setting defines the engine for which this configuration is written. C
     ...
     "timelineProviderSettings": {
         "animation": {
-        "vendor": "eligius",
-        "systemName": "RequestAnimationFrameTimelineProvider"
+            "positionSource": {
+                "systemName": "RafPositionSource",
+                "tickInterval": 1000
+            }
         }
     }
     ...
 }
 ```
 
-These settings describe the providers that are available for the different kinds of timelines.
-There are two kinds: `animation` and `mediaplayer`.
-For `animation` there is `RequestAnimationFrameTimelineProvider`.
-For `mediaplayer` there is `VideoJsTimelineProvider` (requires video.js as a peer dependency).
+These settings describe the providers that are available for the different kinds of timelines. Timeline providers are assembled from decomposed components:
+
+**Position Sources** (required) - drive timeline position:
+- `RafPositionSource` - RequestAnimationFrame-based, for animation timelines
+- `ScrollPositionSource` - Scroll-based, for scroll-driven timelines
+- `VideoPositionSource` - Video.js-based, for video timelines (requires video.js as a peer dependency)
+
+**Container Providers** (optional) - manage DOM elements where content is rendered:
+- `DomContainerProvider` - Manages a DOM element by selector
+
+**Playlists** (optional) - manage multi-item navigation:
+- `SimplePlaylist` - Basic playlist with array of items
+
+Example with all components:
+```json
+{
+    "timelineProviderSettings": {
+        "animation": {
+            "positionSource": {
+                "systemName": "RafPositionSource",
+                "tickInterval": 1000
+            },
+            "container": {
+                "systemName": "DomContainerProvider",
+                "selector": "#render-area"
+            },
+            "playlist": {
+                "systemName": "SimplePlaylist",
+                "items": [{ "uri": "/video1.mp4" }, { "uri": "/video2.mp4" }],
+                "identifierKey": "uri"
+            }
+        }
+    }
+}
+```
 
 ### container selector
 
@@ -194,24 +227,26 @@ This block defines a list of timelines with its associated actions. This part of
 {
     ...
     "timelines": [
-        "type": "animation",
-        "uri": "animation-01",
-        "duration": 45,
-        "loop": true,
-        "selector": ".timeline-div",
-        "timelineActions": [
-            ...
-            {
-                "name": "ShowSomething",
-                "duration": {
-                    "start": 7,
-                    "end": 32
-                },
-                "startOperations": [...],
-                "endOperations": [...],
-            }
-            ...
-        ]
+        {
+            "type": "animation",
+            "uri": "animation-01",
+            "duration": 45,
+            "loop": true,
+            "selector": ".timeline-div",
+            "timelineActions": [
+                ...
+                {
+                    "name": "ShowSomething",
+                    "duration": {
+                        "start": 7,
+                        "end": 32
+                    },
+                    "startOperations": [...],
+                    "endOperations": [...]
+                }
+                ...
+            ]
+        }
     ]
     ...
 }
