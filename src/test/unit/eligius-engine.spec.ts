@@ -186,11 +186,18 @@ describe('EligiusEngine', () => {
   });
 
   describe('state properties', () => {
-    test<EligiusEngineSuiteContext>('position should return current provider position', async context => {
+    test<EligiusEngineSuiteContext>('position should return current provider position without flooring', async context => {
       await context.engine.init();
       (context.mockPositionSource.getPosition as Mock).mockReturnValue(5.7);
 
-      expect(context.engine.position).toBe(5);
+      expect(context.engine.position).toBe(5.7);
+    });
+
+    test<EligiusEngineSuiteContext>('position should preserve fractional values', async context => {
+      await context.engine.init();
+      (context.mockPositionSource.getPosition as Mock).mockReturnValue(12.3);
+
+      expect(context.engine.position).toBe(12.3);
     });
 
     test<EligiusEngineSuiteContext>('position should return 0 when no provider', context => {
@@ -257,7 +264,7 @@ describe('EligiusEngine', () => {
       expect(handler).not.toHaveBeenCalled();
     });
 
-    test<EligiusEngineSuiteContext>('should emit time event with position', async context => {
+    test<EligiusEngineSuiteContext>('should emit time event with fractional position', async context => {
       const handler = vi.fn();
       await context.engine.init();
 
@@ -269,7 +276,21 @@ describe('EligiusEngine', () => {
       );
       onPosition(5.5);
 
-      expect(handler).toHaveBeenCalledWith(5);
+      expect(handler).toHaveBeenCalledWith(5.5);
+    });
+
+    test<EligiusEngineSuiteContext>('should emit time event preserving decimal precision', async context => {
+      const handler = vi.fn();
+      await context.engine.init();
+
+      context.engine.on('time', handler);
+      const onPosition = getRegisteredCallback<(position: number) => void>(
+        context.mockPositionSource.onPosition as Mock,
+        'onPosition'
+      );
+      onPosition(12.7);
+
+      expect(handler).toHaveBeenCalledWith(12.7);
     });
 
     test<EligiusEngineSuiteContext>('should emit initialized event after init', async context => {
@@ -763,13 +784,13 @@ describe('EligiusEngine', () => {
       expect(context.mockPositionSource.seek).not.toHaveBeenCalled();
     });
 
-    test<EligiusEngineSuiteContext>('should floor the seek position', async context => {
+    test<EligiusEngineSuiteContext>('should preserve fractional seek position', async context => {
       await context.engine.init();
       (context.mockPositionSource.getDuration as Mock).mockReturnValue(100);
 
       context.eventbus.broadcast('timeline-seek-request', [50.7]);
 
-      expect(context.mockPositionSource.seek).toHaveBeenCalledWith(50);
+      expect(context.mockPositionSource.seek).toHaveBeenCalledWith(50.7);
     });
   });
 
@@ -814,7 +835,7 @@ describe('EligiusEngine', () => {
   });
 
   describe('eventbus: request-current-timeline-position', () => {
-    test<EligiusEngineSuiteContext>('should call callback with floored position', async context => {
+    test<EligiusEngineSuiteContext>('should call callback with fractional position', async context => {
       await context.engine.init();
       (context.mockPositionSource.getPosition as Mock).mockReturnValue(5.7);
       const callback = vi.fn();
@@ -823,7 +844,7 @@ describe('EligiusEngine', () => {
         callback,
       ]);
 
-      expect(callback).toHaveBeenCalledWith(5);
+      expect(callback).toHaveBeenCalledWith(5.7);
     });
 
     test<EligiusEngineSuiteContext>('should return -1 when no active provider', async context => {
@@ -968,7 +989,7 @@ describe('EligiusEngine', () => {
       );
     });
 
-    test<EligiusEngineSuiteContext>('should floor position in onPosition handler', async context => {
+    test<EligiusEngineSuiteContext>('should preserve fractional position in onPosition handler', async context => {
       await context.engine.init();
 
       const onPosition = getRegisteredCallback<(position: number) => void>(
@@ -980,7 +1001,7 @@ describe('EligiusEngine', () => {
 
       expect(context.eventbus.broadcast).toHaveBeenCalledWith(
         'timeline-time',
-        [5]
+        [5.7]
       );
     });
   });
@@ -1052,6 +1073,87 @@ describe('EligiusEngine', () => {
       expect(
         context.configuration.timelines[0].timelineActions[0].duration.end
       ).toBe(Infinity);
+    });
+
+    test<EligiusEngineSuiteContext>('should execute timeline action start at fractional position', async context => {
+      const actionStart = vi.fn().mockResolvedValue({});
+      const actionEnd = vi.fn().mockResolvedValue({});
+      context.configuration.timelines[0].timelineActions = [
+        {
+          id: 'fractional-action',
+          duration: {start: 5.3, end: 10.7},
+          start: actionStart,
+          end: actionEnd,
+          active: false,
+        },
+      ];
+
+      await context.engine.init();
+
+      const onPosition = getRegisteredCallback<(position: number) => void>(
+        context.mockPositionSource.onPosition as Mock,
+        'onPosition'
+      );
+      onPosition(5.3);
+
+      expect(actionStart).toHaveBeenCalled();
+    });
+
+    test<EligiusEngineSuiteContext>('should execute timeline action end at fractional position', async context => {
+      const actionStart = vi.fn().mockResolvedValue({});
+      const actionEnd = vi.fn().mockResolvedValue({});
+      context.configuration.timelines[0].timelineActions = [
+        {
+          id: 'fractional-action',
+          duration: {start: 5.3, end: 10.7},
+          start: actionStart,
+          end: actionEnd,
+          active: false,
+        },
+      ];
+
+      await context.engine.init();
+
+      const onPosition = getRegisteredCallback<(position: number) => void>(
+        context.mockPositionSource.onPosition as Mock,
+        'onPosition'
+      );
+      onPosition(10.7);
+
+      expect(actionEnd).toHaveBeenCalled();
+    });
+
+    test<EligiusEngineSuiteContext>('should not trigger action at non-matching fractional position', async context => {
+      const actionStart = vi.fn().mockResolvedValue({});
+      const actionEnd = vi.fn().mockResolvedValue({});
+      context.configuration.timelines[0].timelineActions = [
+        {
+          id: 'fractional-action',
+          duration: {start: 5.3, end: 10.7},
+          start: actionStart,
+          end: actionEnd,
+          active: false,
+        },
+      ];
+
+      await context.engine.init();
+
+      const onPosition = getRegisteredCallback<(position: number) => void>(
+        context.mockPositionSource.onPosition as Mock,
+        'onPosition'
+      );
+
+      // Trigger at 5.0 - should not call action start (start is 5.3)
+      onPosition(5.0);
+      expect(actionStart).not.toHaveBeenCalled();
+
+      // Trigger at 5.2 - should not call action start (start is 5.3)
+      onPosition(5.2);
+      expect(actionStart).not.toHaveBeenCalled();
+
+      // Trigger at 5.4 - should not call action start (start is 5.3)
+      onPosition(5.4);
+      expect(actionStart).not.toHaveBeenCalled();
     });
   });
 

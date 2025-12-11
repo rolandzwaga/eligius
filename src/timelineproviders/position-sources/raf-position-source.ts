@@ -133,7 +133,8 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
    * Handle a tick from animationInterval.
    *
    * The time parameter represents elapsed milliseconds since the animation
-   * interval started. Position is calculated as (time - offset) / tickInterval.
+   * interval started. Position is calculated in seconds, rounded to the
+   * precision determined by tickInterval.
    *
    * @param time - Elapsed time in milliseconds from animationInterval
    */
@@ -144,9 +145,11 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
     }
 
     // Calculate new position based on elapsed time since start/reset
-    // Position = (time - offset) / tickInterval
+    // First, floor to the nearest tick boundary in milliseconds
+    // Then convert to seconds for the position value
     const elapsedSinceStart = time - this._startTimeOffset;
-    const newPosition = Math.floor(elapsedSinceStart / this._tickInterval);
+    const ticksElapsed = Math.floor(elapsedSinceStart / this._tickInterval);
+    const newPosition = (ticksElapsed * this._tickInterval) / 1000;
     const duration = this.getDuration();
 
     // Check if we've reached or exceeded the end

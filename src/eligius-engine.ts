@@ -93,9 +93,9 @@ export class EligiusEngine implements IEligiusEngine {
   // STATE (synchronous reads) - IEligiusEngine interface
   // ─────────────────────────────────────────────────────────────────────────
 
-  /** Current timeline position in seconds */
+  /** Current timeline position in seconds (supports fractional values) */
   get position(): number {
-    return Math.floor(this._activePositionSource?.getPosition() ?? 0);
+    return this._activePositionSource?.getPosition() ?? 0;
   }
 
   /** Timeline duration in seconds, undefined if not yet available */
@@ -204,7 +204,7 @@ export class EligiusEngine implements IEligiusEngine {
       return 0;
     }
 
-    const seekPosition = Math.floor(position);
+    const seekPosition = position;
     const duration = this._activePositionSource.getDuration();
     const currentPosition = this._activePositionSource.getPosition();
 
@@ -370,7 +370,7 @@ export class EligiusEngine implements IEligiusEngine {
 
     // Register callbacks using new interface
     this._activePositionSource.onPosition(
-      this._onTimeHandler.bind(this, Math.floor)
+      this._onTimeHandler.bind(this, (x: number) => x)
     );
     this._activePositionSource.onBoundaryReached(boundary => {
       if (boundary === 'end') {
@@ -477,7 +477,7 @@ export class EligiusEngine implements IEligiusEngine {
     );
     this._addEventListener(
       'request-current-timeline-position',
-      this._handleRequestTimelinePosition.bind(this, Math.floor)
+      this._handleRequestTimelinePosition.bind(this, (x: number) => x)
     );
     this._addEventListener(
       'request-timeline-cleanup',

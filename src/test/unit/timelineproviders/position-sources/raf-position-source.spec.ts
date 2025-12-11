@@ -528,6 +528,157 @@ describe('RafPositionSource', () => {
     });
   });
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Fractional position support tests
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('fractional position support', () => {
+    test('should emit fractional positions when tickInterval is 100ms (0.1s precision)', async () => {
+      const source = new RafPositionSource({duration: 60, tickInterval: 100});
+      const positionCallback = vi.fn();
+      source.onPosition(positionCallback);
+
+      await source.init();
+      await source.activate();
+
+      const callback = vi.mocked(animationInterval).mock.calls.at(-1)?.[2];
+
+      // Simulate ticks at 100ms intervals
+      callback?.(100); // 0.1s
+      expect(positionCallback).toHaveBeenCalledWith(0.1);
+
+      callback?.(200); // 0.2s
+      expect(positionCallback).toHaveBeenCalledWith(0.2);
+
+      callback?.(350); // 0.3s (floored to tick boundary)
+      expect(positionCallback).toHaveBeenCalledWith(0.3);
+    });
+
+    test('should emit position 1.5 after 1500ms with 100ms tickInterval', async () => {
+      const source = new RafPositionSource({duration: 60, tickInterval: 100});
+      const positionCallback = vi.fn();
+      source.onPosition(positionCallback);
+
+      await source.init();
+      await source.activate();
+
+      const callback = vi.mocked(animationInterval).mock.calls.at(-1)?.[2];
+
+      callback?.(1500); // 1.5s
+      expect(positionCallback).toHaveBeenCalledWith(1.5);
+    });
+
+    test('should emit position 5.7 after 5700ms with 100ms tickInterval', async () => {
+      const source = new RafPositionSource({duration: 60, tickInterval: 100});
+      const positionCallback = vi.fn();
+      source.onPosition(positionCallback);
+
+      await source.init();
+      await source.activate();
+
+      const callback = vi.mocked(animationInterval).mock.calls.at(-1)?.[2];
+
+      callback?.(5700);
+      expect(positionCallback).toHaveBeenCalledWith(5.7);
+    });
+
+    test('should support seek to fractional positions', async () => {
+      const source = new RafPositionSource({duration: 60, tickInterval: 100});
+
+      await source.init();
+      await source.activate();
+
+      const result = await source.seek(25.3);
+
+      expect(result).toBe(25.3);
+      expect(source.getPosition()).toBe(25.3);
+    });
+
+    test('should emit fractional position callback after seek', async () => {
+      const source = new RafPositionSource({duration: 60, tickInterval: 100});
+      const positionCallback = vi.fn();
+      source.onPosition(positionCallback);
+
+      await source.init();
+      await source.activate();
+      positionCallback.mockClear();
+
+      await source.seek(12.7);
+
+      expect(positionCallback).toHaveBeenCalledWith(12.7);
+    });
+
+    test('should handle fractional duration boundary', async () => {
+      const source = new RafPositionSource({duration: 3.5, tickInterval: 100});
+      const boundaryCallback = vi.fn();
+      source.onBoundaryReached(boundaryCallback);
+
+      await source.init();
+      await source.activate();
+
+      const callback = vi.mocked(animationInterval).mock.calls.at(-1)?.[2];
+
+      // Tick to duration
+      callback?.(3400); // 3.4s
+      expect(boundaryCallback).not.toHaveBeenCalled();
+
+      callback?.(3500); // 3.5s = duration
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
+    });
+
+    test('should clamp fractional seek to duration', async () => {
+      const source = new RafPositionSource({duration: 10.5, tickInterval: 100});
+
+      await source.init();
+      await source.activate();
+
+      const result = await source.seek(15.7);
+
+      expect(result).toBe(10.5);
+      expect(source.getPosition()).toBe(10.5);
+    });
+
+    test('should loop correctly with fractional positions', async () => {
+      const source = new RafPositionSource({duration: 2.5, tickInterval: 100});
+      source.loop = true;
+      const boundaryCallback = vi.fn();
+      const positionCallback = vi.fn();
+      source.onBoundaryReached(boundaryCallback);
+      source.onPosition(positionCallback);
+
+      await source.init();
+      await source.activate();
+
+      const callback = vi.mocked(animationInterval).mock.calls.at(-1)?.[2];
+
+      // Tick to duration
+      callback?.(2500); // 2.5s = duration
+
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
+      expect(boundaryCallback).toHaveBeenCalledWith('start');
+      expect(source.getPosition()).toBe(0);
+      expect(source.state).toBe('active');
+    });
+
+    test('should preserve fractional position across suspend/resume', async () => {
+      const source = new RafPositionSource({duration: 60, tickInterval: 100});
+
+      await source.init();
+      await source.activate();
+
+      const callback = vi.mocked(animationInterval).mock.calls.at(-1)?.[2];
+
+      callback?.(1300); // 1.3s
+      expect(source.getPosition()).toBe(1.3);
+
+      source.suspend();
+      expect(source.getPosition()).toBe(1.3);
+
+      await source.activate();
+      expect(source.getPosition()).toBe(1.3);
+    });
+  });
+
   describe('lifecycle', () => {
     test<RafPositionSourceTestContext>('destroy() should abort animation interval', async context => {
       const {source} = context;
