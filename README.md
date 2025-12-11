@@ -60,7 +60,7 @@ The engine setting defines the engine for which this configuration is written. C
         "animation": {
             "positionSource": {
                 "systemName": "RafPositionSource",
-                "tickInterval": 1000
+                "tickInterval": 100
             }
         }
     }
@@ -68,7 +68,7 @@ The engine setting defines the engine for which this configuration is written. C
 }
 ```
 
-These settings describe the providers that are available for the different kinds of timelines. Timeline providers are assembled from decomposed components:
+These settings describe the providers that are available for the different kinds of timelines. The `tickInterval` property controls the precision of timeline positions - a value of `100` (milliseconds) enables 0.1 second precision, allowing fractional positions like `1.3` or `5.7`. Timeline providers are assembled from decomposed components:
 
 **Position Sources** (required) - drive timeline position:
 - `RafPositionSource` - RequestAnimationFrame-based, for animation timelines
@@ -88,7 +88,7 @@ Example with all components:
         "animation": {
             "positionSource": {
                 "systemName": "RafPositionSource",
-                "tickInterval": 1000
+                "tickInterval": 100
             },
             "container": {
                 "systemName": "DomContainerProvider",
@@ -223,6 +223,8 @@ This is a list of actions that are not directly associated with initialisation, 
 
 This block defines a list of timelines with its associated actions. This part of the configuration contains the brunt of a presentation since this defines all of the actions that are triggered along each timeline position.
 
+Timeline positions support fractional values (e.g., `1.3`, `5.7`) when using a `tickInterval` of `100` (0.1 second precision).
+
 ```json
 {
     ...
@@ -230,7 +232,7 @@ This block defines a list of timelines with its associated actions. This part of
         {
             "type": "animation",
             "uri": "animation-01",
-            "duration": 45,
+            "duration": 45.5,
             "loop": true,
             "selector": ".timeline-div",
             "timelineActions": [
@@ -238,8 +240,8 @@ This block defines a list of timelines with its associated actions. This part of
                 {
                     "name": "ShowSomething",
                     "duration": {
-                        "start": 7,
-                        "end": 32
+                        "start": 1.3,
+                        "end": 3.7
                     },
                     "startOperations": [...],
                     "endOperations": [...]
@@ -324,7 +326,7 @@ The engine exposes a type-safe event API:
 ```javascript
 // Subscribe to engine events directly
 const unsubscribe = engine.on('time', (position) => {
-  console.log('Current position:', position);
+  console.log('Current position:', position); // e.g., 5.3, 5.4, 5.5...
 });
 
 engine.on('start', () => console.log('Playback started'));
@@ -340,7 +342,7 @@ unsubscribe();
 The engine exposes read-only properties:
 
 ```javascript
-engine.position           // Current timeline position (number)
+engine.position           // Current timeline position in seconds (supports fractional values like 5.3)
 engine.duration           // Timeline duration (number | undefined)
 engine.playState          // 'stopped' | 'playing' | 'paused'
 engine.currentTimelineUri // Current timeline URI (string)
@@ -354,8 +356,8 @@ engine.engineRoot         // Engine root element (JQuery)
 await engine.start();        // Start playback
 engine.pause();              // Pause playback
 engine.stop();               // Stop and reset to beginning
-await engine.seek(10);       // Seek to position (seconds)
-await engine.switchTimeline('timeline-uri', 5);  // Switch timeline, optionally at position
+await engine.seek(10.5);     // Seek to position (seconds, supports fractional values)
+await engine.switchTimeline('timeline-uri', 5.3);  // Switch timeline, optionally at position
 ```
 
 ## Configuration API
