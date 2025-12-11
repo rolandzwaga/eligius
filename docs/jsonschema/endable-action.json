@@ -3,14 +3,22 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
   "type": "object",
-  "title": "The Endable Action Schema",
-  "required": ["name", "startOperations", "endOperations"],
+  "title": "Endable Action Schema",
+  "description": "An action with start and end operations",
+  "required": [
+    "id",
+    "name",
+    "startOperations",
+    "endOperations"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "name": {
@@ -18,7 +26,9 @@
       "type": "string",
       "title": "The Name Schema",
       "default": "",
-      "examples": ["ProgressbarSetup"],
+      "examples": [
+        "ProgressbarSetup"
+      ],
       "pattern": "^(.*)$"
     },
     "startOperations": {

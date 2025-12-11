@@ -3,47 +3,68 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/timeline.json",
   "type": "object",
-  "title": "The Timeline Schema",
-  "required": ["uri", "type", "duration", "selector"],
+  "title": "Timeline Schema",
+  "description": "Configuration for a timeline within the engine",
+  "required": [
+    "id",
+    "uri",
+    "type",
+    "duration",
+    "loop",
+    "selector",
+    "timelineActions"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
+      "title": "Id",
+      "description": "Unique identifier for the timeline",
       "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "uri": {
       "$id": "#/properties/uri",
       "type": "string",
-      "title": "The uri Schema",
-      "description": "The URI for the video or audio file, only used when type is set to mediaplayer"
+      "title": "URI",
+      "description": "The URI for the timeline. For mediaplayer type, this is the video/audio source. For animation type, this is a unique identifier."
     },
     "type": {
       "$id": "#/properties/type",
       "type": "string",
       "enum": ["animation", "mediaplayer"],
-      "title": "The type Schema"
+      "title": "Type",
+      "description": "The type of timeline provider to use"
     },
     "duration": {
       "$id": "#/properties/duration",
       "type": "number",
-      "title": "The duration schema"
+      "title": "Duration",
+      "description": "Duration of the timeline in seconds"
     },
     "loop": {
       "$id": "#/properties/loop",
       "type": "boolean",
-      "title": "The loop schema"
+      "title": "Loop",
+      "description": "Whether the timeline should loop when it reaches the end"
     },
     "selector": {
       "$id": "#/properties/selector",
       "type": "string",
-      "title": "The selector schema"
+      "title": "Selector",
+      "description": "CSS selector for the timeline's target element"
+    },
+    "container": {
+      "$id": "#/properties/container",
+      "type": "string",
+      "title": "Container",
+      "description": "Optional CSS selector for the container element. Defaults to the timeline selector if not specified."
     },
     "timelineActions": {
       "$id": "#/properties/timelineActions",
       "type": "array",
-      "title": "The timelineActions schema",
+      "title": "Timeline Actions",
+      "description": "Array of actions to execute at specific timeline positions",
       "items": {
         "$ref": "timeline-action.json"
       }

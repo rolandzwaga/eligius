@@ -5,13 +5,18 @@
   "type": "object",
   "title": "The invokeObjectMethod schema",
   "description": "This operation invokes the specified method on the given object with the given optional arguments\nand assigns the result to the `methodResult` operationdata property.",
-  "required": ["systemName", "operationData"],
+  "required": [
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -22,15 +27,19 @@
       "$id": "#/properties/operationData",
       "type": "object",
       "title": "The Operationdata Schema",
-      "required": ["methodName"],
+      "required": [
+        "methodName"
+      ],
       "properties": {
         "methodName": {
           "$id": "#/properties/operationData/methodName",
-          "type": ["string"]
+          "type": [
+            "string"
+          ]
         },
         "methodArguments": {
           "$id": "#/properties/operationData/methodArguments",
-          "type": ["array"]
+          "type": "array"
         }
       }
     }

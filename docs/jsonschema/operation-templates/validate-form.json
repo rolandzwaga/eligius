@@ -5,13 +5,17 @@
   "type": "object",
   "title": "The validateForm schema",
   "description": "Validates form fields against HTML5 validation and custom rules.\n\nUses HTML5 validation API (checkValidity()) for native validation, and supports\ncustom validation rules for: required, minLength, maxLength, pattern (regex), and email format.",
-  "required": ["systemName"],
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,7 +29,7 @@
       "properties": {
         "validationRules": {
           "$id": "#/properties/operationData/validationRules",
-          "type": ["object"]
+          "type": "array"
         }
       }
     }

@@ -1,40 +1,95 @@
 {
-  "definitions": {},
+  "definitions": {
+    "positionSourceConfig": {
+      "type": "object",
+      "title": "Position Source Configuration",
+      "description": "Configuration for a video-based position source that drives timeline position",
+      "required": ["systemName"],
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "title": "System Name",
+          "description": "Name of the position source class to instantiate",
+          "examples": ["VideoPositionSource"]
+        },
+        "selector": {
+          "type": "string",
+          "title": "Selector",
+          "description": "CSS selector for the video player element"
+        },
+        "poster": {
+          "type": "string",
+          "title": "Poster",
+          "description": "Optional poster image URL for video sources"
+        }
+      },
+      "additionalProperties": true
+    },
+    "containerProviderConfig": {
+      "type": "object",
+      "title": "Container Provider Configuration",
+      "description": "Configuration for a container provider that manages DOM elements",
+      "required": ["systemName", "selector"],
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "title": "System Name",
+          "description": "Name of the container provider class to instantiate",
+          "examples": ["DomContainerProvider"]
+        },
+        "selector": {
+          "type": "string",
+          "title": "Selector",
+          "description": "CSS selector for the container element"
+        }
+      },
+      "additionalProperties": true
+    },
+    "playlistConfig": {
+      "type": "object",
+      "title": "Playlist Configuration",
+      "description": "Configuration for a playlist that manages collections of items",
+      "required": ["systemName", "items", "identifierKey"],
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "title": "System Name",
+          "description": "Name of the playlist class to instantiate",
+          "examples": ["SimplePlaylist"]
+        },
+        "items": {
+          "type": "array",
+          "title": "Items",
+          "description": "The items in the playlist"
+        },
+        "identifierKey": {
+          "type": "string",
+          "title": "Identifier Key",
+          "description": "Property key used to identify items",
+          "examples": ["uri", "id", "chapterId"]
+        }
+      },
+      "additionalProperties": true
+    }
+  },
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/mediaplayer-timeline-provider-settings.json",
   "type": "object",
-  "title": "The TimelineProviderSettings Schema",
-  "required": ["id", "vendor", "selector", "systemName"],
+  "title": "Media Player Timeline Provider Settings",
+  "description": "Settings for mediaplayer-type timeline providers using video.js or similar",
+  "required": ["positionSource"],
   "properties": {
-    "id": {
-      "$id": "#/properties/id",
-      "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    "positionSource": {
+      "$ref": "#/definitions/positionSourceConfig",
+      "description": "Configuration for the video position source (required)"
     },
-    "vendor": {
-      "$id": "#/properties/vendor",
-      "type": "string",
-      "title": "The Vendor Schema",
-      "examples": ["jwplayer"]
+    "container": {
+      "$ref": "#/definitions/containerProviderConfig",
+      "description": "Optional container provider configuration"
     },
-    "selector": {
-      "$id": "#/properties/selector",
-      "type": "string",
-      "title": "The Selector Schema"
-    },
-    "systemName": {
-      "$id": "#/properties/systemName",
-      "type": "string",
-      "title": "The Systemname Schema",
-      "examples": ["MediaElementTimelineProvider"]
-    },
-    "playerApiKey": {
-      "$id": "#/properties/playerApiKey",
-      "type": "string",
-      "title": "The Playerapikey Schema",
-      "examples": ["QRa1gzd9/l8kw5567O0lneCUr7L3woHSc/=="]
+    "playlist": {
+      "$ref": "#/definitions/playlistConfig",
+      "description": "Optional playlist configuration for multi-video timelines"
     }
   }
 }

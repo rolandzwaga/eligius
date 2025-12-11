@@ -5,13 +5,17 @@
   "type": "object",
   "title": "The animateWithClass schema",
   "description": "This operation adds the specified class name to the specified selected element and assumes that this\nclass triggers and animation on the selected element. It then waits for this animation to complete\nbefore it resolves.",
-  "required": ["systemName"],
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,12 +29,14 @@
       "properties": {
         "className": {
           "$id": "#/properties/operationData/className",
-          "type": ["string"],
+          "type": [
+            "string"
+          ],
           "pattern": ".-?[_a-zA-Z]+[_a-zA-Z0-9-]*"
         },
         "removeClass": {
           "$id": "#/properties/operationData/removeClass",
-          "type": ["boolean"]
+          "type": "array"
         }
       }
     }

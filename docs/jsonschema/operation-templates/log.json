@@ -5,13 +5,17 @@
   "type": "object",
   "title": "The log schema",
   "description": "This operation logs the specified value, or, when no logValue property has been assigned\nit will log the current operation data, global data and scope to the console",
-  "required": ["systemName"],
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,11 +29,17 @@
       "properties": {
         "logValue": {
           "$id": "#/properties/operationData/logValue",
-          "type": ["object", "string", "number", "boolean", "array"]
+          "type": [
+            "object",
+            "string",
+            "number",
+            "boolean",
+            "array"
+          ]
         },
         "logName": {
           "$id": "#/properties/operationData/logName",
-          "type": ["string"]
+          "type": "array"
         }
       }
     }

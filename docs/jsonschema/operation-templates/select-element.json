@@ -5,13 +5,17 @@
   "type": "object",
   "title": "The selectElement schema",
   "description": "This operation selects one or more elements using the specified selector.\n\nIf `useSelectedElementAsRoot` is set to true and a valid DOM element is assigned\nto the current operation data's `selectedElement` property\nthen the element will be looked for only in the descendant elements of this DOM element.",
-  "required": ["systemName"],
+  "required": [
+    "systemName"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
+      "examples": [
+        "123e4567-e89b-12d3-a456-426614174000"
+      ],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -25,11 +29,13 @@
       "properties": {
         "selector": {
           "$id": "#/properties/operationData/selector",
-          "type": ["string"]
+          "type": [
+            "string"
+          ]
         },
         "useSelectedElementAsRoot": {
           "$id": "#/properties/operationData/useSelectedElementAsRoot",
-          "type": ["boolean"]
+          "type": "array"
         }
       }
     }
