@@ -38,9 +38,9 @@ describe('prepareValueForSerialization', () => {
     expect(result.e).toBeNull();
     expect(result.f).toBeUndefined();
     expect(result.g).toBe('function(i) {');
-    expect(
-      result.controllerInstance.startsWith('class LabelController')
-    ).toBe(true);
+    expect(result.controllerInstance.startsWith('class LabelController')).toBe(
+      true
+    );
     expect(result.someObject.prop).toBe(true);
     expect(result.simpleClass).toBe('function SimpleClass() {');
   });

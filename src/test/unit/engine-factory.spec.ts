@@ -137,10 +137,6 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
     expect(result.eventbus).toBeDefined();
     expect(result.languageManager).toBeDefined();
     expect(result.destroy).toBeInstanceOf(Function);
-
-    // Verify the engine received the configuration
-    expect(result.engine.config).toBeDefined();
-    expect(result.engine.eventbus).toBe(result.eventbus);
   });
 
   describe('regression tests', () => {

@@ -188,7 +188,9 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     editor.setPositionSourceType('raf', {tickInterval: 100});
 
     // expect
-    expect(providerSettings.positionSource.systemName).toBe('RafPositionSource');
+    expect(providerSettings.positionSource.systemName).toBe(
+      'RafPositionSource'
+    );
     expect((providerSettings.positionSource as any).tickInterval).toBe(100);
   });
 
@@ -285,7 +287,9 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
       .setPlaylist([{uri: '/a.mp4'}]);
 
     // expect
-    expect(providerSettings.positionSource.systemName).toBe('RafPositionSource');
+    expect(providerSettings.positionSource.systemName).toBe(
+      'RafPositionSource'
+    );
     expect(providerSettings.container?.selector).toBe('.container');
     expect(providerSettings.playlist?.items).toHaveLength(1);
   });

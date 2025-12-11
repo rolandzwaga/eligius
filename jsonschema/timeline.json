@@ -5,7 +5,15 @@
   "type": "object",
   "title": "Timeline Schema",
   "description": "Configuration for a timeline within the engine",
-  "required": ["id", "uri", "type", "duration", "loop", "selector", "timelineActions"],
+  "required": [
+    "id",
+    "uri",
+    "type",
+    "duration",
+    "loop",
+    "selector",
+    "timelineActions"
+  ],
   "properties": {
     "id": {
       "$id": "#/properties/id",

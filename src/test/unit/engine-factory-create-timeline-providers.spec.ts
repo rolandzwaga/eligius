@@ -86,7 +86,10 @@ describe('EngineFactory.createTimelineProvidersForConfig', () => {
       const config = createMockConfiguration({
         timelineProviderSettings: {
           animation: createProviderSettings({
-            positionSource: {systemName: 'RafPositionSource', tickInterval: 1000},
+            positionSource: {
+              systemName: 'RafPositionSource',
+              tickInterval: 1000,
+            },
           }),
         },
         timelines: [

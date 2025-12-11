@@ -893,7 +893,9 @@ describe('EligiusEngine', () => {
     test<EligiusEngineSuiteContext>('should broadcast timeline-complete when onBoundaryReached fires with end', async context => {
       await context.engine.init();
 
-      const onBoundaryReached = getRegisteredCallback<(boundary: string) => void>(
+      const onBoundaryReached = getRegisteredCallback<
+        (boundary: string) => void
+      >(
         context.mockPositionSource.onBoundaryReached as Mock,
         'onBoundaryReached'
       );
@@ -909,7 +911,9 @@ describe('EligiusEngine', () => {
     test<EligiusEngineSuiteContext>('should broadcast timeline-restart when onBoundaryReached fires with start', async context => {
       await context.engine.init();
 
-      const onBoundaryReached = getRegisteredCallback<(boundary: string) => void>(
+      const onBoundaryReached = getRegisteredCallback<
+        (boundary: string) => void
+      >(
         context.mockPositionSource.onBoundaryReached as Mock,
         'onBoundaryReached'
       );
@@ -1449,7 +1453,9 @@ describe('EligiusEngine', () => {
           async () => {
             // Simulate async operation - use immediate promise to avoid real delays
             await Promise.resolve();
-            context.mockPositionSource.state = 'active';
+            // Use type assertion to bypass readonly check - the mock has a setter
+            (context.mockPositionSource as {state: TSourceState}).state =
+              'active';
             activateResolved = true;
           }
         );

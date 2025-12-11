@@ -18,6 +18,11 @@ export {isSeekable} from '@timelineproviders/types.ts';
 // =============================================================================
 
 export {BasePositionSource} from '@timelineproviders/position-sources/base-position-source.ts';
+export type {
+  KeyboardStepSourceConfig,
+  TVerticalMode,
+} from '@timelineproviders/position-sources/keyboard-step-source.ts';
+export {KeyboardStepSource} from '@timelineproviders/position-sources/keyboard-step-source.ts';
 export type {RafPositionSourceConfig} from '@timelineproviders/position-sources/raf-position-source.ts';
 export {RafPositionSource} from '@timelineproviders/position-sources/raf-position-source.ts';
 export type {ScrollPositionSourceConfig} from '@timelineproviders/position-sources/scroll-position-source.ts';

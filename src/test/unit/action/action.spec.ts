@@ -2,7 +2,15 @@ import {Action} from '@action/index.ts';
 import type {IResolvedOperation} from '@configuration/types.ts';
 import {Eventbus} from '@eventbus/index.ts';
 import type {IOperationScope} from '@operation/types.ts';
-import {afterEach, beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  type TestContext,
+  test,
+  vi,
+} from 'vitest';
 
 type ActionContext = {
   action: Action;

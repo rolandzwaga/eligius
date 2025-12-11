@@ -30,21 +30,28 @@ vi.mock('lottie-web', () => {
  * Creates a mock eventbus with common request implementations for language and label handling.
  * This helper reduces setup duplication across tests that need label/language functionality.
  */
-function createLottieTestEventbus(config: {
-  language?: string;
-  labelCollections?: Array<Array<{code: string; label: string}>>;
-} = {}) {
+function createLottieTestEventbus(
+  config: {
+    language?: string;
+    labelCollections?: Array<Array<{code: string; label: string}>>;
+  } = {}
+) {
   const mockEventbus = createMockEventbus();
-  const {language = 'en-US', labelCollections = [[{code: 'en-US', label: 'Test'}]]} = config;
+  const {
+    language = 'en-US',
+    labelCollections = [[{code: 'en-US', label: 'Test'}]],
+  } = config;
 
-  (mockEventbus.broadcast as any).mockImplementation((eventName: string, args?: any[]) => {
-    if (eventName === 'request-label-collections' && args) {
-      args[1].labelCollections = labelCollections;
+  (mockEventbus.broadcast as any).mockImplementation(
+    (eventName: string, args?: any[]) => {
+      if (eventName === 'request-label-collections' && args) {
+        args[1].labelCollections = labelCollections;
+      }
+      if (eventName === 'request-current-language' && args) {
+        args[0].language = language;
+      }
     }
-    if (eventName === 'request-current-language' && args) {
-      args[0].language = language;
-    }
-  });
+  );
 
   return mockEventbus;
 }
@@ -337,7 +344,9 @@ describe('LottieController', () => {
       controller.detach(testEventbus);
 
       // Verify all unsubscribe functions were called during detach
-      const calledUnsubscribes = unsubscribeFns.filter(fn => fn.mock.calls.length > 0);
+      const calledUnsubscribes = unsubscribeFns.filter(
+        fn => fn.mock.calls.length > 0
+      );
       expect(calledUnsubscribes.length).toBe(registeredCount);
     });
   });
@@ -397,12 +406,14 @@ describe('LottieController', () => {
       // Capture the language-change handler when registered
       let languageChangeHandler: ((newLanguage: string) => void) | null = null;
       const testEventbus = createLottieTestEventbus({language: 'en-US'});
-      (testEventbus.on as any).mockImplementation((eventName: string, handler: any) => {
-        if (eventName === 'language-change') {
-          languageChangeHandler = handler;
+      (testEventbus.on as any).mockImplementation(
+        (eventName: string, handler: any) => {
+          if (eventName === 'language-change') {
+            languageChangeHandler = handler;
+          }
+          return vi.fn(); // Return unsubscribe function
         }
-        return vi.fn(); // Return unsubscribe function
-      });
+      );
 
       const operationData = {
         selectedElement: mockElement,
