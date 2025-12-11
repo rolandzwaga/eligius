@@ -1,90 +1,131 @@
 {
-  "definitions": {},
+  "definitions": {
+    "label": {
+      "type": "object",
+      "title": "Label",
+      "description": "A localized label with language code",
+      "required": ["id", "languageCode", "label"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Unique identifier for the label"
+        },
+        "languageCode": {
+          "type": "string",
+          "title": "Language Code",
+          "description": "IETF language tag (e.g., en-US, nl-NL)",
+          "examples": ["en-US", "nl-NL", "de-DE"]
+        },
+        "label": {
+          "type": "string",
+          "title": "Label",
+          "description": "The localized label text"
+        }
+      }
+    },
+    "languageLabel": {
+      "type": "object",
+      "title": "Language Label Collection",
+      "description": "A collection of labels for different languages",
+      "required": ["id", "labels"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Id",
+          "description": "Unique identifier for the label collection"
+        },
+        "labels": {
+          "type": "array",
+          "title": "Labels",
+          "description": "Array of localized labels",
+          "items": {
+            "$ref": "#/definitions/label"
+          }
+        }
+      }
+    }
+  },
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json",
   "type": "object",
-  "title": "The Eligius Configuration Schema",
+  "title": "Eligius Configuration Schema",
+  "description": "Configuration schema for the Eligius timeline engine",
   "required": [
     "id",
     "engine",
     "containerSelector",
-    "timelineProviderSettings",
+    "cssFiles",
     "language",
     "layoutTemplate",
     "availableLanguages",
-    "timelines"
+    "initActions",
+    "actions",
+    "timelines",
+    "labels"
   ],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
+      "title": "Id",
+      "description": "Unique identifier for the configuration",
       "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "engine": {
-      "$ref": "engine-config.json"
+      "$ref": "engine-config.json",
+      "description": "Engine configuration"
     },
     "timelineProviderSettings": {
-      "$ref": "timeline-provider-settings.json"
+      "$ref": "timeline-provider-settings.json",
+      "description": "Optional settings for timeline providers by type"
     },
     "containerSelector": {
       "$id": "#/properties/containerSelector",
       "type": "string",
-      "title": "The Containerselector Schema",
-      "default": "",
-      "examples": ["#eligius-container"],
-      "pattern": "^(.*)$"
+      "title": "Container Selector",
+      "description": "CSS selector for the main container element",
+      "examples": ["#eligius-container"]
+    },
+    "cssFiles": {
+      "$id": "#/properties/cssFiles",
+      "type": "array",
+      "title": "CSS Files",
+      "description": "Array of CSS file paths to load",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["styles/main.css", "styles/theme.css"]]
     },
     "language": {
       "$id": "#/properties/language",
       "type": "string",
-      "title": "The Language Schema",
-      "default": "",
-      "examples": ["en-US"],
-      "pattern": "^(.*)$"
+      "title": "Language",
+      "description": "Default language code (IETF language tag)",
+      "examples": ["en-US", "nl-NL"]
     },
     "layoutTemplate": {
       "$id": "#/properties/layoutTemplate",
       "type": "string",
-      "title": "The Layouttemplate Schema",
-      "default": "",
-      "examples": ["template:layoutTemplate", "<div></div>"],
-      "pattern": "^(.*)$"
+      "title": "Layout Template",
+      "description": "HTML template for the layout, can be inline HTML or a template reference",
+      "examples": ["template:layoutTemplate", "<div class=\"container\"></div>"]
     },
     "availableLanguages": {
       "$id": "#/properties/availableLanguages",
       "type": "array",
-      "title": "The Availablelanguages Schema",
+      "title": "Available Languages",
+      "description": "List of available languages for the application",
       "items": {
-        "$id": "#/properties/availableLanguages/items",
-        "type": "object",
-        "title": "The Items Schema",
-        "required": ["languageCode", "label"],
-        "properties": {
-          "languageCode": {
-            "$id": "#/properties/availableLanguages/items/properties/languageCode",
-            "type": "string",
-            "title": "The Code Schema",
-            "default": "",
-            "examples": ["en-US"],
-            "pattern": "^(.*)$"
-          },
-          "label": {
-            "$id": "#/properties/availableLanguages/items/properties/label",
-            "type": "string",
-            "title": "The Label Schema",
-            "default": "",
-            "examples": ["English"],
-            "pattern": "^(.*)$"
-          }
-        }
+        "$ref": "#/definitions/label"
       }
     },
     "initActions": {
       "$id": "#/properties/initActions",
       "type": "array",
-      "title": "The init actions Schema",
+      "title": "Init Actions",
+      "description": "Actions to execute during engine initialization",
       "items": {
         "$ref": "endable-action.json"
       }
@@ -92,7 +133,8 @@
     "actions": {
       "$id": "#/properties/actions",
       "type": "array",
-      "title": "The actions Schema",
+      "title": "Actions",
+      "description": "Reusable action templates",
       "items": {
         "$ref": "endable-action-template.json"
       }
@@ -100,7 +142,8 @@
     "eventActions": {
       "$id": "#/properties/eventActions",
       "type": "array",
-      "title": "The event actions Schema",
+      "title": "Event Actions",
+      "description": "Actions triggered by events",
       "items": {
         "$ref": "event-action.json"
       }
@@ -108,15 +151,26 @@
     "timelines": {
       "$id": "#/properties/timelines",
       "type": "array",
-      "title": "The timelines schema",
+      "title": "Timelines",
+      "description": "Timeline configurations",
       "items": {
         "$ref": "timeline.json"
       }
     },
+    "timelineFlow": {
+      "$id": "#/properties/timelineFlow",
+      "type": "object",
+      "title": "Timeline Flow",
+      "description": "Optional timeline flow configuration for navigation between timelines"
+    },
     "labels": {
       "$id": "#/properties/labels",
       "type": "array",
-      "title": "The Labels Schema"
+      "title": "Labels",
+      "description": "Label collections for multi-language support",
+      "items": {
+        "$ref": "#/definitions/languageLabel"
+      }
     }
   }
 }

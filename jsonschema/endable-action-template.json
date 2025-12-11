@@ -1,10 +1,11 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action-template.json",
   "type": "object",
-  "title": "The Endable Action Schema",
-  "required": ["name", "startOperations", "endOperations"],
+  "title": "Endable Action Template Schema",
+  "description": "A reusable action template with start and end operations",
+  "required": ["id", "name", "startOperations", "endOperations"],
   "properties": {
     "id": {
       "$id": "#/properties/id",

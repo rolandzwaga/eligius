@@ -1,10 +1,11 @@
 {
   "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/endable-action.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/timeline-action.json",
   "type": "object",
-  "title": "The Timeline Action Schema",
-  "required": ["name", "startOperations", "endOperations", "duration"],
+  "title": "Timeline Action Schema",
+  "description": "An action that executes at a specific timeline position",
+  "required": ["id", "name", "startOperations", "endOperations", "duration"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
