@@ -53,8 +53,7 @@ describe<CreateOptionListContext>('Create option list', () => {
     const settingsEditor = factory.editTimelineProviderSettings();
     settingsEditor
       .addProvider('animation')
-      .setSystemName('RequestAnimationFrameTimelineProvider')
-      .setSelector('[data-anim-container=true]');
+      .setContainer('[data-anim-container=true]');
 
     const actionCreator = factory
       .addLanguage('nl-NL', 'Nederlands')
@@ -153,14 +152,14 @@ describe<CreateOptionListContext>('Create option list', () => {
     const {engine} = engineFactory.createEngine(context.configuration);
     context.engine = engine;
 
-    try {
-      const result = await context.engine.init();
-      expect(result).not.toBeUndefined();
-      $('[data-language-selector=true]').val('en-GB').trigger('change');
+    const result = await context.engine.init();
+    expect(result).not.toBeUndefined();
 
-      expect(selectedLang).toBe('en-GB');
-    } catch (e) {
-      throw e;
-    }
+    // Verify the language selector was created
+    expect($('[data-language-selector=true]').length).toBe(1);
+
+    // Trigger language change and verify it broadcasts the event
+    $('[data-language-selector=true]').val('en-GB').trigger('change');
+    expect(selectedLang).toBe('en-GB');
   });
 });

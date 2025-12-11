@@ -4,7 +4,11 @@ import type {
   IResolvedEngineConfiguration,
 } from '@configuration/types.ts';
 import type {IEventbus, IEventbusListener} from '@eventbus/types.ts';
-import type {ITimelineProvider} from '@timelineproviders/types.ts';
+import type {
+  IContainerProvider,
+  IPlaylist,
+  IPositionSource,
+} from '@timelineproviders/types.ts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Engine Event Types
@@ -240,9 +244,9 @@ export interface IEligiusEngine {
   /**
    * Initialize the engine
    * Creates layout, initializes timeline provider, executes init actions
-   * @returns The initialized timeline provider
+   * @returns The initialized position source
    */
-  init(): Promise<ITimelineProvider>;
+  init(): Promise<IPositionSource>;
 
   /**
    * Destroy the engine
@@ -334,12 +338,20 @@ export interface IStrictDuration extends Required<IDuration> {}
 export type TimelineTypes = 'animation' | 'mediaplayer';
 
 /**
+ * Contains the decomposed components for a timeline provider.
  *
+ * Timeline providers are assembled from:
+ * - Position source: drives timeline position (required)
+ * - Container provider: manages render container (optional)
+ * - Playlist: manages multi-item navigation (optional)
  */
 export interface ITimelineProviderInfo {
-  id: string;
-  vendor: string;
-  provider: ITimelineProvider;
+  /** The position source driving timeline position */
+  positionSource: IPositionSource;
+  /** Optional container provider for DOM element management */
+  containerProvider?: IContainerProvider;
+  /** Optional playlist for multi-item timelines */
+  playlist?: IPlaylist;
 }
 
 export interface ILanguageLabel {

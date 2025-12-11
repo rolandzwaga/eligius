@@ -42,8 +42,7 @@ describe<ReuseActionsContext>('Re-use actions to add pictures', () => {
     const settingsEditor = factory.editTimelineProviderSettings();
     settingsEditor
       .addProvider('animation')
-      .setSystemName('RequestAnimationFrameTimelineProvider')
-      .setSelector('[data-anim-container=true]');
+      .setContainer('[data-anim-container=true]');
 
     factory
       .addLanguage('nl-NL', 'Nederlands')
@@ -102,11 +101,16 @@ describe<ReuseActionsContext>('Re-use actions to add pictures', () => {
     const {engine} = engineFactory.createEngine(context.configuration);
     context.engine = engine;
 
-    try {
-      const result = await context.engine.init();
-      expect(result).not.toBeUndefined();
-    } catch (e) {
-      throw e;
-    }
+    const result = await context.engine.init();
+    expect(result).not.toBeUndefined();
+
+    // Verify that both images were added to their respective containers
+    const img1 = $('#picture1 img');
+    const img2 = $('#picture2 img');
+
+    expect(img1.length).toBe(1);
+    expect(img2.length).toBe(1);
+    expect(img1.attr('src')).toBe('images/picture1.png');
+    expect(img2.attr('src')).toBe('images/picture2.png');
   });
 });

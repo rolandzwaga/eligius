@@ -158,8 +158,9 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     );
 
     // Verify configuration enabled characterData observation
-    expect((controller as any)._buildObserverOptions().characterData).to.be
-      .true;
+    expect((controller as any)._buildObserverOptions().characterData).toBe(
+      true
+    );
   });
 
   // T011: Write test for mutation event broadcasting through eventbus

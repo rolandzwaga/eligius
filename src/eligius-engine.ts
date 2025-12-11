@@ -9,7 +9,12 @@ import type {
   TEventbusRemover,
   TEventHandler,
 } from '@eventbus/types.ts';
-import type {ITimelineProvider} from '@timelineproviders/types.ts';
+import type {
+  IContainerProvider,
+  IPlaylist,
+  IPositionSource,
+  ISeekable,
+} from '@timelineproviders/types.ts';
 import {TypedEventEmitter} from '@util/typed-event-emitter.ts';
 import $ from 'jquery';
 import type {LanguageManager} from './language-manager.ts';
@@ -20,6 +25,35 @@ import type {
   TimelineTypes,
   TResultCallback,
 } from './types.ts';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Type Guards
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Type guard to check if a position source supports seeking.
+ */
+function isSeekable(
+  source: IPositionSource
+): source is IPositionSource & ISeekable {
+  return 'seek' in source && typeof (source as ISeekable).seek === 'function';
+}
+
+/**
+ * Maps position source state to engine play state.
+ */
+function mapSourceStateToPlayState(
+  sourceState: IPositionSource['state']
+): 'playing' | 'paused' | 'stopped' {
+  switch (sourceState) {
+    case 'active':
+      return 'playing';
+    case 'suspended':
+      return 'paused';
+    case 'inactive':
+      return 'stopped';
+  }
+}
 
 type ActionMethod =
   | (IEndableAction['start'] & ActionMethodMetadata)
@@ -46,9 +80,13 @@ export class EligiusEngine implements IEligiusEngine {
     new Map();
   private _eventbusRemovers: TEventbusRemover[] = [];
   private _currentTimelineUri: string = '';
-  private _activeTimelineProvider: ITimelineProvider | undefined = undefined;
+
+  // Decomposed timeline provider components
+  private _activePositionSource: IPositionSource | undefined = undefined;
+  private _activeContainerProvider: IContainerProvider | undefined = undefined;
+  private _activePlaylist: IPlaylist | undefined = undefined;
+
   private _lastPosition: number = -1;
-  private _playState: 'playing' | 'paused' | 'stopped' = 'stopped';
   private _emitter = new TypedEventEmitter<EngineEvents>();
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -57,17 +95,20 @@ export class EligiusEngine implements IEligiusEngine {
 
   /** Current timeline position in seconds */
   get position(): number {
-    return Math.floor(this._activeTimelineProvider?.getPosition() ?? 0);
+    return Math.floor(this._activePositionSource?.getPosition() ?? 0);
   }
 
   /** Timeline duration in seconds, undefined if not yet available */
   get duration(): number | undefined {
-    return this._activeTimelineProvider?.getDuration();
+    return this._activePositionSource?.getDuration();
   }
 
-  /** Current playback state */
+  /** Current playback state (derived from position source state) */
   get playState(): 'playing' | 'paused' | 'stopped' {
-    return this._playState;
+    if (!this._activePositionSource) {
+      return 'stopped';
+    }
+    return mapSourceStateToPlayState(this._activePositionSource.state);
   }
 
   /** URI of the currently active timeline */
@@ -77,7 +118,7 @@ export class EligiusEngine implements IEligiusEngine {
 
   /** Container element for the active timeline provider */
   get container(): JQuery<HTMLElement> | undefined {
-    return this._activeTimelineProvider?.getContainer();
+    return this._activeContainerProvider?.getContainer();
   }
 
   /** Root element of the engine (container selector) */
@@ -118,12 +159,11 @@ export class EligiusEngine implements IEligiusEngine {
    * @throws If autoplay is blocked (video provider)
    */
   async start(): Promise<void> {
-    if (!this._activeTimelineProvider) {
+    if (!this._activePositionSource) {
       return;
     }
 
-    await this._activeTimelineProvider.start();
-    this._playState = 'playing';
+    await this._activePositionSource.activate();
     this._emitter.emit('start');
     this.eventbus.broadcast('timeline-play', []);
   }
@@ -132,12 +172,11 @@ export class EligiusEngine implements IEligiusEngine {
    * Pause playback
    */
   pause(): void {
-    if (!this._activeTimelineProvider) {
+    if (!this._activePositionSource) {
       return;
     }
 
-    this._activeTimelineProvider.pause();
-    this._playState = 'paused';
+    this._activePositionSource.suspend();
     this._emitter.emit('pause');
     this.eventbus.broadcast('timeline-pause', []);
   }
@@ -146,12 +185,11 @@ export class EligiusEngine implements IEligiusEngine {
    * Stop playback and reset to beginning
    */
   stop(): void {
-    if (!this._activeTimelineProvider) {
+    if (!this._activePositionSource) {
       return;
     }
 
-    this._activeTimelineProvider.stop();
-    this._playState = 'stopped';
+    this._activePositionSource.deactivate();
     this._emitter.emit('stop');
     this.eventbus.broadcast('timeline-stop', []);
   }
@@ -162,13 +200,13 @@ export class EligiusEngine implements IEligiusEngine {
    * @returns Actual position after seek
    */
   async seek(position: number): Promise<number> {
-    if (!this._activeTimelineProvider) {
+    if (!this._activePositionSource) {
       return 0;
     }
 
     const seekPosition = Math.floor(position);
-    const duration = this._activeTimelineProvider.getDuration();
-    const currentPosition = this._activeTimelineProvider.getPosition();
+    const duration = this._activePositionSource.getDuration();
+    const currentPosition = this._activePositionSource.getPosition();
 
     if (seekPosition < 0 || seekPosition > duration) {
       return currentPosition;
@@ -181,10 +219,13 @@ export class EligiusEngine implements IEligiusEngine {
       duration,
     ]);
 
-    await this._activeTimelineProvider.seek(seekPosition);
+    // Only seek if position source supports it
+    if (isSeekable(this._activePositionSource)) {
+      await this._activePositionSource.seek(seekPosition);
+    }
     await this._executeSeekActions(seekPosition);
 
-    const finalPosition = this._activeTimelineProvider.getPosition();
+    const finalPosition = this._activePositionSource.getPosition();
 
     this._emitter.emit('seekComplete', finalPosition, duration);
     this.eventbus.broadcast('timeline-seeked', [finalPosition, duration]);
@@ -192,8 +233,9 @@ export class EligiusEngine implements IEligiusEngine {
     this._emitter.emit('time', finalPosition);
     this.eventbus.broadcast('timeline-time', [finalPosition]);
 
-    if (this._activeTimelineProvider?.playState === 'running') {
-      await this._activeTimelineProvider.start();
+    // Resume if was active before seek
+    if (this._activePositionSource.state === 'active') {
+      await this._activePositionSource.activate();
     }
 
     return finalPosition;
@@ -209,21 +251,17 @@ export class EligiusEngine implements IEligiusEngine {
    * @param position - Optional starting position
    */
   async switchTimeline(uri: string, position: number = 0): Promise<void> {
-    if (!this._activeTimelineProvider) {
+    if (!this._activePositionSource) {
       return;
     }
-
-    this._activeTimelineProvider.stop();
-    await this._cleanUpTimeline();
 
     const timelineConfig = this._timelineLookupCache.get(uri);
-    if (
-      !timelineConfig ||
-      !this._activeTimelineProvider ||
-      this._currentTimelineUri === timelineConfig.uri
-    ) {
+    if (!timelineConfig || this._currentTimelineUri === timelineConfig.uri) {
       return;
     }
+
+    this._activePositionSource.deactivate();
+    await this._cleanUpTimeline();
 
     this._currentTimelineUri = timelineConfig.uri;
     this._emitter.emit('timelineChange', this._currentTimelineUri);
@@ -233,39 +271,47 @@ export class EligiusEngine implements IEligiusEngine {
 
     const newProviderSettings = this.timelineProviders[timelineConfig.type];
 
-    if (this._activeTimelineProvider !== newProviderSettings.provider) {
-      this._activeTimelineProvider.destroy();
-      this._activeTimelineProvider = newProviderSettings.provider;
+    // Switch to new position source if different
+    if (this._activePositionSource !== newProviderSettings.positionSource) {
+      this._activePositionSource.destroy();
+      this._activePositionSource = newProviderSettings.positionSource;
+      this._activeContainerProvider = newProviderSettings.containerProvider;
+      this._activePlaylist = newProviderSettings.playlist;
     }
 
-    this._activeTimelineProvider.loop = timelineConfig.loop;
+    this._activePositionSource.loop = timelineConfig.loop;
 
-    if (!this._activeTimelineProvider.loop && position > 0) {
+    if (!this._activePositionSource.loop && position > 0) {
       this.eventbus.once('timeline-firstframe', async () => {
-        if (!this._activeTimelineProvider) {
+        if (!this._activePositionSource) {
           return;
         }
 
-        this._activeTimelineProvider.pause();
+        this._activePositionSource.suspend();
         this.eventbus.broadcast('timeline-duration', [
-          this._activeTimelineProvider.getDuration,
+          this._activePositionSource.getDuration,
         ]);
 
         await this._executeStartActions();
 
-        await this._activeTimelineProvider.seek(position);
+        if (isSeekable(this._activePositionSource)) {
+          await this._activePositionSource.seek(position);
+        }
         await this._executeSeekActions(position);
       });
     }
 
-    this._activeTimelineProvider.playlistItem(uri);
+    // Select playlist item if playlist is available
+    if (this._activePlaylist) {
+      this._activePlaylist.selectItem(uri);
+    }
   }
 
   /**
    * Initializes the engine by creating the HTML layout and the first time line
    * by executing its initActions.
    */
-  init(): Promise<ITimelineProvider> {
+  init(): Promise<IPositionSource> {
     this._createLayoutTemplate();
 
     this._addEventbusListeners();
@@ -296,7 +342,7 @@ export class EligiusEngine implements IEligiusEngine {
     }
   }
 
-  private async _initializeTimelineProvider() {
+  private async _initializeTimelineProvider(): Promise<IPositionSource> {
     if (!this.configuration.timelines?.length) {
       throw new Error('No timelines present');
     }
@@ -310,32 +356,41 @@ export class EligiusEngine implements IEligiusEngine {
       );
     }
 
-    this._activeTimelineProvider?.destroy();
-    this._activeTimelineProvider = providerSettings.provider;
+    // Destroy existing components if any
+    this._activePositionSource?.destroy();
 
-    if (!this._activeTimelineProvider) {
-      throw new Error('NO ACTIVE TIMELINE PROVIDER');
+    // Set up decomposed components
+    this._activePositionSource = providerSettings.positionSource;
+    this._activeContainerProvider = providerSettings.containerProvider;
+    this._activePlaylist = providerSettings.playlist;
+
+    if (!this._activePositionSource) {
+      throw new Error('NO ACTIVE POSITION SOURCE');
     }
 
-    this._activeTimelineProvider.onTime(
+    // Register callbacks using new interface
+    this._activePositionSource.onPosition(
       this._onTimeHandler.bind(this, Math.floor)
     );
-    this._activeTimelineProvider.onComplete(
-      this._onCompleteCallback.bind(this)
-    );
-    this._activeTimelineProvider.onFirstFrame(
+    this._activePositionSource.onBoundaryReached(boundary => {
+      if (boundary === 'end') {
+        this._onCompleteCallback();
+      } else if (boundary === 'start') {
+        this._onRestartCallback();
+      }
+    });
+    this._activePositionSource.onActivated(
       this._onFirstFrameCallback.bind(this)
     );
-    this._activeTimelineProvider.onRestart(this._onRestartCallback.bind(this));
 
-    await this._activeTimelineProvider.init();
+    await this._activePositionSource.init();
     await this._executeActions(this.configuration.initActions, 'start');
     this._emitter.emit('initialized');
-    return this._activeTimelineProvider;
+    return this._activePositionSource;
   }
 
   private _onCompleteCallback() {
-    this._playState = 'stopped';
+    // playState is now derived from position source state
     this._emitter.emit('timelineComplete');
     this.eventbus.broadcast('timeline-complete', []);
   }
@@ -344,12 +399,12 @@ export class EligiusEngine implements IEligiusEngine {
     this._emitter.emit('timelineFirstFrame');
     this.eventbus.broadcast('timeline-firstframe', []);
 
-    const duration = this._activeTimelineProvider?.getDuration();
+    const duration = this._activePositionSource?.getDuration();
     if (duration !== undefined) {
       this._emitter.emit('duration', duration);
     }
     this.eventbus.broadcast('timeline-duration', [
-      this._activeTimelineProvider?.getDuration,
+      this._activePositionSource?.getDuration,
     ]);
   }
 
@@ -379,12 +434,14 @@ export class EligiusEngine implements IEligiusEngine {
 
     this.languageManager.destroy();
 
-    this._activeTimelineProvider = undefined;
+    this._activePositionSource = undefined;
+    this._activeContainerProvider = undefined;
+    this._activePlaylist = undefined;
     this._eventbusRemovers.forEach(remover => remover());
 
     if (this.timelineProviders) {
       Object.values(this.timelineProviders).forEach(providerInfo =>
-        providerInfo.provider.destroy()
+        providerInfo.positionSource.destroy()
       );
     }
 
@@ -494,7 +551,7 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private async _toggleplay() {
-    if (this._activeTimelineProvider?.playState === 'running') {
+    if (this._activePositionSource?.state === 'active') {
       this.pause();
     } else {
       await this.start();
@@ -685,7 +742,7 @@ export class EligiusEngine implements IEligiusEngine {
     floor: (x: number) => number,
     resultCallback: TResultCallback<number>
   ) {
-    resultCallback(floor(this._activeTimelineProvider?.getPosition() || -1));
+    resultCallback(floor(this._activePositionSource?.getPosition() || -1));
   }
 
   private _handleTimelineComplete() {

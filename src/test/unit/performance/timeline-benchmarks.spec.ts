@@ -68,21 +68,24 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
       eventbus: context.eventbus,
     };
 
-    // Create minimal providers stub
+    // Create minimal providers stub with decomposed interfaces
     context.providers = {
       animation: {
-        provider: {
+        id: 'raf-provider',
+        positionSource: {
+          state: 'inactive',
+          loop: false,
           init: () => Promise.resolve(),
-          on: () => {},
-          onTime: () => {},
-          onComplete: () => {},
-          onFirstFrame: () => {},
-          onRestart: () => {},
-          stop: () => {},
-          play: () => {},
-          pause: () => {},
-          playlistItem: () => {},
-          seek: () => {},
+          destroy: () => {},
+          activate: () => Promise.resolve(),
+          suspend: () => {},
+          deactivate: () => {},
+          getPosition: () => 0,
+          getDuration: () => 100,
+          onPosition: () => {},
+          onBoundaryReached: () => {},
+          onActivated: () => {},
+          seek: () => Promise.resolve(0),
         },
       },
     };

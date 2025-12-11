@@ -35,7 +35,7 @@ describe('announceToScreenReader', () => {
     });
 
     const liveRegion = document.getElementById('aria-live-region');
-    expect(liveRegion).to.exist;
+    expect(liveRegion).toBeDefined();
     expect(liveRegion?.textContent).toBe('Test announcement');
     expect(liveRegion?.getAttribute('aria-live')).toBe('polite');
   });

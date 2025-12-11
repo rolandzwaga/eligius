@@ -33,6 +33,6 @@ describe('getFocusedElement', () => {
       operations: [],
     });
 
-    expect(result.focusedElement).to.exist;
+    expect(result.focusedElement).toBeDefined();
   });
 });

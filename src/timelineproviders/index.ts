@@ -1,12 +1,4 @@
 // =============================================================================
-// LEGACY PROVIDERS (for backwards compatibility)
-// =============================================================================
-
-// export { MediaElementTimelineProvider } from './media-element-timeline-provider';
-export {RequestAnimationFrameTimelineProvider} from '@timelineproviders/request-animation-frame-timeline-provider.ts';
-export {VideoJsTimelineProvider} from '@timelineproviders/video-js-timeline-provider.ts';
-
-// =============================================================================
 // DECOMPOSED INTERFACES (new architecture)
 // =============================================================================
 
@@ -15,9 +7,7 @@ export type {
   IPlaylist,
   IPositionSource,
   ISeekable,
-  ITimelineProvider,
   TBoundary,
-  TPlayState,
   TSourceState,
 } from '@timelineproviders/types.ts';
 
@@ -51,10 +41,3 @@ export {DomContainerProvider} from '@timelineproviders/container-providers/dom-c
 
 export type {SimplePlaylistConfig} from '@timelineproviders/playlist/simple-playlist.ts';
 export {SimplePlaylist} from '@timelineproviders/playlist/simple-playlist.ts';
-
-// =============================================================================
-// LEGACY FACADE (backwards compatibility adapter)
-// =============================================================================
-
-export type {TimelineProviderFacadeConfig} from '@timelineproviders/legacy/timeline-provider-facade.ts';
-export {TimelineProviderFacade} from '@timelineproviders/legacy/timeline-provider-facade.ts';

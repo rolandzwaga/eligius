@@ -75,12 +75,195 @@ export interface IResolvedEndableActionConfiguration
 
 export type ITimelineFlow = Record<string, never>;
 
-export interface ITimelineProviderSettings {
-  id: string;
-  vendor: string;
+// ─────────────────────────────────────────────────────────────────────────────
+// Position Source Configuration Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Configuration for a position source.
+ *
+ * Position sources drive timeline position. They are resolved dynamically
+ * via the resource importer using the `systemName` property.
+ *
+ * Built-in position sources:
+ * - `RafPositionSource`: RAF-based, drives timeline by elapsed time
+ * - `ScrollPositionSource`: Scroll-based, drives timeline by scroll position
+ * - `VideoPositionSource`: Video.js-based, drives timeline by video playback
+ *
+ * @example
+ * ```typescript
+ * // RAF-based position source
+ * const rafConfig: IPositionSourceConfig = {
+ *   systemName: 'RafPositionSource',
+ *   tickInterval: 1000,
+ * };
+ *
+ * // Scroll-based position source
+ * const scrollConfig: IPositionSourceConfig = {
+ *   systemName: 'ScrollPositionSource',
+ *   selector: '.scroll-container',
+ * };
+ *
+ * // Video-based position source
+ * const videoConfig: IPositionSourceConfig = {
+ *   systemName: 'VideoPositionSource',
+ *   selector: '#video-player',
+ *   poster: '/poster.jpg',
+ * };
+ * ```
+ */
+export interface IPositionSourceConfig {
+  /**
+   * Name of the position source class to instantiate.
+   * Resolved via the resource importer.
+   *
+   * Built-in options: 'RafPositionSource', 'ScrollPositionSource', 'VideoPositionSource'
+   */
   systemName: string;
+
+  /**
+   * CSS selector for sources that need a DOM element (scroll, video).
+   */
   selector?: string;
+
+  /**
+   * Interval between position updates in milliseconds (RAF sources).
+   * @default 1000
+   */
+  tickInterval?: number;
+
+  /**
+   * Optional poster image URL (video sources).
+   */
   poster?: string;
+
+  /**
+   * Additional configuration options passed to the position source constructor.
+   * Use this for custom position source implementations.
+   */
+  [key: string]: unknown;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Container Provider Configuration
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Configuration for a container provider.
+ *
+ * Container providers manage DOM elements where timeline content is rendered.
+ * They are resolved dynamically via the resource importer using `systemName`.
+ *
+ * Built-in container providers:
+ * - `DomContainerProvider`: Manages a DOM element by selector
+ *
+ * @example
+ * ```typescript
+ * const config: IContainerProviderConfig = {
+ *   systemName: 'DomContainerProvider',
+ *   selector: '#render-area',
+ * };
+ * ```
+ */
+export interface IContainerProviderConfig {
+  /**
+   * Name of the container provider class to instantiate.
+   * Resolved via the resource importer.
+   *
+   * Built-in options: 'DomContainerProvider'
+   */
+  systemName: string;
+
+  /** CSS selector for the container element */
+  selector: string;
+
+  /**
+   * Additional configuration options passed to the container provider constructor.
+   * Use this for custom container provider implementations.
+   */
+  [key: string]: unknown;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Playlist Configuration
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Configuration for a playlist.
+ *
+ * Playlists manage collections of items (e.g., video chapters) that can be
+ * selected and navigated. They are resolved dynamically via the resource
+ * importer using `systemName`.
+ *
+ * Built-in playlists:
+ * - `SimplePlaylist`: Basic playlist with array of items
+ *
+ * @typeParam TItem - The type of items in the playlist
+ *
+ * @example
+ * ```typescript
+ * const config: IPlaylistConfig = {
+ *   systemName: 'SimplePlaylist',
+ *   items: [{ uri: '/video1.mp4' }, { uri: '/video2.mp4' }],
+ *   identifierKey: 'uri',
+ * };
+ * ```
+ */
+export interface IPlaylistConfig<TItem = unknown> {
+  /**
+   * Name of the playlist class to instantiate.
+   * Resolved via the resource importer.
+   *
+   * Built-in options: 'SimplePlaylist'
+   */
+  systemName: string;
+
+  /** The items in the playlist */
+  items: TItem[];
+
+  /**
+   * Property key used to identify items.
+   * Used when selecting items by identifier (e.g., 'uri', 'id', 'chapterId').
+   */
+  identifierKey: string;
+
+  /**
+   * Additional configuration options passed to the playlist constructor.
+   * Use this for custom playlist implementations.
+   */
+  [key: string]: unknown;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Timeline Provider Settings
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Settings for a timeline provider.
+ *
+ * Timeline providers are assembled from decomposed components:
+ * - Position source: drives timeline position (required)
+ * - Container provider: manages render container (optional)
+ * - Playlist: manages multi-item navigation (optional)
+ *
+ * All components are resolved dynamically via the resource importer using
+ * the `systemName` property, allowing custom implementations.
+ *
+ * @example
+ * ```typescript
+ * const settings: ITimelineProviderSettings = {
+ *   positionSource: { systemName: 'RafPositionSource', tickInterval: 1000 },
+ *   container: { systemName: 'DomContainerProvider', selector: '#render-area' },
+ * };
+ * ```
+ */
+export interface ITimelineProviderSettings {
+  /** Configuration for the position source */
+  positionSource: IPositionSourceConfig;
+  /** Optional container provider configuration */
+  container?: IContainerProviderConfig;
+  /** Optional playlist configuration */
+  playlist?: IPlaylistConfig;
 }
 
 export interface IResolvedTimelineConfiguration {
@@ -96,21 +279,7 @@ export interface IResolvedTimelineConfiguration {
    * Defaults to the timeline selector if not specified.
    */
   container?: string;
-  /**
-   * Optional position source type.
-   * Defaults to type-specific default (e.g., 'raf' for animation, 'video' for mediaplayer).
-   */
-  positionSource?: TPositionSourceType;
 }
-
-/**
- * Type of position source to use for the timeline.
- *
- * - `'raf'`: RAF-based position source (animation timelines)
- * - `'video'`: Video.js-based position source (media playback)
- * - `'scroll'`: Scroll-based position source (scroll-driven animations)
- */
-export type TPositionSourceType = 'raf' | 'video' | 'scroll';
 
 export interface ITimelineConfiguration {
   id: string;
@@ -126,11 +295,6 @@ export interface ITimelineConfiguration {
    * Used by position sources that don't have an intrinsic container.
    */
   container?: string;
-  /**
-   * Optional position source type.
-   * Defaults to type-specific default (e.g., 'raf' for animation, 'video' for mediaplayer).
-   */
-  positionSource?: TPositionSourceType;
 }
 
 export interface IOperationConfiguration<T extends TOperationData> {

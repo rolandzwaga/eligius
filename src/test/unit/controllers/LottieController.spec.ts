@@ -26,6 +26,29 @@ vi.mock('lottie-web', () => {
   };
 });
 
+/**
+ * Creates a mock eventbus with common request implementations for language and label handling.
+ * This helper reduces setup duplication across tests that need label/language functionality.
+ */
+function createLottieTestEventbus(config: {
+  language?: string;
+  labelCollections?: Array<Array<{code: string; label: string}>>;
+} = {}) {
+  const mockEventbus = createMockEventbus();
+  const {language = 'en-US', labelCollections = [[{code: 'en-US', label: 'Test'}]]} = config;
+
+  (mockEventbus.broadcast as any).mockImplementation((eventName: string, args?: any[]) => {
+    if (eventName === 'request-label-collections' && args) {
+      args[1].labelCollections = labelCollections;
+    }
+    if (eventName === 'request-current-language' && args) {
+      args[0].language = language;
+    }
+  });
+
+  return mockEventbus;
+}
+
 describe('LottieController', () => {
   let controller: LottieController;
   let mockEventbus: IEventbus;
@@ -277,16 +300,16 @@ describe('LottieController', () => {
       expect(playSegmentsSpy).toHaveBeenCalledWith([0, 50], true);
     });
 
-    it('should remove all event listeners', () => {
-      // Setup mock eventbus
-      const mockBroadcast = mockEventbus.broadcast as any;
-      mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (eventName === 'request-label-collections' && args) {
-          args[1].labelCollections = [[{code: 'en-US', label: 'Test'}]];
-        }
-        if (eventName === 'request-current-language' && args) {
-          args[0].language = 'en-US';
-        }
+    it('should call unsubscribe functions returned from event registration', () => {
+      // Use helper for eventbus setup
+      const testEventbus = createLottieTestEventbus();
+
+      // Track unsubscribe functions returned from on() calls
+      const unsubscribeFns: Array<ReturnType<typeof vi.fn>> = [];
+      (testEventbus.on as any).mockImplementation(() => {
+        const unsubscribe = vi.fn();
+        unsubscribeFns.push(unsubscribe);
+        return unsubscribe;
       });
 
       const operationData = {
@@ -302,34 +325,28 @@ describe('LottieController', () => {
         url: 'animation.json',
       };
 
-      // Initialize labelData structure
-      controller.labelData = {
-        label1: {},
-      };
-
+      controller.labelData = {label1: {}};
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      controller.attach(testEventbus);
 
-      expect(mockEventbus.on).toHaveBeenCalled();
+      // Verify event listeners were registered
+      expect(testEventbus.on).toHaveBeenCalled();
+      const registeredCount = unsubscribeFns.length;
+      expect(registeredCount).toBeGreaterThan(0);
 
-      controller.detach(mockEventbus);
+      controller.detach(testEventbus);
 
-      // Verify event listeners were registered and removed
-      expect(mockEventbus.on).toHaveBeenCalled();
+      // Verify all unsubscribe functions were called during detach
+      const calledUnsubscribes = unsubscribeFns.filter(fn => fn.mock.calls.length > 0);
+      expect(calledUnsubscribes.length).toBe(registeredCount);
     });
   });
 
   describe('label replacement', () => {
     it('should replace label placeholders with current language text', () => {
-      // Setup mock eventbus
-      const mockBroadcast = mockEventbus.broadcast as any;
-      mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
-        if (eventName === 'request-label-collections' && args) {
-          args[1].labelCollections = [[{code: 'en-US', label: 'Hello'}]];
-        }
-        if (eventName === 'request-current-language' && args) {
-          args[0].language = 'en-US';
-        }
+      const testEventbus = createLottieTestEventbus({
+        language: 'en-US',
+        labelCollections: [[{code: 'en-US', label: 'Hello'}]],
       });
 
       const operationData = {
@@ -345,20 +362,48 @@ describe('LottieController', () => {
         url: 'animation.json',
       };
 
-      // Setup label data structure that will be populated by _createTextDataLookup
-      controller.labelData = {
-        label1: {},
-      };
-
+      controller.labelData = {label1: {}};
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      controller.attach(testEventbus);
 
       // Animation should be created with replaced text
       expect(controller.animationItem).toBeDefined();
     });
 
-    it('should update animation on language change', () => {
-      // Don't use mockImplementation for this test - let broadcast work naturally
+    it('should set currentLanguage on attach when labelIds provided', () => {
+      const testEventbus = createLottieTestEventbus({language: 'en-US'});
+
+      const operationData = {
+        selectedElement: mockElement,
+        renderer: {className: 'svg'},
+        loop: false,
+        autoplay: true,
+        animationData: {v: '5.0.0', text: '!!label1!!'},
+        json: null,
+        labelIds: ['label1'],
+        viewBox: '',
+        iefallback: null,
+        url: 'animation.json',
+      };
+
+      controller.labelData = {label1: {'en-US': 'Hello'}};
+      controller.init(operationData);
+      controller.attach(testEventbus);
+
+      expect(controller.currentLanguage).toBe('en-US');
+    });
+
+    it('should update currentLanguage when language-change event fires', () => {
+      // Capture the language-change handler when registered
+      let languageChangeHandler: ((newLanguage: string) => void) | null = null;
+      const testEventbus = createLottieTestEventbus({language: 'en-US'});
+      (testEventbus.on as any).mockImplementation((eventName: string, handler: any) => {
+        if (eventName === 'language-change') {
+          languageChangeHandler = handler;
+        }
+        return vi.fn(); // Return unsubscribe function
+      });
+
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -373,39 +418,17 @@ describe('LottieController', () => {
       };
 
       controller.labelData = {
-        label1: {
-          'en-US': 'Hello',
-          'nl-NL': 'Hallo',
-        },
+        label1: {'en-US': 'Hello', 'nl-NL': 'Hallo'},
       };
-      controller.currentLanguage = 'en-US';
-
       controller.init(operationData);
-
-      // Create a simple test eventbus that properly registers and calls handlers
-      const testEventbus = createMockEventbus();
-
-      // Mock broadcast to provide initial data without breaking handler invocation
-      const originalBroadcast = testEventbus.broadcast;
-      (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (eventName === 'request-label-collections' && args) {
-          args[1].labelCollections = [[{code: 'en-US', label: 'Hello'}]];
-        }
-        if (eventName === 'request-current-language' && args) {
-          args[0].language = 'en-US';
-        }
-        // Call original to invoke handlers
-        originalBroadcast.call(testEventbus, eventName as any, args as any);
-      };
-
       controller.attach(testEventbus);
 
-      expect(controller.currentLanguage).toBe('en-US');
+      // Verify handler was captured
+      expect(languageChangeHandler).not.toBeNull();
 
-      // Now broadcast language change - this will invoke the registered handler
-      testEventbus.broadcast('language-change', ['nl-NL']);
+      // Simulate language change event
+      languageChangeHandler!('nl-NL');
 
-      // Animation should be recreated with new language
       expect(controller.currentLanguage).toBe('nl-NL');
     });
   });

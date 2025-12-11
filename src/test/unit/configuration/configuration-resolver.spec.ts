@@ -1,6 +1,7 @@
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {IEngineConfiguration} from '@configuration/types.ts';
 import type {Eventbus} from '@eventbus/index.ts';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import type {ISimpleResourceImporter} from '../../../types.ts';
 
@@ -15,10 +16,6 @@ function createMockImporter() {
       lookup[name] = value;
     },
   };
-}
-
-function createMockEventbus() {
-  return {};
 }
 
 function createMockActionRegistryListener() {

@@ -3,7 +3,12 @@ import type {
   IResolvedTimelineConfiguration,
 } from '@configuration/types.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
-import type {ITimelineProvider} from '@timelineproviders/types.ts';
+import type {
+  IContainerProvider,
+  IPositionSource,
+  ISeekable,
+  TSourceState,
+} from '@timelineproviders/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EligiusEngine} from '../../eligius-engine.ts';
 import {LanguageManager} from '../../language-manager.ts';
@@ -27,24 +32,28 @@ vi.mock('jquery', () => {
   return {default: jqueryFn};
 });
 
-function createMockTimelineProvider(): ITimelineProvider {
+function createMockPositionSource(): IPositionSource & ISeekable {
   return {
-    init: vi.fn().mockResolvedValue(undefined),
-    start: vi.fn(),
-    pause: vi.fn(),
-    stop: vi.fn(),
-    seek: vi.fn().mockResolvedValue(0),
-    destroy: vi.fn(),
-    playlistItem: vi.fn(),
-    getDuration: vi.fn().mockReturnValue(100),
-    getPosition: vi.fn().mockReturnValue(0),
-    getContainer: vi.fn(),
-    onTime: vi.fn(),
-    onComplete: vi.fn(),
-    onFirstFrame: vi.fn(),
-    onRestart: vi.fn(),
+    state: 'inactive' as TSourceState,
     loop: false,
-    playState: 'stopped' as const,
+    init: vi.fn().mockResolvedValue(undefined),
+    destroy: vi.fn(),
+    activate: vi.fn().mockResolvedValue(undefined),
+    suspend: vi.fn(),
+    deactivate: vi.fn(),
+    getPosition: vi.fn().mockReturnValue(0),
+    getDuration: vi.fn().mockReturnValue(100),
+    onPosition: vi.fn(),
+    onBoundaryReached: vi.fn(),
+    onActivated: vi.fn(),
+    seek: vi.fn().mockResolvedValue(0),
+  };
+}
+
+function createMockContainerProvider(): IContainerProvider {
+  return {
+    getContainer: vi.fn().mockReturnValue({length: 1}),
+    onContainerReady: vi.fn(),
   };
 }
 
@@ -56,9 +65,7 @@ function createMinimalConfig(
     engine: {systemName: 'EligiusEngine'},
     timelineProviderSettings: {
       animation: {
-        id: 'raf-provider',
-        systemName: 'RequestAnimationFrameTimelineProvider',
-        vendor: 'eligius',
+        positionSource: {systemName: 'RafPositionSource'},
       },
     },
     containerSelector: '#app',
@@ -89,6 +96,8 @@ type EngineSmokeTestContext = {
   eventbus: IEventbus;
   languageManager: LanguageManager;
   timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>;
+  animationPositionSource: IPositionSource & ISeekable;
+  mediaplayerPositionSource: IPositionSource & ISeekable;
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
@@ -99,16 +108,16 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
     context.eventbus = new Eventbus();
     context.languageManager = new LanguageManager('en-US', []);
+    context.animationPositionSource = createMockPositionSource();
+    context.mediaplayerPositionSource = createMockPositionSource();
     context.timelineProviders = {
       animation: {
-        id: 'raf-provider',
-        vendor: 'eligius',
-        provider: createMockTimelineProvider(),
+        positionSource: context.animationPositionSource,
+        containerProvider: createMockContainerProvider(),
       },
       mediaplayer: {
-        id: 'mediaplayer-provider',
-        vendor: 'eligius',
-        provider: createMockTimelineProvider(),
+        positionSource: context.mediaplayerPositionSource,
+        containerProvider: createMockContainerProvider(),
       },
     };
   });
@@ -186,18 +195,19 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     });
 
     // Only provide animation provider, not mediaplayer
-    const incompleteProviders = {
+    const incompleteProviders: Partial<
+      Record<TimelineTypes, ITimelineProviderInfo>
+    > = {
       animation: {
-        id: 'raf-provider',
-        vendor: 'eligius',
-        provider: createMockTimelineProvider(),
+        positionSource: createMockPositionSource(),
+        containerProvider: createMockContainerProvider(),
       },
-    } as Record<TimelineTypes, ITimelineProviderInfo>;
+    };
 
     const engine = new EligiusEngine(
       config,
       eventbus,
-      incompleteProviders,
+      incompleteProviders as Record<TimelineTypes, ITimelineProviderInfo>,
       languageManager
     );
 
@@ -209,7 +219,12 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
   test<EngineSmokeTestContext>('should initialize successfully with valid configuration', async context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {
+      eventbus,
+      timelineProviders,
+      languageManager,
+      animationPositionSource,
+    } = context;
     const config = createMinimalConfig();
 
     const engine = new EligiusEngine(
@@ -220,18 +235,23 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     );
 
     // test
-    const provider = await engine.init();
+    const positionSource = await engine.init();
 
     // expect
-    expect(provider).toBeDefined();
-    expect(timelineProviders.animation.provider.init).toHaveBeenCalled();
-    expect(timelineProviders.animation.provider.onTime).toHaveBeenCalled();
-    expect(timelineProviders.animation.provider.onComplete).toHaveBeenCalled();
+    expect(positionSource).toBeDefined();
+    expect(animationPositionSource.init).toHaveBeenCalled();
+    expect(animationPositionSource.onPosition).toHaveBeenCalled();
+    expect(animationPositionSource.onBoundaryReached).toHaveBeenCalled();
   });
 
   test<EngineSmokeTestContext>('should respond to timeline-play-request event', async context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {
+      eventbus,
+      timelineProviders,
+      languageManager,
+      animationPositionSource,
+    } = context;
     const config = createMinimalConfig();
 
     const engine = new EligiusEngine(
@@ -246,12 +266,17 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     eventbus.broadcast('timeline-play-request', []);
 
     // expect
-    expect(timelineProviders.animation.provider.start).toHaveBeenCalled();
+    expect(animationPositionSource.activate).toHaveBeenCalled();
   });
 
   test<EngineSmokeTestContext>('should respond to timeline-pause-request event', async context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {
+      eventbus,
+      timelineProviders,
+      languageManager,
+      animationPositionSource,
+    } = context;
     const config = createMinimalConfig();
 
     const engine = new EligiusEngine(
@@ -266,12 +291,17 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     eventbus.broadcast('timeline-pause-request', []);
 
     // expect
-    expect(timelineProviders.animation.provider.pause).toHaveBeenCalled();
+    expect(animationPositionSource.suspend).toHaveBeenCalled();
   });
 
   test<EngineSmokeTestContext>('should respond to timeline-stop-request event', async context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {
+      eventbus,
+      timelineProviders,
+      languageManager,
+      animationPositionSource,
+    } = context;
     const config = createMinimalConfig();
 
     const engine = new EligiusEngine(
@@ -286,12 +316,18 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     eventbus.broadcast('timeline-stop-request', []);
 
     // expect
-    expect(timelineProviders.animation.provider.stop).toHaveBeenCalled();
+    expect(animationPositionSource.deactivate).toHaveBeenCalled();
   });
 
   test<EngineSmokeTestContext>('should cleanup properly on destroy', async context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {
+      eventbus,
+      timelineProviders,
+      languageManager,
+      animationPositionSource,
+      mediaplayerPositionSource,
+    } = context;
     const config = createMinimalConfig();
 
     const engine = new EligiusEngine(
@@ -306,7 +342,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     await engine.destroy();
 
     // expect
-    expect(timelineProviders.animation.provider.destroy).toHaveBeenCalled();
-    expect(timelineProviders.mediaplayer.provider.destroy).toHaveBeenCalled();
+    expect(animationPositionSource.destroy).toHaveBeenCalled();
+    expect(mediaplayerPositionSource.destroy).toHaveBeenCalled();
   });
 });

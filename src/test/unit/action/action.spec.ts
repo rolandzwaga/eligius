@@ -2,7 +2,7 @@ import {Action} from '@action/index.ts';
 import type {IResolvedOperation} from '@configuration/types.ts';
 import {Eventbus} from '@eventbus/index.ts';
 import type {IOperationScope} from '@operation/types.ts';
-import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
+import {afterEach, beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 type ActionContext = {
   action: Action;
@@ -10,11 +10,16 @@ type ActionContext = {
 function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe<ActionContext>('Action', () => {
   beforeEach<ActionContext>(context => {
+    vi.useFakeTimers();
     withContext(context);
 
     const startOperations: any[] = [];
     const eventBus = new Eventbus();
     context.action = new Action('test', startOperations, eventBus);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
   test<ActionContext>('Should create succesfully', context => {
     // given
@@ -89,7 +94,9 @@ describe<ActionContext>('Action', () => {
     action.startOperations.push(op2);
 
     // test
-    const operationData = await action.start();
+    const resultPromise = action.start();
+    await vi.runAllTimersAsync();
+    const operationData = await resultPromise;
 
     expect(operationData.result[0]).toBe('op1');
     expect(operationData.result[1]).toBe('op2');
@@ -140,7 +147,9 @@ describe<ActionContext>('Action', () => {
     action.startOperations.push(op3);
 
     // test
-    const operationData = await action.start();
+    const resultPromise = action.start();
+    await vi.runAllTimersAsync();
+    const operationData = await resultPromise;
 
     expect(operationData.result[0]).toBe('op1');
     expect(operationData.result[1]).toBe('op2');

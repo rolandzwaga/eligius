@@ -94,7 +94,7 @@ describe('saveToStorage', () => {
     });
 
     // Assert
-    expect(localStorage.getItem('default-key')).to.exist;
+    expect(localStorage.getItem('default-key')).toBeDefined();
   });
 
   test('should overwrite existing value', () => {

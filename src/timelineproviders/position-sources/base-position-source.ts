@@ -55,6 +55,7 @@ export abstract class BasePositionSource implements IPositionSource {
   private readonly _positionCallbacks: Array<(position: number) => void> = [];
   private readonly _boundaryCallbacks: Array<(boundary: TBoundary) => void> =
     [];
+  private readonly _activatedCallbacks: Array<() => void> = [];
 
   // ─────────────────────────────────────────────────────────────────────────
   // Constructor
@@ -114,6 +115,11 @@ export abstract class BasePositionSource implements IPositionSource {
 
     this._state = 'active';
     this.startTicking();
+
+    // Emit activated callbacks (first frame semantics)
+    for (const callback of this._activatedCallbacks) {
+      callback();
+    }
   }
 
   suspend(): void {
@@ -163,6 +169,10 @@ export abstract class BasePositionSource implements IPositionSource {
 
   onBoundaryReached(callback: (boundary: TBoundary) => void): void {
     this._boundaryCallbacks.push(callback);
+  }
+
+  onActivated(callback: () => void): void {
+    this._activatedCallbacks.push(callback);
   }
 
   // ─────────────────────────────────────────────────────────────────────────

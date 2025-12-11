@@ -27,7 +27,7 @@ describe('math', () => {
       const result = applyOperation(math, operationData);
 
       // expect
-      expect(result.mathResult).is.not.undefined;
+      expect(result.mathResult).not.toBeUndefined();
       expect(isNaN(result.mathResult!)).toBe(false);
     });
   });

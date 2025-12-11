@@ -138,26 +138,16 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
       controller.operationData?.actionOperationData
     );
 
-    await new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true);
-      }, 100);
+    // Wait for async action execution using vi.waitFor instead of setTimeout
+    await vi.waitFor(() => {
+      const action0 = controller.actionInstanceInfos?.[0]
+        .action as unknown as ReturnType<typeof createMockAction>;
+      expect(action0.startOperationData).toEqual(expectedOperatonData);
     });
 
-    expect(
-      (
-        controller.actionInstanceInfos?.[0].action as unknown as ReturnType<
-          typeof createMockAction
-        >
-      ).startOperationData
-    ).toEqual(expectedOperatonData);
-    expect(
-      (
-        controller.actionInstanceInfos?.[1].action as unknown as ReturnType<
-          typeof createMockAction
-        >
-      ).startOperationData
-    ).toEqual(expectedOperatonData);
+    const action1 = controller.actionInstanceInfos?.[1]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    expect(action1.startOperationData).toEqual(expectedOperatonData);
   });
 
   test<DOMEventListenerControllerSuiteContext>('should call the textinput event handler', async context => {
@@ -194,25 +184,15 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
       controller.operationData?.actionOperationData
     );
 
-    await new Promise(resolve => {
-      setTimeout(() => {
-        resolve(true);
-      }, 100);
+    // Wait for async action execution using vi.waitFor instead of setTimeout
+    await vi.waitFor(() => {
+      const action0 = controller.actionInstanceInfos?.[0]
+        .action as unknown as ReturnType<typeof createMockAction>;
+      expect(action0.startOperationData).toEqual(expectedOperatonData);
     });
 
-    expect(
-      (
-        controller.actionInstanceInfos?.[0].action as unknown as ReturnType<
-          typeof createMockAction
-        >
-      ).startOperationData
-    ).toEqual(expectedOperatonData);
-    expect(
-      (
-        controller.actionInstanceInfos?.[1].action as unknown as ReturnType<
-          typeof createMockAction
-        >
-      ).startOperationData
-    ).toEqual(expectedOperatonData);
+    const action1 = controller.actionInstanceInfos?.[1]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    expect(action1.startOperationData).toEqual(expectedOperatonData);
   });
 });

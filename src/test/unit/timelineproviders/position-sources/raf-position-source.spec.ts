@@ -23,6 +23,7 @@ type RafPositionSourceTestContext = {
   source: RafPositionSource;
   positionCallback: Mock<(position: number) => void>;
   boundaryCallback: Mock<(boundary: TBoundary) => void>;
+  activatedCallback: Mock<() => void>;
   mockAnimationInterval: ReturnType<typeof vi.fn>;
   capturedCallback: ((time: number) => void) | null;
   capturedSignal: AbortSignal | null;
@@ -44,9 +45,10 @@ describe('RafPositionSource', () => {
       }
     );
 
-    context.source = new RafPositionSource({duration: 60});
+    context.source = new RafPositionSource({duration: 60}); // 60 seconds timeline
     context.positionCallback = vi.fn();
     context.boundaryCallback = vi.fn();
+    context.activatedCallback = vi.fn();
   });
 
   afterEach(() => {
@@ -131,6 +133,7 @@ describe('RafPositionSource', () => {
         await source.activate();
 
         // Simulate ticks to advance position
+        // Values are milliseconds since start: 1000ms = 1s, 2000ms = 2s, 3000ms = 3s
         capturedCallback?.(1000);
         capturedCallback?.(2000);
         capturedCallback?.(3000);
@@ -545,6 +548,113 @@ describe('RafPositionSource', () => {
 
       source.destroy();
       expect(source.state).toBe('inactive');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // onActivated callback tests
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('onActivated callback', () => {
+    test<RafPositionSourceTestContext>('should emit activated callback when transitioning to active state', async ({
+      source,
+      activatedCallback,
+    }) => {
+      source.onActivated(activatedCallback);
+      await source.init();
+      await source.activate();
+
+      expect(activatedCallback).toHaveBeenCalledTimes(1);
+    });
+
+    test<RafPositionSourceTestContext>('should not emit activated callback when already active', async ({
+      source,
+      activatedCallback,
+    }) => {
+      source.onActivated(activatedCallback);
+      await source.init();
+      await source.activate();
+      activatedCallback.mockClear();
+
+      // Try to activate again
+      await source.activate();
+
+      expect(activatedCallback).not.toHaveBeenCalled();
+    });
+
+    test<RafPositionSourceTestContext>('should emit activated callback on each resume from suspended', async ({
+      source,
+      activatedCallback,
+    }) => {
+      source.onActivated(activatedCallback);
+      await source.init();
+
+      await source.activate();
+      expect(activatedCallback).toHaveBeenCalledTimes(1);
+
+      source.suspend();
+      await source.activate();
+      expect(activatedCallback).toHaveBeenCalledTimes(2);
+
+      source.suspend();
+      await source.activate();
+      expect(activatedCallback).toHaveBeenCalledTimes(3);
+    });
+
+    test<RafPositionSourceTestContext>('should emit activated callback on resume from inactive', async ({
+      source,
+      activatedCallback,
+    }) => {
+      source.onActivated(activatedCallback);
+      await source.init();
+
+      await source.activate();
+      expect(activatedCallback).toHaveBeenCalledTimes(1);
+
+      source.deactivate();
+      await source.activate();
+      expect(activatedCallback).toHaveBeenCalledTimes(2);
+    });
+
+    test<RafPositionSourceTestContext>('should support multiple activated callbacks', async ({
+      source,
+    }) => {
+      const callback1 = vi.fn();
+      const callback2 = vi.fn();
+
+      source.onActivated(callback1);
+      source.onActivated(callback2);
+
+      await source.init();
+      await source.activate();
+
+      expect(callback1).toHaveBeenCalledTimes(1);
+      expect(callback2).toHaveBeenCalledTimes(1);
+    });
+
+    test<RafPositionSourceTestContext>('should emit activated after startTicking is called', async ({
+      source,
+      activatedCallback,
+      mockAnimationInterval,
+    }) => {
+      let activatedEmitted = false;
+      let tickingStarted = false;
+
+      mockAnimationInterval.mockImplementation(() => {
+        // Record that ticking was started before checking activated
+        tickingStarted = true;
+      });
+
+      source.onActivated(() => {
+        activatedEmitted = true;
+        // At this point, ticking should already have started
+        expect(tickingStarted).toBe(true);
+      });
+
+      await source.init();
+      await source.activate();
+
+      expect(activatedEmitted).toBe(true);
     });
   });
 });

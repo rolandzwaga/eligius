@@ -8,7 +8,7 @@ import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
-  TPositionSourceType,
+  ITimelineProviderSettings,
 } from '@configuration/types.ts';
 import {
   ActionRegistryEventbusListener,
@@ -17,11 +17,11 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
-import {DomContainerProvider} from '@timelineproviders/container-providers/dom-container-provider.ts';
-import {TimelineProviderFacade} from '@timelineproviders/legacy/timeline-provider-facade.ts';
-import {RafPositionSource} from '@timelineproviders/position-sources/raf-position-source.ts';
-import {ScrollPositionSource} from '@timelineproviders/position-sources/scroll-position-source.ts';
-import type {IPositionSource} from '@timelineproviders/types.ts';
+import type {
+  IContainerProvider,
+  IPlaylist,
+  IPositionSource,
+} from '@timelineproviders/types.ts';
 import {LanguageManager} from './language-manager.ts';
 import type {
   IConfigurationResolver,
@@ -229,7 +229,128 @@ export class EngineFactory implements IEngineFactory {
   private _createTimelineProviders(
     configuration: IResolvedEngineConfiguration
   ): Record<TimelineTypes, ITimelineProviderInfo> {
-    const {timelineProviderSettings} = configuration;
+    // Delegate to the new config-driven method
+    return this.createTimelineProvidersForConfig(configuration);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Config-Driven Factory Methods
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Creates a position source for a specific timeline based on configuration.
+   *
+   * The position source class is resolved dynamically via the resource importer
+   * using the `systemName` property from the configuration.
+   *
+   * @param timeline - The resolved timeline configuration
+   * @param settings - The timeline provider settings containing position source config
+   * @returns A configured position source
+   * @throws Error if the position source class cannot be resolved
+   */
+  createPositionSourceForTimeline(
+    timeline: IResolvedEngineConfiguration['timelines'][number],
+    settings: ITimelineProviderSettings
+  ): IPositionSource {
+    const config = settings.positionSource;
+    const {systemName, ...options} = config;
+
+    const PositionSourceClass = this._importSystemEntry(systemName);
+
+    // Merge timeline-specific values with config options
+    const constructorConfig = {
+      ...options,
+      duration: timeline.duration,
+    };
+
+    return new PositionSourceClass(constructorConfig);
+  }
+
+  /**
+   * Creates a container provider based on timeline provider settings.
+   *
+   * The container provider class is resolved dynamically via the resource importer
+   * using the `systemName` property from the configuration.
+   *
+   * @param settings - The timeline provider settings
+   * @returns A container provider, or undefined if not configured
+   * @throws Error if the container provider class cannot be resolved
+   */
+  createContainerProviderForTimeline(
+    settings: ITimelineProviderSettings
+  ): IContainerProvider | undefined {
+    if (!settings.container) {
+      return undefined;
+    }
+
+    const {systemName, ...options} = settings.container;
+    const ContainerProviderClass = this._importSystemEntry(systemName);
+
+    return new ContainerProviderClass(options);
+  }
+
+  /**
+   * Creates a playlist based on timeline provider settings.
+   *
+   * The playlist class is resolved dynamically via the resource importer
+   * using the `systemName` property from the configuration.
+   *
+   * @param settings - The timeline provider settings
+   * @returns A playlist, or undefined if not configured
+   * @throws Error if the playlist class cannot be resolved
+   */
+  createPlaylistForTimeline(
+    settings: ITimelineProviderSettings
+  ): IPlaylist | undefined {
+    if (!settings.playlist) {
+      return undefined;
+    }
+
+    const {systemName, ...options} = settings.playlist;
+    const PlaylistClass = this._importSystemEntry(systemName);
+
+    return new PlaylistClass(options);
+  }
+
+  /**
+   * Assembles a complete ITimelineProviderInfo from timeline and settings.
+   *
+   * This is the main entry point for creating provider info with the new
+   * configuration-driven architecture.
+   *
+   * @param timeline - The resolved timeline configuration
+   * @param settings - The timeline provider settings
+   * @returns A complete timeline provider info with all components
+   */
+  createTimelineProviderInfo(
+    timeline: IResolvedEngineConfiguration['timelines'][number],
+    settings: ITimelineProviderSettings
+  ): ITimelineProviderInfo {
+    return {
+      positionSource: this.createPositionSourceForTimeline(timeline, settings),
+      containerProvider: this.createContainerProviderForTimeline(settings),
+      playlist: this.createPlaylistForTimeline(settings),
+    };
+  }
+
+  /**
+   * Creates timeline providers for all configured timeline types using the new
+   * configuration-driven architecture.
+   *
+   * This method iterates over timelineProviderSettings and creates a
+   * ITimelineProviderInfo for each configured timeline type by:
+   * 1. Finding the first timeline that matches the type
+   * 2. Using the timeline's duration for the position source
+   * 3. Assembling components from the settings
+   *
+   * @param configuration - The resolved engine configuration
+   * @returns A record of timeline types to their provider info
+   * @throws Error if a provider setting has no matching timeline in config
+   */
+  createTimelineProvidersForConfig(
+    configuration: IResolvedEngineConfiguration
+  ): Record<TimelineTypes, ITimelineProviderInfo> {
+    const {timelineProviderSettings, timelines} = configuration;
 
     const result = Object.entries(timelineProviderSettings).reduce<
       Record<TimelineTypes, ITimelineProviderInfo>
@@ -239,93 +360,23 @@ export class EngineFactory implements IEngineFactory {
           return acc;
         }
 
-        const TimelineProviderClass = this._importSystemEntry(
-          settings.systemName
+        // Find the first timeline that matches this type
+        const matchingTimeline = timelines.find(t => t.type === timelineType);
+        if (!matchingTimeline) {
+          throw new Error(
+            `Timeline provider settings for '${timelineType}' has no matching timeline in configuration`
+          );
+        }
+
+        acc[timelineType as TimelineTypes] = this.createTimelineProviderInfo(
+          matchingTimeline,
+          settings
         );
-        acc[timelineType as TimelineTypes] = {
-          id: settings.id,
-          vendor: settings.vendor,
-          provider: new TimelineProviderClass(configuration),
-        };
         return acc;
       },
       {} as Record<TimelineTypes, ITimelineProviderInfo>
     );
 
     return result;
-  }
-
-  /**
-   * Creates a position source based on configuration.
-   *
-   * This method supports the new decomposed architecture where position sources
-   * can be created and configured independently.
-   *
-   * @param type - The position source type ('raf', 'video', 'scroll')
-   * @param duration - The timeline duration in seconds
-   * @param containerSelector - Optional container selector for the position source
-   * @returns A configured position source
-   */
-  createPositionSource(
-    type: TPositionSourceType,
-    duration: number,
-    containerSelector?: string
-  ): IPositionSource {
-    switch (type) {
-      case 'raf':
-        return new RafPositionSource({duration});
-      case 'scroll':
-        if (!containerSelector) {
-          throw new Error(
-            'Scroll position source requires a container selector'
-          );
-        }
-        return new ScrollPositionSource({
-          selector: containerSelector,
-          duration,
-        });
-      case 'video':
-        // Video position source requires video.js setup which is handled
-        // by the VideoPositionSource class directly
-        throw new Error(
-          'Video position source should be created via VideoPositionSource class directly'
-        );
-      default:
-        throw new Error(`Unknown position source type: ${type}`);
-    }
-  }
-
-  /**
-   * Creates a container provider based on a CSS selector.
-   *
-   * @param selector - CSS selector for the container element
-   * @returns A configured container provider
-   */
-  createContainerProvider(selector: string): DomContainerProvider {
-    return new DomContainerProvider({selector});
-  }
-
-  /**
-   * Creates a timeline provider facade from decomposed components.
-   *
-   * This method assembles a facade-wrapped timeline provider from the new
-   * decomposed architecture components (position source, container provider).
-   *
-   * @param positionSource - The position source to wrap
-   * @param containerSelector - Optional container selector (creates DomContainerProvider if provided)
-   * @returns A TimelineProviderFacade wrapping the components
-   */
-  createFacadeProvider(
-    positionSource: IPositionSource,
-    containerSelector?: string
-  ): TimelineProviderFacade {
-    const containerProvider = containerSelector
-      ? this.createContainerProvider(containerSelector)
-      : undefined;
-
-    return new TimelineProviderFacade({
-      positionSource,
-      containerProvider,
-    });
   }
 }

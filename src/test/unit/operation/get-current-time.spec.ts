@@ -29,8 +29,8 @@ describe('getCurrentTime', () => {
 
     const after = Date.now();
 
-    expect(result.timestamp).to.be.at.least(before);
-    expect(result.timestamp).to.be.at.most(after);
+    expect(result.timestamp).toBeGreaterThanOrEqual(before);
+    expect(result.timestamp).toBeLessThanOrEqual(after);
     expect(result.date).toBeInstanceOf(Date);
   });
 });

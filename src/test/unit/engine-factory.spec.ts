@@ -1,16 +1,23 @@
 import type {IEngineConfiguration} from '@configuration/types.ts';
+import {DomContainerProvider} from '@timelineproviders/container-providers/dom-container-provider.ts';
+import {SimplePlaylist} from '@timelineproviders/playlist/simple-playlist.ts';
+import {RafPositionSource} from '@timelineproviders/position-sources/raf-position-source.ts';
+import {ScrollPositionSource} from '@timelineproviders/position-sources/scroll-position-source.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EngineFactory} from '../../engine-factory.ts';
 import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
 
 class MockImporter {
   import(name: string) {
-    if (name === 'EligiusEngine') {
-      return {EligiusEngine: MockEngine};
-    } else if (name === 'MockTimelineProvider') {
-      return {MockTimelineProvider: MockTimelineProvider};
-    }
-    return {[name]: {}};
+    const modules: Record<string, any> = {
+      EligiusEngine: {EligiusEngine: MockEngine},
+      MockTimelineProvider: {MockTimelineProvider: MockTimelineProvider},
+      RafPositionSource: {RafPositionSource},
+      ScrollPositionSource: {ScrollPositionSource},
+      DomContainerProvider: {DomContainerProvider},
+      SimplePlaylist: {SimplePlaylist},
+    };
+    return modules[name] || {};
   }
 }
 
@@ -64,15 +71,15 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
     context.windowRef = createMockWindow();
     context.factory = new EngineFactory(context.importer, context.windowRef);
   });
-  test<EngineFactorySuiteContext>('should create', context => {
-    // test
+  test<EngineFactorySuiteContext>('should create factory instance', context => {
     const {factory} = context;
 
-    // expect
-    expect(factory).not.toBeUndefined();
+    expect(factory).toBeDefined();
+    expect(factory.createEngine).toBeInstanceOf(Function);
+    expect(factory.destroy).toBeInstanceOf(Function);
   });
-  test<EngineFactorySuiteContext>('should create the engine', context => {
-    // given
+
+  test<EngineFactorySuiteContext>('should create the engine with expected structure', context => {
     const {factory} = context;
 
     const config: IEngineConfiguration = {
@@ -88,14 +95,20 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
       initActions: [],
       timelineProviderSettings: {
         animation: {
-          id: '1111',
-          selector: '.test',
-          poster: '',
-          vendor: 'eligius',
-          systemName: 'MockTimelineProvider',
+          positionSource: {systemName: 'RafPositionSource'},
         },
       },
-      timelines: [],
+      timelines: [
+        {
+          id: 'test-timeline',
+          uri: 'test-uri',
+          type: 'animation',
+          duration: 60, // 60 seconds
+          loop: false,
+          selector: '.test',
+          timelineActions: [],
+        },
+      ],
       language: 'en-US',
       labels: [
         {
@@ -116,8 +129,18 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
       ],
     };
 
-    // test
-    factory.createEngine(config);
+    const result = factory.createEngine(config);
+
+    // Verify the result contains expected properties
+    expect(result).toBeDefined();
+    expect(result.engine).toBeDefined();
+    expect(result.eventbus).toBeDefined();
+    expect(result.languageManager).toBeDefined();
+    expect(result.destroy).toBeInstanceOf(Function);
+
+    // Verify the engine received the configuration
+    expect(result.engine.config).toBeDefined();
+    expect(result.engine.eventbus).toBe(result.eventbus);
   });
 
   describe('regression tests', () => {
@@ -135,14 +158,20 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
         initActions: [],
         timelineProviderSettings: {
           animation: {
-            id: '1111',
-            selector: '.test',
-            poster: '',
-            vendor: 'eligius',
-            systemName: 'MockTimelineProvider',
+            positionSource: {systemName: 'RafPositionSource'},
           },
         },
-        timelines: [],
+        timelines: [
+          {
+            id: 'test-timeline',
+            uri: 'test-uri',
+            type: 'animation',
+            duration: 60,
+            loop: false,
+            selector: '.test',
+            timelineActions: [],
+          },
+        ],
         language: 'en-US',
         labels: [],
       };
@@ -177,23 +206,6 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
 
         expect(() => factory.createEngine(config)).toThrow(
           /Failed to import.*EligiusEngine/
-        );
-      });
-
-      test<EngineFactorySuiteContext>('should throw descriptive error when timeline provider import fails', context => {
-        const badImporter = {
-          import: (name: string) => {
-            if (name === 'EligiusEngine') {
-              return {EligiusEngine: MockEngine};
-            }
-            return {}; // Returns empty object for timeline provider
-          },
-        };
-        const factory = new EngineFactory(badImporter, context.windowRef);
-        const config = createMinimalConfig();
-
-        expect(() => factory.createEngine(config)).toThrow(
-          /Failed to import.*MockTimelineProvider/
         );
       });
     });

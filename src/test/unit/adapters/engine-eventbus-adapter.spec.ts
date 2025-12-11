@@ -4,6 +4,55 @@ import {EngineEventbusAdapter} from '../../../adapters/engine-eventbus-adapter.t
 import type {IEligiusEngine} from '../../../types.ts';
 import {createMockEventbus} from '../../fixtures/eventbus-factory.ts';
 
+type EngineEventHandlers = {
+  start: () => void;
+  pause: () => void;
+  stop: () => void;
+  time: (position: number) => void;
+  seekStart: (target: number, current: number, duration: number) => void;
+  seekComplete: (position: number, duration: number) => void;
+  timelineChange: (uri: string) => void;
+  timelineComplete: () => void;
+  timelineFirstFrame: () => void;
+  timelineRestart: () => void;
+  duration: (duration: number) => void;
+};
+
+/**
+ * Creates a mock engine.on implementation that captures all registered handlers.
+ * This avoids brittle per-test mockImplementation patterns.
+ */
+function createEngineEventCapture(): {
+  handlers: EngineEventHandlers;
+  mockOnImpl: (event: string, handler: (...args: any[]) => void) => () => void;
+} {
+  const handlers: EngineEventHandlers = {
+    start: () => {},
+    pause: () => {},
+    stop: () => {},
+    time: () => {},
+    seekStart: () => {},
+    seekComplete: () => {},
+    timelineChange: () => {},
+    timelineComplete: () => {},
+    timelineFirstFrame: () => {},
+    timelineRestart: () => {},
+    duration: () => {},
+  };
+
+  const mockOnImpl = (
+    event: string,
+    handler: (...args: any[]) => void
+  ): (() => void) => {
+    if (event in handlers) {
+      handlers[event as keyof EngineEventHandlers] = handler as any;
+    }
+    return vi.fn();
+  };
+
+  return {handlers, mockOnImpl};
+}
+
 type AdapterSuiteContext = {
   engine: IEligiusEngine;
   eventbus: IEventbus;
@@ -285,92 +334,55 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
   describe('engine → eventbus event forwarding', () => {
     test<AdapterSuiteContext>('engine start event should broadcast timeline-play', context => {
       const {adapter, engine, eventbus} = context;
-      let startHandler: () => void = () => {};
-      (engine.on as any).mockImplementation(
-        (event: string, handler: () => void) => {
-          if (event === 'start') {
-            startHandler = handler;
-          }
-          return vi.fn();
-        }
-      );
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      startHandler();
+      adapter.connect();
+      handlers.start();
 
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-play', []);
     });
 
     test<AdapterSuiteContext>('engine pause event should broadcast timeline-pause', context => {
       const {adapter, engine, eventbus} = context;
-      let pauseHandler: () => void = () => {};
-      (engine.on as any).mockImplementation(
-        (event: string, handler: () => void) => {
-          if (event === 'pause') {
-            pauseHandler = handler;
-          }
-          return vi.fn();
-        }
-      );
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      pauseHandler();
+      adapter.connect();
+      handlers.pause();
 
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-pause', []);
     });
 
     test<AdapterSuiteContext>('engine stop event should broadcast timeline-stop', context => {
       const {adapter, engine, eventbus} = context;
-      let stopHandler: () => void = () => {};
-      (engine.on as any).mockImplementation(
-        (event: string, handler: () => void) => {
-          if (event === 'stop') {
-            stopHandler = handler;
-          }
-          return vi.fn();
-        }
-      );
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      stopHandler();
+      adapter.connect();
+      handlers.stop();
 
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-stop', []);
     });
 
     test<AdapterSuiteContext>('engine time event should broadcast timeline-time', context => {
       const {adapter, engine, eventbus} = context;
-      let timeHandler: (position: number) => void = () => {};
-      (engine.on as any).mockImplementation(
-        (event: string, handler: (position: number) => void) => {
-          if (event === 'time') {
-            timeHandler = handler;
-          }
-          return vi.fn();
-        }
-      );
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      timeHandler(42);
+      adapter.connect();
+      handlers.time(42);
 
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-time', [42]);
     });
 
     test<AdapterSuiteContext>('engine seekStart event should broadcast timeline-seek', context => {
       const {adapter, engine, eventbus} = context;
-      let seekStartHandler: (
-        target: number,
-        current: number,
-        duration: number
-      ) => void = () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'seekStart') {
-          seekStartHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      seekStartHandler(30, 10, 100);
+      adapter.connect();
+      handlers.seekStart(30, 10, 100);
 
       expect(eventbus.broadcast).toHaveBeenCalledWith(
         'timeline-seek',
@@ -380,17 +392,11 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
 
     test<AdapterSuiteContext>('engine seekComplete event should broadcast timeline-seeked', context => {
       const {adapter, engine, eventbus} = context;
-      let seekCompleteHandler: (position: number, duration: number) => void =
-        () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'seekComplete') {
-          seekCompleteHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      seekCompleteHandler(30, 100);
+      adapter.connect();
+      handlers.seekComplete(30, 100);
 
       expect(eventbus.broadcast).toHaveBeenCalledWith(
         'timeline-seeked',
@@ -400,16 +406,11 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
 
     test<AdapterSuiteContext>('engine timelineChange event should broadcast timeline-current-timeline-change', context => {
       const {adapter, engine, eventbus} = context;
-      let timelineChangeHandler: (uri: string) => void = () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'timelineChange') {
-          timelineChangeHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      timelineChangeHandler('new-timeline');
+      adapter.connect();
+      handlers.timelineChange('new-timeline');
 
       expect(eventbus.broadcast).toHaveBeenCalledWith(
         'timeline-current-timeline-change',
@@ -419,32 +420,22 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
 
     test<AdapterSuiteContext>('engine timelineComplete event should broadcast timeline-complete', context => {
       const {adapter, engine, eventbus} = context;
-      let completeHandler: () => void = () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'timelineComplete') {
-          completeHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      completeHandler();
+      adapter.connect();
+      handlers.timelineComplete();
 
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-complete', []);
     });
 
     test<AdapterSuiteContext>('engine timelineFirstFrame event should broadcast timeline-firstframe', context => {
       const {adapter, engine, eventbus} = context;
-      let firstFrameHandler: () => void = () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'timelineFirstFrame') {
-          firstFrameHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      firstFrameHandler();
+      adapter.connect();
+      handlers.timelineFirstFrame();
 
       expect(eventbus.broadcast).toHaveBeenCalledWith(
         'timeline-firstframe',
@@ -454,32 +445,22 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
 
     test<AdapterSuiteContext>('engine timelineRestart event should broadcast timeline-restart', context => {
       const {adapter, engine, eventbus} = context;
-      let restartHandler: () => void = () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'timelineRestart') {
-          restartHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      restartHandler();
+      adapter.connect();
+      handlers.timelineRestart();
 
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-restart', []);
     });
 
     test<AdapterSuiteContext>('engine duration event should broadcast timeline-duration', context => {
       const {adapter, engine, eventbus} = context;
-      let durationHandler: (duration: number) => void = () => {};
-      (engine.on as any).mockImplementation((event: string, handler: any) => {
-        if (event === 'duration') {
-          durationHandler = handler;
-        }
-        return vi.fn();
-      });
-      adapter.connect();
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
 
-      durationHandler(120);
+      adapter.connect();
+      handlers.duration(120);
 
       // The adapter wraps duration in a function for the eventbus callback pattern
       expect(eventbus.broadcast).toHaveBeenCalledWith('timeline-duration', [

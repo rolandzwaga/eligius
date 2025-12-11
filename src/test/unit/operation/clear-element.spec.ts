@@ -21,7 +21,8 @@ describe('clearElement', () => {
     const result = applyOperation(clearElement, operationData);
 
     // expect
-    expect((result.selectedElement as unknown as MockElement).emptied).to.be
-      .true;
+    expect((result.selectedElement as unknown as MockElement).emptied).toBe(
+      true
+    );
   });
 });

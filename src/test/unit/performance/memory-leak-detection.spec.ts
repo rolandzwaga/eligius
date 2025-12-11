@@ -438,9 +438,9 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       const controller = new ControllerClass();
 
       // Verify controller has BaseController properties/methods
-      expect((controller as any).eventListeners).to.be.an('array');
-      expect((controller as any).addListener).to.be.a('function');
-      expect((controller as any).detach).to.be.a('function');
+      expect(Array.isArray((controller as any).eventListeners)).toBe(true);
+      expect(typeof (controller as any).addListener).toBe('function');
+      expect(typeof (controller as any).detach).toBe('function');
 
       // Verify eventListeners starts empty
       expect((controller as any).eventListeners.length).toBe(0);

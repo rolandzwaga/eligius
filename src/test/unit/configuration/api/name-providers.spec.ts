@@ -14,7 +14,7 @@ describe('name-providers', () => {
 
     // expect
     expect(eventNames).not.toBeUndefined();
-    expect(eventNames.length > 0).toBe(true);
+    expect(eventNames.length).toBeGreaterThan(0);
   });
   test('should return the metadata for the given operation name', () => {
     // given

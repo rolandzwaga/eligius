@@ -26,7 +26,7 @@ class MockElement {
 }
 
 describe('animateWithClass', () => {
-  test('should animate by adding the specified class, and remove the class afterwards', () => {
+  test('should animate by adding the specified class, and remove the class afterwards', async () => {
     // given
     const mockElement = new MockElement('testClass');
 
@@ -36,11 +36,12 @@ describe('animateWithClass', () => {
     };
 
     // test
-
-    applyOperation(animateWithClass, operationData).then(() => {
-      expect(mockElement.removedCalled).toBe(true);
-    });
+    const resultPromise = applyOperation(animateWithClass, operationData);
     mockElement.handler();
+    await resultPromise;
+
+    // expect
+    expect(mockElement.removedCalled).toBe(true);
   });
   test('should animate by adding the specified class, and keep the class afterwards', async () => {
     // given
@@ -53,10 +54,11 @@ describe('animateWithClass', () => {
     };
 
     // test
-
-    applyOperation(animateWithClass, operationData).then(() => {
-      expect(mockElement.removedCalled).toBe(false);
-    });
+    const resultPromise = applyOperation(animateWithClass, operationData);
     mockElement.handler();
+    await resultPromise;
+
+    // expect
+    expect(mockElement.removedCalled).toBe(false);
   });
 });

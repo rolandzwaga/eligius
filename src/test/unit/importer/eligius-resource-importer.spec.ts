@@ -22,7 +22,7 @@ describe<EligiusResourceImporterSuiteContext>('EligiusResourceImporter', () => {
     // given
     const {importer} = context;
 
-    var operationNames = importer.getOperationNames();
+    const operationNames = importer.getOperationNames();
     expect(operationNames).not.toBeNull();
     expect(operationNames.length).not.toBe(0);
     operationNames.forEach(name => {
@@ -32,7 +32,7 @@ describe<EligiusResourceImporterSuiteContext>('EligiusResourceImporter', () => {
   test<EligiusResourceImporterSuiteContext>('should return all the controller names', context => {
     // given
     const {importer} = context;
-    var controllerNames = importer.getControllerNames();
+    const controllerNames = importer.getControllerNames();
     expect(controllerNames).not.toBeNull();
     expect(controllerNames.length).not.toBe(0);
     controllerNames.forEach(name => {

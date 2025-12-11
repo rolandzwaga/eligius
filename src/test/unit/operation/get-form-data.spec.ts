@@ -163,6 +163,6 @@ describe('getFormData', () => {
     // Assert
     expect(result.formData!.name).toBe('John');
     // jQuery serializeArray handles multiple values by creating array or taking last value
-    expect(result.formData!.interests).to.exist;
+    expect(result.formData!.interests).toBeDefined();
   });
 });

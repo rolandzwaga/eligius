@@ -49,8 +49,8 @@ describe('validateForm', () => {
 
     // Assert
     expect(result.isValid).toBe(false);
-    expect(result.validationErrors?.email).to.exist;
-    expect(result.validationErrors?.name).to.not.exist;
+    expect(result.validationErrors?.email).toBeDefined();
+    expect(result.validationErrors?.name).toBeUndefined();
   });
 
   test('should validate all fields as valid', () => {
