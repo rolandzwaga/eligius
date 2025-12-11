@@ -49,6 +49,13 @@
   - `ILanguageManager` exposes: `language`, `availableLanguages`, `on()`, `setLanguage()`, `getLabelCollection()`, `getLabelCollections()`
   - Both can be used and tested without eventbus dependency
 
+- **Fractional Timeline Position Support**
+  - Timeline positions now support fractional values (e.g., `1.3`, `5.7`) for sub-second precision
+  - Configure precision via `tickInterval` in `RafPositionSource` settings (e.g., `100` for 0.1s precision)
+  - Actions can trigger at fractional start/end times: `{ "start": 1.3, "end": 3.7 }`
+  - Engine's `position` property, `seek()` method, and `time` event all support fractional values
+  - Video position source already supported fractional positions; RAF source now matches this behavior
+
 ### Improvements
 
 - **Better Testability**: Engine and LanguageManager can now be unit tested in isolation without eventbus mocking
