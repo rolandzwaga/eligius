@@ -1,5 +1,27 @@
 # Change Log
 
+## 2.1.0
+
+### New Features
+
+- **KeyboardStepSource Position Source**
+  - New keyboard-based position source for stepping through timeline positions
+  - Arrow key navigation: Left/Right to step by `stepSize` (default: 1s), Shift+Left/Right for `largeStepSize` (default: 10s)
+  - Home/End keys jump to start/end of timeline
+  - Three configurable vertical modes for Up/Down arrows:
+    - `timeline-switch`: Emits timeline change requests for playlist navigation
+    - `chapter-navigation`: Jumps between marker positions
+    - `disabled`: Ignores vertical arrow keys
+  - Configurable boundary behavior: wrap (default) or clamp at boundaries
+  - Optional `targetElement` to scope keyboard bindings to a specific element
+  - Implements `ISeekable` interface for programmatic seeking
+  - New exports: `KeyboardStepSource`, `KeyboardStepSourceConfig`, `TVerticalMode`
+
+### Schema Updates
+
+- Updated `raf-timeline-provider-settings.json` to document KeyboardStepSource configuration options:
+  - `verticalMode`, `stepSize`, `largeStepSize`, `markers`, `targetElement`, `wrapNavigation`
+
 ## 2.0.0
 
 ### Breaking Changes
