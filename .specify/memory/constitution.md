@@ -1,20 +1,18 @@
 <!--
 Sync Impact Report:
-Version: 1.1.0 → 1.2.0 (MINOR: Testing guide requirement added)
-Modified Principles: VI. Testing Standards - Added requirement to consult specs/TESTING-GUIDE.md
-Added Sections: N/A
+Version: 1.2.0 → 1.3.0 (MINOR: Path aliases requirement added)
+Modified Principles: N/A
+Added Sections: XXI. Path Aliases for Imports (NON-NEGOTIABLE)
 Removed Sections: N/A
 Templates Requiring Updates:
-  ✅ .claude/commands/speckit.implement.md (step 3 - added TESTING-GUIDE.md as required reading)
-  ✅ .claude/commands/speckit.tasks.md (step 2 - added TESTING-GUIDE.md as required reading)
-  ✅ CLAUDE.md (Testing Guidelines section - added requirement to read TESTING-GUIDE.md first)
-Follow-up TODOs: None - all templates validated and updated
-Amendment Rationale: Mandates reading specs/TESTING-GUIDE.md before writing tests, ensuring consistent use of project-specific mocking patterns (vi.hoisted(), fake timers) and best practices.
+  ✅ CLAUDE.md (Import Organization section - updated to mandate path aliases)
+Follow-up TODOs: None
+Amendment Rationale: Mandates using TypeScript path aliases (@locale/, @adapters/, @eventbus/, @test/, @/, etc.) instead of relative imports for cross-module imports. Improves code readability and maintainability.
 -->
 
 # Eligius Project Constitution
 
-**Version**: 1.2.0
+**Version**: 1.3.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for Eligius - A JavaScript Story Telling Engine
 
 ---
@@ -569,6 +567,52 @@ When researching implementations, accuracy is critical:
 
 **Rationale**: Outdated or incorrect library usage leads to runtime bugs, deprecated API usage, and technical debt. For Eligius, which integrates with multiple peer dependencies and testing frameworks, accurate and current documentation is critical. Context7 provides versioned, official documentation that prevents bugs from outdated patterns.
 
+### XXI. Path Aliases for Imports (NON-NEGOTIABLE)
+
+**CRITICAL**: ALWAYS use TypeScript path aliases instead of relative imports.
+
+**Available Path Aliases** (defined in tsconfig.json):
+- `@/*` → `src/*` (general source files)
+- `@locale/*` → `src/locale/*` (locale module)
+- `@adapters/*` → `src/adapters/*` (adapter implementations)
+- `@eventbus/*` → `src/eventbus/*` (eventbus module)
+- `@test/*` → `src/test/*` (test utilities and fixtures)
+- `@configuration/*` → `src/configuration/*` (configuration module)
+- `@timelineproviders/*` → `src/timelineproviders/*` (timeline providers)
+
+**Mandatory Rules**:
+- **ALWAYS** use path aliases for cross-module imports
+- **NEVER** use relative paths like `../../../` across module boundaries
+- Relative imports (`./` or `../`) are ONLY allowed within the same module directory
+- Import from barrel exports (`index.ts`) where available
+
+**Correct Examples**:
+```typescript
+// ✅ Correct - using path aliases
+import type { ILocaleManager } from '@locale/types.ts';
+import { EligiusEngine } from '@/eligius-engine.ts';
+import { createMockEventbus } from '@test/fixtures/eventbus-factory.ts';
+import type { IEventbus } from '@eventbus/types.ts';
+
+// ✅ Correct - relative import within same module
+import { helperFunction } from './helper.ts';
+```
+
+**Incorrect Examples**:
+```typescript
+// ❌ Incorrect - relative paths crossing module boundaries
+import type { ILocaleManager } from '../../../locale/types.ts';
+import { EligiusEngine } from '../../eligius-engine.ts';
+import { createMockEventbus } from '../fixtures/eventbus-factory.ts';
+```
+
+**Enforcement**:
+- Code reviews MUST reject relative paths crossing module boundaries
+- Run `npm run fix` to auto-sort imports after adding new ones
+- TypeScript compiler validates path aliases at build time
+
+**Rationale**: Path aliases improve code readability by making import sources immediately clear. They eliminate fragile relative paths that break when files are moved. They also enable IDE autocomplete and refactoring support. For a large codebase like Eligius, consistent import patterns are essential for maintainability.
+
 ## Technology Stack Requirements
 
 ### Mandatory Dependencies
@@ -709,7 +753,8 @@ Exceptions are **extremely rare** and require:
 - Timeline Precision Requirements (Principle V)
 - Public API Stability (Principle XIX)
 - Configuration Schema Integrity (Principle XVIII)
+- Path Aliases for Imports (Principle XXI)
 
 ---
 
-**Version**: 1.2.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-11-30
+**Version**: 1.3.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-12-13
