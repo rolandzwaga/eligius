@@ -78,6 +78,26 @@
 - `TLocaleData` - Type for translation data structure
 - `isLocaleReference` - Type guard for `$ref` references
 
+### Schema Generation Improvements
+
+- **Unified TypeScript-based Schema Generator**
+  - New `generate-schemas.ts` tool replaces manual schema maintenance
+  - Generates all schemas directly from TypeScript type definitions using `ts-json-schema-generator`
+  - Configuration schema (`eligius-configuration.json`) generated from `IEngineConfiguration`
+  - Operation schemas generated from `I*OperationData` interfaces (72 operations)
+  - Run with `npm run generate-schema`
+
+- **Operation Schema References**
+  - Configuration schema now uses `oneOf` to reference all operation schemas
+  - Enables editor autocomplete for `systemName` values
+  - Provides type-specific validation for each operation's `operationData`
+  - Operations stored in `jsonschema/operations/*.json`
+
+- **Improved Schema Quality**
+  - JSDoc `@type`, `@required`, `@output`, `@erased` annotations mapped to JSON Schema
+  - External types (jQuery, HTMLElement, DOM types) filtered to prevent schema bloat
+  - Fallback schemas generated for operations with complex generic types
+
 ## 2.1.0
 
 ### New Features
