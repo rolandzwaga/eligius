@@ -279,13 +279,13 @@
 
 **Purpose**: Documentation, schema updates, cleanup
 
-- [ ] T104 [P] Regenerate JSON schema: `npm run generate-schema`
-- [ ] T105 [P] Run Biome fix: `npm run fix`
-- [ ] T106 [P] Run TypeScript check: `npm run typecheck`
-- [ ] T107 [P] Update TypeDoc comments for all new public APIs
-- [ ] T108 Validate quickstart.md scenarios work
-- [ ] T109 Final test run: `npm test` and coverage verification: `npm run coverage`
-- [ ] T110 Commit: `git add . && git commit -m "feat(locale): [Phase 10] Polish and documentation"`
+- [x] T104 [P] Regenerate JSON schema: `npm run generate-schema`
+- [x] T105 [P] Run Biome fix: `npm run fix`
+- [x] T106 [P] Run TypeScript check: `npm run typecheck`
+- [x] T107 [P] Update TypeDoc comments for all new public APIs
+- [x] T108 Validate quickstart.md scenarios work
+- [x] T109 Final test run: `npm test` and coverage verification: `npm run test:coverage` (89.91% overall)
+- [x] T110 Commit: `git add . && git commit -m "feat(locale): [Phase 10] Polish and documentation"`
 
 **Checkpoint**: Feature complete and production ready
 

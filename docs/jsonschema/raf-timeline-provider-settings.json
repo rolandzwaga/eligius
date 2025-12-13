@@ -10,7 +10,11 @@
           "type": "string",
           "title": "System Name",
           "description": "Name of the position source class to instantiate",
-          "examples": ["RafPositionSource", "ScrollPositionSource", "KeyboardStepSource"]
+          "examples": [
+            "RafPositionSource",
+            "ScrollPositionSource",
+            "KeyboardStepSource"
+          ]
         },
         "selector": {
           "type": "string",
@@ -55,10 +59,7 @@
           "examples": [[0, 10, 20, 30, 40, 50]]
         },
         "targetElement": {
-          "oneOf": [
-            {"type": "string"},
-            {"type": "object"}
-          ],
+          "oneOf": [{ "type": "string" }, { "type": "object" }],
           "title": "Target Element",
           "description": "Element to scope keyboard bindings to. Can be HTMLElement or CSS selector string (KeyboardStepSource). If not provided, bindings are global"
         },

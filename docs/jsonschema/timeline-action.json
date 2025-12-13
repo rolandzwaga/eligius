@@ -5,30 +5,20 @@
   "type": "object",
   "title": "Timeline Action Schema",
   "description": "An action that executes at a specific timeline position",
-  "required": [
-    "id",
-    "name",
-    "startOperations",
-    "endOperations",
-    "duration"
-  ],
+  "required": ["id", "name", "startOperations", "endOperations", "duration"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": [
-        "123e4567-e89b-12d3-a456-426614174000"
-      ],
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "duration": {
       "$id": "#/properties/duration",
       "type": "object",
       "title": "The duration Schema",
-      "required": [
-        "start"
-      ],
+      "required": ["start"],
       "properties": {
         "start": {
           "type": "number"
@@ -42,9 +32,7 @@
       "$id": "#/properties/name",
       "type": "string",
       "title": "The Name Schema",
-      "examples": [
-        "ProgressbarSetup"
-      ]
+      "examples": ["ProgressbarSetup"]
     },
     "startOperations": {
       "$id": "#/properties/startOperations",

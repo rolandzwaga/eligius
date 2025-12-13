@@ -5,17 +5,13 @@
   "type": "object",
   "title": "The getTextContent schema",
   "description": "Extracts text content from element, stripping all HTML markup.\n\nUses jQuery's `.text()` method which is XSS-safe and returns only the text content\nwithout any HTML tags. Preserves whitespace and text from nested elements.",
-  "required": [
-    "systemName"
-  ],
+  "required": ["systemName"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": [
-        "123e4567-e89b-12d3-a456-426614174000"
-      ],
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
