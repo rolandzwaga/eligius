@@ -2,7 +2,7 @@ import type {IAction} from '@action/types.ts';
 import {
   EngineEventbusAdapter,
   EngineInputAdapter,
-  LanguageEventbusAdapter,
+  LocaleEventbusAdapter,
 } from '@adapters/index.ts';
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {
@@ -17,12 +17,13 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
+import {LocaleManager} from './locale/locale-manager.ts';
+import type {TLanguageCode, TLocaleData} from './locale/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
-import {LanguageManager} from './language-manager.ts';
 import type {
   IConfigurationResolver,
   IEngineFactory,
@@ -135,12 +136,12 @@ export class EngineFactory implements IEngineFactory {
    * This method:
    * - Resolves the configuration
    * - Creates timeline providers
-   * - Instantiates the engine and language manager
+   * - Instantiates the engine and locale manager
    * - Creates and connects adapters for eventbus integration
    *
    * @param configuration - The engine configuration
    * @param resolver - Optional custom configuration resolver
-   * @returns Engine result with engine, language manager, eventbus, and destroy function
+   * @returns Engine result with engine, locale manager, eventbus, and destroy function
    */
   createEngine(
     configuration: IEngineConfiguration,
@@ -176,14 +177,24 @@ export class EngineFactory implements IEngineFactory {
       resolvedConfiguration
     );
 
-    const {language, labels} = configuration;
-    const languageManager = new LanguageManager(language, labels);
+    // Initialize locale manager with locales from configuration
+    const {language, locales} = configuration;
+    const localeManager = new LocaleManager({
+      defaultLocale: language as TLanguageCode,
+    });
+
+    // Load locales from configuration
+    if (locales) {
+      for (const [locale, data] of Object.entries(locales)) {
+        localeManager.loadLocale(locale as TLanguageCode, data as TLocaleData);
+      }
+    }
 
     const engineInstance = new EngineClass(
       resolvedConfiguration,
       this._eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
 
     // Create and connect adapters
@@ -191,8 +202,8 @@ export class EngineFactory implements IEngineFactory {
       engineInstance,
       this._eventbus
     );
-    const languageEventbusAdapter = new LanguageEventbusAdapter(
-      languageManager,
+    const localeEventbusAdapter = new LocaleEventbusAdapter(
+      localeManager,
       this._eventbus,
       engineInstance
     );
@@ -204,23 +215,23 @@ export class EngineFactory implements IEngineFactory {
 
     // Connect all adapters
     engineEventbusAdapter.connect();
-    languageEventbusAdapter.connect();
+    localeEventbusAdapter.connect();
     engineInputAdapter.connect();
 
     // Return the factory result
     return {
       engine: engineInstance,
-      languageManager,
+      localeManager,
       eventbus: this._eventbus,
       destroy: async () => {
         // Disconnect adapters first
         engineInputAdapter.disconnect();
-        languageEventbusAdapter.disconnect();
+        localeEventbusAdapter.disconnect();
         engineEventbusAdapter.disconnect();
 
-        // Destroy engine (which also destroys languageManager internally)
+        // Destroy engine (which also destroys localeManager internally)
         await engineInstance.destroy();
-        // Note: languageManager.destroy() is NOT called here because
+        // Note: localeManager.destroy() is NOT called here because
         // engineInstance.destroy() already calls it
       },
     };

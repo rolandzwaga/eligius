@@ -48,7 +48,6 @@ function createMockConfiguration(
     initActions: [],
     actions: [],
     timelines: [],
-    labels: [],
     ...overrides,
   };
 }

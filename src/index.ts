@@ -24,5 +24,5 @@ export * from '@timelineproviders/types.ts';
 export * from '@util/typed-event-emitter.ts';
 export {EligiusEngine} from './eligius-engine.ts';
 export {EngineFactory} from './engine-factory.ts';
-export {LanguageManager} from './language-manager.ts';
+export * from './locale/index.ts';
 export * from './types.ts';

@@ -51,7 +51,6 @@ function createTestConfig(): IEngineConfiguration {
     eventActions: undefined,
     timelines: [],
     timelineFlow: undefined,
-    labels: [],
   };
 }
 

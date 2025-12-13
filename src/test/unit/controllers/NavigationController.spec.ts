@@ -248,19 +248,16 @@ describe('NavigationController', () => {
     });
 
     it('should handle request-current-navigation event', () => {
-      const mockLabelController = {
-        labelData: {'en-US': 'Test Label'},
-        currentLanguage: 'en-US',
-      };
-
       const operationData = {
         selectedElement: mockContainer,
         json: createNavigationData(),
       };
 
       controller.init(operationData);
-      controller.ctrlLookup['label1'] = mockLabelController as any;
       controller.activeNavigationPoint = controller.navLookup['nav1'];
+
+      // Mock request-translation to return the expected title
+      mockEventbus.onRequest('request-translation', () => 'Test Label');
       controller.attach(mockEventbus);
 
       const resultCallback = vi.fn();

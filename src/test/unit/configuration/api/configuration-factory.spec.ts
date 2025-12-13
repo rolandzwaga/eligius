@@ -231,37 +231,6 @@ describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
     const {configuration} = configurationFactory;
     expect(configuration.timelines.length).toBe(0);
   });
-  test<ConfigurationFactorySuiteContext>('addLabel should add given label info', context => {
-    // given
-    const {configurationFactory} = context;
-    configurationFactory.init('nl-NL');
-
-    // test
-    configurationFactory.addLabel('test', 'nl-NL', 'dit is een test');
-
-    // expect
-    const {configuration} = configurationFactory;
-    expect(configuration.labels.length).toBe(1);
-    expect(configuration.labels[0].id).toBe('test');
-    expect(configuration.labels[0].labels[0].languageCode).toBe('nl-NL');
-    expect(configuration.labels[0].labels[0].label).toBe('dit is een test');
-  });
-  test<ConfigurationFactorySuiteContext>('addLabel should add given label info to existing label config', context => {
-    // given
-    const {configurationFactory} = context;
-    configurationFactory.init('nl-NL');
-
-    // test
-    configurationFactory.addLabel('test', 'nl-NL', 'dit is een test');
-    configurationFactory.addLabel('test', 'en-US', 'this is a test');
-
-    // expect
-    const {configuration} = configurationFactory;
-    expect(configuration.labels.length).toBe(1);
-    expect(configuration.labels[0].id).toBe('test');
-    expect(configuration.labels[0].labels[1].languageCode).toBe('en-US');
-    expect(configuration.labels[0].labels[1].label).toBe('this is a test');
-  });
   test<ConfigurationFactorySuiteContext>('createAction should add an action with the given name', context => {
     // given
     const {configurationFactory} = context;

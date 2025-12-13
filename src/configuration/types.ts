@@ -3,13 +3,17 @@ import type * as controllers from '@controllers/index.ts';
 import type * as operations from '@operation/index.ts';
 import type {TOperation, TOperationData} from '@operation/types.ts';
 import type {ILocalesConfiguration} from '../locale/types.ts';
-import type {
-  IDuration,
-  ILabel,
-  ILanguageLabel,
-  TimelineTypes,
-  TLanguageCode,
-} from '../types.ts';
+import type {IDuration, TimelineTypes, TLanguageCode} from '../types.ts';
+
+/**
+ * Represents a language option for the available languages list.
+ * Used for UI elements like language selection dropdowns.
+ */
+export interface ILabel {
+  id: string;
+  languageCode: TLanguageCode;
+  label: string;
+}
 
 export type Controllers = typeof controllers;
 export type TControllerName = keyof Controllers;
@@ -44,8 +48,7 @@ export interface IEngineConfiguration {
   eventActions?: IEventActionConfiguration[];
   timelines: ITimelineConfiguration[];
   timelineFlow?: ITimelineFlow;
-  labels: ILanguageLabel[];
-  /** Optional locale configuration for rosetta-based translations */
+  /** Locale configuration for rosetta-based translations */
   locales?: ILocalesConfiguration;
 }
 
@@ -62,7 +65,6 @@ export interface IResolvedEngineConfiguration {
   actions: IEndableAction[];
   timelines: IResolvedTimelineConfiguration[];
   timelineFlow?: ITimelineFlow;
-  labels: ILanguageLabel[];
 }
 
 export interface IResolvedActionConfiguration {

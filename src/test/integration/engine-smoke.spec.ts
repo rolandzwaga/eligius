@@ -11,7 +11,7 @@ import type {
 } from '@timelineproviders/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EligiusEngine} from '../../eligius-engine.ts';
-import {LanguageManager} from '../../language-manager.ts';
+import type {ILocaleManager} from '../../locale/types.ts';
 import type {ITimelineProviderInfo, TimelineTypes} from '../../types.ts';
 
 // Mock jQuery
@@ -87,14 +87,26 @@ function createMinimalConfig(
       } as IResolvedTimelineConfiguration,
     ],
     timelineFlow: undefined,
-    labels: [],
     ...overrides,
   };
 }
 
+function createMockLocaleManager(): ILocaleManager {
+  return {
+    locale: 'en-US',
+    availableLocales: ['en-US'],
+    debug: false,
+    t: vi.fn().mockReturnValue(''),
+    setLocale: vi.fn(),
+    loadLocale: vi.fn(),
+    destroy: vi.fn(),
+    on: vi.fn().mockReturnValue(() => {}),
+  } as unknown as ILocaleManager;
+}
+
 type EngineSmokeTestContext = {
   eventbus: IEventbus;
-  languageManager: LanguageManager;
+  localeManager: ILocaleManager;
   timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>;
   animationPositionSource: IPositionSource & ISeekable;
   mediaplayerPositionSource: IPositionSource & ISeekable;
@@ -107,7 +119,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     withContext<EngineSmokeTestContext>(context);
 
     context.eventbus = new Eventbus();
-    context.languageManager = new LanguageManager('en-US', []);
+    context.localeManager = createMockLocaleManager();
     context.animationPositionSource = createMockPositionSource();
     context.mediaplayerPositionSource = createMockPositionSource();
     context.timelineProviders = {
@@ -124,7 +136,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
   test<EngineSmokeTestContext>('should create engine with minimal valid configuration', context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {eventbus, timelineProviders, localeManager} = context;
     const config = createMinimalConfig();
 
     // test
@@ -132,7 +144,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
 
     // expect
@@ -141,7 +153,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
   test<EngineSmokeTestContext>('should throw error when container selector is not found', context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {eventbus, timelineProviders, localeManager} = context;
     const config = createMinimalConfig({
       containerSelector: '#not-found',
     });
@@ -150,7 +162,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
 
     // test & expect - error is thrown synchronously during _createLayoutTemplate
@@ -161,7 +173,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
   test<EngineSmokeTestContext>('should throw error when no timelines are configured', async context => {
     // given
-    const {eventbus, timelineProviders, languageManager} = context;
+    const {eventbus, timelineProviders, localeManager} = context;
     const config = createMinimalConfig({
       timelines: undefined as any, // Set to undefined to trigger the error path
     });
@@ -170,7 +182,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
 
     // test & expect
@@ -179,7 +191,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
 
   test<EngineSmokeTestContext>('should throw error when timeline provider type is not configured', async context => {
     // given
-    const {eventbus, languageManager} = context;
+    const {eventbus, localeManager} = context;
     const config = createMinimalConfig({
       timelines: [
         {
@@ -208,7 +220,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       incompleteProviders as Record<TimelineTypes, ITimelineProviderInfo>,
-      languageManager
+      localeManager
     );
 
     // test & expect
@@ -222,7 +234,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     const {
       eventbus,
       timelineProviders,
-      languageManager,
+      localeManager,
       animationPositionSource,
     } = context;
     const config = createMinimalConfig();
@@ -231,7 +243,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
 
     // test
@@ -249,7 +261,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     const {
       eventbus,
       timelineProviders,
-      languageManager,
+      localeManager,
       animationPositionSource,
     } = context;
     const config = createMinimalConfig();
@@ -258,7 +270,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
     await engine.init();
 
@@ -274,7 +286,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     const {
       eventbus,
       timelineProviders,
-      languageManager,
+      localeManager,
       animationPositionSource,
     } = context;
     const config = createMinimalConfig();
@@ -283,7 +295,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
     await engine.init();
 
@@ -299,7 +311,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     const {
       eventbus,
       timelineProviders,
-      languageManager,
+      localeManager,
       animationPositionSource,
     } = context;
     const config = createMinimalConfig();
@@ -308,7 +320,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
     await engine.init();
 
@@ -324,7 +336,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     const {
       eventbus,
       timelineProviders,
-      languageManager,
+      localeManager,
       animationPositionSource,
       mediaplayerPositionSource,
     } = context;
@@ -334,7 +346,7 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       config,
       eventbus,
       timelineProviders,
-      languageManager
+      localeManager
     );
     await engine.init();
 

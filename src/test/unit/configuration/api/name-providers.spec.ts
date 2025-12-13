@@ -1,6 +1,4 @@
-import {
-  OperationMetadataProvider,
-} from '@configuration/api/name-providers.ts';
+import {OperationMetadataProvider} from '@configuration/api/name-providers.ts';
 import {describe, expect, test} from 'vitest';
 
 describe('name-providers', () => {

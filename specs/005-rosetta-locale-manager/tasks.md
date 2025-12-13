@@ -204,18 +204,18 @@
 
 ### Tests for User Story 5
 
-- [ ] T074 [P] [US5] Write test: given debug=true, when missing key requested, then console.warn called
-- [ ] T075 [P] [US5] Write test: given debug=false, when missing key requested, then no console output
-- [ ] T076 [P] [US5] Write test: given debug=true and missing interpolation var, then warning logged
-- [ ] T077 [US5] **VERIFY TESTS FAIL**: Run `npm test` - new US5 tests must fail
+- [x] T074 [P] [US5] Write test: given debug=true, when missing key requested, then console.warn called
+- [x] T075 [P] [US5] Write test: given debug=false, when missing key requested, then no console output
+- [x] T076 [P] [US5] Write test: given debug=true and missing interpolation var, then warning logged
+- [x] T077 [US5] **VERIFY TESTS FAIL**: Run `npm test` - new US5 tests must fail
 
 ### Implementation for User Story 5
 
-- [ ] T078 [US5] Add debug option to ILocaleManagerOptions in src/locale/types.ts
-- [ ] T079 [US5] Implement debug mode warning in t() method in src/locale/locale-manager.ts
-- [ ] T080 [US5] Detect missing interpolation variables and warn in debug mode in src/locale/locale-manager.ts
-- [ ] T081 [US5] Run `npm test` to verify US5 tests pass (green phase)
-- [ ] T082 [US5] Commit: `git add . && git commit -m "feat(locale): [Phase 7] US5 - Debug mode for missing translations"`
+- [x] T078 [US5] Add debug option to ILocaleManagerOptions in src/locale/types.ts
+- [x] T079 [US5] Implement debug mode warning in t() method in src/locale/locale-manager.ts
+- [x] T080 [US5] Detect missing interpolation variables and warn in debug mode in src/locale/locale-manager.ts
+- [x] T081 [US5] Run `npm test` to verify US5 tests pass (green phase)
+- [x] T082 [US5] Commit: `git add . && git commit -m "feat(locale): [Phase 7] US5 - Debug mode for missing translations"`
 
 **Checkpoint**: Debug mode works
 
@@ -227,18 +227,18 @@
 
 ### Tests for Integration
 
-- [ ] T083 [P] Create test file src/test/integration/locale/locale-integration.spec.ts
-- [ ] T084 [P] Write integration test: given LocaleManager + eventbus adapter, when language changed, then event propagates
-- [ ] T085 [P] Update LabelController tests to use new locale system in src/test/unit/controllers/LabelController.spec.ts
-- [ ] T086 **VERIFY TESTS FAIL**: Run `npm test` - new/updated integration tests must fail
+- [x] T083 [P] Create test file src/test/integration/locale/locale-integration.spec.ts
+- [x] T084 [P] Write integration test: given LocaleManager + eventbus adapter, when language changed, then event propagates
+- [x] T085 [P] Update LabelController tests to use new locale system in src/test/unit/controllers/LabelController.spec.ts
+- [x] T086 **VERIFY TESTS FAIL**: Run `npm test` - new/updated integration tests must fail
 
 ### Implementation for Integration
 
-- [ ] T087 Update LabelController to use t() via eventbus in src/controllers/label-controller.ts
-- [ ] T088 Add request-translation event handling to LocaleEventbusAdapter in src/adapters/locale-eventbus-adapter.ts
-- [ ] T089 Run full test suite: `npm test` (green phase)
-- [ ] T090 Verify 90% coverage: `npm run coverage`
-- [ ] T091 Commit: `git add . && git commit -m "feat(locale): [Phase 8] Integration with LabelController"`
+- [x] T087 Update LabelController to use t() via eventbus in src/controllers/label-controller.ts
+- [x] T088 Add request-translation event handling to LocaleEventbusAdapter in src/adapters/locale-eventbus-adapter.ts
+- [x] T089 Run full test suite: `npm test` (green phase)
+- [x] T090 Verify 90% coverage: `npm run coverage`
+- [x] T091 Commit: `git add . && git commit -m "feat(locale): [Phase 8] Integration with LabelController"`
 
 **Checkpoint**: All components integrated and working
 
@@ -252,24 +252,24 @@
 
 ### File Deletions
 
-- [ ] T092 [P] Delete src/language-manager.ts (old LanguageManager class)
-- [ ] T093 [P] Delete src/adapters/language-eventbus-adapter.ts (old adapter)
-- [ ] T094 [P] Delete src/test/unit/language-manager.spec.ts (old tests)
-- [ ] T095 [P] Delete src/test/unit/adapters/language-eventbus-adapter.spec.ts (old adapter tests)
+- [x] T092 [P] Delete src/language-manager.ts (old LanguageManager class)
+- [x] T093 [P] Delete src/adapters/language-eventbus-adapter.ts (old adapter)
+- [x] T094 [P] Delete src/test/unit/language-manager.spec.ts (old tests)
+- [x] T095 [P] Delete src/test/unit/adapters/language-eventbus-adapter.spec.ts (old adapter tests)
 
 ### Type Cleanups
 
-- [ ] T096 Remove ILanguageLabel interface from src/types.ts
-- [ ] T097 Remove ILabel interface from src/types.ts
-- [ ] T098 Remove any labels-related exports from src/index.ts
-- [ ] T099 Update any imports that reference deleted files
+- [x] T096 Remove ILanguageLabel interface from src/types.ts
+- [x] T097 Remove ILabel interface from src/types.ts (moved to configuration/types.ts for availableLanguages)
+- [x] T098 Remove any labels-related exports from src/index.ts
+- [x] T099 Update any imports that reference deleted files
 
 ### Verification
 
-- [ ] T100 Run `npm run typecheck` to verify no broken imports
-- [ ] T101 Run `npm test` to verify all tests pass
-- [ ] T102 Verify no references to old label system remain: `grep -r "LanguageManager\|ILanguageLabel\|language-eventbus-adapter" src/`
-- [ ] T103 Commit: `git add . && git commit -m "feat(locale): [Phase 9] BREAKING - Remove legacy label system"`
+- [x] T100 Run `npm run typecheck` to verify no broken imports
+- [x] T101 Run `npm test` to verify all tests pass (1086 tests passing)
+- [x] T102 Verify no references to old label system remain
+- [x] T103 Commit: `git add . && git commit -m "feat(locale): [Phase 9] BREAKING - Remove legacy label system"`
 
 **Checkpoint**: Old label system completely removed
 

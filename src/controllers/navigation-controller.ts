@@ -84,10 +84,14 @@ export class NavigationController extends BaseController<INavigationControllerOp
     resultCallback: TResultCallback<{navigationData: any; title: string} | null>
   ) {
     if (this.activeNavigationPoint) {
-      const labelCtrl = this.ctrlLookup[this.activeNavigationPoint.labelId];
+      const title =
+        this.eventbus?.request<string>(
+          'request-translation',
+          this.activeNavigationPoint.labelId
+        ) ?? '';
       resultCallback({
         navigationData: this.activeNavigationPoint,
-        title: labelCtrl.labelData[labelCtrl.currentLanguage || ''],
+        title,
       });
     } else {
       resultCallback(null);
@@ -111,16 +115,16 @@ export class NavigationController extends BaseController<INavigationControllerOp
     if (!this.activeNavigationPoint) {
       return;
     }
-    const labelCtrl: LabelController =
-      this.ctrlLookup[this.activeNavigationPoint.labelId];
 
-    if (!labelCtrl) {
-      return;
-    }
+    const title =
+      this.eventbus?.request<string>(
+        'request-translation',
+        this.activeNavigationPoint.labelId
+      ) ?? '';
 
     const state = {
       navigationData: this.activeNavigationPoint,
-      title: labelCtrl.labelData[labelCtrl.currentLanguage || ''],
+      title,
       position: -1,
     };
     if (position > -1) {
@@ -198,10 +202,10 @@ export class NavigationController extends BaseController<INavigationControllerOp
     }
   }
 
-  private _addLabel(parentElm: JQuery, labelId: string) {
+  private _addLabel(parentElm: JQuery, translationKey: string) {
     const data = {
       selectedElement: parentElm,
-      labelId: labelId,
+      translationKey,
     };
     const instance = this.eventbus?.request<LabelController>(
       'request-instance',
@@ -211,7 +215,7 @@ export class NavigationController extends BaseController<INavigationControllerOp
       instance.init(data);
       instance.attach(this.eventbus as IEventbus);
       this.labelControllers.push(instance);
-      this.ctrlLookup[labelId] = instance;
+      this.ctrlLookup[translationKey] = instance;
     }
   }
 
