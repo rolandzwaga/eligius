@@ -2,6 +2,7 @@ import type {IEndableAction, ITimelineAction} from '@action/types.ts';
 import type * as controllers from '@controllers/index.ts';
 import type * as operations from '@operation/index.ts';
 import type {TOperation, TOperationData} from '@operation/types.ts';
+import type {ILocalesConfiguration} from '../locale/types.ts';
 import type {
   IDuration,
   ILabel,
@@ -44,6 +45,8 @@ export interface IEngineConfiguration {
   timelines: ITimelineConfiguration[];
   timelineFlow?: ITimelineFlow;
   labels: ILanguageLabel[];
+  /** Optional locale configuration for rosetta-based translations */
+  locales?: ILocalesConfiguration;
 }
 
 export interface IResolvedEngineConfiguration {
