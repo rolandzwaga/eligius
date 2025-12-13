@@ -3,7 +3,7 @@
     "label": {
       "type": "object",
       "title": "Label",
-      "description": "A localized label with language code",
+      "description": "A localized label with language code, used for availableLanguages",
       "required": ["id", "languageCode", "label"],
       "properties": {
         "id": {
@@ -24,26 +24,39 @@
         }
       }
     },
-    "languageLabel": {
+    "localeReference": {
       "type": "object",
-      "title": "Language Label Collection",
-      "description": "A collection of labels for different languages",
-      "required": ["id", "labels"],
+      "title": "Locale Reference",
+      "description": "External locale file reference using JSON Reference syntax",
+      "required": ["$ref"],
       "properties": {
-        "id": {
+        "$ref": {
           "type": "string",
-          "title": "Id",
-          "description": "Unique identifier for the label collection"
-        },
-        "labels": {
-          "type": "array",
-          "title": "Labels",
-          "description": "Array of localized labels",
-          "items": {
-            "$ref": "#/definitions/label"
-          }
+          "title": "Reference",
+          "description": "URL or relative path to JSON locale file",
+          "examples": ["./locales/en-US.json", "https://cdn.example.com/locales/en-US.json"]
         }
+      },
+      "additionalProperties": false
+    },
+    "localeData": {
+      "type": "object",
+      "title": "Locale Data",
+      "description": "Inline translation data with nested keys and string values",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          { "$ref": "#/definitions/localeData" }
+        ]
       }
+    },
+    "localeEntry": {
+      "oneOf": [
+        { "$ref": "#/definitions/localeData" },
+        { "$ref": "#/definitions/localeReference" }
+      ],
+      "title": "Locale Entry",
+      "description": "Either inline locale data or an external reference"
     }
   },
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -61,8 +74,7 @@
     "availableLanguages",
     "initActions",
     "actions",
-    "timelines",
-    "labels"
+    "timelines"
   ],
   "properties": {
     "id": {
@@ -163,14 +175,24 @@
       "title": "Timeline Flow",
       "description": "Optional timeline flow configuration for navigation between timelines"
     },
-    "labels": {
-      "$id": "#/properties/labels",
-      "type": "array",
-      "title": "Labels",
-      "description": "Label collections for multi-language support",
-      "items": {
-        "$ref": "#/definitions/languageLabel"
-      }
+    "locales": {
+      "$id": "#/properties/locales",
+      "type": "object",
+      "title": "Locales",
+      "description": "Locale configuration for rosetta-based translations. Keys are language codes (e.g., 'en-US'), values are inline data or external references.",
+      "additionalProperties": {
+        "$ref": "#/definitions/localeEntry"
+      },
+      "examples": [
+        {
+          "en-US": { "nav": { "home": "Home", "about": "About" } },
+          "nl-NL": { "nav": { "home": "Thuis", "about": "Over ons" } }
+        },
+        {
+          "en-US": { "$ref": "./locales/en-US.json" },
+          "nl-NL": { "$ref": "./locales/nl-NL.json" }
+        }
+      ]
     }
   }
 }
