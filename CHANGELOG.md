@@ -1,5 +1,83 @@
 # Change Log
 
+## 2.2.0
+
+### Breaking Changes
+
+- **Complete removal of legacy label system**
+  - Deleted `LanguageManager` class and `language-eventbus-adapter.ts`
+  - Removed `ILanguageLabel` and related types from `src/types.ts`
+  - Removed `labels` property from `IEngineConfiguration`
+  - Removed `addLabel`, `removeLabel`, `editLabel` methods from `ConfigurationFactory`
+  - Migration: Replace `labels` array with new `locales` configuration object (see New Features)
+
+- **LabelController now uses `translationKey` instead of `labelId`**
+  - Was: `{ labelId: 'myLabel' }` referencing `ILanguageLabel.id`
+  - Now: `{ translationKey: 'nav.home' }` using dot-notation keys into locale data
+  - Migration: Update all LabelController configurations to use `translationKey`
+
+- **IEngineFactoryResult.languageManager renamed to localeManager**
+  - Was: `const { languageManager } = factory.createEngine(config)`
+  - Now: `const { localeManager } = factory.createEngine(config)`
+  - The returned object now implements `ILocaleManager` interface
+
+### New Features
+
+- **Rosetta-based Locale System**
+  - New `LocaleManager` class wrapping the rosetta library (~300 bytes)
+  - Supports nested translation keys with dot notation: `t('nav.home')`
+  - Supports array key notation: `t(['nav', 'home'])`
+  - Supports interpolation: `t('greeting', { name: 'John' })` → "Hello John!"
+  - Function values in translations for dynamic content
+  - Event-based locale switching with `on('change', handler)`
+
+- **External Locale File Loading**
+  - New `LocaleLoader` class for loading external JSON locale files
+  - Uses `$ref` syntax: `{ "en-US": { "$ref": "./locales/en-US.json" } }`
+  - Parallel loading with `loadAll()` method
+  - URL caching to avoid redundant fetches
+  - Circular reference detection with descriptive error messages
+
+- **Inline Locale Configuration**
+  - New `locales` property in engine configuration for inline translations
+  - Example:
+    ```json
+    {
+      "locales": {
+        "en-US": { "nav": { "home": "Home" } },
+        "nl-NL": { "nav": { "home": "Thuis" } }
+      }
+    }
+    ```
+
+- **Debug Mode for Missing Translations**
+  - Enable with `{ debug: true }` in LocaleManager options
+  - Console warnings for missing translation keys
+  - Console warnings for missing interpolation variables
+
+- **New Eventbus Events**
+  - `request-translation`: Retrieve translations via eventbus
+    - Usage: `eventbus.request('request-translation', 'nav.home')` → "Home"
+    - Supports interpolation: `eventbus.request('request-translation', ['greeting', { name: 'John' }])`
+
+- **LocaleEventbusAdapter**
+  - Bridges LocaleManager to/from eventbus
+  - Handles `language-change` event forwarding
+  - Handles `request-current-language` responses
+  - Updates DOM `lang` attribute on locale change
+  - Validates locale availability before switching
+
+### New Exports
+
+- `LocaleManager` - Core locale management class
+- `LocaleLoader` - External locale file loader
+- `ILocaleManager` - Interface for locale manager
+- `ILocaleLoader` - Interface for locale loader
+- `ILocalesConfiguration` - Configuration type for locales
+- `TLanguageCode` - Type for language codes (e.g., 'en-US')
+- `TLocaleData` - Type for translation data structure
+- `isLocaleReference` - Type guard for `$ref` references
+
 ## 2.1.0
 
 ### New Features
