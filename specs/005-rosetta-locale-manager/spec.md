@@ -73,23 +73,7 @@ As a developer with a large application, I want to reference external JSON files
 
 ---
 
-### User Story 5 - Migration from Legacy Format (Priority: P2)
-
-As an existing Eligius user, I want my current `ILanguageLabel[]` configuration to continue working, so that I can upgrade without immediately rewriting all my label definitions.
-
-**Why this priority**: Backward compatibility ensures existing users can upgrade without breaking changes. However, it's not needed for new implementations.
-
-**Independent Test**: Can be tested by providing a configuration with legacy `labels` array format and verifying all translations are accessible via the new API.
-
-**Acceptance Scenarios**:
-
-1. **Given** a configuration with legacy `labels: ILanguageLabel[]` format, **When** the engine initializes, **Then** labels are converted and accessible via `t(labelId)`
-2. **Given** legacy format with multiple language codes per label, **When** converted, **Then** all languages are properly mapped to the new structure
-3. **Given** both legacy `labels` and new `locales` are present, **When** initializing, **Then** the system merges both (new format takes precedence for conflicts)
-
----
-
-### User Story 6 - Debug Mode for Missing Translations (Priority: P3)
+### User Story 5 - Debug Mode for Missing Translations (Priority: P3)
 
 As a developer, I want to see console warnings when translations are missing, so that I can identify untranslated keys during development.
 
@@ -129,11 +113,11 @@ As a developer, I want to see console warnings when translations are missing, so
 - **FR-010**: System MUST provide methods to get/set the current locale
 - **FR-011**: System MUST expose the list of available locales
 - **FR-012**: System MUST support the existing eventbus request/response pattern for translations
-- **FR-013**: System MUST detect and convert legacy `ILanguageLabel[]` format automatically
-- **FR-014**: System MUST provide a debug mode that logs missing translation keys
-- **FR-015**: System MUST return empty string for missing keys in production mode
-- **FR-016**: LabelController MUST continue to work with the new locale system
-- **FR-017**: System MUST support IETF language tags (e.g., `en-US`, `nl-NL`) as locale identifiers
+- **FR-013**: System MUST provide a debug mode that logs missing translation keys
+- **FR-014**: System MUST return empty string for missing keys in production mode
+- **FR-015**: LabelController MUST continue to work with the new locale system
+- **FR-016**: System MUST support IETF language tags (e.g., `en-US`, `nl-NL`) as locale identifiers
+- **FR-017**: Old label system (LanguageManager, ILanguageLabel, language-eventbus-adapter) MUST be completely removed
 
 ### Key Entities
 
@@ -153,7 +137,7 @@ As a developer, I want to see console warnings when translations are missing, so
 - **SC-004**: External locale files load successfully with standard HTTP/fetch mechanisms
 - **SC-005**: 100% of existing LabelController functionality continues to work without modification to consuming code
 - **SC-006**: Debug mode correctly identifies and reports all missing translation keys during development
-- **SC-007**: Migration from legacy format requires zero changes to existing label IDs
+- **SC-007**: All legacy label system code is removed from codebase (LanguageManager, ILanguageLabel types, language-eventbus-adapter)
 
 ## Assumptions
 
@@ -162,7 +146,7 @@ As a developer, I want to see console warnings when translations are missing, so
 - The `$ref` syntax follows JSON Reference conventions for consistency
 - Locale files are loaded at initialization time, not lazily per-key
 - The system runs in environments with `fetch` API available (or polyfilled)
-- Existing eventbus events (`language-change`, `request-current-language`, `request-label-collection`) remain compatible
+- The old label system will be completely removed (breaking change - no backward compatibility)
 
 ## Out of Scope
 

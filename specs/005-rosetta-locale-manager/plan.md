@@ -10,7 +10,8 @@ Reimplement Eligius label management using the rosetta library (~300 bytes) as t
 - Variable interpolation (`{{variable}}` syntax)
 - Inline locale definitions within configuration
 - External locale file references via `$ref` syntax
-- Backward compatibility with legacy `ILanguageLabel[]` format
+
+**BREAKING CHANGE**: The old label system (LanguageManager, ILanguageLabel, language-eventbus-adapter) will be completely removed. No backward compatibility.
 
 ## Technical Context
 
@@ -39,7 +40,7 @@ Reimplement Eligius label management using the rosetta library (~300 bytes) as t
 | XI. Dependency Management | REQUIRES APPROVAL | rosetta is new production dependency - user explicitly requested it |
 | XII. Framework-Specific | PASS | No framework-specific patterns, vanilla TypeScript |
 | XVIII. Configuration Schema | PASS | Schema will be regenerated after types updated |
-| XIX. Public API Stability | PASS | New API is additive, legacy format still supported |
+| XIX. Public API Stability | BREAKING | Removing old label system - user explicitly requested complete removal |
 | XX. Documentation Research | PASS | Context7 and web research completed for rosetta |
 
 **Gate Result**: PASS (rosetta dependency pre-approved by user request)
@@ -66,29 +67,31 @@ src/
 ├── locale/                      # NEW: Locale management module
 │   ├── locale-manager.ts        # Core LocaleManager wrapping rosetta
 │   ├── locale-loader.ts         # External file loader with $ref resolution
-│   ├── legacy-converter.ts      # ILanguageLabel[] to rosetta format converter
 │   └── types.ts                 # Locale-specific type definitions
 ├── adapters/
-│   ├── locale-eventbus-adapter.ts  # NEW: LocaleManager adapter (alongside existing)
-│   └── language-eventbus-adapter.ts  # EXISTING: Deprecated, kept for backward compat
+│   ├── locale-eventbus-adapter.ts  # NEW: LocaleManager adapter
+│   └── language-eventbus-adapter.ts  # REMOVE: Old adapter to be deleted
 ├── controllers/
 │   └── label-controller.ts      # MODIFIED: Use t() API instead of lookup
 ├── configuration/
-│   └── types.ts                 # MODIFIED: Add ILocaleConfiguration types
-└── types.ts                     # MODIFIED: Add TLocaleData, ILocaleReference
+│   └── types.ts                 # MODIFIED: Add ILocaleConfiguration, remove ILanguageLabel
+├── language-manager.ts          # REMOVE: Old LanguageManager to be deleted
+└── types.ts                     # MODIFIED: Add TLocaleData, remove ILanguageLabel/ILabel
 
 src/test/
 ├── unit/
-│   └── locale/                  # NEW: Unit tests for locale module
-│       ├── locale-manager.spec.ts
-│       ├── locale-loader.spec.ts
-│       └── legacy-converter.spec.ts
+│   ├── locale/                  # NEW: Unit tests for locale module
+│   │   ├── locale-manager.spec.ts
+│   │   └── locale-loader.spec.ts
+│   ├── adapters/
+│   │   └── language-eventbus-adapter.spec.ts  # REMOVE: Delete with adapter
+│   └── language-manager.spec.ts  # REMOVE: Delete with LanguageManager
 └── integration/
     └── locale/                  # NEW: Integration tests
         └── locale-integration.spec.ts
 ```
 
-**Structure Decision**: Single project structure following existing Eligius patterns. New `locale/` module contains all locale-specific code. Existing adapters and controllers modified minimally to integrate with new system.
+**Structure Decision**: Single project structure following existing Eligius patterns. New `locale/` module replaces the old label system entirely. Old LanguageManager, language-eventbus-adapter, and related types will be deleted.
 
 ## Complexity Tracking
 
