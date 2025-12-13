@@ -5,24 +5,23 @@
  * Provides internationalization and localization support using rosetta.
  */
 
+// Classes
+export {LocaleLoader} from './locale-loader.ts';
+export {LocaleManager} from './locale-manager.ts';
 // Types
 export type {
-	TLanguageCode,
-	TLocaleValue,
-	TLocaleData,
-	TLocaleEntry,
-	ILocaleReference,
-	ILocalesConfiguration,
-	ILocaleManagerOptions,
-	LocaleEvents,
-	ILocaleManager,
-	ILocaleLoaderOptions,
-	ILocaleLoadResult,
-	ILocaleLoader,
+  ILocaleLoader,
+  ILocaleLoaderOptions,
+  ILocaleLoadResult,
+  ILocaleManager,
+  ILocaleManagerOptions,
+  ILocaleReference,
+  ILocalesConfiguration,
+  LocaleEvents,
+  TLanguageCode,
+  TLocaleData,
+  TLocaleEntry,
+  TLocaleValue,
 } from './types.ts';
-
 // Type guards
-export { isLocaleReference } from './types.ts';
-
-// Classes
-export { LocaleManager } from './locale-manager.ts';
+export {isLocaleReference} from './types.ts';
