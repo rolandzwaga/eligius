@@ -9,6 +9,7 @@ import type {
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
+import type {ILocaleManager, TLanguageCode} from './locale/types.ts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Engine Event Types
@@ -61,88 +62,6 @@ export type EngineEvents = {
   destroyed: [];
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Language Manager Event Types
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Event map for LanguageManager
- *
- * Note: Must be a `type` alias (not `interface`) for TypedEventEmitter constraint
- */
-export type LanguageEvents = {
-  /** Language changed */
-  change: [language: TLanguageCode, previousLanguage: TLanguageCode];
-};
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Language Manager Interface
-// ═══════════════════════════════════════════════════════════════════════════
-
-/**
- * Manages multi-language labels with explicit, testable API
- */
-export interface ILanguageManager {
-  // ─────────────────────────────────────────────────────────────────────────
-  // STATE
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /** Current language code (e.g., 'en-US', 'nl-NL') */
-  readonly language: string;
-
-  /** List of available language codes, derived from unique languages in label collections */
-  readonly availableLanguages: string[];
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // EVENTS
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Subscribe to language manager events
-   * @param event - Event name
-   * @param handler - Event handler
-   * @returns Unsubscribe function
-   */
-  on<K extends keyof LanguageEvents>(
-    event: K,
-    handler: (...args: LanguageEvents[K]) => void
-  ): () => void;
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // COMMANDS
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Change the current language
-   * @param language - New language code
-   * @throws If language code is empty or null
-   */
-  setLanguage(language: TLanguageCode): void;
-
-  /**
-   * Get a label collection by ID
-   * @param collectionId - Label collection ID
-   * @returns Label array or undefined if not found
-   */
-  getLabelCollection(collectionId: string): ILabel[] | undefined;
-
-  /**
-   * Get multiple label collections by IDs
-   * @param collectionIds - Array of label collection IDs
-   * @returns Array of label arrays (undefined for not found collections)
-   */
-  getLabelCollections(collectionIds: string[]): (ILabel[] | undefined)[];
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // LIFECYCLE
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /**
-   * Clean up resources
-   */
-  destroy(): void;
-}
-
 export type KeysOfType<T, U> = {
   [P in keyof T]-?: T[P] extends U | undefined ? P : never;
 }[keyof T];
@@ -158,8 +77,8 @@ export interface IEngineFactoryResult {
   /** The engine instance */
   engine: IEligiusEngine;
 
-  /** The language manager instance */
-  languageManager: ILanguageManager;
+  /** The locale manager instance for translations */
+  localeManager: ILocaleManager;
 
   /** The eventbus for external consumers */
   eventbus: IEventbus;
@@ -354,17 +273,6 @@ export interface ITimelineProviderInfo {
   playlist?: IPlaylist;
 }
 
-export interface ILanguageLabel {
-  id: string;
-  labels: ILabel[];
-}
-
-export interface ILabel {
-  id: string;
-  languageCode: TLanguageCode;
-  label: string;
-}
-
 /**
  *
  * Container type for a width and height
@@ -375,14 +283,8 @@ export interface IDimensions {
   height: number;
 }
 
-/**
- *
- * This represents an IETF language tag
- *
- * The format reads as follows: [Primary language subtag]-[Region subtag]
- *
- */
-export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
+// Re-export TLanguageCode from locale module (canonical location)
+export type {TLanguageCode} from './locale/types.ts';
 
 export interface ISubtitleCollection {
   languageCode: TLanguageCode;

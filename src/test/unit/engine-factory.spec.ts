@@ -4,8 +4,8 @@ import {SimplePlaylist} from '@timelineproviders/playlist/simple-playlist.ts';
 import {RafPositionSource} from '@timelineproviders/position-sources/raf-position-source.ts';
 import {ScrollPositionSource} from '@timelineproviders/position-sources/scroll-position-source.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {EngineFactory} from '../../engine-factory.ts';
-import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
+import {EngineFactory} from '@/engine-factory.ts';
+import type {IEngineFactory, ISimpleResourceImporter} from '@/types.ts';
 
 class MockImporter {
   import(name: string) {
@@ -110,23 +110,6 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
         },
       ],
       language: 'en-US',
-      labels: [
-        {
-          id: 'mainTitle',
-          labels: [
-            {
-              id: '111',
-              languageCode: 'en-US',
-              label: 'test 1',
-            },
-            {
-              id: '222',
-              languageCode: 'nl-NL',
-              label: 'tezt 1',
-            },
-          ],
-        },
-      ],
     };
 
     const result = factory.createEngine(config);
@@ -135,7 +118,7 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
     expect(result).toBeDefined();
     expect(result.engine).toBeDefined();
     expect(result.eventbus).toBeDefined();
-    expect(result.languageManager).toBeDefined();
+    expect(result.localeManager).toBeDefined();
     expect(result.destroy).toBeInstanceOf(Function);
   });
 
@@ -169,24 +152,23 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
           },
         ],
         language: 'en-US',
-        labels: [],
       };
     }
 
-    describe('destroy should not double-destroy languageManager', () => {
-      test<EngineFactorySuiteContext>('should not call languageManager.destroy() from factory since engine already does it', async context => {
+    describe('destroy should not double-destroy localeManager', () => {
+      test<EngineFactorySuiteContext>('should not call localeManager.destroy() from factory since engine already does it', async context => {
         const {factory} = context;
         const config = createMinimalConfig();
 
         const result = factory.createEngine(config);
 
-        // Spy on the languageManager's destroy method
-        const destroySpy = vi.spyOn(result.languageManager, 'destroy');
+        // Spy on the localeManager's destroy method
+        const destroySpy = vi.spyOn(result.localeManager, 'destroy');
 
         // Call the factory's destroy function
         await result.destroy();
 
-        // languageManager.destroy() should only be called once
+        // localeManager.destroy() should only be called once
         // (either by engine or by factory, not both)
         expect(destroySpy).toHaveBeenCalledTimes(1);
       });

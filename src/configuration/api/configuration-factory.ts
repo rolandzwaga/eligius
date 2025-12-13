@@ -4,7 +4,6 @@ import {
   EndableActionEditor,
   TimelineActionEditor,
 } from '@configuration/api/action-editor.ts';
-import {LabelEditor} from '@configuration/api/label-editor.ts';
 import {TimelineProvidersSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
 import type {
   IActionConfiguration,
@@ -15,13 +14,7 @@ import type {
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {mergeIfMissing} from '@util/merge-if-missing.ts';
 import {v4 as uuidv4} from 'uuid';
-import type {
-  ILabel,
-  ILanguageLabel,
-  KeysOfType,
-  TimelineTypes,
-  TLanguageCode,
-} from '../../types.ts';
+import type {KeysOfType, TimelineTypes, TLanguageCode} from '../../types.ts';
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
@@ -195,7 +188,6 @@ export class ConfigurationFactory {
       initActions: [],
       actions: [],
       timelines: [],
-      labels: [],
     };
 
     this.configuration = mergeIfMissing(this.configuration, newConfiguration);
@@ -491,104 +483,6 @@ export class ConfigurationFactory {
       if (idx > -1) {
         this.configuration.timelines.splice(idx, 1);
       }
-    }
-    return this;
-  }
-
-  private _initializeLabel(id: string, labels: ILanguageLabel[]) {
-    let label = labels.find(l => l.id === id);
-    if (!label) {
-      labels.push({
-        id: id,
-        labels: [],
-      });
-      label = labels[labels.length - 1];
-    }
-    return label;
-  }
-
-  private _getLabelTranslation(
-    labelTranslations: ILabel[],
-    languageCode: TLanguageCode
-  ) {
-    let translation = labelTranslations.find(
-      l => l.languageCode === languageCode
-    );
-    if (!translation) {
-      translation = {
-        id: uuidv4(),
-        languageCode: languageCode,
-        label: '',
-      };
-      labelTranslations.push(translation);
-    }
-    return translation;
-  }
-
-  /**
-   *
-   * Starts an editor for the label that is associated with the specified id
-   *
-   * @param id
-   * @returns
-   */
-  editLabel(id: string) {
-    const label = this.configuration.labels?.find(x => x.id === id);
-    if (label) {
-      return new LabelEditor(this, label);
-    } else {
-      throw new Error(`Language label with id '${id}' not found`);
-    }
-  }
-
-  /**
-   *
-   * Adds a label translation with the specified data
-   *
-   * @param id The id for the label
-   * @param languageCode The language code associated with the label
-   * @param translation The label text in the language specified by the language code
-   * @returns
-   */
-  addLabel(id: string, languageCode: TLanguageCode, translation: string) {
-    const labels = this._initializeCollection(this.configuration, 'labels');
-    const labelConfig = this._initializeLabel(id, labels);
-    const labelTranslation = this._getLabelTranslation(
-      labelConfig.labels,
-      languageCode
-    );
-    labelTranslation.label = translation;
-    return this;
-  }
-
-  /**
-   *
-   * Adds multiple translations with the specified data
-   *
-   * @param id The id for the label
-   * @param translations A record that holds language code to translations lookups
-   * @returns
-   */
-  addLabels(id: string, translations: Record<TLanguageCode, string>) {
-    Object.entries(translations).forEach(([code, translation]) =>
-      this.addLabel(id, code as TLanguageCode, translation)
-    );
-    return this;
-  }
-
-  /**
-   *
-   * Removes all translations with the given id
-   *
-   * @param id the id for the label
-   * @returns
-   */
-  removeLabel(id: string) {
-    const idx = this.configuration.labels.findIndex(x => x.id === id);
-    if (idx > -1) {
-      this.configuration.labels.splice(idx, 1);
-    } else {
-      throw new Error(`Label with id '${id}' not found!`);
     }
     return this;
   }

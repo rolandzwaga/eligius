@@ -7,8 +7,14 @@ import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 class MockElement {
   content: string = '';
+  attributes: Record<string, string> = {};
+
   html(content: string) {
     this.content = content;
+  }
+
+  attr(name: string, value: string) {
+    this.attributes[name] = value;
   }
 }
 
@@ -20,6 +26,7 @@ type LabelControllerSuiteContext = {
 } & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
+
 describe<LabelControllerSuiteContext>('LabelController', () => {
   beforeEach(context => {
     withContext<LabelControllerSuiteContext>(context);
@@ -29,18 +36,18 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     context.selectedElement = new MockElement() as unknown as JQuery;
     context.operationData = {
       selectedElement: context.selectedElement,
-      labelId: 'test',
+      translationKey: 'nav.home',
     };
   });
+
   test<LabelControllerSuiteContext>('should create the LabelController', context => {
     // given
     const {controller} = context;
 
     expect(controller.name).toBe('LabelController');
-    expect(controller.currentLanguage).toBeNull();
     expect(controller.operationData).toBeNull();
-    expect(controller.labelData).not.toBeNull();
   });
+
   test<LabelControllerSuiteContext>('should clone the operationData in init method', context => {
     // given
     const {controller, operationData} = context;
@@ -49,24 +56,12 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // expect
     expect(operationData).not.toBe(controller.operationData);
   });
-  test<LabelControllerSuiteContext>('should attach properly', context => {
+
+  test<LabelControllerSuiteContext>('given translationKey, when attached, then uses request-translation', context => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.onRequest('request-current-language', () => 'en-GB');
-
-    eventbus.onRequest('request-label-collection', () => [
-      {
-        id: '1111',
-        languageCode: 'nl-NL',
-        label: 'hallo',
-      },
-      {
-        id: '2222',
-        languageCode: 'en-GB',
-        label: 'hello',
-      },
-    ]);
+    eventbus.onRequest('request-translation', () => 'Home');
 
     // test
     controller.attach(eventbus);
@@ -74,66 +69,75 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // expect
     expect(
       (operationData.selectedElement as unknown as MockElement).content
-    ).toBe('hello');
+    ).toBe('Home');
   });
-  test<LabelControllerSuiteContext>('should set the text based on the new id', context => {
+
+  test<LabelControllerSuiteContext>('given translationKey, when request-translation returns null, then uses empty string', context => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.onRequest('request-current-language', () => 'en-GB');
-
-    const firstLabels = () => [
-      {
-        id: '1111',
-        languageCode: 'nl-NL',
-        label: 'hallo',
-      },
-      {
-        id: '2222',
-        languageCode: 'en-GB',
-        label: 'hello',
-      },
-    ];
-    const firstRemover = eventbus.onRequest(
-      'request-label-collection',
-      firstLabels
-    );
+    eventbus.onRequest('request-translation', () => null);
 
     // test
     controller.attach(eventbus);
-    firstRemover();
-    eventbus.onRequest('request-label-collection', () => [
-      {
-        id: '3333',
-        languageCode: 'nl-NL',
-        label: 'tot ziens',
-      },
-      {
-        id: '4444',
-        languageCode: 'en-GB',
-        label: 'goodbye',
-      },
-    ]);
-    controller.setLabelId('test2');
 
     // expect
     expect(
       (operationData.selectedElement as unknown as MockElement).content
-    ).toBe('goodbye');
+    ).toBe('');
   });
 
-  test<LabelControllerSuiteContext>('should throw error when label id does not exist', context => {
+  test<LabelControllerSuiteContext>('given translationKey mode, when language changes, then re-renders translation', context => {
     // given
-    const {controller, operationData, eventbus} = context;
-    controller.init(operationData);
-    eventbus.onRequest('request-current-language', () => 'en-GB');
+    const {controller, selectedElement, eventbus} = context;
+    const translationKeyData = {
+      selectedElement,
+      translationKey: 'nav.home',
+    };
 
-    // Simulate label not found - return null/undefined
-    eventbus.onRequest('request-label-collection', () => null);
+    controller.init(translationKeyData);
 
-    // test & expect
-    expect(() => controller.attach(eventbus)).toThrow(
-      "Label id 'test' does not exist!"
+    // Simulate locale-aware translation responses
+    let currentTranslation = 'Home';
+    eventbus.onRequest('request-translation', () => currentTranslation);
+
+    controller.attach(eventbus);
+    expect((selectedElement as unknown as MockElement).content).toBe('Home');
+
+    // test - change language and simulate new translation
+    currentTranslation = 'Thuis';
+    eventbus.broadcast('language-change', ['nl-NL']);
+
+    // expect
+    expect((selectedElement as unknown as MockElement).content).toBe('Thuis');
+  });
+
+  test<LabelControllerSuiteContext>('given translationKey mode, when setTranslationKey called, then updates content', context => {
+    // given
+    const {controller, selectedElement, eventbus} = context;
+    const translationKeyData = {
+      selectedElement,
+      translationKey: 'nav.home',
+    };
+
+    controller.init(translationKeyData);
+
+    // Return different translations based on key
+    eventbus.onRequest('request-translation', (key: string) => {
+      if (key === 'nav.home') return 'Home';
+      if (key === 'nav.about') return 'About Us';
+      return '';
+    });
+
+    controller.attach(eventbus);
+    expect((selectedElement as unknown as MockElement).content).toBe('Home');
+
+    // test
+    controller.setTranslationKey('nav.about');
+
+    // expect
+    expect((selectedElement as unknown as MockElement).content).toBe(
+      'About Us'
     );
   });
 
@@ -142,77 +146,72 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     const {controller, eventbus} = context;
     // Don't call init() - operationData will be null
 
-    let languageRequestCalled = false;
-    eventbus.onRequest('request-current-language', () => {
-      languageRequestCalled = true;
-      return 'en-GB';
+    let translationRequestCalled = false;
+    eventbus.onRequest('request-translation', () => {
+      translationRequestCalled = true;
+      return 'Home';
     });
 
     // test
     controller.attach(eventbus);
 
     // expect - should return early without requesting
-    expect(languageRequestCalled).toBe(false);
+    expect(translationRequestCalled).toBe(false);
   });
 
-  test<LabelControllerSuiteContext>('should handle language change event', context => {
+  test<LabelControllerSuiteContext>('should detach properly and not update on language change', context => {
     // given
     const {controller, operationData, eventbus} = context;
     controller.init(operationData);
-    eventbus.onRequest('request-current-language', () => 'en-GB');
 
-    eventbus.onRequest('request-label-collection', () => [
-      {
-        id: '1111',
-        languageCode: 'nl-NL',
-        label: 'hallo',
-      },
-      {
-        id: '2222',
-        languageCode: 'en-GB',
-        label: 'hello',
-      },
-    ]);
+    let currentTranslation = 'Home';
+    eventbus.onRequest('request-translation', () => currentTranslation);
 
     controller.attach(eventbus);
     expect(
       (operationData.selectedElement as unknown as MockElement).content
-    ).toBe('hello');
+    ).toBe('Home');
 
-    // test - trigger language change
+    // test - detach and then try to trigger language change
+    controller.detach(eventbus);
+    currentTranslation = 'Thuis';
     eventbus.broadcast('language-change', ['nl-NL']);
 
-    // expect - content should update to Dutch
+    // expect - content should NOT change since we detached
     expect(
       (operationData.selectedElement as unknown as MockElement).content
-    ).toBe('hallo');
+    ).toBe('Home');
   });
 
-  test<LabelControllerSuiteContext>('should detach and cleanup properly', context => {
+  test<LabelControllerSuiteContext>('given attributeName, when attached, then sets attribute instead of innerHTML', context => {
     // given
-    const {controller, operationData, eventbus} = context;
+    const {controller, eventbus} = context;
+    const mockElement = new MockElement() as unknown as JQuery;
+    const operationData = {
+      selectedElement: mockElement,
+      translationKey: 'button.submit',
+      attributeName: 'title',
+    };
+
     controller.init(operationData);
-    eventbus.onRequest('request-current-language', () => 'en-GB');
-
-    eventbus.onRequest('request-label-collection', () => [
-      {
-        id: '1111',
-        languageCode: 'nl-NL',
-        label: 'hallo',
-      },
-      {
-        id: '2222',
-        languageCode: 'en-GB',
-        label: 'hello',
-      },
-    ]);
-
-    controller.attach(eventbus);
+    eventbus.onRequest('request-translation', () => 'Submit Form');
 
     // test
-    controller.detach(eventbus);
+    controller.attach(eventbus);
 
-    // expect
-    expect(controller.requestLabelDataBound).toBeUndefined();
+    // expect - should set attribute, not innerHTML
+    expect((mockElement as unknown as MockElement).content).toBe('');
+    expect((mockElement as unknown as MockElement).attributes.title).toBe(
+      'Submit Form'
+    );
+  });
+
+  test<LabelControllerSuiteContext>('setTranslationKey should not update if operationData is null', context => {
+    // given
+    const {controller} = context;
+    // Don't call init() - operationData will be null
+
+    // test & expect - should not throw
+    expect(() => controller.setTranslationKey('new.key')).not.toThrow();
   });
 });

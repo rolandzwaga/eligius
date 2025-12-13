@@ -5,17 +5,13 @@
   "type": "object",
   "title": "The toggleFormElement schema",
   "description": "Enables or disables form input elements (inputs, selects, textareas, buttons).\n\nSets the `disabled` property on the element. When `enabled` is true, removes the disabled\nattribute; when false, adds the disabled attribute.",
-  "required": [
-    "systemName"
-  ],
+  "required": ["systemName"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": [
-        "123e4567-e89b-12d3-a456-426614174000"
-      ],
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -29,9 +25,7 @@
       "properties": {
         "enabled": {
           "$id": "#/properties/operationData/enabled",
-          "type": [
-            "boolean"
-          ]
+          "type": ["boolean"]
         }
       }
     }

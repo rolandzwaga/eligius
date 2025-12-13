@@ -1,30 +1,34 @@
-import type {EventName, IEventbus, TEventbusRemover} from '@eventbus/types.ts';
-import type {
-  IEligiusEngine,
-  ILabel,
-  ILanguageManager,
-  LanguageEvents,
-  TLanguageCode,
-} from '../types.ts';
-import type {IAdapter} from './types.ts';
-
 /**
- * Bridges LanguageManager to/from the eventbus.
+ * LocaleEventbusAdapter - Bridges LocaleManager to/from the eventbus
+ * Feature: 005-rosetta-locale-manager
  *
  * This adapter:
- * - Forwards language manager events to eventbus broadcasts
- * - Forwards eventbus language commands to language manager methods
- * - Handles eventbus state queries by reading language manager properties
- * - Updates DOM lang attribute when language changes
- *
- * Note: Requires engine reference to update DOM lang attribute on language change
+ * - Forwards LocaleManager events to eventbus broadcasts
+ * - Forwards eventbus language commands to LocaleManager methods
+ * - Handles eventbus state queries by reading LocaleManager properties
+ * - Updates DOM lang attribute when locale changes
  */
-export class LanguageEventbusAdapter implements IAdapter {
-  private _languageEventRemovers: Array<() => void> = [];
+
+import type {IAdapter} from '@adapters/types.ts';
+import type {EventName, IEventbus, TEventbusRemover} from '@eventbus/types.ts';
+import type {
+  ILocaleManager,
+  LocaleEvents,
+  TLanguageCode,
+} from '@locale/types.ts';
+import type {IEligiusEngine} from '@/types.ts';
+
+/**
+ * Bridges LocaleManager to/from the eventbus.
+ *
+ * Note: Requires engine reference to update DOM lang attribute on locale change.
+ */
+export class LocaleEventbusAdapter implements IAdapter {
+  private _localeEventRemovers: Array<() => void> = [];
   private _eventbusRemovers: TEventbusRemover[] = [];
 
   constructor(
-    private _languageManager: ILanguageManager,
+    private _localeManager: ILocaleManager,
     private _eventbus: IEventbus,
     private _engine: IEligiusEngine
   ) {}
@@ -33,7 +37,7 @@ export class LanguageEventbusAdapter implements IAdapter {
    * Connect adapter - start listening and forwarding
    */
   connect(): void {
-    this._subscribeToLanguageManagerEvents();
+    this._subscribeToLocaleManagerEvents();
     this._subscribeToEventbusEvents();
   }
 
@@ -41,62 +45,64 @@ export class LanguageEventbusAdapter implements IAdapter {
    * Disconnect adapter - stop all listeners
    */
   disconnect(): void {
-    this._languageEventRemovers.forEach(remove => remove());
-    this._languageEventRemovers = [];
+    this._localeEventRemovers.forEach(remove => remove());
+    this._localeEventRemovers = [];
 
     this._eventbusRemovers.forEach(remove => remove());
     this._eventbusRemovers = [];
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // LanguageManager Events → Eventbus Broadcasts
+  // LocaleManager Events → Eventbus Broadcasts
   // ─────────────────────────────────────────────────────────────────────────
 
-  private _subscribeToLanguageManagerEvents(): void {
-    this._onLanguageEvent(
+  private _subscribeToLocaleManagerEvents(): void {
+    this._onLocaleEvent(
       'change',
-      (language: TLanguageCode, _previousLanguage: TLanguageCode) => {
-        this._setRootElementLang(language);
-        this._eventbus.broadcast('language-change', [language]);
+      (newLocale: TLanguageCode, _oldLocale: TLanguageCode) => {
+        this._setRootElementLang(newLocale);
+        this._eventbus.broadcast('language-change', [newLocale]);
       }
     );
   }
 
-  private _onLanguageEvent<K extends keyof LanguageEvents>(
+  private _onLocaleEvent<K extends keyof LocaleEvents>(
     event: K,
-    handler: (...args: LanguageEvents[K]) => void
+    handler: (...args: LocaleEvents[K]) => void
   ): void {
-    const remover = this._languageManager.on(event, handler);
-    this._languageEventRemovers.push(remover);
+    const remover = this._localeManager.on(event, handler);
+    this._localeEventRemovers.push(remover);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Eventbus Commands → LanguageManager Methods
+  // Eventbus Commands → LocaleManager Methods
   // ─────────────────────────────────────────────────────────────────────────
 
   private _subscribeToEventbusEvents(): void {
     // Language change command
     this._onEventbusEvent('language-change', (language: TLanguageCode) => {
-      this._languageManager.setLanguage(language);
+      // Check if locale is available before switching
+      if (!this._localeManager.availableLocales.includes(language)) {
+        console.warn(
+          `[LocaleEventbusAdapter] Locale '${language}' is not available. Available locales: ${this._localeManager.availableLocales.join(', ')}`
+        );
+        return;
+      }
+
+      this._localeManager.setLocale(language);
       this._setRootElementLang(language);
     });
 
     // State queries - using onRequest for synchronous responses
     this._registerRequest('request-current-language', () => {
-      return this._languageManager.language;
+      return this._localeManager.locale;
     });
 
+    // Translation request - exposes t() method via eventbus
     this._registerRequest(
-      'request-label-collection',
-      (labelId: string): ILabel[] | undefined => {
-        return this._languageManager.getLabelCollection(labelId);
-      }
-    );
-
-    this._registerRequest(
-      'request-label-collections',
-      (labelIds: string[]): (ILabel[] | undefined)[] => {
-        return this._languageManager.getLabelCollections(labelIds);
+      'request-translation',
+      (key: string | string[], params?: Record<string, unknown>) => {
+        return this._localeManager.t(key, params);
       }
     );
   }
@@ -121,12 +127,12 @@ export class LanguageEventbusAdapter implements IAdapter {
   // DOM Updates
   // ─────────────────────────────────────────────────────────────────────────
 
-  private _setRootElementLang(language: TLanguageCode): void {
-    const lang = this._extractPrimaryLanguage(language);
+  private _setRootElementLang(locale: TLanguageCode): void {
+    const lang = this._extractPrimaryLanguage(locale);
     this._engine.engineRoot.attr('lang', lang);
   }
 
-  private _extractPrimaryLanguage(culture: TLanguageCode): string {
-    return culture.split('-').shift() as string;
+  private _extractPrimaryLanguage(locale: TLanguageCode): string {
+    return locale.split('-').shift() as string;
   }
 }

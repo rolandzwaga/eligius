@@ -73,7 +73,6 @@ export class ConfigurationResolver implements IConfigurationResolver {
         this.importer,
         this.eventbus
       ),
-      labels: deepCopy(configuration.labels),
       timelineFlow: deepCopy(configuration.timelineFlow),
       timelines: resolveTimelines(
         configuration.timelines,

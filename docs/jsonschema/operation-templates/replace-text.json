@@ -5,17 +5,13 @@
   "type": "object",
   "title": "The replaceText schema",
   "description": "Finds and replaces text using literal string or regex pattern.\n\nOperates on textContent passed from previous operations (e.g., getTextContent).\nSupports regex patterns with global flag for multiple replacements.\nUpdates textContent with replaced text and sets replacementCount.",
-  "required": [
-    "systemName"
-  ],
+  "required": ["systemName"],
   "properties": {
     "id": {
       "$id": "#/properties/id",
       "type": "string",
       "title": "The Id Schema",
-      "examples": [
-        "123e4567-e89b-12d3-a456-426614174000"
-      ],
+      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
       "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
     },
     "systemName": {
@@ -33,9 +29,7 @@
         },
         "replacement": {
           "$id": "#/properties/operationData/replacement",
-          "type": [
-            "string"
-          ]
+          "type": ["string"]
         }
       }
     }

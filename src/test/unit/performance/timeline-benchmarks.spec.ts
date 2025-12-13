@@ -105,7 +105,6 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
       initActions: [],
       actions: [],
       timelines: [],
-      labels: [],
     };
   });
 

@@ -148,20 +148,17 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
   });
 
   test<MemoryTestContext>('LabelController attach/detach cycles should not leak memory', context => {
-    // given: LabelController with label data
+    // given: LabelController with translation key
     const operationData = {
       selectedElement: context.mockElement,
-      labelId: 'test-label',
+      translationKey: 'test.label',
     };
 
     const controller = new LabelController();
     controller.init(operationData);
 
     // Register request responders for LabelController.attach() to use
-    context.eventbus.onRequest('request-current-language', () => 'en-US');
-    context.eventbus.onRequest('request-label-collection', () => [
-      {id: '1', languageCode: 'en-US', label: 'Test Label'},
-    ]);
+    context.eventbus.onRequest('request-translation', () => 'Test Label');
 
     let attachCount = 0;
     let detachCount = 0;

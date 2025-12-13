@@ -17,7 +17,7 @@ import type {
 } from '@timelineproviders/types.ts';
 import {TypedEventEmitter} from '@util/typed-event-emitter.ts';
 import $ from 'jquery';
-import type {LanguageManager} from './language-manager.ts';
+import type {ILocaleManager} from './locale/types.ts';
 import type {
   EngineEvents,
   IEligiusEngine,
@@ -130,7 +130,7 @@ export class EligiusEngine implements IEligiusEngine {
     private configuration: IResolvedEngineConfiguration,
     private eventbus: IEventbus,
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
-    private languageManager: LanguageManager
+    private localeManager: ILocaleManager
   ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -432,7 +432,7 @@ export class EligiusEngine implements IEligiusEngine {
   async destroy() {
     await this._cleanUp();
 
-    this.languageManager.destroy();
+    this.localeManager.destroy();
 
     this._activePositionSource = undefined;
     this._activeContainerProvider = undefined;

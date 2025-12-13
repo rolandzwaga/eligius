@@ -1,4 +1,6 @@
 import type {IEventbus} from '@eventbus/types.ts';
+import type {ILocaleManager} from '@locale/types.ts';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
 import type {
   IContainerProvider,
   IPositionSource,
@@ -15,17 +17,15 @@ import {
   test,
   vi,
 } from 'vitest';
-import {EligiusEngine} from '../../eligius-engine.ts';
-import type {LanguageManager} from '../../language-manager.ts';
-import type {ITimelineProviderInfo} from '../../types.ts';
-import {createMockEventbus} from '../fixtures/eventbus-factory.ts';
+import {EligiusEngine} from '@/eligius-engine.ts';
+import type {ITimelineProviderInfo} from '@/types.ts';
 
 interface EligiusEngineSuiteContext {
   engine: EligiusEngine;
   configuration: any;
   eventbus: IEventbus;
   providers: any;
-  languageManager: LanguageManager;
+  localeManager: ILocaleManager;
   mockPositionSource: IPositionSource & ISeekable;
   mockContainerProvider: IContainerProvider;
 }
@@ -154,9 +154,9 @@ describe('EligiusEngine', () => {
     context.mockPositionSource = createMockPositionSource();
     context.mockContainerProvider = createMockContainerProvider();
     context.eventbus = createMockEventbus();
-    context.languageManager = {
+    context.localeManager = {
       destroy: vi.fn(),
-    } as unknown as LanguageManager;
+    } as unknown as ILocaleManager;
     context.providers = {
       animation: {
         id: 'animation-provider',
@@ -170,7 +170,7 @@ describe('EligiusEngine', () => {
       context.configuration,
       context.eventbus,
       context.providers,
-      context.languageManager
+      context.localeManager
     );
   });
 
@@ -459,7 +459,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
 
       // init() throws synchronously when container not found
@@ -485,7 +485,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
 
       await expect(engine.init()).rejects.toThrow('No timelines present');
@@ -497,7 +497,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
 
       await expect(engine.init()).rejects.toThrow(
@@ -595,7 +595,7 @@ describe('EligiusEngine', () => {
 
       await context.engine.destroy();
 
-      expect(context.languageManager.destroy).toHaveBeenCalled();
+      expect(context.localeManager.destroy).toHaveBeenCalled();
     });
 
     test<EligiusEngineSuiteContext>('should destroy all position sources', async context => {
@@ -855,7 +855,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
 
       // The engine won't have an active provider if init fails
@@ -1189,7 +1189,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
       await context.engine.init();
 
@@ -1227,7 +1227,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
       await context.engine.init();
 
@@ -1296,7 +1296,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
       await context.engine.init();
 
@@ -1343,7 +1343,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
       await context.engine.init();
 
@@ -1399,7 +1399,7 @@ describe('EligiusEngine', () => {
         context.configuration,
         context.eventbus,
         context.providers,
-        context.languageManager
+        context.localeManager
       );
       await context.engine.init();
 
@@ -1498,7 +1498,7 @@ describe('EligiusEngine', () => {
           context.configuration,
           context.eventbus,
           context.providers,
-          context.languageManager
+          context.localeManager
         );
         await context.engine.init();
 

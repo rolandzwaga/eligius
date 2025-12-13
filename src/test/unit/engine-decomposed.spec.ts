@@ -3,6 +3,7 @@ import type {
   ITimelineProviderSettings,
 } from '@configuration/types.ts';
 import type {IEventbus} from '@eventbus/types.ts';
+import type {ILocaleManager} from '@locale/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
@@ -12,9 +13,8 @@ import type {
   TSourceState,
 } from '@timelineproviders/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {EligiusEngine} from '../../eligius-engine.ts';
-import type {LanguageManager} from '../../language-manager.ts';
-import type {ITimelineProviderInfo, TimelineTypes} from '../../types.ts';
+import {EligiusEngine} from '@/eligius-engine.ts';
+import type {ITimelineProviderInfo, TimelineTypes} from '@/types.ts';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock Factories
@@ -101,10 +101,17 @@ function createMockEventbus(): IEventbus {
   } as unknown as IEventbus;
 }
 
-function createMockLanguageManager(): LanguageManager {
+function createMockLocaleManager(): ILocaleManager {
   return {
+    locale: 'en-US',
+    availableLocales: ['en-US'],
+    debug: false,
+    t: vi.fn().mockReturnValue(''),
+    setLocale: vi.fn(),
+    loadLocale: vi.fn(),
     destroy: vi.fn(),
-  } as unknown as LanguageManager;
+    on: vi.fn().mockReturnValue(() => {}),
+  } as unknown as ILocaleManager;
 }
 
 function createMockConfiguration(
@@ -136,7 +143,6 @@ function createMockConfiguration(
         timelineActions: [],
       },
     ],
-    labels: [],
     ...overrides,
   };
 }
@@ -158,7 +164,7 @@ interface EngineTestContext extends TestContext {
   config: IResolvedEngineConfiguration;
   eventbus: IEventbus;
   providers: Record<TimelineTypes, ITimelineProviderInfo>;
-  languageManager: LanguageManager;
+  localeManager: ILocaleManager;
   positionSource: IPositionSource;
   containerProvider: IContainerProvider;
 }
@@ -187,7 +193,7 @@ describe('EligiusEngine with decomposed interfaces - State Queries', () => {
 
     context.config = createMockConfiguration();
     context.eventbus = createMockEventbus();
-    context.languageManager = createMockLanguageManager();
+    context.localeManager = createMockLocaleManager();
   });
 
   describe('position property', () => {
@@ -195,14 +201,14 @@ describe('EligiusEngine with decomposed interfaces - State Queries', () => {
       config,
       eventbus,
       providers,
-      languageManager,
+      localeManager,
       positionSource,
     }) => {
       const engine = new EligiusEngine(
         config,
         eventbus,
         providers,
-        languageManager
+        localeManager
       );
 
       // Note: Engine needs to be initialized to have an active position source
@@ -216,14 +222,14 @@ describe('EligiusEngine with decomposed interfaces - State Queries', () => {
       config,
       eventbus,
       providers,
-      languageManager,
+      localeManager,
       positionSource,
     }) => {
       const engine = new EligiusEngine(
         config,
         eventbus,
         providers,
-        languageManager
+        localeManager
       );
 
       expect(positionSource.getDuration).toBeDefined();
@@ -235,14 +241,14 @@ describe('EligiusEngine with decomposed interfaces - State Queries', () => {
       config,
       eventbus,
       providers,
-      languageManager,
+      localeManager,
       containerProvider,
     }) => {
       const engine = new EligiusEngine(
         config,
         eventbus,
         providers,
-        languageManager
+        localeManager
       );
 
       expect(containerProvider.getContainer).toBeDefined();
@@ -251,7 +257,7 @@ describe('EligiusEngine with decomposed interfaces - State Queries', () => {
     test<EngineTestContext>('given no container provider, when container accessed, then returns undefined', ({
       config,
       eventbus,
-      languageManager,
+      localeManager,
     }) => {
       const providersWithoutContainer: Record<
         TimelineTypes,
@@ -267,7 +273,7 @@ describe('EligiusEngine with decomposed interfaces - State Queries', () => {
         config,
         eventbus,
         providersWithoutContainer,
-        languageManager
+        localeManager
       );
 
       // Structure verification
@@ -298,7 +304,7 @@ describe('EligiusEngine with decomposed interfaces - Playback Control', () => {
 
     context.config = createMockConfiguration();
     context.eventbus = createMockEventbus();
-    context.languageManager = createMockLanguageManager();
+    context.localeManager = createMockLocaleManager();
   });
 
   describe('start() method', () => {

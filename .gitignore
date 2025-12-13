@@ -24,3 +24,4 @@ src/**/*.js.map
 src/**/*.d.ts
 # But allow legitimate declaration files
 !src/@types/**/*.d.ts
+/jsonschema/eligius-configuration.json
