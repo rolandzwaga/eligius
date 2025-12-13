@@ -2,16 +2,19 @@
  * Locale Integration Tests
  * Feature: 005-rosetta-locale-manager
  *
- * Tests for inline locale configuration in engine configuration.
+ * Tests for inline locale configuration and eventbus integration.
  */
 
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
+import {LocaleEventbusAdapter} from '../../../adapters/locale-eventbus-adapter.ts';
 import {LocaleManager} from '../../../locale/locale-manager.ts';
 import type {
   ILocalesConfiguration,
   TLanguageCode,
   TLocaleData,
 } from '../../../locale/types.ts';
+import type {IEventbus} from '../../../eventbus/types.ts';
+import type {IEligiusEngine} from '../../../types.ts';
 
 // =============================================================================
 // Test Context
@@ -115,5 +118,110 @@ describe<LocaleIntegrationTestContext>('US3: Inline Locale Configuration', () =>
 
     // Verify Dutch
     expect(manager.t('nav.home')).toBe('Thuis');
+  });
+});
+
+// =============================================================================
+// Phase 8 Integration Tests (T084, T088): Eventbus Integration
+// =============================================================================
+
+describe('Phase 8: Eventbus Integration', () => {
+  // T084: given LocaleManager + eventbus adapter, when language changed, then event propagates
+  test('given LocaleManager + eventbus adapter, when language changed via eventbus, then LocaleManager updates', () => {
+    const manager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+    });
+
+    manager.loadLocale('en-US' as TLanguageCode, {greeting: 'Hello'});
+    manager.loadLocale('nl-NL' as TLanguageCode, {greeting: 'Hallo'});
+
+    // Create mock eventbus
+    const eventHandlers = new Map<string, (...args: unknown[]) => void>();
+    const requestHandlers = new Map<string, (...args: unknown[]) => unknown>();
+
+    const mockEventbus: IEventbus = {
+      on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
+        eventHandlers.set(event, handler);
+        return () => eventHandlers.delete(event);
+      }),
+      onRequest: vi.fn((event: string, handler: (...args: unknown[]) => unknown) => {
+        requestHandlers.set(event, handler);
+        return () => requestHandlers.delete(event);
+      }),
+      broadcast: vi.fn(),
+      request: vi.fn((event: string, ...args: unknown[]) => {
+        const handler = requestHandlers.get(event);
+        return handler ? handler(...args) : undefined;
+      }),
+    } as unknown as IEventbus;
+
+    // Create mock engine
+    const mockEngine = {
+      engineRoot: {
+        attr: vi.fn(),
+      },
+    } as unknown as IEligiusEngine;
+
+    // Connect adapter
+    const adapter = new LocaleEventbusAdapter(manager, mockEventbus, mockEngine);
+    adapter.connect();
+
+    // Simulate language change via eventbus
+    const languageChangeHandler = eventHandlers.get('language-change');
+    expect(languageChangeHandler).toBeDefined();
+    languageChangeHandler!('nl-NL');
+
+    // Verify LocaleManager was updated
+    expect(manager.locale).toBe('nl-NL');
+    expect(manager.t('greeting')).toBe('Hallo');
+
+    adapter.disconnect();
+  });
+
+  // T088: given adapter connected, when request-translation called, then returns translation
+  test('given adapter connected, when request-translation called, then returns translation', () => {
+    const manager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+    });
+
+    manager.loadLocale('en-US' as TLanguageCode, {
+      greeting: 'Hello {{name}}!',
+      nav: {home: 'Home'},
+    });
+
+    // Create mock eventbus
+    const requestHandlers = new Map<string, (...args: unknown[]) => unknown>();
+
+    const mockEventbus: IEventbus = {
+      on: vi.fn(() => () => {}),
+      onRequest: vi.fn((event: string, handler: (...args: unknown[]) => unknown) => {
+        requestHandlers.set(event, handler);
+        return () => requestHandlers.delete(event);
+      }),
+      broadcast: vi.fn(),
+      request: vi.fn((event: string, ...args: unknown[]) => {
+        const handler = requestHandlers.get(event);
+        return handler ? handler(...args) : undefined;
+      }),
+    } as unknown as IEventbus;
+
+    const mockEngine = {
+      engineRoot: {attr: vi.fn()},
+    } as unknown as IEligiusEngine;
+
+    // Connect adapter
+    const adapter = new LocaleEventbusAdapter(manager, mockEventbus, mockEngine);
+    adapter.connect();
+
+    // Call request-translation via eventbus
+    const result = mockEventbus.request('request-translation', 'greeting', {name: 'World'});
+
+    expect(result).toBe('Hello World!');
+
+    // Test nested key
+    const navResult = mockEventbus.request('request-translation', 'nav.home');
+    expect(navResult).toBe('Home');
+
+    adapter.disconnect();
   });
 });

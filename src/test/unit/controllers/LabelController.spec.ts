@@ -215,4 +215,81 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     // expect
     expect(controller.requestLabelDataBound).toBeUndefined();
   });
+
+  // =============================================================================
+  // Phase 8: translationKey mode tests (rosetta-based locale system)
+  // =============================================================================
+
+  test<LabelControllerSuiteContext>('given translationKey, when attached, then uses request-translation', context => {
+    // given
+    const {controller, selectedElement, eventbus} = context;
+    const translationKeyData = {
+      selectedElement,
+      translationKey: 'nav.home',
+    };
+
+    controller.init(translationKeyData);
+    eventbus.onRequest('request-current-language', () => 'en-US');
+    eventbus.onRequest('request-translation', () => 'Home');
+
+    // test
+    controller.attach(eventbus);
+
+    // expect
+    expect((selectedElement as unknown as MockElement).content).toBe('Home');
+  });
+
+  test<LabelControllerSuiteContext>('given translationKey mode, when language changes, then re-renders translation', context => {
+    // given
+    const {controller, selectedElement, eventbus} = context;
+    const translationKeyData = {
+      selectedElement,
+      translationKey: 'nav.home',
+    };
+
+    controller.init(translationKeyData);
+    eventbus.onRequest('request-current-language', () => 'en-US');
+
+    // Simulate locale-aware translation responses
+    let currentTranslation = 'Home';
+    eventbus.onRequest('request-translation', () => currentTranslation);
+
+    controller.attach(eventbus);
+    expect((selectedElement as unknown as MockElement).content).toBe('Home');
+
+    // test - change language and simulate new translation
+    currentTranslation = 'Thuis';
+    eventbus.broadcast('language-change', ['nl-NL']);
+
+    // expect
+    expect((selectedElement as unknown as MockElement).content).toBe('Thuis');
+  });
+
+  test<LabelControllerSuiteContext>('given translationKey mode, when setTranslationKey called, then updates content', context => {
+    // given
+    const {controller, selectedElement, eventbus} = context;
+    const translationKeyData = {
+      selectedElement,
+      translationKey: 'nav.home',
+    };
+
+    controller.init(translationKeyData);
+    eventbus.onRequest('request-current-language', () => 'en-US');
+
+    // Return different translations based on key
+    eventbus.onRequest('request-translation', (key: string) => {
+      if (key === 'nav.home') return 'Home';
+      if (key === 'nav.about') return 'About Us';
+      return '';
+    });
+
+    controller.attach(eventbus);
+    expect((selectedElement as unknown as MockElement).content).toBe('Home');
+
+    // test
+    controller.setTranslationKey('nav.about');
+
+    // expect
+    expect((selectedElement as unknown as MockElement).content).toBe('About Us');
+  });
 });
