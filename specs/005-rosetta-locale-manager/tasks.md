@@ -114,24 +114,24 @@
 
 ### Tests for User Story 2
 
-- [ ] T032 [P] [US2] Create test file src/test/unit/adapters/locale-eventbus-adapter.spec.ts
-- [ ] T033 [P] [US2] Write test: given adapter connected, when language-change broadcast, then LocaleManager.setLocale called
-- [ ] T034 [P] [US2] Write test: given adapter connected, when request-current-language received, then returns current locale
-- [ ] T035 [P] [US2] Write test: given locale changed, when adapter connected, then updates root element lang attribute
-- [ ] T036 [P] [US2] Write test: given setLocale with unavailable locale, when called, then falls back to default and logs warning
-- [ ] T037 [US2] **VERIFY TESTS FAIL**: Run `npm test` - new US2 tests must fail
+- [x] T032 [P] [US2] Create test file src/test/unit/adapters/locale-eventbus-adapter.spec.ts
+- [x] T033 [P] [US2] Write test: given adapter connected, when language-change broadcast, then LocaleManager.setLocale called
+- [x] T034 [P] [US2] Write test: given adapter connected, when request-current-language received, then returns current locale
+- [x] T035 [P] [US2] Write test: given locale changed, when adapter connected, then updates root element lang attribute
+- [x] T036 [P] [US2] Write test: given setLocale with unavailable locale, when called, then falls back to default and logs warning
+- [x] T037 [US2] **VERIFY TESTS FAIL**: Run `npm test` - new US2 tests must fail
 
 ### Implementation for User Story 2
 
-- [ ] T038 [US2] Create NEW LocaleEventbusAdapter in src/adapters/locale-eventbus-adapter.ts
-- [ ] T039 [US2] Implement connect() method with eventbus listeners in src/adapters/locale-eventbus-adapter.ts
-- [ ] T040 [US2] Implement disconnect() method for cleanup in src/adapters/locale-eventbus-adapter.ts
-- [ ] T041 [US2] Handle language-change event forwarding in src/adapters/locale-eventbus-adapter.ts
-- [ ] T042 [US2] Handle request-current-language response in src/adapters/locale-eventbus-adapter.ts
-- [ ] T043 [US2] Update root element lang attribute on locale change in src/adapters/locale-eventbus-adapter.ts
-- [ ] T044 [US2] Implement fallback to default locale when switching to unavailable locale in src/locale/locale-manager.ts
-- [ ] T045 [US2] Run `npm test` to verify US2 tests pass (green phase)
-- [ ] T046 [US2] Commit: `git add . && git commit -m "feat(locale): [Phase 4] US2 - Language switching via eventbus"`
+- [x] T038 [US2] Create NEW LocaleEventbusAdapter in src/adapters/locale-eventbus-adapter.ts
+- [x] T039 [US2] Implement connect() method with eventbus listeners in src/adapters/locale-eventbus-adapter.ts
+- [x] T040 [US2] Implement disconnect() method for cleanup in src/adapters/locale-eventbus-adapter.ts
+- [x] T041 [US2] Handle language-change event forwarding in src/adapters/locale-eventbus-adapter.ts
+- [x] T042 [US2] Handle request-current-language response in src/adapters/locale-eventbus-adapter.ts
+- [x] T043 [US2] Update root element lang attribute on locale change in src/adapters/locale-eventbus-adapter.ts
+- [x] T044 [US2] Implement fallback to default locale when switching to unavailable locale in src/locale/locale-manager.ts
+- [x] T045 [US2] Run `npm test` to verify US2 tests pass (green phase)
+- [x] T046 [US2] Commit: `git add . && git commit -m "feat(locale): [Phase 4] US2 - Language switching via eventbus"`
 
 **Checkpoint**: Language switching works via eventbus
 
