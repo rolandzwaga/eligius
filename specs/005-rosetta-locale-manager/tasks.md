@@ -33,11 +33,11 @@
 
 **Purpose**: Install dependencies and create module structure
 
-- [ ] T001 Install rosetta dependency: `npm install rosetta`
-- [ ] T002 Create locale module directory: `mkdir -p src/locale src/test/unit/locale src/test/integration/locale`
-- [ ] T003 [P] Create type definitions in src/locale/types.ts from contracts/locale-types.ts
-- [ ] T004 [P] Create barrel export in src/locale/index.ts
-- [ ] T005 Commit: `git add . && git commit -m "feat(locale): [Phase 1] Setup locale module structure"`
+- [x] T001 Install rosetta dependency: `npm install rosetta`
+- [x] T002 Create locale module directory: `mkdir -p src/locale src/test/unit/locale src/test/integration/locale`
+- [x] T003 [P] Create type definitions in src/locale/types.ts from contracts/locale-types.ts
+- [x] T004 [P] Create barrel export in src/locale/index.ts
+- [x] T005 Commit: `git add . && git commit -m "feat(locale): [Phase 1] Setup locale module structure"`
 
 **Checkpoint**: Module structure ready
 
@@ -51,29 +51,29 @@
 
 ### Prerequisite
 
-- [ ] T006 **READ specs/TESTING-GUIDE.md** - understand mock patterns, vi.hoisted(), timer mocking before writing tests
+- [x] T006 **READ specs/TESTING-GUIDE.md** - understand mock patterns, vi.hoisted(), timer mocking before writing tests
 
 ### Tests for Foundation
 
-- [ ] T007 Create test file src/test/unit/locale/locale-manager.spec.ts with test context setup
-- [ ] T008 [P] Write test: given rosetta instance, when loadLocale called, then translations stored
-- [ ] T009 [P] Write test: given loaded locale, when t() called with key, then returns translation
-- [ ] T010 [P] Write test: given locale with interpolation, when t() called with params, then placeholders replaced
-- [ ] T011 [P] Write test: given nested keys, when t() called with dot notation, then traverses structure
-- [ ] T012 Write test: given LocaleManager, when setLocale called, then emits change event
-- [ ] T013 **VERIFY TESTS FAIL**: Run `npm test` - all new tests must fail (red phase)
+- [x] T007 Create test file src/test/unit/locale/locale-manager.spec.ts with test context setup
+- [x] T008 [P] Write test: given rosetta instance, when loadLocale called, then translations stored
+- [x] T009 [P] Write test: given loaded locale, when t() called with key, then returns translation
+- [x] T010 [P] Write test: given locale with interpolation, when t() called with params, then placeholders replaced
+- [x] T011 [P] Write test: given nested keys, when t() called with dot notation, then traverses structure
+- [x] T012 Write test: given LocaleManager, when setLocale called, then emits change event
+- [x] T013 **VERIFY TESTS FAIL**: Run `npm test` - all new tests must fail (red phase)
 
 ### Implementation for Foundation
 
-- [ ] T014 Implement LocaleManager class wrapping rosetta in src/locale/locale-manager.ts
-- [ ] T015 Implement t() method with key resolution and interpolation in src/locale/locale-manager.ts
-- [ ] T016 Implement loadLocale() method in src/locale/locale-manager.ts
-- [ ] T017 Implement event emission (on/off pattern) in src/locale/locale-manager.ts
-- [ ] T018 Implement setLocale() with validation and event emission in src/locale/locale-manager.ts
-- [ ] T019 Implement destroy() cleanup method in src/locale/locale-manager.ts
-- [ ] T020 Export LocaleManager from src/locale/index.ts
-- [ ] T021 Run `npm test` to verify all foundation tests pass (green phase)
-- [ ] T022 Commit: `git add . && git commit -m "feat(locale): [Phase 2] Core LocaleManager implementation"`
+- [x] T014 Implement LocaleManager class wrapping rosetta in src/locale/locale-manager.ts
+- [x] T015 Implement t() method with key resolution and interpolation in src/locale/locale-manager.ts
+- [x] T016 Implement loadLocale() method in src/locale/locale-manager.ts
+- [x] T017 Implement event emission (on/off pattern) in src/locale/locale-manager.ts
+- [x] T018 Implement setLocale() with validation and event emission in src/locale/locale-manager.ts
+- [x] T019 Implement destroy() cleanup method in src/locale/locale-manager.ts
+- [x] T020 Export LocaleManager from src/locale/index.ts
+- [x] T021 Run `npm test` to verify all foundation tests pass (green phase)
+- [x] T022 Commit: `git add . && git commit -m "feat(locale): [Phase 2] Core LocaleManager implementation"`
 
 **Checkpoint**: LocaleManager functional - user story implementation can begin
 
@@ -87,18 +87,18 @@
 
 ### Tests for User Story 1
 
-- [ ] T023 [P] [US1] Write test: given missing key, when t() called, then returns empty string in src/test/unit/locale/locale-manager.spec.ts
-- [ ] T024 [P] [US1] Write test: given array key notation, when t() called, then resolves correctly in src/test/unit/locale/locale-manager.spec.ts
-- [ ] T025 [P] [US1] Write test: given function value translation, when t() called, then executes function in src/test/unit/locale/locale-manager.spec.ts
-- [ ] T026 [US1] **VERIFY TESTS FAIL**: Run `npm test` - new US1 tests must fail
+- [x] T023 [P] [US1] Write test: given missing key, when t() called, then returns empty string in src/test/unit/locale/locale-manager.spec.ts
+- [x] T024 [P] [US1] Write test: given array key notation, when t() called, then resolves correctly in src/test/unit/locale/locale-manager.spec.ts
+- [x] T025 [P] [US1] Write test: given function value translation, when t() called, then executes function in src/test/unit/locale/locale-manager.spec.ts
+- [x] T026 [US1] **VERIFY TESTS FAIL**: Run `npm test` - new US1 tests must fail
 
 ### Implementation for User Story 1
 
-- [ ] T027 [US1] Handle missing keys returning empty string in src/locale/locale-manager.ts
-- [ ] T028 [US1] Support array key notation ['nav', 'home'] in src/locale/locale-manager.ts
-- [ ] T029 [US1] Support function values in translations in src/locale/locale-manager.ts
-- [ ] T030 [US1] Run `npm test` to verify US1 tests pass (green phase)
-- [ ] T031 [US1] Commit: `git add . && git commit -m "feat(locale): [Phase 3] US1 - Basic translation retrieval"`
+- [x] T027 [US1] Handle missing keys returning empty string in src/locale/locale-manager.ts
+- [x] T028 [US1] Support array key notation ['nav', 'home'] in src/locale/locale-manager.ts
+- [x] T029 [US1] Support function values in translations in src/locale/locale-manager.ts
+- [x] T030 [US1] Run `npm test` to verify US1 tests pass (green phase)
+- [x] T031 [US1] Commit: `git add . && git commit -m "feat(locale): [Phase 3] US1 - Basic translation retrieval"`
 
 **Checkpoint**: Basic translation retrieval works - MVP functionality complete
 

@@ -23,3 +23,6 @@ export type {
 
 // Type guards
 export { isLocaleReference } from './types.ts';
+
+// Classes
+export { LocaleManager } from './locale-manager.ts';
