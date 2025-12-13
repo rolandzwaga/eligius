@@ -27,26 +27,71 @@ export type GetOperationByName<T extends TOperationName> = Operations[T];
 
 export type ExtractOperationDataType<P> =
   P extends TOperation<infer T, any> ? T : never;
+
+/**
+ * Engine identification information.
+ */
 export interface IEngineInfo {
+  /** Name of the engine system to use */
   systemName: string;
 }
 
+/**
+ * Provider settings indexed by timeline type.
+ * Allows different configurations for 'animation' vs 'mediaplayer' timelines.
+ */
 export type TTimelineProviderSettings = Partial<
   Record<TimelineTypes, ITimelineProviderSettings>
 >;
+
+/**
+ * Root configuration for the Eligius timeline engine.
+ *
+ * This is the main configuration object passed to `EngineFactory.createEngine()`.
+ * It defines all aspects of the engine: timelines, actions, language settings, and more.
+ *
+ * @example
+ * ```typescript
+ * const config: IEngineConfiguration = {
+ *   id: '123e4567-e89b-12d3-a456-426614174000',
+ *   engine: { systemName: 'EligiusEngine' },
+ *   containerSelector: '#eligius-container',
+ *   cssFiles: ['styles/main.css'],
+ *   language: 'en-US',
+ *   layoutTemplate: '<div class="container"></div>',
+ *   availableLanguages: [{ id: 'en', languageCode: 'en-US', label: 'English' }],
+ *   initActions: [],
+ *   actions: [],
+ *   timelines: []
+ * };
+ * ```
+ */
 export interface IEngineConfiguration {
+  /** Unique identifier for the configuration (UUID format) */
   id: string;
+  /** Engine identification info */
   engine: IEngineInfo;
+  /** Optional settings for timeline providers by type */
   timelineProviderSettings?: TTimelineProviderSettings;
+  /** CSS selector for the main container element */
   containerSelector: string;
+  /** Array of CSS file paths to load */
   cssFiles: string[];
+  /** Default language code (IETF language tag) */
   language: TLanguageCode;
+  /** HTML template for the layout (inline HTML or template reference) */
   layoutTemplate: string;
+  /** List of available languages for the application */
   availableLanguages: ILabel[];
+  /** Actions to execute during engine initialization */
   initActions: IEndableActionConfiguration[];
+  /** Reusable action templates */
   actions: IEndableActionConfiguration[];
+  /** Optional actions triggered by events */
   eventActions?: IEventActionConfiguration[];
+  /** Timeline configurations */
   timelines: ITimelineConfiguration[];
+  /** Optional timeline flow configuration for navigation between timelines */
   timelineFlow?: ITimelineFlow;
   /** Locale configuration for rosetta-based translations */
   locales?: ILocalesConfiguration;
@@ -78,6 +123,12 @@ export interface IResolvedEndableActionConfiguration
   endOperations: IResolvedOperation[];
 }
 
+/**
+ * Configuration for timeline flow navigation.
+ *
+ * Defines how timelines connect and transition between each other.
+ * Currently a placeholder type for future implementation.
+ */
 export type ITimelineFlow = Record<string, never>;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -286,13 +337,39 @@ export interface IResolvedTimelineConfiguration {
   container?: string;
 }
 
+/**
+ * Configuration for a single timeline.
+ *
+ * A timeline represents a time-based sequence of actions that can be played,
+ * paused, and seeked. Multiple timelines can exist in a configuration.
+ *
+ * @example
+ * ```typescript
+ * const timeline: ITimelineConfiguration = {
+ *   id: 'main-timeline',
+ *   uri: 'timeline://main',
+ *   type: 'animation',
+ *   duration: 60,
+ *   loop: false,
+ *   selector: '#timeline-container',
+ *   timelineActions: []
+ * };
+ * ```
+ */
 export interface ITimelineConfiguration {
+  /** Unique identifier for the timeline */
   id: string;
+  /** URI for timeline identification and switching */
   uri: string;
+  /** Timeline type: 'animation' (RAF-based) or 'mediaplayer' (video-based) */
   type: TimelineTypes;
+  /** Duration in seconds */
   duration: number;
+  /** Whether the timeline should loop when complete */
   loop: boolean;
+  /** CSS selector for the timeline's target element */
   selector: string;
+  /** Actions to execute at specific timeline positions */
   timelineActions: ITimelineActionConfiguration[];
   /**
    * Optional container selector for the timeline.
@@ -302,34 +379,68 @@ export interface ITimelineConfiguration {
   container?: string;
 }
 
+/**
+ * Configuration for an operation within an action.
+ *
+ * Operations are atomic functions that perform specific tasks
+ * (DOM manipulation, data operations, etc.).
+ *
+ * @typeParam T - The operation data type
+ */
 export interface IOperationConfiguration<T extends TOperationData> {
+  /** Unique identifier for the operation */
   id: string;
+  /** Name of the operation to execute (e.g., 'selectElement', 'animateWithClass') */
   systemName: string;
+  /** Optional data passed to the operation */
   operationData?: T;
 }
 
-export interface IEventActionConfiguration extends IActionConfiguration {
-  eventName: string;
-  eventTopic?: string;
-}
-
+/**
+ * Base configuration for an action.
+ *
+ * Actions are named sequences of operations that execute together.
+ */
 export interface IActionConfiguration {
+  /** Unique identifier for the action */
   id: string;
+  /** Human-readable name for the action */
   name: string;
+  /** Operations to execute when the action starts */
   startOperations: IOperationConfiguration<TOperationData>[];
 }
 
+/**
+ * Configuration for an action that has both start and end operations.
+ *
+ * Endable actions execute startOperations when triggered and
+ * endOperations when completed or reversed.
+ */
 export interface IEndableActionConfiguration extends IActionConfiguration {
+  /** Operations to execute when the action ends */
   endOperations: IOperationConfiguration<TOperationData>[];
 }
 
+/**
+ * Configuration for a timeline-bound action with duration.
+ *
+ * Timeline actions execute at specific time ranges within a timeline.
+ */
 export interface ITimelineActionConfiguration
   extends IEndableActionConfiguration {
+  /** Time range when this action is active (start/end in seconds) */
   duration: IDuration;
 }
 
+/**
+ * Configuration for an event-triggered action.
+ *
+ * Event actions execute in response to eventbus events.
+ */
 export interface IEventActionConfiguration extends IActionConfiguration {
+  /** Name of the event that triggers this action */
   eventName: string;
+  /** Optional event topic for filtering (defaults to global topic) */
   eventTopic?: string;
 }
 
