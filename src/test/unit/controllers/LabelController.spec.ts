@@ -136,7 +136,9 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     controller.setTranslationKey('nav.about');
 
     // expect
-    expect((selectedElement as unknown as MockElement).content).toBe('About Us');
+    expect((selectedElement as unknown as MockElement).content).toBe(
+      'About Us'
+    );
   });
 
   test<LabelControllerSuiteContext>('should not attach when operationData is not initialized', context => {

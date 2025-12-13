@@ -3,6 +3,7 @@ import type {
   ITimelineProviderSettings,
 } from '@configuration/types.ts';
 import type {IEventbus} from '@eventbus/types.ts';
+import type {ILocaleManager} from '@locale/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
@@ -12,9 +13,8 @@ import type {
   TSourceState,
 } from '@timelineproviders/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {EligiusEngine} from '../../eligius-engine.ts';
-import type {ILocaleManager} from '../../locale/types.ts';
-import type {ITimelineProviderInfo, TimelineTypes} from '../../types.ts';
+import {EligiusEngine} from '@/eligius-engine.ts';
+import type {ITimelineProviderInfo, TimelineTypes} from '@/types.ts';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock Factories

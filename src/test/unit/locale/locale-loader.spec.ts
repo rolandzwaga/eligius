@@ -5,14 +5,13 @@
  * Tests for the LocaleLoader class that handles external locale file loading.
  */
 
-import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import type {
   ILocaleLoader,
-  ILocaleLoaderOptions,
   ILocaleReference,
   TLanguageCode,
   TLocaleData,
-} from '../../../locale/types.ts';
+} from '@locale/types.ts';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 // =============================================================================
 // Test Context

@@ -4,8 +4,8 @@ import {SimplePlaylist} from '@timelineproviders/playlist/simple-playlist.ts';
 import {RafPositionSource} from '@timelineproviders/position-sources/raf-position-source.ts';
 import {ScrollPositionSource} from '@timelineproviders/position-sources/scroll-position-source.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {EngineFactory} from '../../engine-factory.ts';
-import type {IEngineFactory, ISimpleResourceImporter} from '../../types.ts';
+import {EngineFactory} from '@/engine-factory.ts';
+import type {IEngineFactory, ISimpleResourceImporter} from '@/types.ts';
 
 class MockImporter {
   import(name: string) {

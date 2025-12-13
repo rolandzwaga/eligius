@@ -9,14 +9,14 @@
  * - Updates DOM lang attribute when locale changes
  */
 
+import type {IAdapter} from '@adapters/types.ts';
 import type {EventName, IEventbus, TEventbusRemover} from '@eventbus/types.ts';
 import type {
   ILocaleManager,
   LocaleEvents,
   TLanguageCode,
-} from '../locale/types.ts';
-import type {IEligiusEngine} from '../types.ts';
-import type {IAdapter} from './types.ts';
+} from '@locale/types.ts';
+import type {IEligiusEngine} from '@/types.ts';
 
 /**
  * Bridges LocaleManager to/from the eventbus.

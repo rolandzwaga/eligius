@@ -6,10 +6,10 @@
  */
 
 import type {IEventbus} from '@eventbus/types.ts';
+import type {ILocaleManager, TLanguageCode} from '@locale/types.ts';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import type {ILocaleManager, TLanguageCode} from '../../../locale/types.ts';
-import type {IEligiusEngine} from '../../../types.ts';
-import {createMockEventbus} from '../../fixtures/eventbus-factory.ts';
+import type {IEligiusEngine} from '@/types.ts';
 
 // =============================================================================
 // Test Context

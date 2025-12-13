@@ -5,16 +5,16 @@
  * Tests for inline locale configuration and eventbus integration.
  */
 
-import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {LocaleEventbusAdapter} from '../../../adapters/locale-eventbus-adapter.ts';
-import {LocaleManager} from '../../../locale/locale-manager.ts';
+import {LocaleEventbusAdapter} from '@adapters/locale-eventbus-adapter.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+import {LocaleManager} from '@locale/locale-manager.ts';
 import type {
   ILocalesConfiguration,
   TLanguageCode,
   TLocaleData,
-} from '../../../locale/types.ts';
-import type {IEventbus} from '../../../eventbus/types.ts';
-import type {IEligiusEngine} from '../../../types.ts';
+} from '@locale/types.ts';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
+import type {IEligiusEngine} from '@/types.ts';
 
 // =============================================================================
 // Test Context
@@ -144,10 +144,12 @@ describe('Phase 8: Eventbus Integration', () => {
         eventHandlers.set(event, handler);
         return () => eventHandlers.delete(event);
       }),
-      onRequest: vi.fn((event: string, handler: (...args: unknown[]) => unknown) => {
-        requestHandlers.set(event, handler);
-        return () => requestHandlers.delete(event);
-      }),
+      onRequest: vi.fn(
+        (event: string, handler: (...args: unknown[]) => unknown) => {
+          requestHandlers.set(event, handler);
+          return () => requestHandlers.delete(event);
+        }
+      ),
       broadcast: vi.fn(),
       request: vi.fn((event: string, ...args: unknown[]) => {
         const handler = requestHandlers.get(event);
@@ -163,7 +165,11 @@ describe('Phase 8: Eventbus Integration', () => {
     } as unknown as IEligiusEngine;
 
     // Connect adapter
-    const adapter = new LocaleEventbusAdapter(manager, mockEventbus, mockEngine);
+    const adapter = new LocaleEventbusAdapter(
+      manager,
+      mockEventbus,
+      mockEngine
+    );
     adapter.connect();
 
     // Simulate language change via eventbus
@@ -194,10 +200,12 @@ describe('Phase 8: Eventbus Integration', () => {
 
     const mockEventbus: IEventbus = {
       on: vi.fn(() => () => {}),
-      onRequest: vi.fn((event: string, handler: (...args: unknown[]) => unknown) => {
-        requestHandlers.set(event, handler);
-        return () => requestHandlers.delete(event);
-      }),
+      onRequest: vi.fn(
+        (event: string, handler: (...args: unknown[]) => unknown) => {
+          requestHandlers.set(event, handler);
+          return () => requestHandlers.delete(event);
+        }
+      ),
       broadcast: vi.fn(),
       request: vi.fn((event: string, ...args: unknown[]) => {
         const handler = requestHandlers.get(event);
@@ -210,11 +218,17 @@ describe('Phase 8: Eventbus Integration', () => {
     } as unknown as IEligiusEngine;
 
     // Connect adapter
-    const adapter = new LocaleEventbusAdapter(manager, mockEventbus, mockEngine);
+    const adapter = new LocaleEventbusAdapter(
+      manager,
+      mockEventbus,
+      mockEngine
+    );
     adapter.connect();
 
     // Call request-translation via eventbus
-    const result = mockEventbus.request('request-translation', 'greeting', {name: 'World'});
+    const result = mockEventbus.request('request-translation', 'greeting', {
+      name: 'World',
+    });
 
     expect(result).toBe('Hello World!');
 

@@ -17,13 +17,13 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
-import {LocaleManager} from './locale/locale-manager.ts';
-import type {TLanguageCode, TLocaleData} from './locale/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
+import {LocaleManager} from './locale/locale-manager.ts';
+import type {TLanguageCode, TLocaleData} from './locale/types.ts';
 import type {
   IConfigurationResolver,
   IEngineFactory,

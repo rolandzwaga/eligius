@@ -1,4 +1,6 @@
 import type {IEventbus} from '@eventbus/types.ts';
+import type {ILocaleManager} from '@locale/types.ts';
+import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
 import type {
   IContainerProvider,
   IPositionSource,
@@ -15,10 +17,8 @@ import {
   test,
   vi,
 } from 'vitest';
-import {EligiusEngine} from '../../eligius-engine.ts';
-import type {ILocaleManager} from '../../locale/types.ts';
-import type {ITimelineProviderInfo} from '../../types.ts';
-import {createMockEventbus} from '../fixtures/eventbus-factory.ts';
+import {EligiusEngine} from '@/eligius-engine.ts';
+import type {ITimelineProviderInfo} from '@/types.ts';
 
 interface EligiusEngineSuiteContext {
   engine: EligiusEngine;

@@ -5,13 +5,13 @@
  * Tests for the core LocaleManager class that wraps rosetta.
  */
 
-import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import type {
   ILocaleManager,
   ILocaleManagerOptions,
   TLanguageCode,
   TLocaleData,
-} from '../../../locale/types.ts';
+} from '@locale/types.ts';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 // =============================================================================
 // Test Context

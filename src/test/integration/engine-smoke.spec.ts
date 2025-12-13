@@ -3,6 +3,7 @@ import type {
   IResolvedTimelineConfiguration,
 } from '@configuration/types.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import type {ILocaleManager} from '@locale/types.ts';
 import type {
   IContainerProvider,
   IPositionSource,
@@ -10,9 +11,8 @@ import type {
   TSourceState,
 } from '@timelineproviders/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
-import {EligiusEngine} from '../../eligius-engine.ts';
-import type {ILocaleManager} from '../../locale/types.ts';
-import type {ITimelineProviderInfo, TimelineTypes} from '../../types.ts';
+import {EligiusEngine} from '@/eligius-engine.ts';
+import type {ITimelineProviderInfo, TimelineTypes} from '@/types.ts';
 
 // Mock jQuery
 vi.mock('jquery', () => {

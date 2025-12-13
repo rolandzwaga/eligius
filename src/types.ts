@@ -4,12 +4,12 @@ import type {
   IResolvedEngineConfiguration,
 } from '@configuration/types.ts';
 import type {IEventbus, IEventbusListener} from '@eventbus/types.ts';
-import type {ILocaleManager, TLanguageCode} from './locale/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
+import type {ILocaleManager, TLanguageCode} from './locale/types.ts';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Engine Event Types
