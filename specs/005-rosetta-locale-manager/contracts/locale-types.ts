@@ -17,6 +17,17 @@
 export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
 
 /**
+ * Recursive interface for nested translation data.
+ * Compatible with rosetta's expected format.
+ *
+ * Using an interface (vs type alias) allows TypeScript to handle
+ * the recursive reference more efficiently.
+ */
+export interface ILocaleData {
+  [key: string]: TLocaleValue;
+}
+
+/**
  * Valid values in locale data:
  * - string: Simple translation text (may contain {{interpolation}})
  * - function: Dynamic translation that receives params
@@ -25,13 +36,13 @@ export type TLanguageCode = `${Lowercase<string>}-${Uppercase<string>}`;
 export type TLocaleValue =
   | string
   | ((params: Record<string, unknown>) => string)
-  | TLocaleData;
+  | ILocaleData;
 
 /**
- * Recursive type for nested translation data.
- * Compatible with rosetta's expected format.
+ * Type alias for backwards compatibility.
+ * @deprecated Use ILocaleData instead
  */
-export type TLocaleData = Record<string, TLocaleValue>;
+export type TLocaleData = ILocaleData;
 
 // =============================================================================
 // Configuration Types
@@ -50,7 +61,7 @@ export interface ILocaleReference {
  * Type guard for ILocaleReference
  */
 export function isLocaleReference(
-  value: TLocaleData | ILocaleReference
+  value: ILocaleData | ILocaleReference
 ): value is ILocaleReference {
   return (
     typeof value === 'object' &&
@@ -63,7 +74,7 @@ export function isLocaleReference(
 /**
  * A single locale entry can be inline data or an external reference.
  */
-export type TLocaleEntry = TLocaleData | ILocaleReference;
+export type TLocaleEntry = ILocaleData | ILocaleReference;
 
 /**
  * Top-level configuration object for all locales.
@@ -148,7 +159,7 @@ export interface ILocaleManager {
    * @param locale - Locale code to load data for
    * @param data - Translation data to merge
    */
-  loadLocale(locale: TLanguageCode, data: TLocaleData): void;
+  loadLocale(locale: TLanguageCode, data: ILocaleData): void;
 
   // =========================================================================
   // Events
@@ -195,7 +206,7 @@ export interface ILocaleLoaderOptions {
  */
 export interface ILocaleLoadResult {
   locale: TLanguageCode;
-  data: TLocaleData;
+  data: ILocaleData;
 }
 
 /**

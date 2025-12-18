@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.2.1
+  - Fixed: Locale types has some circular reference warnings
+
 ## 2.2.0
 
 ### Breaking Changes
