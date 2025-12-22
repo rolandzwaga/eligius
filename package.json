@@ -58,7 +58,7 @@
     "@types/node": "24.10.1",
     "@types/uuid": "11.0.0",
     "@vitest/coverage-istanbul": "4.0.16",
-    "fs-extra": "11.3.2",
+    "fs-extra": "11.3.3",
     "jquery": "3.7.1",
     "jsdom": "27.3.0",
     "lottie-web": "5.13.0",
