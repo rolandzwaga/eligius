@@ -53,13 +53,13 @@
     "@rollup/plugin-alias": "6.0.0",
     "@ts-morph/bootstrap": "0.28.1",
     "@types/fs-extra": "11.0.4",
-    "@types/jquery": "3.5.33",
+    "@types/jquery": "4.0.0",
     "@types/jsdom": "27.0.0",
     "@types/node": "25.0.7",
     "@types/uuid": "11.0.0",
     "@vitest/coverage-istanbul": "4.0.17",
     "fs-extra": "11.3.4",
-    "jquery": "3.7.1",
+    "jquery": "4.0.0",
     "jsdom": "27.4.0",
     "lottie-web": "5.13.0",
     "rimraf": "6.1.2",
@@ -78,7 +78,7 @@
     "watchlist": "0.3.1"
   },
   "peerDependencies": {
-    "jquery": "3.7.1",
+    "jquery": "4.0.0",
     "lottie-web": "5.13.0",
     "video.js": "8.23.7"
   },
