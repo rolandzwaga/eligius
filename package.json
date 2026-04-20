@@ -86,7 +86,7 @@
     "hotkeys-js": "3.13.15",
     "rosetta": "1.1.0",
     "ts-is-present": "1.2.2",
-    "uuid": "13.0.0"
+    "uuid": "14.0.0"
   },
   "main": "./dist/index.mjs",
   "types": "./dist/index.d.mts"
