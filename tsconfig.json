@@ -1,19 +1,18 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@action/*": ["src/action/*"],
-      "@adapters/*": ["src/adapters/*"],
-      "@configuration/*": ["src/configuration/*"],
-      "@controllers/*": ["src/controllers/*"],
-      "@eventbus/*": ["src/eventbus/*"],
-      "@importer/*": ["src/importer/*"],
-      "@locale/*": ["src/locale/*"],
-      "@operation/*": ["src/operation/*"],
-      "@timelineproviders/*": ["src/timelineproviders/*"],
-      "@util/*": ["src/util/*"],
-      "@test/*": ["src/test/*"]
+      "@/*": ["./src/*"],
+      "@action/*": ["./src/action/*"],
+      "@adapters/*": ["./src/adapters/*"],
+      "@configuration/*": ["./src/configuration/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@eventbus/*": ["./src/eventbus/*"],
+      "@importer/*": ["./src/importer/*"],
+      "@locale/*": ["./src/locale/*"],
+      "@operation/*": ["./src/operation/*"],
+      "@timelineproviders/*": ["./src/timelineproviders/*"],
+      "@util/*": ["./src/util/*"],
+      "@test/*": ["./src/test/*"]
     },
     "module": "NodeNext",
     "target": "ESNext",
