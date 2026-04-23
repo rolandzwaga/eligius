@@ -57,7 +57,7 @@
     "@types/jsdom": "27.0.0",
     "@types/node": "25.6.0",
     "@types/uuid": "11.0.0",
-    "@vitest/coverage-istanbul": "4.0.17",
+    "@vitest/coverage-istanbul": "4.1.4",
     "fs-extra": "11.3.4",
     "jquery": "4.0.0",
     "jsdom": "27.4.0",
@@ -74,7 +74,7 @@
     "typescript": "5.9.3",
     "video.js": "8.23.7",
     "vite-tsconfig-paths": "6.1.1",
-    "vitest": "4.0.17",
+    "vitest": "4.1.4",
     "watchlist": "0.3.1"
   },
   "peerDependencies": {
