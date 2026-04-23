@@ -1,10 +1,7 @@
 import {BasePositionSource} from '@timelineproviders/position-sources/base-position-source.ts';
 import type {ISeekable} from '@timelineproviders/types.ts';
-import hk from 'hotkeys-js';
+import hotkeys from 'hotkeys-js';
 import {v4 as uuidv4} from 'uuid';
-
-// Handle both ESM and CommonJS imports
-const hotkeys = hk.default || hk;
 
 /**
  * Vertical axis mode for keyboard navigation.

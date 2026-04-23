@@ -1,9 +1,7 @@
 import type {IEventbus, TEventbusRemover} from '@eventbus/types.ts';
-import hk, {type HotkeysEvent} from 'hotkeys-js';
+import hotkeys, {type HotkeysEvent} from 'hotkeys-js';
 import type {IEligiusEngine} from '../types.ts';
 import type {IAdapter} from './types.ts';
-
-const hotkeys = hk.default || hk;
 
 /**
  * Handles external input sources (hotkeys, resize).
