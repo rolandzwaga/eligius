@@ -17,7 +17,6 @@
     "module": "NodeNext",
     "target": "ESNext",
     "lib": ["dom", "ESNext"],
-    "importHelpers": true,
     "declaration": true,
     "sourceMap": true,
     "rootDir": "./src",
