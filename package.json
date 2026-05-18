@@ -69,7 +69,7 @@
     "typedoc": "0.28.19",
     "video.js": "8.23.7",
     "vite-tsconfig-paths": "6.1.1",
-    "vitest": "4.1.5"
+    "vitest": "4.1.6"
   },
   "peerDependencies": {
     "jquery": "4.0.0",
