@@ -65,7 +65,7 @@
     "ts-json-schema-generator": "2.9.0",
     "ts-morph": "28.0.0",
     "tsdown": "0.22.0",
-    "tsx": "4.21.0",
+    "tsx": "4.22.2",
     "typedoc": "0.28.19",
     "video.js": "8.23.7",
     "vite-tsconfig-paths": "6.1.1",
