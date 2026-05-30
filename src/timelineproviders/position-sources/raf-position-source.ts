@@ -98,7 +98,7 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
       this._onTick.bind(this)
     );
   }
-
+  
   protected stopTicking(): void {
     this._abortTicking();
   }
