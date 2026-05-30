@@ -7,6 +7,10 @@
   "bugs": {
     "url": "https://github.com/rolandzwaga/eligius/issues?q=is%3Aissue+is%3Aopen+label%3ABug"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rolandzwaga/eligius.git"
+  },
   "type": "module",
   "exports": {
     ".": "./dist/index.mjs",

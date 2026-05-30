@@ -6,10 +6,15 @@ on:
     tags-ignore:
       - "**"
 
+# Default to no privileges; the build job below grants only read access.
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-build.yml
