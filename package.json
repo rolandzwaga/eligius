@@ -52,7 +52,7 @@
     "@rollup/plugin-alias": "6.0.0",
     "@types/fs-extra": "11.0.4",
     "@types/jquery": "4.0.0",
-    "@types/jsdom": "28.0.1",
+    "@types/jsdom": "28.0.3",
     "@types/node": "25.7.0",
     "@types/uuid": "11.0.0",
     "@typescript/native-preview": "7.0.0-dev.20260511.1",
