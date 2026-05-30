@@ -1,12 +1,66 @@
 version: 2
 updates:
-    - package-ecosystem: npm
-      directory: '/'
-      schedule:
-          interval: weekly
-      open-pull-requests-limit: 10
-      versioning-strategy: increase
-    - package-ecosystem: 'github-actions'
-      directory: '/'
-      schedule:
-          interval: weekly
+  # ---------------------------------------------------------------------------
+  # npm dependencies
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 10
+    # Library: widen ranges so published semver constraints stay accurate.
+    versioning-strategy: increase
+    labels:
+      - dependencies
+    commit-message:
+      prefix: 'chore(deps)'
+      prefix-development: 'chore(deps-dev)'
+    groups:
+      # Roll up the noisy dev-tooling minor/patch bumps into one PR.
+      dev-minor-patch:
+        applies-to: version-updates
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      # Keep runtime dependency minor/patch bumps together, separate from dev.
+      prod-minor-patch:
+        applies-to: version-updates
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # Peer dependencies are pinned to match the supported peer range exactly;
+      # bumping their major versions is a deliberate, breaking change for
+      # consumers, so handle those by hand rather than via Dependabot.
+      - dependency-name: jquery
+        update-types: [version-update:semver-major]
+      - dependency-name: video.js
+        update-types: [version-update:semver-major]
+      - dependency-name: lottie-web
+        update-types: [version-update:semver-major]
+
+  # ---------------------------------------------------------------------------
+  # GitHub Actions used in workflows
+  # ---------------------------------------------------------------------------
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '06:00'
+      timezone: Europe/Amsterdam
+    labels:
+      - dependencies
+      - github-actions
+    commit-message:
+      prefix: 'ci'
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - '*'
