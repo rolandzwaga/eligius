@@ -52,15 +52,15 @@
     "fix": "biome check --write ."
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.16",
+    "@biomejs/biome": "2.5.0",
     "@rollup/plugin-alias": "6.0.0",
     "@types/fs-extra": "11.0.4",
     "@types/jquery": "4.0.1",
     "@types/jsdom": "28.0.3",
-    "@types/node": "25.9.2",
+    "@types/node": "25.9.3",
     "@types/uuid": "11.0.0",
     "@typescript/native-preview": "7.0.0-dev.20260616.1",
-    "@vitest/coverage-istanbul": "4.1.8",
+    "@vitest/coverage-istanbul": "4.1.9",
     "fs-extra": "11.3.5",
     "jquery": "4.0.0",
     "jsdom": "29.1.1",
@@ -73,7 +73,7 @@
     "typedoc": "0.28.19",
     "video.js": "8.23.7",
     "vite-tsconfig-paths": "6.1.1",
-    "vitest": "4.1.8"
+    "vitest": "4.1.9"
   },
   "peerDependencies": {
     "jquery": "4.0.0",
