@@ -59,7 +59,7 @@
     "@types/jsdom": "28.0.3",
     "@types/node": "25.9.2",
     "@types/uuid": "11.0.0",
-    "@typescript/native-preview": "7.0.0-dev.20260608.1",
+    "@typescript/native-preview": "7.0.0-dev.20260616.1",
     "@vitest/coverage-istanbul": "4.1.8",
     "fs-extra": "11.3.5",
     "jquery": "4.0.0",
