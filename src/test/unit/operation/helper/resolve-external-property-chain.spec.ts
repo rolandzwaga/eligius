@@ -49,6 +49,27 @@ describe('resolveExternalPropertyChain', () => {
     // expect
     expect(value).toBe('bar');
   });
+  test('should resolve a bracket array-index in an operationdata chain', () => {
+    // given: the shape an `on event` handler sees — args land on eventArgs[]
+    const operationData = {eventArgs: ['#first', '#second']};
+    const operationScope = {} as IOperationScope;
+
+    // test / expect — bracket notation resolves the array element
+    expect(
+      resolveExternalPropertyChain(
+        operationData,
+        operationScope,
+        '$operationdata.eventArgs[0]' as ExternalProperty
+      )
+    ).toBe('#first');
+    expect(
+      resolveExternalPropertyChain(
+        operationData,
+        operationScope,
+        '$operationdata.eventArgs[1]' as ExternalProperty
+      )
+    ).toBe('#second');
+  });
   test('should resolve the scope argument values', () => {
     // given
     const operationData = {
