@@ -197,21 +197,28 @@ const createSourceFile =
       ? toOperationDataType(outputSourceFile)(operationData)
       : [undefined, undefined, []];
 
+    // Top-level `import type { … }` so the type import is fully elided. Inline
+    // `import { type … }` under verbatimModuleSyntax leaves a side-effect
+    // `import "./controller"`, pulling the controller implementation (and jquery)
+    // into the metadata-only bundle (`eligius/metadata`).
     if (importName) {
-      outputSourceFile
-        .addImportDeclaration({moduleSpecifier: `@controllers/${fileName}.ts`})
-        .addNamedImport({name: importName, isTypeOnly: true});
-    }
-    outputSourceFile
-      .addImportDeclaration({moduleSpecifier: '@controllers/metadata/types.ts'})
-      .addNamedImport({name: 'IControllerMetadata', isTypeOnly: true});
-    imports.forEach(imp => {
-      const importDeclaration = outputSourceFile.addImportDeclaration({
-        moduleSpecifier: imp.importPath,
+      outputSourceFile.addImportDeclaration({
+        moduleSpecifier: `@controllers/${fileName}.ts`,
+        isTypeOnly: true,
+        namedImports: [importName],
       });
-      imp.types.forEach(type =>
-        importDeclaration.addNamedImport({name: type, isTypeOnly: true})
-      );
+    }
+    outputSourceFile.addImportDeclaration({
+      moduleSpecifier: '@controllers/metadata/types.ts',
+      isTypeOnly: true,
+      namedImports: ['IControllerMetadata'],
+    });
+    imports.forEach(imp => {
+      outputSourceFile.addImportDeclaration({
+        moduleSpecifier: imp.importPath,
+        isTypeOnly: true,
+        namedImports: imp.types,
+      });
     });
 
     outputSourceFile.addFunction({
