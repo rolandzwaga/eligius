@@ -13,6 +13,7 @@ import {
 import {
   endWhen,
   type IOperationScope,
+  setVariable,
   type TOperationData,
   when,
 } from '@operation/index.ts';
@@ -519,5 +520,50 @@ describe<ForEachLoopContext>('Start and end a for each loop', () => {
     expect(loopCounter).toBe(1);
     expect(operationData.newCollection).toBeUndefined();
     expect(operationData.test).toBe(true);
+  });
+
+  test<ForEachLoopContext>('should loop over a collection held in a scope variable', async context => {
+    const {action} = context;
+
+    // setVariable writes to the base scope; forEach runs in a pushed child scope
+    // and reads `$scope.variables.items` back — which only works once $scope
+    // resolution walks up to the parent scope that actually holds `variables`.
+    const setItems: IResolvedOperation = {
+      id: 'set',
+      systemName: 'setVariable',
+      operationData: {name: 'items', value: ['a', 'b', 'c']},
+      instance: setVariable,
+    };
+    const loop: IResolvedOperation = {
+      id: 'loop',
+      systemName: forEachSystemName,
+      operationData: {
+        collection: '$scope.variables.items',
+      } as IForEachOperationData,
+      instance: forEach,
+    };
+    const collect: IResolvedOperation = {
+      id: 'collect',
+      systemName: 'collect',
+      operationData: {},
+      instance: function (this: IOperationScope, op: any) {
+        if (!op.seen) op.seen = [];
+        op.seen.push(this.currentItem);
+        return op;
+      },
+    };
+    const end: IResolvedOperation = {
+      id: 'end',
+      systemName: endForEachSystemName,
+      operationData: {},
+      instance: endForEach,
+    };
+    action.startOperations.push(setItems, loop, collect, end);
+
+    // test
+    const operationData = (await action.start()) as TOperationData;
+
+    // expect: the loop iterated over the variable's collection
+    expect(operationData.seen).toEqual(['a', 'b', 'c']);
   });
 });

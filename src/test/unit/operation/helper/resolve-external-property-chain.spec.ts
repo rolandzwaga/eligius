@@ -66,6 +66,76 @@ describe('resolveExternalPropertyChain', () => {
     // expect
     expect(value).toBe(100);
   });
+  test('should resolve a $scope variable declared on a parent scope', () => {
+    // given: a child scope (as forEach/when create) whose parent holds the variable
+    const parent = {
+      variables: {items: ['a', 'b', 'c']},
+    } as unknown as IOperationScope;
+    const child = {parent} as unknown as IOperationScope;
+
+    // test
+    const value = resolveExternalPropertyChain(
+      {},
+      child,
+      '$scope.variables.items' as ExternalProperty
+    );
+
+    // expect
+    expect(value).toEqual(['a', 'b', 'c']);
+  });
+  test('should resolve through multiple parent scopes', () => {
+    // given
+    const grandparent = {
+      variables: {greeting: 'hi'},
+    } as unknown as IOperationScope;
+    const parent = {parent: grandparent} as unknown as IOperationScope;
+    const child = {parent} as unknown as IOperationScope;
+
+    // test
+    const value = resolveExternalPropertyChain(
+      {},
+      child,
+      '$scope.variables.greeting' as ExternalProperty
+    );
+
+    // expect
+    expect(value).toBe('hi');
+  });
+  test('should let an inner scope shadow an outer scope variable', () => {
+    // given: same variable name on both scopes — the nearest one wins
+    const parent = {
+      variables: {x: 'outer'},
+    } as unknown as IOperationScope;
+    const child = {
+      variables: {x: 'inner'},
+      parent,
+    } as unknown as IOperationScope;
+
+    // test
+    const value = resolveExternalPropertyChain(
+      {},
+      child,
+      '$scope.variables.x' as ExternalProperty
+    );
+
+    // expect
+    expect(value).toBe('inner');
+  });
+  test('should throw when a $scope variable exists on no scope in the chain', () => {
+    // given
+    const child = {
+      parent: {} as IOperationScope,
+    } as unknown as IOperationScope;
+
+    // test / expect
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        child,
+        '$scope.variables.missing' as ExternalProperty
+      )
+    ).toThrow(/cannot be resolved/);
+  });
   test('should return null if argumentValue is null', () => {
     // given
     const operationData = {};
