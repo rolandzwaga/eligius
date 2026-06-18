@@ -368,6 +368,21 @@ It is encouraged to use this API to build specialized DSL's for specific present
 
 Also, there is the [Eligian](https://github.com/rolandzwaga/eligian) project that aims to become an actual programming language for the Eligius runtime.
 
+## Metadata import (`eligius/metadata`)
+
+Tooling that only needs to *inspect* Eligius's operation, controller and event **metadata** — code generators, DSL compilers, completion providers, documentation tools — can import it from the dedicated `eligius/metadata` entry point:
+
+```javascript
+import { metadata, ctrlmetadata, eventmetadata } from 'eligius/metadata';
+
+const operationNames = Object.keys(metadata);      // 'addClass', 'selectElement', ...
+const { description, properties } = metadata.addClass();
+```
+
+This entry is bundled separately and contains **only metadata** — it does not pull in the engine runtime (jQuery, lottie-web, video.js). As a result it can be imported from a plain Node process **without a DOM**, unlike the main `eligius` entry, which evaluates the browser runtime (jQuery) on import and therefore requires a `window`.
+
+Rule of thumb: use `eligius/metadata` for build-time and server-side tooling; use the main `eligius` entry to actually run the engine.
+
 ## Source documentation
 
 [Check out this link for the full type docs](https://rolandzwaga.github.io/eligius/)
