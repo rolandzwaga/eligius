@@ -35,11 +35,43 @@ export function resolveExternalPropertyChain(
       case '$globaldata':
         return getPropertyChainValue(propNames, getGlobals());
       case '$scope':
-        return getPropertyChainValue(propNames, operationScope);
+        return getScopeChainValue(propNames, operationScope);
     }
   }
 
   return propertyChainOrRegularObject;
+}
+
+/**
+ * Resolves a `$scope` property chain, walking up the parent scope chain.
+ *
+ * `forEach` and `when` execute in a child scope created by `Action._pushScope`,
+ * which proxies only a few fields from its parent — notably **not** `variables`.
+ * So a variable set with `setVariable` before (or outside) a loop/conditional
+ * lives on an ancestor scope, not the child scope the operation runs in.
+ *
+ * To make those readable, we resolve the chain against the nearest scope (the
+ * current one or an ancestor) that actually declares the chain's head property.
+ * This gives natural lexical shadowing — an inner declaration of the same name
+ * wins over an outer one — and leaves write semantics untouched (`setVariable`
+ * still writes to whichever scope it runs in).
+ *
+ * If no scope in the chain declares the head property, resolution falls back to
+ * the original scope so the standard "cannot be resolved" error is produced.
+ */
+function getScopeChainValue(
+  propertyChain: string[],
+  operationScope: IOperationScope
+) {
+  const head = propertyChain[0];
+  let scope: IOperationScope | undefined = operationScope;
+  while (scope) {
+    if (head in scope) {
+      return getPropertyChainValue(propertyChain, scope);
+    }
+    scope = scope.parent;
+  }
+  return getPropertyChainValue(propertyChain, operationScope);
 }
 
 export function isExternalProperty(
