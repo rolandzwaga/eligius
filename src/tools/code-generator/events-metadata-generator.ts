@@ -78,19 +78,22 @@ const createSourceFile = (
     {overwrite: true}
   );
 
-  // Import the event interface
-  outputSourceFile
-    .addImportDeclaration({
-      moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/${fileName}.ts`,
-    })
-    .addNamedImport({name: eventName, isTypeOnly: true});
+  // Import the event interface. Top-level `import type { … }` (not inline
+  // `import { type … }`) so it's fully elided — under verbatimModuleSyntax an
+  // inline type specifier leaves a side-effect `import "./event"` that would pull
+  // implementation code into the metadata-only bundle (`eligius/metadata`).
+  outputSourceFile.addImportDeclaration({
+    moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/${fileName}.ts`,
+    isTypeOnly: true,
+    namedImports: [eventName],
+  });
 
   // Import IEventMetadata
-  outputSourceFile
-    .addImportDeclaration({
-      moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/metadata/types.ts`,
-    })
-    .addNamedImport({name: 'IEventMetadata', isTypeOnly: true});
+  outputSourceFile.addImportDeclaration({
+    moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/metadata/types.ts`,
+    isTypeOnly: true,
+    namedImports: ['IEventMetadata'],
+  });
 
   // Get args tuple from the interface property type node (not the type object)
   const argsProperty = interfaceDecl.getProperty('args')!;
@@ -218,11 +221,11 @@ const toTypesFile = (
   eventData.forEach(({iface, sourceFile}) => {
     const eventName = iface.getName();
     const fileName = sourceFile.getBaseName().replace(/\.ts$/, '');
-    outputSourceFile
-      .addImportDeclaration({
-        moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/${fileName}.ts`,
-      })
-      .addNamedImport({name: eventName, isTypeOnly: true});
+    outputSourceFile.addImportDeclaration({
+      moduleSpecifier: `${EVENTBUS_EVENTS_ALIAS}/${fileName}.ts`,
+      isTypeOnly: true,
+      namedImports: [eventName],
+    });
   });
 
   // Create AllEvents union type

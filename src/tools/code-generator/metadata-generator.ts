@@ -208,21 +208,29 @@ const createSourceFile =
       ? toOperationDataType(outputSourceFile)(operationData)
       : [undefined, undefined, []];
 
+    // Use declaration-level `import type { … }` (not inline `import { type … }`).
+    // Under verbatimModuleSyntax, an inline type specifier still emits a
+    // side-effect `import "./mod"`, which drags the operation implementation
+    // (and thus jquery) into the metadata-only bundle (`eligius/metadata`). A
+    // top-level type-only import is fully elided.
     if (importName) {
-      outputSourceFile
-        .addImportDeclaration({moduleSpecifier: `@operation/${fileName}.ts`})
-        .addNamedImport({name: importName, isTypeOnly: true});
-    }
-    outputSourceFile
-      .addImportDeclaration({moduleSpecifier: '@operation/metadata/types.ts'})
-      .addNamedImport({name: 'IOperationMetadata', isTypeOnly: true});
-    imports.forEach(imp => {
-      const importDeclaration = outputSourceFile.addImportDeclaration({
-        moduleSpecifier: imp.importPath,
+      outputSourceFile.addImportDeclaration({
+        moduleSpecifier: `@operation/${fileName}.ts`,
+        isTypeOnly: true,
+        namedImports: [importName],
       });
-      imp.types.forEach(type =>
-        importDeclaration.addNamedImport({name: type, isTypeOnly: true})
-      );
+    }
+    outputSourceFile.addImportDeclaration({
+      moduleSpecifier: '@operation/metadata/types.ts',
+      isTypeOnly: true,
+      namedImports: ['IOperationMetadata'],
+    });
+    imports.forEach(imp => {
+      outputSourceFile.addImportDeclaration({
+        moduleSpecifier: imp.importPath,
+        isTypeOnly: true,
+        namedImports: imp.types,
+      });
     });
 
     outputSourceFile.addFunction({
