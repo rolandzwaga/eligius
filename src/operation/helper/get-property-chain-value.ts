@@ -23,14 +23,26 @@ export function getPropertyChainValue(
 ) {
   let suffix = null;
 
-  const result = propertyChain.reduce((currentInstance, prop, index) => {
+  // Expand bracket array-indices into their own chain segments so bracket and dot
+  // notation are equivalent: `eventArgs[0]` resolves like `eventArgs.0`, and
+  // `items[2].label` like `items.2.label`. Arrays index by string key, so reading
+  // `['eventArgs', '0']` returns element 0. Segments without brackets are untouched,
+  // so existing dotted chains (and the `+suffix` concat below) behave exactly as before.
+  const chain = propertyChain.flatMap(segment =>
+    segment
+      .replace(/\[(\d+)\]/g, '.$1')
+      .split('.')
+      .filter(part => part.length > 0)
+  );
+
+  const result = chain.reduce((currentInstance, prop, index) => {
     if (!currentInstance) {
       throw new Error(
-        `Property chain '${propertyChain.join('.')}' cannot be resolved.`
+        `Property chain '${chain.join('.')}' cannot be resolved.`
       );
     }
 
-    if (index === propertyChain.length - 1) {
+    if (index === chain.length - 1) {
       const parts = prop.split('+');
       if (parts.length > 1) {
         prop = parts[0];
