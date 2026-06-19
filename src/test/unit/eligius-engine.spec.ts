@@ -443,6 +443,115 @@ describe('EligiusEngine', () => {
 
       expect(handler).not.toHaveBeenCalled();
     });
+
+    test<EligiusEngineSuiteContext>('should re-activate the position source on the new timeline', async context => {
+      // Regression: switchTimeline deactivates the source at the top but must turn
+      // it back on, otherwise the switched-to timeline produces no first frame —
+      // it runs none of its start actions and never advances (blank + frozen).
+      context.configuration.timelines.push({
+        type: 'animation',
+        uri: 'timeline-2',
+        duration: 20,
+        selector: '.content',
+        loop: false,
+        timelineActions: [],
+      });
+      await context.engine.init();
+      (context.mockPositionSource.activate as Mock).mockClear();
+
+      await context.engine.switchTimeline('timeline-2');
+
+      expect(context.mockPositionSource.activate).toHaveBeenCalled();
+      expect(context.mockPositionSource.state).toBe('active');
+    });
+
+    test<EligiusEngineSuiteContext>('should run the new timeline position-0 actions on switch (end-to-end)', async context => {
+      // Use a source that emits position 0 on activate (like RafPositionSource) so
+      // we exercise the real _onTimeHandler → position-lookup path the fix relies on:
+      // after switch the new timeline's first frame must run its start actions.
+      let positionCb: ((p: number) => void) | undefined;
+      let state: TSourceState = 'inactive';
+      const source: IPositionSource & ISeekable = {
+        get state() {
+          return state;
+        },
+        set state(v) {
+          state = v;
+        },
+        loop: false,
+        init: vi.fn().mockResolvedValue(undefined),
+        destroy: vi.fn(),
+        activate: vi.fn().mockImplementation(async () => {
+          state = 'active';
+          positionCb?.(0);
+        }),
+        suspend: vi.fn().mockImplementation(() => {
+          state = 'suspended';
+        }),
+        deactivate: vi.fn().mockImplementation(() => {
+          state = 'inactive';
+        }),
+        getPosition: vi.fn().mockReturnValue(0),
+        getDuration: vi.fn().mockReturnValue(10),
+        onPosition: vi.fn((cb: (p: number) => void) => {
+          positionCb = cb;
+        }),
+        onBoundaryReached: vi.fn(),
+        onActivated: vi.fn(),
+        seek: vi.fn().mockResolvedValue(0),
+      };
+
+      const action2Start = vi.fn().mockResolvedValue(undefined);
+      const configuration: any = createMinimalConfiguration({
+        timelines: [
+          {
+            type: 'animation',
+            uri: 'timeline-1',
+            duration: 10,
+            selector: '.content',
+            loop: false,
+            timelineActions: [],
+          },
+          {
+            type: 'animation',
+            uri: 'timeline-2',
+            duration: 10,
+            selector: '.content',
+            loop: false,
+            timelineActions: [
+              {
+                id: 't2a',
+                duration: {start: 0, end: 10},
+                start: action2Start,
+                end: vi.fn().mockResolvedValue(undefined),
+              },
+            ],
+          },
+        ],
+      });
+
+      const providers: any = {
+        animation: {
+          id: 'animation',
+          positionSource: source,
+          containerProvider: context.mockContainerProvider,
+        } as ITimelineProviderInfo,
+      };
+      const engine = new EligiusEngine(
+        configuration,
+        createMockEventbus(),
+        providers,
+        {destroy: vi.fn()} as unknown as ILocaleManager
+      );
+
+      await engine.init();
+      await engine.start(); // activate timeline-1 (no actions)
+      action2Start.mockClear();
+
+      await engine.switchTimeline('timeline-2');
+
+      expect(action2Start).toHaveBeenCalled();
+    });
   });
 
   describe('init()', () => {

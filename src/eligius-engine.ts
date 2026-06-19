@@ -299,12 +299,27 @@ export class EligiusEngine implements IEligiusEngine {
         }
         await this._executeSeekActions(position);
       });
+    } else {
+      // Switching to the start of a timeline: ungate its first frame so the new
+      // timeline's position-0 actions run via the normal position lookup. Without
+      // this, the stale playhead carried over from the previous timeline
+      // (_lastPosition) would suppress the position-0 frame and the new timeline
+      // would render nothing.
+      this._lastPosition = -1;
     }
 
     // Select playlist item if playlist is available
     if (this._activePlaylist) {
       this._activePlaylist.selectItem(uri);
     }
+
+    // Re-activate the position source on the new timeline. switchTimeline
+    // deactivated it at the top; previously nothing turned it back on, so a
+    // switched-to timeline never produced a first frame — it ran none of its
+    // start actions and never advanced (it rendered blank and frozen). Activating
+    // emits the first frame (driving the handlers above) and resumes ticking so
+    // the new timeline actually plays from its start.
+    await this._activePositionSource.activate();
   }
 
   /**
