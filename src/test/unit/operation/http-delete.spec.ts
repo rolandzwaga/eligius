@@ -19,16 +19,19 @@ describe('httpDelete', () => {
   test('should perform DELETE request with JSON response', async () => {
     // Arrange
     const mockResponse = {success: true};
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      statusText: 'OK',
-      headers: {
-        get: (name: string) =>
-          name === 'content-type' ? 'application/json' : null,
-      },
-      json: async () => mockResponse,
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        headers: {
+          get: (name: string) =>
+            name === 'content-type' ? 'application/json' : null,
+        },
+        json: async () => mockResponse,
+      })
+    );
 
     const operationData: IHttpDeleteOperationData = {
       url: 'https://api.example.com/users/123',
@@ -50,14 +53,17 @@ describe('httpDelete', () => {
 
   test('should handle DELETE request with no content (204)', async () => {
     // Arrange
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 204,
-      statusText: 'No Content',
-      headers: {
-        get: () => null,
-      },
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 204,
+        statusText: 'No Content',
+        headers: {
+          get: () => null,
+        },
+      })
+    );
 
     const operationData: IHttpDeleteOperationData = {
       url: 'https://api.example.com/users/123',
@@ -79,11 +85,14 @@ describe('httpDelete', () => {
 
   test('should throw error on HTTP error status', async () => {
     // Arrange
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: false,
-      status: 403,
-      statusText: 'Forbidden',
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+      })
+    );
 
     const operationData: IHttpDeleteOperationData = {
       url: 'https://api.example.com/users/123',
@@ -133,11 +142,14 @@ describe('httpDelete', () => {
 
   test('should erase url and headers properties', async () => {
     // Arrange
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 204,
-      headers: {get: () => null},
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 204,
+        headers: {get: () => null},
+      })
+    );
 
     const operationData: IHttpDeleteOperationData = {
       url: 'https://api.example.com/test',

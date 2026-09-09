@@ -5,21 +5,13 @@ import {
 } from '@operation/is-element-in-viewport.ts';
 import {applyOperation} from '@util/apply-operation.ts';
 import $ from 'jquery';
-import {JSDOM} from 'jsdom';
 import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('isElementInViewport', () => {
-  let dom: JSDOM;
-  let window: Window;
-  let document: Document;
   let mockEventbus: IEventbus;
 
   beforeEach(() => {
-    dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    window = dom.window as unknown as Window;
-    document = window.document;
-    (global as any).window = window;
-    (global as any).document = document;
+    document.body.innerHTML = '';
 
     // Mock window properties
     Object.defineProperty(window, 'innerHeight', {

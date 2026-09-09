@@ -11,6 +11,7 @@ Comprehensive documentation for writing and maintaining tests in the Eligius pro
    - [Basic vi.fn() Usage](#basic-vifn-usage)
    - [Inline Mock Objects](#inline-mock-objects)
    - [Mocking for Operations](#mocking-for-operations)
+   - [Mocking Globals (window, document, fetch, timers)](#mocking-globals-window-document-fetch-timers)
    - [Module Mocking with vi.mock()](#module-mocking-with-vimock)
    - [Advanced: vi.hoisted() Pattern](#advanced-vihoisted-pattern)
 5. [Timer Mocking](#timer-mocking)
@@ -24,24 +25,26 @@ Comprehensive documentation for writing and maintaining tests in the Eligius pro
 9. [Helper Utilities](#helper-utilities)
 10. [Best Practices](#best-practices)
 11. [Running Tests](#running-tests)
+    - [Test Pool & Performance](#test-pool--performance)
 12. [Common Testing Patterns by Feature](#common-testing-patterns-by-feature)
 
 ---
 
 ## Test Suite Overview
 
-The Eligius project uses **Vitest** as its testing framework with **jsdom** for browser API simulation.
+The Eligius project uses **Vitest 5** as its testing framework with **jsdom** for browser API simulation.
 
 **Test Statistics:**
-- ~129 test files
-- ~565 tests
+- ~148 test files
+- ~1100 tests
 - 90% coverage requirement
+- Full run ≈ 8–9s locally
 
 **Key Configuration** (`src/vitest.config.ts`):
-- Environment: jsdom
+- Environment: jsdom (every spec gets a real `window`/`document` — never create your own `JSDOM`)
+- Pool: `vmThreads` — jsdom is created once per worker, each spec file still gets a fresh window (see [Test Pool & Performance](#test-pool--performance))
 - Setup file: `src/test/setup.ts`
-- Single-threaded execution for determinism
-- Automatic mock cleanup between tests
+- Automatic cleanup between tests: `clearMocks`, `restoreMocks`, `unstubGlobals`, `unstubEnvs`
 
 ---
 
@@ -244,6 +247,47 @@ function createMockElement(selectedElement: any) {
   };
 }
 ```
+
+### Mocking Globals (window, document, fetch, timers)
+
+The jsdom environment already provides `window`, `document`, `history`, `location`, `fetch`, timers, etc. Mock them with **`vi.stubGlobal`** — never by assigning to `global`/`globalThis`/`window`.
+
+```typescript
+// GOOD: stubbed for this test only, restored automatically (`unstubGlobals: true`)
+vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: true, json: async () => ({})}));
+vi.stubGlobal('cancelAnimationFrame', () => {});
+vi.stubGlobal('history', {state: null, pushState: vi.fn(), replaceState: vi.fn()});
+vi.stubGlobal('pageXOffset', 150);
+
+// BAD: throws under Vitest 5
+(global as any).document = new JSDOM('...').window.document;
+global.history = {pushState: vi.fn()};
+delete (window as any).location;
+```
+
+**Why the assignment form breaks (Vitest 5):** assignments to `globalThis`/`window` properties are now propagated to the underlying jsdom `Window`. `document`, `history` and `location` are getter-only there, so the assignment throws `TypeError: Cannot set property document of [object Window] which has only a getter`. `vi.stubGlobal` uses `Object.defineProperty` and bypasses this.
+
+Rules of thumb:
+
+- **Stub inside `test`/`beforeEach`, not at `describe` level.** Stubs are removed after every test, so a describe-level stub only survives the first test.
+- **No manual save/restore.** `unstubGlobals: true` and `restoreMocks: true` restore everything; drop `afterEach(() => { global.x = original })` plumbing.
+- **Don't build a private `JSDOM`.** Use the environment's `document`; reset `document.body.innerHTML = ''` in `beforeEach` to isolate tests. This also keeps jQuery and the test on the same document.
+- **Writable jsdom props can be assigned directly** (`window.scrollTo = vi.fn()`, `window.innerHeight = 800`) — but prefer `vi.stubGlobal` so they're restored.
+- **Prototype getters:** spy on the accessor, e.g. `vi.spyOn(document, 'documentElement', 'get').mockReturnValue(el)`.
+- **`window.location` cannot be replaced or deleted** (non-configurable on the jsdom window under the `vmThreads` pool). Set the URL through the real History API instead:
+
+```typescript
+// Capture before any test stubs `history`
+const realHistory = window.history;
+const setUrl = (url: string) => realHistory.replaceState(null, '', url);
+
+beforeEach(() => {
+  setUrl('/#/nav1');          // location.href / .hash now reflect this
+  setUrl('/?test=true');      // location.search === '?test=true'
+});
+```
+
+Reference specs: `unit/operation/get-scroll-position.spec.ts`, `unit/operation/get-query-params.spec.ts`, `unit/controllers/RoutingController.spec.ts`, `unit/operation/http-post.spec.ts`.
 
 ### Module Mocking with vi.mock()
 
@@ -837,6 +881,8 @@ test('test 1', () => { /* independent */ });
 test('test 2', () => { /* independent */ });
 ```
 
+Shared state to watch for: the jsdom `document` is shared by all tests **in the same file** (reset `document.body.innerHTML` in `beforeEach`), and anything put on `window`/`globalThis` without `vi.stubGlobal` leaks into later tests in that file. See [Mocking Globals](#mocking-globals-window-document-fetch-timers).
+
 ### 3. Use Fixtures Over Inline Mocks
 
 ```typescript
@@ -938,6 +984,18 @@ npm run test:coverage -- --run
 # CI mode (verbose output)
 npm run test:ci
 ```
+
+### Test Pool & Performance
+
+`src/vitest.config.ts` sets `pool: 'vmThreads'`. Vitest's default pool (`forks`) creates a fresh jsdom environment for every spec file, which accounted for ~93% of wall-clock time (~46s for the suite). With `vmThreads` the environment is created once per worker and each file runs in its own VM context with a fresh `window`, bringing the run to ~8s while keeping per-file isolation (`isolate: false` is not applicable to VM pools — they are always isolated).
+
+Trade-offs to be aware of (from the Vitest docs, verified against this suite):
+
+- **Memory:** the VM pool keeps imported ES modules cached for the worker's lifetime and Node's `vm` module can leak with ESM. Vitest restarts a worker when it exceeds `vmMemoryLimit` (default: 1/64 of system memory). This suite (~148 files) runs well within that; if CI ever OOMs or slows down late in the run, set `vmMemoryLimit` (e.g. `'512MB'`) or fall back to `pool: 'threads'`/`'forks'` (slower, no code changes required).
+- **The test global *is* the jsdom window.** Non-configurable window properties (`location`) can't be redefined or deleted — use the History API, see [Mocking Globals](#mocking-globals-window-document-fetch-timers).
+- **Native module globals differ from test globals** inside the VM (e.g. `instanceof` checks against Node built-ins across the boundary). Not currently an issue for this codebase.
+
+If a new test only passes under `pool: 'forks'`, it is almost always mutating a global directly; fix the test rather than the pool.
 
 ### Viewing Coverage Reports
 
@@ -1090,6 +1148,7 @@ When creating a new test file:
 - [ ] Uses fixture factories instead of inline mock classes
 - [ ] Follows Arrange-Act-Assert pattern
 - [ ] Each test is independent
+- [ ] Globals mocked with `vi.stubGlobal` inside `test`/`beforeEach` — never assigned to `global`/`window`, no private `JSDOM`
 - [ ] Async tests use async/await
 - [ ] Test names describe expected behavior
 - [ ] Runs successfully: `npm test -- path/to/test.spec.ts`
@@ -1105,3 +1164,4 @@ When creating a new test file:
 5. **One behavior per test**, clear naming, AAA pattern
 6. **Clean up** in afterEach if tests modify shared state
 7. **90% coverage** is the project requirement
+8. **`vi.stubGlobal` for globals** — direct assignment to `global`/`window` breaks under Vitest 5 and the `vmThreads` pool

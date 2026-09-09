@@ -15,9 +15,7 @@ describe('scrollToPosition', () => {
     } as any;
 
     // Mock window.scrollTo
-    (global as any).window = {
-      scrollTo: () => {},
-    };
+    window.scrollTo = () => {};
   });
 
   test('should scroll to x and y position with smooth behavior', () => {
@@ -25,7 +23,7 @@ describe('scrollToPosition', () => {
     let scrollX = 0;
     let scrollY = 0;
     let scrollOptions: any = null;
-    (global as any).window.scrollTo = (options: any) => {
+    window.scrollTo = (options: any) => {
       if (typeof options === 'object') {
         scrollOptions = options;
         scrollX = options.left;
@@ -55,7 +53,7 @@ describe('scrollToPosition', () => {
   test('should scroll to position with auto behavior by default', () => {
     // Arrange
     let scrollOptions: any = null;
-    (global as any).window.scrollTo = (options: any) => {
+    window.scrollTo = (options: any) => {
       scrollOptions = options;
     };
 
@@ -94,7 +92,7 @@ describe('scrollToPosition', () => {
 
   test('should erase x, y, and behavior properties', () => {
     // Arrange
-    (global as any).window.scrollTo = () => {};
+    window.scrollTo = () => {};
     const operationData: IScrollToPositionOperationData = {
       x: 100,
       y: 200,

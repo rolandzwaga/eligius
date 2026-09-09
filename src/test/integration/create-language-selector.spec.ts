@@ -26,6 +26,7 @@ import {
   expect,
   type TestContext,
   test,
+  vi,
 } from 'vitest';
 import {EngineFactory} from '../../engine-factory.ts';
 import type {IEligiusEngine} from '../../types.ts';
@@ -34,13 +35,11 @@ type CreateOptionListContext = {
   configuration: IEngineConfiguration;
   eventbus: Eventbus;
   engine: IEligiusEngine;
-  cancelAnimationFrame: typeof global.cancelAnimationFrame;
 } & TestContext;
 
 describe<CreateOptionListContext>('Create option list', () => {
   beforeEach<CreateOptionListContext>(context => {
-    context.cancelAnimationFrame = global.cancelAnimationFrame;
-    global.cancelAnimationFrame = () => {};
+    vi.stubGlobal('cancelAnimationFrame', () => {});
     context.eventbus = new Eventbus();
 
     $('<div data-ct-container=true></div>').appendTo(document.body);
@@ -134,7 +133,6 @@ describe<CreateOptionListContext>('Create option list', () => {
     await context.engine?.destroy();
     context.eventbus.clear();
     $('[data-ct-container=true]').remove();
-    global.cancelAnimationFrame = context.cancelAnimationFrame;
   });
   test<CreateOptionListContext>('should create a selector and attach a change controller', async context => {
     let selectedLang = '';

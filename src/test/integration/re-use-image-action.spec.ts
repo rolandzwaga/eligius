@@ -17,6 +17,7 @@ import {
   expect,
   type TestContext,
   test,
+  vi,
 } from 'vitest';
 import {EngineFactory} from '../../engine-factory.ts';
 import type {IEligiusEngine} from '../../types.ts';
@@ -28,8 +29,8 @@ type ReuseActionsContext = {
 } & TestContext;
 
 describe<ReuseActionsContext>('Re-use actions to add pictures', () => {
-  global.cancelAnimationFrame = () => {};
   beforeEach<ReuseActionsContext>(context => {
+    vi.stubGlobal('cancelAnimationFrame', () => {});
     context.eventbus = new Eventbus();
 
     $('<div data-ct-container=true></div>').appendTo(document.body);

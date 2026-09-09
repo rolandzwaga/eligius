@@ -4,21 +4,13 @@ import {
   type IAnnounceToScreenReaderOperationData,
 } from '@operation/announce-to-screen-reader.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {JSDOM} from 'jsdom';
 import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('announceToScreenReader', () => {
-  let dom: JSDOM;
-  let window: Window;
-  let document: Document;
   let mockEventbus: IEventbus;
 
   beforeEach(() => {
-    dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    window = dom.window as unknown as Window;
-    document = window.document;
-    (global as any).window = window;
-    (global as any).document = document;
+    document.body.innerHTML = '';
     mockEventbus = {broadcast: () => {}} as any;
   });
 
