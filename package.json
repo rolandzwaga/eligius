@@ -82,10 +82,10 @@
     "video.js": "8.23.9"
   },
   "dependencies": {
-    "hotkeys-js": "4.0.4",
+    "hotkeys-js": "4.0.7",
     "rosetta": "1.1.0",
     "ts-is-present": "1.2.2",
-    "uuid": "14.0.1"
+    "uuid": "14.0.2"
   },
   "types": "./dist/index.d.mts"
 }
