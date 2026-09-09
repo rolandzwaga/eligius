@@ -1,13 +1,6 @@
 import {clearCache, loadJson} from '@operation/load-json.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  type TestContext,
-  test,
-} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 function getResult(context: LoadJsonContext) {
   return () =>
@@ -17,24 +10,22 @@ function getResult(context: LoadJsonContext) {
 }
 
 type LoadJsonContext = {
-  fetch: (input: RequestInfo, init?: RequestInit) => Promise<Response>;
   result: any;
 } & TestContext;
 
 describe<LoadJsonContext>('loadJSON', () => {
   beforeEach<LoadJsonContext>(context => {
-    context.fetch = global.fetch;
     context.result = {};
-    global.fetch = () =>
-      new Promise(resolve => {
-        resolve({
-          json: getResult(context),
-        } as any);
-      });
+    vi.stubGlobal(
+      'fetch',
+      () =>
+        new Promise(resolve => {
+          resolve({
+            json: getResult(context),
+          } as any);
+        })
+    );
     clearCache();
-  });
-  afterEach<LoadJsonContext>(context => {
-    (global as any).fetch = context.fetch;
   });
   test<LoadJsonContext>('should load the specified json', async context => {
     // given

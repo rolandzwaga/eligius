@@ -2,21 +2,13 @@ import type {IEventbus} from '@eventbus/types.ts';
 import {type ISetFocusOperationData, setFocus} from '@operation/set-focus.ts';
 import {applyOperation} from '@util/apply-operation.ts';
 import $ from 'jquery';
-import {JSDOM} from 'jsdom';
 import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('setFocus', () => {
-  let dom: JSDOM;
-  let window: Window;
-  let document: Document;
   let mockEventbus: IEventbus;
 
   beforeEach(() => {
-    dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
-    window = dom.window as unknown as Window;
-    document = window.document;
-    (global as any).window = window;
-    (global as any).document = document;
+    document.body.innerHTML = '';
     mockEventbus = {broadcast: () => {}} as any;
   });
 

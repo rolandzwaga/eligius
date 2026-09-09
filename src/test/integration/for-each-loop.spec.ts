@@ -17,15 +17,15 @@ import {
   type TOperationData,
   when,
 } from '@operation/index.ts';
-import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 type ForEachLoopContext = {action: Action} & TestContext;
 
 function withContext<T>(ctx: unknown): asserts ctx is T {}
 describe<ForEachLoopContext>('Start and end a for each loop', () => {
-  global.cancelAnimationFrame = () => {};
   beforeEach(context => {
     withContext<ForEachLoopContext>(context);
+    vi.stubGlobal('cancelAnimationFrame', () => {});
 
     const eventBus = new Eventbus();
     context.action = new Action('test', [], eventBus);

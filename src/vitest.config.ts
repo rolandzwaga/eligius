@@ -7,6 +7,9 @@ export default defineConfig({
     setupFiles: 'src/test/setup.ts',
     globals: true, // Enables global test functions like `describe`, `it`, etc.
     environment: 'jsdom', // Use 'jsdom' if you're testing browser-based code
+    // Create the jsdom environment once per worker instead of once per file
+    // (each file still gets a fresh window); jsdom setup dominated run time.
+    pool: 'vmThreads',
     clearMocks: true,
     restoreMocks: true,
     unstubEnvs: true,

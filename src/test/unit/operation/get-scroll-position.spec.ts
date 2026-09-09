@@ -4,49 +4,61 @@ import {
   type IGetScrollPositionOperationData,
 } from '@operation/get-scroll-position.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {beforeEach, describe, expect, test} from 'vitest';
+import {beforeEach, describe, expect, test, vi} from 'vitest';
 
 describe('getScrollPosition', () => {
   let mockEventbus: IEventbus;
+
+  // Stubs are restored after each test by `unstubGlobals` / `restoreMocks`
+  const stubWindowScroll = (values: {
+    pageXOffset?: number;
+    pageYOffset?: number;
+    scrollX?: number;
+    scrollY?: number;
+  }) => {
+    vi.stubGlobal('pageXOffset', values.pageXOffset);
+    vi.stubGlobal('pageYOffset', values.pageYOffset);
+    vi.stubGlobal('scrollX', values.scrollX);
+    vi.stubGlobal('scrollY', values.scrollY);
+  };
+
+  const stubDocumentElement = (
+    value: {scrollLeft: number; scrollTop: number} | undefined
+  ) => {
+    vi.spyOn(document, 'documentElement', 'get').mockReturnValue(
+      value as unknown as HTMLElement
+    );
+  };
+
+  const run = () => {
+    const operationData: IGetScrollPositionOperationData = {
+      scrollX: 0,
+      scrollY: 0,
+    };
+    return applyOperation(getScrollPosition, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+  };
 
   beforeEach(() => {
     mockEventbus = {
       broadcast: () => {},
     } as any;
-
-    // Mock window
-    (global as any).window = {
-      pageXOffset: 0,
-      pageYOffset: 0,
-      scrollX: 0,
-      scrollY: 0,
-    };
-
-    // Mock document
-    (global as any).document = {
-      documentElement: {
-        scrollLeft: 0,
-        scrollTop: 0,
-      },
-    };
   });
 
   test('should get current scroll position using pageXOffset/pageYOffset', () => {
     // Arrange
-    (global as any).window.pageXOffset = 150;
-    (global as any).window.pageYOffset = 400;
-
-    const operationData: IGetScrollPositionOperationData = {
+    stubWindowScroll({
+      pageXOffset: 150,
+      pageYOffset: 400,
       scrollX: 0,
       scrollY: 0,
-    };
+    });
 
     // Act
-    const result = applyOperation(getScrollPosition, operationData, {
-      currentIndex: 0,
-      eventbus: mockEventbus,
-      operations: [],
-    });
+    const result = run();
 
     // Assert
     expect(result.scrollX).toBe(150);
@@ -55,22 +67,10 @@ describe('getScrollPosition', () => {
 
   test('should get scroll position using scrollX/scrollY fallback', () => {
     // Arrange
-    delete (global as any).window.pageXOffset;
-    delete (global as any).window.pageYOffset;
-    (global as any).window.scrollX = 200;
-    (global as any).window.scrollY = 500;
-
-    const operationData: IGetScrollPositionOperationData = {
-      scrollX: 0,
-      scrollY: 0,
-    };
+    stubWindowScroll({scrollX: 200, scrollY: 500});
 
     // Act
-    const result = applyOperation(getScrollPosition, operationData, {
-      currentIndex: 0,
-      eventbus: mockEventbus,
-      operations: [],
-    });
+    const result = run();
 
     // Assert
     expect(result.scrollX).toBe(200);
@@ -79,24 +79,11 @@ describe('getScrollPosition', () => {
 
   test('should get scroll position using documentElement fallback', () => {
     // Arrange
-    delete (global as any).window.pageXOffset;
-    delete (global as any).window.pageYOffset;
-    delete (global as any).window.scrollX;
-    delete (global as any).window.scrollY;
-    (global as any).document.documentElement.scrollLeft = 100;
-    (global as any).document.documentElement.scrollTop = 300;
-
-    const operationData: IGetScrollPositionOperationData = {
-      scrollX: 0,
-      scrollY: 0,
-    };
+    stubWindowScroll({});
+    stubDocumentElement({scrollLeft: 100, scrollTop: 300});
 
     // Act
-    const result = applyOperation(getScrollPosition, operationData, {
-      currentIndex: 0,
-      eventbus: mockEventbus,
-      operations: [],
-    });
+    const result = run();
 
     // Assert
     expect(result.scrollX).toBe(100);
@@ -105,23 +92,11 @@ describe('getScrollPosition', () => {
 
   test('should return zero if no scroll position available', () => {
     // Arrange
-    delete (global as any).window.pageXOffset;
-    delete (global as any).window.pageYOffset;
-    delete (global as any).window.scrollX;
-    delete (global as any).window.scrollY;
-    (global as any).document = {};
-
-    const operationData: IGetScrollPositionOperationData = {
-      scrollX: 0,
-      scrollY: 0,
-    };
+    stubWindowScroll({});
+    stubDocumentElement(undefined);
 
     // Act
-    const result = applyOperation(getScrollPosition, operationData, {
-      currentIndex: 0,
-      eventbus: mockEventbus,
-      operations: [],
-    });
+    const result = run();
 
     // Assert
     expect(result.scrollX).toBe(0);

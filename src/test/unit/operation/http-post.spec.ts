@@ -16,12 +16,15 @@ describe('httpPost', () => {
   test('should perform POST request successfully', async () => {
     // Arrange
     const mockResponse = {id: 123, name: 'John'};
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 201,
-      statusText: 'Created',
-      json: async () => mockResponse,
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 201,
+        statusText: 'Created',
+        json: async () => mockResponse,
+      })
+    );
 
     const operationData: IHttpPostOperationData = {
       url: 'https://api.example.com/users',
@@ -45,11 +48,14 @@ describe('httpPost', () => {
 
   test('should throw error on HTTP error status', async () => {
     // Arrange
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: false,
-      status: 400,
-      statusText: 'Bad Request',
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 400,
+        statusText: 'Bad Request',
+      })
+    );
 
     const operationData: IHttpPostOperationData = {
       url: 'https://api.example.com/users',
@@ -100,11 +106,14 @@ describe('httpPost', () => {
 
   test('should erase url, body, and headers properties', async () => {
     // Arrange
-    global.fetch = vi.fn().mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: async () => ({success: true}),
-    });
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: async () => ({success: true}),
+      })
+    );
 
     const operationData: IHttpPostOperationData = {
       url: 'https://api.example.com/test',

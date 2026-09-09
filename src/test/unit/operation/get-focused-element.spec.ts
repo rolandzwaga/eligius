@@ -4,23 +4,13 @@ import {
   type IGetFocusedElementOperationData,
 } from '@operation/get-focused-element.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {JSDOM} from 'jsdom';
 import {beforeEach, describe, expect, test} from 'vitest';
 
 describe('getFocusedElement', () => {
-  let dom: JSDOM;
-  let window: Window;
-  let document: Document;
   let mockEventbus: IEventbus;
 
   beforeEach(() => {
-    dom = new JSDOM(
-      '<!DOCTYPE html><html><body><input id="test" /></body></html>'
-    );
-    window = dom.window as unknown as Window;
-    document = window.document;
-    (global as any).window = window;
-    (global as any).document = document;
+    document.body.innerHTML = '<input id="test" />';
     mockEventbus = {broadcast: () => {}} as any;
   });
 

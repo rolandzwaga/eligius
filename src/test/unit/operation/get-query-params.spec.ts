@@ -3,35 +3,20 @@ import {
   type IGetQueryParamsOperationData,
 } from '@operation/get-query-params.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  type TestContext,
-  test,
-} from 'vitest';
+import {afterEach, describe, expect, test} from 'vitest';
 
-type GetQueryParamsSuiteContext = {
-  location: any;
-} & TestContext;
+// `window.location` cannot be replaced (non-configurable on the jsdom window),
+// so the query string is set through the real History API.
+const setSearch = (search: string) =>
+  window.history.replaceState(null, '', search ? `/?${search}` : '/');
 
-describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
-  beforeEach<GetQueryParamsSuiteContext>(context => {
-    context.location = window.location;
-    delete (window as any).location;
-    (window as any).location = {
-      search: '',
-    };
-  });
-  afterEach<GetQueryParamsSuiteContext>(context => {
-    (window as any).location = context.location;
+describe('getQueryParams', () => {
+  afterEach(() => {
+    setSearch('');
   });
   test('should retrieve the query params and put them on the resulting operation data', () => {
     /// given
-    (window as any).location = {
-      search: '?test=true&test2=false',
-    };
+    setSearch('test=true&test2=false');
     const operationData = {};
 
     // test
@@ -41,9 +26,7 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
   });
   test('should add an empty queryParams object to the operation data when no query params are present', () => {
     /// given
-    (window as any).location = {
-      search: '',
-    };
+    setSearch('');
     const operationData = {};
 
     // test
@@ -53,9 +36,7 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
   });
   test('should add the default values when query params not set', () => {
     /// given
-    (window as any).location = {
-      search: 'test=true',
-    };
+    setSearch('test=true');
     const operationData: IGetQueryParamsOperationData = {
       defaultValues: {test: 'true', test2: 'foo'},
     };
@@ -68,9 +49,7 @@ describe<GetQueryParamsSuiteContext>('getQueryParams', () => {
 
   test('should remove the defaultValue property from the operation data', () => {
     /// given
-    (window as any).location = {
-      search: 'test=true',
-    };
+    setSearch('test=true');
     const operationData: IGetQueryParamsOperationData = {
       defaultValues: {test: 'true', test2: 'foo'},
     };

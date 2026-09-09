@@ -1,31 +1,18 @@
 import {wait} from '@operation/wait.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  type TestContext,
-  test,
-} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 type WaitSuiteContext = {
-  timeout: typeof window.setTimeout;
   mseconds: number;
 } & TestContext;
 
 describe<WaitSuiteContext>('wait', () => {
   beforeEach<WaitSuiteContext>(context => {
     context.mseconds = 0;
-    context.timeout = window.setTimeout;
-    global.setTimeout = ((func: Function, ms: number) => {
+    vi.stubGlobal('setTimeout', (func: Function, ms: number) => {
       context.mseconds = ms;
       func();
-    }) as any;
-  });
-  afterEach<WaitSuiteContext>(context => {
-    global.setTimeout = context.timeout;
-    delete (context as any).timeout;
+    });
   });
   test<WaitSuiteContext>('should wait for the specified amount of milliseconds', async context => {
     // given

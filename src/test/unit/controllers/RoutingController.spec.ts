@@ -3,12 +3,15 @@ import type {IEventbus} from '@eventbus/types.js';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
+// `window.location` cannot be replaced (non-configurable on the jsdom window),
+// so the URL is set through the real History API. Captured before any test
+// stubs `history`.
+const realHistory = window.history;
+const setUrl = (url: string) => realHistory.replaceState(null, '', url);
+
 describe('RoutingController', () => {
   let controller: RoutingController;
   let mockEventbus: IEventbus;
-  let originalWindowLocation: Location;
-  let originalWindowHistory: History;
-  let originalWindowDocument: Document;
 
   const createNavigationData = () => ({
     navigationData: [
@@ -37,24 +40,14 @@ describe('RoutingController', () => {
     controller = new RoutingController();
     mockEventbus = createMockEventbus();
 
-    // Save original window objects
-    originalWindowLocation = window.location;
-    originalWindowHistory = window.history;
-    originalWindowDocument = window.document;
+    setUrl('/#/nav1');
 
-    // Mock window.location
-    delete (window as any).location;
-    (window as any).location = {
-      href: 'http://localhost/#/nav1',
-      hash: '#/nav1',
-    };
-
-    // Mock window.history
-    (window as any).history = {
+    // Mock window.history (restored by `unstubGlobals`)
+    vi.stubGlobal('history', {
       state: null,
       pushState: vi.fn(),
       replaceState: vi.fn(),
-    };
+    });
 
     // Mock window.document.title
     Object.defineProperty(window.document, 'title', {
@@ -67,10 +60,6 @@ describe('RoutingController', () => {
   });
 
   afterEach(() => {
-    // Restore original window objects
-    (window as any).location = originalWindowLocation;
-    (window as any).history = originalWindowHistory;
-    (window as any).document = originalWindowDocument;
     window.onpopstate = null;
   });
 
@@ -137,7 +126,7 @@ describe('RoutingController', () => {
 
     it('should handle URL with navigation ID', () => {
       // Set location with navId in hash
-      (window as any).location.href = 'http://localhost/#/nav2/10';
+      setUrl('/#/nav2/10');
 
       const operationData = {
         json: createNavigationData(),
@@ -155,7 +144,7 @@ describe('RoutingController', () => {
 
     it('should push initial state when no navigation ID in URL', () => {
       // Set location without navId
-      (window as any).location.href = 'http://localhost/';
+      setUrl('/');
 
       const operationData = {
         json: createNavigationData(),
