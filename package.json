@@ -53,12 +53,12 @@
     "fix": "biome check --write ."
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.12",
+    "@biomejs/biome": "2.5.13",
     "@rollup/plugin-alias": "6.0.0",
     "@types/fs-extra": "11.0.4",
     "@types/jquery": "4.0.1",
     "@types/jsdom": "30.0.0",
-    "@types/node": "26.5.0",
+    "@types/node": "26.5.1",
     "@types/uuid": "11.0.0",
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitest/coverage-istanbul": "5.0.0",
