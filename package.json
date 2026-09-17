@@ -81,7 +81,7 @@
     "video.js": "8.24.0"
   },
   "dependencies": {
-    "hotkeys-js": "4.0.7",
+    "hotkeys-js": "4.0.8",
     "rosetta": "1.1.0",
     "ts-is-present": "1.2.2",
     "uuid": "14.0.2"
