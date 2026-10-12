@@ -1,0 +1,82 @@
+---
+name: code-exploration
+description: Efficiently explore unfamiliar TypeScript code using navigation tools instead of reading entire files. Trigger when asking how something works, exploring a new module, understanding architecture, or tracing request flows.
+---
+
+# Code Exploration Workflow
+
+Efficiently explore unfamiliar TypeScript code using navigation tools instead of reading entire files.
+
+## When to Activate
+
+- User asks "how does X work?" or "walk me through the code for X"
+- Exploring a new codebase or unfamiliar module
+- Understanding the architecture or data flow of a feature
+- Tracing a request from API handler to database
+- Understanding Effect channel types, Layer composition, or LSP diagnostics
+
+## Workflow
+
+### Step 1: Find the Entry Point
+If this is the first TypeGraph call in the session and project targeting is uncertain:
+- Call `ts_project_info` to confirm the project root, tsconfig, backend, and graph/index sizes
+
+If you know the symbol name but not the file:
+- Call `ts_navigate_to` with the symbol name
+
+If you know the file:
+- Call `ts_module_exports` to see what the file provides
+- Call `ts_find_symbol` to locate a specific symbol within it
+- Call `ts_document_symbols` when the interesting code is likely a route table, RPC handler map, object-literal key, or nested member
+
+If `ts_module_exports` on a top-level `index.ts` is empty or mostly re-exports:
+- Treat it as a barrel, not a dead end
+- Pivot to a composition module such as an app entrypoint, router, handler, API module, or service composition root
+- Use `ts_dependency_tree` on that composition module to get quick architectural context
+
+### Step 2: Understand the Type
+Call `ts_symbol_overview` on the entry point symbol when you need the definition, type, and reference footprint together.
+
+Call `ts_type_info` when you only need the type signature and documentation.
+
+Call `ts_hover` when editor-style presentation would answer the question better than a raw checker type. On Effect projects backed by `@effect/tsgo`, hover can expand `Success`, `Failure`, and `Requirements` channels.
+
+Call `ts_layer_hover` for Effect Layer values. It can expose Layer graph hover content and Mermaid links that are not visible through text search.
+
+### Step 3: Trace the Implementation
+Call `ts_trace_chain` to follow the definition chain from the entry point to the implementation. Each hop shows the file, line, and a code preview.
+
+### Step 4: Explore the Neighborhood
+Call `ts_subgraph` with the key files discovered in step 3 to see the surrounding module structure. Use `direction: "both"` and `depth: 1` for immediate context.
+
+For a fast system-level read, `ts_dependency_tree` on the composition module often gives a better first picture than reading a barrel file's exports.
+
+### Step 5: Deep Dive Where Needed
+Only now, read specific files at the lines identified by the tools. You have precise coordinates — no need to read entire files.
+
+### Step 6: Check Effect Diagnostics When Relevant
+
+For Effect-specific correctness or idiom questions, call `ts_effect_diagnostics` before proposing a rewrite. If diagnostics point at a range, use `ts_code_actions` to see the quick fixes/refactors the TSGo LSP itself offers.
+
+## Key Principle
+
+**Never start by reading entire files or grepping TypeScript symbols.** Use TypeGraph MCP to find the exact lines, types, hovers, diagnostics, and graph relationships that matter, then read only those lines. Use text search for docs/config/non-TypeScript assets or broad syntactic discovery.
+
+## Example
+
+```
+User: "How does the magic link authentication flow work?"
+
+1. ts_navigate_to({ symbol: "MagicLinkHandler" })
+   -> Found in apps/core-api/src/entrypoints/magic-link.ts
+
+2. ts_symbol_overview -> Shows handler signature, definition, and reference footprint
+
+3. ts_trace_chain -> 4 hops:
+   magic-link.ts -> ClaimService.ts -> TokenRepository.ts -> tenant-context.ts
+
+4. ts_subgraph({ files: [those 4 files], depth: 1 })
+   -> Shows AuthService and NotificationService also connect to ClaimService
+
+5. Read the specific lines at each hop to explain the flow
+```

@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "typegraph-mcp": {
+      "command": "node",
+      "args": [
+        "node_modules/typegraph-mcp/dist/server.cjs"
+      ],
+      "env": {
+        "TYPEGRAPH_PROJECT_ROOT": ".",
+        "TYPEGRAPH_TSCONFIG": "./tsconfig.json"
+      }
+    }
+  }
+}
