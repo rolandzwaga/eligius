@@ -7,6 +7,7 @@ import {ConfigurationFactory} from '@configuration/api/configuration-factory.ts'
 import {TimelineProvidersSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
 import type {
   IActionConfiguration,
+  IEngineConfiguration,
   ITimelineActionConfiguration,
 } from '@configuration/types.ts';
 import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
@@ -421,5 +422,209 @@ describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
     expect(timeline?.duration).toBe(100);
     expect(timeline?.loop).toBe(false);
     expect(timeline?.selector).toBe('selector');
+  });
+
+  describe<ConfigurationFactorySuiteContext>('round-trip edits', () => {
+    test<ConfigurationFactorySuiteContext>('given an action created via createAction, when editAction(id).addStartOperation and setName are called, then getConfiguration().actions[0] has the new name and one start operation', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createAction('A').getId();
+
+      // test
+      configurationFactory
+        .editAction(id)
+        .addStartOperation('selectElement', {selector: '#x'});
+      configurationFactory.editAction(id).setName('B');
+
+      // expect
+      let action: IActionConfiguration | undefined;
+      configurationFactory.getConfiguration(c => {
+        action = c.actions[0];
+        return c;
+      });
+      expect(action?.name).toBe('B');
+      expect(action?.startOperations.length).toBe(1);
+      expect(action?.startOperations[0].systemName).toBe('selectElement');
+    });
+    test<ConfigurationFactorySuiteContext>('given an action with three start operations, when editAction removes and moves operations, then the factory configuration reflects the change', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createAction('A').getId();
+      configurationFactory
+        .editAction(id)
+        .addStartOperation('selectElement', {selector: '#x'}, 'op1')
+        .next()
+        .addStartOperation('addClass', {className: 'a'}, 'op2')
+        .next()
+        .addStartOperation('removeClass', {className: 'a'}, 'op3');
+
+      // test
+      configurationFactory
+        .editAction(id)
+        .removeStartOperation('op2')
+        .moveStartOperation('op1', 'up');
+
+      // expect
+      const ids =
+        configurationFactory.configuration.actions[0].startOperations.map(
+          o => o.id
+        );
+      expect(ids).toEqual(['op3', 'op1']);
+    });
+    test<ConfigurationFactorySuiteContext>('given an init action, when editInitAction removes and moves end operations and sets the name, then the factory configuration reflects the change', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const creator = configurationFactory
+        .createInitAction('Init')
+        .addEndOperation('selectElement', {selector: '#x'})
+        .addEndOperation('addClass', {className: 'a'})
+        .addEndOperation('removeClass', {className: 'a'});
+      const [first, second, third] = creator.actionConfig.endOperations.map(
+        o => o.id
+      );
+
+      // test
+      configurationFactory
+        .editInitAction(creator.getId())
+        .removeEndOperation(second)
+        .moveEndOperation(first, 'up')
+        .setName('Init2');
+
+      // expect
+      const action = configurationFactory.configuration.initActions[0];
+      expect(action.name).toBe('Init2');
+      expect(action.endOperations.map(o => o.id)).toEqual([third, first]);
+    });
+    test<ConfigurationFactorySuiteContext>('given an event action, when editEventAction sets the name and adds a start operation, then the factory configuration reflects the change', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createEventAction('Evt').getId();
+
+      // test
+      configurationFactory
+        .editEventAction(id)
+        .setName('Evt2')
+        .addStartOperation('selectElement', {selector: '#x'});
+
+      // expect
+      const action = configurationFactory.configuration.eventActions?.[0];
+      expect(action?.name).toBe('Evt2');
+      expect(action?.startOperations.length).toBe(1);
+    });
+    test<ConfigurationFactorySuiteContext>('given a timeline action, when editTimelineAction sets the duration and name, then the factory configuration reflects the change', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      configurationFactory.addTimeline('test', 'animation', 100, false, '#t');
+      const id = configurationFactory
+        .createTimelineAction('test', 'TA')
+        .addDuration(1, 2)
+        .getId();
+
+      // test
+      configurationFactory
+        .editTimelineAction('test', id)
+        .setDuration(5, 10)
+        .setName('TA2');
+
+      // expect
+      const action =
+        configurationFactory.getTimeline('test')?.timelineActions[0];
+      expect(action?.name).toBe('TA2');
+      expect(action?.duration).toEqual({start: 5, end: 10});
+    });
+    test<ConfigurationFactorySuiteContext>('given an action editor, when the getConfiguration callback returns a new config, then the factory configuration holds the new config', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createAction('A').getId();
+
+      // test
+      configurationFactory
+        .editAction(id)
+        .getConfiguration(c => ({...c, name: 'C'}))
+        .addStartOperation('selectElement', {selector: '#y'});
+
+      // expect
+      const action = configurationFactory.configuration.actions[0];
+      expect(action.name).toBe('C');
+      expect(action.startOperations.length).toBe(1);
+    });
+    test<ConfigurationFactorySuiteContext>('given an action created via createAction, when getConfiguration(c => (cfg = c)) and then addStartOperation are called, then the factory action has one start operation', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const creator = configurationFactory.createAction('A');
+      let cfg: IActionConfiguration | undefined;
+
+      // test
+      creator.getConfiguration(c => (cfg = c));
+      creator.addStartOperation('selectElement', {selector: '#y'});
+
+      // expect
+      expect(cfg).toBeDefined();
+      expect(
+        configurationFactory.configuration.actions[0].startOperations.length
+      ).toBe(1);
+    });
+    test<ConfigurationFactorySuiteContext>('given an action created via createAction, when the getConfiguration callback returns a renamed config, then the factory action holds the new name and later edits', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const creator = configurationFactory.createAction('A');
+
+      // test
+      creator.getConfiguration(x => ({...x, name: 'C'}));
+      creator.addEndOperation('selectElement', {selector: '#y'});
+
+      // expect
+      const action = configurationFactory.configuration.actions[0];
+      expect(action.name).toBe('C');
+      expect(action.endOperations.length).toBe(1);
+    });
+    test<ConfigurationFactorySuiteContext>('given a start operation, when its OperationEditor getConfiguration callback returns a new config, then the factory operation holds the new config', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createAction('A').getId();
+      const operationEditor = configurationFactory
+        .editAction(id)
+        .addStartOperation('selectElement', {selector: '#x'}, 'op1');
+
+      // test
+      operationEditor.getConfiguration(c => ({
+        ...c,
+        operationData: {selector: '#y'},
+      }));
+
+      // expect
+      expect(
+        configurationFactory.configuration.actions[0].startOperations[0]
+          .operationData
+      ).toEqual({selector: '#y'});
+    });
+    test('given a factory wrapping a configuration without timelineProviderSettings, when editTimelineProviderSettings().addProvider is called, then timelineProviderSettings.animation is defined', () => {
+      // given
+      const configurationFactory = new ConfigurationFactory({
+        id: 'x',
+      } as unknown as IEngineConfiguration);
+
+      // test
+      configurationFactory
+        .editTimelineProviderSettings()
+        .addProvider('animation');
+
+      // expect
+      let settings: IEngineConfiguration['timelineProviderSettings'];
+      configurationFactory.getConfiguration(c => {
+        settings = c.timelineProviderSettings;
+        return c;
+      });
+      expect(settings?.animation).toBeDefined();
+    });
   });
 });

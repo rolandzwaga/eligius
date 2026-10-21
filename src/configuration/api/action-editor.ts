@@ -26,8 +26,25 @@ function array_move(arr: any[], old_index: number, new_index: number) {
 }
 
 /**
+ * Replaces the contents of `target` with the contents of `source` while keeping
+ * the `target` reference intact, so that the owning configuration sees the change.
+ */
+function replaceInPlace<T extends object>(target: T, source: T) {
+  if (target === source) {
+    return;
+  }
+  for (const key of Object.keys(target)) {
+    delete (target as Record<string, unknown>)[key];
+  }
+  Object.assign(target, source);
+}
+
+/**
  *
- * A factory that assists in editing an action
+ * A factory that assists in editing an action.
+ *
+ * The editor works directly on the action configuration that the `ConfigurationFactory` holds,
+ * so every edit is reflected in the factory's configuration.
  *
  */
 export class ActionEditor<
@@ -38,13 +55,17 @@ export class ActionEditor<
     protected readonly configurationFactory: ConfigurationFactory
   ) {}
 
-  updateConfiguration() {
-    this.actionConfig = structuredClone(this.actionConfig);
-  }
+  /**
+   * Called by the `OperationEditor` after it has changed an operation.
+   * Operations are edited in place, so there is nothing left to synchronize.
+   */
+  updateConfiguration() {}
 
   /**
    *
-   * Returns a copy of the current internal state of the factory
+   * Passes a copy of the current action configuration to the given callback.
+   * When the callback returns a configuration, it replaces the action configuration
+   * in the factory.
    *
    * @param callBack
    * @returns
@@ -53,7 +74,7 @@ export class ActionEditor<
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
-      this.actionConfig = newConfig;
+      replaceInPlace(this.actionConfig, newConfig);
     }
     return this;
   }
@@ -66,10 +87,7 @@ export class ActionEditor<
    * @returns
    */
   setName(name: string) {
-    this.actionConfig = {
-      ...this.actionConfig,
-      name,
-    };
+    this.actionConfig.name = name;
     return this;
   }
 
@@ -139,10 +157,7 @@ export class ActionEditor<
 
     startOperations.push(newConfig);
 
-    this.actionConfig = {
-      ...this.actionConfig,
-      startOperations,
-    };
+    this.actionConfig.startOperations = startOperations;
 
     return new OperationEditor<this, TOperation<TOperationData>>(
       newConfig,
@@ -192,10 +207,7 @@ export class ActionEditor<
 
     if (idx > -1) {
       startOperations.splice(idx, 1);
-      this.actionConfig = {
-        ...this.actionConfig,
-        startOperations,
-      };
+      this.actionConfig.startOperations = startOperations;
     }
 
     return this;
@@ -224,10 +236,7 @@ export class ActionEditor<
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(startOperations, idx, newIdx);
-      this.actionConfig = {
-        ...this.actionConfig,
-        startOperations,
-      };
+      this.actionConfig.startOperations = startOperations;
     }
 
     return this;
@@ -353,10 +362,7 @@ export class EndableActionEditor<
 
     if (idx > -1) {
       endOperations.splice(idx, 1);
-      this.actionConfig = {
-        ...this.actionConfig,
-        endOperations,
-      };
+      this.actionConfig.endOperations = endOperations;
     }
 
     return this;
@@ -385,10 +391,7 @@ export class EndableActionEditor<
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(endOperations, idx, newIdx);
-      this.actionConfig = {
-        ...this.actionConfig,
-        endOperations,
-      };
+      this.actionConfig.endOperations = endOperations;
     }
     return this;
   }
@@ -421,10 +424,7 @@ export class TimelineActionEditor extends EndableActionEditor<ITimelineActionCon
       duration.end = end;
     }
 
-    this.actionConfig = {
-      ...this.actionConfig,
-      duration,
-    };
+    this.actionConfig.duration = duration;
     return this;
   }
 }
@@ -461,7 +461,7 @@ export class OperationEditor<
     const newConfig = callBack.call(this, copy);
 
     if (newConfig) {
-      this.operationConfig = newConfig;
+      replaceInPlace(this.operationConfig, newConfig);
     }
 
     return this;

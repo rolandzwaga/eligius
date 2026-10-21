@@ -17,6 +17,7 @@ import {
   type TypeParameterDeclaration,
   ts,
 } from 'ts-morph';
+import {getTypeFromProperty} from './property-type.ts';
 
 /**
  * Converts a file path to use path aliases based on the project's tsconfig paths.
@@ -84,7 +85,7 @@ const getImplementedInterface = (
   return undefined;
 };
 
-const createControllerMetadata = (sourceFile: SourceFile) => {
+const createControllerMetadata = (sourceFile: SourceFile): boolean => {
   const classDeclaration = sourceFile
     .getClasses()
     .find(stat => stat.isExported());
@@ -92,14 +93,14 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Can't find an exported class in ${sourceFile.getBaseName()}`
     );
-    return;
+    return false;
   }
   const implementedType = getImplementedInterface(classDeclaration);
   if (!implementedType) {
     console.error(
       `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} does not implement an interface or extend a generic base class.`
     );
-    return;
+    return false;
   }
 
   const typeArguments = implementedType.getTypeArguments();
@@ -107,7 +108,7 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Class ${classDeclaration.getName()} in ${sourceFile.getBaseName()} extends/implements ${implementedType.getText()}, but has no generic arguments`
     );
-    return;
+    return false;
   }
   const typeName = typeArguments[0].getText();
 
@@ -121,10 +122,11 @@ const createControllerMetadata = (sourceFile: SourceFile) => {
     console.error(
       `The given typeref ${typeName} of ${implementedType.getText()} in ${sourceFile.getBaseName()} is neither a type alias or an interface`
     );
-    return;
+    return false;
   }
 
   createSourceFile(classDeclaration)(interfaceOrTypeAlias);
+  return true;
 };
 
 const toImport =
@@ -334,68 +336,6 @@ const getTypeFromTag = (tag: JSDocTag) => {
   return `type: '${(tag.getComment()! as string).trim()}'`;
 };
 
-const getTypeFromProperty = (property: PropertySignature) => {
-  const type = property.getType();
-  if (type.isTypeParameter()) {
-    const found = property
-      .getParent()
-      .getType()
-      .getTypeArguments()
-      .find(a => a.getText() === type.getSymbol()?.getName());
-    if (!found) {
-      throw new Error(
-        `Can't resolve type parameter ${type.getSymbol()?.getName()} of property ${property.getName()}`
-      );
-    }
-    const constraint = found.getConstraint();
-    if (!constraint) {
-      throw new Error(
-        `No constriant on type parameter ${type.getSymbol()?.getName()} of property ${property.getName()}`
-      );
-    }
-    if (constraint.isUnion()) {
-      const unionValues = constraint
-        .getUnionTypes()
-        .map(u => u.getLiteralValue() ?? u.getText());
-      return `type: [\n${unionValues
-        .map(x => x.toString().replaceAll(/['`]/g, '\\$&'))
-        .map(val => `{value: '${val}'}`)
-        .join(',\n')}\n]`;
-    }
-    return `type: ParamType:${constraint.getText()}`;
-  } else {
-    const aliasSymbol = type.getAliasSymbol();
-    const propType = aliasSymbol ? aliasSymbol.getName() : type.getText();
-    if (type.isUnion() && propType !== 'boolean') {
-      const unionValues = type
-        .getUnionTypes()
-        .map(u => u.getLiteralValue() ?? u.getText());
-      return `type: [\n${unionValues
-        .map(x => x.toString().replaceAll(/['`]/g, '\\$&'))
-        .map(val => `{value: '${val}'}`)
-        .join(',\n')}\n]`;
-    } else {
-      if (
-        propType.startsWith('Record') ||
-        propType === 'unknown' ||
-        propType === 'any'
-      ) {
-        return `type: 'ParameterType:object'`;
-      } else if (propType.endsWith('[]')) {
-        const itemType = propType.slice(0, -2);
-        if (itemType === 'unknown' || itemType === 'any') {
-          return `type: 'ParameterType:array'`;
-        } else {
-          return `type: 'ParameterType:array',\nitemType: 'ParameterType:${itemType}'`;
-        }
-      } else if (propType.startsWith('(')) {
-        return `type: 'ParameterType:function'`;
-      }
-      return `type: 'ParameterType:${propType}'`;
-    }
-  }
-};
-
 const getTag = (docs: JSDoc[]) => (tagName: string) => {
   return docs.flatMap(d => d.getTags()).find(t => t.getTagName() === tagName);
 };
@@ -458,12 +398,33 @@ const controllerFiles = project
       src.getBaseName() !== 'base-controller.ts'
   );
 
+const failedFiles: string[] = [];
+const generatedFiles = controllerFiles.filter(sourceFile => {
+  try {
+    if (createControllerMetadata(sourceFile)) {
+      return true;
+    }
+  } catch (e) {
+    console.error(
+      `Failed to generate metadata for ${sourceFile.getBaseName()}: ${(e as Error).message}`
+    );
+  }
+  failedFiles.push(sourceFile.getBaseName());
+  return false;
+});
+
+// Only export the metadata files that were actually written
 toIndexFile(
   project,
-  controllerFiles.map(f => f.getBaseName())
+  generatedFiles.map(f => f.getBaseName())
 );
-
-controllerFiles.forEach(createControllerMetadata);
 project.saveSync();
+
+if (failedFiles.length) {
+  console.error(
+    `Metadata generation failed for ${failedFiles.length} controller file(s): ${failedFiles.join(', ')}`
+  );
+  process.exit(1);
+}
 
 console.log('Ready.');

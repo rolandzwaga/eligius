@@ -247,8 +247,9 @@ export class ConfigurationFactory {
    * @returns
    */
   editTimelineProviderSettings() {
+    this.configuration.timelineProviderSettings ??= {};
     return new TimelineProvidersSettingsEditor(
-      this.configuration.timelineProviderSettings || {},
+      this.configuration.timelineProviderSettings,
       this
     );
   }
