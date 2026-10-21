@@ -52,8 +52,42 @@ const base = {
 // build tools that run in Node. It is its own build for the same reason as
 // `metadata`: it validates operation names against the metadata and must not
 // share a chunk with the operation implementations.
+//
+// Declaration files. The source uses the global `JQuery` type from
+// @types/jquery, which consumers of the published declarations may not have:
+// - The main entry needs jQuery at runtime anyway, so its declarations
+//   reference @types/jquery explicitly (an optional peer dependency).
+// - The DOM-free entries must type-check without jquery or @types/jquery, so
+//   their declarations get a module-scoped, structural `JQuery` that shadows
+//   the global one. It is not exported, so it neither leaks into nor conflicts
+//   with a consumer's own @types/jquery, and a real jQuery object is assignable
+//   to it.
+// lottie-web types never reach the declarations: the public API uses the
+// structural types in src/controllers/types.ts.
+// `npm run check:types` type-checks all three entries in consumer projects.
+const mainDtsBanner = '/// <reference types="jquery" />';
+
+const domFreeDtsBanner = `/**
+ * Structural stand-in for jQuery's \`JQuery\` type, so these declarations do not
+ * depend on @types/jquery. Module scoped: it shadows the global \`JQuery\` only
+ * inside this file.
+ */
+interface JQuery<TElement = HTMLElement> extends Iterable<TElement> {
+  readonly jquery: string;
+  readonly length: number;
+  [index: number]: TElement;
+}
+declare namespace JQuery {
+  type Duration = number | 'fast' | 'slow';
+  type Node = Element | Text | Comment | Document | DocumentFragment;
+}`;
+
 export default defineConfig([
-  {...base, entry: ['./src/index.ts']},
-  {...base, entry: ['./src/metadata.ts']},
-  {...base, entry: ['./src/configuration-api.ts']},
+  {...base, entry: ['./src/index.ts'], banner: {dts: mainDtsBanner}},
+  {...base, entry: ['./src/metadata.ts'], banner: {dts: domFreeDtsBanner}},
+  {
+    ...base,
+    entry: ['./src/configuration-api.ts'],
+    banner: {dts: domFreeDtsBanner},
+  },
 ]);
