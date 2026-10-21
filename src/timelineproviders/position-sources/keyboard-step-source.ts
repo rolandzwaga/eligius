@@ -307,73 +307,69 @@ export class KeyboardStepSource
   // ─────────────────────────────────────────────────────────────────────────
 
   private _handleStepForward(): void {
-    const currentPosition = this.getPosition();
-    const duration = this.getDuration();
-    let newPosition = currentPosition + this._stepSize;
-
-    if (newPosition > duration) {
-      if (this._wrapNavigation) {
-        newPosition = 0;
-        this.setPosition(newPosition);
-        this.emitBoundary('start');
-      }
-      // If clamping, do nothing (already at end)
-    } else {
-      this.setPosition(newPosition);
-    }
+    this._stepForward(this._stepSize);
   }
 
   private _handleStepBackward(): void {
-    const currentPosition = this.getPosition();
-    const duration = this.getDuration();
-    let newPosition = currentPosition - this._stepSize;
-
-    if (newPosition < 0) {
-      if (this._wrapNavigation) {
-        newPosition = duration;
-        this.setPosition(newPosition);
-        this.emitBoundary('end');
-      }
-      // If clamping, do nothing (already at start)
-    } else {
-      this.setPosition(newPosition);
-    }
+    this._stepBackward(this._stepSize);
   }
 
   private _handleLargeStepForward(): void {
-    const currentPosition = this.getPosition();
-    const duration = this.getDuration();
-    let newPosition = currentPosition + this._largeStepSize;
-
-    if (newPosition > duration) {
-      if (this._wrapNavigation) {
-        newPosition = 0;
-        this.setPosition(newPosition);
-        this.emitBoundary('start');
-      } else {
-        newPosition = duration;
-        this.setPosition(newPosition);
-      }
-    } else {
-      this.setPosition(newPosition);
-    }
+    this._stepForward(this._largeStepSize);
   }
 
   private _handleLargeStepBackward(): void {
+    this._stepBackward(this._largeStepSize);
+  }
+
+  /**
+   * Step forward by the given amount.
+   *
+   * Stepping past the end wraps to 0 and emits `'start'` when wrapping is on,
+   * otherwise it clamps to the duration. Arriving at the duration emits
+   * `'end'` once.
+   */
+  private _stepForward(step: number): void {
     const currentPosition = this.getPosition();
     const duration = this.getDuration();
-    let newPosition = currentPosition - this._largeStepSize;
+    let newPosition = currentPosition + step;
+
+    if (newPosition > duration) {
+      if (this._wrapNavigation) {
+        this.setPosition(0);
+        this.emitBoundary('start');
+        return;
+      }
+      newPosition = duration;
+    }
+
+    if (newPosition === currentPosition) {
+      // Already at the end
+      return;
+    }
+
+    this.setPosition(newPosition);
+    if (newPosition === duration) {
+      this.emitBoundary('end');
+    }
+  }
+
+  /**
+   * Step backward by the given amount.
+   *
+   * Stepping before the start wraps to the duration when wrapping is on,
+   * otherwise it clamps to 0. A backward wrap is navigation, not completion,
+   * so it emits no boundary (the engine treats `'end'` as timeline complete).
+   */
+  private _stepBackward(step: number): void {
+    const currentPosition = this.getPosition();
+    let newPosition = currentPosition - step;
 
     if (newPosition < 0) {
-      if (this._wrapNavigation) {
-        newPosition = duration;
-        this.setPosition(newPosition);
-        this.emitBoundary('end');
-      } else {
-        newPosition = 0;
-        this.setPosition(newPosition);
-      }
-    } else {
+      newPosition = this._wrapNavigation ? this.getDuration() : 0;
+    }
+
+    if (newPosition !== currentPosition) {
       this.setPosition(newPosition);
     }
   }
@@ -426,13 +422,16 @@ export class KeyboardStepSource
 
     let targetIndex: number;
 
-    // Check if we're exactly on a marker or between markers
-    const exactlyOnMarker =
-      this._markers[currentMarkerIndex] === currentPosition;
-
-    if (exactlyOnMarker) {
+    if (currentMarkerIndex === -1) {
+      // Before the first marker - there is no previous marker
+      if (this._wrapNavigation) {
+        targetIndex = this._markers.length - 1;
+      } else {
+        return;
+      }
+    } else if (this._markers[currentMarkerIndex] === currentPosition) {
       // Exactly on a marker - go to previous marker
-      if (currentMarkerIndex <= 0) {
+      if (currentMarkerIndex === 0) {
         if (this._wrapNavigation) {
           targetIndex = this._markers.length - 1;
         } else {
@@ -481,18 +480,17 @@ export class KeyboardStepSource
    *
    * If position matches a marker exactly, returns that marker's index.
    * Otherwise, returns the index of the marker before the current position.
-   * Returns 0 if before first marker.
+   * Returns -1 if there are no markers or the position is before the first
+   * marker.
    */
   private _findCurrentMarkerIndex(position: number): number {
-    if (this._markers.length === 0) return -1;
-
     for (let i = this._markers.length - 1; i >= 0; i--) {
       if (position >= this._markers[i]) {
         return i;
       }
     }
 
-    return 0;
+    return -1;
   }
 
   private _emitMarkerJump(markerIndex: number, position: number): void {

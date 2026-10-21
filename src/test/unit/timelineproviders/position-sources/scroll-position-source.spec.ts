@@ -507,6 +507,109 @@ describe('ScrollPositionSource', () => {
       expect(scrollToSpy).not.toHaveBeenCalled();
       expect(result).toBe(0);
     });
+
+    test<ScrollPositionSourceTestContext>('given suspended source, when seek(30) called, then position is 30 right away', async ({
+      source,
+      mockElement,
+    }) => {
+      await source.init();
+      await source.activate();
+      source.suspend();
+      mockElement.scrollTo = vi.fn();
+
+      const result = await source.seek(30);
+
+      expect(result).toBe(30);
+      expect(source.getPosition()).toBe(30);
+      expect(mockElement.scrollTo).toHaveBeenCalledWith({
+        top: 240,
+        behavior: 'smooth',
+      });
+    });
+
+    test<ScrollPositionSourceTestContext>('given suspended source, when seek is out of range, then the position is clamped to [0, duration]', async ({
+      source,
+      mockElement,
+    }) => {
+      await source.init();
+      await source.activate();
+      source.suspend();
+      mockElement.scrollTo = vi.fn();
+
+      expect(await source.seek(-5)).toBe(0);
+      expect(source.getPosition()).toBe(0);
+      expect(await source.seek(150)).toBe(100);
+      expect(source.getPosition()).toBe(100);
+      expect(mockElement.scrollTo).toHaveBeenLastCalledWith({
+        top: 800,
+        behavior: 'smooth',
+      });
+    });
+  });
+
+  describe('activation sync', () => {
+    test<ScrollPositionSourceTestContext>('given element already scrolled to 50% before activate, when activate called, then position is half the duration', async ({
+      source,
+      mockElement,
+      positionCallback,
+    }) => {
+      await source.init();
+      source.onPosition(positionCallback);
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 400,
+        writable: true,
+        configurable: true,
+      });
+
+      await source.activate();
+
+      expect(source.getPosition()).toBe(50);
+      expect(positionCallback).toHaveBeenCalledWith(50);
+    });
+
+    test<ScrollPositionSourceTestContext>('given scrolled source that was deactivated, when activated again, then position matches the scroll offset', async ({
+      source,
+      mockElement,
+    }) => {
+      await source.init();
+      await source.activate();
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 400,
+        writable: true,
+        configurable: true,
+      });
+      mocks.getScrollHandler()?.(new Event('scroll'));
+      source.deactivate();
+      expect(source.getPosition()).toBe(0);
+
+      await source.activate();
+
+      expect(source.getPosition()).toBe(50);
+    });
+
+    test<ScrollPositionSourceTestContext>('given element at the bottom before activate, when scrolled back to the top, then start boundary is emitted', async ({
+      source,
+      mockElement,
+      boundaryCallback,
+    }) => {
+      await source.init();
+      source.onBoundaryReached(boundaryCallback);
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 800,
+        writable: true,
+        configurable: true,
+      });
+      await source.activate();
+
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 0,
+        writable: true,
+        configurable: true,
+      });
+      mocks.getScrollHandler()?.(new Event('scroll'));
+
+      expect(boundaryCallback).toHaveBeenCalledWith('start');
+    });
   });
 
   // ───────────────────────────────────────────────────────────────────────────
@@ -532,6 +635,26 @@ describe('ScrollPositionSource', () => {
       const scrollHandler = mocks.getScrollHandler();
       scrollHandler?.(new Event('scroll'));
 
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
+    });
+
+    test<ScrollPositionSourceTestContext>('given scrollTop a fraction below the max (zoom), when a scroll event fires, then end boundary is emitted at the duration', async ({
+      source,
+      mockElement,
+      boundaryCallback,
+    }) => {
+      await source.init();
+      source.onBoundaryReached(boundaryCallback);
+      await source.activate();
+
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 799.5,
+        writable: true,
+        configurable: true,
+      });
+      mocks.getScrollHandler()?.(new Event('scroll'));
+
+      expect(source.getPosition()).toBe(100);
       expect(boundaryCallback).toHaveBeenCalledWith('end');
     });
 

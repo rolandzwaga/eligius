@@ -113,6 +113,13 @@ export class ScrollPositionSource
     this._element.addEventListener('scroll', this._boundScrollHandler, {
       passive: true,
     });
+
+    // Sync with the current scroll offset (restored scroll, a scroll while
+    // inactive, or a stop/start cycle) instead of waiting for the next event.
+    const position = this._calculatePosition();
+    this._lastPosition = position;
+    this._wasAtStart = position === 0;
+    this.setPosition(position);
   }
 
   protected stopTicking(): void {
@@ -131,6 +138,9 @@ export class ScrollPositionSource
   /**
    * Seek to a specific position by programmatically scrolling.
    *
+   * Position is clamped to the valid range [0, duration]. While suspended the
+   * scroll listener is detached, so the position is updated directly.
+   *
    * @param position - Target position in seconds (0 to duration)
    * @returns Actual position after scroll
    */
@@ -139,17 +149,24 @@ export class ScrollPositionSource
       return this.getPosition();
     }
 
+    const duration = this._config.duration;
+    const clampedPosition = Math.max(0, Math.min(position, duration));
     const scrollableHeight = this._getScrollableHeight();
-    const targetScrollTop =
-      (position / this._config.duration) * scrollableHeight;
+    const targetScrollTop = (clampedPosition / duration) * scrollableHeight;
 
     this._element.scrollTo({
       top: targetScrollTop,
       behavior: 'smooth',
     });
 
+    if (this.state !== 'active') {
+      this._lastPosition = clampedPosition;
+      this._wasAtStart = clampedPosition === 0;
+      this.setPosition(clampedPosition);
+    }
+
     // Return the calculated position (actual may differ slightly due to smooth scrolling)
-    return position;
+    return clampedPosition;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -196,7 +213,11 @@ export class ScrollPositionSource
   }
 
   /**
-   * Calculate position from scroll percentage.
+   * Calculate position from scroll percentage, clamped to [0, duration].
+   *
+   * scrollTop is fractional under browser zoom or high-DPI scaling and can
+   * stop just short of the integer maximum, so anything within 1px of the
+   * bottom counts as the end.
    */
   private _calculatePosition(): number {
     if (!this._element) {
@@ -205,13 +226,18 @@ export class ScrollPositionSource
 
     const scrollTop = this._element.scrollTop;
     const scrollableHeight = this._getScrollableHeight();
+    const duration = this._config.duration;
 
     if (scrollableHeight <= 0) {
       return 0;
     }
 
-    const scrollPercentage = scrollTop / scrollableHeight;
-    return scrollPercentage * this._config.duration;
+    if (scrollableHeight - scrollTop < 1) {
+      return duration;
+    }
+
+    const position = (scrollTop / scrollableHeight) * duration;
+    return Math.max(0, Math.min(position, duration));
   }
 
   /**
