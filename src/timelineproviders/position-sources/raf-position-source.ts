@@ -13,17 +13,28 @@ export interface RafPositionSourceConfig {
 
   /**
    * Interval between position ticks in milliseconds.
-   * @default 1000 (1 second)
+   *
+   * The default of 100 ms matches the 0.1 s precision at which actions are
+   * keyed. A larger interval emits fewer position updates, but actions then
+   * start and end up to one interval late, and a duration that is not a
+   * multiple of the interval is reported on the tick after it.
+   *
+   * @default 100 (0.1 second)
    */
   tickInterval?: number;
 }
 
 /**
+ * Default interval between position ticks, in milliseconds.
+ */
+const DEFAULT_TICK_INTERVAL = 100;
+
+/**
  * RequestAnimationFrame-based position source.
  *
  * Uses the `animationInterval` utility to emit position updates at a regular
- * interval (default: 1 second). Position increments by 1 per second, making
- * position values equivalent to elapsed seconds.
+ * interval (default: 100 ms). Position values are elapsed seconds, quantised
+ * to the tick interval.
  *
  * Implements both `IPositionSource` (via `BasePositionSource`) and `ISeekable`.
  *
@@ -63,7 +74,8 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
   private _sessionStartPosition = 0;
   /**
    * Elapsed time (in milliseconds, as reported by animationInterval) at which
-   * the current loop iteration began. Reset to the tick time on loop wrap.
+   * the current loop iteration began. Set to the wrap tick's grid point on
+   * loop wrap.
    */
   private _sessionElapsedOffset = 0;
 
@@ -78,7 +90,7 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
    */
   constructor(config: RafPositionSourceConfig) {
     super(config.duration);
-    this._tickInterval = config.tickInterval ?? 1000;
+    this._tickInterval = config.tickInterval ?? DEFAULT_TICK_INTERVAL;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -117,6 +129,10 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
    * @returns Actual position after seek (may be clamped)
    */
   async seek(position: number): Promise<number> {
+    if (this.isDestroyed) {
+      return this.getPosition();
+    }
+
     // Clamp position to valid range
     const clampedPosition = Math.max(0, Math.min(position, this.getDuration()));
 
@@ -160,7 +176,13 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
    *
    * The elapsed parameter is the time since the current ticking session
    * started. Position is the session start position plus the elapsed time,
-   * floored to the precision determined by tickInterval.
+   * rounded to the nearest tick.
+   *
+   * Rounding (not flooring) is required: animationInterval aligns its
+   * schedule with `Math.round(elapsed / ms)`, and a frame's timestamp can
+   * land slightly before the boundary it was scheduled for. Flooring would
+   * report such a frame as the previous tick while the scheduler moves on to
+   * the tick after next, so one position would be skipped.
    *
    * @param elapsed - Elapsed time in milliseconds from animationInterval
    */
@@ -170,11 +192,11 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
       return;
     }
 
-    // Floor the elapsed time to the nearest tick boundary in milliseconds,
+    // Round the elapsed time to the nearest tick boundary in milliseconds,
     // add the session start position, then convert to seconds. Working in
     // integer milliseconds avoids float drift such as 0.1 + 0.2.
     const elapsedThisIteration = elapsed - this._sessionElapsedOffset;
-    const ticksElapsed = Math.floor(elapsedThisIteration / this._tickInterval);
+    const ticksElapsed = Math.round(elapsedThisIteration / this._tickInterval);
     const positionMs =
       Math.round(this._sessionStartPosition * 1000) +
       ticksElapsed * this._tickInterval;
@@ -189,8 +211,11 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
       this.emitBoundary('end');
 
       if (this.loop) {
-        // Next iteration starts at 0 from this tick onwards
-        this._sessionElapsedOffset = elapsed;
+        // Next iteration starts at 0 from this tick onwards. Anchor it to
+        // the scheduler's tick grid, not to this frame's jittered timestamp,
+        // or every tick of the next iteration inherits this frame's jitter.
+        this._sessionElapsedOffset =
+          Math.round(elapsed / this._tickInterval) * this._tickInterval;
         this._sessionStartPosition = 0;
         // Reset to start and emit start boundary
         this.setPosition(0);

@@ -62,12 +62,19 @@ export interface VideoPositionSourceConfig {
   selector: string;
 
   /**
-   * Video sources to load.
+   * Video sources to load. Required: `init()` rejects when neither this nor
+   * `options.sources` is a non-empty array.
    */
   sources: VideoSource[];
 
   /**
-   * Optional video.js player options.
+   * Optional poster image URL, shown before playback starts.
+   */
+  poster?: string;
+
+  /**
+   * Optional video.js player options. They override the source's defaults,
+   * `sources` and `poster`.
    */
   options?: Record<string, unknown>;
 }
@@ -157,6 +164,18 @@ export class VideoPositionSource
         return;
       }
 
+      // Without a source the media element never fires 'canplay' or
+      // 'error', so init would never settle
+      const sources = this._getSources();
+      if (!Array.isArray(sources) || sources.length === 0) {
+        reject(
+          new Error(
+            "VideoPositionSource: 'sources' is required (an array of {src, type})"
+          )
+        );
+        return;
+      }
+
       const pendingInit = {resolve, reject};
       this._pendingInit = pendingInit;
 
@@ -233,28 +252,55 @@ export class VideoPositionSource
   /**
    * Seek to a specific position in the video.
    *
+   * Resolves on 'seeked' with the position the player landed on. A seek
+   * that cannot complete also settles, with the player's current time: on a
+   * media 'error', when the media is reset ('emptied', for example by a new
+   * load), or when the source is destroyed. Callers awaiting the seek (such
+   * as the engine, which ignores position updates while seeking) are
+   * therefore never left waiting.
+   *
    * @param position - Target position in seconds
    * @returns Actual position after seek
    */
   async seek(position: number): Promise<number> {
-    if (!this._player) {
+    if (!this._player || this.isDestroyed) {
       return this.getPosition();
     }
 
     const player = this._player;
     return new Promise<number>(resolve => {
-      // Settled by 'seeked', or by destroy() if the player goes away first
+      let settled = false;
       const settle = (actualPosition: number) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
         this._pendingSeeks.delete(settle);
+        player.off('seeked', onSeeked);
+        player.off('error', onAborted);
+        player.off('emptied', onAborted);
         resolve(actualPosition);
       };
-      this._pendingSeeks.add(settle);
 
-      player.one('seeked', () => {
+      const onSeeked = () => {
+        if (settled) {
+          return;
+        }
         const actualPosition = this._player?.currentTime() ?? 0;
         this.setPosition(actualPosition);
         settle(actualPosition);
-      });
+      };
+
+      // The seek will never complete: settle with wherever the player is
+      const onAborted = () => {
+        settle(this._player?.currentTime() ?? this.getPosition());
+      };
+
+      // Settled by destroy() if the player goes away first
+      this._pendingSeeks.add(settle);
+      player.one('seeked', onSeeked);
+      player.one('error', onAborted);
+      player.one('emptied', onAborted);
 
       player.currentTime(position);
     });
@@ -344,6 +390,9 @@ export class VideoPositionSource
         preload: 'auto',
         loop: this.loop,
         sources: this._config.sources,
+        ...(this._config.poster !== undefined
+          ? {poster: this._config.poster}
+          : {}),
         ...this._config.options,
       },
       () => {
@@ -368,7 +417,7 @@ export class VideoPositionSource
 
         player.one('error', () => {
           const mediaError = player.error?.();
-          const sources = this._config.sources.map(s => s.src).join(', ');
+          const sources = (this._getSources() ?? []).map(s => s.src).join(', ');
           this._settleInit(
             new Error(
               `VideoPositionSource: failed to load video (${sources})${
@@ -385,6 +434,15 @@ export class VideoPositionSource
         player.load();
       }
     );
+  }
+
+  /**
+   * The sources video.js will load: `options.sources` when given (options
+   * override the defaults), otherwise the top-level `sources`.
+   */
+  private _getSources(): VideoSource[] | undefined {
+    const fromOptions = this._config.options?.sources;
+    return (fromOptions ?? this._config.sources) as VideoSource[] | undefined;
   }
 
   /**

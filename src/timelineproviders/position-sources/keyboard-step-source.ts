@@ -1,7 +1,6 @@
 import {BasePositionSource} from '@timelineproviders/position-sources/base-position-source.ts';
 import type {ISeekable} from '@timelineproviders/types.ts';
 import hotkeys from 'hotkeys-js';
-import {v4 as uuidv4} from 'uuid';
 
 /**
  * Vertical axis mode for keyboard navigation.
@@ -49,7 +48,8 @@ export interface KeyboardStepSourceConfig {
 
   /**
    * Target element to scope keyboard bindings.
-   * Can be an HTMLElement or a CSS selector string.
+   * Can be an HTMLElement or a CSS selector string. A selector that matches
+   * no element makes `init()` reject.
    * If not provided, bindings are global (document).
    */
   targetElement?: HTMLElement | string;
@@ -76,7 +76,18 @@ const KEY_BINDINGS = {
 } as const;
 
 /**
+ * Convert seconds to integer milliseconds, the unit steps are computed in so
+ * that repeated fractional steps do not accumulate float error.
+ */
+const toMs = (seconds: number): number => Math.round(seconds * 1000);
+
+/**
  * Keyboard-based position source for stepping through a timeline.
+ *
+ * Key handlers are bound in the hotkeys-js `'all'` scope, so they work
+ * whatever scope the host application has set, and they are removed one by
+ * one on suspend, deactivate and destroy. The source never changes the
+ * global hotkeys-js scope.
  *
  * Supports:
  * - Left/Right arrows: step by `stepSize` (default 1s)
@@ -120,16 +131,20 @@ export class KeyboardStepSource
   private _markers: number[];
   private readonly _targetElementConfig?: HTMLElement | string;
   private _targetElement?: HTMLElement;
-  private readonly _scopeId: string;
+  /** Handlers currently bound in hotkeys-js, for exact removal. */
+  private _bindings: Array<{
+    key: string;
+    method: (event: KeyboardEvent) => void;
+  }> = [];
 
   // ─────────────────────────────────────────────────────────────────────────
   // Callbacks
   // ─────────────────────────────────────────────────────────────────────────
 
-  private readonly _timelineChangeCallbacks: Array<
+  private _timelineChangeCallbacks: Array<
     (direction: 'prev' | 'next') => void
   > = [];
-  private readonly _markerJumpCallbacks: Array<
+  private _markerJumpCallbacks: Array<
     (markerIndex: number, position: number) => void
   > = [];
 
@@ -150,7 +165,6 @@ export class KeyboardStepSource
     this._wrapNavigation = config.wrapNavigation ?? true;
     this._markers = config.markers ? [...config.markers] : [];
     this._targetElementConfig = config.targetElement;
-    this._scopeId = `keyboard-step-source-${uuidv4()}`;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -161,12 +175,19 @@ export class KeyboardStepSource
     // Sort markers ascending
     this._markers.sort((a, b) => a - b);
 
-    // Resolve target element if string selector provided
+    // Resolve target element if string selector provided. A selector that
+    // matches nothing fails fast instead of silently binding the keys on the
+    // whole document.
     if (typeof this._targetElementConfig === 'string') {
       const element = document.querySelector(this._targetElementConfig);
-      if (element instanceof HTMLElement) {
-        this._targetElement = element;
+      if (!(element instanceof HTMLElement)) {
+        return Promise.reject(
+          new Error(
+            `KeyboardStepSource: target element not found for selector '${this._targetElementConfig}'`
+          )
+        );
       }
+      this._targetElement = element;
     } else if (this._targetElementConfig instanceof HTMLElement) {
       this._targetElement = this._targetElementConfig;
     }
@@ -176,6 +197,8 @@ export class KeyboardStepSource
 
   protected doDestroy(): void {
     this._unbindKeys();
+    this._timelineChangeCallbacks = [];
+    this._markerJumpCallbacks = [];
   }
 
   protected startTicking(): void {
@@ -199,6 +222,9 @@ export class KeyboardStepSource
    * @returns Actual position after seek (may be clamped)
    */
   async seek(position: number): Promise<number> {
+    if (this.isDestroyed) {
+      return this.getPosition();
+    }
     const clampedPosition = Math.max(0, Math.min(position, this.getDuration()));
     this.setPosition(clampedPosition);
     return clampedPosition;
@@ -211,23 +237,39 @@ export class KeyboardStepSource
   /**
    * Register callback for timeline change requests (timeline-switch mode).
    *
+   * The engine does not register one itself, so a host that wants Up/Down to
+   * switch timelines registers it here. Until a callback is registered,
+   * Up/Down keep their default browser behaviour (page scroll).
+   *
    * @param callback - Called with 'prev' or 'next' when Up/Down is pressed
+   * @returns A function that unregisters the callback
    */
   onTimelineChangeRequest(
     callback: (direction: 'prev' | 'next') => void
-  ): void {
+  ): () => void {
     this._timelineChangeCallbacks.push(callback);
+    return () => {
+      this._timelineChangeCallbacks = this._timelineChangeCallbacks.filter(
+        registered => registered !== callback
+      );
+    };
   }
 
   /**
    * Register callback for marker jumps (chapter-navigation mode).
    *
    * @param callback - Called with marker index and position when jumping
+   * @returns A function that unregisters the callback
    */
   onMarkerJump(
     callback: (markerIndex: number, position: number) => void
-  ): void {
+  ): () => void {
     this._markerJumpCallbacks.push(callback);
+    return () => {
+      this._markerJumpCallbacks = this._markerJumpCallbacks.filter(
+        registered => registered !== callback
+      );
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -238,68 +280,87 @@ export class KeyboardStepSource
    * Bind all keyboard handlers.
    */
   private _bindKeys(): void {
-    const options: {scope: string; element?: HTMLElement} = {
-      scope: this._scopeId,
-    };
-    if (this._targetElement) {
-      options.element = this._targetElement;
-    }
-
-    // Set the scope as active so handlers trigger
-    hotkeys.setScope(this._scopeId);
+    // Never bind twice (each binding is removed by its exact method)
+    this._unbindKeys();
 
     // Horizontal navigation
-    hotkeys(KEY_BINDINGS.stepForward, options, event => {
-      event.preventDefault();
-      this._handleStepForward();
-    });
-
-    hotkeys(KEY_BINDINGS.stepBackward, options, event => {
-      event.preventDefault();
-      this._handleStepBackward();
-    });
-
-    hotkeys(KEY_BINDINGS.largeStepForward, options, event => {
-      event.preventDefault();
-      this._handleLargeStepForward();
-    });
-
-    hotkeys(KEY_BINDINGS.largeStepBackward, options, event => {
-      event.preventDefault();
-      this._handleLargeStepBackward();
-    });
+    this._bind(KEY_BINDINGS.stepForward, () => this._handleStepForward());
+    this._bind(KEY_BINDINGS.stepBackward, () => this._handleStepBackward());
+    this._bind(KEY_BINDINGS.largeStepForward, () =>
+      this._handleLargeStepForward()
+    );
+    this._bind(KEY_BINDINGS.largeStepBackward, () =>
+      this._handleLargeStepBackward()
+    );
 
     // Jump to start/end
-    hotkeys(KEY_BINDINGS.jumpToStart, options, event => {
-      event.preventDefault();
-      this._handleJumpToStart();
-    });
-
-    hotkeys(KEY_BINDINGS.jumpToEnd, options, event => {
-      event.preventDefault();
-      this._handleJumpToEnd();
-    });
+    this._bind(KEY_BINDINGS.jumpToStart, () => this._handleJumpToStart());
+    this._bind(KEY_BINDINGS.jumpToEnd, () => this._handleJumpToEnd());
 
     // Vertical navigation (only if mode is not disabled)
     if (this._verticalMode !== 'disabled') {
-      hotkeys(KEY_BINDINGS.verticalPrev, options, event => {
-        event.preventDefault();
-        this._handleVerticalPrev();
-      });
-
-      hotkeys(KEY_BINDINGS.verticalNext, options, event => {
-        event.preventDefault();
-        this._handleVerticalNext();
-      });
+      this._bind(
+        KEY_BINDINGS.verticalPrev,
+        () => this._handleVerticalPrev(),
+        () => this._handlesVerticalKeys()
+      );
+      this._bind(
+        KEY_BINDINGS.verticalNext,
+        () => this._handleVerticalNext(),
+        () => this._handlesVerticalKeys()
+      );
     }
   }
 
   /**
-   * Unbind all keyboard handlers.
+   * Bind one key in the hotkeys-js `'all'` scope, which fires whatever the
+   * current global scope is, without changing that scope.
+   *
+   * @param key - hotkeys-js key description
+   * @param action - Navigation to run
+   * @param handles - Whether the source handles the key right now; when it
+   * returns false the key keeps its default browser behaviour
+   */
+  private _bind(
+    key: string,
+    action: () => void,
+    handles: () => boolean = () => true
+  ): void {
+    const method = (event: KeyboardEvent) => {
+      if (this.state !== 'active' || !handles()) {
+        return;
+      }
+      event.preventDefault();
+      action();
+    };
+    const options: {scope: string; element?: HTMLElement} = {scope: 'all'};
+    if (this._targetElement) {
+      options.element = this._targetElement;
+    }
+    hotkeys(key, options, method);
+    this._bindings.push({key, method});
+  }
+
+  /**
+   * Unbind this source's keyboard handlers, leaving every other hotkeys-js
+   * handler and the global scope untouched.
    */
   private _unbindKeys(): void {
-    // Delete the scope which removes all handlers bound to it
-    hotkeys.deleteScope(this._scopeId);
+    for (const {key, method} of this._bindings) {
+      hotkeys.unbind(key, 'all', method);
+    }
+    this._bindings = [];
+  }
+
+  /**
+   * Whether Up/Down do anything: always in chapter-navigation mode, and in
+   * timeline-switch mode only when someone listens for change requests.
+   */
+  private _handlesVerticalKeys(): boolean {
+    return (
+      this._verticalMode !== 'timeline-switch' ||
+      this._timelineChangeCallbacks.length > 0
+    );
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -330,27 +391,31 @@ export class KeyboardStepSource
    * `'end'` once.
    */
   private _stepForward(step: number): void {
-    const currentPosition = this.getPosition();
+    // Integer milliseconds, so ten 0.1 s steps land exactly on 1 s
+    const currentMs = toMs(this.getPosition());
     const duration = this.getDuration();
-    let newPosition = currentPosition + step;
+    const durationMs = toMs(duration);
+    let newMs = currentMs + toMs(step);
 
-    if (newPosition > duration) {
+    if (newMs > durationMs) {
       if (this._wrapNavigation) {
         this.setPosition(0);
         this.emitBoundary('start');
         return;
       }
-      newPosition = duration;
+      newMs = durationMs;
     }
 
-    if (newPosition === currentPosition) {
+    if (newMs === currentMs) {
       // Already at the end
       return;
     }
 
-    this.setPosition(newPosition);
-    if (newPosition === duration) {
+    if (newMs === durationMs) {
+      this.setPosition(duration);
       this.emitBoundary('end');
+    } else {
+      this.setPosition(newMs / 1000);
     }
   }
 
@@ -363,10 +428,14 @@ export class KeyboardStepSource
    */
   private _stepBackward(step: number): void {
     const currentPosition = this.getPosition();
-    let newPosition = currentPosition - step;
+    const currentMs = toMs(currentPosition);
+    const newMs = currentMs - toMs(step);
 
-    if (newPosition < 0) {
+    let newPosition: number;
+    if (newMs < 0) {
       newPosition = this._wrapNavigation ? this.getDuration() : 0;
+    } else {
+      newPosition = newMs / 1000;
     }
 
     if (newPosition !== currentPosition) {

@@ -90,7 +90,7 @@ describe('RafPositionSource', () => {
         expect(source.state).toBe('active');
       });
 
-      test<RafPositionSourceTestContext>('should start animationInterval', async ({
+      test<RafPositionSourceTestContext>('should start animationInterval with the default 100ms tick (0.1s action precision)', async ({
         source,
         mockAnimationInterval,
       }) => {
@@ -98,7 +98,7 @@ describe('RafPositionSource', () => {
         await source.activate();
         expect(mockAnimationInterval).toHaveBeenCalledTimes(1);
         expect(mockAnimationInterval).toHaveBeenCalledWith(
-          1000, // tick interval
+          100, // default tick interval
           expect.any(AbortSignal),
           expect.any(Function)
         );
@@ -550,8 +550,10 @@ describe('RafPositionSource', () => {
       callback?.(200); // 0.2s
       expect(positionCallback).toHaveBeenCalledWith(0.2);
 
-      callback?.(350); // 0.3s (floored to tick boundary)
-      expect(positionCallback).toHaveBeenCalledWith(0.3);
+      // Rounded to the nearest tick, the same way animationInterval aligns
+      // its schedule, so position and scheduler always agree on the tick
+      callback?.(350);
+      expect(positionCallback).toHaveBeenCalledWith(0.4);
     });
 
     test('should emit position 1.5 after 1500ms with 100ms tickInterval', async () => {
@@ -937,5 +939,212 @@ describe('RafPositionSource clock anchoring', () => {
     latestTick()(1000);
 
     expect(source.getPosition()).toBe(1);
+  });
+});
+
+/**
+ * animationInterval aligns its schedule with Math.round, because a rAF
+ * timestamp can land a little before the boundary it was scheduled for. The
+ * source has to quantise elapsed time the same way, and a loop wrap has to
+ * stay on the scheduler's tick grid, or ticks are skipped or repeated.
+ */
+describe('RafPositionSource tick quantisation', () => {
+  let ticks: Array<(time: number) => void>;
+  const latestTick = () => ticks[ticks.length - 1];
+
+  beforeEach(() => {
+    ticks = [];
+    vi.mocked(animationInterval).mockImplementation(
+      (_ms: number, _signal: AbortSignal, callback: (time: number) => void) => {
+        ticks.push(callback);
+      }
+    );
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('given RafPositionSource with tickInterval 1000, when animationInterval reports elapsed 999.6 (rAF frame slightly before the 1 s boundary), then onPosition is called with 1', async () => {
+    const source = new RafPositionSource({duration: 60, tickInterval: 1000});
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+
+    latestTick()(999.6);
+    latestTick()(1999.7);
+
+    expect(positions).toEqual([0, 1, 2]);
+  });
+
+  test('given tickInterval 100, when a frame reports 99.5ms elapsed, then position 0.1 is emitted', async () => {
+    const source = new RafPositionSource({duration: 60, tickInterval: 100});
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+
+    latestTick()(99.5);
+
+    expect(positions).toEqual([0, 0.1]);
+  });
+
+  test('given a 5s source, when a frame arrives just before the 5s boundary, then the end boundary is reached on that frame', async () => {
+    const source = new RafPositionSource({duration: 5, tickInterval: 1000});
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+
+    latestTick()(4999.6);
+
+    expect(boundaries).toEqual(['end']);
+    expect(source.state).toBe('inactive');
+  });
+
+  test('given a 60s looping RafPositionSource that wrapped on a jittered tick at 60_012ms, when the next tick arrives at 61_004ms, then position 1 is emitted', async () => {
+    const source = new RafPositionSource({duration: 60, tickInterval: 1000});
+    source.loop = true;
+    const positions: number[] = [];
+    const boundaries: TBoundary[] = [];
+    source.onPosition(p => positions.push(p));
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+
+    latestTick()(60_012);
+    positions.length = 0;
+    latestTick()(61_004);
+    expect(positions).toEqual([1]);
+
+    latestTick()(119_995);
+    expect(boundaries).toEqual(['end', 'start', 'end', 'start']);
+  });
+});
+
+/**
+ * End-to-end clock behaviour with the real animationInterval, fake timers and
+ * a requestAnimationFrame stub whose frame timestamps arrive a few
+ * milliseconds early or late.
+ */
+describe('RafPositionSource with the real animationInterval and jittered frames', () => {
+  // Frame timestamp offsets (ms) relative to the moment the frame was
+  // requested. Negative values model a frame whose begin time precedes the
+  // timer task that requested it.
+  const JITTER = [-0.4, 3, -2.5, 6, -1, 0, 11, -0.3, 4, -4, 0.6, -3.2];
+
+  beforeEach(async () => {
+    vi.useFakeTimers({now: 0});
+    const actual = await vi.importActual<
+      typeof import('@util/animation-interval.ts')
+    >('@util/animation-interval.ts');
+    vi.mocked(animationInterval).mockImplementation(actual.animationInterval);
+    vi.spyOn(performance, 'now').mockImplementation(() => Date.now());
+
+    let frame = 0;
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn((callback: FrameRequestCallback) => {
+        const offset = JITTER[frame % JITTER.length];
+        frame++;
+        const timestamp = performance.now() + offset;
+        return setTimeout(
+          () => callback(timestamp),
+          Math.max(0, offset)
+        ) as unknown as number;
+      })
+    );
+    vi.stubGlobal(
+      'cancelAnimationFrame',
+      vi.fn((id: number) => clearTimeout(id))
+    );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  test('given tickInterval 1000, when 20 seconds of jittered frames elapse, then every whole second is reported exactly once', async () => {
+    const source = new RafPositionSource({duration: 60, tickInterval: 1000});
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+
+    vi.advanceTimersByTime(20_050);
+
+    expect(positions).toEqual(Array.from({length: 21}, (_, i) => i));
+    source.destroy();
+  });
+
+  test('given tickInterval 100, when 5 seconds of jittered frames elapse, then every 0.1s position is reported exactly once', async () => {
+    const source = new RafPositionSource({duration: 60, tickInterval: 100});
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+
+    vi.advanceTimersByTime(5_030);
+
+    expect(positions).toEqual(
+      Array.from({length: 51}, (_, i) => (i * 100) / 1000)
+    );
+    source.destroy();
+  });
+
+  test('given a 3s looping source, when four iterations of jittered frames elapse, then each iteration reports 1, 2, 3 once and wraps on the tick grid', async () => {
+    const source = new RafPositionSource({duration: 3, tickInterval: 1000});
+    source.loop = true;
+    const events: string[] = [];
+    source.onPosition(p => events.push(`${p}`));
+    source.onBoundaryReached(b => events.push(b));
+    await source.init();
+    await source.activate();
+    events.length = 0;
+
+    vi.advanceTimersByTime(12_050);
+
+    const iteration = ['1', '2', '3', 'end', '0', 'start'];
+    expect(events).toEqual([
+      ...iteration,
+      ...iteration,
+      ...iteration,
+      ...iteration,
+    ]);
+    source.destroy();
+  });
+
+  test('given an active RafPositionSource driven by the real animationInterval with an onPosition callback that throws at the first tick, when further animation frames elapse, then getPosition() keeps advancing and the other registered position callbacks keep receiving updates', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const source = new RafPositionSource({duration: 60, tickInterval: 1000});
+    const later: number[] = [];
+    source.onPosition(p => {
+      if (p === 1) {
+        throw new Error('consumer failure');
+      }
+    });
+    source.onPosition(p => later.push(p));
+    await source.init();
+    await source.activate();
+
+    vi.advanceTimersByTime(3_050);
+
+    expect(source.getPosition()).toBe(3);
+    expect(later).toEqual([0, 1, 2, 3]);
+    expect(source.state).toBe('active');
+    source.destroy();
+  });
+
+  test('given an active source, when it is destroyed, then no timers remain', async () => {
+    const source = new RafPositionSource({duration: 60, tickInterval: 1000});
+    await source.init();
+    await source.activate();
+    vi.advanceTimersByTime(1_500);
+
+    source.destroy();
+
+    expect(vi.getTimerCount()).toBe(0);
   });
 });
