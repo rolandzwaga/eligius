@@ -180,10 +180,17 @@ export class LocaleManager implements ILocaleManager {
   /**
    * Sets the current locale and emits a change event.
    *
+   * Setting the locale that is already current is a no-op: no event is
+   * emitted, so listeners that react by switching the locale again cannot
+   * cause a loop.
+   *
    * @param locale - The new locale to set
    */
   setLocale(locale: TLanguageCode): void {
     const previousLocale = this._locale;
+    if (locale === previousLocale) {
+      return;
+    }
     this._locale = locale;
     this._rosetta.locale(locale);
 

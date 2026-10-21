@@ -1,8 +1,21 @@
 // https://gist.github.com/jakearchibald/cb03f15670817001b1157e62a076fe95
+/**
+ * Calls `callback` roughly every `ms` milliseconds, aligned to animation
+ * frames, until `signal` is aborted.
+ *
+ * The callback receives the time elapsed in milliseconds since this interval
+ * was started, not the absolute animation frame timestamp. Consumers can
+ * therefore treat the value as "time since start" regardless of how long the
+ * page has been open.
+ *
+ * @param ms - Interval length in milliseconds
+ * @param signal - Aborting this signal stops the interval
+ * @param callback - Receives elapsed milliseconds since start
+ */
 export function animationInterval(
   ms: number,
   signal: AbortSignal,
-  callback: (time: number) => void
+  callback: (elapsed: number) => void
 ) {
   // Prefer currentTime, as it'll better sync animations queued in the
   // same frame, but if it isn't supported, performance.now() is fine.
@@ -11,7 +24,7 @@ export function animationInterval(
 
   const frame = (time: number) => {
     if (signal.aborted) return;
-    callback(time);
+    callback(time - start);
     scheduleFrame(time);
   };
 

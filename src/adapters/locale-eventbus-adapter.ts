@@ -26,6 +26,18 @@ import type {IEligiusEngine} from '@/types.ts';
 export class LocaleEventbusAdapter implements IAdapter {
   private _localeEventRemovers: Array<() => void> = [];
   private _eventbusRemovers: TEventbusRemover[] = [];
+  /**
+   * True while this adapter is broadcasting a LocaleManager change to the
+   * eventbus. The eventbus handler ignores that broadcast, otherwise it would
+   * call setLocale again and the two would feed each other forever.
+   */
+  private _forwardingToEventbus = false;
+  /**
+   * True while this adapter is applying an eventbus `language-change` command
+   * to the LocaleManager. The resulting manager change is not rebroadcast,
+   * because every eventbus listener already received the original command.
+   */
+  private _handlingEventbusCommand = false;
 
   constructor(
     private _localeManager: ILocaleManager,
@@ -61,7 +73,18 @@ export class LocaleEventbusAdapter implements IAdapter {
       'change',
       (newLocale: TLanguageCode, _oldLocale: TLanguageCode) => {
         this._setRootElementLang(newLocale);
-        this._eventbus.broadcast('language-change', [newLocale]);
+
+        if (this._handlingEventbusCommand) {
+          // Change originated from the eventbus; listeners already have it.
+          return;
+        }
+
+        this._forwardingToEventbus = true;
+        try {
+          this._eventbus.broadcast('language-change', [newLocale]);
+        } finally {
+          this._forwardingToEventbus = false;
+        }
       }
     );
   }
@@ -81,6 +104,11 @@ export class LocaleEventbusAdapter implements IAdapter {
   private _subscribeToEventbusEvents(): void {
     // Language change command
     this._onEventbusEvent('language-change', (language: TLanguageCode) => {
+      if (this._forwardingToEventbus) {
+        // This is our own rebroadcast of a LocaleManager change.
+        return;
+      }
+
       // Check if locale is available before switching
       if (!this._localeManager.availableLocales.includes(language)) {
         console.warn(
@@ -89,7 +117,12 @@ export class LocaleEventbusAdapter implements IAdapter {
         return;
       }
 
-      this._localeManager.setLocale(language);
+      this._handlingEventbusCommand = true;
+      try {
+        this._localeManager.setLocale(language);
+      } finally {
+        this._handlingEventbusCommand = false;
+      }
       this._setRootElementLang(language);
     });
 

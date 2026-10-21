@@ -285,4 +285,18 @@ describe<LocaleManagerTestContext>('LocaleManager', () => {
 
     warnSpy.mockRestore();
   });
+
+  test<LocaleManagerTestContext>('given current locale nl-NL, when setLocale called with nl-NL again, then no change event is emitted', context => {
+    const {manager, enUSData, nlNLData} = context;
+    manager.loadLocale('en-US' as TLanguageCode, enUSData);
+    manager.loadLocale('nl-NL' as TLanguageCode, nlNLData);
+    manager.setLocale('nl-NL' as TLanguageCode);
+    const handler = vi.fn();
+    manager.on('change', handler);
+
+    manager.setLocale('nl-NL' as TLanguageCode);
+
+    expect(handler).not.toHaveBeenCalled();
+    expect(manager.locale).toBe('nl-NL');
+  });
 });

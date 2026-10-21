@@ -55,7 +55,17 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
 
   private readonly _tickInterval: number;
   private _abortController: AbortController | null = null;
-  private _startTimeOffset = 0;
+  /**
+   * Position (in seconds) the source had when the current ticking session
+   * started. Each tick adds the session's elapsed time to this value, so
+   * resuming after suspend or seeking continues from the right place.
+   */
+  private _sessionStartPosition = 0;
+  /**
+   * Elapsed time (in milliseconds, as reported by animationInterval) at which
+   * the current loop iteration began. Reset to the tick time on loop wrap.
+   */
+  private _sessionElapsedOffset = 0;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Constructor
@@ -87,18 +97,9 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
   protected startTicking(): void {
     // Emit initial position immediately
     this.setPosition(this.getPosition());
-
-    // Create new abort controller for this ticking session
-    this._abortController = new AbortController();
-
-    // Start the animation interval
-    animationInterval(
-      this._tickInterval,
-      this._abortController.signal,
-      this._onTick.bind(this)
-    );
+    this._startSession();
   }
-  
+
   protected stopTicking(): void {
     this._abortTicking();
   }
@@ -122,6 +123,13 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
     // Update position (setPosition will emit callback if active)
     this.setPosition(clampedPosition);
 
+    // While ticking, restart the session so the clock is anchored to the new
+    // position instead of the next tick overwriting it.
+    if (this.state === 'active') {
+      this._abortTicking();
+      this._startSession();
+    }
+
     return clampedPosition;
   }
 
@@ -130,26 +138,47 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
+   * Start a ticking session anchored at the current position.
+   */
+  private _startSession(): void {
+    this._sessionStartPosition = this.getPosition();
+    this._sessionElapsedOffset = 0;
+
+    // Create new abort controller for this ticking session
+    this._abortController = new AbortController();
+
+    // Start the animation interval
+    animationInterval(
+      this._tickInterval,
+      this._abortController.signal,
+      this._onTick.bind(this)
+    );
+  }
+
+  /**
    * Handle a tick from animationInterval.
    *
-   * The time parameter represents elapsed milliseconds since the animation
-   * interval started. Position is calculated in seconds, rounded to the
-   * precision determined by tickInterval.
+   * The elapsed parameter is the time since the current ticking session
+   * started. Position is the session start position plus the elapsed time,
+   * floored to the precision determined by tickInterval.
    *
-   * @param time - Elapsed time in milliseconds from animationInterval
+   * @param elapsed - Elapsed time in milliseconds from animationInterval
    */
-  private _onTick(time: number): void {
+  private _onTick(elapsed: number): void {
     // Skip if not active (safety check)
     if (this.state !== 'active') {
       return;
     }
 
-    // Calculate new position based on elapsed time since start/reset
-    // First, floor to the nearest tick boundary in milliseconds
-    // Then convert to seconds for the position value
-    const elapsedSinceStart = time - this._startTimeOffset;
-    const ticksElapsed = Math.floor(elapsedSinceStart / this._tickInterval);
-    const newPosition = (ticksElapsed * this._tickInterval) / 1000;
+    // Floor the elapsed time to the nearest tick boundary in milliseconds,
+    // add the session start position, then convert to seconds. Working in
+    // integer milliseconds avoids float drift such as 0.1 + 0.2.
+    const elapsedThisIteration = elapsed - this._sessionElapsedOffset;
+    const ticksElapsed = Math.floor(elapsedThisIteration / this._tickInterval);
+    const positionMs =
+      Math.round(this._sessionStartPosition * 1000) +
+      ticksElapsed * this._tickInterval;
+    const newPosition = positionMs / 1000;
     const duration = this.getDuration();
 
     // Check if we've reached or exceeded the end
@@ -158,8 +187,9 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
       this.emitBoundary('end');
 
       if (this.loop) {
-        // Update offset to current time for next loop iteration
-        this._startTimeOffset = time;
+        // Next iteration starts at 0 from this tick onwards
+        this._sessionElapsedOffset = elapsed;
+        this._sessionStartPosition = 0;
         // Reset to start and emit start boundary
         this.setPosition(0);
         this.emitBoundary('start');

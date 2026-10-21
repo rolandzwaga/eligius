@@ -809,3 +809,98 @@ describe('RafPositionSource', () => {
     });
   });
 });
+
+/**
+ * Clock anchoring. animationInterval reports elapsed milliseconds since the
+ * current ticking session started. The source must add that to the position
+ * it had when the session started, so resume and seek do not jump.
+ */
+describe('RafPositionSource clock anchoring', () => {
+  let source: RafPositionSource;
+  let positions: number[];
+  let boundaries: TBoundary[];
+  let ticks: Array<(time: number) => void>;
+
+  const latestTick = () => ticks[ticks.length - 1];
+
+  beforeEach(() => {
+    ticks = [];
+    vi.mocked(animationInterval).mockImplementation(
+      (_ms: number, _signal: AbortSignal, callback: (time: number) => void) => {
+        ticks.push(callback);
+      }
+    );
+    source = new RafPositionSource({duration: 60});
+    positions = [];
+    boundaries = [];
+    source.onPosition(p => positions.push(p));
+    source.onBoundaryReached(b => boundaries.push(b));
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('given source suspended at 2s, when resumed and 1000ms elapse in the new session, then position is 3', async () => {
+    await source.init();
+    await source.activate();
+    latestTick()(1000);
+    latestTick()(2000);
+    source.suspend();
+
+    await source.activate();
+    latestTick()(1000);
+
+    expect(source.getPosition()).toBe(3);
+    expect(positions.at(-1)).toBe(3);
+  });
+
+  test('given active source at 2s, when seeking to 30 and 1000ms elapse, then position is 31', async () => {
+    await source.init();
+    await source.activate();
+    latestTick()(1000);
+    latestTick()(2000);
+
+    await source.seek(30);
+    latestTick()(1000);
+
+    expect(source.getPosition()).toBe(31);
+  });
+
+  test('given suspended source, when seeking to 10 then resuming and 1000ms elapse, then position is 11', async () => {
+    await source.init();
+    await source.activate();
+    latestTick()(1000);
+    source.suspend();
+
+    await source.seek(10);
+    await source.activate();
+    latestTick()(1000);
+
+    expect(source.getPosition()).toBe(11);
+  });
+
+  test('given looping source, when the end is passed and 1000ms more elapse, then position restarts from 0', async () => {
+    source.loop = true;
+    await source.init();
+    await source.activate();
+
+    latestTick()(60_000);
+    latestTick()(61_000);
+
+    expect(boundaries).toEqual(['end', 'start']);
+    expect(source.getPosition()).toBe(1);
+  });
+
+  test('given source reactivated after deactivate, when 1000ms elapse, then position is 1', async () => {
+    await source.init();
+    await source.activate();
+    latestTick()(5000);
+    source.deactivate();
+
+    await source.activate();
+    latestTick()(1000);
+
+    expect(source.getPosition()).toBe(1);
+  });
+});

@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+  - Fixed: `RafPositionSource` treated the absolute animation frame timestamp as elapsed time, so a timeline started after the page had been open longer than its duration ended on its first tick. `animationInterval` now reports elapsed time since it started, and the source anchors each ticking session to the position it had when the session began, so resume after suspend and seek while playing no longer jump.
+  - Fixed: `LocaleEventbusAdapter` and `LocaleManager` rebroadcast each other's `language-change` until the stack overflowed. The adapter now ignores its own rebroadcasts and does not re-forward changes that came from the eventbus. `setLocale` with the already current locale is a no-op and emits no `change` event.
+
 ## 2.2.1
   - Fixed: Locale types has some circular reference warnings
 
