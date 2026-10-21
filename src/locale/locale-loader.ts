@@ -6,6 +6,7 @@
  * Supports caching, parallel loading, and circular reference detection.
  */
 
+import {deepCopy} from '@operation/helper/deep-copy.ts';
 import type {
   ILocaleLoader,
   ILocaleLoaderOptions,
@@ -36,7 +37,9 @@ export class LocaleLoader implements ILocaleLoader {
    * @param options - Configuration options
    */
   constructor(options: ILocaleLoaderOptions = {}) {
-    this._fetch = options.fetch ?? globalThis.fetch;
+    // Bind the default: browsers throw 'Illegal invocation' when fetch is
+    // called with a receiver other than the global object.
+    this._fetch = options.fetch ?? globalThis.fetch.bind(globalThis);
     this._baseUrl = options.baseUrl ?? '';
     this._cache = new Map();
     this._loading = new Map();
@@ -78,7 +81,8 @@ export class LocaleLoader implements ILocaleLoader {
 
     visitedPaths.add(url);
 
-    const data = await this._fetchWithCache(url);
+    // Resolve nested refs on a copy so the cached data is never mutated
+    const data = deepCopy(await this._fetchWithCache(url));
 
     // Check for nested $ref in loaded data (recursive references)
     await this._resolveNestedRefs(data, url, visitedPaths);
@@ -196,7 +200,8 @@ export class LocaleLoader implements ILocaleLoader {
       if (this._isReference(value)) {
         const nestedUrl = this._resolveRelativeToParent(value.$ref, parentUrl);
 
-        // Check for circular reference
+        // visitedPaths holds only the ancestors of the current branch, so a
+        // file referenced from two places (a diamond) is not a cycle.
         if (visitedPaths.has(nestedUrl)) {
           throw new Error(
             `[LocaleLoader] Circular reference detected: ${nestedUrl} has already been visited (referenced from ${parentUrl})`
@@ -204,11 +209,15 @@ export class LocaleLoader implements ILocaleLoader {
         }
 
         visitedPaths.add(nestedUrl);
-        const nestedData = await this._fetchWithCache(nestedUrl);
-        await this._resolveNestedRefs(nestedData, nestedUrl, visitedPaths);
+        try {
+          const nestedData = deepCopy(await this._fetchWithCache(nestedUrl));
+          await this._resolveNestedRefs(nestedData, nestedUrl, visitedPaths);
 
-        // Replace the $ref with actual data
-        data[key] = nestedData;
+          // Replace the $ref with actual data
+          data[key] = nestedData;
+        } finally {
+          visitedPaths.delete(nestedUrl);
+        }
       } else if (
         typeof value === 'object' &&
         value !== null &&

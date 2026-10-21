@@ -88,9 +88,17 @@ export class Eventbus implements IEventbus {
     eventHandler: TEventHandler,
     eventTopic?: string
   ): TEventbusRemover {
+    // Remove the decorator before calling the handler, so a handler that
+    // rebroadcasts the event or throws cannot make it fire more than once.
+    // The flag covers a broadcast that already took a snapshot including it.
+    let called = false;
     const eventHandlerDecorator = (...args: any[]) => {
-      eventHandler(...args);
+      if (called) {
+        return;
+      }
+      called = true;
       this.off(eventName, eventHandlerDecorator, eventTopic);
+      eventHandler(...args);
     };
     this.on(eventName, eventHandlerDecorator, eventTopic);
     return () => {
@@ -216,10 +224,14 @@ export class Eventbus implements IEventbus {
         listener.handleEvent(eventName, eventTopic, args);
       });
 
+      // Iterate a snapshot: handlers that call off() (or once() wrappers that
+      // remove themselves) during dispatch would otherwise make forEach skip
+      // the handler that moves into the freed slot.
+      const snapshot = handlers.slice();
       if (args?.length) {
-        handlers.forEach((handler: TEventHandler) => handler(...args));
+        snapshot.forEach((handler: TEventHandler) => handler(...args));
       } else {
-        handlers.forEach((handler: TEventHandler) => handler());
+        snapshot.forEach((handler: TEventHandler) => handler());
       }
     }
   }
