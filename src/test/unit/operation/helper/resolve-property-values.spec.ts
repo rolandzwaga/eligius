@@ -139,3 +139,66 @@ describe('resolvePropertyValues', () => {
     expect(resolved.arr[0]).toBe('x');
   });
 });
+
+describe('resolvePropertyValues does not walk or mutate shared objects', () => {
+  test('given operation data holding a class instance with a property chain inside, when it is resolved in place, then the instance is not walked', () => {
+    // given
+    class Holder {
+      config = {selector: '$operationdata.panelSelector'};
+    }
+    const holder = new Holder();
+    const operationData: any = {
+      holder,
+      value: '$operationdata.name',
+      name: 'x',
+    };
+
+    // test
+    const resolved = resolvePropertyValues<any>(
+      operationData,
+      {} as IOperationScope,
+      operationData
+    );
+
+    // expect
+    expect(resolved.value).toBe('x');
+    expect(resolved.holder).toBe(holder);
+    expect(holder.config.selector).toBe('$operationdata.panelSelector');
+  });
+
+  test('given a nested plain object shared with other data, when it is resolved in place, then the shared object is replaced by a resolved copy and not mutated', () => {
+    // given
+    const shared = {a: '$operationdata.name', untouched: {b: 1}};
+    const operationData: any = {name: 'x', nested: shared};
+
+    // test
+    const resolved = resolvePropertyValues<any>(
+      operationData,
+      {} as IOperationScope,
+      operationData
+    );
+
+    // expect
+    expect(resolved.nested).toEqual({a: 'x', untouched: {b: 1}});
+    expect(resolved.nested).not.toBe(shared);
+    expect(resolved.nested.untouched).toBe(shared.untouched);
+    expect(shared.a).toBe('$operationdata.name');
+  });
+
+  test('given cyclic plain data, when it is resolved, then it terminates', () => {
+    // given
+    const cyclic: any = {a: '$operationdata.name'};
+    cyclic.self = cyclic;
+    const operationData: any = {name: 'x', cyclic};
+
+    // test
+    const resolved = resolvePropertyValues<any>(
+      operationData,
+      {} as IOperationScope,
+      operationData
+    );
+
+    // expect
+    expect(resolved.cyclic.a).toBe('x');
+  });
+});

@@ -1,5 +1,6 @@
 import {Action} from '@action/action.ts';
 import {ConfigurationFactory} from '@configuration/api/index.ts';
+import {LabelController} from '@controllers/label-controller.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {mapArray} from '@operation/map-array.ts';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
@@ -102,5 +103,52 @@ describe('deepCopy', () => {
 
     // expect
     expect(result.mappedArray).toEqual([2, 4, 6]);
+  });
+});
+
+describe('deepCopy class instances', () => {
+  test('given a controller instance with registered listener removers, when it is copied, then the same instance is returned instead of throwing DataCloneError', () => {
+    // given
+    const controller = new LabelController();
+    (controller as any).eventListeners = [() => {}];
+
+    // test
+    const copy = deepCopy({controller});
+
+    // expect
+    expect(copy.controller).toBe(controller);
+  });
+
+  test('given a class instance without function fields, when it is copied, then it keeps its prototype and methods', () => {
+    // given
+    class Point {
+      constructor(public x: number) {}
+      double() {
+        return this.x * 2;
+      }
+    }
+    const point = new Point(2);
+
+    // test
+    const copy = deepCopy({point});
+
+    // expect
+    expect(copy.point).toBe(point);
+    expect(copy.point.double()).toBe(4);
+  });
+
+  test('given Map, Set and RegExp values, when they are copied, then they are cloned', () => {
+    // given
+    const original = {map: new Map([['a', 1]]), set: new Set([1]), re: /x/g};
+
+    // test
+    const copy = deepCopy(original);
+
+    // expect
+    expect(copy.map).not.toBe(original.map);
+    expect(copy.map.get('a')).toBe(1);
+    expect(copy.set).not.toBe(original.set);
+    expect(copy.re).not.toBe(original.re);
+    expect(copy.re.source).toBe('x');
   });
 });

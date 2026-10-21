@@ -33,16 +33,41 @@ export interface IMathOperationData {
 /**
  * This operation performs the given math function with the specified arguments.
  *
+ * `args` and `functionName` may contain property chains (`$operationdata.`, `$globaldata.`,
+ * `$scope.`). Only these two inputs are resolved; the rest of the operation data is left as it
+ * is. Arguments that name a Math constant (such as `'PI'`) are replaced by its value.
+ *
+ * @throws When `functionName` is not a function of `Math`, or `args` is not an array.
+ *
  * @category Utility
  */
 export const math: TOperation<
   IMathOperationData,
   Omit<IMathOperationData, 'args' | 'functionName'>
 > = function (operationData: IMathOperationData) {
-  operationData = resolvePropertyValues(operationData, this, operationData);
-  operationData.args = resolveMathConstants(operationData.args);
+  const resolved = resolvePropertyValues(operationData, this, {
+    args: operationData.args,
+    functionName: operationData.functionName,
+  });
 
-  const {args, functionName, ...newOperationData} = operationData;
+  const {
+    args: _args,
+    functionName: _functionName,
+    ...newOperationData
+  } = operationData;
+  const {functionName} = resolved;
+
+  if (
+    typeof functionName !== 'string' ||
+    !Object.hasOwn(Math, functionName) ||
+    !isFunction(Math[functionName as keyof Math])
+  ) {
+    throw new Error(`math: unknown function '${String(functionName)}'`);
+  }
+  if (!Array.isArray(resolved.args)) {
+    throw new Error('math: args must be an array');
+  }
+  const args = resolveMathConstants(resolved.args);
 
   newOperationData.mathResult = (
     Math[functionName] as (...args: any[]) => any
@@ -62,6 +87,8 @@ function resolveMathConstants(args: any[]) {
 
 function isMathProperty(value: string | symbol): value is keyof Math {
   return (
-    isString(value) && value in Math && !isFunction(Math[value as keyof Math])
+    isString(value) &&
+    Object.hasOwn(Math, value) &&
+    !isFunction(Math[value as keyof Math])
   );
 }

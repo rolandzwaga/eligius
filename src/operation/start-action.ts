@@ -12,15 +12,16 @@ export interface IStartActionOperationData {
    * @type=ParameterType:object
    * @erased
    */
-  actionOperationData: TOperationData;
+  actionOperationData?: TOperationData;
 }
 
 /**
  * This operation starts the specified action instance using the given action operation data.
  *
- * The action operation data is first merged with the current operation data before it is
- * passed on to the action. After the action has completed the action operation data properties
- * are removed from the current operation data.
+ * The action receives its own copy of the current operation data merged with the action
+ * operation data. Whatever the action's operations add, change or remove in that copy stays
+ * with the action: once it has completed, this operation continues with the operation data it
+ * had before, plus `actionInstance`, without the `actionOperationData` property.
  *
  * @category Action
  */
@@ -28,10 +29,10 @@ export const startAction: TOperation<
   IStartActionOperationData,
   Omit<IStartActionOperationData, 'actionOperationData'>
 > = (operationData: IStartActionOperationData) => {
-  let {
+  const {
     actionInstance,
     actionOperationData = {},
-    ...newOperationData
+    ...callerOperationData
   } = operationData;
 
   return new Promise((resolve, reject) => {
@@ -40,20 +41,12 @@ export const startAction: TOperation<
       return;
     }
 
-    newOperationData = mergeOperationData(
-      newOperationData,
-      actionOperationData
-    );
-
     // The catch also rejects on errors thrown by the fulfilment handler, so the
     // returned promise always settles.
     actionInstance
-      .start(newOperationData)
+      .start(mergeOperationData(callerOperationData, actionOperationData))
       .then(() => {
-        Object.keys(actionOperationData).forEach(key => {
-          delete (newOperationData as any)[key];
-        });
-        internalResolve(resolve, {...newOperationData, actionInstance});
+        internalResolve(resolve, {...callerOperationData, actionInstance});
       })
       .catch(reject);
   });

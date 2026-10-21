@@ -1,14 +1,13 @@
+import {parseOperand, resolveOperand} from '@operation/helper/parse-operand.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
-import {
-  type ExternalProperty,
-  resolveExternalPropertyChain,
-} from '@operation/helper/resolve-external-property-chain.ts';
 import type {IOperationScope, TOperation} from '@operation/types.ts';
 
 type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
 type TValue =
   | `'${string}'`
   | number
+  | boolean
+  | null
   | `$operationdata.${string}`
   | `$globaldata.${string}`
   | `$scope.${string}`;
@@ -34,14 +33,20 @@ export interface IWhenOperationData {
  * The left and right values of the expression can be defined like this:
  *
  * 'constant': for a constant string
- * 100: for a constant number
+ * 100: for a constant number (the whole operand must be numeric, `10px` is invalid)
+ * true, false, null: for a boolean or null constant
  * $operationData.foo: for an operation data value
  * $globaldata.foo: for a global data value
  * $scope.loopIndex: for a scope value
- * @foo: for a variable value
+ * $scope.variables.foo: for a variable set with `setVariable`
+ *
+ * Any other operand is an error, so a misspelled chain prefix fails instead of being compared
+ * as a string. `==` and `!=` compare strictly (without type conversion).
  *
  * @example
  * $scope.variables.foo=='bar'
+ * @example
+ * $operationdata.isValid==true
  * @example
  * $globalData.foo>$scope.variables.bar
  * @example
@@ -49,6 +54,8 @@ export interface IWhenOperationData {
  *
  * @param operationData
  * @returns
+ * @throws When the expression has no operator, an operand is empty, or an operand is not one of
+ * the forms above. The message names the operand and the expression.
  *
  * @category Control Flow
  */
@@ -79,11 +86,13 @@ function parseExpression(
   operationScope: IOperationScope
 ): [TValue, TOperator, TValue] {
   const [left, operator, right] = splitExpression(expression);
+  const leftOperand = parseOperand(left, 'when', expression);
+  const rightOperand = parseOperand(right, 'when', expression);
 
   return [
-    resolveOperand(left, operationData, operationScope),
+    resolveOperand(leftOperand, operationData, operationScope) as TValue,
     operator,
-    resolveOperand(right, operationData, operationScope),
+    resolveOperand(rightOperand, operationData, operationScope) as TValue,
   ];
 }
 
@@ -117,42 +126,18 @@ function splitExpression(expression: string): [string, TOperator, string] {
   throw new Error(`when: invalid expression '${expression}'`);
 }
 
-/**
- * A quoted token (`'John'`) is a string constant, a numeric token is a number,
- * anything else is resolved as an operation data, global data or scope chain.
- */
-function resolveOperand(
-  token: string,
-  operationData: IWhenOperationData,
-  operationScope: IOperationScope
-): TValue {
-  const quoted = /^'(.*)'$/s.exec(token);
-  if (quoted) {
-    return quoted[1] as TValue;
-  }
-
-  const tokenNr = parseFloat(token);
-  return (
-    Number.isNaN(tokenNr)
-      ? resolveExternalPropertyChain(
-          operationData,
-          operationScope,
-          token as ExternalProperty
-        )
-      : tokenNr
-  ) as TValue;
-}
+type TComparable = TValue | undefined;
 
 const evaluations: Record<
   TOperator,
-  (left: string | number, right: string | number) => boolean
+  (left: TComparable, right: TComparable) => boolean
 > = {
-  '==': (left: string | number, right: string | number) => left === right,
-  '!=': (left: string | number, right: string | number) => left !== right,
-  '>=': (left: string | number, right: string | number) => left >= right,
-  '<=': (left: string | number, right: string | number) => left <= right,
-  '>': (left: string | number, right: string | number) => left > right,
-  '<': (left: string | number, right: string | number) => left < right,
+  '==': (left, right) => left === right,
+  '!=': (left, right) => left !== right,
+  '>=': (left, right) => (left as any) >= (right as any),
+  '<=': (left, right) => (left as any) <= (right as any),
+  '>': (left, right) => (left as any) > (right as any),
+  '<': (left, right) => (left as any) < (right as any),
 };
 
 /**

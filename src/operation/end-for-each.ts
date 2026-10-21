@@ -1,3 +1,4 @@
+import {clearLoopCollection} from '@operation/for-each.ts';
 import type {TOperation, TOperationData} from '@operation/types.ts';
 
 /**
@@ -16,6 +17,8 @@ export const endForEach: TOperation<TOperationData> = function (
     this.loopIndex = this.loopIndex + 1;
     this.newIndex = this.loopStartIndex;
     delete this.currentItem;
+  } else {
+    clearLoopCollection(this);
   }
 
   return operationData;

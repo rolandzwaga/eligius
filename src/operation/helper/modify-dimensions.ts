@@ -1,22 +1,30 @@
 import type {IDimensions} from '../../types.ts';
 
+// h[ar=8-1]
+const ratioModifierPattern = /^([hw])\[ar=([^\]]*)\]$/;
+const ratioPattern = /^\d+(\.\d+)?$/;
+
 function _modifyDimensionsByRatio(
   ratioModifier: string,
-  dimensions: IDimensions
+  dimensions: IDimensions,
+  modifier: string
 ) {
   const modifiedDimensions = {...dimensions};
-  //h[ar=8-1]
-  const prefix = ratioModifier.substring(0, 1);
+  const match = ratioModifierPattern.exec(ratioModifier);
+  if (!match) {
+    throw invalidModifier(
+      modifier,
+      `ratio modifier '${ratioModifier}' must look like 'h[ar=8-1]' or 'w[ar=8-1]'`
+    );
+  }
+  const [, prefix, ratio] = match;
+  const ratios = ratio.split('-');
 
-  const ratio = ratioModifier.substring(
-    ratioModifier.indexOf('[') + 1,
-    ratioModifier.indexOf(']') - (ratioModifier.indexOf('[') - 1)
-  );
-
-  const ratios = ratio.split('=')[1].split('-');
-
-  if (ratios.filter(Boolean).length !== 2) {
-    throw new Error(`Badly formatted modifier, expect two ratios: ${ratio}`);
+  if (ratios.length !== 2 || !ratios.every(part => ratioPattern.test(part))) {
+    throw invalidModifier(
+      modifier,
+      `expected two ratios, as in 'ar=8-1', but got 'ar=${ratio}'`
+    );
   }
 
   if (prefix === 'h') {
@@ -120,10 +128,16 @@ function _modifyDimensions(
           modifiedDimension.width *= widthModifier;
       }
       break;
-    default:
-      console.error(`Unknown operator found: ${prefix}`);
   }
   return modifiedDimension;
+}
+
+const operators = ['+', '-', '/', '*'];
+
+function invalidModifier(modifier: string, reason: string) {
+  return new Error(
+    `modifyDimensions: invalid modifier '${modifier}': ${reason}.`
+  );
 }
 
 /**
@@ -140,8 +154,11 @@ function _modifyDimensions(
  *
  * @param dimensions
  * @param modifier
+ * @throws When the operator is not one of + - / *, the amount is not a number, or the ratio
+ * modifier is malformed. The message names the modifier.
  */
 export function modifyDimensions(dimensions: IDimensions, modifier: string) {
+  const fullModifier = modifier;
   const clonedDimensions = {...dimensions};
   let ratioModifier: string | null = null;
   if (modifier.indexOf('|') > -1) {
@@ -149,6 +166,12 @@ export function modifyDimensions(dimensions: IDimensions, modifier: string) {
   }
 
   const prefix = modifier.substring(0, 1);
+  if (!operators.includes(prefix)) {
+    throw invalidModifier(
+      fullModifier,
+      `unknown operator '${prefix}', expected one of + - / *`
+    );
+  }
   const [suffix, endIdx, isPercent] = _getModifierSuffix(modifier);
 
   const value = parseInt(
@@ -157,6 +180,9 @@ export function modifyDimensions(dimensions: IDimensions, modifier: string) {
       : modifier.substring(1),
     10
   );
+  if (Number.isNaN(value)) {
+    throw invalidModifier(fullModifier, 'the amount is not a number');
+  }
 
   let widthModifier = value;
   let heightModifier = value;
@@ -174,7 +200,11 @@ export function modifyDimensions(dimensions: IDimensions, modifier: string) {
   );
 
   if (ratioModifier) {
-    return _modifyDimensionsByRatio(ratioModifier, modifiedDimension);
+    return _modifyDimensionsByRatio(
+      ratioModifier,
+      modifiedDimension,
+      fullModifier
+    );
   }
 
   return modifiedDimension;
