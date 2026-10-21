@@ -7,13 +7,43 @@
  */
 
 import rosetta from 'rosetta';
-import type {
-  ILocaleManager,
-  ILocaleManagerOptions,
-  LocaleEvents,
-  TLanguageCode,
-  TLocaleData,
+import {
+  type ILocaleManager,
+  type ILocaleManagerOptions,
+  isLocaleReference,
+  type LocaleEvents,
+  type TLanguageCode,
+  type TLocaleData,
 } from './types.ts';
+
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function isPlainDataObject(value: unknown): value is TLocaleData {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Recursively merges `source` into a copy of `target`. Neither argument is
+ * mutated. Keys that could pollute prototypes are skipped.
+ */
+function mergeLocaleData(
+  target: TLocaleData | undefined,
+  source: TLocaleData
+): TLocaleData {
+  const result: TLocaleData = {...target};
+  for (const key of Object.keys(source)) {
+    if (UNSAFE_KEYS.has(key)) {
+      continue;
+    }
+    const sourceValue = source[key];
+    const targetValue = result[key];
+    result[key] =
+      isPlainDataObject(sourceValue) && isPlainDataObject(targetValue)
+        ? mergeLocaleData(targetValue, sourceValue)
+        : sourceValue;
+  }
+  return result;
+}
 
 /**
  * LocaleManager wraps the rosetta library to provide translation management
@@ -26,6 +56,7 @@ export class LocaleManager implements ILocaleManager {
     Set<(...args: LocaleEvents[keyof LocaleEvents]) => void>
   >;
   private _locale: TLanguageCode;
+  private readonly _defaultLocale: TLanguageCode;
   private _availableLocales: Set<TLanguageCode>;
   private readonly _debug: boolean;
   /** Raw locale data for debug mode variable checking (rosetta interpolates on access) */
@@ -40,6 +71,7 @@ export class LocaleManager implements ILocaleManager {
     this._rosetta = rosetta();
     this._listeners = new Map();
     this._locale = options.defaultLocale;
+    this._defaultLocale = options.defaultLocale;
     this._availableLocales = new Set();
     this._debug = options.debug ?? false;
     this._rawLocaleData = new Map();
@@ -63,18 +95,34 @@ export class LocaleManager implements ILocaleManager {
   }
 
   /**
-   * Loads translation data for a specific locale.
+   * Loads translation data for a specific locale. Data loaded for a locale
+   * that already has translations is deep-merged into the existing data.
    *
    * @param locale - The locale code (e.g., 'en-US', 'nl-NL')
    * @param data - The translation data object
+   * @throws If `data` is an unresolved external reference (`{$ref: ...}`);
+   * resolve it with `LocaleLoader` first.
    */
   loadLocale(locale: TLanguageCode, data: TLocaleData): void {
-    this._rosetta.set(locale, data);
+    if (isLocaleReference(data)) {
+      throw new Error(
+        `[LocaleManager] Locale '${locale}' is an unresolved external reference ($ref: '${data.$ref}'). Resolve it with LocaleLoader before calling loadLocale.`
+      );
+    }
+
+    const merged = mergeLocaleData(
+      this._rosetta.table(locale) as TLocaleData | undefined,
+      data
+    );
+    this._rosetta.set(locale, merged);
     this._availableLocales.add(locale);
 
     // Store raw data for debug mode variable checking
     if (this._debug) {
-      this._rawLocaleData.set(locale, data);
+      this._rawLocaleData.set(
+        locale,
+        mergeLocaleData(this._rawLocaleData.get(locale), data)
+      );
       console.log(`[LocaleManager] Loaded locale: ${locale}`);
     }
   }
@@ -94,22 +142,14 @@ export class LocaleManager implements ILocaleManager {
   ): string {
     const targetLocale = locale ?? this._locale;
 
-    // Temporarily switch locale if override provided
-    if (locale && locale !== this._locale) {
-      this._rosetta.locale(targetLocale);
-    }
-
     // In debug mode, check for missing interpolation variables before rosetta interpolates
     if (this._debug && params) {
-      this._checkMissingInterpolationVars(key, params);
+      this._checkMissingInterpolationVars(key, params, targetLocale);
     }
 
-    const result = this._rosetta.t(key, params) ?? '';
-
-    // Switch back to current locale if we temporarily changed it
-    if (locale && locale !== this._locale) {
-      this._rosetta.locale(this._locale);
-    }
+    // Pass the locale to rosetta instead of switching its global locale, so a
+    // throwing function translation cannot leave rosetta on the override.
+    const result = this._rosetta.t(key, params, targetLocale) ?? '';
 
     if (this._debug && result === '') {
       console.warn(
@@ -126,10 +166,11 @@ export class LocaleManager implements ILocaleManager {
    */
   private _checkMissingInterpolationVars(
     key: string | string[],
-    params: Record<string, unknown>
+    params: Record<string, unknown>,
+    locale: TLanguageCode
   ): void {
     // Get raw translation from stored data (rosetta interpolates on access)
-    const rawTranslation = this._getRawTranslation(key);
+    const rawTranslation = this._getRawTranslation(key, locale);
     if (typeof rawTranslation !== 'string') {
       return;
     }
@@ -157,8 +198,11 @@ export class LocaleManager implements ILocaleManager {
   /**
    * Gets raw translation value from stored locale data (without interpolation).
    */
-  private _getRawTranslation(key: string | string[]): unknown {
-    const localeData = this._rawLocaleData.get(this._locale);
+  private _getRawTranslation(
+    key: string | string[],
+    locale: TLanguageCode
+  ): unknown {
+    const localeData = this._rawLocaleData.get(locale);
     if (!localeData) {
       return undefined;
     }
@@ -180,14 +224,26 @@ export class LocaleManager implements ILocaleManager {
   /**
    * Sets the current locale and emits a change event.
    *
-   * Setting the locale that is already current is a no-op: no event is
-   * emitted, so listeners that react by switching the locale again cannot
-   * cause a loop.
+   * If the requested locale has not been loaded (and at least one locale
+   * has), a warning is logged and the default locale is used instead.
+   *
+   * Setting the locale that is already current (after any fallback) is a
+   * no-op: no event is emitted, so listeners that react by switching the
+   * locale again cannot cause a loop.
    *
    * @param locale - The new locale to set
    */
   setLocale(locale: TLanguageCode): void {
     const previousLocale = this._locale;
+    if (
+      this._availableLocales.size > 0 &&
+      !this._availableLocales.has(locale)
+    ) {
+      console.warn(
+        `[LocaleManager] Locale '${locale}' is not available, falling back to default locale '${this._defaultLocale}'. Available locales: ${this.availableLocales.join(', ')}`
+      );
+      locale = this._defaultLocale;
+    }
     if (locale === previousLocale) {
       return;
     }

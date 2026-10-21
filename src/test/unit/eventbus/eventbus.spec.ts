@@ -1,6 +1,6 @@
 import type {EventName} from '@eventbus/events/types.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
-import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
+import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 type EventbusSuiteContext = {eventbus: IEventbus} & TestContext;
 
@@ -220,6 +220,87 @@ describe<EventbusSuiteContext>('Eventbus', () => {
 
     // expect
     expect(received.length).toBe(0);
+  });
+  test<EventbusSuiteContext>('given a once handler registered before a regular handler on the same event, when the event is broadcast once, then both handlers are called exactly once', context => {
+    // given
+    const {eventbus} = context;
+    const onceHandler = vi.fn();
+    const regularHandler = vi.fn();
+    eventbus.once('timeline-seek-request', onceHandler);
+    eventbus.on('timeline-seek-request', regularHandler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+
+    // expect
+    expect(onceHandler).toHaveBeenCalledTimes(1);
+    expect(regularHandler).toHaveBeenCalledTimes(1);
+  });
+  test<EventbusSuiteContext>('given a handler that removes itself during dispatch, when the event is broadcast, then the next handler is still called', context => {
+    // given
+    const {eventbus} = context;
+    const nextHandler = vi.fn();
+    const remover = eventbus.on('timeline-seek-request', () => remover());
+    eventbus.on('timeline-seek-request', nextHandler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+
+    // expect
+    expect(nextHandler).toHaveBeenCalledTimes(1);
+  });
+  test<EventbusSuiteContext>('given a handler that removes an earlier handler during dispatch, when the event is broadcast twice, then later handlers are still called and the removed one is not called again', context => {
+    // given
+    const {eventbus} = context;
+    const firstHandler = vi.fn();
+    const thirdHandler = vi.fn();
+    eventbus.on('timeline-seek-request', firstHandler);
+    eventbus.on('timeline-seek-request', () => {
+      eventbus.off('timeline-seek-request', firstHandler);
+    });
+    eventbus.on('timeline-seek-request', thirdHandler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcast('timeline-seek-request', [2]);
+
+    // expect
+    expect(firstHandler).toHaveBeenCalledTimes(1);
+    expect(thirdHandler).toHaveBeenCalledTimes(2);
+  });
+  test<EventbusSuiteContext>('given a once handler that rebroadcasts its own event, when the event is broadcast, then the once handler runs only once', context => {
+    // given
+    const {eventbus} = context;
+    let callCount = 0;
+    eventbus.once('timeline-seek-request', () => {
+      callCount += 1;
+      if (callCount < 5) {
+        eventbus.broadcast('timeline-seek-request', [2]);
+      }
+    });
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+
+    // expect
+    expect(callCount).toBe(1);
+  });
+  test<EventbusSuiteContext>('given a once handler that throws, when the event is broadcast twice, then the handler is not called the second time', context => {
+    // given
+    const {eventbus} = context;
+    const throwingHandler = vi.fn(() => {
+      throw new Error('boom');
+    });
+    eventbus.once('timeline-seek-request', throwingHandler);
+
+    // test
+    expect(() => eventbus.broadcast('timeline-seek-request', [1])).toThrow(
+      'boom'
+    );
+    eventbus.broadcast('timeline-seek-request', [2]);
+
+    // expect
+    expect(throwingHandler).toHaveBeenCalledTimes(1);
   });
 
   describe('request/onRequest', () => {

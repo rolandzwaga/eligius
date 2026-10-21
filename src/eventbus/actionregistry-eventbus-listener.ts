@@ -32,11 +32,11 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
     }
     const actions = this._actionRegistry.get(eventName);
     if (actions) {
-      const operationData = {
-        eventArgs: args,
-      };
+      // Each action gets its own operation data: Action merges into and
+      // mutates the object it is given, so sharing one would leak state
+      // (selectedElement, variables, ...) from one action into the next.
       actions.forEach(action => {
-        action.start(operationData);
+        action.start({eventArgs: Array.isArray(args) ? [...args] : args});
       });
     }
   }

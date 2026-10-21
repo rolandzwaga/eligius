@@ -220,6 +220,116 @@ describe<LocaleLoaderTestContext>('LocaleLoader', () => {
   // Additional tests
   // =========================================================================
 
+  test<LocaleLoaderTestContext>('given root.json whose sibling keys a and b both $ref common.json, when load() is called, then both keys resolve to the common.json data instead of rejecting as circular', async context => {
+    const {loader, mockFetch} = context;
+
+    mockFetch.mockImplementation(url => {
+      const urlStr = url as string;
+      if (urlStr === '/locales/root.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () =>
+            Promise.resolve({
+              a: {$ref: '/locales/common.json'},
+              b: {$ref: '/locales/common.json'},
+            }),
+        });
+      }
+      if (urlStr === '/locales/common.json') {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ok: 'OK'}),
+        });
+      }
+      return Promise.reject(new Error(`Unknown URL: ${urlStr}`));
+    });
+
+    const result = await loader.load('en-US' as TLanguageCode, {
+      $ref: '/locales/root.json',
+    });
+
+    expect(result.data).toEqual({a: {ok: 'OK'}, b: {ok: 'OK'}});
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+
+  test<LocaleLoaderTestContext>('given a diamond where root refs left.json and right.json and both ref common.json, when load() is called, then it resolves without a circular reference error', async context => {
+    const {loader, mockFetch} = context;
+
+    const files: Record<string, TLocaleData> = {
+      '/locales/root.json': {
+        left: {$ref: '/locales/left.json'},
+        right: {$ref: '/locales/right.json'},
+      },
+      '/locales/left.json': {shared: {$ref: '/locales/common.json'}},
+      '/locales/right.json': {nested: {shared: {$ref: '/locales/common.json'}}},
+      '/locales/common.json': {word: 'Common'},
+    };
+    mockFetch.mockImplementation(url => {
+      const data = files[url as string];
+      if (!data) {
+        return Promise.reject(new Error(`Unknown URL: ${url}`));
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(data),
+      });
+    });
+
+    const result = await loader.load('en-US' as TLanguageCode, {
+      $ref: '/locales/root.json',
+    });
+
+    expect(result.data).toEqual({
+      left: {shared: {word: 'Common'}},
+      right: {nested: {shared: {word: 'Common'}}},
+    });
+  });
+
+  test<LocaleLoaderTestContext>('given a file with nested $refs, when load() is called, then the fetched data is not mutated by $ref resolution', async context => {
+    const {loader, mockFetch} = context;
+
+    const rootData = {child: {$ref: '/locales/child.json'}};
+    mockFetch.mockImplementation(url => {
+      const urlStr = url as string;
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve(
+            urlStr === '/locales/root.json' ? rootData : {word: 'Child'}
+          ),
+      });
+    });
+
+    const result = await loader.load('en-US' as TLanguageCode, {
+      $ref: '/locales/root.json',
+    });
+
+    expect(result.data).toEqual({child: {word: 'Child'}});
+    expect(rootData).toEqual({child: {$ref: '/locales/child.json'}});
+  });
+
+  test('given LocaleLoader constructed without a fetch option and a global fetch that rejects non-global receivers, when load() is called, then it resolves with the fetched locale data', async () => {
+    const globalFetch = vi.fn(function (this: unknown, _url: string) {
+      if (this !== undefined && this !== globalThis) {
+        throw new TypeError('Illegal invocation');
+      }
+      return Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({greeting: 'Hello'}),
+      });
+    });
+    vi.stubGlobal('fetch', globalFetch);
+    const {LocaleLoader} = await import('../../../locale/locale-loader.ts');
+    const defaultLoader = new LocaleLoader();
+
+    const result = await defaultLoader.load('en-US' as TLanguageCode, {
+      $ref: './en-US.json',
+    });
+
+    expect(result.data).toEqual({greeting: 'Hello'});
+    expect(globalFetch).toHaveBeenCalledWith('./en-US.json');
+  });
+
   test<LocaleLoaderTestContext>('given baseUrl option, when load() called, then resolves relative paths', async context => {
     const {mockFetch} = context;
 
