@@ -121,7 +121,11 @@ export interface ILocaleManager {
    * @param key - Dot-notation key (e.g., 'nav.home') or array (['nav', 'home'])
    * @param params - Optional interpolation parameters
    * @param locale - Optional locale override (defaults to current locale)
-   * @returns Translated string, or empty string if key not found
+   * @returns Translated string, or an empty string if the key does not name a
+   * string translation: it is missing, only inherited (such as
+   * `constructor`), names a namespace rather than a leaf, or names a function
+   * translation that returned a non-string. Debug mode logs a warning for
+   * each of these.
    */
   t(
     key: string | string[],
@@ -158,6 +162,11 @@ export interface ILocaleManager {
   /**
    * Subscribe to locale events.
    *
+   * Handlers are isolated: one that throws is logged with `console.error`
+   * and the others still run, so `setLocale()` does not throw because of a
+   * handler. A handler added while an event is being emitted is first called
+   * for the next event.
+   *
    * @param event - Event name ('change')
    * @param handler - Event handler function
    * @returns Unsubscribe function
@@ -189,6 +198,28 @@ export interface ILocaleLoaderOptions {
   baseUrl?: string;
   /** Custom fetch function (for testing or SSR) */
   fetch?: typeof globalThis.fetch;
+  /**
+   * Maximum time in milliseconds to wait for each locale file, including
+   * reading its body. A file that takes longer makes the load reject with
+   * `[LocaleLoader] Timed out loading locale file '<url>' after <n> ms`.
+   * Must be a positive finite number. No timeout when omitted.
+   */
+  timeoutMs?: number;
+  /**
+   * Aborts all pending and future fetches of this loader when the signal
+   * fires, for example when the engine is destroyed while locales are still
+   * loading. Pending loads reject with
+   * `[LocaleLoader] Loading locale file '<url>' was aborted`.
+   *
+   * @example
+   * ```ts
+   * const controller = new AbortController();
+   * const loader = new LocaleLoader({signal: controller.signal, timeoutMs: 10000});
+   * const loading = loader.load('en-US', {$ref: './locales/en-US.json'});
+   * controller.abort(); // loading rejects
+   * ```
+   */
+  signal?: AbortSignal;
 }
 
 /**

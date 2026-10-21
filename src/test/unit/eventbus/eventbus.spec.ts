@@ -1,6 +1,15 @@
 import type {EventName} from '@eventbus/events/types.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
-import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
+import {
+  beforeEach,
+  describe,
+  expect,
+  expectTypeOf,
+  type TestContext,
+  test,
+  vi,
+} from 'vitest';
+import type {TLanguageCode} from '@/types.ts';
 
 type EventbusSuiteContext = {eventbus: IEventbus} & TestContext;
 
@@ -55,6 +64,48 @@ describe<EventbusSuiteContext>('Eventbus', () => {
 
     // expect
     expect(callCount).toBe(0);
+  });
+  test<EventbusSuiteContext>('given a handler registered with once(), when off() is called with that same handler and the event is then broadcast, then the handler is not called', context => {
+    // given
+    const {eventbus} = context;
+    const onceHandler = vi.fn();
+    eventbus.once('timeline-seek-request', onceHandler);
+
+    // test
+    eventbus.off('timeline-seek-request', onceHandler);
+    eventbus.broadcast('timeline-seek-request', [1]);
+
+    // expect
+    expect(onceHandler).not.toHaveBeenCalled();
+  });
+  test<EventbusSuiteContext>('given a handler registered with once() for a topic, when off() is called with that handler and topic, then the handler is not called', context => {
+    // given
+    const {eventbus} = context;
+    const onceHandler = vi.fn();
+    eventbus.once('timeline-seek-request', onceHandler, 'topic-a');
+
+    // test
+    eventbus.off('timeline-seek-request', onceHandler, 'topic-a');
+    eventbus.broadcastForTopic('timeline-seek-request', 'topic-a', [1]);
+
+    // expect
+    expect(onceHandler).not.toHaveBeenCalled();
+  });
+  test<EventbusSuiteContext>('given the same handler registered with on() and once(), when off() is called with it once, then only the earlier registration is removed', context => {
+    // given
+    const {eventbus} = context;
+    const handler = vi.fn();
+    eventbus.on('timeline-seek-request', handler);
+    eventbus.once('timeline-seek-request', handler);
+
+    // test
+    eventbus.off('timeline-seek-request', handler);
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcast('timeline-seek-request', [2]);
+
+    // expect
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(1);
   });
   test<EventbusSuiteContext>('should only call handler for specified topic', context => {
     // given
@@ -267,6 +318,50 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     // expect
     expect(firstHandler).toHaveBeenCalledTimes(1);
     expect(thirdHandler).toHaveBeenCalledTimes(2);
+  });
+  test<EventbusSuiteContext>('given an interceptor that removes itself during dispatch and a second interceptor registered after it, when the event is broadcast twice, then the second interceptor is called both times and the first only once', context => {
+    // given
+    const {eventbus} = context;
+    const oneShot = {
+      intercept: vi.fn((args: any[]) => {
+        removeOneShot();
+        return args;
+      }),
+    };
+    const second = {intercept: vi.fn((args: any[]) => args)};
+    const removeOneShot = eventbus.registerInterceptor(
+      'request-timeline-uri',
+      oneShot
+    );
+    eventbus.registerInterceptor('request-timeline-uri', second);
+
+    // test
+    eventbus.broadcast('request-timeline-uri', ['a']);
+    eventbus.broadcast('request-timeline-uri', ['b']);
+
+    // expect
+    expect(oneShot.intercept).toHaveBeenCalledTimes(1);
+    expect(second.intercept).toHaveBeenCalledTimes(2);
+  });
+  test<EventbusSuiteContext>('given a listener that unregisters itself in handleEvent and a second listener, when the event is broadcast twice, then the second listener is called both times and the first only once', context => {
+    // given
+    const {eventbus} = context;
+    const oneShot = {
+      handleEvent: vi.fn(() => {
+        removeOneShot();
+      }),
+    };
+    const second = {handleEvent: vi.fn()};
+    const removeOneShot = eventbus.registerEventlistener(oneShot);
+    eventbus.registerEventlistener(second);
+
+    // test
+    eventbus.broadcast('timeline-play-request', []);
+    eventbus.broadcast('timeline-play-request', []);
+
+    // expect
+    expect(oneShot.handleEvent).toHaveBeenCalledTimes(1);
+    expect(second.handleEvent).toHaveBeenCalledTimes(2);
   });
   test<EventbusSuiteContext>('given a once handler that rebroadcasts its own event, when the event is broadcast, then the once handler runs only once', context => {
     // given
@@ -592,6 +687,30 @@ describe<EventbusSuiteContext>('Eventbus', () => {
   });
 
   describe('request/onRequest', () => {
+    test<EventbusSuiteContext>('given a request name declared in RequestMap, when request() is called without a type argument, then the response is typed from the map', context => {
+      // given
+      const {eventbus} = context;
+      eventbus.onRequest('request-current-language', () => 'nl-NL');
+      eventbus.onRequest('request-translation', (key, params) =>
+        typeof key === 'string' ? `${key}:${params?.n}` : key.join('.')
+      );
+
+      // test
+      const language = eventbus.request('request-current-language');
+      const label = eventbus.request('request-translation', 'nav.home', {
+        n: 1,
+      });
+      const custom = eventbus.request<number>('my-custom-request');
+
+      // expect
+      expectTypeOf(language).toEqualTypeOf<TLanguageCode | undefined>();
+      expectTypeOf(label).toEqualTypeOf<string | undefined>();
+      expectTypeOf(custom).toEqualTypeOf<number | undefined>();
+      expect(language).toBe('nl-NL');
+      expect(label).toBe('nav.home:1');
+      expect(custom).toBeUndefined();
+    });
+
     test<EventbusSuiteContext>('should return undefined when no responder is registered', context => {
       // given
       const {eventbus} = context;
