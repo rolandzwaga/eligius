@@ -220,8 +220,7 @@ describe<ActionContext>('Action', () => {
   test<ActionContext>('given an Action with forEach over 20000 items and one sync inner op, when start is called, then it resolves and the inner op ran 20000 times', async context => {
     // given
     const {action} = context;
-    // The collection is passed by reference through the operation data, so
-    // the per-iteration deepCopy of the forEach configuration stays cheap.
+    // The collection is resolved by reference from the operation data.
     const items = Array.from({length: 20000}, (_, i) => i);
     const inner = vi.fn((data: any) => data);
     action.startOperations.push(
@@ -245,6 +244,88 @@ describe<ActionContext>('Action', () => {
 
     // expect
     expect(inner).toHaveBeenCalledTimes(20000);
+  });
+
+  test<ActionContext>('given operations that mutate and erase their data inside a forEach, when the action is started several times, then the configured operation data is unchanged and every execution sees fresh data', async context => {
+    // given
+    const {action} = context;
+    const items = [
+      {id: 1, tags: ['a']},
+      {id: 2, tags: ['b']},
+      {id: 3, tags: ['c']},
+    ];
+    const seenItems: string[] = [];
+    const seenNestedLengths: number[] = [];
+    const seenClassNames: string[] = [];
+
+    action.startOperations.push(
+      {
+        id: 'prepare',
+        systemName: 'prepare',
+        operationData: {className: 'active', erased: 'gone'},
+        instance: (data: any) => {
+          seenClassNames.push(data.className);
+          data.className = `${data.className}-changed`;
+          delete data.erased;
+          return data;
+        },
+      },
+      {
+        id: 'loop',
+        systemName: 'forEach',
+        operationData: {collection: items},
+        instance: forEach as any,
+      },
+      {
+        id: 'body',
+        systemName: 'body',
+        operationData: {options: {nested: [1, 2]}, label: 'body'},
+        instance: function (this: IOperationScope, data: any) {
+          const item = this.currentItem as {id: number; tags: string[]};
+          seenItems.push(JSON.stringify(item));
+          seenNestedLengths.push(data.options.nested.length);
+          // Mutate everything the operation can reach.
+          item.tags.push('mutated');
+          item.id = -1;
+          data.collection.push({id: 99, tags: []});
+          data.options.nested.push(3);
+          data.label = 'changed';
+          delete data.options;
+          return data;
+        },
+      },
+      {
+        id: 'end-loop',
+        systemName: 'endForEach',
+        operationData: {},
+        instance: endForEach as any,
+      }
+    );
+    const snapshots = action.startOperations.map(operation =>
+      structuredClone(operation.operationData)
+    );
+
+    // test
+    for (let run = 0; run < 3; run++) {
+      await action.start();
+    }
+
+    // expect
+    expect(
+      action.startOperations.map(operation => operation.operationData)
+    ).toEqual(snapshots);
+    const expectedItems = [
+      '{"id":1,"tags":["a"]}',
+      '{"id":2,"tags":["b"]}',
+      '{"id":3,"tags":["c"]}',
+    ];
+    expect(seenItems).toEqual([
+      ...expectedItems,
+      ...expectedItems,
+      ...expectedItems,
+    ]);
+    expect(seenNestedLengths).toEqual([2, 2, 2, 2, 2, 2, 2, 2, 2]);
+    expect(seenClassNames).toEqual(['active', 'active', 'active']);
   });
 
   test<ActionContext>('given a sync operation that throws, when start is called, then the returned promise rejects with that error', async context => {
