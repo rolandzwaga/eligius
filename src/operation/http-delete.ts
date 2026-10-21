@@ -1,26 +1,6 @@
+import {readJsonBody} from '@operation/helper/read-json-body.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
-
-/**
- * Reads the response body as JSON. Returns `null` for 204/205 responses and empty bodies.
- */
-async function readJsonBody(response: Response): Promise<any> {
-  if (response.status === 204 || response.status === 205) {
-    return null;
-  }
-  const text = await response.text();
-  if (text.trim() === '') {
-    return null;
-  }
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    throw new Error(
-      `httpDelete: invalid JSON response: ${(error as Error).message}`,
-      {cause: error}
-    );
-  }
-}
 
 export interface IHttpDeleteOperationData {
   /**
@@ -95,7 +75,7 @@ export const httpDelete: TOperation<
   // DELETE may return an empty body (204 No Content) or a non-JSON body
   const contentType = response.headers.get('content-type');
   operationData.response = contentType?.includes('application/json')
-    ? await readJsonBody(response)
+    ? await readJsonBody(response, 'httpDelete')
     : null;
 
   removeProperties(operationData, 'url', 'headers');

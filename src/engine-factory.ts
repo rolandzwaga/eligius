@@ -17,13 +17,20 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
+import {clearGlobals} from '@operation/helper/globals.ts';
 import type {
   IContainerProvider,
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
+import {LocaleLoader} from './locale/locale-loader.ts';
 import {LocaleManager} from './locale/locale-manager.ts';
-import type {TLanguageCode, TLocaleData} from './locale/types.ts';
+import {
+  type ILocaleReference,
+  type ILocalesConfiguration,
+  isLocaleReference,
+  type TLanguageCode,
+} from './locale/types.ts';
 import type {
   IConfigurationResolver,
   IEngineFactory,
@@ -33,6 +40,13 @@ import type {
   ITimelineProviderInfo,
   TimelineTypes,
 } from './types.ts';
+
+/**
+ * Number of engines created by any factory whose destroy() has not run yet.
+ * The global data store (see globals.ts) is module-wide, so it is cleared
+ * only when this drops to zero.
+ */
+let liveEngineCount = 0;
 
 /**
  * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.
@@ -196,20 +210,20 @@ export class EngineFactory implements IEngineFactory {
       defaultLocale: language as TLanguageCode,
     });
 
-    // Load locales from configuration
-    if (locales) {
-      for (const [locale, data] of Object.entries(locales)) {
-        localeManager.loadLocale(locale as TLanguageCode, data as TLocaleData);
-      }
-    }
+    // Load inline locales now; external ($ref) locales load in the background
+    // and engine.init() waits for them.
+    const localesReady = this._loadLocales(localeManager, locales);
 
     const engineInstance = new EngineClass(
       resolvedConfiguration,
       this._eventbus,
       timelineProviders,
       localeManager,
-      timelineProvidersByUri
+      timelineProvidersByUri,
+      localesReady
     );
+    liveEngineCount++;
+    let destroyed = false;
 
     // Create and connect adapters
     const engineEventbusAdapter = new EngineEventbusAdapter(
@@ -251,9 +265,70 @@ export class EngineFactory implements IEngineFactory {
           localeEventbusAdapter.disconnect();
           engineEventbusAdapter.disconnect();
           engineRemovers.forEach(remove => remove());
+          if (!destroyed) {
+            destroyed = true;
+            liveEngineCount--;
+            // The global data store is shared by every engine on the page,
+            // so only clear it once no engine is left to use it.
+            if (liveEngineCount === 0) {
+              clearGlobals();
+            }
+          }
         }
       },
     };
+  }
+
+  /**
+   * Loads the configured locales into the locale manager.
+   *
+   * Inline locale data is loaded synchronously. Entries that reference an
+   * external file (`{$ref: '...'}`) are fetched with {@link LocaleLoader}.
+   *
+   * @returns A promise that settles when the external locales are loaded, or
+   * undefined when there are none. It rejects with an error naming the locale
+   * that failed.
+   */
+  private _loadLocales(
+    localeManager: LocaleManager,
+    locales: ILocalesConfiguration | undefined
+  ): Promise<void> | undefined {
+    if (!locales) {
+      return undefined;
+    }
+
+    const references = new Map<TLanguageCode, ILocaleReference>();
+    for (const [locale, entry] of Object.entries(locales)) {
+      if (isLocaleReference(entry)) {
+        references.set(locale as TLanguageCode, entry);
+      } else {
+        localeManager.loadLocale(locale as TLanguageCode, entry);
+      }
+    }
+
+    if (references.size === 0) {
+      return undefined;
+    }
+
+    const loader = new LocaleLoader();
+    const loads = [...references].map(([locale, reference]) =>
+      loader.load(locale, reference).then(
+        result => localeManager.loadLocale(result.locale, result.data),
+        (error: unknown) => {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          throw new Error(
+            `[EngineFactory] Failed to load locale '${locale}' from '${reference.$ref}': ${message}`,
+            {cause: error}
+          );
+        }
+      )
+    );
+    const ready = Promise.all(loads).then(() => undefined);
+    // An engine that is never initialised must not cause an unhandled
+    // rejection; init() still receives the rejection through `ready`.
+    ready.catch(() => {});
+    return ready;
   }
 
   private _createTimelineProviders(

@@ -15,6 +15,7 @@ export * from '@eventbus/events/types.ts';
 export * from '@eventbus/index.ts';
 export * from '@eventbus/types.ts';
 export {EligiusResourceImporter} from '@importer/index.ts';
+export {clearGlobals} from '@operation/helper/globals.ts';
 export * from '@operation/index.ts';
 export * as metadata from '@operation/metadata/index.ts';
 export * from '@operation/metadata/types.ts';

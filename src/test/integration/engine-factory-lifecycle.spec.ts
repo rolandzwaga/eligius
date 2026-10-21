@@ -395,4 +395,67 @@ describe('EngineFactory lifecycle (integration)', () => {
     expect(probes).toEqual(['event-action']);
     expect(before).toHaveBeenCalledTimes(1);
   });
+
+  test('given a $ref locale entry, when the engine is initialised, then the referenced file is loaded into the locale manager', async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify({hello: 'Hallo'}), {
+          status: 200,
+          headers: {'Content-Type': 'application/json'},
+        })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const config = createConfig({
+      locales: {
+        'en-US': {hello: 'Hello'},
+        'nl-NL': {$ref: '/locales/nl-NL.json'},
+      },
+    });
+
+    const {localeManager} = await create(config);
+    localeManager.setLocale('nl-NL');
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(localeManager.availableLocales).toContain('nl-NL');
+    expect(localeManager.t('hello')).toBe('Hallo');
+  });
+
+  test('given a $ref locale entry that fails to load, when the engine is initialised, then init rejects naming the locale', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('missing', {status: 404}))
+    );
+    const config = createConfig({
+      locales: {
+        'en-US': {hello: 'Hello'},
+        'nl-NL': {$ref: '/locales/nl-NL.json'},
+      },
+    });
+
+    result = factory.createEngine(config);
+
+    await expect(result.engine.init()).rejects.toThrow(/nl-NL/);
+  });
+
+  test('given two live engines, when one is destroyed and then the other, then global data survives the first destroy and is cleared after the last', async () => {
+    const {setGlobals, getGlobals} = await import(
+      '@operation/helper/globals.ts'
+    );
+    const first = await create(createConfig());
+    result = undefined;
+    $('<div id="engine-root-2"></div>').appendTo(document.body);
+    const second = factory.createEngine(
+      createConfig({containerSelector: '#engine-root-2'})
+    );
+    await second.engine.init();
+    setGlobals({shared: 'value'});
+
+    await first.destroy();
+    const afterFirst = getGlobals('shared');
+    await second.destroy();
+    $('#engine-root-2').remove();
+
+    expect(afterFirst).toBe('value');
+    expect(getGlobals('shared')).toBeUndefined();
+  });
 });

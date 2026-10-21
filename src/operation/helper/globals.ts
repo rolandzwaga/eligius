@@ -27,4 +27,12 @@ export const setGlobals: (newValues: TGlobalCache) => void = _setGlobals.bind(
   cache
 );
 
+/**
+ * Removes every value from the global data store that operations such as
+ * `setGlobalData` and `addGlobalsToOperation` share.
+ *
+ * The store is shared by all engines on the page. `EngineFactory` clears it
+ * when the last engine it created is destroyed; call this yourself to reset
+ * it earlier, for example between tests.
+ */
 export const clearGlobals: () => void = _clearGlobals.bind(null, cache);

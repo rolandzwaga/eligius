@@ -47,10 +47,18 @@ function op(
 
 async function runAction(operations: IResolvedOperation[]) {
   const action = new Action('test', operations, createMockEventbus());
+  // start() runs on its own scope stack; capture the one it creates.
+  const stacks: IOperationScope[][] = [];
+  const create = (action as any)._createScopeStack.bind(action);
+  (action as any)._createScopeStack = (ops: IResolvedOperation[]) => {
+    const stack = create(ops);
+    stacks.push(stack);
+    return stack;
+  };
   const result = await action.start();
   return {
     result,
-    scopeStack: (action as any)._scopeStack as IOperationScope[],
+    scopeStack: stacks[0] ?? [],
   };
 }
 

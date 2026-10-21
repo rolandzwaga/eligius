@@ -199,13 +199,18 @@ export class EligiusEngine implements IEligiusEngine {
    * URI. When a timeline's URI has an entry it is used instead of the
    * provider for its type, so timelines of the same type can each have their
    * own position source (and duration).
+   * @param localesReady - Optional promise that settles when externally
+   * referenced (`$ref`) locales have been loaded into the locale manager.
+   * {@link init} waits for it before running init actions, so labels can be
+   * translated, and rejects if loading failed.
    */
   constructor(
     private configuration: IResolvedEngineConfiguration,
     private eventbus: IEventbus,
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
     private localeManager: ILocaleManager,
-    private timelineProvidersByUri?: Record<string, ITimelineProviderInfo>
+    private timelineProvidersByUri?: Record<string, ITimelineProviderInfo>,
+    private localesReady?: Promise<void>
   ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -413,6 +418,9 @@ export class EligiusEngine implements IEligiusEngine {
 
     this._createTimelineLookup();
 
+    if (this.localesReady) {
+      return this.localesReady.then(() => this._initializeTimelineProvider());
+    }
     return this._initializeTimelineProvider();
   }
 

@@ -1,26 +1,6 @@
+import {readJsonBody} from '@operation/helper/read-json-body.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
-
-/**
- * Reads the response body as JSON. Returns `null` for 204/205 responses and empty bodies.
- */
-async function readJsonBody(response: Response): Promise<any> {
-  if (response.status === 204 || response.status === 205) {
-    return null;
-  }
-  const text = await response.text();
-  if (text.trim() === '') {
-    return null;
-  }
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    throw new Error(
-      `httpPost: invalid JSON response: ${(error as Error).message}`,
-      {cause: error}
-    );
-  }
-}
 
 export interface IHttpPostOperationData {
   /**
@@ -100,7 +80,7 @@ export const httpPost: TOperation<
     );
   }
 
-  operationData.response = await readJsonBody(response);
+  operationData.response = await readJsonBody(response, 'httpPost');
 
   removeProperties(operationData, 'url', 'body', 'headers');
 
