@@ -1,9 +1,41 @@
 import {BasePositionSource} from '@timelineproviders/position-sources/base-position-source.ts';
 import type {IContainerProvider, ISeekable} from '@timelineproviders/types.ts';
 import $ from 'jquery';
-import vjs from 'video.js';
+import type vjs from 'video.js';
 
-const videojs = vjs.default ?? vjs;
+// Under NodeNext resolution the typed default import of video.js is the
+// CommonJS module object; the videojs function is its `default`.
+type TVideojs = typeof vjs.default;
+
+let videojsLoader: Promise<TVideojs> | null = null;
+
+/**
+ * Loads video.js, an optional peer dependency, on first use and caches it.
+ * A failed load is not cached, so a later init can try again.
+ *
+ * @returns the videojs function
+ * @throws when video.js cannot be imported
+ */
+function loadVideojs(): Promise<TVideojs> {
+  videojsLoader ??= import('video.js').then(
+    module => {
+      // Depending on the bundler's CommonJS interop, the function is the
+      // module's default export or sits one `default` deeper
+      const exported = module.default as unknown as TVideojs & {
+        default?: TVideojs;
+      };
+      return exported.default ?? exported;
+    },
+    (error: unknown) => {
+      videojsLoader = null;
+      throw new Error(
+        "VideoPositionSource requires the optional peer dependency 'video.js'. Install it with: npm install video.js",
+        {cause: error}
+      );
+    }
+  );
+  return videojsLoader;
+}
 
 /**
  * Video source configuration for VideoPositionSource.
@@ -46,6 +78,11 @@ export interface VideoPositionSourceConfig {
  * Wraps a video.js player to provide position updates based on video playback.
  * Implements `IPositionSource`, `ISeekable`, and `IContainerProvider`.
  *
+ * video.js is an optional peer dependency. It is loaded with a dynamic
+ * `import()` during the first `init()`, so applications that never create a
+ * video timeline do not need it installed. `init()` rejects with an error
+ * naming the package when it cannot be loaded.
+ *
  * @example
  * ```typescript
  * const source = new VideoPositionSource({
@@ -78,12 +115,11 @@ export class VideoPositionSource
   // ─────────────────────────────────────────────────────────────────────────
 
   private readonly _config: VideoPositionSourceConfig;
-  private _player: ReturnType<typeof videojs> | null = null;
+  private _player: ReturnType<TVideojs> | null = null;
   private _videoElementId: string;
   private readonly _containerReadyCallbacks: Array<() => void> = [];
   private readonly _eventHandlers: Array<() => void> = [];
   private _containerReady = false;
-  private _initTimer: ReturnType<typeof setTimeout> | null = null;
   private _pendingInit: {
     resolve: () => void;
     reject: (error: unknown) => void;
@@ -121,29 +157,38 @@ export class VideoPositionSource
         return;
       }
 
-      this._pendingInit = {resolve, reject};
+      const pendingInit = {resolve, reject};
+      this._pendingInit = pendingInit;
 
       // Create video element in container
       this._createVideoElement();
 
-      // Initialize video.js player
-      this._initTimer = setTimeout(() => {
-        this._initTimer = null;
-        try {
-          this._createPlayer();
-        } catch (error) {
-          this._settleInit(error);
+      // Load video.js (asynchronous, so the element above is in the DOM by
+      // the time the player is created), then initialize the player
+      loadVideojs().then(
+        videojsFactory => {
+          if (this._pendingInit !== pendingInit) {
+            // destroy() settled init while video.js was loading
+            return;
+          }
+          try {
+            this._createPlayer(videojsFactory);
+          } catch (error) {
+            this._settleInit(error);
+          }
+        },
+        error => {
+          if (this._pendingInit === pendingInit) {
+            this._settleInit(error);
+          }
         }
-      }, 0);
+      );
     });
   }
 
   protected doDestroy(): void {
-    // Cancel a pending player creation and settle pending promises
-    if (this._initTimer !== null) {
-      clearTimeout(this._initTimer);
-      this._initTimer = null;
-    }
+    // Settle pending promises; settling init also cancels a player creation
+    // that is still waiting for video.js to load
     this._settleInit(
       new Error('VideoPositionSource: destroyed before init completed')
     );
@@ -285,9 +330,11 @@ export class VideoPositionSource
   /**
    * Create the video.js player and settle the pending init on 'canplay'
    * (resolve) or 'error' (reject).
+   *
+   * @param videojsFactory - The loaded video.js function
    */
-  private _createPlayer(): void {
-    this._player = videojs(
+  private _createPlayer(videojsFactory: TVideojs): void {
+    this._player = videojsFactory(
       this._videoElementId,
       {
         controls: false,

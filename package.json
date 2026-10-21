@@ -82,6 +82,14 @@
     "lottie-web": "5.13.0",
     "video.js": "8.24.2"
   },
+  "peerDependenciesMeta": {
+    "lottie-web": {
+      "optional": true
+    },
+    "video.js": {
+      "optional": true
+    }
+  },
   "dependencies": {
     "hotkeys-js": "4.0.8",
     "rosetta": "1.1.0",

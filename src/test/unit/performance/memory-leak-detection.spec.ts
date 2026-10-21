@@ -92,7 +92,7 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     window.onpopstate = context.originalOnPopstate;
   });
 
-  test<MemoryTestContext>('LottieController attach/detach cycles should not leak memory', context => {
+  test<MemoryTestContext>('LottieController attach/detach cycles should not leak memory', async context => {
     // given: LottieController with animation data
     const operationData = {
       selectedElement: context.mockElement,
@@ -124,7 +124,8 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
 
     // test: Perform 1000 attach/detach cycles
     for (let i = 0; i < 1000; i++) {
-      controller.attach(context.eventbus);
+      // attach is async: it loads lottie-web on first use
+      await controller.attach(context.eventbus);
 
       // Count removers before detach
       const removersBefore = (controller as any).eventListeners.length;
