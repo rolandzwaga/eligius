@@ -133,8 +133,12 @@ export class ActionCreator<
    *
    * @param name
    * @returns
+   * @throws Error when the action is in `actions` or `eventActions` and another
+   * action in those lists already has the name
    */
   setName(name: string) {
+    // Optional calls: a creator may be constructed with a stand-in factory
+    this.factory.end?.()?.assertUniqueActionName?.(name, this.actionConfig);
     this.actionConfig.name = name;
     return this;
   }
@@ -183,7 +187,9 @@ export class ActionCreator<
 
   /**
    *
-   * Adds the operation data for a start operation specified by the given system name
+   * Adds the operation data for a start operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
    * @param systemName
    * @param operationData
@@ -199,7 +205,7 @@ export class ActionCreator<
     startOperations.push({
       id: uuidv4(),
       systemName: systemName,
-      operationData: operationData,
+      operationData: deepCopy(operationData),
     });
     return this;
   }
@@ -254,7 +260,9 @@ export class EndableActionCreator<
 
   /**
    *
-   * Adds the operation data for an end operation specified by the given system name
+   * Adds the operation data for an end operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
    * @param systemName
    * @param operationData
@@ -263,7 +271,7 @@ export class EndableActionCreator<
   addEndOperation<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
-  >(systemName: TOperationName, operationData: O) {
+  >(systemName: T, operationData: O) {
     assertKnownOperationName(systemName);
 
     let {endOperations} = this.actionConfig;
@@ -273,7 +281,7 @@ export class EndableActionCreator<
     endOperations.push({
       id: uuidv4(),
       systemName: systemName,
-      operationData: operationData,
+      operationData: deepCopy(operationData),
     });
     return this;
   }
@@ -292,12 +300,18 @@ export class TimelineActionCreator extends EndableActionCreator<ITimelineActionC
    * @param start
    * @param end
    * @returns
+   * @throws Error when `end` is given and lower than `start`
    */
   addDuration(start: number, end?: number) {
+    if (end !== undefined && start > end) {
+      throw new Error(
+        `addDuration: start (${start}) cannot be higher than end (${end})`
+      );
+    }
     this.actionConfig.duration = {
       start: start,
     };
-    if (end) {
+    if (end !== undefined) {
       this.actionConfig.duration.end = end;
     }
     return this;

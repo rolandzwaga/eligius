@@ -1,6 +1,7 @@
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
 import type {IEngineConfiguration} from '@configuration/types.ts';
 import type {Eventbus} from '@eventbus/index.ts';
+import {EligiusResourceImporter} from '@importer/eligius-resource-importer.ts';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import type {ISimpleResourceImporter} from '../../../types.ts';
@@ -236,6 +237,10 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
     // given
     const {importer, eventbus} = context;
     const config = createTestConfig();
+    // Every timeline type needs provider settings
+    config.timelineProviderSettings = {
+      animation: {positionSource: {systemName: 'RafPositionSource'}},
+    };
     config.timelines = [
       {
         id: '111-222-333-444',
@@ -522,7 +527,7 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
 
       // test + expect
       expect(() => resolver.process(config)).toThrowError(
-        "Unable to resolve placeholder 'template:mian': unknown system name 'mian'"
+        "Unable to resolve placeholder 'template:mian' at layoutTemplate: unknown system name 'mian'"
       );
     });
 
@@ -538,7 +543,7 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
 
       // test + expect
       expect(() => resolver.process(config)).toThrowError(
-        /^Unable to resolve placeholder 'json:data': /
+        /^Unable to resolve placeholder 'json:data' at id: /
       );
     });
   });
@@ -664,6 +669,473 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
       expect(() => resolver.process(config)).toThrowError(
         /Circular config: placeholder/
       );
+    });
+  });
+  describe<ConfigurationResolverSuiteContext>('non-operation exports', () => {
+    function createTimelineWithOperation(systemName: string): any {
+      return {
+        id: 't1',
+        uri: 'uri',
+        type: 'animation',
+        duration: 10,
+        loop: false,
+        selector: '#sel',
+        timelineActions: [
+          {
+            id: 'a1',
+            name: 'A',
+            duration: {start: 0, end: 1},
+            startOperations: [{id: 'o1', systemName, operationData: {}}],
+            endOperations: [],
+          },
+        ],
+      };
+    }
+
+    test<ConfigurationResolverSuiteContext>('given a timeline action whose startOperations contains systemName LabelController, when process is called with EligiusResourceImporter, then it throws naming the JSON path and pointing at addControllerToElement', context => {
+      // given
+      const {eventbus} = context;
+      const config = createTestConfig();
+      config.timelineProviderSettings = {
+        animation: {positionSource: {systemName: 'RafPositionSource'}},
+      };
+      config.timelines = [createTimelineWithOperation('LabelController')];
+      const resolver = new ConfigurationResolver(
+        new EligiusResourceImporter(),
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unknown operation 'LabelController' at timelines[0].timelineActions[0].startOperations[0].systemName. 'LabelController' is a controller, not an operation: attach it with the addControllerToElement operation."
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an importer without name lists that returns a class for an operation name, when process is called, then it throws naming the JSON path', context => {
+      // given
+      const {importer, eventbus} = context;
+      importer.addEntry('SomeClass', class SomeClass {});
+      const config = createTestConfig();
+      config.actions = [
+        {
+          id: 'a',
+          name: 'A',
+          startOperations: [{id: 'o', systemName: 'SomeClass'}],
+          endOperations: [],
+        },
+      ];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unknown operation 'SomeClass' at actions[0].startOperations[0].systemName. 'SomeClass' is a class, not an operation function."
+      );
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('structural validation', () => {
+    function createTimeline(timelineAction: any): any {
+      return {
+        id: 't1',
+        uri: 'uri',
+        type: 'animation',
+        duration: 10,
+        loop: false,
+        selector: '#sel',
+        timelineActions: [timelineAction],
+      };
+    }
+
+    function createResolver(context: ConfigurationResolverSuiteContext) {
+      return new ConfigurationResolver(
+        context.importer as unknown as ISimpleResourceImporter,
+        context.eventbus
+      );
+    }
+
+    function createValidConfig() {
+      const config = createTestConfig();
+      config.timelineProviderSettings = {
+        animation: {positionSource: {systemName: 'RafPositionSource'}},
+      };
+      return config;
+    }
+
+    test<ConfigurationResolverSuiteContext>('given a timeline action configuration without a duration, when process is called, then it throws an error naming timelines[0].timelineActions[0].duration', context => {
+      // given
+      const config = createValidConfig();
+      config.timelines = [
+        createTimeline({
+          id: 'a',
+          name: 'Intro',
+          startOperations: [],
+          endOperations: [],
+        }),
+      ];
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        'Invalid configuration at timelines[0].timelineActions[0].duration: expected {start: number, end?: number}, got undefined.'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a timeline action whose duration end is lower than its start, when process is called, then it throws naming the end', context => {
+      // given
+      const config = createValidConfig();
+      config.timelines = [
+        createTimeline({
+          id: 'a',
+          name: 'Intro',
+          duration: {start: 5, end: 2},
+          startOperations: [],
+          endOperations: [],
+        }),
+      ];
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        'Invalid configuration at timelines[0].timelineActions[0].duration.end: end (2) must not be lower than start (5).'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a timeline action with a negative start, when process is called, then it throws naming the start', context => {
+      // given
+      const config = createValidConfig();
+      config.timelines = [
+        createTimeline({
+          id: 'a',
+          name: 'Intro',
+          duration: {start: -1},
+          startOperations: [],
+          endOperations: [],
+        }),
+      ];
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        'Invalid configuration at timelines[0].timelineActions[0].duration.start: expected a number >= 0, got -1.'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a timeline action with an open end of -1 or no end, when process is called, then it resolves', context => {
+      // given
+      const config = createValidConfig();
+      const timeline = createTimeline({
+        id: 'a',
+        name: 'Intro',
+        duration: {start: 0, end: -1},
+        startOperations: [],
+        endOperations: [],
+      });
+      timeline.timelineActions.push({
+        id: 'b',
+        name: 'Outro',
+        duration: {start: 0},
+        startOperations: [],
+        endOperations: [],
+      });
+      config.timelines = [timeline];
+
+      // test
+      const [, resolved] = createResolver(context).process(config);
+
+      // expect
+      expect(resolved.timelines[0].timelineActions.length).toBe(2);
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an action without startOperations, when process is called, then it throws naming actions[0].startOperations', context => {
+      // given
+      const config = createValidConfig();
+      config.actions = [{id: 'a', name: 'A', endOperations: []} as any];
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        'Invalid configuration at actions[0].startOperations: expected an array, got undefined.'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an init action without endOperations, when process is called, then it throws naming initActions[0].endOperations', context => {
+      // given
+      const config = createValidConfig();
+      config.initActions = [{id: 'a', name: 'A', startOperations: []} as any];
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        'Invalid configuration at initActions[0].endOperations: expected an array, got undefined.'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a configuration without actions and a timeline without timelineActions, when process is called, then it throws naming the missing list', context => {
+      // given
+      const withoutActions = createValidConfig();
+      delete (withoutActions as any).actions;
+      const withoutTimelineActions = createValidConfig();
+      withoutTimelineActions.timelines = [
+        {...createTimeline({}), timelineActions: undefined},
+      ];
+
+      // test + expect
+      expect(() =>
+        createResolver(context).process(withoutActions)
+      ).toThrowError(
+        'Invalid configuration at actions: expected an array, got undefined.'
+      );
+      expect(() =>
+        createResolver(context).process(withoutTimelineActions)
+      ).toThrowError(
+        'Invalid configuration at timelines[0].timelineActions: expected an array, got undefined.'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given eventActions that is not an array, when process is called, then it throws naming eventActions', context => {
+      // given
+      const config = createValidConfig();
+      config.eventActions = {} as any;
+
+      // test + expect
+      expect(() =>
+        createResolver(context).process(
+          config,
+          createMockActionRegistryListener() as any
+        )
+      ).toThrowError(
+        'Invalid configuration at eventActions: expected an array, got an object.'
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a mediaplayer timeline and provider settings for animation only, when process is called, then it throws naming the missing provider settings', context => {
+      // given
+      const config = createValidConfig();
+      config.timelines = [
+        {...createTimeline({}), type: 'mediaplayer', timelineActions: []},
+      ];
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        "Missing timeline provider settings at timelineProviderSettings.mediaplayer for timelines[0] (type 'mediaplayer')."
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given timelineProviderSettings that is not an object, when process is called, then it throws naming timelineProviderSettings', context => {
+      // given
+      const config = createValidConfig();
+      config.timelineProviderSettings = undefined;
+
+      // test + expect
+      expect(() => createResolver(context).process(config)).toThrowError(
+        /^Configuration incomplete: it needs to have at least one timeline provider setting at timelineProviderSettings/
+      );
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('event action registration', () => {
+    test<ConfigurationResolverSuiteContext>('given action Show and eventAction Show, when process throws for the duplicate name, then the event action is not registered', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.actions = [
+        {id: '1', name: 'Show', startOperations: [], endOperations: []},
+      ];
+      config.eventActions = [
+        {id: '2', name: 'Show', eventName: 'lang-changed', startOperations: []},
+      ];
+      const registry = createMockActionRegistryListener();
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      expect(() => resolver.process(config, registry as any)).toThrowError(
+        /Duplicate action name 'Show'/
+      );
+
+      // expect
+      expect(registry.registerAction).not.toHaveBeenCalled();
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a valid event action, when process is called, then it is registered once with its event name and topic', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.eventActions = [
+        {
+          id: '2',
+          name: 'OnLang',
+          eventName: 'lang-changed',
+          eventTopic: 'topic',
+          startOperations: [],
+        },
+      ];
+      const registry = createMockActionRegistryListener();
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      const [lookup] = resolver.process(config, registry as any);
+
+      // expect
+      expect(registry.registerAction).toHaveBeenCalledTimes(1);
+      expect(registry.registerAction).toHaveBeenCalledWith(
+        lookup.OnLang,
+        'lang-changed',
+        'topic'
+      );
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('placeholder errors', () => {
+    test<ConfigurationResolverSuiteContext>('given an importer that returns an empty record for an unknown template, when process is called with layoutTemplate template:mian, then it throws naming the placeholder and the JSON path', context => {
+      // given
+      const {eventbus} = context;
+      const config = createTestConfig();
+      config.layoutTemplate = 'template:mian';
+      const resolver = new ConfigurationResolver(
+        {import: () => ({})},
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unable to resolve placeholder 'template:mian' at layoutTemplate: unknown name 'mian'."
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an importer that returns an empty record for a json import inside an operation, when process is called, then the error names the operation data path', context => {
+      // given
+      const {eventbus} = context;
+      const config = createTestConfig();
+      config.actions = [
+        {
+          id: 'a',
+          name: 'A',
+          startOperations: [
+            {
+              id: 'o',
+              systemName: 'setData',
+              operationData: {properties: 'json:missing'},
+            },
+          ],
+          endOperations: [],
+        },
+      ];
+      const resolver = new ConfigurationResolver(
+        {import: () => ({})},
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unable to resolve placeholder 'json:missing' at actions[0].startOperations[0].operationData.properties: unknown name 'missing'."
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an importer that registers a template with an undefined value, when process is called, then the placeholder resolves to undefined without an error', context => {
+      // given
+      const {eventbus} = context;
+      const config = createTestConfig();
+      config.layoutTemplate = 'template:empty';
+      const resolver = new ConfigurationResolver(
+        {import: (name: string) => ({[name]: undefined})},
+        eventbus
+      );
+
+      // test
+      const [, resolved] = resolver.process(config);
+
+      // expect
+      expect(resolved.layoutTemplate).toBeUndefined();
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a config: placeholder whose last segment does not exist, when process is called, then it throws naming the placeholder and the JSON path', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.containerSelector = 'config:engine.systemNam';
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unable to resolve placeholder 'config:engine.systemNam' at containerSelector: the configuration has no value at 'engine.systemNam'."
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a config: placeholder with a missing intermediate segment inside an array, when process is called, then it throws naming the placeholder and the JSON path and keeps the cause', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.cssFiles = ['a.css', 'config:missing.file'];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      let error: any;
+      try {
+        resolver.process(config);
+      } catch (e) {
+        error = e;
+      }
+
+      // expect
+      expect(error.message).toBe(
+        "Unable to resolve placeholder 'config:missing.file' at cssFiles[1]: Property chain 'missing.file' cannot be resolved."
+      );
+      expect(error.cause).toBeInstanceOf(Error);
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('input ownership', () => {
+    test<ConfigurationResolverSuiteContext>('given a configuration, when process is called, then the resolved cssFiles is a copy of the input list', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.cssFiles = ['a.css'];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      const [, resolved] = resolver.process(config);
+
+      // expect
+      expect(resolved.cssFiles).toEqual(['a.css']);
+      expect(resolved.cssFiles).not.toBe(config.cssFiles);
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a json: import whose value contains placeholder strings, when the same configuration is processed twice, then the importer-owned value is never rewritten', context => {
+      // given
+      const {importer, eventbus} = context;
+      const owned = {html: 'template:other', id: 'config:engine.systemName'};
+      importer.addEntry('data', owned);
+      importer.addEntry('other', '<p>other</p>');
+      const config = createTestConfig();
+      (config as any).timelineFlow = 'json:data';
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      resolver.process(config);
+      resolver.process(config);
+
+      // expect
+      expect(owned).toEqual({
+        html: 'template:other',
+        id: 'config:engine.systemName',
+      });
+      expect((config as any).timelineFlow).not.toBe(owned);
     });
   });
 });

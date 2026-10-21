@@ -14,8 +14,8 @@ import type {TOperationData} from '@operation/types.ts';
  *
  */
 export class OperationNamesProvider {
-  getOperationNames(): TOperationName {
-    return Object.keys(operationMetadata) as unknown as TOperationName;
+  getOperationNames(): TOperationName[] {
+    return Object.keys(operationMetadata) as TOperationName[];
   }
 }
 
@@ -25,8 +25,8 @@ export class OperationNamesProvider {
  *
  */
 export class ControllerNamesProvider {
-  getControllerNames(): TControllerName {
-    return Object.keys(controllerMetadata) as unknown as TControllerName;
+  getControllerNames(): TControllerName[] {
+    return Object.keys(controllerMetadata) as TControllerName[];
   }
 }
 

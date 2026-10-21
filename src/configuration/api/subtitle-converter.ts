@@ -1,7 +1,11 @@
+import {v4 as uuidv4} from 'uuid';
 import type {IStrictDuration, ISubtitle} from '../../types.ts';
 
 /**
  * This class converts an AVID subtitle file to an `ISubtitle` array.
+ *
+ * Every subtitle gets a unique `id`. The lines of a multi-line caption are
+ * joined with a newline (`\n`), never with HTML.
  */
 export class SubtitleImporter {
   importSubtitles(rawLines: string[]): ISubtitle[] {
@@ -13,29 +17,29 @@ export class SubtitleImporter {
         lines.push(rawLine);
       }
     }
-    if (lines[0] === '') {
-      lines.splice(0, 1);
-    }
-    while (lines[lines.length - 1] === '') {
-      lines.pop();
-    }
-    let caption: Partial<ISubtitle> | null = null;
+
+    // A caption is a duration line followed by its text lines, blank lines
+    // separate the captions.
+    let duration: IStrictDuration | undefined;
+    let textLines: string[] = [];
+    const flush = () => {
+      if (duration) {
+        result.push({id: uuidv4(), duration, text: textLines.join('\n')});
+      }
+      duration = undefined;
+      textLines = [];
+    };
     lines.forEach((line: string) => {
-      if (line.length === 0 || !caption) {
-        caption = {text: ''};
-        if (line.length) {
-          //this happens for first caption only
-          caption.duration = this.convertDuration(line);
-        }
-        result.push(caption as ISubtitle);
+      if (line.length === 0) {
+        flush();
+      } else if (!duration) {
+        duration = this.convertDuration(line);
       } else {
-        if (!Object.hasOwn(caption, 'duration')) {
-          caption.duration = this.convertDuration(line);
-        } else {
-          caption.text += line;
-        }
+        textLines.push(line);
       }
     });
+    flush();
+
     return result;
   }
 

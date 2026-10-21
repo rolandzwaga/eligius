@@ -6,51 +6,26 @@ import {
   type ExportDeclarationStructure,
   type ExpressionWithTypeArguments,
   type InterfaceDeclaration,
-  type JSDoc,
-  type JSDocTag,
   Project,
   type PropertySignature,
   type SourceFile,
   StructureKind,
-  SyntaxKind,
   type TypeAliasDeclaration,
-  type TypeParameterDeclaration,
   ts,
 } from 'ts-morph';
 import {getTypeFromProperty} from './property-type.ts';
+import {
+  escapeTemplateLiteral,
+  getDataProperties,
+  getPropertiesWithoutTags,
+  getPropertiesWithTags,
+  getTag,
+  getTypeFromTag,
+  removeGeneratedFiles,
+  toOperationDataType,
+} from './shared.ts';
 
-/**
- * Converts a file path to use path aliases based on the project's tsconfig paths.
- * @param filePath - The file path to convert (can be relative or absolute)
- * @returns The path with alias prefix if applicable
- */
-const toPathAlias = (filePath: string): string => {
-  // Normalize path separators
-  const normalizedPath = filePath.replaceAll('\\', '/');
-
-  // Map of directory patterns to their aliases
-  const aliasMap: Record<string, string> = {
-    'src/action/': '@action/',
-    'src/configuration/': '@configuration/',
-    'src/controllers/': '@controllers/',
-    'src/eventbus/': '@eventbus/',
-    'src/importer/': '@importer/',
-    'src/operation/': '@operation/',
-    'src/timelineproviders/': '@timelineproviders/',
-    'src/util/': '@util/',
-    'src/test/': '@test/',
-    'src/': '@/',
-  };
-
-  for (const [pattern, alias] of Object.entries(aliasMap)) {
-    const index = normalizedPath.indexOf(pattern);
-    if (index !== -1) {
-      return alias + normalizedPath.substring(index + pattern.length);
-    }
-  }
-
-  return normalizedPath;
-};
+const outputDirectory = './src/controllers/metadata';
 
 const project = new Project({
   tsConfigFilePath: './tsconfig.json',
@@ -129,75 +104,20 @@ const createControllerMetadata = (sourceFile: SourceFile): boolean => {
   return true;
 };
 
-const toImport =
-  (_sourceFile: SourceFile) => (typeParam: TypeParameterDeclaration) => {
-    const constraint = typeParam.getConstraint()!;
-    let declarationSourceFile: SourceFile | null = null;
-
-    // First approach: If constraint is a TypeReference, use getDefinitionNodes()
-    // This follows through imports to find the actual definition location
-    if (constraint.isKind(SyntaxKind.TypeReference)) {
-      const typeName = constraint.getTypeName();
-      // Only Identifier has getDefinitionNodes(), not QualifiedName
-      if (typeName.isKind(SyntaxKind.Identifier)) {
-        // getDefinitionNodes() resolves through imports to find the actual definition
-        const definitionNodes = typeName.getDefinitionNodes();
-        if (definitionNodes.length > 0) {
-          declarationSourceFile = definitionNodes[0].getSourceFile();
-        }
-      }
-    }
-
-    // Fallback to the constraint's source file
-    if (!declarationSourceFile) {
-      declarationSourceFile = constraint.getSourceFile();
-    }
-
-    const toPath = declarationSourceFile.getFilePath();
-    const importPath = toPathAlias(toPath);
-    return {
-      types: [constraint.getText()],
-      importPath,
-    };
-  };
-
-const toOperationDataType =
-  (sourceFile: SourceFile) =>
-  (operationData: TypeAliasDeclaration | InterfaceDeclaration) => {
-    const name = operationData.getName();
-    const args = operationData.getTypeParameters();
-    if (args.length) {
-      const nameWithGenerics = `${name}<${args.map(a => a.getConstraint()!.getText()).join(', ')}>`;
-      const imports = args.reduce<ReturnType<ReturnType<typeof toImport>>[]>(
-        (acc, item) => {
-          const impor = toImport(sourceFile)(item);
-          const found = acc.find(itm => itm.importPath === impor.importPath);
-          if (found) {
-            found.types.push(...impor.types);
-            return acc;
-          }
-          return [...acc, impor];
-        },
-        [] as ReturnType<ReturnType<typeof toImport>>[]
-      );
-      return [name, nameWithGenerics, imports] as const;
-    }
-    return [name, name, []] as const;
-  };
-
 const createSourceFile =
   (declaration: ClassDeclaration) =>
   (operationData: TypeAliasDeclaration | InterfaceDeclaration | undefined) => {
     const fileName = camelCaseToDash(declaration.getNameOrThrow());
     const outputSourceFile = project.createSourceFile(
-      `./src/controllers/metadata/${fileName}.ts`,
+      `${outputDirectory}/${fileName}.ts`,
       '',
       {overwrite: true}
     );
 
+    // Controllers without a dedicated data type take any operation data
     const [importName, operationDataName, imports] = operationData
-      ? toOperationDataType(outputSourceFile)(operationData)
-      : [undefined, undefined, []];
+      ? toOperationDataType(operationData)
+      : [undefined, 'TOperationData', []];
 
     // Top-level `import type { … }` so the type import is fully elided. Inline
     // `import { type … }` under verbatimModuleSyntax leaves a side-effect
@@ -208,6 +128,12 @@ const createSourceFile =
         moduleSpecifier: `@controllers/${fileName}.ts`,
         isTypeOnly: true,
         namedImports: [importName],
+      });
+    } else {
+      outputSourceFile.addImportDeclaration({
+        moduleSpecifier: '@operation/types.ts',
+        isTypeOnly: true,
+        namedImports: ['TOperationData'],
       });
     }
     outputSourceFile.addImportDeclaration({
@@ -261,10 +187,10 @@ const createSourceFile =
 
 const getDescription = (declaration: ClassDeclaration) => {
   const description = declaration
-    ?.getJsDocs()
+    .getJsDocs()
     .map(x => x.getCommentText())
     .join('');
-  return description?.replaceAll('`', '\\`');
+  return escapeTemplateLiteral(description);
 };
 
 const getDependentPropertyNames = (
@@ -273,19 +199,10 @@ const getDependentPropertyNames = (
   if (!operationData) {
     return '';
   }
-  const properties = operationData.isKind(SyntaxKind.InterfaceDeclaration)
-    ? operationData.getProperties()
-    : operationData
-        .getDescendantsOfKind(SyntaxKind.TypeLiteral)[0]
-        ?.getProperties();
-  if (properties) {
-    const dependentProps = getPropertiesWithTags(properties)('dependency');
-    return dependentProps.map(x => `'${x.getName()}'`).join(', ');
-  } else {
-    throw new Error(
-      `Could not find properties on statement ${operationData.getName()} of kind: ${operationData.getKindName()}`
-    );
-  }
+  const dependentProps = getPropertiesWithTags(
+    getDataProperties(operationData)
+  )('dependency');
+  return dependentProps.map(x => `'${x.getName()}'`).join(', ');
 };
 
 const getInputProperties = (
@@ -294,12 +211,7 @@ const getInputProperties = (
   if (!operationData) {
     return '';
   }
-  const properties = operationData.isKind(SyntaxKind.InterfaceDeclaration)
-    ? operationData.getProperties()
-    : operationData
-        .getDescendantsOfKind(SyntaxKind.TypeLiteral)[0]
-        ?.getProperties();
-  const inputProps = getPropertiesWithoutTags(properties)(
+  const inputProps = getPropertiesWithoutTags(getDataProperties(operationData))(
     'dependency',
     'output'
   );
@@ -313,12 +225,9 @@ const getOutputProperties = (
   if (!operationData) {
     return '';
   }
-  const properties = operationData.isKind(SyntaxKind.InterfaceDeclaration)
-    ? operationData.getProperties()
-    : operationData
-        .getDescendantsOfKind(SyntaxKind.TypeLiteral)[0]
-        ?.getProperties();
-  const outputProps = getPropertiesWithTags(properties)('output');
+  const outputProps = getPropertiesWithTags(getDataProperties(operationData))(
+    'output'
+  );
 
   return outputProps.map(toProp).join(',\n');
 };
@@ -326,49 +235,15 @@ const getOutputProperties = (
 const toProp = (property: PropertySignature) => {
   const docs = property.getJsDocs();
   const typeTag = getTag(docs)('type');
-  const required = getTag(docs)('required')!;
+  const required = getTag(docs)('required');
   return `${property.getName()}: {
         ${typeTag ? getTypeFromTag(typeTag) : getTypeFromProperty(property)},${required ? '\nrequired: true,' : ''}
     }`;
 };
 
-const getTypeFromTag = (tag: JSDocTag) => {
-  return `type: '${(tag.getComment()! as string).trim()}'`;
-};
-
-const getTag = (docs: JSDoc[]) => (tagName: string) => {
-  return docs.flatMap(d => d.getTags()).find(t => t.getTagName() === tagName);
-};
-
-const getPropertiesWithTags =
-  (properties: PropertySignature[]) =>
-  (...tagNames: string[]) => {
-    return properties.filter(
-      prop =>
-        prop
-          .getJsDocs()
-          .filter(doc =>
-            doc.getTags().some(t => tagNames.includes(t.getTagName()))
-          ).length > 0
-    );
-  };
-
-const getPropertiesWithoutTags =
-  (properties: PropertySignature[]) =>
-  (...tagNames: string[]) => {
-    return properties.filter(
-      prop =>
-        prop
-          .getJsDocs()
-          .filter(doc =>
-            doc.getTags().some(t => tagNames.includes(t.getTagName()))
-          ).length === 0
-    );
-  };
-
 const toIndexFile = (project: Project, fileNames: string[]) => {
   const outputSourceFile = project.createSourceFile(
-    `./src/controllers/metadata/index.ts`,
+    `${outputDirectory}/index.ts`,
     '',
     {overwrite: true}
   );
@@ -397,6 +272,9 @@ const controllerFiles = project
       src.getBaseName() !== 'types.ts' &&
       src.getBaseName() !== 'base-controller.ts'
   );
+
+// Remove the output of controllers that were renamed or removed
+removeGeneratedFiles(outputDirectory);
 
 const failedFiles: string[] = [];
 const generatedFiles = controllerFiles.filter(sourceFile => {

@@ -33,7 +33,15 @@ if (!fs.existsSync(controllersReadMeoutputPath)) {
 }
 
 const contents = fs.readFileSync(docsJsonPath, {encoding: 'utf-8'});
-const docs = JSON.parse(contents) as JSONOutput.ProjectReflection;
+let docs: JSONOutput.ProjectReflection;
+try {
+  docs = JSON.parse(contents) as JSONOutput.ProjectReflection;
+} catch (error) {
+  console.error(
+    `${docsJsonPath} is not valid JSON (${(error as Error).message}). Regenerate it with 'npm run typedoc'.`
+  );
+  process.exit(1);
+}
 
 writeOperationsReadMe();
 writeControllersReadMe();
