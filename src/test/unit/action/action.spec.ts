@@ -345,6 +345,28 @@ describe<ActionContext>('Action', () => {
     await expect(action.start()).rejects.toThrow('boom');
   });
 
+  test<ActionContext>('given a failing start operation, when start is called, then the action rejects without logging to the console itself', async context => {
+    // given
+    const {action} = context;
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    action.startOperations.push({
+      id: 'boom',
+      systemName: 'boom',
+      operationData: {},
+      instance: () => {
+        throw new Error('boom');
+      },
+    });
+
+    // test
+    await expect(action.start()).rejects.toThrow('boom');
+
+    // expect
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
   test<ActionContext>('given a start chain awaiting a promise inside a forEach, when end() runs before that promise resolves, then the start chain keeps its own loop scope', async () => {
     // given
     const recorded: unknown[] = [];

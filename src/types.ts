@@ -63,11 +63,42 @@ export type EngineEvents = {
 
   /**
    * A timeline action that the engine started or ended on its own (from a
-   * position update, `stop()` or `request-timeline-cleanup`) failed. When
-   * nothing listens to this event the engine logs the error message instead.
+   * position update, `seek()`, `switchTimeline()`, `stop()` or
+   * `request-timeline-cleanup`) failed. While nothing but forward-only
+   * subscriptions listen to this event, the engine also logs the error
+   * message and its cause.
    */
   error: [error: IEngineActionError];
 };
+
+/**
+ * Options for a subscription made with {@link IEligiusEngine.on}.
+ */
+export interface IEngineEventSubscriptionOptions {
+  /**
+   * The handler only passes the event on (EngineEventbusAdapter broadcasts
+   * `error` as `engine-error`). Such a subscription to `error` does not count
+   * as handling it, so the engine still logs errors while nothing else
+   * subscribes.
+   */
+  forwardOnly?: boolean;
+}
+
+/**
+ * Options for {@link EligiusEngine}.
+ */
+export interface IEligiusEngineOptions {
+  /**
+   * Largest forward jump of the playhead, in seconds, whose skipped actions
+   * are started and ended one by one. A larger jump (a background tab that
+   * becomes visible again, a scrubbed video, a dragged scrollbar) is handled
+   * like a seek: the actions covering the new position are started and the
+   * others ended, and actions whose whole range was skipped do not run.
+   *
+   * Defaults to `Infinity`: every skipped action runs.
+   */
+  maxCatchUp?: number;
+}
 
 /**
  * The phase of an action in which an error occurred.
@@ -114,11 +145,16 @@ export interface IEngineFactoryResult {
   /** The locale manager instance for translations */
   localeManager: ILocaleManager;
 
-  /** The eventbus for external consumers */
+  /**
+   * The engine's eventbus: one of its own, or the eventbus passed to the
+   * factory in {@link IEngineFactoryOptions.eventbus}. An eventbus of its own
+   * is cleared when the engine is destroyed.
+   */
   eventbus: IEventbus;
 
   /**
-   * Destroy everything - engine, adapters, and cleanup
+   * Destroy everything - engine, adapters, and cleanup. Calling it again
+   * returns the promise of the first call.
    */
   destroy: () => Promise<void>;
 }
@@ -146,7 +182,28 @@ export interface IEngineFactory {
 }
 
 export interface IEngineFactoryOptions {
+  /**
+   * An eventbus for every engine the factory creates. Without it, each
+   * engine gets its own eventbus (returned as
+   * {@link IEngineFactoryResult.eventbus}), so engines never answer each
+   * other's requests or react to each other's commands.
+   *
+   * Use one live engine per eventbus: request responders such as
+   * `request-engine-root` are answered by the first engine that registered
+   * them, and commands such as `timeline-play-request` reach every engine on
+   * the bus. The factory warns when a second engine is created on a shared
+   * eventbus while another one is live.
+   */
   eventbus?: IEventbus;
+  /**
+   * Options passed to every engine the factory creates.
+   */
+  engineOptions?: IEligiusEngineOptions;
+  /**
+   * The hotkey that toggles playback (hotkeys-js syntax), or `false` for
+   * none. Defaults to `'space'`.
+   */
+  playToggleHotkey?: string | false;
 }
 
 /**
@@ -183,11 +240,13 @@ export interface IEligiusEngine {
    * Subscribe to engine events
    * @param event - Event name
    * @param handler - Event handler
+   * @param options - Optional subscription options
    * @returns Unsubscribe function
    */
   on<K extends keyof EngineEvents>(
     event: K,
-    handler: (...args: EngineEvents[K]) => void
+    handler: (...args: EngineEvents[K]) => void,
+    options?: IEngineEventSubscriptionOptions
   ): () => void;
 
   // ─────────────────────────────────────────────────────────────────────────

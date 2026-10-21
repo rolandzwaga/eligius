@@ -38,6 +38,7 @@ export class LocaleEventbusAdapter implements IAdapter {
    * because every eventbus listener already received the original command.
    */
   private _handlingEventbusCommand = false;
+  private _connected = false;
 
   constructor(
     private _localeManager: ILocaleManager,
@@ -46,9 +47,14 @@ export class LocaleEventbusAdapter implements IAdapter {
   ) {}
 
   /**
-   * Connect adapter - start listening and forwarding
+   * Connect adapter - start listening and forwarding. Calling it again while
+   * connected does nothing.
    */
   connect(): void {
+    if (this._connected) {
+      return;
+    }
+    this._connected = true;
     this._subscribeToLocaleManagerEvents();
     this._subscribeToEventbusEvents();
   }
@@ -57,6 +63,7 @@ export class LocaleEventbusAdapter implements IAdapter {
    * Disconnect adapter - stop all listeners
    */
   disconnect(): void {
+    this._connected = false;
     this._localeEventRemovers.forEach(remove => remove());
     this._localeEventRemovers = [];
 

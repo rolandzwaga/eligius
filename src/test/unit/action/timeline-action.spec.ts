@@ -276,4 +276,168 @@ describe<TimelineActionSuiteContext>('TimelineAction', () => {
     // expect
     expect(startOp.instance).toHaveBeenCalledTimes(2);
   });
+  describe('sequencing of start and end', () => {
+    function deferred() {
+      let resolve!: (value?: unknown) => void;
+      const promise = new Promise(r => {
+        resolve = r;
+      });
+      return {promise, resolve};
+    }
+
+    function op(id: string, instance: (data: any) => any): IResolvedOperation {
+      return {id, systemName: id, operationData: {}, instance};
+    }
+
+    test<TimelineActionSuiteContext>('given start operations [async op awaiting a deferred, recordStart] and end operations [recordEnd], when end() is called before the deferred resolves, then recordEnd runs after recordStart', async context => {
+      // given
+      const log: string[] = [];
+      const gate = deferred();
+      const action = new TimelineAction(
+        'Sequenced',
+        [
+          op('wait', data => gate.promise.then(() => data)),
+          op('recordStart', data => {
+            log.push('start');
+            return data;
+          }),
+        ],
+        [
+          op('recordEnd', data => {
+            log.push('end');
+            return data;
+          }),
+        ],
+        {start: 1, end: 1.1},
+        context.eventbus
+      );
+
+      // test
+      const started = action.start();
+      const ended = action.end();
+      expect(action.active).toBe(false);
+      expect(log).toEqual([]);
+      gate.resolve();
+      await Promise.all([started, ended]);
+
+      // expect
+      expect(log).toEqual(['start', 'end']);
+    });
+
+    test<TimelineActionSuiteContext>('given an end whose operations are still running, when start() is called again (loop wrap), then the start operations run after the end operations finished', async context => {
+      // given
+      const log: string[] = [];
+      const gate = deferred();
+      const action = new TimelineAction(
+        'Wrapped',
+        [
+          op('recordStart', data => {
+            log.push('start');
+            return data;
+          }),
+        ],
+        [
+          op('fadeOut', data => gate.promise.then(() => data)),
+          op('recordEnd', data => {
+            log.push('end');
+            return data;
+          }),
+        ],
+        {start: 0, end: 10},
+        context.eventbus
+      );
+      await action.start();
+
+      // test
+      const ended = action.end();
+      const restarted = action.start();
+      expect(action.active).toBe(true);
+      await Promise.resolve();
+      expect(log).toEqual(['start']);
+      gate.resolve();
+      await Promise.all([ended, restarted]);
+
+      // expect
+      expect(log).toEqual(['start', 'end', 'start']);
+    });
+
+    test<TimelineActionSuiteContext>('given synchronous start and end operations, when start() and end() are called back to back, then both run synchronously', context => {
+      // given
+      const log: string[] = [];
+      const action = new TimelineAction(
+        'Sync',
+        [
+          op('recordStart', data => {
+            log.push('start');
+            return data;
+          }),
+        ],
+        [
+          op('recordEnd', data => {
+            log.push('end');
+            return data;
+          }),
+        ],
+        {start: 0, end: 1},
+        context.eventbus
+      );
+
+      // test
+      action.start();
+      action.end();
+
+      // expect
+      expect(log).toEqual(['start', 'end']);
+    });
+
+    test<TimelineActionSuiteContext>('given a start that fails asynchronously, when end() was queued behind it, then the end still runs and only the start rejects', async context => {
+      // given
+      const log: string[] = [];
+      const action = new TimelineAction(
+        'Failing',
+        [op('fail', () => Promise.reject(new Error('boom')))],
+        [
+          op('recordEnd', data => {
+            log.push('end');
+            return data;
+          }),
+        ],
+        {start: 0, end: 1},
+        context.eventbus
+      );
+
+      // test
+      const started = action.start();
+      const ended = action.end();
+
+      // expect
+      await expect(started).rejects.toThrow('boom');
+      await expect(ended).resolves.toBeDefined();
+      expect(log).toEqual(['end']);
+    });
+
+    test<TimelineActionSuiteContext>('given a start-only action whose start is still running, when end() and start() are queued behind it, then the queue drains and every promise settles', async context => {
+      // given
+      const gate = deferred();
+      const startOp = vi.fn((data: any) => gate.promise.then(() => data));
+      const action = new TimelineAction(
+        'StartOnly',
+        [op('wait', startOp)],
+        [],
+        {start: 0, end: 1},
+        context.eventbus
+      );
+
+      // test
+      const first = action.start();
+      const ended = action.end();
+      const second = action.start();
+      gate.resolve();
+      await Promise.all([first, ended, second]);
+
+      // expect
+      expect(startOp).toHaveBeenCalledTimes(2);
+      expect(action.active).toBe(true);
+    });
+  });
 });

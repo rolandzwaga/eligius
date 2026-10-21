@@ -108,9 +108,9 @@ describe<EndableActionSuiteContext>('EndableAction', () => {
     // Spy on console.error
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    // test & expect
+    // test & expect: the caller reports the rejection, the action does not log
     await expect(action.end({})).rejects.toThrow('End operation failed');
-    expect(consoleSpy).toHaveBeenCalledWith("Error in action end 'TestAction'");
+    expect(consoleSpy).not.toHaveBeenCalled();
 
     consoleSpy.mockRestore();
   });

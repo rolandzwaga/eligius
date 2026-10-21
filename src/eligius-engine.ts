@@ -16,13 +16,16 @@ import type {
   IPositionSource,
   ISeekable,
 } from '@timelineproviders/types.ts';
+import {findClosestNames, formatDidYouMean} from '@util/find-closest-names.ts';
 import {TypedEventEmitter} from '@util/typed-event-emitter.ts';
 import $ from 'jquery';
 import type {ILocaleManager} from './locale/types.ts';
 import type {
   EngineEvents,
   IEligiusEngine,
+  IEligiusEngineOptions,
   IEngineActionError,
+  IEngineEventSubscriptionOptions,
   ITimelineProviderInfo,
   TActionPhase,
   TimelineTypes,
@@ -165,16 +168,47 @@ interface IScheduledActionEvent {
 }
 
 /**
- * A start that a position update decided on but has not run yet, because it
- * waits for the ends of the same update to finish.
+ * A start that a position update, seek or switch decided on but has not run
+ * yet, because it waits for ends to finish.
  */
 interface IPendingStart {
   action: ITimelineAction;
-  /** The update that passed its end came before the start could run */
+  /** A later update passed its end before the start could run */
   endAfterStart: boolean;
 }
 
 const noop = () => {};
+const resolved: Promise<void> = Promise.resolve();
+
+interface ISignal {
+  promise: Promise<void>;
+  resolve: () => void;
+}
+
+function createSignal(): ISignal {
+  let resolve: () => void = noop;
+  const promise = new Promise<void>(settle => {
+    resolve = settle;
+  });
+  return {promise, resolve};
+}
+
+/** The part of a seek that other commands wait for, see `seek()` */
+interface ISeekStep {
+  source: IPositionSource;
+  duration: number;
+  /** Settles when the seek's starts have begun */
+  reconciled: Promise<void>;
+}
+
+/**
+ * The end of an action's range. The configuration marks an open-ended range
+ * with a negative end; it is read as Infinity without changing the action.
+ */
+function actionEnd(action: ITimelineAction): number {
+  const {end} = action.duration;
+  return end < 0 ? Infinity : end;
+}
 
 /**
  * Whether the action is in effect at the given position. Ranges are
@@ -182,7 +216,7 @@ const noop = () => {};
  * reaches its end, which matches what the position callback does.
  */
 function coversPosition(action: ITimelineAction, position: number) {
-  return action.duration.start <= position && position < action.duration.end;
+  return action.duration.start <= position && position < actionEnd(action);
 }
 
 /**
@@ -202,6 +236,14 @@ function upperBound(events: IScheduledActionEvent[], position: number) {
   return low;
 }
 
+function invoke<T>(task: () => Promise<T>): Promise<T> {
+  try {
+    return task();
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
 /**
  * The Eligius timeline engine with explicit, testable API.
  *
@@ -214,6 +256,16 @@ function upperBound(events: IScheduledActionEvent[], position: number) {
  * by {@link EngineEventbusAdapter}, which {@link EngineFactory.createEngine}
  * connects. An engine constructed directly needs that adapter connected to be
  * driven through the eventbus.
+ *
+ * Transport commands are serialised: `init()`, `start()`, `seek()`,
+ * `switchTimeline()` and the action cleanup of `stop()` run one after the
+ * other, in call order; a command called while another one runs waits for
+ * it. A later `seek()`, `stop()` or `destroy()` supersedes a `seek()` that
+ * has not finished. A later `pause()`, `stop()` or `destroy()` cancels a
+ * `start()` that has not activated the timeline yet, and keeps a pending
+ * `switchTimeline()` from starting playback. `pause()` and the synchronous
+ * part of `stop()` take effect at once. After `destroy()`, pending commands
+ * do nothing more and new ones are ignored; a pending `init()` rejects.
  */
 export class EligiusEngine implements IEligiusEngine {
   /**
@@ -232,33 +284,70 @@ export class EligiusEngine implements IEligiusEngine {
   private _activePositionSource: IPositionSource | undefined = undefined;
   private _activeContainerProvider: IContainerProvider | undefined = undefined;
   private _activePlaylist: IPlaylist | undefined = undefined;
+  /** The engine root, looked up once when the layout is created */
+  private _engineRoot: JQuery<HTMLElement> | undefined = undefined;
 
-  /** Position sources whose callbacks are registered and that are init()ed */
+  /** Position sources whose callbacks are registered */
+  private _wiredSources: Set<IPositionSource> = new Set();
+  /** Position sources whose init() succeeded */
   private _preparedSources: Set<IPositionSource> = new Set();
-  /** Container providers that are init()ed */
+  /** Container providers whose init() succeeded */
   private _preparedContainers: Set<IContainerProvider> = new Set();
+  /**
+   * Sources and container providers whose init() has not settled yet.
+   * destroy() leaves them alone; they are destroyed when init() settles.
+   */
+  private _initializing: Set<object> = new Set();
+  /** Init actions whose start resolved, in start order */
+  private _startedInitActions: Set<IEndableAction> = new Set();
 
   private _lastPosition: number = -1;
   /** Position updates are ignored while a seek is in progress */
   private _seekDepth = 0;
-  /** End operations started by stop() that start() waits for */
-  private _pendingStopCleanup: Promise<void> | undefined = undefined;
-  /** Serialises timeline switches */
-  private _switchQueue: Promise<void> = Promise.resolve();
+  /** Settles when the last scheduled transport command has settled */
+  private _transportTail: Promise<void> = resolved;
+  /** Transport commands scheduled and not settled yet */
+  private _transportPending = 0;
   /**
-   * Starts waiting for the ends of their position update. Seeking, stopping,
-   * switching, cleanup and destroy clear it, which cancels them.
+   * Incremented by seek(), stop() and destroy() (see `_bumpPositionToken`).
+   * A seek that sees another value after an await has been superseded.
+   */
+  private _positionToken = 0;
+  /** Resolved and replaced whenever `_positionToken` changes */
+  private _positionTokenChanged: ISignal = createSignal();
+  /**
+   * Incremented by start(), pause(), stop() and destroy(). A pending start()
+   * or switchTimeline() only starts playback while it is unchanged.
+   */
+  private _playToken = 0;
+  private _initCalled = false;
+  private _destroyed = false;
+  private _destroyPromise: Promise<void> | undefined = undefined;
+  /**
+   * Starts waiting for ends to settle. Seeking, stopping, switching, cleanup
+   * and destroy clear it, which cancels them.
    */
   private _pendingStarts: Map<ITimelineAction, IPendingStart> = new Map();
+  /**
+   * Settles when the last batch of starts that waited for ends has run.
+   * Later batches wait for it, so starts run in timeline order. Undefined
+   * when no batch is waiting.
+   */
+  private _startGate: Promise<void> | undefined = undefined;
   /** Live `error` subscriptions, to log errors nobody listens to */
   private _errorSubscriptions: Set<object> = new Set();
   private _emitter = new TypedEventEmitter<EngineEvents>();
+  /** See {@link IEligiusEngineOptions.maxCatchUp} */
+  private readonly _maxCatchUp: number;
 
   // ─────────────────────────────────────────────────────────────────────────
   // STATE (synchronous reads) - IEligiusEngine interface
   // ─────────────────────────────────────────────────────────────────────────
 
-  /** Current timeline position in seconds (supports fractional values) */
+  /**
+   * Current timeline position in seconds (supports fractional values); 0
+   * when no timeline is active (before init() and after destroy())
+   */
   get position(): number {
     return this._activePositionSource?.getPosition() ?? 0;
   }
@@ -286,9 +375,12 @@ export class EligiusEngine implements IEligiusEngine {
     return this._activeContainerProvider?.getContainer();
   }
 
-  /** Root element of the engine (container selector) */
+  /**
+   * Root element of the engine (container selector). From init() until
+   * destroy() the same jQuery instance is returned.
+   */
   get engineRoot(): JQuery<HTMLElement> {
-    return $(this.configuration.containerSelector);
+    return this._engineRoot ?? $(this.configuration.containerSelector);
   }
 
   /**
@@ -304,6 +396,8 @@ export class EligiusEngine implements IEligiusEngine {
    * referenced (`$ref`) locales have been loaded into the locale manager.
    * {@link init} waits for it before running init actions, so labels can be
    * translated, and rejects if loading failed.
+   * @param options - Optional engine options
+   * @throws Error when an option is invalid
    */
   constructor(
     private configuration: IResolvedEngineConfiguration,
@@ -311,8 +405,17 @@ export class EligiusEngine implements IEligiusEngine {
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
     private localeManager: ILocaleManager,
     private timelineProvidersByUri?: Record<string, ITimelineProviderInfo>,
-    private localesReady?: Promise<void>
-  ) {}
+    private localesReady?: Promise<void>,
+    options?: IEligiusEngineOptions
+  ) {
+    const maxCatchUp = options?.maxCatchUp ?? Infinity;
+    if (typeof maxCatchUp !== 'number' || !(maxCatchUp > 0)) {
+      throw new Error(
+        `EligiusEngine: options.maxCatchUp must be a positive number of seconds, got ${String(maxCatchUp)}`
+      );
+    }
+    this._maxCatchUp = maxCatchUp;
+  }
 
   // ─────────────────────────────────────────────────────────────────────────
   // EVENTS - IEligiusEngine interface
@@ -323,18 +426,22 @@ export class EligiusEngine implements IEligiusEngine {
    *
    * Errors of timeline actions that the engine starts or ends on its own are
    * reported through the `error` event; while it has no subscribers they are
-   * logged with `console.error` instead.
+   * logged with `console.error` instead. A subscription made with
+   * `{forwardOnly: true}` (EngineEventbusAdapter makes one to broadcast
+   * `engine-error`) does not count as a subscriber.
    *
    * @param event - Event name
    * @param handler - Event handler
+   * @param options - Optional subscription options
    * @returns Unsubscribe function
    */
   on<K extends keyof EngineEvents>(
     event: K,
-    handler: (...args: EngineEvents[K]) => void
+    handler: (...args: EngineEvents[K]) => void,
+    options?: IEngineEventSubscriptionOptions
   ): () => void {
     const unsubscribe = this._emitter.on(event, handler);
-    if (event !== 'error') {
+    if (event !== 'error' || options?.forwardOnly) {
       return unsubscribe;
     }
 
@@ -351,32 +458,59 @@ export class EligiusEngine implements IEligiusEngine {
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
-   * Start playback
+   * Start playback.
+   *
+   * Waits for transport commands called earlier (for example the action
+   * cleanup of `stop()`). Emits `start` once the timeline plays; not when it
+   * already did, or when `pause()`, `stop()` or `destroy()` came first.
+   *
    * @throws If autoplay is blocked (video provider)
    */
-  async start(): Promise<void> {
-    const source = this._activePositionSource;
-    if (!source) {
-      return;
+  start(): Promise<void> {
+    if (this._destroyed) {
+      return resolved;
     }
+    const token = ++this._playToken;
+    return this._schedule(() => this._start(token));
+  }
 
-    if (this._pendingStopCleanup) {
-      await this._pendingStopCleanup;
+  private async _start(token: number): Promise<void> {
+    const source = this._activePositionSource;
+    if (
+      !source ||
+      this._destroyed ||
+      token !== this._playToken ||
+      source.state === 'active'
+    ) {
+      return;
     }
 
     await source.activate();
-    this._emitter.emit('start');
+    // activate() also resolves when pause/stop/destroy superseded it
+    if (
+      !this._destroyed &&
+      source === this._activePositionSource &&
+      this.playState === 'playing'
+    ) {
+      this._emitter.emit('start');
+    }
   }
 
   /**
-   * Pause playback
+   * Pause playback. Emits `pause` when the timeline was playing. A `start()`
+   * that has not activated the timeline yet is cancelled.
    */
   pause(): void {
-    if (!this._activePositionSource) {
+    const source = this._activePositionSource;
+    if (!source || this._destroyed) {
       return;
     }
 
-    this._activePositionSource.suspend();
+    this._playToken++;
+    if (source.state !== 'active') {
+      return;
+    }
+    source.suspend();
     this._emitter.emit('pause');
   }
 
@@ -384,66 +518,142 @@ export class EligiusEngine implements IEligiusEngine {
    * Stop playback and reset to the beginning.
    *
    * The position source is deactivated and the 'stop' event is emitted
-   * synchronously. The active timeline actions are then ended; the returned
-   * promise resolves when their end operations have finished. Errors in end
+   * synchronously; a pending `start()` or `seek()` is cancelled. The active
+   * timeline actions are then ended, after transport commands called
+   * earlier; the returned promise resolves when their end operations have
+   * finished, or earlier when a later `seek()` or `stop()` takes over.
+   * A `start()` called after `stop()` waits for it. Errors in end
    * operations are reported through the `error` event, not rethrown.
    */
   stop(): Promise<void> {
-    if (!this._activePositionSource) {
-      return Promise.resolve();
+    const source = this._activePositionSource;
+    if (!source || this._destroyed) {
+      return resolved;
     }
 
-    this._activePositionSource.deactivate();
+    this._playToken++;
+    const token = this._bumpPositionToken();
+    source.deactivate();
     this._lastPosition = -1;
-    this._pendingStarts.clear();
+    this._cancelPendingStarts();
     this._emitter.emit('stop');
 
-    const cleanup: Promise<void> = this._endActiveActionsReporting().finally(
-      () => {
-        if (this._pendingStopCleanup === cleanup) {
-          this._pendingStopCleanup = undefined;
-        }
-      }
+    return this._schedule(() =>
+      this._waitUnlessSuperseded(this._endActiveActionsReporting(), token)
     );
-    this._pendingStopCleanup = cleanup;
-    return cleanup;
   }
 
   /**
-   * Seek to a specific position
+   * Seek to a specific position.
+   *
+   * Ends the active actions that do not cover the position and, once those
+   * ends have finished, starts the ones that do. The returned promise
+   * resolves when the starts have begun; it does not wait for start
+   * operations to finish. Failing actions are reported through the `error`
+   * event. Other commands only wait for the source to seek, not for the
+   * end operations. A later `seek()` or `stop()` supersedes this one: it
+   * then resolves with the position at that moment without emitting
+   * `seekComplete`, and its starts that had not run yet are dropped.
+   *
    * @param position - Target position in seconds
    * @returns Actual position after seek
    */
-  async seek(position: number): Promise<number> {
+  seek(position: number): Promise<number> {
+    if (this._destroyed || !Number.isFinite(position) || position < 0) {
+      return Promise.resolve(this.position);
+    }
     const source = this._activePositionSource;
-    if (!source) {
-      return 0;
+    if (source && position > source.getDuration()) {
+      return Promise.resolve(source.getPosition());
     }
 
-    const duration = source.getDuration();
-    const currentPosition = source.getPosition();
+    const token = this._bumpPositionToken();
+    // Starts still waiting (including those of a seek this one supersedes)
+    // are replaced by this seek's reconciliation.
+    this._cancelPendingStarts();
+    return this._schedule(() =>
+      this._seekSourceAndReconcile(position, token)
+    ).then(async step => {
+      if (!step) {
+        return this.position;
+      }
+      await this._waitUnlessSuperseded(step.reconciled, token);
+      const finalPosition = step.source.getPosition();
+      if (!this._isSuperseded(token)) {
+        this._emitter.emit('seekComplete', finalPosition, step.duration);
+        this._emitter.emit('time', finalPosition);
+      }
+      return finalPosition;
+    });
+  }
 
-    if (!Number.isFinite(position) || position < 0 || position > duration) {
-      return currentPosition;
+  /**
+   * The part of a seek that other transport commands wait for: seeking the
+   * source and deciding which actions to end and start. Resolves with the
+   * reconciliation still running, or undefined when the seek did not happen.
+   */
+  private async _seekSourceAndReconcile(
+    position: number,
+    token: number
+  ): Promise<ISeekStep | undefined> {
+    const source = this._activePositionSource;
+    if (!source || this._isSuperseded(token)) {
+      return undefined;
+    }
+    const currentPosition = source.getPosition();
+    const duration = source.getDuration();
+    if (position > duration) {
+      return undefined;
     }
 
     this._emitter.emit('seekStart', position, currentPosition, duration);
-    // Starts still waiting for an earlier update are superseded by the
-    // reconciliation below.
-    this._pendingStarts.clear();
+    this._cancelPendingStarts();
 
     await this._seekSource(source, position);
+    if (this._isSuperseded(token)) {
+      return undefined;
+    }
     // The seek target is reconciled below; the position update the source
     // emits for it (now, or when it resumes) must not dispatch actions again.
     this._lastPosition = position;
-    await this._reconcileActions(this._currentTimelineUri, position);
+    const reconciled = this._reconcileActions(
+      this._currentTimelineUri,
+      position
+    );
+    return {source, duration, reconciled};
+  }
 
-    const finalPosition = source.getPosition();
+  private _isSuperseded(positionToken: number) {
+    return this._destroyed || positionToken !== this._positionToken;
+  }
 
-    this._emitter.emit('seekComplete', finalPosition, duration);
-    this._emitter.emit('time', finalPosition);
+  /**
+   * Increments the position token, which supersedes running seeks and
+   * releases the waits of `_waitUnlessSuperseded`.
+   *
+   * @returns The new token
+   */
+  private _bumpPositionToken(): number {
+    this._positionToken++;
+    const changed = this._positionTokenChanged;
+    this._positionTokenChanged = createSignal();
+    changed.resolve();
+    return this._positionToken;
+  }
 
-    return finalPosition;
+  /**
+   * Waits for `work`, unless the position token changes first (a later
+   * seek, stop or destroy), so a slow or hung end operation cannot hold up
+   * the commands that follow.
+   */
+  private _waitUnlessSuperseded(
+    work: Promise<void>,
+    token: number
+  ): Promise<void> {
+    if (this._isSuperseded(token)) {
+      return resolved;
+    }
+    return Promise.race([work, this._positionTokenChanged.promise]);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -453,55 +663,102 @@ export class EligiusEngine implements IEligiusEngine {
   /**
    * Switch to a different timeline.
    *
-   * Ends the active actions of the current timeline, activates the new
-   * timeline's position source (initialising it on first use), seeks it to
-   * `position`, starts the actions that cover that position and starts
-   * playback. The returned promise resolves when all of that is done.
-   * Concurrent calls are processed one after the other.
+   * First initialises the new timeline's position source and container
+   * provider on first use. If that fails, the current timeline is left as it
+   * was and the promise rejects, so a later call retries. Then it ends the
+   * active actions of the current timeline, activates the new timeline,
+   * seeks it to `position`, emits `timelineChange`, starts the actions that
+   * cover that position and starts playback (unless `pause()` or `stop()`
+   * was called after this call). The returned promise resolves when
+   * playback has started; it does not wait for start operations to finish.
+   * Failing actions are reported through the `error` event. Concurrent
+   * calls are processed one after the other. Switching to the current
+   * timeline does nothing.
    *
    * @param uri - Timeline URI to switch to
    * @param position - Optional starting position
+   * @throws Error (rejects) when the engine is not initialised or no timeline
+   * has the URI
    */
   switchTimeline(uri: string, position: number = 0): Promise<void> {
-    const run = this._switchQueue.then(() =>
-      this._switchTimeline(uri, position)
-    );
-    this._switchQueue = run.catch(noop);
-    return run;
-  }
-
-  private async _switchTimeline(uri: string, position: number): Promise<void> {
-    const previousSource = this._activePositionSource;
-    if (!previousSource) {
-      return;
+    if (this._destroyed) {
+      return resolved;
+    }
+    if (!this._initCalled) {
+      return Promise.reject(
+        new Error(
+          `EligiusEngine.switchTimeline('${uri}'): the engine is not initialised, call init() first`
+        )
+      );
+    }
+    const timelineConfig = this._timelineLookupCache.get(uri);
+    if (!timelineConfig) {
+      return Promise.reject(this._unknownTimelineError(uri));
     }
 
-    const timelineConfig = this._timelineLookupCache.get(uri);
-    if (!timelineConfig || this._currentTimelineUri === timelineConfig.uri) {
+    const playToken = this._playToken;
+    return this._schedule(() =>
+      this._switchTimeline(timelineConfig, position, playToken)
+    );
+  }
+
+  private _unknownTimelineError(uri: string) {
+    const known = [...this._timelineLookupCache.keys()];
+    const suggestion = formatDidYouMean(findClosestNames(uri, known));
+    return new Error(
+      `EligiusEngine.switchTimeline('${uri}'): unknown timeline URI. ${
+        suggestion ? `${suggestion} ` : ''
+      }Known timelines: ${known.map(name => `'${name}'`).join(', ')}`
+    );
+  }
+
+  private async _switchTimeline(
+    timelineConfig: IResolvedTimelineConfiguration,
+    position: number,
+    playToken: number
+  ): Promise<void> {
+    const previousSource = this._activePositionSource;
+    if (
+      this._destroyed ||
+      !previousSource ||
+      this._currentTimelineUri === timelineConfig.uri
+    ) {
       return;
     }
 
     const providerInfo = this._getProviderInfo(timelineConfig);
     if (!providerInfo?.positionSource) {
       throw new Error(
-        `No timeline provider configured for type ${timelineConfig.type}`
+        `EligiusEngine.switchTimeline('${timelineConfig.uri}'): no timeline provider configured for type '${timelineConfig.type}'`
       );
+    }
+    const source = providerInfo.positionSource;
+
+    // Initialise first: when that fails (a video that does not load) the
+    // current timeline keeps running and a later switch retries.
+    await this._prepareProvider(providerInfo);
+    if (this._destroyed) {
+      return;
     }
 
     const previousUri = this._currentTimelineUri;
     previousSource.deactivate();
-    this._pendingStarts.clear();
-    await this._cleanUpTimeline(previousUri);
+    this._lastPosition = -1;
+    this._cancelPendingStarts();
+    await this._waitUnlessSuperseded(
+      this._endActiveActionsReporting(previousUri),
+      this._positionToken
+    );
+    if (this._destroyed) {
+      return;
+    }
 
+    this._activePositionSource = source;
+    this._activeContainerProvider = providerInfo.containerProvider;
+    this._activePlaylist = providerInfo.playlist;
     this._currentTimelineUri = timelineConfig.uri;
-    this._emitter.emit('timelineChange', this._currentTimelineUri);
-
-    await this._activateProvider(providerInfo);
-    const source = providerInfo.positionSource;
     source.loop = timelineConfig.loop;
-
-    // Select playlist item if playlist is available
-    this._activePlaylist?.selectItem(uri);
+    this._activePlaylist?.selectItem(timelineConfig.uri);
 
     let target = source.getPosition();
     if (position > 0 && Number.isFinite(position) && isSeekable(source)) {
@@ -511,21 +768,44 @@ export class EligiusEngine implements IEligiusEngine {
           ? Math.min(position, duration)
           : position;
       await this._seekSource(source, target);
+      if (this._destroyed) {
+        return;
+      }
     }
+
+    // The new timeline is active now, so listeners that query the engine get
+    // its source, container, duration and position.
+    this._emitter.emit('timelineChange', timelineConfig.uri);
 
     // Start the actions covering the start position here, so the position
     // update that activation emits does not dispatch them a second time.
     this._lastPosition = target;
     await this._reconcileActions(timelineConfig.uri, target);
 
+    if (this._destroyed || playToken !== this._playToken) {
+      return;
+    }
     await source.activate();
   }
 
   /**
    * Initializes the engine by creating the HTML layout and the first time line
    * by executing its initActions.
+   *
+   * @returns The position source of the first timeline
+   * @throws Error when the container selector matches nothing (synchronously)
+   * @throws Error (rejects) when there are no timelines or no provider for the
+   * first timeline, when its source fails to initialise, an init action
+   * fails or external locales fail to load, and when the engine is destroyed
+   * before init completes
    */
   init(): Promise<IPositionSource> {
+    if (this._destroyed) {
+      return Promise.reject(
+        new Error('EligiusEngine.init(): the engine has been destroyed')
+      );
+    }
+
     this._createLayoutTemplate();
 
     this._removeEventbusListeners();
@@ -536,11 +816,25 @@ export class EligiusEngine implements IEligiusEngine {
     this._currentTimelineUri = timelines?.[0]?.uri ?? '';
 
     this._createTimelineLookup();
+    this._initCalled = true;
 
+    return this._schedule(() => this._initialize());
+  }
+
+  private async _initialize(): Promise<IPositionSource> {
     if (this.localesReady) {
-      return this.localesReady.then(() => this._initializeTimelineProvider());
+      await this.localesReady;
+      this._throwIfDestroyed('init()');
     }
     return this._initializeTimelineProvider();
+  }
+
+  private _throwIfDestroyed(method: string) {
+    if (this._destroyed) {
+      throw new Error(
+        `EligiusEngine.${method}: the engine was destroyed before it completed`
+      );
+    }
   }
 
   private _createLayoutTemplate() {
@@ -550,6 +844,7 @@ export class EligiusEngine implements IEligiusEngine {
     if (!container || !container.length) {
       throw new Error(`Container selector not found: ${containerSelector}`);
     }
+    this._engineRoot = container;
 
     const {layoutTemplate} = this.configuration;
 
@@ -579,10 +874,22 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     this._lastPosition = -1;
-    await this._activateProvider(providerSettings);
+    await this._prepareProvider(providerSettings);
+    this._throwIfDestroyed('init()');
+    this._activePositionSource = providerSettings.positionSource;
+    this._activeContainerProvider = providerSettings.containerProvider;
+    this._activePlaylist = providerSettings.playlist;
     providerSettings.positionSource.loop = firstTimeline.loop;
 
-    await this._executeActions(this.configuration.initActions, 'start');
+    for (const action of this.configuration.initActions ?? []) {
+      await action.start();
+      if (this._destroyed) {
+        // destroy() only ended the init actions that had started before
+        await this._runActionMethod(action, 'end');
+        this._throwIfDestroyed('init()');
+      }
+      this._startedInitActions.add(action);
+    }
     this._emitter.emit('initialized');
     return providerSettings.positionSource;
   }
@@ -597,16 +904,15 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   /**
-   * Makes the given provider the active one, registering the engine callbacks
-   * on its position source and initialising the source and container
-   * provider the first time they are used.
+   * Initialises the provider's position source and container provider the
+   * first time they are used, registering the engine callbacks on the
+   * source. A failed init is not remembered, so the next use retries it.
    */
-  private async _activateProvider(providerInfo: ITimelineProviderInfo) {
-    this._activePositionSource = providerInfo.positionSource;
-    this._activeContainerProvider = providerInfo.containerProvider;
-    this._activePlaylist = providerInfo.playlist;
-
+  private async _prepareProvider(providerInfo: ITimelineProviderInfo) {
     await this._prepareSource(providerInfo.positionSource);
+    if (this._destroyed) {
+      return;
+    }
     await this._prepareContainer(
       providerInfo.containerProvider,
       providerInfo.positionSource
@@ -617,7 +923,21 @@ export class EligiusEngine implements IEligiusEngine {
     if (this._preparedSources.has(source)) {
       return;
     }
-    this._preparedSources.add(source);
+    this._wireSource(source);
+    await this._initializeComponent(source, () => source.init());
+    if (!this._destroyed) {
+      this._preparedSources.add(source);
+    }
+  }
+
+  /**
+   * Registers the engine callbacks on a source, once per source.
+   */
+  private _wireSource(source: IPositionSource) {
+    if (this._wiredSources.has(source)) {
+      return;
+    }
+    this._wiredSources.add(source);
 
     // Sources stay registered after a switch, so every callback ignores
     // events from sources that are not the active one.
@@ -641,8 +961,6 @@ export class EligiusEngine implements IEligiusEngine {
         this._onFirstFrameCallback();
       }
     });
-
-    await source.init();
   }
 
   private async _prepareContainer(
@@ -656,8 +974,38 @@ export class EligiusEngine implements IEligiusEngine {
     ) {
       return;
     }
-    this._preparedContainers.add(containerProvider);
-    await containerProvider.init?.();
+    await this._initializeComponent(containerProvider, async () => {
+      await containerProvider.init?.();
+    });
+    if (!this._destroyed) {
+      this._preparedContainers.add(containerProvider);
+    }
+  }
+
+  /**
+   * Runs a component's init(). When the engine was destroyed meanwhile,
+   * destroy() skipped the component, so it is destroyed here.
+   */
+  private async _initializeComponent(
+    component: {destroy?(): void},
+    init: () => Promise<void>
+  ) {
+    this._initializing.add(component);
+    try {
+      await init();
+    } finally {
+      this._initializing.delete(component);
+      if (this._destroyed) {
+        try {
+          component.destroy?.();
+        } catch (error) {
+          console.error(
+            'EligiusEngine: destroying a component that finished initialising after destroy() failed',
+            error
+          );
+        }
+      }
+    }
   }
 
   private _onCompleteCallback() {
@@ -680,8 +1028,9 @@ export class EligiusEngine implements IEligiusEngine {
 
   /**
    * Cleans up all the necessary parts that the engine initialized.
-   * - It stops the active position source.
-   * - It ends the currently active timeline actions and the init actions.
+   * - It stops the active position source and cancels pending commands.
+   * - It ends the currently active timeline actions and the init actions
+   *   that started.
    * - It detaches the controllers still attached to elements inside the
    *   engine root (those that no end operation removed).
    * - It removes all its eventbus listeners.
@@ -689,9 +1038,20 @@ export class EligiusEngine implements IEligiusEngine {
    * - It empties the HTML element indicated by the containerSelector configuration property.
    *
    * Every step runs even when an earlier one fails. Errors are rethrown at
-   * the end (an AggregateError when there is more than one).
+   * the end (an AggregateError when there is more than one). Calling it
+   * again returns the same promise; the teardown runs once.
    */
-  async destroy() {
+  destroy(): Promise<void> {
+    this._destroyPromise ??= this._destroy();
+    return this._destroyPromise;
+  }
+
+  private async _destroy() {
+    // Pending commands check this after every await and do nothing more.
+    this._destroyed = true;
+    this._playToken++;
+    this._bumpPositionToken();
+
     const errors: unknown[] = [];
     const attempt = (step: () => void) => {
       try {
@@ -704,16 +1064,15 @@ export class EligiusEngine implements IEligiusEngine {
     // Stop the clock first, so no tick starts actions while others end.
     const activeSource = this._activePositionSource;
     attempt(() => activeSource?.deactivate());
-    this._pendingStarts.clear();
+    this._cancelPendingStarts();
 
     await this._endActionsSettled(
       this._getActiveActions(this._getTimelineActionsForCurrentTimeline()),
       errors
     );
-    await this._endActionsSettled(
-      [...(this.configuration.initActions ?? [])].reverse(),
-      errors
-    );
+    const initActions = [...this._startedInitActions].reverse();
+    this._startedInitActions.clear();
+    await this._endActionsSettled(initActions, errors);
 
     // After the end operations, so a removeControllerFromElement in them
     // still finds its controller.
@@ -733,14 +1092,20 @@ export class EligiusEngine implements IEligiusEngine {
     this._activePlaylist = undefined;
     attempt(() => this._removeEventbusListeners());
 
+    // Components still initialising are destroyed when their init settles.
     const providers = this._allProviderInfos();
     const sources = new Set(providers.map(info => info.positionSource));
-    sources.forEach(source => attempt(() => source?.destroy()));
+    sources.forEach(source => {
+      if (source && !this._initializing.has(source)) {
+        attempt(() => source.destroy());
+      }
+    });
     new Set(providers.map(info => info.containerProvider)).forEach(
       containerProvider => {
         if (
           containerProvider &&
-          !sources.has(containerProvider as unknown as IPositionSource)
+          !sources.has(containerProvider as unknown as IPositionSource) &&
+          !this._initializing.has(containerProvider)
         ) {
           attempt(() => containerProvider.destroy?.());
         }
@@ -753,6 +1118,7 @@ export class EligiusEngine implements IEligiusEngine {
       const {containerSelector} = this.configuration;
       $(containerSelector).empty();
     });
+    this._engineRoot = undefined;
 
     attempt(() => this._emitter.emit('destroyed'));
     this._emitter.removeAllListeners();
@@ -786,6 +1152,30 @@ export class EligiusEngine implements IEligiusEngine {
     }
   }
 
+  /**
+   * Runs `task` once the transport commands scheduled before it have
+   * settled. When none is pending it runs right away, synchronously up to
+   * its first await, so `start()` on an idle engine activates the source
+   * before it returns.
+   */
+  private _schedule<T>(task: () => Promise<T>): Promise<T> {
+    const previous = this._transportTail;
+    const idle = this._transportPending === 0;
+    let release: () => void = noop;
+    this._transportTail = new Promise<void>(resolve => {
+      release = resolve;
+    });
+    this._transportPending++;
+
+    const run = idle ? invoke(task) : previous.then(task);
+    const done = () => {
+      this._transportPending--;
+      release();
+    };
+    run.then(done, done);
+    return run;
+  }
+
   private _addEventListener(
     eventName: string,
     eventHandler: TEventHandler,
@@ -810,10 +1200,7 @@ export class EligiusEngine implements IEligiusEngine {
   private _addEventbusListeners() {
     this._addEventListener(
       'request-engine-root',
-      this._handleRequestEngineRoot.bind(
-        this,
-        this.configuration.containerSelector
-      )
+      this._handleRequestEngineRoot.bind(this)
     );
     this._addEventListener(
       'request-current-timeline-position',
@@ -865,16 +1252,18 @@ export class EligiusEngine implements IEligiusEngine {
     });
   }
 
+  /**
+   * Builds the sorted start and end events of a timeline. The actions are
+   * only read; an open-ended range (negative end) gets no end event.
+   */
   private static _createSchedule(
     timelineActions: ITimelineAction[]
   ): IScheduledActionEvent[] {
     const events: IScheduledActionEvent[] = [];
 
     timelineActions.forEach(action => {
-      if (action.duration.end < 0) {
-        action.duration.end = Infinity;
-      }
-      const {start, end} = action.duration;
+      const {start} = action.duration;
+      const end = actionEnd(action);
 
       events.push({position: start, isStart: true, order: 1, action});
       if (Number.isFinite(end)) {
@@ -902,6 +1291,10 @@ export class EligiusEngine implements IEligiusEngine {
     });
   }
 
+  /**
+   * @deprecated Left over from the removed per-position dispatch; the engine
+   * does not use it. Will be removed in the next major version.
+   */
   static sortTimelines(timelines: Record<number, ActionMethod[]>[]) {
     timelines.forEach(timelineActions => {
       Object.keys(timelineActions).forEach(key => {
@@ -913,6 +1306,10 @@ export class EligiusEngine implements IEligiusEngine {
     });
   }
 
+  /**
+   * @deprecated Left over from the removed per-position dispatch; the engine
+   * does not use it. Will be removed in the next major version.
+   */
   static sortActionsPerPosition(actions: ActionMethod[]) {
     const [startMethods, endMethods] = actions.reduce(
       (acc, item) => {
@@ -931,31 +1328,10 @@ export class EligiusEngine implements IEligiusEngine {
     ];
   }
 
-  private async _executeActions(
-    actions: IEndableAction[],
-    methodName: 'start' | 'end'
-  ): Promise<void> {
-    for (const action of actions) {
-      await action[methodName]();
-    }
-  }
-
   private _handleRequestEngineRoot(
-    engineRootSelector: string,
     resultCallback: TResultCallback<JQuery<HTMLElement>>
   ) {
-    resultCallback($(engineRootSelector));
-  }
-
-  /**
-   * Ends every active action of the given timeline (the current one by
-   * default), highest start position first.
-   */
-  private _cleanUpTimeline(uri: string = this._currentTimelineUri) {
-    return this._executeActions(
-      this._getActiveActions(this._getTimelineActionsForUri(uri)),
-      'end'
-    );
+    resultCallback(this.engineRoot);
   }
 
   private _getActiveActions(allActions: ITimelineAction[]) {
@@ -963,26 +1339,30 @@ export class EligiusEngine implements IEligiusEngine {
     return actions.sort(sortActionsHighestStartPositionFirst);
   }
 
+  /**
+   * Answers with {@link position}, like the `request()` responder of
+   * EngineEventbusAdapter does: 0 when no timeline is active.
+   */
   private _handleRequestTimelinePosition(
     resultCallback: TResultCallback<number>
   ) {
-    resultCallback(this._activePositionSource?.getPosition() ?? -1);
+    resultCallback(this.position);
   }
 
   private _handleTimelineComplete() {
-    this._pendingStarts.clear();
+    this._cancelPendingStarts();
     this._endActiveActionsReporting();
   }
 
   /**
-   * Ends every active action of the current timeline, highest start position
-   * first, reporting failures through the `error` event. The returned promise
-   * never rejects.
+   * Ends every active action of the given timeline (the current one by
+   * default), highest start position first, reporting failures through the
+   * `error` event. The returned promise never rejects.
    */
-  private async _endActiveActionsReporting(): Promise<void> {
-    const actions = this._getActiveActions(
-      this._getTimelineActionsForCurrentTimeline()
-    );
+  private async _endActiveActionsReporting(
+    uri: string = this._currentTimelineUri
+  ): Promise<void> {
+    const actions = this._getActiveActions(this._getTimelineActionsForUri(uri));
     for (const action of actions) {
       await this._runActionMethod(action, 'end');
     }
@@ -1003,20 +1383,24 @@ export class EligiusEngine implements IEligiusEngine {
       );
     } catch (error) {
       this._reportActionError(action, phase, error);
-      return Promise.resolve();
+      return resolved;
     }
   }
 
+  /**
+   * Emits the failure through the `error` event; while nothing but
+   * forward-only subscriptions listen, it is also logged with its cause, so
+   * the original stack is kept.
+   */
   private _reportActionError(
     action: IEndableAction,
     phase: TActionPhase,
     cause: unknown
   ) {
     const error = new EngineActionError(action, phase, cause);
-    if (this._errorSubscriptions.size > 0) {
-      this._emitter.emit('error', error);
-    } else {
-      console.error(error.message);
+    this._emitter.emit('error', error);
+    if (this._errorSubscriptions.size === 0) {
+      console.error(error.message, cause);
     }
   }
 
@@ -1070,16 +1454,20 @@ export class EligiusEngine implements IEligiusEngine {
    *
    * Moving forward, every start and end in `(from, to]` is processed in
    * position order, so skipped frames and coarse sources (video timeupdate,
-   * scroll, keyboard steps) never miss an action. Moving backward, the
+   * scroll, keyboard steps) never miss an action. A forward jump larger than
+   * `maxCatchUp` is reconciled like a seek instead. Moving backward, the
    * actions whose range no longer covers the position are ended and the ones
    * that cover it again are started, like a seek. Actions track their own
    * `active` state, so revisiting a key never runs a start or end twice.
    *
-   * Within one update all ends run before any start: when the update ends
-   * actions, its starts wait (as pending starts) until those ends have
-   * settled. An action whose start and end both lie in the update (a skipped
-   * or zero-length range) is ended right after it is started. Nothing is
-   * awaited here; failures are reported through the `error` event.
+   * All ends run before any start: when the update ends actions, or starts
+   * of an earlier update are still waiting, its starts wait (as pending
+   * starts) until those have run. An action whose start and end both lie in
+   * the update (a skipped or zero-length range) is ended right after it is
+   * started; TimelineAction runs its end operations once its start
+   * operations have finished. Nothing is awaited here, and nothing is
+   * allocated when the update crosses no start or end. Failures are reported
+   * through the `error` event.
    */
   private _dispatchActionsBetween(from: number, to: number) {
     const events = this._timelineSchedules.get(this._currentTimelineUri);
@@ -1087,22 +1475,28 @@ export class EligiusEngine implements IEligiusEngine {
       return;
     }
 
+    const forward = to > from;
+    const low = upperBound(events, forward ? from : to);
+    const high = upperBound(events, forward ? to : from);
+    if (low === high) {
+      return;
+    }
+
+    if (forward && to - from > this._maxCatchUp) {
+      this._reconcileActions(this._currentTimelineUri, to);
+      return;
+    }
+
     const pending = this._pendingStarts;
     const ends: ITimelineAction[] = [];
     const starts: IPendingStart[] = [];
-    const addStart = (action: ITimelineAction) => {
-      const start: IPendingStart = {action, endAfterStart: false};
-      pending.set(action, start);
-      starts.push(start);
-    };
 
-    if (to > from) {
-      const last = upperBound(events, to);
-      for (let i = upperBound(events, from); i < last; i++) {
+    if (forward) {
+      for (let i = low; i < high; i++) {
         const {action, isStart} = events[i];
         if (isStart) {
           if (!action.active && !pending.has(action)) {
-            addStart(action);
+            this._addPendingStart(action, starts);
           }
         } else if (action.active) {
           ends.push(action);
@@ -1115,8 +1509,7 @@ export class EligiusEngine implements IEligiusEngine {
       }
     } else {
       const toStart: ITimelineAction[] = [];
-      const first = upperBound(events, to);
-      for (let i = upperBound(events, from) - 1; i >= first; i--) {
+      for (let i = high - 1; i >= low; i--) {
         const {action, isStart} = events[i];
         if (isStart) {
           if (action.active) {
@@ -1136,20 +1529,62 @@ export class EligiusEngine implements IEligiusEngine {
       }
       toStart
         .sort((a, b) => a.duration.start - b.duration.start)
-        .forEach(addStart);
+        .forEach(action => this._addPendingStart(action, starts));
     }
 
-    if (!ends.length) {
+    this._runEndsThenStarts(ends, starts);
+  }
+
+  private _addPendingStart(action: ITimelineAction, starts: IPendingStart[]) {
+    const start: IPendingStart = {action, endAfterStart: false};
+    this._pendingStarts.set(action, start);
+    starts.push(start);
+  }
+
+  /**
+   * Ends the given actions, and runs the given pending starts once those
+   * ends and every earlier batch of waiting starts have settled; right away
+   * when there is nothing to wait for. The returned promise settles when the
+   * starts have been run (not when their operations finish) and never
+   * rejects.
+   */
+  private _runEndsThenStarts(
+    ends: ITimelineAction[],
+    starts: IPendingStart[]
+  ): Promise<void> {
+    const waitFor: Promise<void>[] = [];
+    for (const action of ends) {
+      waitFor.push(this._runActionMethod(action, 'end'));
+    }
+    if (starts.length && this._startGate) {
+      waitFor.push(this._startGate);
+    }
+    if (!waitFor.length) {
       this._runPendingStarts(starts);
-      return;
+      return resolved;
     }
 
-    const endsSettled = ends.map(action =>
-      this._runActionMethod(action, 'end')
-    );
-    if (starts.length) {
-      Promise.all(endsSettled).then(() => this._runPendingStarts(starts));
+    const settled = Promise.all(waitFor).then(noop);
+    if (!starts.length) {
+      return settled;
     }
+    const gate: Promise<void> = settled.then(() => {
+      if (this._startGate === gate) {
+        this._startGate = undefined;
+      }
+      this._runPendingStarts(starts);
+    });
+    this._startGate = gate;
+    return gate;
+  }
+
+  /**
+   * Cancels the starts that are waiting for ends, and the ordering of later
+   * starts behind them.
+   */
+  private _cancelPendingStarts() {
+    this._pendingStarts.clear();
+    this._startGate = undefined;
   }
 
   /**
@@ -1172,18 +1607,27 @@ export class EligiusEngine implements IEligiusEngine {
 
   /**
    * Brings the actions of a timeline in line with a position: ends the active
-   * actions that do not cover it and starts the inactive ones that do.
+   * actions that do not cover it and, once those ends have finished, starts
+   * the inactive ones that do. The `active` flags change synchronously, so
+   * position updates that arrive meanwhile see the reconciled state. The
+   * returned promise settles once the starts have begun and never rejects;
+   * failures are reported through the `error` event.
    */
-  private async _reconcileActions(uri: string, position: number) {
+  private _reconcileActions(uri: string, position: number): Promise<void> {
     const timelineActions = this._getTimelineActionsForUri(uri);
-    const actionsToEnd = this._getActiveActions(timelineActions).filter(
+    const ends = this._getActiveActions(timelineActions).filter(
       action => !coversPosition(action, position)
     );
-    const actionsToStart = timelineActions.filter(
-      action => !action.active && coversPosition(action, position)
-    );
-    await this._executeActions(actionsToEnd, 'end');
-    await this._executeActions(actionsToStart, 'start');
+    const starts: IPendingStart[] = [];
+    for (const action of timelineActions) {
+      const pending = this._pendingStarts.get(action);
+      if (pending) {
+        pending.endAfterStart = !coversPosition(action, position);
+      } else if (!action.active && coversPosition(action, position)) {
+        this._addPendingStart(action, starts);
+      }
+    }
+    return this._runEndsThenStarts(ends, starts);
   }
 }
 

@@ -269,13 +269,15 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     await engine.init();
 
-    // test: Measure action execution (calls _executeActions internally)
+    // test: Measure action execution through the engine's own dispatch
+    // wrapper (_runActionMethod), one action after the other
     executionCount = 0;
     const startTime = performance.now();
 
-    // Execute actions by calling internal _executeActions directly
     const actions = timelineActions;
-    await (engine as any)._executeActions(actions, 'start');
+    for (const action of actions) {
+      await (engine as any)._runActionMethod(action, 'start');
+    }
 
     const endTime = performance.now();
 
