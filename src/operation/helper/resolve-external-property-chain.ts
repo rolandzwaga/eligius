@@ -1,3 +1,7 @@
+import {
+  assertSafePropertyChain,
+  getCurrentOperationName,
+} from '@operation/helper/assert-safe-property-chain.ts';
 import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
 import {getGlobals} from '@operation/helper/globals.ts';
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
@@ -29,13 +33,19 @@ export function resolveExternalPropertyChain(
   if (isExternalProperty(propertyChainOrRegularObject)) {
     const propNames = propertyChainOrRegularObject.split('.');
     const prefix = propNames.shift()!.toLowerCase();
+    const operationName = getCurrentOperationName(operationScope);
+    assertSafePropertyChain(
+      propNames,
+      propertyChainOrRegularObject,
+      operationName
+    );
     switch (prefix) {
       case '$operationdata':
-        return getPropertyChainValue(propNames, sourceObject);
+        return getPropertyChainValue(propNames, sourceObject, operationName);
       case '$globaldata':
-        return getPropertyChainValue(propNames, getGlobals());
+        return getPropertyChainValue(propNames, getGlobals(), operationName);
       case '$scope':
-        return getScopeChainValue(propNames, operationScope);
+        return getScopeChainValue(propNames, operationScope, operationName);
     }
   }
 
@@ -61,17 +71,18 @@ export function resolveExternalPropertyChain(
  */
 function getScopeChainValue(
   propertyChain: string[],
-  operationScope: IOperationScope
+  operationScope: IOperationScope,
+  operationName?: string
 ) {
   const head = propertyChain[0];
   let scope: IOperationScope | undefined = operationScope;
   while (scope) {
     if (head in scope) {
-      return getPropertyChainValue(propertyChain, scope);
+      return getPropertyChainValue(propertyChain, scope, operationName);
     }
     scope = scope.parent;
   }
-  return getPropertyChainValue(propertyChain, operationScope);
+  return getPropertyChainValue(propertyChain, operationScope, operationName);
 }
 
 export function isExternalProperty(

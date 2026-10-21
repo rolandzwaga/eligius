@@ -188,4 +188,42 @@ describe('resolveExternalPropertyChain', () => {
     // expect
     expect(value).toBe(arg);
   });
+
+  test('given a $operationdata.__proto__ chain run by an operation, when it is resolved, then it throws naming the operation and the full chain', () => {
+    const scope = {
+      currentIndex: 0,
+      operations: [{systemName: 'setOperationData'}],
+    } as unknown as IOperationScope;
+
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        scope,
+        '$operationdata.x.__proto__.polluted'
+      )
+    ).toThrow(
+      "setOperationData: property chain '$operationdata.x.__proto__.polluted' contains forbidden segment '__proto__'"
+    );
+    expect(({} as any).polluted).toBeUndefined();
+  });
+
+  test('given a $globaldata.constructor chain, when it is resolved, then it throws', () => {
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        {} as IOperationScope,
+        '$globaldata.constructor.prototype'
+      )
+    ).toThrow(/forbidden segment 'constructor'/);
+  });
+
+  test('given a $scope.constructor chain, when it is resolved, then it throws', () => {
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        {} as IOperationScope,
+        '$scope.constructor.constructor'
+      )
+    ).toThrow(/forbidden segment 'constructor'/);
+  });
 });

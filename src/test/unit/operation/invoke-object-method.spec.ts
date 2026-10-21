@@ -43,4 +43,35 @@ describe('invokeObjectMethod', () => {
     expect('methodName' in result).toBe(false);
     expect('methodArguments' in result).toBe(false);
   });
+
+  test.each(['constructor', '__proto__', 'prototype'])(
+    'given methodName %s, when the operation runs, then it throws instead of reaching the Function constructor',
+    methodName => {
+      // given
+      const operationData: IInvokeObjectMethodOperationData = {
+        instance: () => {},
+        methodName,
+        methodArguments: ['return 42'],
+      };
+
+      // test & expect
+      expect(() => applyOperation(invokeObjectMethod, operationData)).toThrow(
+        `invokeObjectMethod: method name '${methodName}' is not allowed`
+      );
+    }
+  );
+
+  test('given the Function constructor as instance, when the operation runs, then it throws', () => {
+    // given
+    const operationData: IInvokeObjectMethodOperationData = {
+      instance: Function,
+      methodName: 'call',
+      methodArguments: [null, 'return 42'],
+    };
+
+    // test & expect
+    expect(() => applyOperation(invokeObjectMethod, operationData)).toThrow(
+      'invokeObjectMethod: invoking methods on the Function constructor is not allowed'
+    );
+  });
 });

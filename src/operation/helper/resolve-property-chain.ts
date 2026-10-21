@@ -17,8 +17,16 @@ import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.
  * ```
  *
  * The result of the invocation `resolvePropertyChain('mySource.subSource.element.value', foo)` would then yield the value `bar`.
+ *
+ * Chains containing `__proto__`, `prototype` or `constructor` segments are rejected.
+ *
+ * @throws When the chain cannot be resolved or contains a forbidden segment.
  */
-export function resolvePropertyChain(propertyChain: string, sourceObject: any) {
+export function resolvePropertyChain(
+  propertyChain: string,
+  sourceObject: any,
+  operationName?: string
+) {
   const properties = propertyChain.split('.');
-  return getPropertyChainValue(properties, sourceObject);
+  return getPropertyChainValue(properties, sourceObject, operationName);
 }

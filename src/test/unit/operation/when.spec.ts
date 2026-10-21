@@ -433,4 +433,120 @@ describe<WhenSuiteContext>('when', () => {
     // expect
     expect(operationScope.newIndex).toBe(0);
   });
+
+  test<WhenSuiteContext>('given operationData {name: John} and a quoted string literal on the right, when the when operation is applied, then whenEvaluation is true and newIndex stays undefined', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    (operationData as any).name = 'John';
+    operationData.expression = "$operationdata.name=='John'";
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.whenEvaluation).toBe(true);
+    expect(operationScope.newIndex).toBeUndefined();
+  });
+
+  test<WhenSuiteContext>('given a quoted string literal on the left that differs, when the when operation is applied, then whenEvaluation is false', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    (operationData as any).name = 'John';
+    operationData.expression = "'Jane'==$operationdata.name";
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.whenEvaluation).toBe(false);
+  });
+
+  test<WhenSuiteContext>('given a quoted literal containing an operator character, when the when operation is applied, then the literal is compared as a whole', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    (operationData as any).value = 'a<b';
+    operationData.expression = "$operationdata.value=='a<b'";
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.whenEvaluation).toBe(true);
+  });
+
+  test<WhenSuiteContext>('given whitespace around the operator, when the when operation is applied, then both operands are trimmed before resolving', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    (operationData as any).x = 1;
+    operationData.expression = '$operationdata.x == 1' as any;
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.whenEvaluation).toBe(true);
+  });
+
+  test<WhenSuiteContext>('given an expression without an operator, when the when operation is applied, then it throws an invalid expression error', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression = '$operationdata.x' as any;
+
+    // test & expect
+    expect(() => applyOperation(when, operationData, operationScope)).toThrow(
+      "when: invalid expression '$operationdata.x'"
+    );
+  });
+
+  test<WhenSuiteContext>('given operations [when(1==2), when(1==1), endWhen, otherwise, endWhen], when the outer when evaluates false, then newIndex is 3 (the otherwise) rather than 4', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression = '1==2';
+    operationScope.operations.push(
+      {systemName: 'when'} as IResolvedOperation,
+      {systemName: 'when'} as IResolvedOperation,
+      {systemName: 'endWhen'} as IResolvedOperation,
+      {systemName: 'otherwise'} as IResolvedOperation,
+      {systemName: 'endWhen'} as IResolvedOperation
+    );
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.newIndex).toBe(3);
+  });
+
+  test<WhenSuiteContext>('given a nested when with its own otherwise and no outer otherwise, when the outer when evaluates false, then newIndex is the outer endWhen', ({
+    operationScope,
+    operationData,
+  }) => {
+    // given
+    operationData.expression = '1==2';
+    operationScope.operations.push(
+      {systemName: 'when'} as IResolvedOperation,
+      {systemName: 'when'} as IResolvedOperation,
+      {systemName: 'otherwise'} as IResolvedOperation,
+      {systemName: 'endWhen'} as IResolvedOperation,
+      {systemName: 'endWhen'} as IResolvedOperation
+    );
+
+    // test
+    applyOperation(when, operationData, operationScope);
+
+    // expect
+    expect(operationScope.newIndex).toBe(4);
+  });
 });

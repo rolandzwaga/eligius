@@ -1,4 +1,3 @@
-import {findMatchingOperationIndex} from '@operation/helper/find-matching-operation-index.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import {
   type ExternalProperty,
@@ -79,33 +78,69 @@ function parseExpression(
   operationData: IWhenOperationData,
   operationScope: IOperationScope
 ): [TValue, TOperator, TValue] {
-  const [left, right] = expression.split(/!=|==|>=|<=|>|</);
-
-  const operator = expression.substring(
-    left.length,
-    expression.length - right.length
-  ) as TOperator;
-
-  const leftNr = parseFloat(left);
-  const rightNr = parseFloat(right);
+  const [left, operator, right] = splitExpression(expression);
 
   return [
-    (Number.isNaN(leftNr)
-      ? resolveExternalPropertyChain(
-          operationData,
-          operationScope,
-          left as ExternalProperty
-        )
-      : leftNr) as TValue,
+    resolveOperand(left, operationData, operationScope),
     operator,
-    (Number.isNaN(rightNr)
+    resolveOperand(right, operationData, operationScope),
+  ];
+}
+
+// Two-character operators first, so '>=' is not read as '>' followed by '='.
+const operators: TOperator[] = ['!=', '==', '>=', '<=', '>', '<'];
+
+/**
+ * Splits the expression on the first operator that is not inside a quoted
+ * string literal. Throws when there is no operator or an operand is empty.
+ */
+function splitExpression(expression: string): [string, TOperator, string] {
+  let inQuote = false;
+  for (let i = 0; i < expression.length; i++) {
+    if (expression[i] === "'") {
+      inQuote = !inQuote;
+      continue;
+    }
+    if (inQuote) {
+      continue;
+    }
+    const operator = operators.find(op => expression.startsWith(op, i));
+    if (operator) {
+      const left = expression.substring(0, i).trim();
+      const right = expression.substring(i + operator.length).trim();
+      if (left.length && right.length) {
+        return [left, operator, right];
+      }
+      break;
+    }
+  }
+  throw new Error(`when: invalid expression '${expression}'`);
+}
+
+/**
+ * A quoted token (`'John'`) is a string constant, a numeric token is a number,
+ * anything else is resolved as an operation data, global data or scope chain.
+ */
+function resolveOperand(
+  token: string,
+  operationData: IWhenOperationData,
+  operationScope: IOperationScope
+): TValue {
+  const quoted = /^'(.*)'$/s.exec(token);
+  if (quoted) {
+    return quoted[1] as TValue;
+  }
+
+  const tokenNr = parseFloat(token);
+  return (
+    Number.isNaN(tokenNr)
       ? resolveExternalPropertyChain(
           operationData,
           operationScope,
-          right as ExternalProperty
+          token as ExternalProperty
         )
-      : rightNr) as TValue,
-  ];
+      : tokenNr
+  ) as TValue;
 }
 
 const evaluations: Record<
@@ -120,32 +155,27 @@ const evaluations: Record<
   '<': (left: string | number, right: string | number) => left < right,
 };
 
+/**
+ * Finds the `otherwise` or `endWhen` that belongs to this `when`, skipping nested
+ * when/otherwise/endWhen blocks (whether or not they have an `otherwise`).
+ */
 function findNextFlowControlIndex(scope: IOperationScope) {
-  const currentIndex = scope.currentIndex + 1;
-  const list = scope.operations.slice(currentIndex);
-
-  const otherWiseIndex = list.findIndex(
-    findMatchingOperationIndex.bind({
-      counter: 0,
-      self: whenSystemName,
-      matchingName: otherwiseSystemName,
-    })
-  );
-  if (otherWiseIndex > -1) {
-    return otherWiseIndex + currentIndex;
+  const {operations} = scope;
+  let depth = 0;
+  for (let i = scope.currentIndex + 1; i < operations.length; i++) {
+    const {systemName} = operations[i];
+    if (systemName === whenSystemName) {
+      depth++;
+    } else if (systemName === endWhenSystemName) {
+      if (depth === 0) {
+        return i;
+      }
+      depth--;
+    } else if (systemName === otherwiseSystemName && depth === 0) {
+      return i;
+    }
   }
-
-  const endWhenIndex = list.findIndex(
-    findMatchingOperationIndex.bind({
-      counter: 0,
-      self: whenSystemName,
-      matchingName: endWhenSystemName,
-    })
-  );
-
-  return endWhenIndex > -1
-    ? endWhenIndex + currentIndex
-    : scope.operations.length;
+  return operations.length;
 }
 
 export const whenSystemName = 'when';
