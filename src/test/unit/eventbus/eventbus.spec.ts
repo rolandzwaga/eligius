@@ -292,15 +292,303 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       throw new Error('boom');
     });
     eventbus.once('timeline-seek-request', throwingHandler);
+    vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // test
-    expect(() => eventbus.broadcast('timeline-seek-request', [1])).toThrow(
-      'boom'
-    );
+    eventbus.broadcast('timeline-seek-request', [1]);
     eventbus.broadcast('timeline-seek-request', [2]);
 
     // expect
     expect(throwingHandler).toHaveBeenCalledTimes(1);
+  });
+
+  describe('handler error isolation', () => {
+    const SECRET = 'user-secret-value';
+
+    const flushMicrotasks = () => new Promise(resolve => setTimeout(resolve));
+
+    test<EventbusSuiteContext>('given a handler that throws before another handler, when the event is broadcast, then the later handler is still called', context => {
+      // given
+      const {eventbus} = context;
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const laterHandler = vi.fn();
+      eventbus.on('timeline-seek-request', () => {
+        throw new Error('boom');
+      });
+      eventbus.on('timeline-seek-request', laterHandler);
+
+      // test
+      eventbus.broadcast('timeline-seek-request', [1]);
+
+      // expect
+      expect(laterHandler).toHaveBeenCalledWith(1);
+    });
+
+    test<EventbusSuiteContext>('given a handler that throws, when the event is broadcast, then broadcast does not throw', context => {
+      // given
+      const {eventbus} = context;
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      eventbus.on('timeline-seek-request', () => {
+        throw new Error('boom');
+      });
+
+      // test + expect
+      expect(() =>
+        eventbus.broadcast('timeline-seek-request', [1])
+      ).not.toThrow();
+    });
+
+    test<EventbusSuiteContext>('given a handler that throws, when the event is broadcast, then console.error names the event and includes the error but not the event arguments', context => {
+      // given
+      const {eventbus} = context;
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const error = new Error('boom');
+      eventbus.on('timeline-seek-request', () => {
+        throw error;
+      });
+
+      // test
+      eventbus.broadcast('timeline-seek-request', [SECRET as any]);
+
+      // expect
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      const [message, ...rest] = consoleError.mock.calls[0];
+      expect(message).toContain('"timeline-seek-request"');
+      expect(rest).toContain(error);
+      expect(JSON.stringify(consoleError.mock.calls)).not.toContain(SECRET);
+    });
+
+    test<EventbusSuiteContext>('given a topic handler that throws, when the event is broadcast for that topic, then console.error names the topic', context => {
+      // given
+      const {eventbus} = context;
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      eventbus.on(
+        'timeline-seek-request',
+        () => {
+          throw new Error('boom');
+        },
+        'timeline-1'
+      );
+
+      // test
+      eventbus.broadcastForTopic('timeline-seek-request', 'timeline-1', [1]);
+
+      // expect
+      expect(consoleError.mock.calls[0][0]).toContain('"timeline-1"');
+    });
+
+    test<EventbusSuiteContext>('given a listener that throws, when an event is broadcast, then later listeners and the handlers are still called', context => {
+      // given
+      const {eventbus} = context;
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const laterListener = {handleEvent: vi.fn()};
+      const handler = vi.fn();
+      eventbus.registerEventlistener({
+        handleEvent: () => {
+          throw new Error('listener boom');
+        },
+      });
+      eventbus.registerEventlistener(laterListener);
+      eventbus.on('timeline-seek-request', handler);
+
+      // test
+      expect(() =>
+        eventbus.broadcast('timeline-seek-request', [1])
+      ).not.toThrow();
+
+      // expect
+      expect(laterListener.handleEvent).toHaveBeenCalledTimes(1);
+      expect(handler).toHaveBeenCalledWith(1);
+      expect(consoleError).toHaveBeenCalledTimes(1);
+    });
+
+    test<EventbusSuiteContext>('given an interceptor that throws, when an event is broadcast, then later interceptors run and handlers receive the arguments from before the failing interceptor', context => {
+      // given
+      const {eventbus} = context;
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const laterInterceptor = {intercept: vi.fn((args: any[]) => args)};
+      const handler = vi.fn();
+      eventbus.registerInterceptor('timeline-seek-request', {
+        intercept: () => {
+          throw new Error('interceptor boom');
+        },
+      });
+      eventbus.registerInterceptor('timeline-seek-request', laterInterceptor);
+      eventbus.on('timeline-seek-request', handler);
+
+      // test
+      expect(() =>
+        eventbus.broadcast('timeline-seek-request', [7])
+      ).not.toThrow();
+
+      // expect
+      expect(laterInterceptor.intercept).toHaveBeenCalledWith([7]);
+      expect(handler).toHaveBeenCalledWith(7);
+    });
+
+    test('given an onHandlerError option, when a handler throws, then the hook receives the error and the event context without the event arguments', () => {
+      // given
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const onHandlerError = vi.fn();
+      const eventbus = new Eventbus({onHandlerError});
+      const error = new Error('boom');
+      eventbus.on(
+        'timeline-seek-request',
+        () => {
+          throw error;
+        },
+        'timeline-1'
+      );
+
+      // test
+      eventbus.broadcastForTopic('timeline-seek-request', 'timeline-1', [
+        SECRET as any,
+      ]);
+
+      // expect
+      expect(onHandlerError).toHaveBeenCalledTimes(1);
+      expect(onHandlerError).toHaveBeenCalledWith(error, {
+        eventName: 'timeline-seek-request',
+        eventTopic: 'timeline-1',
+        source: 'handler',
+      });
+    });
+
+    test('given an onHandlerError option, when an interceptor and a listener throw, then the hook reports each with its source', () => {
+      // given
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const onHandlerError = vi.fn();
+      const eventbus = new Eventbus({onHandlerError});
+      eventbus.registerInterceptor('timeline-seek-request', {
+        intercept: () => {
+          throw new Error('interceptor boom');
+        },
+      });
+      eventbus.registerEventlistener({
+        handleEvent: () => {
+          throw new Error('listener boom');
+        },
+      });
+
+      // test
+      eventbus.broadcast('timeline-seek-request', [1]);
+
+      // expect
+      expect(onHandlerError.mock.calls.map(call => call[1].source)).toEqual([
+        'interceptor',
+        'listener',
+      ]);
+    });
+
+    test('given an onHandlerError hook that throws, when a handler throws, then broadcast does not throw and both errors are logged', () => {
+      // given
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const eventbus = new Eventbus({
+        onHandlerError: () => {
+          throw new Error('hook boom');
+        },
+      });
+      const laterHandler = vi.fn();
+      eventbus.on('timeline-seek-request', () => {
+        throw new Error('boom');
+      });
+      eventbus.on('timeline-seek-request', laterHandler);
+
+      // test
+      expect(() =>
+        eventbus.broadcast('timeline-seek-request', [1])
+      ).not.toThrow();
+
+      // expect
+      expect(laterHandler).toHaveBeenCalledTimes(1);
+      expect(consoleError).toHaveBeenCalledTimes(2);
+    });
+
+    test('given an onHandlerError option, when clear() is called, then the hook still receives handler errors', () => {
+      // given
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const onHandlerError = vi.fn();
+      const eventbus = new Eventbus({onHandlerError});
+      eventbus.clear();
+      eventbus.on('timeline-seek-request', () => {
+        throw new Error('boom');
+      });
+
+      // test
+      eventbus.broadcast('timeline-seek-request', [1]);
+
+      // expect
+      expect(onHandlerError).toHaveBeenCalledTimes(1);
+    });
+
+    test('given an async handler that rejects, when the event is broadcast, then the rejection is reported to console.error and the hook', async () => {
+      // given
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const onHandlerError = vi.fn();
+      const eventbus = new Eventbus({onHandlerError});
+      const error = new Error('async boom');
+      eventbus.on('timeline-seek-request', async () => {
+        throw error;
+      });
+
+      // test
+      eventbus.broadcast('timeline-seek-request', [1]);
+      await flushMicrotasks();
+
+      // expect
+      expect(consoleError).toHaveBeenCalledTimes(1);
+      expect(consoleError.mock.calls[0]).toContain(error);
+      expect(onHandlerError).toHaveBeenCalledWith(error, {
+        eventName: 'timeline-seek-request',
+        eventTopic: undefined,
+        source: 'handler',
+      });
+    });
+
+    test<EventbusSuiteContext>('given an async once handler that rejects, when the event is broadcast, then the rejection is reported', async context => {
+      // given
+      const {eventbus} = context;
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      eventbus.once('timeline-seek-request', async () => {
+        throw new Error('async boom');
+      });
+
+      // test
+      eventbus.broadcast('timeline-seek-request', [1]);
+      await flushMicrotasks();
+
+      // expect
+      expect(consoleError).toHaveBeenCalledTimes(1);
+    });
+
+    test<EventbusSuiteContext>('given a request responder that throws, when a request is made, then the error propagates to the requester and is not logged', context => {
+      // given
+      const {eventbus} = context;
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      eventbus.onRequest('request-current-timeline-position', () => {
+        throw new Error('responder boom');
+      });
+
+      // test + expect
+      expect(() =>
+        eventbus.request<number>('request-current-timeline-position')
+      ).toThrow('responder boom');
+      expect(consoleError).not.toHaveBeenCalled();
+    });
   });
 
   describe('request/onRequest', () => {

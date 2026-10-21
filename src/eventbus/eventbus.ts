@@ -2,10 +2,14 @@ import type {
   IEventbus,
   IEventbusInterceptor,
   IEventbusListener,
+  IEventbusOptions,
+  TEventbusErrorHandler,
+  TEventbusErrorSource,
   TEventbusRemover,
   TEventHandler,
   TRequestResponder,
 } from '@eventbus/types.ts';
+import {isPromise} from '@util/guards/is-promise.ts';
 
 /**
  * Central event bus for pub/sub communication and synchronous request/response queries.
@@ -28,14 +32,33 @@ import type {
  * eventbus.onRequest('request-instance', (name) => new MyClass(name));
  * const instance = eventbus.request<MyClass>('request-instance', 'test');
  * ```
+ *
+ * Broadcasts isolate errors: a handler, listener or interceptor that throws, or
+ * returns a promise that rejects, is reported and the others still run. Request
+ * responders are not isolated; their errors reach the requester.
+ *
+ * @example Observing handler errors
+ * ```ts
+ * const eventbus = new Eventbus({
+ *   onHandlerError: (error, {eventName, eventTopic, source}) =>
+ *     myLogger.warn(`${source} failed for ${eventName}`, error),
+ * });
+ * ```
  */
 export class Eventbus implements IEventbus {
   private eventHandlers = new Map<string, TEventHandler[]>();
   private eventInterceptors = new Map<string, IEventbusInterceptor[]>();
   private eventListeners: IEventbusListener[] = [];
   private requestResponders = new Map<string, TRequestResponder[]>();
+  private readonly onHandlerError: TEventbusErrorHandler | undefined;
 
-  constructor() {
+  /**
+   * @param options - Optional settings. `onHandlerError` observes errors raised
+   * by handlers, listeners and interceptors during a broadcast. It survives
+   * {@link Eventbus.clear}.
+   */
+  constructor(options?: IEventbusOptions) {
+    this.onHandlerError = options?.onHandlerError;
     this.clear();
   }
 
@@ -98,7 +121,9 @@ export class Eventbus implements IEventbus {
       }
       called = true;
       this.off(eventName, eventHandlerDecorator, eventTopic);
-      eventHandler(...args);
+      // Return the result so a rejected promise from an async handler reaches
+      // the dispatcher and gets reported.
+      return eventHandler(...args);
     };
     this.on(eventName, eventHandlerDecorator, eventTopic);
     return () => {
@@ -216,23 +241,93 @@ export class Eventbus implements IEventbus {
     if (handlers) {
       const interceptors = this._getEventInterceptors(eventName, eventTopic);
 
-      interceptors.forEach(interceptor => {
-        args = interceptor.intercept(args);
-      });
+      // Each interceptor, listener and handler is isolated: one that throws is
+      // reported and the rest still run, so a faulty controller cannot abort
+      // dispatch or throw into the engine code that broadcast the event.
+      for (const interceptor of interceptors) {
+        try {
+          args = interceptor.intercept(args);
+        } catch (error) {
+          this._reportError(error, eventName, eventTopic, 'interceptor');
+        }
+      }
 
-      this.eventListeners.forEach((listener: IEventbusListener) => {
-        listener.handleEvent(eventName, eventTopic, args);
-      });
+      for (const listener of this.eventListeners) {
+        try {
+          this._watchResult(
+            listener.handleEvent(eventName, eventTopic, args),
+            eventName,
+            eventTopic,
+            'listener'
+          );
+        } catch (error) {
+          this._reportError(error, eventName, eventTopic, 'listener');
+        }
+      }
 
       // Iterate a snapshot: handlers that call off() (or once() wrappers that
-      // remove themselves) during dispatch would otherwise make forEach skip
+      // remove themselves) during dispatch would otherwise make the loop skip
       // the handler that moves into the freed slot.
       const snapshot = handlers.slice();
-      if (args?.length) {
-        snapshot.forEach((handler: TEventHandler) => handler(...args));
-      } else {
-        snapshot.forEach((handler: TEventHandler) => handler());
+      const hasArgs = args?.length > 0;
+      for (const handler of snapshot) {
+        try {
+          this._watchResult(
+            hasArgs ? handler(...args) : handler(),
+            eventName,
+            eventTopic,
+            'handler'
+          );
+        } catch (error) {
+          this._reportError(error, eventName, eventTopic, 'handler');
+        }
       }
+    }
+  }
+
+  /**
+   * Handlers are typed to return void, but async ones return a promise that
+   * nobody awaits. Report its rejection like a synchronous throw.
+   */
+  private _watchResult(
+    result: unknown,
+    eventName: string,
+    eventTopic: string | undefined,
+    source: TEventbusErrorSource
+  ): void {
+    if (result && isPromise(result)) {
+      result.then(undefined, error =>
+        this._reportError(error, eventName, eventTopic, source)
+      );
+    }
+  }
+
+  /**
+   * Logs the error with the event name and topic, never the event arguments
+   * (they can carry configuration or user data), then passes it to the
+   * `onHandlerError` option.
+   */
+  private _reportError(
+    error: unknown,
+    eventName: string,
+    eventTopic: string | undefined,
+    source: TEventbusErrorSource
+  ): void {
+    const topic = eventTopic ? ` (topic "${eventTopic}")` : '';
+    console.error(
+      `Error in eventbus ${source} for "${eventName}"${topic}:`,
+      error
+    );
+    if (!this.onHandlerError) {
+      return;
+    }
+    try {
+      this.onHandlerError(error, {eventName, eventTopic, source});
+    } catch (hookError) {
+      console.error(
+        `Error in eventbus onHandlerError for "${eventName}"${topic}:`,
+        hookError
+      );
     }
   }
 }
