@@ -205,10 +205,67 @@ export interface IEngineFactoryOptions {
    */
   engineOptions?: IEligiusEngineOptions;
   /**
+   * Keyboard and window input bindings for every engine the factory
+   * creates. Leave it out for the defaults: space toggles playback, and a
+   * window resize broadcasts `timeline-resize`.
+   *
+   * @example
+   * ```ts
+   * // An embedded widget: no page-wide space key, no resize listener
+   * new EngineFactory(importer, window, {
+   *   input: {playToggle: 'k', scope: 'engineRoot', resize: false},
+   * });
+   * ```
+   */
+  input?: IEngineInputOptions;
+  /**
    * The hotkey that toggles playback (hotkeys-js syntax), or `false` for
-   * none. Defaults to `'space'`.
+   * none. Defaults to `'space'`. `input.playToggle` wins when both are set.
+   *
+   * @deprecated Use {@link IEngineInputOptions.playToggle | input.playToggle}.
    */
   playToggleHotkey?: string | false;
+}
+
+/**
+ * Where the play toggle hotkey of an engine listens:
+ * - `'document'`: while the focus is inside the engine root, or while
+ *   nothing has focus. When several engines on a page bind the same key,
+ *   a press while nothing has focus toggles only one of them: the engine
+ *   the user last clicked or focused inside, otherwise the first one
+ *   created.
+ * - `'engineRoot'`: only while the focus is inside the engine root.
+ *
+ * In both scopes the key is left alone while the focus is on a button,
+ * link or form field, or before the engine has an active timeline.
+ */
+export type TEngineInputScope = 'document' | 'engineRoot';
+
+/**
+ * Keyboard and window input bindings of a factory-created engine; see
+ * {@link IEngineFactoryOptions.input}.
+ */
+export interface IEngineInputOptions {
+  /**
+   * The hotkey that toggles playback, in hotkeys-js syntax (for example
+   * `'space'`, `'k'` or `'ctrl+p, command+p'`), or `false` for none.
+   * Defaults to `'space'`.
+   *
+   * The key is bound in the hotkeys-js `'all'` scope, so it keeps working
+   * whatever scope a KeyboardStepSource or the host page sets. The
+   * hotkeys-js global `filter` still applies.
+   */
+  playToggle?: string | false;
+  /**
+   * Whether a (debounced) window resize broadcasts `timeline-resize`.
+   * Defaults to `true`.
+   */
+  resize?: boolean;
+  /**
+   * Where the play toggle hotkey listens; see {@link TEngineInputScope}.
+   * Defaults to `'document'`.
+   */
+  scope?: TEngineInputScope;
 }
 
 /**
