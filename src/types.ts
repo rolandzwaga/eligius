@@ -60,7 +60,41 @@ export type EngineEvents = {
 
   /** Engine destroyed */
   destroyed: [];
+
+  /**
+   * A timeline action that the engine started or ended on its own (from a
+   * position update, `stop()` or `request-timeline-cleanup`) failed. When
+   * nothing listens to this event the engine logs the error message instead.
+   */
+  error: [error: IEngineActionError];
 };
+
+/**
+ * The phase of an action in which an error occurred.
+ */
+export type TActionPhase = 'start' | 'end';
+
+/**
+ * Error reported through the engine's `error` event (and the `engine-error`
+ * eventbus event) when a timeline action dispatched by the engine fails.
+ *
+ * The message names the action, the phase and, when the original error
+ * carries it, the operation, followed by the original message.
+ */
+export interface IEngineActionError extends Error {
+  /** Name of the failing action */
+  readonly actionName: string;
+  /** Id of the failing action */
+  readonly actionId: string;
+  /** Whether the start or the end operations failed */
+  readonly phase: TActionPhase;
+  /** System name of the failing operation, when known */
+  readonly operationSystemName?: string;
+  /** Index of the failing operation in its operation list, when known */
+  readonly operationIndex?: number;
+  /** The original error */
+  readonly cause: unknown;
+}
 
 export type KeysOfType<T, U> = {
   [P in keyof T]-?: T[P] extends U | undefined ? P : never;

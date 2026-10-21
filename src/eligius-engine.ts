@@ -1,4 +1,4 @@
-import type {IEndableAction, ITimelineAction} from '@action/types.ts';
+import type {IAction, IEndableAction, ITimelineAction} from '@action/types.ts';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
@@ -9,6 +9,7 @@ import type {
   TEventbusRemover,
   TEventHandler,
 } from '@eventbus/types.ts';
+import {detachControllersWithin} from '@operation/helper/detach-controllers-within.ts';
 import type {
   IContainerProvider,
   IPlaylist,
@@ -21,10 +22,93 @@ import type {ILocaleManager} from './locale/types.ts';
 import type {
   EngineEvents,
   IEligiusEngine,
+  IEngineActionError,
   ITimelineProviderInfo,
+  TActionPhase,
   TimelineTypes,
   TResultCallback,
 } from './types.ts';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Errors
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Error emitted through the engine's `error` event when a timeline action that
+ * the engine started or ended on its own fails.
+ *
+ * The original error is kept as `cause`. When it carries
+ * `operationSystemName` and `operationIndex` properties, they are copied, and
+ * the message names the operation.
+ *
+ * @example
+ * ```typescript
+ * engine.on('error', error => {
+ *   reportToMonitoring(error.message, error.cause);
+ * });
+ * // error.message: "Error in action start 'ShowTitle': ..."
+ * ```
+ */
+export class EngineActionError extends Error implements IEngineActionError {
+  readonly actionName: string;
+  readonly actionId: string;
+  readonly phase: TActionPhase;
+  readonly operationSystemName?: string;
+  readonly operationIndex?: number;
+  readonly cause: unknown;
+
+  /**
+   * @param action - The failing action
+   * @param phase - Whether its start or its end operations failed
+   * @param cause - The original error
+   */
+  constructor(
+    action: Pick<IAction, 'id' | 'name'>,
+    phase: TActionPhase,
+    cause: unknown
+  ) {
+    const {operationSystemName, operationIndex} = readOperationContext(cause);
+    const operation =
+      operationSystemName === undefined
+        ? ''
+        : ` at operation '${operationSystemName}'${
+            operationIndex === undefined ? '' : ` (index ${operationIndex})`
+          }`;
+    super(
+      `Error in action ${phase} '${action.name}'${operation}: ${describeCause(cause)}`
+    );
+    this.name = 'EngineActionError';
+    this.actionName = action.name;
+    this.actionId = action.id;
+    this.phase = phase;
+    this.operationSystemName = operationSystemName;
+    this.operationIndex = operationIndex;
+    this.cause = cause;
+  }
+}
+
+function readOperationContext(cause: unknown): {
+  operationSystemName?: string;
+  operationIndex?: number;
+} {
+  if (typeof cause !== 'object' || cause === null) {
+    return {};
+  }
+  const {operationSystemName, operationIndex} = cause as Record<
+    string,
+    unknown
+  >;
+  return {
+    operationSystemName:
+      typeof operationSystemName === 'string' ? operationSystemName : undefined,
+    operationIndex:
+      typeof operationIndex === 'number' ? operationIndex : undefined,
+  };
+}
+
+function describeCause(cause: unknown): string {
+  return cause instanceof Error ? cause.message : String(cause);
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Type Guards
@@ -78,6 +162,16 @@ interface IScheduledActionEvent {
    */
   order: 0 | 1 | 2;
   action: ITimelineAction;
+}
+
+/**
+ * A start that a position update decided on but has not run yet, because it
+ * waits for the ends of the same update to finish.
+ */
+interface IPendingStart {
+  action: ITimelineAction;
+  /** The update that passed its end came before the start could run */
+  endAfterStart: boolean;
 }
 
 const noop = () => {};
@@ -151,6 +245,13 @@ export class EligiusEngine implements IEligiusEngine {
   private _pendingStopCleanup: Promise<void> | undefined = undefined;
   /** Serialises timeline switches */
   private _switchQueue: Promise<void> = Promise.resolve();
+  /**
+   * Starts waiting for the ends of their position update. Seeking, stopping,
+   * switching, cleanup and destroy clear it, which cancels them.
+   */
+  private _pendingStarts: Map<ITimelineAction, IPendingStart> = new Map();
+  /** Live `error` subscriptions, to log errors nobody listens to */
+  private _errorSubscriptions: Set<object> = new Set();
   private _emitter = new TypedEventEmitter<EngineEvents>();
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -218,7 +319,12 @@ export class EligiusEngine implements IEligiusEngine {
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
-   * Subscribe to engine events
+   * Subscribe to engine events.
+   *
+   * Errors of timeline actions that the engine starts or ends on its own are
+   * reported through the `error` event; while it has no subscribers they are
+   * logged with `console.error` instead.
+   *
    * @param event - Event name
    * @param handler - Event handler
    * @returns Unsubscribe function
@@ -227,7 +333,17 @@ export class EligiusEngine implements IEligiusEngine {
     event: K,
     handler: (...args: EngineEvents[K]) => void
   ): () => void {
-    return this._emitter.on(event, handler);
+    const unsubscribe = this._emitter.on(event, handler);
+    if (event !== 'error') {
+      return unsubscribe;
+    }
+
+    const subscription = {};
+    this._errorSubscriptions.add(subscription);
+    return () => {
+      this._errorSubscriptions.delete(subscription);
+      unsubscribe();
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -270,7 +386,7 @@ export class EligiusEngine implements IEligiusEngine {
    * The position source is deactivated and the 'stop' event is emitted
    * synchronously. The active timeline actions are then ended; the returned
    * promise resolves when their end operations have finished. Errors in end
-   * operations are logged, not rethrown.
+   * operations are reported through the `error` event, not rethrown.
    */
   stop(): Promise<void> {
     if (!this._activePositionSource) {
@@ -279,17 +395,16 @@ export class EligiusEngine implements IEligiusEngine {
 
     this._activePositionSource.deactivate();
     this._lastPosition = -1;
+    this._pendingStarts.clear();
     this._emitter.emit('stop');
 
-    const cleanup: Promise<void> = this._cleanUpTimeline()
-      .catch(error => {
-        console.error('Error while ending timeline actions on stop', error);
-      })
-      .finally(() => {
+    const cleanup: Promise<void> = this._endActiveActionsReporting().finally(
+      () => {
         if (this._pendingStopCleanup === cleanup) {
           this._pendingStopCleanup = undefined;
         }
-      });
+      }
+    );
     this._pendingStopCleanup = cleanup;
     return cleanup;
   }
@@ -313,6 +428,9 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     this._emitter.emit('seekStart', position, currentPosition, duration);
+    // Starts still waiting for an earlier update are superseded by the
+    // reconciliation below.
+    this._pendingStarts.clear();
 
     await this._seekSource(source, position);
     // The seek target is reconciled below; the position update the source
@@ -372,6 +490,7 @@ export class EligiusEngine implements IEligiusEngine {
 
     const previousUri = this._currentTimelineUri;
     previousSource.deactivate();
+    this._pendingStarts.clear();
     await this._cleanUpTimeline(previousUri);
 
     this._currentTimelineUri = timelineConfig.uri;
@@ -563,6 +682,8 @@ export class EligiusEngine implements IEligiusEngine {
    * Cleans up all the necessary parts that the engine initialized.
    * - It stops the active position source.
    * - It ends the currently active timeline actions and the init actions.
+   * - It detaches the controllers still attached to elements inside the
+   *   engine root (those that no end operation removed).
    * - It removes all its eventbus listeners.
    * - It destroys all of its position sources and container providers.
    * - It empties the HTML element indicated by the containerSelector configuration property.
@@ -583,6 +704,7 @@ export class EligiusEngine implements IEligiusEngine {
     // Stop the clock first, so no tick starts actions while others end.
     const activeSource = this._activePositionSource;
     attempt(() => activeSource?.deactivate());
+    this._pendingStarts.clear();
 
     await this._endActionsSettled(
       this._getActiveActions(this._getTimelineActionsForCurrentTimeline()),
@@ -592,6 +714,17 @@ export class EligiusEngine implements IEligiusEngine {
       [...(this.configuration.initActions ?? [])].reverse(),
       errors
     );
+
+    // After the end operations, so a removeControllerFromElement in them
+    // still finds its controller.
+    attempt(() => {
+      errors.push(
+        ...detachControllersWithin(
+          $(this.configuration.containerSelector),
+          this.eventbus
+        )
+      );
+    });
 
     attempt(() => this.localeManager.destroy());
 
@@ -623,6 +756,7 @@ export class EligiusEngine implements IEligiusEngine {
 
     attempt(() => this._emitter.emit('destroyed'));
     this._emitter.removeAllListeners();
+    this._errorSubscriptions.clear();
 
     if (errors.length === 1) {
       throw errors[0];
@@ -836,9 +970,54 @@ export class EligiusEngine implements IEligiusEngine {
   }
 
   private _handleTimelineComplete() {
-    this._cleanUpTimeline().catch(error => {
-      console.error('Error while ending timeline actions on cleanup', error);
-    });
+    this._pendingStarts.clear();
+    this._endActiveActionsReporting();
+  }
+
+  /**
+   * Ends every active action of the current timeline, highest start position
+   * first, reporting failures through the `error` event. The returned promise
+   * never rejects.
+   */
+  private async _endActiveActionsReporting(): Promise<void> {
+    const actions = this._getActiveActions(
+      this._getTimelineActionsForCurrentTimeline()
+    );
+    for (const action of actions) {
+      await this._runActionMethod(action, 'end');
+    }
+  }
+
+  /**
+   * Calls the start or end of an action that the engine dispatches on its
+   * own, routing a failure to the `error` event. The returned promise never
+   * rejects.
+   */
+  private _runActionMethod(
+    action: IEndableAction,
+    phase: TActionPhase
+  ): Promise<void> {
+    try {
+      return Promise.resolve(action[phase]()).then(noop, error =>
+        this._reportActionError(action, phase, error)
+      );
+    } catch (error) {
+      this._reportActionError(action, phase, error);
+      return Promise.resolve();
+    }
+  }
+
+  private _reportActionError(
+    action: IEndableAction,
+    phase: TActionPhase,
+    cause: unknown
+  ) {
+    const error = new EngineActionError(action, phase, cause);
+    if (this._errorSubscriptions.size > 0) {
+      this._emitter.emit('error', error);
+    } else {
+      console.error(error.message);
+    }
   }
 
   private _getTimelineActionsForCurrentTimeline() {
@@ -889,12 +1068,18 @@ export class EligiusEngine implements IEligiusEngine {
    * Dispatches the timeline actions whose start or end lies between the
    * previous and the current position.
    *
-   * Moving forward, every start and end in `(from, to]` fires in position
-   * order, so skipped frames and coarse sources (video timeupdate, scroll,
-   * keyboard steps) never miss an action. Moving backward, the actions whose
-   * range no longer covers the position are ended and the ones that cover it
-   * again are started, like a seek. Actions track their own `active` state,
-   * so revisiting a key never runs a start or end twice.
+   * Moving forward, every start and end in `(from, to]` is processed in
+   * position order, so skipped frames and coarse sources (video timeupdate,
+   * scroll, keyboard steps) never miss an action. Moving backward, the
+   * actions whose range no longer covers the position are ended and the ones
+   * that cover it again are started, like a seek. Actions track their own
+   * `active` state, so revisiting a key never runs a start or end twice.
+   *
+   * Within one update all ends run before any start: when the update ends
+   * actions, its starts wait (as pending starts) until those ends have
+   * settled. An action whose start and end both lie in the update (a skipped
+   * or zero-length range) is ended right after it is started. Nothing is
+   * awaited here; failures are reported through the `error` event.
    */
   private _dispatchActionsBetween(from: number, to: number) {
     const events = this._timelineSchedules.get(this._currentTimelineUri);
@@ -902,38 +1087,87 @@ export class EligiusEngine implements IEligiusEngine {
       return;
     }
 
+    const pending = this._pendingStarts;
+    const ends: ITimelineAction[] = [];
+    const starts: IPendingStart[] = [];
+    const addStart = (action: ITimelineAction) => {
+      const start: IPendingStart = {action, endAfterStart: false};
+      pending.set(action, start);
+      starts.push(start);
+    };
+
     if (to > from) {
       const last = upperBound(events, to);
       for (let i = upperBound(events, from); i < last; i++) {
         const {action, isStart} = events[i];
         if (isStart) {
-          if (!action.active) {
-            fireAndForget(action, 'start');
+          if (!action.active && !pending.has(action)) {
+            addStart(action);
           }
         } else if (action.active) {
-          fireAndForget(action, 'end');
+          ends.push(action);
+        } else {
+          const start = pending.get(action);
+          if (start) {
+            start.endAfterStart = true;
+          }
         }
       }
+    } else {
+      const toStart: ITimelineAction[] = [];
+      const first = upperBound(events, to);
+      for (let i = upperBound(events, from) - 1; i >= first; i--) {
+        const {action, isStart} = events[i];
+        if (isStart) {
+          if (action.active) {
+            ends.push(action);
+          } else {
+            // Back before its start: a start that is still waiting is dropped.
+            pending.delete(action);
+          }
+        } else if (!action.active && action.duration.start <= to) {
+          const start = pending.get(action);
+          if (start) {
+            start.endAfterStart = false;
+          } else {
+            toStart.push(action);
+          }
+        }
+      }
+      toStart
+        .sort((a, b) => a.duration.start - b.duration.start)
+        .forEach(addStart);
+    }
+
+    if (!ends.length) {
+      this._runPendingStarts(starts);
       return;
     }
 
-    const toEnd: ITimelineAction[] = [];
-    const toStart: ITimelineAction[] = [];
-    const first = upperBound(events, to);
-    for (let i = upperBound(events, from) - 1; i >= first; i--) {
-      const {action, isStart} = events[i];
-      if (isStart) {
-        if (action.active) {
-          toEnd.push(action);
-        }
-      } else if (!action.active && action.duration.start <= to) {
-        toStart.push(action);
+    const endsSettled = ends.map(action =>
+      this._runActionMethod(action, 'end')
+    );
+    if (starts.length) {
+      Promise.all(endsSettled).then(() => this._runPendingStarts(starts));
+    }
+  }
+
+  /**
+   * Runs the given pending starts that are still pending; seeking, stopping,
+   * switching, cleanup, destroy or a later update may have cancelled them.
+   */
+  private _runPendingStarts(starts: IPendingStart[]) {
+    for (const start of starts) {
+      const {action} = start;
+      if (this._pendingStarts.get(action) !== start) {
+        continue;
+      }
+      this._pendingStarts.delete(action);
+      this._runActionMethod(action, 'start');
+      if (start.endAfterStart) {
+        this._runActionMethod(action, 'end');
       }
     }
-    toEnd.forEach(action => fireAndForget(action, 'end'));
-    toStart
-      .sort((a, b) => a.duration.start - b.duration.start)
-      .forEach(action => fireAndForget(action, 'start'));
   }
 
   /**
@@ -951,14 +1185,6 @@ export class EligiusEngine implements IEligiusEngine {
     await this._executeActions(actionsToEnd, 'end');
     await this._executeActions(actionsToStart, 'start');
   }
-}
-
-/**
- * Runs an action method from the position callback without blocking it.
- * Actions log their own errors, so a rejection is not reported again.
- */
-function fireAndForget(action: ITimelineAction, method: 'start' | 'end') {
-  Promise.resolve(action[method]()).catch(noop);
 }
 
 const sortActionsHighestStartPositionFirst = (

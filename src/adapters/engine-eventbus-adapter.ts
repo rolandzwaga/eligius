@@ -6,7 +6,8 @@ import type {IAdapter} from './types.ts';
  * Bridges EligiusEngine to/from the eventbus.
  *
  * This adapter:
- * - Forwards engine events to eventbus broadcasts
+ * - Forwards engine events to eventbus broadcasts (the engine `error` event
+ *   becomes `engine-error`)
  * - Forwards eventbus commands to engine methods
  * - Handles eventbus state queries by reading engine properties
  */
@@ -91,6 +92,10 @@ export class EngineEventbusAdapter implements IAdapter {
 
     this._onEngineEvent('timelineRestart', () => {
       this._eventbus.broadcast('timeline-restart', []);
+    });
+
+    this._onEngineEvent('error', error => {
+      this._eventbus.broadcast('engine-error', [error]);
     });
   }
 
