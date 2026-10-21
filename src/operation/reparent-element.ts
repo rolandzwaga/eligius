@@ -16,7 +16,8 @@ export interface IReparentElementOperationData {
 
 /**
  * This operation moves the given selected element to the new parent that is defined
- * by the specified `newParentSelector`.
+ * by the specified `newParentSelector`. jQuery data, event handlers and attached controllers
+ * are preserved.
  *
  * @param operationData
  * @returns
@@ -29,6 +30,7 @@ export const reparentElement: TOperation<
 > = (operationData: IReparentElementOperationData) => {
   const {selectedElement, newParentSelector} = operationData;
   removeProperties(operationData, 'newParentSelector');
-  selectedElement.remove().appendTo(newParentSelector);
+  // appendTo moves the existing node; .remove() would strip its jQuery data and handlers
+  selectedElement.appendTo(newParentSelector);
   return operationData;
 };

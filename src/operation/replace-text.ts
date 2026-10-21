@@ -72,9 +72,14 @@ export const replaceText: TOperation<
   let count = 0;
 
   if (searchPattern instanceof RegExp) {
-    // Count matches for regex
-    const matches = textContent.match(searchPattern);
-    count = matches ? matches.length : 0;
+    // Count matches for regex. match() on a non-global regex returns the capture
+    // groups as well, and replace() then replaces only the first match, so count 1.
+    // A global match() starts from lastIndex 0, like replace() does.
+    count = searchPattern.global
+      ? (textContent.match(searchPattern)?.length ?? 0)
+      : textContent.search(searchPattern) >= 0
+        ? 1
+        : 0;
     newText = textContent.replace(searchPattern, replacement);
   } else {
     // Count matches for string

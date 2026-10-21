@@ -1,5 +1,6 @@
 import {animate} from '@operation/animate.ts';
 import {applyOperation} from '@util/apply-operation.ts';
+import $ from 'jquery';
 import {describe, expect, test, vi} from 'vitest';
 
 function createMockElement() {
@@ -86,5 +87,25 @@ describe('animate', () => {
     expect('animationEasing' in operationData).toBe(false);
     expect('animationProperties' in operationData).toBe(false);
     expect('animationDuration' in operationData).toBe(false);
+  });
+
+  test('given selectedElement is an empty jQuery set, when animate operation is applied, then the returned promise resolves with the operation data', async () => {
+    // given
+    const selectedElement = $('#does-not-exist');
+    const operationData = {
+      selectedElement,
+      animationProperties: {opacity: 0},
+      animationDuration: 10,
+    };
+
+    // test
+    const result = await Promise.race([
+      applyOperation(animate, operationData),
+      new Promise(resolve => setTimeout(() => resolve('timeout'), 100)),
+    ]);
+
+    // expect
+    expect(result).not.toBe('timeout');
+    expect((result as any).selectedElement).toBe(selectedElement);
   });
 });

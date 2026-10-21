@@ -118,4 +118,43 @@ describe('compareDate', () => {
     expect('date1' in operationData).toBe(false);
     expect('date2' in operationData).toBe(false);
   });
+
+  test('given date1 is the epoch timestamp 0 and date2 is now, when compareDate is called, then it returns -1 instead of throwing', () => {
+    const operationData: ICompareDateOperationData = {
+      date1: 0,
+      date2: Date.now(),
+      comparison: 0,
+      isEqual: false,
+      isBefore: false,
+      isAfter: false,
+    };
+
+    const result = applyOperation(compareDate, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    expect(result.comparison).toBe(-1);
+    expect(result.isBefore).toBe(true);
+  });
+
+  test('given an empty string date, when compareDate is called, then it throws that both dates are required', () => {
+    const operationData: ICompareDateOperationData = {
+      date1: '',
+      date2: 0,
+      comparison: 0,
+      isEqual: false,
+      isBefore: false,
+      isAfter: false,
+    };
+
+    expect(() => {
+      applyOperation(compareDate, operationData, {
+        currentIndex: 0,
+        eventbus: mockEventbus,
+        operations: [],
+      });
+    }).toThrow('compareDate: both dates are required');
+  });
 });

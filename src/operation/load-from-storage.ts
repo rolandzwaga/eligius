@@ -51,7 +51,7 @@ export interface ILoadFromStorageOperationData {
  */
 export const loadFromStorage: TOperation<
   ILoadFromStorageOperationData,
-  Omit<ILoadFromStorageOperationData, 'storageType'>
+  Omit<ILoadFromStorageOperationData, 'key' | 'storageType'>
 > = (operationData: ILoadFromStorageOperationData) => {
   const {key, storageType} = operationData;
 
@@ -74,7 +74,7 @@ export const loadFromStorage: TOperation<
     }
   }
 
-  removeProperties(operationData, 'storageType');
+  removeProperties(operationData, 'key', 'storageType');
 
   return operationData;
 };

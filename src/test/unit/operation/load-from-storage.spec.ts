@@ -155,4 +155,26 @@ describe('loadFromStorage', () => {
     // Assert
     expect('storageType' in operationData).toBe(false);
   });
+
+  test('given loadFromStorage with key and storageType, when the operation runs, then the returned operation data has no key property', () => {
+    // Arrange
+    localStorage.setItem('a', '1');
+    const operationData: ILoadFromStorageOperationData = {
+      key: 'a',
+      storageType: 'local',
+      loadedValue: undefined as any,
+    };
+
+    // Act
+    const result = applyOperation(loadFromStorage, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // Assert
+    expect('key' in result).toBe(false);
+    expect('storageType' in result).toBe(false);
+    expect(result.loadedValue).toBe(1);
+  });
 });

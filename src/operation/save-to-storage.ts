@@ -52,7 +52,7 @@ export interface ISaveToStorageOperationData {
  */
 export const saveToStorage: TOperation<
   ISaveToStorageOperationData,
-  Omit<ISaveToStorageOperationData, 'value' | 'storageType'>
+  Omit<ISaveToStorageOperationData, 'key' | 'value' | 'storageType'>
 > = (operationData: ISaveToStorageOperationData) => {
   const {key, value, storageType} = operationData;
 
@@ -64,7 +64,7 @@ export const saveToStorage: TOperation<
   const serialized = JSON.stringify(value);
   storage.setItem(key, serialized);
 
-  removeProperties(operationData, 'value', 'storageType');
+  removeProperties(operationData, 'key', 'value', 'storageType');
 
   return operationData;
 };

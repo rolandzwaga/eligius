@@ -42,7 +42,7 @@ export const compareDate: TOperation<
 > = (operationData: ICompareDateOperationData) => {
   const {date1, date2} = operationData;
 
-  if (!date1 || !date2) {
+  if (date1 == null || date1 === '' || date2 == null || date2 === '') {
     throw new Error('compareDate: both dates are required');
   }
 

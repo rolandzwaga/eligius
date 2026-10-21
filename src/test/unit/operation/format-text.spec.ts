@@ -164,4 +164,32 @@ describe('formatText', () => {
     // Assert
     expect('transformation' in operationData).toBe(false);
   });
+
+  test.each([
+    ["don't stop", "Don't Stop"],
+    ['émile zola', 'Émile Zola'],
+    ['it’s fine', 'It’s Fine'],
+    ['(hello) world-wide', '(Hello) World-Wide'],
+    ['3rd place', '3rd Place'],
+  ])(
+    'given textContent %j and transformation titlecase, when formatText runs, then formattedText is %j',
+    (textContent, expected) => {
+      // Arrange
+      const operationData: IFormatTextOperationData = {
+        textContent,
+        transformation: 'titlecase',
+        formattedText: '',
+      };
+
+      // Act
+      const result = applyOperation(formatText, operationData, {
+        currentIndex: 0,
+        eventbus: mockEventbus,
+        operations: [],
+      });
+
+      // Assert
+      expect(result.formattedText).toBe(expected);
+    }
+  );
 });

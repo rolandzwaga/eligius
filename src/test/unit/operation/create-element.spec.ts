@@ -130,4 +130,63 @@ describe('createElement', () => {
     expect('attributes' in newData).toBe(false);
     expect('text' in newData).toBe(false);
   });
+
+  test('given text resolved from operation data containing markup, when createElement is called, then the markup is set as text and not parsed', () => {
+    // given
+    const payload = '<img src=x onerror=alert(1)>';
+    const operationData = {
+      elementName: 'div',
+      queryParams: {name: payload},
+      text: '$operationdata.queryParams.name',
+    };
+
+    // test
+    const newData = applyOperation(createElement, operationData);
+
+    // expect
+    expect(newData.template.find('img').length).toBe(0);
+    expect(newData.template.children().length).toBe(0);
+    expect(newData.template.text()).toBe(payload);
+  });
+
+  test('given an attribute value containing a quote, when createElement is called, then it cannot break out of the attribute', () => {
+    // given
+    const payload = 'x" onmouseover="alert(1)';
+    const operationData = {
+      elementName: 'div',
+      attributes: {
+        title: payload,
+      },
+    };
+
+    // test
+    const newData = applyOperation(createElement, operationData as any);
+
+    // expect
+    expect(newData.template.attr('onmouseover')).toBeUndefined();
+    expect(newData.template.attr('title')).toBe(payload);
+  });
+
+  test('given an invalid element name, when createElement is called, then it throws an error naming the operation', () => {
+    // given
+    const operationData = {
+      elementName: 'img src=x onerror=alert(1)',
+    };
+
+    // test + expect
+    expect(() => applyOperation(createElement, operationData as any)).toThrow(
+      /createElement/
+    );
+  });
+
+  test('given a custom element name, when createElement is called, then the element is created', () => {
+    // given
+    const operationData = {elementName: 'my-widget'};
+
+    // test
+    const newData = applyOperation(createElement, operationData as any);
+
+    // expect
+    expect(newData.template.prop('outerHTML')).toBe('<my-widget></my-widget>');
+  });
 });
