@@ -495,4 +495,51 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
       expect(calls).toEqual([['engine-error', [error]]]);
     });
   });
+  describe('idempotent connect and failure reporting', () => {
+    test<AdapterSuiteContext>('given a connected adapter, when connect() is called again, then a command reaches the engine once', context => {
+      const {adapter, engine, eventbus} = context;
+
+      adapter.connect();
+      adapter.connect();
+      eventbus.broadcast('timeline-play-request', []);
+
+      expect(engine.start).toHaveBeenCalledTimes(1);
+    });
+
+    test<AdapterSuiteContext>('given an adapter that was disconnected, when connect() is called again, then commands reach the engine again', context => {
+      const {adapter, engine, eventbus} = context;
+
+      adapter.connect();
+      adapter.disconnect();
+      adapter.connect();
+      eventbus.broadcast('timeline-play-request', []);
+
+      expect(engine.start).toHaveBeenCalledTimes(1);
+    });
+
+    test<AdapterSuiteContext>('given a start() that rejects, when timeline-play-request is broadcast, then engine-command-error is broadcast with the command and the error', async context => {
+      const {adapter, engine, eventbus} = context;
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const blocked = new Error('autoplay blocked');
+      (engine.start as any).mockImplementation(() => Promise.reject(blocked));
+      const commandErrors = vi.fn();
+      eventbus.on('engine-command-error' as any, commandErrors);
+      adapter.connect();
+
+      eventbus.broadcast('timeline-play-request', []);
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(commandErrors).toHaveBeenCalledWith('start', blocked);
+    });
+
+    test<AdapterSuiteContext>('given a connected adapter, when it subscribes to the engine error event, then the subscription is forward-only', context => {
+      const {adapter, engine} = context;
+
+      adapter.connect();
+
+      expect(engine.on).toHaveBeenCalledWith('error', expect.any(Function), {
+        forwardOnly: true,
+      });
+    });
+  });
 });

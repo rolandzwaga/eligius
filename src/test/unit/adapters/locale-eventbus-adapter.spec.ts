@@ -274,6 +274,22 @@ describe<LocaleAdapterTestContext>('LocaleEventbusAdapter', () => {
       ]);
     });
   });
+
+  describe('idempotent connect', () => {
+    test<LocaleAdapterTestContext>('given a connected adapter, when connect() is called again, then it registers its listeners once', context => {
+      const {adapter, eventbus, localeManager} = context;
+
+      adapter.connect();
+      adapter.connect();
+
+      expect(localeManager.on).toHaveBeenCalledTimes(1);
+      expect(
+        (eventbus.on as any).mock.calls.filter(
+          (call: unknown[]) => call[0] === 'language-change'
+        )
+      ).toHaveLength(1);
+    });
+  });
 });
 
 /**

@@ -13,6 +13,9 @@ export class Action implements IAction {
    * Scope stack used by {@link executeOperation} when it is called without an
    * explicit stack. `start()` and `end()` each create their own stack, so
    * overlapping executions of the same action never share scopes.
+   *
+   * @deprecated Calling {@link executeOperation} without a scope stack is
+   * deprecated; this fallback will be removed in the next major version.
    */
   protected _scopeStack: IOperationScope[] = [];
   /**
@@ -28,23 +31,36 @@ export class Action implements IAction {
     protected eventbus: IEventbus
   ) {}
 
+  /**
+   * Runs the start operations.
+   *
+   * A failure is not logged here: the returned promise rejects with the
+   * error (annotated with the failing operation), and the caller reports it.
+   * The engine reports it through its `error` event, the eventbus through
+   * its `onHandlerError` option, and `init()` by rejecting.
+   *
+   * @param initOperationData - Operation data the first start operation receives
+   * @returns The operation data of the last start operation
+   */
   start(initOperationData?: TOperationData): Promise<TOperationData> {
-    return this._runOperations(this.startOperations, initOperationData).catch(
-      e => {
-        console.error(`Error in action start '${this.name}'`);
-        console.error(e);
-        throw e;
-      }
-    );
+    return this._runOperations(this.startOperations, initOperationData);
   }
 
   /**
    * Runs the given operations with a scope stack that belongs to this
    * execution only.
+   *
+   * @param operations - The operations to run
+   * @param initOperationData - Operation data the first operation receives
+   * @param onSettled - Called the moment the operations have completed or
+   * failed, before the returned promise settles. Operations that complete
+   * synchronously call it synchronously.
+   * @returns The operation data of the last operation
    */
   protected _runOperations(
     operations: IResolvedOperation[],
-    initOperationData?: TOperationData
+    initOperationData?: TOperationData,
+    onSettled?: () => void
   ): Promise<TOperationData> {
     const scopeStack = this._createScopeStack(operations);
 
@@ -52,8 +68,18 @@ export class Action implements IAction {
       this.executeOperation(
         operations,
         0,
-        resolve,
-        reject,
+        onSettled
+          ? value => {
+              onSettled();
+              resolve(value);
+            }
+          : resolve,
+        onSettled
+          ? reason => {
+              onSettled();
+              reject(reason);
+            }
+          : reject,
         initOperationData,
         scopeStack
       );
@@ -72,6 +98,10 @@ export class Action implements IAction {
     ];
   }
 
+  /**
+   * @deprecated Unused: `start()` and `end()` create a scope stack for each
+   * execution. Will be removed in the next major version.
+   */
   protected _initializeScopeStack() {
     this._scopeStack = this._createScopeStack(this.startOperations);
   }

@@ -386,6 +386,7 @@ describe('EligiusEngine', () => {
     test<EligiusEngineSuiteContext>('should emit pause event', async context => {
       const handler = vi.fn();
       await context.engine.init();
+      await context.engine.start();
       context.engine.on('pause', handler);
 
       context.engine.pause();
@@ -819,6 +820,7 @@ describe('EligiusEngine', () => {
   describe('eventbus: timeline-pause-request', () => {
     test<EligiusEngineSuiteContext>('should suspend the position source', async context => {
       await context.engine.init();
+      await context.engine.start();
 
       context.eventbus.broadcast('timeline-pause-request', []);
 
@@ -827,6 +829,7 @@ describe('EligiusEngine', () => {
 
     test<EligiusEngineSuiteContext>('should broadcast timeline-pause event', async context => {
       await context.engine.init();
+      await context.engine.start();
 
       context.eventbus.broadcast('timeline-pause-request', []);
 
@@ -1001,7 +1004,7 @@ describe('EligiusEngine', () => {
       expect(callback).toHaveBeenCalledWith(5.7);
     });
 
-    test<EligiusEngineSuiteContext>('should return -1 when no active provider', async context => {
+    test<EligiusEngineSuiteContext>('should return 0 when no active provider, like the request() responder', async context => {
       // Don't initialize, so no active provider
       // But we need eventbus listeners, so manually set up a minimal scenario
       context.configuration.timelines = [];
@@ -1026,7 +1029,7 @@ describe('EligiusEngine', () => {
         callback,
       ]);
 
-      expect(callback).toHaveBeenCalledWith(-1);
+      expect(callback).toHaveBeenCalledWith(0);
     });
   });
 
@@ -1209,7 +1212,7 @@ describe('EligiusEngine', () => {
       expect(action.end).toHaveBeenCalledTimes(1);
     });
 
-    test<EligiusEngineSuiteContext>('should set end duration to Infinity for negative end values', async context => {
+    test<EligiusEngineSuiteContext>('should read negative end values as open-ended without changing the configured duration', async context => {
       context.configuration.timelines[0].timelineActions = [
         {
           id: 'test-action',
@@ -1224,7 +1227,7 @@ describe('EligiusEngine', () => {
 
       expect(
         context.configuration.timelines[0].timelineActions[0].duration.end
-      ).toBe(Infinity);
+      ).toBe(-1);
     });
 
     test<EligiusEngineSuiteContext>('should execute timeline action start at fractional position', async context => {
@@ -1375,6 +1378,8 @@ describe('EligiusEngine', () => {
     });
 
     test<EligiusEngineSuiteContext>('should not switch when URI is not found in config', async context => {
+      // The rejection of the unknown URI is logged by the adapter
+      vi.spyOn(console, 'error').mockImplementation(() => {});
       await context.engine.init();
       const playlist = createMockPlaylist(['timeline-1']); // Only one item
       context.providers.animation.playlist = playlist;
@@ -2309,7 +2314,8 @@ describe('EligiusEngine', () => {
         await flushAsync();
 
         expect(consoleError).toHaveBeenCalledWith(
-          "Error in action start 'Failing' at operation 'record' (index 0): boom"
+          "Error in action start 'Failing' at operation 'record' (index 0): boom",
+          expect.objectContaining({message: 'boom'})
         );
       });
 
@@ -2351,7 +2357,8 @@ describe('EligiusEngine', () => {
         await flushAsync();
 
         expect(consoleError).toHaveBeenCalledWith(
-          "Error in action start 'Failing' at operation 'record' (index 0): boom"
+          "Error in action start 'Failing' at operation 'record' (index 0): boom",
+          expect.objectContaining({message: 'boom'})
         );
       });
 

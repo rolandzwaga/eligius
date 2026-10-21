@@ -2,6 +2,7 @@ import type {IAction} from '@action/types.ts';
 import {
   EngineEventbusAdapter,
   EngineInputAdapter,
+  type IAdapter,
   LocaleEventbusAdapter,
 } from '@adapters/index.ts';
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
@@ -33,6 +34,7 @@ import {
 } from './locale/types.ts';
 import type {
   IConfigurationResolver,
+  IEligiusEngine,
   IEngineFactory,
   IEngineFactoryOptions,
   IEngineFactoryResult,
@@ -66,12 +68,28 @@ let liveEngineCount = 0;
  * ```
  */
 export class EngineFactory implements IEngineFactory {
-  private _actionsLookup: Record<string, IAction> = {};
-  private _eventbus: IEventbus;
-  private _eventRemovers: TEventbusRemover[] = [];
+  /** The eventbus from the options, shared by every engine; see `options` */
+  private _sharedEventbus: IEventbus | undefined;
+  /**
+   * Every eventbus registration the factory made that is still in place.
+   * An engine's destroy() removes its own; factory.destroy() the rest.
+   */
+  private _eventRemovers: Set<TEventbusRemover> = new Set();
+  /** Action lookups of the live engines, oldest first */
+  private _actionLookups: Map<object, Record<string, IAction>> = new Map();
+  /** Live engines on the shared eventbus */
+  private _liveSharedEngines = 0;
   private _importer: ISimpleResourceImporter;
   private _windowRef: Window;
+  private _options: IEngineFactoryOptions | undefined;
 
+  /**
+   * @param importer - Resolves system names (engine, operations, controllers,
+   * providers) to their implementations
+   * @param windowRef - The window the engines run in
+   * @param options - Optional settings. Without `options.eventbus` every
+   * engine gets its own eventbus; see {@link IEngineFactoryOptions.eventbus}.
+   */
   constructor(
     importer: ISimpleResourceImporter,
     windowRef: Window,
@@ -79,40 +97,28 @@ export class EngineFactory implements IEngineFactory {
   ) {
     this._importer = importer;
     this._windowRef = windowRef;
-    this._eventbus = options?.eventbus ?? new Eventbus();
+    this._options = options;
+    this._sharedEventbus = options?.eventbus;
 
-    this._eventRemovers.push(
-      this._eventbus.onRequest(
-        'request-instance',
-        this._requestInstanceHandler.bind(this)
-      )
-    );
-    this._eventRemovers.push(
-      this._eventbus.onRequest(
-        'request-action',
-        this._requestActionHandler.bind(this)
-      )
-    );
-    this._eventRemovers.push(
-      this._eventbus.onRequest(
-        'request-function',
-        this._requestFunctionHandler.bind(this)
-      )
-    );
+    if (this._sharedEventbus) {
+      // Requests on a shared bus carry no engine identity, so 'request-action'
+      // searches the live engines, newest first.
+      this._registerResponders(
+        this._sharedEventbus,
+        systemName => this._findLiveAction(systemName),
+        remover => this._eventRemovers.add(remover)
+      );
+    }
   }
 
   /**
    * Destroys the factory and cleans up all registered request handlers.
    */
   destroy() {
-    this._eventRemovers.forEach(x => x());
-    this._eventRemovers = [];
-    this._actionsLookup = {};
-  }
-
-  private _importSystemEntryWithEventbusDependency(systemName: string): any {
-    const ctor = this._importSystemEntry(systemName);
-    return new ctor(this._eventbus);
+    const removers = [...this._eventRemovers];
+    this._eventRemovers.clear();
+    removers.forEach(remove => remove());
+    this._actionLookups.clear();
   }
 
   private _importSystemEntry(systemName: string): any {
@@ -126,22 +132,50 @@ export class EngineFactory implements IEngineFactory {
     return entry;
   }
 
-  private _requestInstanceHandler(systemName: string): any {
-    return this._importSystemEntryWithEventbusDependency(systemName);
+  /**
+   * Registers the 'request-instance', 'request-action' and
+   * 'request-function' responders on an eventbus. Instances are constructed
+   * with that eventbus.
+   */
+  private _registerResponders(
+    eventbus: IEventbus,
+    findAction: (systemName: string) => IAction | undefined,
+    addRemover: (remover: TEventbusRemover) => void
+  ) {
+    addRemover(
+      eventbus.onRequest('request-instance', (systemName: string) => {
+        const ctor = this._importSystemEntry(systemName);
+        return new ctor(eventbus);
+      })
+    );
+    addRemover(
+      eventbus.onRequest(
+        'request-action',
+        (systemName: string): IAction | null => {
+          const action = findAction(systemName);
+          if (action) {
+            return action;
+          }
+          console.error(`Unknown action: ${systemName}`);
+          return null;
+        }
+      )
+    );
+    addRemover(
+      eventbus.onRequest('request-function', (systemName: string) =>
+        this._importSystemEntry(systemName)
+      )
+    );
   }
 
-  private _requestFunctionHandler(systemName: string): any {
-    return this._importSystemEntry(systemName);
-  }
-
-  private _requestActionHandler(systemName: string): IAction | null {
-    const action = this._actionsLookup[systemName];
-    if (action) {
-      return action;
-    } else {
-      console.error(`Unknown action: ${systemName}`);
-      return null;
+  private _findLiveAction(systemName: string): IAction | undefined {
+    const lookups = [...this._actionLookups.values()];
+    for (let i = lookups.length - 1; i >= 0; i--) {
+      if (Object.hasOwn(lookups[i], systemName)) {
+        return lookups[i][systemName];
+      }
     }
+    return undefined;
   }
 
   /**
@@ -153,9 +187,16 @@ export class EngineFactory implements IEngineFactory {
    * - Instantiates the engine and locale manager
    * - Creates and connects adapters for eventbus integration
    *
+   * Unless the factory was given an eventbus, the engine gets an eventbus of
+   * its own, so several live engines from one factory do not answer each
+   * other's requests or react to each other's commands. When this method
+   * throws, nothing it registered is left on the eventbus.
+   *
    * @param configuration - The engine configuration
    * @param resolver - Optional custom configuration resolver
    * @returns Engine result with engine, locale manager, eventbus, and destroy function
+   * @throws Error when the configuration cannot be resolved or a provider
+   * cannot be created
    */
   createEngine(
     configuration: IEngineConfiguration,
@@ -164,117 +205,160 @@ export class EngineFactory implements IEngineFactory {
     const {systemName} = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
-    // Registrations that belong to this engine. The returned destroy() removes
-    // them; they are also kept in the factory-wide list so factory.destroy()
-    // still removes them (removers are idempotent).
-    const engineRemovers: TEventbusRemover[] = [];
-    const addEngineRemover = (remover: TEventbusRemover) => {
-      engineRemovers.push(remover);
-      this._eventRemovers.push(remover);
-    };
-
-    let actionRegistryListener: ActionRegistryEventbusListener | undefined;
-    if (configuration.eventActions?.length) {
-      actionRegistryListener = new ActionRegistryEventbusListener();
-      addEngineRemover(
-        this._eventbus.registerEventlistener(actionRegistryListener)
+    const ownsEventbus = !this._sharedEventbus;
+    const eventbus = this._sharedEventbus ?? new Eventbus();
+    if (!ownsEventbus && this._liveSharedEngines > 0) {
+      console.warn(
+        '[EngineFactory] Creating a second live engine on a shared eventbus: requests such as request-engine-root are answered by the first engine and commands reach both. Use a factory without options.eventbus to give each engine its own eventbus.'
       );
     }
 
-    addEngineRemover(
-      this._eventbus.registerInterceptor(
-        'request-timeline-uri',
-        new RequestVideoUriInterceptor(this._eventbus)
-      )
-    );
+    // Registrations that belong to this engine. The returned destroy() removes
+    // them; they are also tracked factory-wide, so factory.destroy() still
+    // removes them if the engine is never destroyed.
+    const engineRemovers: TEventbusRemover[] = [];
+    const addEngineRemover = (remover: TEventbusRemover) => {
+      engineRemovers.push(remover);
+      this._eventRemovers.add(remover);
+    };
+    const removeEngineRegistrations = () => {
+      const removers = engineRemovers.splice(0);
+      removers.forEach(remove => {
+        this._eventRemovers.delete(remove);
+        remove();
+      });
+      if (ownsEventbus) {
+        eventbus.clear();
+      }
+    };
 
-    resolver =
-      resolver || new ConfigurationResolver(this._importer, this._eventbus);
-    const [actionLookup, resolvedConfiguration] = resolver.process(
-      configuration,
-      actionRegistryListener
-    );
-    this._actionsLookup = actionLookup;
+    let engineInstance: IEligiusEngine;
+    let localeManager: LocaleManager;
+    let adapters: IAdapter[] = [];
+    let engineInputAdapter: EngineInputAdapter;
+    try {
+      // Resolve first: it throws on unknown names and duplicate actions, and
+      // nothing is registered on the eventbus yet.
+      const actionRegistryListener = configuration.eventActions?.length
+        ? new ActionRegistryEventbusListener()
+        : undefined;
+      resolver =
+        resolver || new ConfigurationResolver(this._importer, eventbus);
+      const [actionLookup, resolvedConfiguration] = resolver.process(
+        configuration,
+        actionRegistryListener
+      );
 
-    const timelineProviders = this._createTimelineProviders(
-      resolvedConfiguration
-    );
-    const timelineProvidersByUri = this.createTimelineProvidersByUri(
-      resolvedConfiguration,
-      timelineProviders
-    );
+      const timelineProviders = this._createTimelineProviders(
+        resolvedConfiguration
+      );
+      const timelineProvidersByUri = this.createTimelineProvidersByUri(
+        resolvedConfiguration,
+        timelineProviders
+      );
 
-    // Initialize locale manager with locales from configuration
-    const {language, locales} = configuration;
-    const localeManager = new LocaleManager({
-      defaultLocale: language as TLanguageCode,
-    });
+      const lookupKey = {};
+      this._actionLookups.set(lookupKey, actionLookup);
+      addEngineRemover(() => this._actionLookups.delete(lookupKey));
+      if (ownsEventbus) {
+        this._registerResponders(
+          eventbus,
+          name =>
+            Object.hasOwn(actionLookup, name) ? actionLookup[name] : undefined,
+          addEngineRemover
+        );
+      }
+      if (actionRegistryListener) {
+        addEngineRemover(
+          eventbus.registerEventlistener(actionRegistryListener)
+        );
+      }
+      addEngineRemover(
+        eventbus.registerInterceptor(
+          'request-timeline-uri',
+          new RequestVideoUriInterceptor(eventbus)
+        )
+      );
 
-    // Load inline locales now; external ($ref) locales load in the background
-    // and engine.init() waits for them.
-    const localesReady = this._loadLocales(localeManager, locales);
+      // Initialize locale manager with locales from configuration
+      const {language, locales} = configuration;
+      localeManager = new LocaleManager({
+        defaultLocale: language as TLanguageCode,
+      });
 
-    const engineInstance = new EngineClass(
-      resolvedConfiguration,
-      this._eventbus,
-      timelineProviders,
-      localeManager,
-      timelineProvidersByUri,
-      localesReady
-    );
+      // Load inline locales now; external ($ref) locales load in the
+      // background and engine.init() waits for them.
+      const localesReady = this._loadLocales(localeManager, locales);
+
+      engineInstance = new EngineClass(
+        resolvedConfiguration,
+        eventbus,
+        timelineProviders,
+        localeManager,
+        timelineProvidersByUri,
+        localesReady,
+        this._options?.engineOptions
+      );
+
+      // Create and connect adapters
+      engineInputAdapter = new EngineInputAdapter(
+        engineInstance,
+        eventbus,
+        this._windowRef,
+        {playToggleHotkey: this._options?.playToggleHotkey}
+      );
+      adapters = [
+        new EngineEventbusAdapter(engineInstance, eventbus),
+        new LocaleEventbusAdapter(localeManager, eventbus, engineInstance),
+        engineInputAdapter,
+      ];
+      adapters.forEach(adapter => adapter.connect());
+    } catch (error) {
+      adapters.forEach(adapter => adapter.disconnect());
+      removeEngineRegistrations();
+      throw error;
+    }
+
     liveEngineCount++;
-    let destroyed = false;
+    if (!ownsEventbus) {
+      this._liveSharedEngines++;
+    }
 
-    // Create and connect adapters
-    const engineEventbusAdapter = new EngineEventbusAdapter(
-      engineInstance,
-      this._eventbus
-    );
-    const localeEventbusAdapter = new LocaleEventbusAdapter(
-      localeManager,
-      this._eventbus,
-      engineInstance
-    );
-    const engineInputAdapter = new EngineInputAdapter(
-      engineInstance,
-      this._eventbus,
-      this._windowRef
-    );
+    let destroyPromise: Promise<void> | undefined;
+    const destroyEngine = async () => {
+      // Stop external input first, so no key press restarts playback.
+      engineInputAdapter.disconnect();
 
-    // Connect all adapters
-    engineEventbusAdapter.connect();
-    localeEventbusAdapter.connect();
-    engineInputAdapter.connect();
+      try {
+        // Destroy the engine while the eventbus adapters are still
+        // connected: end operations need their request responders (for
+        // example 'request-engine-root' for selectElement).
+        // engineInstance.destroy() also destroys the localeManager.
+        await engineInstance.destroy();
+      } finally {
+        adapters.forEach(adapter => adapter.disconnect());
+        removeEngineRegistrations();
+        liveEngineCount--;
+        if (!ownsEventbus) {
+          this._liveSharedEngines--;
+        }
+        // The global data store is shared by every engine on the page,
+        // so only clear it once no engine is left to use it.
+        if (liveEngineCount === 0) {
+          clearGlobals();
+        }
+      }
+    };
 
     // Return the factory result
     return {
       engine: engineInstance,
       localeManager,
-      eventbus: this._eventbus,
-      destroy: async () => {
-        // Stop external input first, so no key press restarts playback.
-        engineInputAdapter.disconnect();
-
-        try {
-          // Destroy the engine while the eventbus adapters are still
-          // connected: end operations need their request responders (for
-          // example 'request-engine-root' for selectElement).
-          // engineInstance.destroy() also destroys the localeManager.
-          await engineInstance.destroy();
-        } finally {
-          localeEventbusAdapter.disconnect();
-          engineEventbusAdapter.disconnect();
-          engineRemovers.forEach(remove => remove());
-          if (!destroyed) {
-            destroyed = true;
-            liveEngineCount--;
-            // The global data store is shared by every engine on the page,
-            // so only clear it once no engine is left to use it.
-            if (liveEngineCount === 0) {
-              clearGlobals();
-            }
-          }
-        }
+      eventbus,
+      destroy: () => {
+        // Calling it again returns the first call's promise.
+        destroyPromise ??= destroyEngine();
+        return destroyPromise;
       },
     };
   }

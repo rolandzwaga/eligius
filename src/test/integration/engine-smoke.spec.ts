@@ -305,6 +305,8 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
     // EngineFactory connects this adapter; it owns the eventbus commands
     new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
+    // Pausing only suspends a playing source
+    (animationPositionSource as {state: TSourceState}).state = 'active';
 
     // test
     eventbus.broadcast('timeline-pause-request', []);

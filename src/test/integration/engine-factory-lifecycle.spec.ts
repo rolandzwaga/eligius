@@ -377,6 +377,7 @@ describe('EngineFactory lifecycle (integration)', () => {
         },
       ],
     });
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const first = await create(withEventAction);
     eventbus.broadcast('probe-trigger' as any, []);
     await flush();
@@ -517,6 +518,8 @@ describe('EngineFactory lifecycle (integration)', () => {
     const {setGlobals, getGlobals} = await import(
       '@operation/helper/globals.ts'
     );
+    // A second live engine on the shared eventbus is warned about
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const first = await create(createConfig());
     result = undefined;
     $('<div id="engine-root-2"></div>').appendTo(document.body);
@@ -533,5 +536,362 @@ describe('EngineFactory lifecycle (integration)', () => {
 
     expect(afterFirst).toBe('value');
     expect(getGlobals('shared')).toBeUndefined();
+  });
+  describe('overlapping commands, failures and several engines', () => {
+    function failingTimelineAction(
+      name: string,
+      start: number,
+      end: number
+    ): ITimelineActionConfiguration {
+      return {
+        id: `action-${name}`,
+        name,
+        duration: {start, end},
+        // removeElement without a selected element throws
+        startOperations: [op('removeElement')],
+        endOperations: [],
+      };
+    }
+
+    test('given a playing engine, when a seek, a switch to a second timeline and another seek are requested back to back, then they run in order and end on the second timeline at the last position', async () => {
+      const {engine} = await create(
+        createConfig({
+          timelines: [
+            timeline('t1', 10, [timelineAction('A', 0, 10)]),
+            timeline('t2', 20, [
+              timelineAction('B', 4, 8),
+              timelineAction('C', 1, 3),
+            ]),
+          ],
+        })
+      );
+      await engine.start();
+      tick(100);
+      const seeked = countCalls(eventbus, 'timeline-seeked');
+
+      eventbus.broadcast('timeline-seek-request', [5]);
+      eventbus.broadcast('request-timeline-uri', ['t2', 6]);
+      eventbus.broadcast('timeline-seek-request', [2]);
+      await flush();
+      await flush();
+
+      expect(engine.currentTimelineUri).toBe('t2');
+      expect(engine.position).toBe(2);
+      expect(engine.playState).toBe('playing');
+      expect(probes).toEqual([
+        'A-start',
+        'A-end',
+        'B-start',
+        'B-end',
+        'C-start',
+      ]);
+      // The first seek is superseded by the last one
+      expect(seeked).toHaveBeenCalledTimes(1);
+    });
+
+    test('given a switch whose new timeline is still initialising, when the factory destroy() is awaited, then the new timeline never starts and no RAF clock keeps running', async () => {
+      const current = await create(
+        createConfig({
+          timelines: [
+            timeline('t1', 10),
+            timeline('t2', 10, [timelineAction('T2', 0, 10)]),
+          ],
+        })
+      );
+      await current.engine.start();
+
+      const switching = current.engine.switchTimeline('t2');
+      result = undefined;
+      await current.destroy();
+      await switching;
+      await flush();
+      tick(500);
+
+      expect(probes).toEqual([]);
+      expect(current.engine.playState).toBe('stopped');
+      expect(raf.signal?.aborted).toBe(true);
+    });
+
+    test('given an action whose start fails and a healthy action covering the same position, when a seek is requested, then the seek completes, the healthy action starts and engine-error names the failing one', async () => {
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const {engine} = await create(
+        createConfig({
+          timelines: [
+            timeline('t1', 10, [
+              failingTimelineAction('Failing', 3, 8),
+              timelineAction('Healthy', 4, 9),
+            ]),
+          ],
+        })
+      );
+      const engineErrors = countCalls(eventbus, 'engine-error');
+      const seeked = countCalls(eventbus, 'timeline-seeked');
+
+      eventbus.broadcast('timeline-seek-request', [5]);
+      await flush();
+      await flush();
+
+      expect(probes).toEqual(['Healthy-start']);
+      expect(seeked).toHaveBeenCalledTimes(1);
+      expect(engineErrors).toHaveBeenCalledTimes(1);
+      expect(engineErrors.mock.calls[0][0]).toMatchObject({
+        actionName: 'Failing',
+        phase: 'start',
+      });
+      expect(engine.position).toBe(5);
+    });
+
+    test('given two engines from one factory without a shared eventbus, when each runs its init action and a play request is broadcast on the first, then each resolves its own root, actions and commands', async () => {
+      const ownFactory = new EngineFactory(
+        new EligiusResourceImporter(),
+        window
+      );
+      $('<div id="engine-root-2"></div>').appendTo(document.body);
+      const markTitle = (className: string) => [
+        {
+          id: `init-${className}`,
+          name: `Mark-${className}`,
+          startOperations: [
+            op('selectElement', {selector: '.title'}),
+            op('addClass', {className}),
+          ],
+          endOperations: [],
+        },
+      ];
+      const first = ownFactory.createEngine(
+        createConfig({
+          layoutTemplate: '<div id="stage"><div class="title"></div></div>',
+          initActions: markTitle('marked-by-a'),
+          actions: [
+            {
+              id: 'show-menu',
+              name: 'ShowMenu',
+              startOperations: [],
+              endOperations: [],
+            } as any,
+          ],
+        })
+      );
+      const second = ownFactory.createEngine(
+        createConfig({
+          containerSelector: '#engine-root-2',
+          layoutTemplate: '<div id="stage-2"><div class="title"></div></div>',
+          timelineProviderSettings: {
+            animation: {
+              positionSource: {
+                systemName: 'RafPositionSource',
+                tickInterval: 100,
+              },
+              container: {
+                systemName: 'DomContainerProvider',
+                selector: '#stage-2',
+              },
+            },
+          },
+          initActions: markTitle('marked-by-b'),
+        })
+      );
+      try {
+        await first.engine.init();
+        await second.engine.init();
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        first.eventbus.broadcast('timeline-play-request', []);
+        await flush();
+
+        expect(first.eventbus).not.toBe(second.eventbus);
+        expect($('#engine-root .title').attr('class')).toBe(
+          'title marked-by-a'
+        );
+        expect($('#engine-root-2 .title').attr('class')).toBe(
+          'title marked-by-b'
+        );
+        expect(first.engine.playState).toBe('playing');
+        expect(second.engine.playState).toBe('stopped');
+        expect(
+          first.eventbus.request<any>('request-action', 'ShowMenu')?.name
+        ).toBe('ShowMenu');
+        expect(second.eventbus.request('request-action', 'ShowMenu')).toBe(
+          null
+        );
+        expect(first.eventbus.request<any>('request-engine-root')[0]).toBe(
+          $('#engine-root')[0]
+        );
+        expect(second.eventbus.request<any>('request-engine-root')[0]).toBe(
+          $('#engine-root-2')[0]
+        );
+      } finally {
+        await first.destroy();
+        await second.destroy();
+        ownFactory.destroy();
+        $('#engine-root-2').remove();
+      }
+    });
+
+    test('given two live engines on a shared eventbus, when actions are requested, then each live engine answers for its own actions, newest first, and a destroyed engine no longer answers', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const first = await create(
+        createConfig({
+          actions: [
+            {
+              id: 'show-menu',
+              name: 'ShowMenu',
+              startOperations: [],
+              endOperations: [],
+            } as any,
+          ],
+        })
+      );
+      result = undefined;
+      $('<div id="engine-root-2"></div>').appendTo(document.body);
+      const second = factory.createEngine(
+        createConfig({
+          containerSelector: '#engine-root-2',
+          actions: [
+            {
+              id: 'show-info',
+              name: 'ShowInfo',
+              startOperations: [],
+              endOperations: [],
+            } as any,
+          ],
+        })
+      );
+      try {
+        expect(warn).toHaveBeenCalledWith(
+          expect.stringContaining('second live engine on a shared eventbus')
+        );
+        expect(eventbus.request<any>('request-action', 'ShowMenu')?.name).toBe(
+          'ShowMenu'
+        );
+        expect(eventbus.request<any>('request-action', 'ShowInfo')?.name).toBe(
+          'ShowInfo'
+        );
+
+        await second.destroy();
+
+        expect(eventbus.request('request-action', 'ShowInfo')).toBe(null);
+        expect(eventbus.request<any>('request-action', 'ShowMenu')?.name).toBe(
+          'ShowMenu'
+        );
+      } finally {
+        await second.destroy();
+        await first.destroy();
+        $('#engine-root-2').remove();
+      }
+    });
+
+    /** Number of eventbus registrations the factory still tracks */
+    function trackedRegistrations(target: EngineFactory): number {
+      const removers = (target as any)._eventRemovers;
+      return removers.size ?? removers.length;
+    }
+
+    test('given an engine option that makes the engine constructor throw, when createEngine throws, then its event action, interceptor and registrations are removed again', () => {
+      const failingFactory = new EngineFactory(
+        new EligiusResourceImporter(),
+        window,
+        {eventbus, engineOptions: {maxCatchUp: 0}}
+      );
+      const removersBefore = trackedRegistrations(failingFactory);
+      const config = createConfig({
+        eventActions: [
+          {
+            id: 'event-action-1',
+            name: 'OnTrigger',
+            eventName: 'probe-trigger',
+            startOperations: [probe('event-action')],
+          },
+        ],
+      });
+
+      try {
+        expect(() => failingFactory.createEngine(config)).toThrow(/maxCatchUp/);
+
+        const before = countCalls(eventbus, 'before-request-timeline-uri');
+        eventbus.broadcast('probe-trigger' as any, []);
+        eventbus.broadcast('request-timeline-uri', ['t1']);
+        expect(probes).toEqual([]);
+        expect(before).not.toHaveBeenCalled();
+        expect(trackedRegistrations(failingFactory)).toBe(removersBefore);
+      } finally {
+        failingFactory.destroy();
+      }
+    });
+
+    test('given a configuration whose event action name duplicates an action name, when createEngine throws, then neither the event action nor an interceptor is left on the eventbus', () => {
+      const removersBefore = trackedRegistrations(factory);
+      const config = createConfig({
+        actions: [
+          {
+            id: 'dup-action',
+            name: 'Dup',
+            startOperations: [],
+            endOperations: [],
+          } as any,
+        ],
+        eventActions: [
+          {
+            id: 'dup-event-action',
+            name: 'Dup',
+            eventName: 'probe-trigger',
+            startOperations: [probe('event-action')],
+          },
+        ],
+      });
+
+      expect(() => factory.createEngine(config)).toThrow(/Duplicate action/);
+
+      const before = countCalls(eventbus, 'before-request-timeline-uri');
+      eventbus.broadcast('probe-trigger' as any, []);
+      eventbus.broadcast('request-timeline-uri', ['t1']);
+      expect(probes).toEqual([]);
+      expect(before).not.toHaveBeenCalled();
+      expect(trackedRegistrations(factory)).toBe(removersBefore);
+    });
+
+    test('given a reused factory, when engines are created and destroyed, then the factory does not keep their eventbus registrations', async () => {
+      const removersBefore = trackedRegistrations(factory);
+
+      for (let i = 0; i < 3; i++) {
+        const created = await create(
+          createConfig({
+            eventActions: [
+              {
+                id: `event-action-${i}`,
+                name: `OnTrigger${i}`,
+                eventName: 'probe-trigger',
+                startOperations: [probe('event-action')],
+              },
+            ],
+          })
+        );
+        result = undefined;
+        await created.destroy();
+      }
+
+      expect(trackedRegistrations(factory)).toBe(removersBefore);
+    });
+
+    test('given an init action with end operations, when the factory destroy() is called twice, then the end operations run once and both calls resolve', async () => {
+      const config = createConfig({
+        initActions: [
+          {
+            id: 'init-probe',
+            name: 'InitProbe',
+            startOperations: [probe('init-start')],
+            endOperations: [probe('init-end')],
+          },
+        ],
+      });
+      const created = await create(config);
+      result = undefined;
+
+      await Promise.all([created.destroy(), created.destroy()]);
+      await created.destroy();
+
+      expect(probes).toEqual(['init-start', 'init-end']);
+    });
   });
 });

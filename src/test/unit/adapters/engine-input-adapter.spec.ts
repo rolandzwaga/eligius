@@ -270,4 +270,124 @@ describe<AdapterSuiteContext>('EngineInputAdapter', () => {
       expect(resizeCalls.length).toBe(1);
     });
   });
+  describe('play toggle hotkey scope', () => {
+    function keyEvent(target: EventTarget) {
+      return {target, preventDefault: vi.fn()} as unknown as KeyboardEvent;
+    }
+
+    function withEngineRoot(context: AdapterSuiteContext) {
+      const root = document.createElement('div');
+      const outside = document.createElement('div');
+      document.body.append(root, outside);
+      (context.engine as any).engineRoot = [root];
+      return {
+        root,
+        outside,
+        cleanup: () => {
+          root.remove();
+          outside.remove();
+        },
+      };
+    }
+
+    test<AdapterSuiteContext>('given focus on a button outside the engine root, when space is pressed, then playback is not toggled and the key keeps its default action', context => {
+      const {cleanup, outside} = withEngineRoot(context);
+      const button = document.createElement('button');
+      outside.append(button);
+      context.adapter.connect();
+      const event = keyEvent(button);
+
+      hotkeysMocks.trigger('space', event);
+
+      expect(context.engine.start).not.toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      cleanup();
+    });
+
+    test<AdapterSuiteContext>('given focus on a button inside the engine root, when space is pressed, then the button keeps the key', context => {
+      const {cleanup, root} = withEngineRoot(context);
+      const button = document.createElement('button');
+      root.append(button);
+      context.adapter.connect();
+      const event = keyEvent(button);
+
+      hotkeysMocks.trigger('space', event);
+
+      expect(context.engine.start).not.toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+      cleanup();
+    });
+
+    test<AdapterSuiteContext>('given focus on an element of another part of the page, when space is pressed, then this engine does not toggle', context => {
+      const {cleanup, outside} = withEngineRoot(context);
+      outside.tabIndex = 0;
+      context.adapter.connect();
+
+      hotkeysMocks.trigger('space', keyEvent(outside));
+
+      expect(context.engine.start).not.toHaveBeenCalled();
+      cleanup();
+    });
+
+    test<AdapterSuiteContext>('given focus inside the engine root or nowhere, when space is pressed, then playback toggles', context => {
+      const {cleanup, root} = withEngineRoot(context);
+      const inner = document.createElement('div');
+      root.append(inner);
+      context.adapter.connect();
+
+      hotkeysMocks.trigger('space', keyEvent(inner));
+      hotkeysMocks.trigger('space', keyEvent(document.body));
+
+      expect(context.engine.start).toHaveBeenCalledTimes(2);
+      cleanup();
+    });
+
+    test<AdapterSuiteContext>('given an engine without an active timeline, when space is pressed, then the key is left alone', context => {
+      (context.engine as any).duration = undefined;
+      context.adapter.connect();
+      const event = keyEvent(document.body);
+
+      hotkeysMocks.trigger('space', event);
+
+      expect(context.engine.start).not.toHaveBeenCalled();
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    test<AdapterSuiteContext>('given playToggleHotkey false, when the adapter connects, then no hotkey is bound', context => {
+      const adapter = new EngineInputAdapter(
+        context.engine,
+        context.eventbus,
+        context.windowRef,
+        {playToggleHotkey: false}
+      );
+
+      adapter.connect();
+
+      expect(hotkeysMocks.handlers.size).toBe(0);
+      adapter.disconnect();
+    });
+
+    test<AdapterSuiteContext>('given playToggleHotkey k, when k is pressed, then playback toggles and disconnect unbinds it', context => {
+      const adapter = new EngineInputAdapter(
+        context.engine,
+        context.eventbus,
+        context.windowRef,
+        {playToggleHotkey: 'k'}
+      );
+      adapter.connect();
+
+      hotkeysMocks.trigger('k', keyEvent(document.body));
+      adapter.disconnect();
+
+      expect(context.engine.start).toHaveBeenCalledTimes(1);
+      expect(hotkeysMocks.handlers.has('k')).toBe(false);
+    });
+
+    test<AdapterSuiteContext>('given a connected adapter, when connect() is called again, then one resize listener is registered', context => {
+      context.adapter.connect();
+      context.adapter.connect();
+
+      expect(context.windowRef.addEventListener).toHaveBeenCalledTimes(1);
+    });
+  });
 });
