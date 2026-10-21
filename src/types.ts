@@ -220,6 +220,19 @@ export interface IEligiusEngine {
  * Describes an object that acts as a registry for imported resources.
  */
 export interface ISimpleResourceImporter {
+  /**
+   * Returns the resource registered under `name`, as `{[name]: value}`.
+   *
+   * For a name it does not know, an importer should throw an error that names
+   * it (`EligiusResourceImporter` does, with a "did you mean" hint). Returning
+   * a record without a value for `name` is also accepted. The engine treats
+   * both as an unknown name: the configuration resolver reports the JSON path,
+   * and `customFunction` and `getImport` report the operation.
+   *
+   * @param name - The system name to look up
+   * @returns A record whose `name` key holds the resource
+   * @throws Error when `name` is unknown (recommended, not required)
+   */
   import(name: string): Record<string, any>;
 }
 

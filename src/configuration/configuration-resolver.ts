@@ -19,6 +19,7 @@ import type {IEventbus} from '@eventbus/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {resolvePropertyChain} from '@operation/helper/resolve-property-chain.ts';
 import type {TOperationData} from '@operation/types.ts';
+import {findClosestNames, formatDidYouMean} from '@util/find-closest-names.ts';
 import {isFunction} from '@util/guards/is-function.ts';
 import {isObject} from '@util/guards/is-object.ts';
 import {isString} from '@util/guards/is-string.ts';
@@ -196,7 +197,16 @@ function resolveOperation(
   path: string
 ): IResolvedOperation {
   const {systemName} = operationConfig;
-  const instance = importer.import(systemName)[systemName];
+  let instance: unknown;
+  try {
+    instance = importer.import(systemName)?.[systemName];
+  } catch (error) {
+    // Importers may throw for unknown names (EligiusResourceImporter does);
+    // report it like a missing entry so the message keeps the JSON path.
+    throw new Error(createUnknownOperationMessage(importer, systemName, path), {
+      cause: error,
+    });
+  }
 
   if (!isFunction(instance)) {
     throw new Error(createUnknownOperationMessage(importer, systemName, path));
@@ -227,10 +237,12 @@ function createUnknownOperationMessage(
 ) {
   const message = `Unknown operation '${systemName}' at ${path}.systemName.`;
   const knownNames = getKnownOperationNames(importer);
-  const suggestions = findClosestNames(String(systemName), knownNames);
+  const didYouMean = formatDidYouMean(
+    findClosestNames(String(systemName), knownNames)
+  );
 
-  if (suggestions.length) {
-    return `${message} Did you mean ${suggestions.map(name => `'${name}'`).join(', ')}?`;
+  if (didYouMean) {
+    return `${message} ${didYouMean}`;
   }
   return `${message} Check the spelling, or make sure the operation is available from the resource importer.`;
 }
@@ -243,38 +255,6 @@ function getKnownOperationNames(importer: ISimpleResourceImporter): string[] {
     return Array.isArray(names) ? names : [];
   }
   return [];
-}
-
-function findClosestNames(name: string, knownNames: string[], max = 3) {
-  const lowerName = name.toLowerCase();
-  const maxDistance = Math.max(2, Math.floor(name.length / 3));
-
-  return knownNames
-    .map(knownName => ({
-      knownName,
-      distance: levenshtein(lowerName, knownName.toLowerCase()),
-    }))
-    .filter(({distance}) => distance <= maxDistance)
-    .sort((a, b) => a.distance - b.distance)
-    .slice(0, max)
-    .map(({knownName}) => knownName);
-}
-
-function levenshtein(a: string, b: string) {
-  let previous = Array.from({length: b.length + 1}, (_, i) => i);
-  for (let i = 1; i <= a.length; i++) {
-    const current = [i];
-    for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      current[j] = Math.min(
-        previous[j] + 1,
-        current[j - 1] + 1,
-        previous[j - 1] + cost
-      );
-    }
-    previous = current;
-  }
-  return previous[b.length];
 }
 
 function resolveActionConfiguration(
@@ -418,11 +398,11 @@ function resolvePlaceholder(
       }
     } else if (configValue.startsWith('template:')) {
       const templateKey = configValue.substring(9, configValue.length);
-      const template = importer.import(templateKey)[templateKey];
+      const template = importPlaceholder(importer, templateKey, configValue);
       configFragment[key] = template;
     } else if (configValue.startsWith('json:')) {
       const jsonKey = configValue.substring(5, configValue.length);
-      const json = importer.import(jsonKey)[jsonKey];
+      const json = importPlaceholder(importer, jsonKey, configValue);
       configFragment[key] = json;
       // Imported values are not walked for placeholders
       if (isObject(json) || Array.isArray(json)) {
@@ -431,6 +411,27 @@ function resolvePlaceholder(
     }
   } else if (isObject(configValue) || Array.isArray(configValue)) {
     resolvePlaceholders(configValue, rootConfig, importer, pass, imported);
+  }
+}
+
+/**
+ * Imports the value for a `template:` or `json:` placeholder. An importer that
+ * throws for an unknown name gets its error wrapped so the message names the
+ * placeholder. An importer that returns no entry still yields `undefined`.
+ */
+function importPlaceholder(
+  importer: ISimpleResourceImporter,
+  name: string,
+  placeholder: string
+): unknown {
+  try {
+    return importer.import(name)?.[name];
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Unable to resolve placeholder '${placeholder}': ${reason}`,
+      {cause: error}
+    );
   }
 }
 
