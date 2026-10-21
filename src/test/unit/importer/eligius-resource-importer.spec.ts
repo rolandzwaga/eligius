@@ -69,4 +69,41 @@ describe<EligiusResourceImporterSuiteContext>('EligiusResourceImporter', () => {
       expect(imported[provdr]).not.toBeNull();
     });
   });
+  test<EligiusResourceImporterSuiteContext>('given a misspelled operation name, when import is called, then it throws naming the unknown name and the closest known name', context => {
+    // given
+    const {importer} = context;
+
+    // test + expect
+    expect(() => importer.import('selectElemnt')).toThrowError(
+      "EligiusResourceImporter: unknown system name 'selectElemnt'. Did you mean 'selectElement'?"
+    );
+  });
+  test<EligiusResourceImporterSuiteContext>('given a name with no close match, when import is called, then it throws with a spelling hint and no suggestion', context => {
+    // given
+    const {importer} = context;
+
+    // test + expect
+    expect(() => importer.import('qqqqqqqqqqqqqqqqqqqqqqqqqqq')).toThrowError(
+      "EligiusResourceImporter: unknown system name 'qqqqqqqqqqqqqqqqqqqqqqqqqqq'. Check the spelling, or provide it through a custom resource importer."
+    );
+  });
+  test<EligiusResourceImporterSuiteContext>('given an Object.prototype member name, when import is called, then it throws instead of returning the inherited member', context => {
+    // given
+    const {importer} = context;
+
+    // test + expect
+    expect(() => importer.import('toString')).toThrowError(
+      /unknown system name 'toString'/
+    );
+  });
+  test<EligiusResourceImporterSuiteContext>('given the engine name, when import is called, then it returns the engine class', context => {
+    // given
+    const {importer} = context;
+
+    // test
+    const imported = importer.import('EligiusEngine');
+
+    // expect
+    expect(typeof imported.EligiusEngine).toBe('function');
+  });
 });

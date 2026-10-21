@@ -467,6 +467,80 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
         resolver.process(config, createMockActionRegistryListener() as any)
       ).toThrowError(/at eventActions\[0\]\.startOperations\[0\]\.systemName/);
     });
+
+    test<ConfigurationResolverSuiteContext>('given an importer that throws for unknown names, when process is called with a misspelled operation, then the resolver error names the JSON path and keeps the importer error as cause', context => {
+      // given
+      const {eventbus} = context;
+      const importerError = new Error("unknown system name 'selectElemnt'");
+      const throwingImporter = {
+        import: (name: string) => {
+          if (name === 'selectElemnt') {
+            throw importerError;
+          }
+          return {[name]: () => {}};
+        },
+        getOperationNames: () => ['selectElement'],
+      };
+      const config = createTestConfig();
+      config.actions = [createActionWithOperation('selectElemnt')];
+      const resolver = new ConfigurationResolver(throwingImporter, eventbus);
+
+      // test
+      let error: any;
+      try {
+        resolver.process(config);
+      } catch (e) {
+        error = e;
+      }
+
+      // expect
+      expect(error.message).toBe(
+        "Unknown operation 'selectElemnt' at actions[0].startOperations[0].systemName. Did you mean 'selectElement'?"
+      );
+      expect(error.cause).toBe(importerError);
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('unknown placeholder imports', () => {
+    function createThrowingImporter() {
+      return {
+        import: (name: string): Record<string, any> => {
+          throw new Error(`unknown system name '${name}'`);
+        },
+      };
+    }
+
+    test<ConfigurationResolverSuiteContext>('given an importer that throws for an unknown template, when process is called, then the error names the placeholder and keeps the importer message', context => {
+      // given
+      const {eventbus} = context;
+      const config = createTestConfig();
+      config.layoutTemplate = 'template:mian';
+      const resolver = new ConfigurationResolver(
+        createThrowingImporter(),
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unable to resolve placeholder 'template:mian': unknown system name 'mian'"
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an importer that throws for an unknown json import, when process is called, then the error names the placeholder', context => {
+      // given
+      const {eventbus} = context;
+      const config = createTestConfig();
+      config.id = 'json:data';
+      const resolver = new ConfigurationResolver(
+        createThrowingImporter(),
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        /^Unable to resolve placeholder 'json:data': /
+      );
+    });
   });
 
   describe<ConfigurationResolverSuiteContext>('duplicate action names', () => {
