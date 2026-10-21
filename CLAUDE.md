@@ -65,7 +65,6 @@ eligius/
     util/                   # Utilities
       guards/               # Type guards
     eligius-engine.ts       # EligiusEngine
-    eligius-flow-controller.ts
     engine-factory.ts       # EngineFactory
     index.ts                # Public API entry (dist/index.mjs)
     metadata.ts             # Metadata-only entry (dist/metadata.mjs, no DOM deps)
@@ -123,6 +122,9 @@ npm run opers-metadata
 npm run ctrls-metadata
 npm run events-metadata
 npm run generate-schema     # jsonschema/eligius-configuration.json
+
+# Published type declarations (after npm run build)
+npm run check:types         # type-checks dist/*.d.mts in throwaway consumers (NodeNext, Bundler, Node10)
 
 # Documentation
 npm run docs                # schema + typedoc + copy-schema + READMEs
@@ -195,6 +197,7 @@ Never use `../../..` paths across modules.
 - ESM only. No `require()`.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
 - `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery, lottie-web, and video.js imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
+- Published declarations are self-contained: the DOM-free entries type-check without jquery or lottie-web, and the main entry references `@types/jquery` (optional peer). Lottie types in the public API are local structural copies in `src/controllers/types.ts`. Consumers still need `"DOM"` in their TypeScript `lib`. `npm run check:types` guards this.
 
 ## Testing
 
@@ -238,12 +241,12 @@ There is no monolithic timeline provider class. `EngineFactory` composes three p
   - `RafPositionSource` (requestAnimationFrame clock)
   - `VideoPositionSource` (video.js)
   - `ScrollPositionSource` (scroll position mapped to time)
-  - `KeyboardStepSource` (hotkeys-js stepping)
+  - `KeyboardStepSource` (hotkeys-js stepping; binds in the `'all'` scope and never changes the global scope; in `timeline-switch` mode the engine switches to the previous/next timeline)
   - `BasePositionSource` is the shared base class.
 - **`IContainerProvider`**: supplies the DOM container (`DomContainerProvider`).
-- **`IPlaylist`**: ordered timeline items (`SimplePlaylist`).
+- **`IPlaylist`**: ordered timeline items (`SimplePlaylist`, with optional `hasItem`).
 
-Timeline `type` is `'animation'` or `'mediaplayer'`. Position is reported in seconds with fractional values; actions are keyed at 0.1 second precision.
+Timeline `type` is `'animation'` or `'mediaplayer'`. Position is reported in seconds with fractional values. Actions are dispatched by range: an update from the last position to the new one starts and ends every action whose boundary it crosses (backward jumps reconcile like a seek). `RafPositionSource` ticks every 100 ms by default. Transport commands (`init`, `start`, `seek`, `switchTimeline`, `stop`) run through one queue in call order, and nothing resumes after `destroy()`. Each factory-created engine has its own eventbus unless `options.eventbus` is passed.
 
 Requirements for new position sources: extend `BasePositionSource`, keep state transitions synchronous, make seeking idempotent, release all resources in `destroy()`.
 
@@ -297,7 +300,7 @@ export const addClass: TOperation<
 - `@type=ParameterType:<name>`: editor hint for the parameter type
 - `@category <Name>` on the operation itself (DOM, Data, Control, Controller, Form, Text, Utility, ...)
 
-**`IOperationScope`** (`this` inside an operation) carries `eventbus`, `operations`, `currentIndex`, loop bookkeeping (`loopIndex`, `loopLength`, `loopStartIndex`, `loopEndIndex`, `newIndex`), `whenEvaluation`, `variables`, `currentItem`, `owner`, and `parent`. Control-flow operations (`when`, `otherwise`, `endWhen`, `forEach`, `endForEach`, `breakForEach`, `continueForEach`, `startAction`, `endAction`) manipulate this scope.
+**`IOperationScope`** (`this` inside an operation) carries `eventbus`, `operations`, `currentIndex`, loop bookkeeping (`loopIndex`, `loopLength`, `loopStartIndex`, `loopEndIndex`, `newIndex`), `whenEvaluation`, `variables`, `currentItem`, `owner`, and `parent`. `when` accepts comparisons combined with `&&`, `||`, `!` and parentheses (`src/operation/helper/parse-expression.ts`, operands from `parse-operand.ts`); unknown operands throw. Control-flow operations (`when`, `otherwise`, `endWhen`, `forEach`, `endForEach`, `breakForEach`, `continueForEach`, `startAction`, `endAction`) manipulate this scope.
 
 **Adding an operation**:
 1. Check `src/operation/` for an existing operation that already does it.
@@ -331,7 +334,7 @@ Extend `BaseController`, which provides `addListener` and `attachMultiple` and r
 
 ### Eventbus
 
-`Eventbus` (`src/eventbus/`) is a typed pub/sub bus. `IEventbus` provides `on`, `off`, `once`, `broadcast`, `broadcastForTopic`, `onRequest`, `request`, `requestForTopic`, `registerEventlistener`, `registerInterceptor`, and `clear`. A throwing or rejecting handler, listener or interceptor never stops dispatch or throws into the broadcaster; it is logged and passed to the optional `onHandlerError` constructor option. Request responders still throw to the requester. Event names and argument tuples are typed through `EventMap` and `EventName`, generated from the interfaces in `src/eventbus/events/`.
+`Eventbus` (`src/eventbus/`) is a typed pub/sub bus. `IEventbus` provides `on`, `off`, `once`, `broadcast`, `broadcastForTopic`, `onRequest`, `request`, `requestForTopic`, `registerEventlistener`, `registerInterceptor`, `clear`, and optional `reportError` (lets controllers report action failures through the same path). A throwing or rejecting handler, listener or interceptor never stops dispatch or throws into the broadcaster; it is logged and passed to the optional `onHandlerError` constructor option. Request responders still throw to the requester. Event names and argument tuples are typed through `EventMap` and `EventName`, generated from the interfaces in `src/eventbus/events/`.
 
 ```typescript
 eventbus.broadcast('timeline-seek-request', [5.0]);
@@ -346,7 +349,7 @@ eventbus.on('timeline-seek-request', position => {
 1. Create `src/eventbus/events/<event-name>.ts` exporting an interface with `name: '<event-name>'` and `args: [label: Type]` (labeled tuple).
 2. Mark internal events `@private` in the JSDoc so they are excluded from metadata.
 3. Export it from `src/eventbus/events/index.ts`.
-4. Run `npm run events-metadata`. This regenerates `src/eventbus/events/types.ts` and `src/eventbus/events/metadata/`.
+4. Run `npm run events-metadata`. This regenerates `src/eventbus/events/types.ts` (including `RequestMap`) and `src/eventbus/events/metadata/`, and fails when an event file is missing from `src/eventbus/events/index.ts`. Request events declare the responder's `args` and a `returns` type.
 
 Conventions: kebab-case names, category prefix (`timeline-`, `request-`, `language-`), `-request` suffix for request/response pairs, labeled tuple args, `[]` for no args.
 
@@ -393,10 +396,10 @@ const config = factory.getConfiguration();
 
 ## Utilities (`src/util/`)
 
-- Guards: `isString`, `isObject`, `isFunction`, `isPromise`
+- Guards: `isString`, `isObject`, `isPlainObject` (cross-realm safe; `deep-copy.ts` re-exports it), `isFunction`, `isPromise` (null-safe)
 - Strings: `dashToCamelCase`, `camelCaseToDash`, `uppercaseFirstChar`
-- Data: `prepareValueForSerialization`, `mergeIfMissing`
-- `applyOperation` and `defaultScope`: run a single operation with a scope (used by actions and tests)
+- Data: `mergeIfMissing`; `clearGlobals` and `clearJsonCache` are exported and run when the last engine is destroyed
+- `applyOperation` and `createDefaultScope`: run a single operation with a fresh scope (used by operation specs)
 - `animationInterval`: RAF-based interval helper (its callback receives elapsed milliseconds since start)
 - `sanitizeHtml`: allowlist HTML sanitizer used before inserting translation or subtitle text into the DOM (internal, not exported)
 - `TypedEventEmitter`: typed emitter used by the engine and position sources

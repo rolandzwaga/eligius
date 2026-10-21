@@ -29,8 +29,11 @@
   },
   "typesVersions": {
     "*": {
-      "*": [
-        "dist/*"
+      "metadata": [
+        "dist/metadata.d.mts"
+      ],
+      "configuration-api": [
+        "dist/configuration-api.d.mts"
       ]
     }
   },

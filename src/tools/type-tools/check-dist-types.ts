@@ -167,6 +167,8 @@ const scenarios: TScenario[] = [
 const moduleResolutions = [
   {module: 'NodeNext', moduleResolution: 'NodeNext'},
   {module: 'ESNext', moduleResolution: 'Bundler'},
+  // Older consumers: resolves subpaths through package.json typesVersions
+  {module: 'ESNext', moduleResolution: 'Node10'},
 ];
 
 function installEligius(nodeModules: string) {
