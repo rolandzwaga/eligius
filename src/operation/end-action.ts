@@ -28,25 +28,35 @@ export const endAction: TOperation<
   IEndActionOperationData,
   Omit<IEndActionOperationData, 'actionOperationData'>
 > = (operationData: IEndActionOperationData) => {
-  let {actionOperationData, ...newOperationData} = operationData;
+  let {actionOperationData = {}, ...newOperationData} = operationData;
 
   return new Promise<IEndActionOperationData>((resolve, reject) => {
+    if (!newOperationData.actionInstance) {
+      reject(new Error('endAction: actionInstance is required'));
+      return;
+    }
+
     newOperationData = mergeOperationData(
       newOperationData,
       actionOperationData
     );
 
-    newOperationData.actionInstance.end(newOperationData).then(() => {
-      const sanitizedData = Object.keys(newOperationData)
-        .filter(key => !(key in actionOperationData))
-        .reduce(
-          (acc, key) => {
-            (acc as any)[key] = (newOperationData as any)[key];
-            return acc;
-          },
-          {} as typeof newOperationData
-        );
-      internalResolve(resolve, sanitizedData);
-    }, reject);
+    // The catch also rejects on errors thrown by the fulfilment handler, so the
+    // returned promise always settles.
+    newOperationData.actionInstance
+      .end(newOperationData)
+      .then(() => {
+        const sanitizedData = Object.keys(newOperationData)
+          .filter(key => !Object.hasOwn(actionOperationData, key))
+          .reduce(
+            (acc, key) => {
+              (acc as any)[key] = (newOperationData as any)[key];
+              return acc;
+            },
+            {} as typeof newOperationData
+          );
+        internalResolve(resolve, sanitizedData);
+      })
+      .catch(reject);
   });
 };

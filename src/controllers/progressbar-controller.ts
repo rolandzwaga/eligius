@@ -32,8 +32,11 @@ export class ProgressbarController extends BaseController<IProgressbarController
 
   attach(eventbus: IEventbus) {
     this.addListener(eventbus, 'timeline-time', this._positionUpdateHandler);
+    this.addListener(eventbus, 'timeline-duration', this._durationHandler);
 
     this._eventbus = eventbus;
+    // Read the current duration once; later changes (for example a timeline
+    // switch) arrive through 'timeline-duration'.
     this._refreshDuration();
 
     this.selectedElement?.css({'pointer-events': 'none'});
@@ -53,8 +56,7 @@ export class ProgressbarController extends BaseController<IProgressbarController
   }
 
   /**
-   * Re-reads the duration of the active timeline, which changes when the
-   * engine switches timelines.
+   * Requests the duration of the active timeline.
    */
   private _refreshDuration() {
     this.duration =
@@ -62,8 +64,18 @@ export class ProgressbarController extends BaseController<IProgressbarController
       this.duration;
   }
 
+  /**
+   * Stores the duration the engine reports when a timeline starts, which
+   * changes when the engine switches timelines.
+   */
+  private _durationHandler(getDuration: (() => number) | undefined) {
+    const duration = getDuration?.();
+    if (typeof duration === 'number' && Number.isFinite(duration)) {
+      this.duration = duration;
+    }
+  }
+
   private _positionUpdateHandler(position: number) {
-    this._refreshDuration();
     if (!(this.duration > 0)) {
       return;
     }
@@ -73,7 +85,6 @@ export class ProgressbarController extends BaseController<IProgressbarController
   }
 
   private _clickHandler(eventbus: IEventbus, container: JQuery, event: any) {
-    this._refreshDuration();
     // Measure against the container the handler is bound to, not event.target,
     // which may be a child such as the text element
     const rect = (

@@ -15,6 +15,7 @@ import type {TOperation, TOperationData} from '@operation/types.ts';
 import {isDefined} from 'ts-is-present';
 import {v4 as uuidv4} from 'uuid';
 import type {IDuration} from '../../types.ts';
+import {syncInPlace} from './sync-in-place.ts';
 
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {
@@ -23,20 +24,6 @@ function array_move(arr: any[], old_index: number, new_index: number) {
     new_index = arr.length - 1;
   }
   arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
-}
-
-/**
- * Replaces the contents of `target` with the contents of `source` while keeping
- * the `target` reference intact, so that the owning configuration sees the change.
- */
-function replaceInPlace<T extends object>(target: T, source: T) {
-  if (target === source) {
-    return;
-  }
-  for (const key of Object.keys(target)) {
-    delete (target as Record<string, unknown>)[key];
-  }
-  Object.assign(target, source);
 }
 
 /**
@@ -74,7 +61,7 @@ export class ActionEditor<
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
-      replaceInPlace(this.actionConfig, newConfig);
+      syncInPlace(this.actionConfig, deepCopy(newConfig));
     }
     return this;
   }
@@ -461,7 +448,7 @@ export class OperationEditor<
     const newConfig = callBack.call(this, copy);
 
     if (newConfig) {
-      replaceInPlace(this.operationConfig, newConfig);
+      syncInPlace(this.operationConfig, deepCopy(newConfig));
     }
 
     return this;

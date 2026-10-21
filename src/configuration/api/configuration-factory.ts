@@ -15,6 +15,7 @@ import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {mergeIfMissing} from '@util/merge-if-missing.ts';
 import {v4 as uuidv4} from 'uuid';
 import type {KeysOfType, TimelineTypes, TLanguageCode} from '../../types.ts';
+import {syncInPlace} from './sync-in-place.ts';
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
@@ -258,7 +259,7 @@ export class ConfigurationFactory {
    *
    * Return a copy of the current state of the configuration
    *
-   * @param callBack the callback receives the configuration as well and can return a mutated version wich will be assigned to the factory's internal state
+   * @param callBack the callback receives a copy of the configuration and can return a changed version. The changes are applied to the factory's configuration in place, so editors that are still open keep working.
    * @returns
    */
   getConfiguration(
@@ -267,7 +268,12 @@ export class ConfigurationFactory {
     const copy = deepCopy<IEngineConfiguration>(this.configuration);
     if (callBack) {
       const newConfig = callBack.call(this, copy);
-      this.configuration = deepCopy<IEngineConfiguration>(newConfig);
+      // Update the existing configuration in place, so editors that hold
+      // objects inside it stay attached to the factory.
+      syncInPlace(
+        this.configuration,
+        deepCopy<IEngineConfiguration>(newConfig)
+      );
     }
     return copy;
   }

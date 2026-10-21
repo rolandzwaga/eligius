@@ -627,4 +627,84 @@ describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
       expect(settings?.animation).toBeDefined();
     });
   });
+
+  describe<ConfigurationFactorySuiteContext>('getConfiguration with a callback', () => {
+    test<ConfigurationFactorySuiteContext>('given an open action editor, when getConfiguration(callback) applies a change, then later edits through that editor still reach the factory configuration', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createAction('A').getId();
+      const editor = configurationFactory.editAction(id);
+
+      // test
+      configurationFactory.getConfiguration(c => {
+        c.containerSelector = '#changed';
+        return c;
+      });
+      editor.setName('B');
+
+      // expect
+      const {configuration} = configurationFactory;
+      expect(configuration.containerSelector).toBe('#changed');
+      expect(configuration.actions[0].name).toBe('B');
+    });
+
+    test<ConfigurationFactorySuiteContext>('given an open action editor, when the callback renames that action, then the editor sees the rename and its next edit is kept', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      const id = configurationFactory.createAction('A').getId();
+      const editor = configurationFactory.editAction(id);
+
+      // test
+      configurationFactory.getConfiguration(c => {
+        c.actions[0].name = 'Renamed';
+        return c;
+      });
+      editor.addStartOperation('selectElement', {selector: '#x'});
+
+      // expect
+      const [action] = configurationFactory.configuration.actions;
+      expect(action.name).toBe('Renamed');
+      expect(action.startOperations.map(o => o.systemName)).toEqual([
+        'selectElement',
+      ]);
+    });
+
+    test<ConfigurationFactorySuiteContext>('given the callback removes an action, when getConfiguration returns, then the action is gone from the factory configuration', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      configurationFactory.createAction('A');
+      configurationFactory.createAction('B');
+
+      // test
+      configurationFactory.getConfiguration(c => {
+        c.actions = c.actions.filter(a => a.name !== 'A');
+        return c;
+      });
+
+      // expect
+      expect(
+        configurationFactory.configuration.actions.map(a => a.name)
+      ).toEqual(['B']);
+    });
+
+    test<ConfigurationFactorySuiteContext>('given getConfiguration(callback) returned a copy, when that copy is mutated afterwards, then the factory configuration does not change', context => {
+      // given
+      const {configurationFactory} = context;
+      configurationFactory.init('en-US');
+      configurationFactory.createAction('A');
+
+      // test
+      const copy = configurationFactory.getConfiguration(c => c);
+      copy.actions[0].name = 'Mutated';
+      copy.containerSelector = '#mutated';
+
+      // expect
+      const {configuration} = configurationFactory;
+      expect(configuration.actions[0].name).toBe('A');
+      expect(configuration.containerSelector).not.toBe('#mutated');
+    });
+  });
 });

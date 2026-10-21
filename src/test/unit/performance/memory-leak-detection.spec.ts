@@ -220,11 +220,12 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     for (let i = 0; i < 1000; i++) {
       controller.attach(context.eventbus);
 
-      // ProgressbarController registers 2 listeners:
-      // 1. TIME event via addListener (eventbus listener)
-      // 2. jQuery click handler via manual push to eventListeners array
+      // ProgressbarController registers 3 listeners:
+      // 1. timeline-time via addListener (eventbus listener)
+      // 2. timeline-duration via addListener (eventbus listener)
+      // 3. jQuery click handler via manual push to eventListeners array
       const removersBefore = (controller as any).eventListeners.length;
-      expect(removersBefore).toBe(2);
+      expect(removersBefore).toBe(3);
 
       controller.detach(context.eventbus);
       const removersAfter = (controller as any).eventListeners.length;
@@ -234,10 +235,10 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
     }
 
     // expect: All registered listeners were properly removed
-    // Note: attachCount only counts eventbus.on calls (1 per cycle)
-    // detachCount includes both eventbus listener + jQuery click handler (2 per cycle)
-    expect(attachCount).toBe(1000); // 1 eventbus listener per cycle
-    expect(detachCount).toBe(2000); // 2 total listeners per cycle
+    // Note: attachCount only counts eventbus.on calls (2 per cycle)
+    // detachCount includes both eventbus listeners + jQuery click handler (3 per cycle)
+    expect(attachCount).toBe(2000); // 2 eventbus listeners per cycle
+    expect(detachCount).toBe(3000); // 3 total listeners per cycle
 
     console.log(
       `ProgressbarController: ${detachCount} listeners (eventbus + jQuery) attached and removed over 1000 cycles`
@@ -327,21 +328,32 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
       }
     );
 
+    // Track popstate listeners on window: every one added must be removed
+    const livePopstateListeners = new Set<unknown>();
+    const addSpy = vi
+      .spyOn(window, 'addEventListener')
+      .mockImplementation((type: string, listener: unknown) => {
+        if (type === 'popstate') livePopstateListeners.add(listener);
+      });
+    const removeSpy = vi
+      .spyOn(window, 'removeEventListener')
+      .mockImplementation((type: string, listener: unknown) => {
+        if (type === 'popstate') livePopstateListeners.delete(listener);
+      });
+
     // test: Perform 1000 attach/detach cycles
     for (let i = 0; i < 1000; i++) {
       controller.attach(context.eventbus);
 
       const removersBefore = (controller as any).eventListeners.length;
-
-      // Verify window.onpopstate was set
-      expect(window.onpopstate).not.toBeNull();
+      expect(livePopstateListeners.size).toBe(1);
 
       controller.detach(context.eventbus);
 
       const removersAfter = (controller as any).eventListeners.length;
 
-      // CRITICAL: Verify window.onpopstate was cleaned up (fixes memory leak)
-      expect(window.onpopstate).toBeNull();
+      // CRITICAL: the popstate listener is removed on every detach
+      expect(livePopstateListeners.size).toBe(0);
 
       detachCount += removersBefore;
       expect(removersAfter).toBe(0);
@@ -349,12 +361,18 @@ describe<MemoryTestContext>('Memory Leak Detection', () => {
 
     // expect: All registered listeners were properly removed
     expect(attachCount).toBe(detachCount);
-    expect(window.onpopstate).toBeNull(); // Final verification
+    expect(livePopstateListeners.size).toBe(0);
+    expect(
+      addSpy.mock.calls.filter(([type]) => type === 'popstate')
+    ).toHaveLength(1000);
+    expect(window.onpopstate).toBeNull();
+    removeSpy.mockRestore();
+    addSpy.mockRestore();
 
     console.log(
       `RoutingController: ${attachCount} listeners attached and removed over 1000 cycles`
     );
-    console.log('RoutingController: window.onpopstate properly cleaned up');
+    console.log('RoutingController: popstate listener properly cleaned up');
   });
 
   test<MemoryTestContext>('SubtitlesController attach/detach cycles should not leak memory', context => {

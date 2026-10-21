@@ -36,8 +36,13 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
       this._handlePushHistoryState
     );
     this.eventbus = eventbus;
+    // Add a listener instead of assigning window.onpopstate, so a handler
+    // installed by the host page (or another controller) is never replaced.
+    if (this._popstateHandler) {
+      window.removeEventListener('popstate', this._popstateHandler);
+    }
     this._popstateHandler = this._handlePopstate.bind(this);
-    window.onpopstate = this._popstateHandler;
+    window.addEventListener('popstate', this._popstateHandler);
 
     const navId = this._getQueryVariable(0);
     if (navId) {
@@ -90,9 +95,8 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
 
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
-    // Only clear the handler this controller installed
-    if (this._popstateHandler && window.onpopstate === this._popstateHandler) {
-      window.onpopstate = null;
+    if (this._popstateHandler) {
+      window.removeEventListener('popstate', this._popstateHandler);
     }
     this._popstateHandler = null;
     this.eventbus = null;

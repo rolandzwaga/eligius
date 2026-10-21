@@ -236,8 +236,10 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
         duration: {start: i * 1.0, end: i * 1.0 + 0.5},
         start: async () => {
           executionCount++;
-          // Simulate some work
-          await new Promise(resolve => setTimeout(resolve, 1));
+          // Simulate asynchronous work with a microtask. A real setTimeout
+          // made this benchmark measure timer scheduling under parallel test
+          // load instead of the engine's own overhead.
+          await Promise.resolve();
           return {};
         },
         end: async () => {
@@ -280,7 +282,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
     // expect: All actions executed in reasonable time
     const duration = endTime - startTime;
     expect(executionCount).toBe(10);
-    expect(duration).toBeLessThan(200); // Should complete in <200ms (includes 10x1ms delays)
+    expect(duration).toBeLessThan(200); // Engine overhead only; normally well under 10ms
 
     console.log(
       `Action execution (10 actions with async work): ${duration.toFixed(2)}ms`

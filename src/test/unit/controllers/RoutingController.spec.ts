@@ -55,13 +55,18 @@ describe('RoutingController', () => {
       value: '',
     });
 
-    // Mock window.onpopstate
-    (window as any).onpopstate = null;
+    window.onpopstate = null;
   });
 
   afterEach(() => {
+    // Remove the controller's popstate listener so tests stay independent
+    controller.detach(mockEventbus);
     window.onpopstate = null;
   });
+
+  function firePopstate(state: unknown) {
+    window.dispatchEvent(new PopStateEvent('popstate', {state}));
+  }
 
   describe('init', () => {
     it('should initialize navigation data and build lookup tables', () => {
@@ -113,15 +118,29 @@ describe('RoutingController', () => {
       );
     });
 
-    it('should set window.onpopstate handler', () => {
-      const operationData = {
-        json: createNavigationData(),
-      };
-
-      controller.init(operationData);
+    it('given an attached controller, when a popstate event fires, then it is handled without touching window.onpopstate', () => {
+      controller.init({json: createNavigationData()});
       controller.attach(mockEventbus);
 
-      expect(window.onpopstate).toBeInstanceOf(Function);
+      firePopstate({navigationId: 'nav2', position: 3});
+
+      expect(window.onpopstate).toBeNull();
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        1,
+        3,
+        true,
+      ]);
+    });
+
+    it('given a detached controller, when a popstate event fires, then nothing is broadcast', () => {
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
+      controller.detach(mockEventbus);
+      vi.mocked(mockEventbus.broadcast).mockClear();
+
+      firePopstate({navigationId: 'nav2', position: 3});
+
+      expect(mockEventbus.broadcast).not.toHaveBeenCalled();
     });
 
     it('should handle URL with navigation ID', () => {
@@ -192,15 +211,18 @@ describe('RoutingController', () => {
       ]);
     });
 
-    it('given a window.onpopstate handler replaced by someone else after attach, when detach is called, then that handler is left in place', () => {
-      controller.init({json: createNavigationData()});
-      controller.attach(mockEventbus);
+    it('given another script owns window.onpopstate, when the controller attaches and detaches, then that handler is never replaced and still fires', () => {
       const otherHandler = vi.fn();
       window.onpopstate = otherHandler;
+      controller.init({json: createNavigationData()});
 
+      controller.attach(mockEventbus);
+      expect(window.onpopstate).toBe(otherHandler);
       controller.detach(mockEventbus);
+      firePopstate({navigationId: 'nav1'});
 
       expect(window.onpopstate).toBe(otherHandler);
+      expect(otherHandler).toHaveBeenCalledTimes(1);
     });
 
     it('should push initial state when no navigation ID in URL', () => {
@@ -280,15 +302,7 @@ describe('RoutingController', () => {
       controller.init(operationData);
       controller.attach(mockEventbus);
 
-      // Simulate popstate event
-      const popstateEvent = {
-        state: {
-          navigationId: 'nav2',
-          position: 15,
-        },
-      };
-
-      window.onpopstate!(popstateEvent as any);
+      firePopstate({navigationId: 'nav2', position: 15});
 
       expect(mockEventbus.broadcast).toHaveBeenCalledWith(
         'highlight-navigation',
@@ -309,12 +323,7 @@ describe('RoutingController', () => {
       controller.init(operationData);
       controller.attach(mockEventbus);
 
-      // Simulate popstate without state
-      const popstateEvent = {
-        state: null,
-      };
-
-      window.onpopstate!(popstateEvent as any);
+      firePopstate(null);
 
       expect(mockEventbus.broadcast).toHaveBeenCalledWith(
         'highlight-navigation',
@@ -322,15 +331,12 @@ describe('RoutingController', () => {
       );
     });
 
-    it('given a popstate event whose state names an unknown navigation id, when it is handled, then it does not throw and falls back to the first navigation entry', () => {
+    it('given a popstate event whose state names an unknown navigation id, when it is handled, then it falls back to the first navigation entry', () => {
       controller.init({json: createNavigationData()});
       controller.attach(mockEventbus);
 
-      expect(() =>
-        window.onpopstate!({
-          state: {navigationId: 'gone', position: 4},
-        } as any)
-      ).not.toThrow();
+      // A throwing listener would stop before the broadcast below
+      firePopstate({navigationId: 'gone', position: 4});
       expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
         0,
         4,

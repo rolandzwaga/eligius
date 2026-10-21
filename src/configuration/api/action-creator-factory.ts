@@ -11,21 +11,7 @@ import type {
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import * as operations from '@operation/index.ts';
 import {v4 as uuidv4} from 'uuid';
-
-/**
- * Replaces the contents of `target` with the contents of `source` while keeping
- * the `target` reference intact. The `ConfigurationFactory` holds the same object,
- * so it sees the change.
- */
-function replaceInPlace<T extends object>(target: T, source: T) {
-  if (target === source) {
-    return;
-  }
-  for (const key of Object.keys(target)) {
-    delete (target as Record<string, unknown>)[key];
-  }
-  Object.assign(target, source);
-}
+import {syncInPlace} from './sync-in-place.ts';
 
 /**
  *
@@ -163,7 +149,7 @@ export class ActionCreator<
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
-      replaceInPlace(this.actionConfig, newConfig);
+      syncInPlace(this.actionConfig, deepCopy(newConfig));
     }
     return this;
   }
