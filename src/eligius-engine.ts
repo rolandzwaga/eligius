@@ -66,16 +66,69 @@ interface ActionMethodMetadata {
 }
 
 /**
+ * A start or end of a timeline action at a position on the timeline.
+ */
+interface IScheduledActionEvent {
+  position: number;
+  isStart: boolean;
+  /**
+   * Order among events at the same position: ends (0) before starts (1), so an
+   * action ending at 5 is ended before one starting at 5 is started. The end
+   * of a zero-length action (2) comes after its own start.
+   */
+  order: 0 | 1 | 2;
+  action: ITimelineAction;
+}
+
+const noop = () => {};
+
+/**
+ * Whether the action is in effect at the given position. Ranges are
+ * half-open, `[start, end)`, so an action is ended exactly when the playhead
+ * reaches its end, which matches what the position callback does.
+ */
+function coversPosition(action: ITimelineAction, position: number) {
+  return action.duration.start <= position && position < action.duration.end;
+}
+
+/**
+ * Index of the first event whose position is greater than `position`.
+ */
+function upperBound(events: IScheduledActionEvent[], position: number) {
+  let low = 0;
+  let high = events.length;
+  while (low < high) {
+    const middle = (low + high) >>> 1;
+    if (events[middle].position <= position) {
+      low = middle + 1;
+    } else {
+      high = middle;
+    }
+  }
+  return low;
+}
+
+/**
  * The Eligius timeline engine with explicit, testable API.
  *
  * This engine is responsible for starting and stopping the given timeline provider
  * and triggering the actions associated with positions along the timeline.
+ *
+ * The engine reports its state through its own event emitter (see
+ * {@link EngineEvents}). Mapping those events to eventbus broadcasts, and
+ * eventbus commands such as `timeline-play-request` to engine calls, is done
+ * by {@link EngineEventbusAdapter}, which {@link EngineFactory.createEngine}
+ * connects. An engine constructed directly needs that adapter connected to be
+ * driven through the eventbus.
  */
 export class EligiusEngine implements IEligiusEngine {
-  private _timeLineActionsLookup: Record<
-    string,
-    Record<number, ActionMethod[]>
-  > = {};
+  /**
+   * Per timeline URI, every start and end of its timeline actions, sorted once
+   * by position. Position updates process the slice between the previous and
+   * the current position with a binary search, so tick cost does not depend on
+   * the number of actions.
+   */
+  private _timelineSchedules: Map<string, IScheduledActionEvent[]> = new Map();
   private _timelineLookupCache: Map<string, IResolvedTimelineConfiguration> =
     new Map();
   private _eventbusRemovers: TEventbusRemover[] = [];
@@ -86,7 +139,18 @@ export class EligiusEngine implements IEligiusEngine {
   private _activeContainerProvider: IContainerProvider | undefined = undefined;
   private _activePlaylist: IPlaylist | undefined = undefined;
 
+  /** Position sources whose callbacks are registered and that are init()ed */
+  private _preparedSources: Set<IPositionSource> = new Set();
+  /** Container providers that are init()ed */
+  private _preparedContainers: Set<IContainerProvider> = new Set();
+
   private _lastPosition: number = -1;
+  /** Position updates are ignored while a seek is in progress */
+  private _seekDepth = 0;
+  /** End operations started by stop() that start() waits for */
+  private _pendingStopCleanup: Promise<void> | undefined = undefined;
+  /** Serialises timeline switches */
+  private _switchQueue: Promise<void> = Promise.resolve();
   private _emitter = new TypedEventEmitter<EngineEvents>();
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -126,11 +190,22 @@ export class EligiusEngine implements IEligiusEngine {
     return $(this.configuration.containerSelector);
   }
 
+  /**
+   * @param configuration - The resolved engine configuration
+   * @param eventbus - The eventbus, used for the callback-style state queries
+   * @param timelineProviders - Timeline providers per timeline type
+   * @param localeManager - The locale manager, destroyed with the engine
+   * @param timelineProvidersByUri - Optional timeline providers per timeline
+   * URI. When a timeline's URI has an entry it is used instead of the
+   * provider for its type, so timelines of the same type can each have their
+   * own position source (and duration).
+   */
   constructor(
     private configuration: IResolvedEngineConfiguration,
     private eventbus: IEventbus,
     private timelineProviders: Record<TimelineTypes, ITimelineProviderInfo>,
-    private localeManager: ILocaleManager
+    private localeManager: ILocaleManager,
+    private timelineProvidersByUri?: Record<string, ITimelineProviderInfo>
   ) {}
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -159,13 +234,17 @@ export class EligiusEngine implements IEligiusEngine {
    * @throws If autoplay is blocked (video provider)
    */
   async start(): Promise<void> {
-    if (!this._activePositionSource) {
+    const source = this._activePositionSource;
+    if (!source) {
       return;
     }
 
-    await this._activePositionSource.activate();
+    if (this._pendingStopCleanup) {
+      await this._pendingStopCleanup;
+    }
+
+    await source.activate();
     this._emitter.emit('start');
-    this.eventbus.broadcast('timeline-play', []);
   }
 
   /**
@@ -178,20 +257,36 @@ export class EligiusEngine implements IEligiusEngine {
 
     this._activePositionSource.suspend();
     this._emitter.emit('pause');
-    this.eventbus.broadcast('timeline-pause', []);
   }
 
   /**
-   * Stop playback and reset to beginning
+   * Stop playback and reset to the beginning.
+   *
+   * The position source is deactivated and the 'stop' event is emitted
+   * synchronously. The active timeline actions are then ended; the returned
+   * promise resolves when their end operations have finished. Errors in end
+   * operations are logged, not rethrown.
    */
-  stop(): void {
+  stop(): Promise<void> {
     if (!this._activePositionSource) {
-      return;
+      return Promise.resolve();
     }
 
     this._activePositionSource.deactivate();
+    this._lastPosition = -1;
     this._emitter.emit('stop');
-    this.eventbus.broadcast('timeline-stop', []);
+
+    const cleanup: Promise<void> = this._cleanUpTimeline()
+      .catch(error => {
+        console.error('Error while ending timeline actions on stop', error);
+      })
+      .finally(() => {
+        if (this._pendingStopCleanup === cleanup) {
+          this._pendingStopCleanup = undefined;
+        }
+      });
+    this._pendingStopCleanup = cleanup;
+    return cleanup;
   }
 
   /**
@@ -200,43 +295,30 @@ export class EligiusEngine implements IEligiusEngine {
    * @returns Actual position after seek
    */
   async seek(position: number): Promise<number> {
-    if (!this._activePositionSource) {
+    const source = this._activePositionSource;
+    if (!source) {
       return 0;
     }
 
-    const seekPosition = position;
-    const duration = this._activePositionSource.getDuration();
-    const currentPosition = this._activePositionSource.getPosition();
+    const duration = source.getDuration();
+    const currentPosition = source.getPosition();
 
-    if (seekPosition < 0 || seekPosition > duration) {
+    if (!Number.isFinite(position) || position < 0 || position > duration) {
       return currentPosition;
     }
 
-    this._emitter.emit('seekStart', seekPosition, currentPosition, duration);
-    this.eventbus.broadcast('timeline-seek', [
-      seekPosition,
-      currentPosition,
-      duration,
-    ]);
+    this._emitter.emit('seekStart', position, currentPosition, duration);
 
-    // Only seek if position source supports it
-    if (isSeekable(this._activePositionSource)) {
-      await this._activePositionSource.seek(seekPosition);
-    }
-    await this._executeSeekActions(seekPosition);
+    await this._seekSource(source, position);
+    // The seek target is reconciled below; the position update the source
+    // emits for it (now, or when it resumes) must not dispatch actions again.
+    this._lastPosition = position;
+    await this._reconcileActions(this._currentTimelineUri, position);
 
-    const finalPosition = this._activePositionSource.getPosition();
+    const finalPosition = source.getPosition();
 
     this._emitter.emit('seekComplete', finalPosition, duration);
-    this.eventbus.broadcast('timeline-seeked', [finalPosition, duration]);
-
     this._emitter.emit('time', finalPosition);
-    this.eventbus.broadcast('timeline-time', [finalPosition]);
-
-    // Resume if was active before seek
-    if (this._activePositionSource.state === 'active') {
-      await this._activePositionSource.activate();
-    }
 
     return finalPosition;
   }
@@ -246,12 +328,28 @@ export class EligiusEngine implements IEligiusEngine {
   // ─────────────────────────────────────────────────────────────────────────
 
   /**
-   * Switch to a different timeline
+   * Switch to a different timeline.
+   *
+   * Ends the active actions of the current timeline, activates the new
+   * timeline's position source (initialising it on first use), seeks it to
+   * `position`, starts the actions that cover that position and starts
+   * playback. The returned promise resolves when all of that is done.
+   * Concurrent calls are processed one after the other.
+   *
    * @param uri - Timeline URI to switch to
    * @param position - Optional starting position
    */
-  async switchTimeline(uri: string, position: number = 0): Promise<void> {
-    if (!this._activePositionSource) {
+  switchTimeline(uri: string, position: number = 0): Promise<void> {
+    const run = this._switchQueue.then(() =>
+      this._switchTimeline(uri, position)
+    );
+    this._switchQueue = run.catch(noop);
+    return run;
+  }
+
+  private async _switchTimeline(uri: string, position: number): Promise<void> {
+    const previousSource = this._activePositionSource;
+    if (!previousSource) {
       return;
     }
 
@@ -260,66 +358,43 @@ export class EligiusEngine implements IEligiusEngine {
       return;
     }
 
-    this._activePositionSource.deactivate();
-    await this._cleanUpTimeline();
+    const providerInfo = this._getProviderInfo(timelineConfig);
+    if (!providerInfo?.positionSource) {
+      throw new Error(
+        `No timeline provider configured for type ${timelineConfig.type}`
+      );
+    }
+
+    const previousUri = this._currentTimelineUri;
+    previousSource.deactivate();
+    await this._cleanUpTimeline(previousUri);
 
     this._currentTimelineUri = timelineConfig.uri;
     this._emitter.emit('timelineChange', this._currentTimelineUri);
-    this.eventbus.broadcast('timeline-current-timeline-change', [
-      this._currentTimelineUri,
-    ]);
 
-    const newProviderSettings = this.timelineProviders[timelineConfig.type];
-
-    // Switch to new position source if different
-    if (this._activePositionSource !== newProviderSettings.positionSource) {
-      this._activePositionSource.destroy();
-      this._activePositionSource = newProviderSettings.positionSource;
-      this._activeContainerProvider = newProviderSettings.containerProvider;
-      this._activePlaylist = newProviderSettings.playlist;
-    }
-
-    this._activePositionSource.loop = timelineConfig.loop;
-
-    if (!this._activePositionSource.loop && position > 0) {
-      this.eventbus.once('timeline-firstframe', async () => {
-        if (!this._activePositionSource) {
-          return;
-        }
-
-        this._activePositionSource.suspend();
-        this.eventbus.broadcast('timeline-duration', [
-          this._activePositionSource.getDuration,
-        ]);
-
-        await this._executeStartActions();
-
-        if (isSeekable(this._activePositionSource)) {
-          await this._activePositionSource.seek(position);
-        }
-        await this._executeSeekActions(position);
-      });
-    } else {
-      // Switching to the start of a timeline: ungate its first frame so the new
-      // timeline's position-0 actions run via the normal position lookup. Without
-      // this, the stale playhead carried over from the previous timeline
-      // (_lastPosition) would suppress the position-0 frame and the new timeline
-      // would render nothing.
-      this._lastPosition = -1;
-    }
+    await this._activateProvider(providerInfo);
+    const source = providerInfo.positionSource;
+    source.loop = timelineConfig.loop;
 
     // Select playlist item if playlist is available
-    if (this._activePlaylist) {
-      this._activePlaylist.selectItem(uri);
+    this._activePlaylist?.selectItem(uri);
+
+    let target = source.getPosition();
+    if (position > 0 && Number.isFinite(position) && isSeekable(source)) {
+      const duration = source.getDuration();
+      target =
+        Number.isFinite(duration) && duration > 0
+          ? Math.min(position, duration)
+          : position;
+      await this._seekSource(source, target);
     }
 
-    // Re-activate the position source on the new timeline. switchTimeline
-    // deactivated it at the top; previously nothing turned it back on, so a
-    // switched-to timeline never produced a first frame — it ran none of its
-    // start actions and never advanced (it rendered blank and frozen). Activating
-    // emits the first frame (driving the handlers above) and resumes ticking so
-    // the new timeline actually plays from its start.
-    await this._activePositionSource.activate();
+    // Start the actions covering the start position here, so the position
+    // update that activation emits does not dispatch them a second time.
+    this._lastPosition = target;
+    await this._reconcileActions(timelineConfig.uri, target);
+
+    await source.activate();
   }
 
   /**
@@ -329,11 +404,12 @@ export class EligiusEngine implements IEligiusEngine {
   init(): Promise<IPositionSource> {
     this._createLayoutTemplate();
 
+    this._removeEventbusListeners();
     this._addEventbusListeners();
 
     const {timelines} = this.configuration;
 
-    this._currentTimelineUri = timelines?.[0].uri ?? '';
+    this._currentTimelineUri = timelines?.[0]?.uri ?? '';
 
     this._createTimelineLookup();
 
@@ -363,7 +439,7 @@ export class EligiusEngine implements IEligiusEngine {
     }
 
     const firstTimeline = this.configuration.timelines[0];
-    const providerSettings = this.timelineProviders[firstTimeline.type];
+    const providerSettings = this._getProviderInfo(firstTimeline);
 
     if (!providerSettings) {
       throw new Error(
@@ -371,101 +447,201 @@ export class EligiusEngine implements IEligiusEngine {
       );
     }
 
-    // Destroy existing components if any
-    this._activePositionSource?.destroy();
-
-    // Set up decomposed components
-    this._activePositionSource = providerSettings.positionSource;
-    this._activeContainerProvider = providerSettings.containerProvider;
-    this._activePlaylist = providerSettings.playlist;
-
-    if (!this._activePositionSource) {
+    if (!providerSettings.positionSource) {
       throw new Error('NO ACTIVE POSITION SOURCE');
     }
 
-    // Register callbacks using new interface
-    this._activePositionSource.onPosition(
-      this._onTimeHandler.bind(this, (x: number) => x)
+    this._lastPosition = -1;
+    await this._activateProvider(providerSettings);
+    providerSettings.positionSource.loop = firstTimeline.loop;
+
+    await this._executeActions(this.configuration.initActions, 'start');
+    this._emitter.emit('initialized');
+    return providerSettings.positionSource;
+  }
+
+  private _getProviderInfo(
+    timeline: IResolvedTimelineConfiguration
+  ): ITimelineProviderInfo | undefined {
+    return (
+      this.timelineProvidersByUri?.[timeline.uri] ??
+      this.timelineProviders?.[timeline.type]
     );
-    this._activePositionSource.onBoundaryReached(boundary => {
+  }
+
+  /**
+   * Makes the given provider the active one, registering the engine callbacks
+   * on its position source and initialising the source and container
+   * provider the first time they are used.
+   */
+  private async _activateProvider(providerInfo: ITimelineProviderInfo) {
+    this._activePositionSource = providerInfo.positionSource;
+    this._activeContainerProvider = providerInfo.containerProvider;
+    this._activePlaylist = providerInfo.playlist;
+
+    await this._prepareSource(providerInfo.positionSource);
+    await this._prepareContainer(
+      providerInfo.containerProvider,
+      providerInfo.positionSource
+    );
+  }
+
+  private async _prepareSource(source: IPositionSource) {
+    if (this._preparedSources.has(source)) {
+      return;
+    }
+    this._preparedSources.add(source);
+
+    // Sources stay registered after a switch, so every callback ignores
+    // events from sources that are not the active one.
+    source.onPosition(position => {
+      if (source === this._activePositionSource) {
+        this._onTimeHandler(position);
+      }
+    });
+    source.onBoundaryReached(boundary => {
+      if (source !== this._activePositionSource) {
+        return;
+      }
       if (boundary === 'end') {
         this._onCompleteCallback();
       } else if (boundary === 'start') {
         this._onRestartCallback();
       }
     });
-    this._activePositionSource.onActivated(
-      this._onFirstFrameCallback.bind(this)
-    );
+    source.onActivated(() => {
+      if (source === this._activePositionSource) {
+        this._onFirstFrameCallback();
+      }
+    });
 
-    await this._activePositionSource.init();
-    await this._executeActions(this.configuration.initActions, 'start');
-    this._emitter.emit('initialized');
-    return this._activePositionSource;
+    await source.init();
+  }
+
+  private async _prepareContainer(
+    containerProvider: IContainerProvider | undefined,
+    source: IPositionSource
+  ) {
+    if (
+      !containerProvider ||
+      (containerProvider as unknown) === source ||
+      this._preparedContainers.has(containerProvider)
+    ) {
+      return;
+    }
+    this._preparedContainers.add(containerProvider);
+    await containerProvider.init?.();
   }
 
   private _onCompleteCallback() {
     // playState is now derived from position source state
     this._emitter.emit('timelineComplete');
-    this.eventbus.broadcast('timeline-complete', []);
   }
 
   private _onFirstFrameCallback() {
     this._emitter.emit('timelineFirstFrame');
-    this.eventbus.broadcast('timeline-firstframe', []);
 
     const duration = this._activePositionSource?.getDuration();
     if (duration !== undefined) {
       this._emitter.emit('duration', duration);
     }
-    this.eventbus.broadcast('timeline-duration', [
-      this._activePositionSource?.getDuration,
-    ]);
   }
 
   private _onRestartCallback() {
     this._emitter.emit('timelineRestart');
-    this.eventbus.broadcast('timeline-restart', []);
-  }
-
-  private async _cleanUp() {
-    await this._cleanUpTimeline();
-    await this._executeActions(
-      [...this.configuration.initActions].reverse(),
-      'end'
-    );
   }
 
   /**
    * Cleans up all the necessary parts that the engine initialized.
-   * - It ends the currently active operations and the init actions.
-   * - It removes all its eventbus listeners, handlers and interceptors.
-   * - It destroys all of its timeline providers
+   * - It stops the active position source.
+   * - It ends the currently active timeline actions and the init actions.
+   * - It removes all its eventbus listeners.
+   * - It destroys all of its position sources and container providers.
    * - It empties the HTML element indicated by the containerSelector configuration property.
    *
+   * Every step runs even when an earlier one fails. Errors are rethrown at
+   * the end (an AggregateError when there is more than one).
    */
   async destroy() {
-    await this._cleanUp();
+    const errors: unknown[] = [];
+    const attempt = (step: () => void) => {
+      try {
+        step();
+      } catch (error) {
+        errors.push(error);
+      }
+    };
 
-    this.localeManager.destroy();
+    // Stop the clock first, so no tick starts actions while others end.
+    const activeSource = this._activePositionSource;
+    attempt(() => activeSource?.deactivate());
+
+    await this._endActionsSettled(
+      this._getActiveActions(this._getTimelineActionsForCurrentTimeline()),
+      errors
+    );
+    await this._endActionsSettled(
+      [...(this.configuration.initActions ?? [])].reverse(),
+      errors
+    );
+
+    attempt(() => this.localeManager.destroy());
 
     this._activePositionSource = undefined;
     this._activeContainerProvider = undefined;
     this._activePlaylist = undefined;
-    this._eventbusRemovers.forEach(remover => remover());
+    attempt(() => this._removeEventbusListeners());
 
-    if (this.timelineProviders) {
-      Object.values(this.timelineProviders).forEach(providerInfo =>
-        providerInfo.positionSource.destroy()
-      );
-    }
+    const providers = this._allProviderInfos();
+    const sources = new Set(providers.map(info => info.positionSource));
+    sources.forEach(source => attempt(() => source?.destroy()));
+    new Set(providers.map(info => info.containerProvider)).forEach(
+      containerProvider => {
+        if (
+          containerProvider &&
+          !sources.has(containerProvider as unknown as IPositionSource)
+        ) {
+          attempt(() => containerProvider.destroy?.());
+        }
+      }
+    );
+    this._preparedSources.clear();
+    this._preparedContainers.clear();
 
-    const {containerSelector} = this.configuration;
-    const container = $(containerSelector);
-    container.empty();
+    attempt(() => {
+      const {containerSelector} = this.configuration;
+      $(containerSelector).empty();
+    });
 
-    this._emitter.emit('destroyed');
+    attempt(() => this._emitter.emit('destroyed'));
     this._emitter.removeAllListeners();
+
+    if (errors.length === 1) {
+      throw errors[0];
+    }
+    if (errors.length > 1) {
+      throw new AggregateError(errors, 'Errors while destroying the engine');
+    }
+  }
+
+  private _allProviderInfos(): ITimelineProviderInfo[] {
+    return [
+      ...Object.values(this.timelineProviders ?? {}),
+      ...Object.values(this.timelineProvidersByUri ?? {}),
+    ].filter(Boolean) as ITimelineProviderInfo[];
+  }
+
+  private async _endActionsSettled(
+    actions: IEndableAction[],
+    errors: unknown[]
+  ) {
+    for (const action of actions) {
+      try {
+        await action.end();
+      } catch (error) {
+        errors.push(error);
+      }
+    }
   }
 
   private _addEventListener(
@@ -478,6 +654,17 @@ export class EligiusEngine implements IEligiusEngine {
     );
   }
 
+  private _removeEventbusListeners() {
+    const removers = this._eventbusRemovers;
+    this._eventbusRemovers = [];
+    removers.forEach(remover => remover());
+  }
+
+  /**
+   * Registers the callback-style eventbus queries (`broadcast(name,
+   * [resultCallback])`). Playback commands (`timeline-play-request` and so
+   * on) and state broadcasts are owned by EngineEventbusAdapter.
+   */
   private _addEventbusListeners() {
     this._addEventListener(
       'request-engine-root',
@@ -487,12 +674,8 @@ export class EligiusEngine implements IEligiusEngine {
       )
     );
     this._addEventListener(
-      'request-timeline-uri',
-      this._handleRequestTimelineUri.bind(this)
-    );
-    this._addEventListener(
       'request-current-timeline-position',
-      this._handleRequestTimelinePosition.bind(this, (x: number) => x)
+      this._handleRequestTimelinePosition.bind(this)
     );
     this._addEventListener(
       'request-timeline-cleanup',
@@ -503,44 +686,13 @@ export class EligiusEngine implements IEligiusEngine {
       this._requestCurrentTimeline.bind(this)
     );
     this._addEventListener(
-      'timeline-play-toggle-request',
-      this._toggleplay.bind(this)
-    );
-
-    this._addEventListener(
-      'timeline-play-request',
-      this._playRequest.bind(this)
-    );
-
-    this._addEventListener(
-      'timeline-stop-request',
-      this._stopRequest.bind(this)
-    );
-
-    this._addEventListener(
-      'timeline-pause-request',
-      this._pauseRequest.bind(this)
-    );
-
-    this._addEventListener(
       'timeline-container-request',
       this._containerRequest.bind(this)
     );
-
     this._addEventListener(
       'timeline-duration-request',
       this._durationRequest.bind(this)
     );
-
-    this._addEventListener(
-      'timeline-seek-request',
-      this._seekRequest.bind(this)
-    );
-  }
-
-  // Legacy eventbus handlers - delegate to public API methods
-  private async _seekRequest(position: number) {
-    await this.seek(position);
   }
 
   private _durationRequest(callBack: TResultCallback<number | undefined>) {
@@ -553,43 +705,59 @@ export class EligiusEngine implements IEligiusEngine {
     callBack(this.container);
   }
 
-  private _pauseRequest() {
-    this.pause();
-  }
-
-  private _stopRequest() {
-    this.stop();
-  }
-
-  private async _playRequest() {
-    await this.start();
-  }
-
-  private async _toggleplay() {
-    if (this._activePositionSource?.state === 'active') {
-      this.pause();
-    } else {
-      await this.start();
-    }
-  }
-
   private _createTimelineLookup() {
+    this._timelineSchedules = new Map();
+    this._timelineLookupCache = new Map();
+
     if (!this.configuration.timelines) {
       return;
     }
 
-    // Consolidated loop: process both start and end actions in a single pass
     this.configuration.timelines.forEach(timelineInfo => {
       // Populate timeline lookup cache for O(1) access
       this._timelineLookupCache.set(timelineInfo.uri, timelineInfo);
+      this._timelineSchedules.set(
+        timelineInfo.uri,
+        EligiusEngine._createSchedule(timelineInfo.timelineActions)
+      );
+    });
+  }
 
-      timelineInfo.timelineActions.forEach(timelineAction => {
-        this._addTimelineActionStart(timelineInfo.uri, timelineAction);
-        this._addTimelineActionEnd(timelineInfo.uri, timelineAction);
-      });
+  private static _createSchedule(
+    timelineActions: ITimelineAction[]
+  ): IScheduledActionEvent[] {
+    const events: IScheduledActionEvent[] = [];
+
+    timelineActions.forEach(action => {
+      if (action.duration.end < 0) {
+        action.duration.end = Infinity;
+      }
+      const {start, end} = action.duration;
+
+      events.push({position: start, isStart: true, order: 1, action});
+      if (Number.isFinite(end)) {
+        events.push({
+          position: end,
+          isStart: false,
+          order: end === start ? 2 : 0,
+          action,
+        });
+      }
     });
 
-    EligiusEngine.sortTimelines(Object.values(this._timeLineActionsLookup));
+    // Array.prototype.sort is stable, so starts at the same position keep
+    // their configuration order.
+    return events.sort((a, b) => {
+      if (a.position !== b.position) {
+        return a.position - b.position;
+      }
+      if (a.order !== b.order) {
+        return a.order - b.order;
+      }
+      return a.isStart
+        ? 0
+        : sortActionsHighestStartPositionFirst(a.action, b.action);
+    });
   }
 
   static sortTimelines(timelines: Record<number, ActionMethod[]>[]) {
@@ -621,81 +789,10 @@ export class EligiusEngine implements IEligiusEngine {
     ];
   }
 
-  private _addTimelineActionStart(
-    uri: string,
-    timeLineAction: ITimelineAction
-  ) {
-    const startPosition = timeLineAction.duration.start;
-    const timelineStartPositions = this._initializeTimelinePosition(
-      this._initializeUriLookup(this._timeLineActionsLookup, uri),
-      startPosition
-    );
-    const startMethod = timeLineAction.start.bind(
-      timeLineAction
-    ) as ActionMethod;
-
-    if (timeLineAction.id?.length) {
-      startMethod.id = timeLineAction.id;
-    }
-    startMethod.isStart = true;
-
-    timelineStartPositions.push(startMethod);
-  }
-
-  private _addTimelineActionEnd(uri: string, timeLineAction: ITimelineAction) {
-    let end = timeLineAction.duration.end;
-    if (end < 0) {
-      end = timeLineAction.duration.end = Infinity;
-    }
-
-    if (Number.isFinite(end)) {
-      const timelineEndPositions = this._initializeTimelinePosition(
-        this._timeLineActionsLookup[uri],
-        end
-      );
-      const endMethod = timeLineAction.end.bind(timeLineAction) as ActionMethod;
-
-      if (timeLineAction.id?.length) {
-        endMethod.id = timeLineAction.id;
-        endMethod.startPosition = timeLineAction.duration.start;
-      }
-      endMethod.isStart = false;
-
-      timelineEndPositions.push(endMethod);
-    }
-  }
-
-  private _initializeUriLookup(
-    lookup: Record<string, Record<number, ActionMethod[]>>,
-    uri: string
-  ): Record<number, ActionMethod[]> {
-    if (!lookup[uri]) {
-      lookup[uri] = {};
-    }
-
-    return lookup[uri];
-  }
-
-  private _initializeTimelinePosition(
-    lookup: Record<number, ActionMethod[]>,
-    position: number
-  ): ActionMethod[] {
-    if (!lookup[position]) {
-      lookup[position] = [] as ActionMethod[];
-    }
-
-    return lookup[position];
-  }
-
   private async _executeActions(
     actions: IEndableAction[],
     methodName: 'start' | 'end'
   ): Promise<void> {
-    // Iterative implementation (converted from recursive)
-    if (actions.length === 0) {
-      return;
-    }
-
     for (const action of actions) {
       await action[methodName]();
     }
@@ -708,34 +805,14 @@ export class EligiusEngine implements IEligiusEngine {
     resultCallback($(engineRootSelector));
   }
 
-  private async _handleRequestTimelineUri(uri: string, position: number = 0) {
-    await this.switchTimeline(uri, position);
-  }
-
-  private _cleanUpTimeline() {
-    return this._executeRelevantActions(this._getActiveActions, 'end');
-  }
-
-  private _executeStartActions() {
-    return this._executeRelevantActions(
-      this._getActionsForPosition.bind(this, 0),
-      'start'
-    );
-  }
-
   /**
-   * Gets all of the inactive actions whose duration falls within the given timeline position.
-   *
-   * @param position the given position
-   * @param actions all of the relevant actions
-   * @returns
+   * Ends every active action of the given timeline (the current one by
+   * default), highest start position first.
    */
-  private _getActionsForPosition(position: number, actions: ITimelineAction[]) {
-    return actions.filter(
-      action =>
-        !action.active &&
-        action.duration.start <= position &&
-        action.duration.end >= position
+  private _cleanUpTimeline(uri: string = this._currentTimelineUri) {
+    return this._executeActions(
+      this._getActiveActions(this._getTimelineActionsForUri(uri)),
+      'end'
     );
   }
 
@@ -744,24 +821,16 @@ export class EligiusEngine implements IEligiusEngine {
     return actions.sort(sortActionsHighestStartPositionFirst);
   }
 
-  private _executeRelevantActions(
-    filter: (actions: ITimelineAction[]) => ITimelineAction[],
-    executionType: 'start' | 'end'
-  ) {
-    const timelineActions = this._getTimelineActionsForCurrentTimeline();
-    const currentActions = filter.apply(this, [timelineActions]);
-    return this._executeActions(currentActions, executionType);
-  }
-
   private _handleRequestTimelinePosition(
-    floor: (x: number) => number,
     resultCallback: TResultCallback<number>
   ) {
-    resultCallback(floor(this._activePositionSource?.getPosition() || -1));
+    resultCallback(this._activePositionSource?.getPosition() ?? -1);
   }
 
   private _handleTimelineComplete() {
-    this._cleanUpTimeline();
+    this._cleanUpTimeline().catch(error => {
+      console.error('Error while ending timeline actions on cleanup', error);
+    });
   }
 
   private _getTimelineActionsForCurrentTimeline() {
@@ -777,38 +846,111 @@ export class EligiusEngine implements IEligiusEngine {
     return info?.timelineActions ?? [];
   }
 
-  private _onTimeHandler(floor: (x: number) => number, position: number) {
-    if (!Number.isNaN(position)) {
-      const pos = floor(position);
+  /**
+   * Seeks the source (when it is seekable) without dispatching the position
+   * updates it emits while seeking; the caller reconciles the actions.
+   */
+  private async _seekSource(source: IPositionSource, position: number) {
+    if (!isSeekable(source)) {
+      return;
+    }
 
-      if (this._lastPosition !== pos) {
-        this._executeActionsForPosition(pos);
-        this._emitter.emit('time', pos);
-        this.eventbus.broadcast('timeline-time', [pos]);
+    this._seekDepth++;
+    try {
+      await source.seek(position);
+    } finally {
+      this._seekDepth--;
+    }
+  }
+
+  private _onTimeHandler(position: number) {
+    if (Number.isNaN(position) || this._seekDepth > 0) {
+      return;
+    }
+    if (this._lastPosition === position) {
+      return;
+    }
+
+    const previousPosition = this._lastPosition;
+    this._lastPosition = position;
+    this._dispatchActionsBetween(previousPosition, position);
+    this._emitter.emit('time', position);
+  }
+
+  /**
+   * Dispatches the timeline actions whose start or end lies between the
+   * previous and the current position.
+   *
+   * Moving forward, every start and end in `(from, to]` fires in position
+   * order, so skipped frames and coarse sources (video timeupdate, scroll,
+   * keyboard steps) never miss an action. Moving backward, the actions whose
+   * range no longer covers the position are ended and the ones that cover it
+   * again are started, like a seek. Actions track their own `active` state,
+   * so revisiting a key never runs a start or end twice.
+   */
+  private _dispatchActionsBetween(from: number, to: number) {
+    const events = this._timelineSchedules.get(this._currentTimelineUri);
+    if (!events?.length) {
+      return;
+    }
+
+    if (to > from) {
+      const last = upperBound(events, to);
+      for (let i = upperBound(events, from); i < last; i++) {
+        const {action, isStart} = events[i];
+        if (isStart) {
+          if (!action.active) {
+            fireAndForget(action, 'start');
+          }
+        } else if (action.active) {
+          fireAndForget(action, 'end');
+        }
+      }
+      return;
+    }
+
+    const toEnd: ITimelineAction[] = [];
+    const toStart: ITimelineAction[] = [];
+    const first = upperBound(events, to);
+    for (let i = upperBound(events, from) - 1; i >= first; i--) {
+      const {action, isStart} = events[i];
+      if (isStart) {
+        if (action.active) {
+          toEnd.push(action);
+        }
+      } else if (!action.active && action.duration.start <= to) {
+        toStart.push(action);
       }
     }
+    toEnd.forEach(action => fireAndForget(action, 'end'));
+    toStart
+      .sort((a, b) => a.duration.start - b.duration.start)
+      .forEach(action => fireAndForget(action, 'start'));
   }
 
-  private _executeActionsForPosition(position: number) {
-    this._lastPosition = position;
-    const actions = this._timeLineActionsLookup[this._currentTimelineUri];
-
-    if (actions) {
-      const executions = actions[position];
-      executions?.forEach(exec => exec());
-    }
-  }
-
-  private async _executeSeekActions(position: number) {
-    const timelineActions = this._getTimelineActionsForCurrentTimeline();
-    const currentActions = this._getActiveActions(timelineActions).filter(
-      action =>
-        !(action.duration.start <= position && action.duration.end >= position)
+  /**
+   * Brings the actions of a timeline in line with a position: ends the active
+   * actions that do not cover it and starts the inactive ones that do.
+   */
+  private async _reconcileActions(uri: string, position: number) {
+    const timelineActions = this._getTimelineActionsForUri(uri);
+    const actionsToEnd = this._getActiveActions(timelineActions).filter(
+      action => !coversPosition(action, position)
     );
-    const newActions = this._getActionsForPosition(position, timelineActions);
-    await this._executeActions(currentActions, 'end');
-    await this._executeActions(newActions, 'start');
+    const actionsToStart = timelineActions.filter(
+      action => !action.active && coversPosition(action, position)
+    );
+    await this._executeActions(actionsToEnd, 'end');
+    await this._executeActions(actionsToStart, 'start');
   }
+}
+
+/**
+ * Runs an action method from the position callback without blocking it.
+ * Actions log their own errors, so a rejection is not reported again.
+ */
+function fireAndForget(action: ITimelineAction, method: 'start' | 'end') {
+  Promise.resolve(action[method]()).catch(noop);
 }
 
 const sortActionsHighestStartPositionFirst = (

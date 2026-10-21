@@ -106,10 +106,14 @@ export class EngineEventbusAdapter implements IAdapter {
   // Eventbus Commands → Engine Methods
   // ─────────────────────────────────────────────────────────────────────────
 
+  /**
+   * This adapter is the only place where eventbus commands reach the engine;
+   * the engine itself does not subscribe to them.
+   */
   private _subscribeToEventbusEvents(): void {
     // Playback commands
     this._onEventbusEvent('timeline-play-request', () => {
-      this._engine.start();
+      this._handleRejection('start', this._engine.start());
     });
 
     this._onEventbusEvent('timeline-pause-request', () => {
@@ -117,18 +121,18 @@ export class EngineEventbusAdapter implements IAdapter {
     });
 
     this._onEventbusEvent('timeline-stop-request', () => {
-      this._engine.stop();
+      this._handleRejection('stop', this._engine.stop());
     });
 
     this._onEventbusEvent('timeline-seek-request', (position: number) => {
-      this._engine.seek(position);
+      this._handleRejection('seek', this._engine.seek(position));
     });
 
     this._onEventbusEvent('timeline-play-toggle-request', () => {
       if (this._engine.playState === 'playing') {
         this._engine.pause();
       } else {
-        this._engine.start();
+        this._handleRejection('start', this._engine.start());
       }
     });
 
@@ -136,7 +140,10 @@ export class EngineEventbusAdapter implements IAdapter {
     this._onEventbusEvent(
       'request-timeline-uri',
       (uri: string, position: number = 0) => {
-        this._engine.switchTimeline(uri, position);
+        this._handleRejection(
+          'switchTimeline',
+          this._engine.switchTimeline(uri, position)
+        );
       }
     );
 
@@ -160,6 +167,21 @@ export class EngineEventbusAdapter implements IAdapter {
     this._registerRequest('timeline-request-current-timeline', () => {
       return this._engine.currentTimelineUri;
     });
+  }
+
+  /**
+   * Eventbus handlers cannot return the engine's promises to anyone, so
+   * report a rejection here instead of leaving it unhandled.
+   */
+  private _handleRejection(command: string, result: unknown): void {
+    if (result instanceof Promise) {
+      result.catch(error => {
+        console.error(
+          `[EngineEventbusAdapter] engine.${command}() failed`,
+          error
+        );
+      });
+    }
   }
 
   private _onEventbusEvent(

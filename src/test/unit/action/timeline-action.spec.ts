@@ -73,7 +73,7 @@ describe<TimelineActionSuiteContext>('TimelineAction', () => {
     expect(action.active).toBe(true);
   });
 
-  test<TimelineActionSuiteContext>('should not set active when start() is called without endOperations', async context => {
+  test<TimelineActionSuiteContext>('should set active when start() is called without endOperations, so a second dispatch cannot start it twice', async context => {
     // given
     const {eventbus} = context;
     const startOps = [createMockOperation('start-1')];
@@ -91,8 +91,8 @@ describe<TimelineActionSuiteContext>('TimelineAction', () => {
     // test
     await action.start();
 
-    // expect - active should remain false when no endOperations
-    expect(action.active).toBe(false);
+    // expect - start-only actions are active until they are ended
+    expect(action.active).toBe(true);
   });
 
   test<TimelineActionSuiteContext>('should return early when start() is called while already active', async context => {
@@ -197,5 +197,83 @@ describe<TimelineActionSuiteContext>('TimelineAction', () => {
     // expect
     expect(endOp.instance).toHaveBeenCalled();
     expect(action.active).toBe(false);
+  });
+
+  test<TimelineActionSuiteContext>('given an action that has already ended, when end is called again, then its endOperations do not run again', async context => {
+    // given
+    const endOp = createMockOperation('end-1');
+    const action = new TimelineAction(
+      'TestAction',
+      [createMockOperation('start-1')],
+      [endOp],
+      {start: 2, end: 5},
+      context.eventbus
+    );
+    await action.start();
+    await action.end({});
+
+    // test
+    await action.end({});
+
+    // expect
+    expect(endOp.instance).toHaveBeenCalledTimes(1);
+  });
+
+  test<TimelineActionSuiteContext>('given an action that never started, when end is called, then its endOperations do not run', async context => {
+    // given
+    const endOp = createMockOperation('end-1');
+    const action = new TimelineAction(
+      'TestAction',
+      [createMockOperation('start-1')],
+      [endOp],
+      {start: 2, end: 5},
+      context.eventbus
+    );
+
+    // test
+    await action.end({});
+
+    // expect
+    expect(endOp.instance).not.toHaveBeenCalled();
+  });
+
+  test<TimelineActionSuiteContext>('given a start-only action that has started, when start is called again before it ends, then its startOperations run once', async context => {
+    // given
+    const startOp = createMockOperation('start-1');
+    const action = new TimelineAction(
+      'TestAction',
+      [startOp],
+      [],
+      {start: 5, end: 10},
+      context.eventbus
+    );
+
+    // test
+    await action.start();
+    await action.start();
+
+    // expect
+    expect(startOp.instance).toHaveBeenCalledTimes(1);
+    expect(action.active).toBe(true);
+  });
+
+  test<TimelineActionSuiteContext>('given a start-only action that has started and ended, when start is called again, then its startOperations run again', async context => {
+    // given
+    const startOp = createMockOperation('start-1');
+    const action = new TimelineAction(
+      'TestAction',
+      [startOp],
+      [],
+      {start: 5, end: 10},
+      context.eventbus
+    );
+    await action.start();
+    await action.end({});
+
+    // test
+    await action.start();
+
+    // expect
+    expect(startOp.instance).toHaveBeenCalledTimes(2);
   });
 });

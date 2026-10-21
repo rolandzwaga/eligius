@@ -189,9 +189,13 @@ export interface IEligiusEngine {
   pause(): void;
 
   /**
-   * Stop playback and reset to beginning
+   * Stop playback and reset to beginning.
+   *
+   * Playback stops synchronously. Implementations may return a promise that
+   * resolves once the active timeline actions have been ended
+   * (EligiusEngine does).
    */
-  stop(): void;
+  stop(): void | Promise<void>;
 
   /**
    * Seek to a specific position
