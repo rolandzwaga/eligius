@@ -1,4 +1,4 @@
-import {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
+import {ConfigurationFactory} from '@configuration/api/index.ts';
 import type {IEngineConfiguration} from '@configuration/types.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
 import {EligiusResourceImporter} from '@importer/index.ts';

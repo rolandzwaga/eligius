@@ -37,7 +37,7 @@ const base = {
   plugins: [aliasPlugin],
 };
 
-// Two INDEPENDENT builds (the `build` npm script `rimraf`s dist first, so neither
+// Three INDEPENDENT builds (the `build` npm script `rimraf`s dist first, so neither
 // needs `clean`). They are intentionally separate so the metadata entry gets its
 // OWN bundle and can never share a rolldown chunk with the engine: a single
 // multi-entry build co-locates the metadata namespaces with the operation /
@@ -46,8 +46,14 @@ const base = {
 // the operation-data interfaces (erased via verbatimModuleSyntax), so its
 // standalone bundle is free of jquery / lottie-web / video.js and imports cleanly
 // in a DOM-less Node context. The package.json `exports` map is maintained by
-// hand (no `exports: true`) so the two builds don't fight over it.
+// hand (no `exports: true`) so the builds don't fight over it.
+//
+// `configuration-api` is a DOM-free entry for the fluent ConfigurationFactory, for
+// build tools that run in Node. It is its own build for the same reason as
+// `metadata`: it validates operation names against the metadata and must not
+// share a chunk with the operation implementations.
 export default defineConfig([
   {...base, entry: ['./src/index.ts']},
   {...base, entry: ['./src/metadata.ts']},
+  {...base, entry: ['./src/configuration-api.ts']},
 ]);

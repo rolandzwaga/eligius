@@ -10,11 +10,15 @@ import type {
   TOperationType,
 } from '@configuration/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
-import * as operations from '@operation/index.ts';
+import type * as operations from '@operation/index.ts';
 import type {TOperation, TOperationData} from '@operation/types.ts';
 import {isDefined} from 'ts-is-present';
 import {v4 as uuidv4} from 'uuid';
 import type {IDuration} from '../../types.ts';
+import {
+  assertKnownOperationName,
+  getOperationNameByType,
+} from './operation-lookup.ts';
 import {syncInPlace} from './sync-in-place.ts';
 
 function array_move(arr: any[], old_index: number, new_index: number) {
@@ -95,23 +99,21 @@ export class ActionEditor<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addStartOperationByType<T extends TOperation<TOperationData>>(
     operationClass: T,
     operationData: Partial<ExtractOperationDataType<T>>
   ): OperationEditor<this, T> {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
-    );
-
-    if (entries) {
-      return this.addStartOperation(
-        entries[0] as TOperationName,
-        operationData
-      ) as OperationEditor<this, T>;
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
+    return this.addStartOperation(
+      getOperationNameByType(
+        operationClass,
+        'addStartOperationByType',
+        'addStartOperation'
+      ),
+      operationData
+    ) as OperationEditor<this, T>;
   }
 
   /**
@@ -128,9 +130,7 @@ export class ActionEditor<
     operationData: TOperationData,
     id: string = uuidv4()
   ): OperationEditor<this, TOperation<TOperationData>> {
-    if (!(operations as any)[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName);
 
     const startOperations = this.actionConfig.startOperations
       ? this.actionConfig.startOperations.slice()
@@ -255,6 +255,8 @@ export class EndableActionEditor<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addEndOperationByType<
     T extends TOperationType,
@@ -263,15 +265,14 @@ export class EndableActionEditor<
     operationClass: T,
     operationData: Dt
   ): OperationEditor<this, TOperationType> {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
+    return this.addEndOperation(
+      getOperationNameByType(
+        operationClass,
+        'addEndOperationByType',
+        'addEndOperation'
+      ),
+      operationData
     );
-
-    if (entries) {
-      return this.addEndOperation(entries[0] as TOperationName, operationData);
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   /**
@@ -286,10 +287,7 @@ export class EndableActionEditor<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
   >(systemName: TOperationName, operationData: O) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    if (!operations[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName);
 
     const endOperations = this.actionConfig.endOperations
       ? this.actionConfig.endOperations.slice()
@@ -305,9 +303,10 @@ export class EndableActionEditor<
 
     this.actionConfig.endOperations = endOperations;
 
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    const operationCsl = operations[systemName];
-    return new OperationEditor<this, typeof operationCsl>(newConfig, this);
+    return new OperationEditor<this, (typeof operations)[TOperationName]>(
+      newConfig,
+      this
+    );
   }
 
   /**
@@ -472,10 +471,7 @@ export class OperationEditor<
    * @returns
    */
   setSystemName(systemName: TOperationName) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    if (!operations[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName);
 
     this.operationConfig.systemName = systemName;
     this.actionEditor.updateConfiguration();
