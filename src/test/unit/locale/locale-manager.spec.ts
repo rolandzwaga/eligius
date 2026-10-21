@@ -425,4 +425,175 @@ describe<LocaleManagerTestContext>('LocaleManager', () => {
       expect.stringMatching(/missing interpolation.*name/i)
     );
   });
+
+  // ===========================================================================
+  // 'change' emit: error isolation and snapshot
+  // ===========================================================================
+
+  test<LocaleManagerTestContext>("given a 'change' handler that throws registered before a second 'change' handler, when setLocale('nl-NL') is called, then setLocale does not throw and the second handler is called with ('nl-NL', 'en-US')", context => {
+    const {manager, enUSData, nlNLData} = context;
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    manager.loadLocale('en-US' as TLanguageCode, enUSData);
+    manager.loadLocale('nl-NL' as TLanguageCode, nlNLData);
+    const failure = new Error('handler failed');
+    manager.on('change', () => {
+      throw failure;
+    });
+    const second = vi.fn();
+    manager.on('change', second);
+
+    expect(() => manager.setLocale('nl-NL' as TLanguageCode)).not.toThrow();
+
+    expect(second).toHaveBeenCalledWith('nl-NL', 'en-US');
+    expect(manager.locale).toBe('nl-NL');
+    expect(errorSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/LocaleManager.*'change'/),
+      failure
+    );
+  });
+
+  test<LocaleManagerTestContext>("given a 'change' handler that registers another handler, when setLocale is called, then the new handler is not called for that same change but is called for the next one", context => {
+    const {manager, enUSData, nlNLData} = context;
+    manager.loadLocale('en-US' as TLanguageCode, enUSData);
+    manager.loadLocale('nl-NL' as TLanguageCode, nlNLData);
+    const lateHandler = vi.fn();
+    let registered = false;
+    manager.on('change', () => {
+      if (!registered) {
+        registered = true;
+        manager.on('change', lateHandler);
+      }
+    });
+
+    manager.setLocale('nl-NL' as TLanguageCode);
+    expect(lateHandler).not.toHaveBeenCalled();
+
+    manager.setLocale('en-US' as TLanguageCode);
+    expect(lateHandler).toHaveBeenCalledTimes(1);
+    expect(lateHandler).toHaveBeenCalledWith('en-US', 'nl-NL');
+  });
+
+  // ===========================================================================
+  // t(): non-leaf, inherited and non-string results
+  // ===========================================================================
+
+  test<LocaleManagerTestContext>('given locale en-US with {nav: {home: Home}}, when t(nav) or t(constructor) is called, then it returns an empty string', context => {
+    const {manager} = context;
+    manager.loadLocale('en-US' as TLanguageCode, {nav: {home: 'Home'}});
+
+    expect(manager.t('nav')).toBe('');
+    expect(manager.t(['nav'])).toBe('');
+    expect(manager.t('constructor')).toBe('');
+    expect(manager.t('constructor', {a: 1})).toBe('');
+    expect(manager.t('nav.toString')).toBe('');
+    expect(manager.t('nav.home.length')).toBe('');
+    expect(manager.t('nav.home')).toBe('Home');
+  });
+
+  test<LocaleManagerTestContext>('given a function translation that returns a number, when t() is called, then it returns an empty string', context => {
+    const {manager} = context;
+    manager.loadLocale('en-US' as TLanguageCode, {
+      count: (() => 42) as unknown as string,
+    });
+
+    expect(manager.t('count')).toBe('');
+  });
+
+  test('given debug=true, when t() is called with a namespace key, then a warning says the key does not name a string translation', async () => {
+    const {LocaleManager} = await import('../../../locale/locale-manager.ts');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debugManager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+      debug: true,
+    });
+    debugManager.loadLocale('en-US' as TLanguageCode, {nav: {home: 'Home'}});
+
+    expect(debugManager.t('nav')).toBe('');
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/'nav'.*not.*string/i)
+    );
+  });
+
+  test('given debug=true, when t() is called with an inherited key, then a missing translation warning is logged', async () => {
+    const {LocaleManager} = await import('../../../locale/locale-manager.ts');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debugManager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+      debug: true,
+    });
+    debugManager.loadLocale('en-US' as TLanguageCode, {nav: {home: 'Home'}});
+
+    expect(debugManager.t('constructor')).toBe('');
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/missing translation.*constructor/i)
+    );
+  });
+
+  // ===========================================================================
+  // Debug interpolation check: placeholders rosetta supports
+  // ===========================================================================
+
+  test('given debug=true and placeholders with spaces and dot paths, when params are missing them, then each is reported', async () => {
+    const {LocaleManager} = await import('../../../locale/locale-manager.ts');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debugManager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+      debug: true,
+    });
+    debugManager.loadLocale('en-US' as TLanguageCode, {
+      hi: 'Hi {{ name }}, you are {{user.age}} ({{user.city}})',
+    });
+
+    debugManager.t('hi', {user: {age: 30, city: null}});
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/missing interpolation.*name.*user\.city/i)
+    );
+    expect(warnSpy).not.toHaveBeenCalledWith(
+      expect.stringMatching(/user\.age/)
+    );
+  });
+
+  test('given debug=true and a placeholder named after an Object.prototype member, when params lack it, then it is reported', async () => {
+    const {LocaleManager} = await import('../../../locale/locale-manager.ts');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debugManager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+      debug: true,
+    });
+    debugManager.loadLocale('en-US' as TLanguageCode, {
+      hi: 'Hi {{toString}}',
+    });
+
+    debugManager.t('hi', {});
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/missing interpolation.*toString/i)
+    );
+  });
+
+  test('given debug=true and all placeholders supplied, when t() is called, then no interpolation warning is logged', async () => {
+    const {LocaleManager} = await import('../../../locale/locale-manager.ts');
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    const debugManager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+      debug: true,
+    });
+    debugManager.loadLocale('en-US' as TLanguageCode, {
+      hi: 'Hi {{ name }} from {{user.city}}',
+    });
+
+    expect(debugManager.t('hi', {name: 'Ann', user: {city: 'Ghent'}})).toBe(
+      'Hi Ann from Ghent'
+    );
+
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
 });

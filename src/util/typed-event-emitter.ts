@@ -1,7 +1,15 @@
+import {isPromise} from '@util/guards/is-promise.ts';
+
 /**
  * Handler function for a specific event
  */
 export type EventHandler<T extends unknown[]> = (...args: T) => void;
+
+/**
+ * Maps each once() wrapper to the handler it wraps, so off() can remove a
+ * once() registration by the original function.
+ */
+const onceOriginals = new WeakMap<EventHandler<any[]>, EventHandler<any[]>>();
 
 /**
  * Interface for a type-safe event emitter
@@ -106,14 +114,23 @@ export class TypedEventEmitter<T extends Record<keyof T, unknown[]>>
   once<K extends keyof T>(event: K, handler: EventHandler<T[K]>): () => void {
     const onceHandler: EventHandler<T[K]> = (...args) => {
       this.off(event, onceHandler);
-      handler(...args);
+      // Return the result so emit() can report a rejected async handler.
+      return handler(...args);
     };
+    onceOriginals.set(
+      onceHandler as EventHandler<any[]>,
+      handler as EventHandler<any[]>
+    );
 
     return this.on(event, onceHandler);
   }
 
   /**
-   * Unsubscribe from an event
+   * Unsubscribe from an event. Removes one registration of the handler; a
+   * handler registered with {@link TypedEventEmitter.once} can be removed by
+   * passing the original function. An exact registration (through `on()`) is
+   * preferred over a `once()` one.
+   *
    * @param event - Event name
    * @param handler - Event handler to remove
    */
@@ -123,7 +140,12 @@ export class TypedEventEmitter<T extends Record<keyof T, unknown[]>>
       return;
     }
 
-    const index = eventHandlers.indexOf(handler as EventHandler<T[keyof T]>);
+    let index = eventHandlers.indexOf(handler as EventHandler<T[keyof T]>);
+    if (index === -1) {
+      index = eventHandlers.findIndex(
+        h => onceOriginals.get(h as EventHandler<any[]>) === handler
+      );
+    }
     if (index !== -1) {
       eventHandlers.splice(index, 1);
     }
@@ -135,7 +157,8 @@ export class TypedEventEmitter<T extends Record<keyof T, unknown[]>>
    * Features:
    * - Copies handlers array to allow safe removal during iteration
    * - Isolates errors - one failing handler doesn't break others
-   * - Logs errors to console for debugging
+   * - Logs errors to console for debugging, including rejections of promises
+   *   returned by async handlers (they are not awaited)
    *
    * @param event - Event name
    * @param args - Event arguments
@@ -151,11 +174,19 @@ export class TypedEventEmitter<T extends Record<keyof T, unknown[]>>
 
     for (const handler of handlersCopy) {
       try {
-        handler(...(args as T[keyof T]));
+        // Handlers are typed to return void, but async ones return a promise.
+        const result: unknown = handler(...(args as T[keyof T]));
+        if (result && isPromise(result)) {
+          result.then(undefined, error => this._logError(event, error));
+        }
       } catch (error) {
-        console.error(`Error in event handler for "${String(event)}":`, error);
+        this._logError(event, error);
       }
     }
+  }
+
+  private _logError(event: keyof T, error: unknown): void {
+    console.error(`Error in event handler for "${String(event)}":`, error);
   }
 
   /**

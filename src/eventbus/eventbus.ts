@@ -3,13 +3,22 @@ import type {
   IEventbusInterceptor,
   IEventbusListener,
   IEventbusOptions,
+  RequestMap,
+  RequestName,
   TEventbusErrorHandler,
   TEventbusErrorSource,
   TEventbusRemover,
   TEventHandler,
   TRequestResponder,
+  TTypedRequestResponder,
 } from '@eventbus/types.ts';
 import {isPromise} from '@util/guards/is-promise.ts';
+
+/**
+ * Maps each once() decorator to the handler it wraps, so off() can remove a
+ * once() registration by the original function.
+ */
+const onceOriginals = new WeakMap<TEventHandler, TEventHandler>();
 
 /**
  * Central event bus for pub/sub communication and synchronous request/response queries.
@@ -125,23 +134,31 @@ export class Eventbus implements IEventbus {
       // the dispatcher and gets reported.
       return eventHandler(...args);
     };
+    // Lets off(eventName, eventHandler) find the decorator.
+    onceOriginals.set(eventHandlerDecorator, eventHandler);
     this.on(eventName, eventHandlerDecorator, eventTopic);
     return () => {
       this.off(eventName, eventHandlerDecorator, eventTopic);
     };
   }
 
+  /**
+   * Removes one registration of the handler. A handler registered with
+   * {@link Eventbus.once} can be removed by passing the original function. An
+   * exact registration (through `on()`) is preferred over a `once()` one.
+   */
   off(
     eventName: string,
     eventHandler: TEventHandler,
     eventTopic?: string
   ): void {
     const handlers = this._getEventHandlers(eventName, eventTopic);
-    if (handlers) {
-      const idx = handlers.indexOf(eventHandler);
-      if (idx > -1) {
-        handlers.splice(idx, 1);
-      }
+    let idx = handlers.indexOf(eventHandler);
+    if (idx === -1) {
+      idx = handlers.findIndex(h => onceOriginals.get(h) === eventHandler);
+    }
+    if (idx > -1) {
+      handlers.splice(idx, 1);
     }
   }
 
@@ -178,9 +195,19 @@ export class Eventbus implements IEventbus {
     };
   }
 
+  onRequest<K extends RequestName>(
+    eventName: K,
+    responder: TTypedRequestResponder<K>,
+    eventTopic?: string
+  ): TEventbusRemover;
   onRequest<T>(
     eventName: string,
     responder: TRequestResponder<T>,
+    eventTopic?: string
+  ): TEventbusRemover;
+  onRequest(
+    eventName: string,
+    responder: TRequestResponder,
     eventTopic?: string
   ): TEventbusRemover {
     const responders = this._getRequestResponders(eventName, eventTopic);
@@ -193,16 +220,31 @@ export class Eventbus implements IEventbus {
     };
   }
 
-  request<T>(eventName: string, ...args: unknown[]): T | undefined {
-    return this._callResponder<T>(eventName, undefined, args);
+  request<K extends RequestName>(
+    eventName: K,
+    ...args: RequestMap[K]['args']
+  ): RequestMap[K]['returns'] | undefined;
+  request<T>(eventName: string, ...args: unknown[]): T | undefined;
+  request(eventName: string, ...args: unknown[]): unknown {
+    return this._callResponder(eventName, undefined, args);
   }
 
+  requestForTopic<K extends RequestName>(
+    eventName: K,
+    eventTopic: string,
+    ...args: RequestMap[K]['args']
+  ): RequestMap[K]['returns'] | undefined;
   requestForTopic<T>(
     eventName: string,
     eventTopic: string,
     ...args: unknown[]
-  ): T | undefined {
-    return this._callResponder<T>(eventName, eventTopic, args);
+  ): T | undefined;
+  requestForTopic(
+    eventName: string,
+    eventTopic: string,
+    ...args: unknown[]
+  ): unknown {
+    return this._callResponder(eventName, eventTopic, args);
   }
 
   private _getRequestResponders(
@@ -239,7 +281,15 @@ export class Eventbus implements IEventbus {
     const handlers = this._getEventHandlers(eventName, eventTopic);
 
     if (handlers) {
-      const interceptors = this._getEventInterceptors(eventName, eventTopic);
+      // Iterate snapshots: an interceptor, listener or handler that removes
+      // itself (or an earlier one) during dispatch would otherwise make the
+      // loop skip the entry that moves into the freed slot.
+      const interceptors = this._getEventInterceptors(
+        eventName,
+        eventTopic
+      ).slice();
+      const listeners = this.eventListeners.slice();
+      const snapshot = handlers.slice();
 
       // Each interceptor, listener and handler is isolated: one that throws is
       // reported and the rest still run, so a faulty controller cannot abort
@@ -252,7 +302,7 @@ export class Eventbus implements IEventbus {
         }
       }
 
-      for (const listener of this.eventListeners) {
+      for (const listener of listeners) {
         try {
           this._watchResult(
             listener.handleEvent(eventName, eventTopic, args),
@@ -265,10 +315,6 @@ export class Eventbus implements IEventbus {
         }
       }
 
-      // Iterate a snapshot: handlers that call off() (or once() wrappers that
-      // remove themselves) during dispatch would otherwise make the loop skip
-      // the handler that moves into the freed slot.
-      const snapshot = handlers.slice();
       const hasArgs = args?.length > 0;
       for (const handler of snapshot) {
         try {
