@@ -34,7 +34,10 @@ const addToCache = (key: string, value: unknown) => {
  * If the cache property is set to true and a cached value already exists, a copy of it is assigned
  * instead of re-retrieving it from the url. Mutating the returned json never changes the cache.
  *
- * @throws When the request fails, the server responds with an error status, or the body is not valid JSON.
+ * The cache lives for the lifetime of the page and is shared by every engine; call
+ * {@link clearJsonCache} to empty it.
+ *
+ * @throws When the url is empty, the request fails, the server responds with an error status, or the body is not valid JSON.
  *
  * @category Utility
  */
@@ -43,6 +46,10 @@ export const loadJson: TOperation<
   Omit<ILoadJSONOperationData, 'url' | 'cache'>
 > = async (operationData: ILoadJSONOperationData) => {
   const {url, cache} = operationData;
+
+  if (typeof url !== 'string' || url.trim() === '') {
+    throw new Error('loadJson: url is required');
+  }
 
   removeProperties(operationData, 'url', 'cache');
 
@@ -85,6 +92,9 @@ export const loadJson: TOperation<
   return operationData;
 };
 
-export const clearCache = () => {
+/**
+ * Removes every response that {@link loadJson} cached with `cache: true`.
+ */
+export const clearJsonCache = (): void => {
   jsonCache.clear();
 };

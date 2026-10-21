@@ -30,7 +30,10 @@ export interface IReplaceTextOperationData {
  * Supports regex patterns with global flag for multiple replacements.
  * Updates textContent with replaced text and sets replacementCount.
  *
+ * A string pattern replaces every occurrence and inserts the replacement literally.
+ *
  * @returns Operation data with updated `textContent` and `replacementCount` indicating number of replacements made
+ * @throws When textContent is missing or the string searchPattern is empty.
  *
  * @example
  * ```typescript
@@ -82,6 +85,10 @@ export const replaceText: TOperation<
         : 0;
     newText = textContent.replace(searchPattern, replacement);
   } else {
+    if (searchPattern === '') {
+      // split('') would insert the replacement between every character
+      throw new Error('replaceText: searchPattern must not be empty');
+    }
     // Count matches for string
     const parts = textContent.split(searchPattern);
     count = parts.length - 1;

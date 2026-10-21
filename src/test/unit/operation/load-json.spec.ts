@@ -1,4 +1,4 @@
-import {clearCache, loadJson} from '@operation/load-json.ts';
+import {clearJsonCache, loadJson} from '@operation/load-json.ts';
 import {applyOperation} from '@util/apply-operation.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
@@ -28,7 +28,7 @@ describe<LoadJsonContext>('loadJSON', () => {
           } as any);
         })
     );
-    clearCache();
+    clearJsonCache();
   });
   test<LoadJsonContext>('should load the specified json', async context => {
     // given
@@ -190,5 +190,34 @@ describe<LoadJsonContext>('loadJSON', () => {
       'loadJson: /offline.json failed: Failed to fetch'
     );
     expect(error?.cause).toBe(networkError);
+  });
+
+  test('given no url, when loadJson runs, then it rejects without fetching', async () => {
+    // given
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    // test & expect
+    await expect(
+      applyOperation(loadJson, {url: undefined as any})
+    ).rejects.toThrow('loadJson: url is required');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test<LoadJsonContext>('given a cached response, when clearJsonCache is called, then the next call fetches again', async context => {
+    // given
+    context.result = {version: 1};
+    await applyOperation(loadJson, {url: '/data.json', cache: true});
+    context.result = {version: 2};
+
+    // test
+    clearJsonCache();
+    const result = await applyOperation(loadJson, {
+      url: '/data.json',
+      cache: true,
+    });
+
+    // expect
+    expect(result.json).toEqual({version: 2});
   });
 });

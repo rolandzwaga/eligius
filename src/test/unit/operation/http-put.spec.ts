@@ -274,4 +274,58 @@ describe('httpPut', () => {
     expect(error?.message).toMatch(/^httpPut: invalid JSON response/);
     expect(error?.cause).toBeInstanceOf(SyntaxError);
   });
+
+  describe('request headers and body', () => {
+    async function send(body: unknown, headers?: Record<string, string>) {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue(new Response(null, {status: 204}));
+      vi.stubGlobal('fetch', fetchMock);
+      await applyOperation(
+        httpPut,
+        {
+          url: 'https://api.example.com/users/1',
+          body,
+          headers,
+          response: null,
+          status: 0,
+        },
+        {currentIndex: 0, eventbus: mockEventbus, operations: []}
+      );
+      const init = fetchMock.mock.calls[0][1] as RequestInit;
+      return {headers: new Headers(init.headers), body: init.body, init};
+    }
+
+    test("given headers {'content-type': 'application/json'} in lowercase, when httpPut is called, then the request sent to fetch has a single Content-Type value 'application/json'", async () => {
+      const {headers} = await send(
+        {name: 'John'},
+        {'content-type': 'application/json'}
+      );
+
+      expect(headers.get('Content-Type')).toBe('application/json');
+    });
+
+    test('given no headers, when httpPut is called, then Content-Type defaults to application/json and the body is JSON', async () => {
+      const {headers, body, init} = await send({name: 'John'});
+
+      expect(init.method).toBe('PUT');
+      expect(headers.get('Content-Type')).toBe('application/json');
+      expect(body).toBe('{"name":"John"}');
+    });
+
+    test("given a string body and headers {'content-type': 'text/plain'}, when httpPut is called, then the body is sent as is with a single text/plain Content-Type", async () => {
+      const {headers, body} = await send('hello', {
+        'content-type': 'text/plain',
+      });
+
+      expect(headers.get('Content-Type')).toBe('text/plain');
+      expect(body).toBe('hello');
+    });
+
+    test('given a string body without headers, when httpPut is called, then it is JSON encoded', async () => {
+      const {body} = await send('hello');
+
+      expect(body).toBe('"hello"');
+    });
+  });
 });

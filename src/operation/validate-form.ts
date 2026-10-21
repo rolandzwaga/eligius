@@ -31,11 +31,88 @@ export interface IValidateFormOperationData {
   isValid?: boolean;
 }
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isCheckable(element: Element): element is HTMLInputElement {
+  if (element.tagName !== 'INPUT') return false;
+  const type = (element as HTMLInputElement).type;
+  return type === 'checkbox' || type === 'radio';
+}
+
+function toRegExp(pattern: string | RegExp): RegExp {
+  return typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+}
+
+function matches(pattern: RegExp, value: string): boolean {
+  // A global or sticky RegExp keeps lastIndex between test() calls
+  pattern.lastIndex = 0;
+  return pattern.test(value);
+}
+
+/**
+ * Applies the rules to a single string value, returns the error message or undefined.
+ */
+function validateValue(
+  value: string,
+  rules: IValidationRules
+): string | undefined {
+  if (rules.required && value.trim() === '') {
+    return 'This field is required';
+  }
+  if (rules.minLength && value.length < rules.minLength) {
+    return `Must be at least ${rules.minLength} characters`;
+  }
+  if (rules.maxLength && value.length > rules.maxLength) {
+    return `Must be no more than ${rules.maxLength} characters`;
+  }
+  if (rules.pattern && !matches(toRegExp(rules.pattern), value)) {
+    return 'Invalid format';
+  }
+  if (rules.email && !emailRegex.test(value)) {
+    return 'Must be a valid email address';
+  }
+  return undefined;
+}
+
+/**
+ * Applies the rules to the values of a `<select multiple>`: required, minLength and
+ * maxLength count the selected options, pattern and email apply to each of them.
+ */
+function validateSelection(
+  values: string[],
+  rules: IValidationRules
+): string | undefined {
+  if (rules.required && values.length === 0) {
+    return 'This field is required';
+  }
+  if (rules.minLength && values.length < rules.minLength) {
+    return `Select at least ${rules.minLength} options`;
+  }
+  if (rules.maxLength && values.length > rules.maxLength) {
+    return `Select no more than ${rules.maxLength} options`;
+  }
+  if (rules.pattern) {
+    const pattern = toRegExp(rules.pattern);
+    if (values.some(value => !matches(pattern, value))) {
+      return 'Invalid format';
+    }
+  }
+  if (rules.email && values.some(value => !emailRegex.test(value))) {
+    return 'Must be a valid email address';
+  }
+  return undefined;
+}
+
 /**
  * Validates form fields against HTML5 validation and custom rules.
  *
  * Uses HTML5 validation API (checkValidity()) for native validation, and supports
  * custom validation rules for: required, minLength, maxLength, pattern (regex), and email format.
+ *
+ * Checkboxes and radio buttons are validated once per name: `required` passes when at least one
+ * of them is checked, and the string rules do not apply to them. For a `<select multiple>`,
+ * `required`, `minLength` and `maxLength` count the selected options, and `pattern` and `email`
+ * apply to each selected value.
  *
  * @returns Operation data with `validationErrors` object (field names → error messages) and `isValid` boolean
  *
@@ -76,10 +153,21 @@ export const validateForm: TOperation<
   }
 
   const validationErrors: Record<string, string> = {};
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // defineProperty, so a field named '__proto__' becomes an own key instead of
+  // replacing the result's prototype
+  const setError = (name: string, message: string) => {
+    Object.defineProperty(validationErrors, name, {
+      value: message,
+      enumerable: true,
+      writable: true,
+      configurable: true,
+    });
+  };
 
   // Get all form inputs
   const inputs = selectedElement.find('input, select, textarea');
+  // Checkbox and radio groups are validated once per name
+  const handledGroups = new Set<string>();
 
   inputs.each((_, element) => {
     const $input = $(element);
@@ -87,8 +175,37 @@ export const validateForm: TOperation<
 
     if (!name) return; // Skip inputs without name attribute
 
-    const value = $input.val() as string;
-    const rules = validationRules?.[name];
+    // Only own entries count, so a field named e.g. 'constructor' gets no inherited rules
+    const rules =
+      validationRules && Object.hasOwn(validationRules, name)
+        ? validationRules[name]
+        : undefined;
+
+    if (isCheckable(element)) {
+      if (handledGroups.has(name)) return;
+      handledGroups.add(name);
+
+      const group = inputs
+        .toArray()
+        .filter(
+          other => isCheckable(other) && other.getAttribute('name') === name
+        ) as HTMLInputElement[];
+
+      const invalid = group.find(
+        input => input.checkValidity && !input.checkValidity()
+      );
+      if (invalid) {
+        setError(name, invalid.validationMessage || 'Invalid value');
+        return;
+      }
+
+      // A checkbox or radio is filled in when one of its group is checked; its value
+      // attribute ('on' by default) says nothing about that, so string rules do not apply
+      if (rules?.required && !group.some(input => input.checked)) {
+        setError(name, 'This field is required');
+      }
+      return;
+    }
 
     // HTML5 validation first
     const inputElement = element as
@@ -96,45 +213,19 @@ export const validateForm: TOperation<
       | HTMLTextAreaElement
       | HTMLSelectElement;
     if (inputElement.checkValidity && !inputElement.checkValidity()) {
-      validationErrors[name] =
-        inputElement.validationMessage || 'Invalid value';
+      setError(name, inputElement.validationMessage || 'Invalid value');
       return;
     }
 
     // Custom validation rules
-    if (rules) {
-      if (rules.required && (!value || value.trim() === '')) {
-        validationErrors[name] = 'This field is required';
-        return;
-      }
+    if (!rules) return;
 
-      if (rules.minLength && value.length < rules.minLength) {
-        validationErrors[name] =
-          `Must be at least ${rules.minLength} characters`;
-        return;
-      }
-
-      if (rules.maxLength && value.length > rules.maxLength) {
-        validationErrors[name] =
-          `Must be no more than ${rules.maxLength} characters`;
-        return;
-      }
-
-      if (rules.pattern) {
-        const pattern =
-          typeof rules.pattern === 'string'
-            ? new RegExp(rules.pattern)
-            : rules.pattern;
-        if (!pattern.test(value)) {
-          validationErrors[name] = 'Invalid format';
-          return;
-        }
-      }
-
-      if (rules.email && !emailRegex.test(value)) {
-        validationErrors[name] = 'Must be a valid email address';
-        return;
-      }
+    const raw = $input.val();
+    const error = Array.isArray(raw)
+      ? validateSelection(raw.map(String), rules)
+      : validateValue(raw == null ? '' : String(raw), rules);
+    if (error) {
+      setError(name, error);
     }
   });
 

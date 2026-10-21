@@ -108,4 +108,18 @@ describe('formatDate', () => {
 
     expect(result.formattedDate).toBe(String(new Date(0).getFullYear()));
   });
+
+  test("given format 'HH:mm-HH:mm', when formatDate runs, then every occurrence of each token is replaced", () => {
+    const result = applyOperation(
+      formatDate,
+      {
+        date: new Date(2024, 0, 5, 14, 5, 9),
+        format: 'HH:mm-HH:mm DD/MM/YYYY ss',
+        formattedDate: '',
+      },
+      {currentIndex: 0, eventbus: mockEventbus, operations: []}
+    );
+
+    expect(result.formattedDate).toBe('14:05-14:05 05/01/2024 09');
+  });
 });

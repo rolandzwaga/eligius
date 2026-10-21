@@ -31,6 +31,10 @@ export interface IHttpPutOperationData {
 /**
  * Performs an HTTP PUT request to the specified URL.
  *
+ * The body is sent as JSON with `Content-Type: application/json`, unless the caller's headers set
+ * another content type (header names are case-insensitive). With a non-JSON content type, a string
+ * body is sent as is; other bodies are still JSON encoded.
+ *
  * @returns Operation data with `response` (parsed JSON, or `null` for 204 No Content and empty bodies)
  * and `status` (HTTP status code)
  * @throws When the request fails, the server responds with an error status, or the body is not valid JSON.
@@ -60,13 +64,17 @@ export const httpPut: TOperation<
 
   let response: Response;
   try {
+    // Headers compares names case-insensitively, so a caller's 'content-type'
+    // replaces the default instead of being sent as a second value
+    const requestHeaders = new Headers(headers);
+    if (!requestHeaders.has('Content-Type')) {
+      requestHeaders.set('Content-Type', 'application/json');
+    }
+    const isJson = /json/i.test(requestHeaders.get('Content-Type') ?? '');
     response = await fetch(url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...headers,
-      },
-      body: JSON.stringify(body),
+      headers: requestHeaders,
+      body: typeof body === 'string' && !isJson ? body : JSON.stringify(body),
     });
   } catch (error) {
     throw new Error(`httpPut: ${(error as Error).message}`, {cause: error});
