@@ -13,6 +13,21 @@ import * as operations from '@operation/index.ts';
 import {v4 as uuidv4} from 'uuid';
 
 /**
+ * Replaces the contents of `target` with the contents of `source` while keeping
+ * the `target` reference intact. The `ConfigurationFactory` holds the same object,
+ * so it sees the change.
+ */
+function replaceInPlace<T extends object>(target: T, source: T) {
+  if (target === source) {
+    return;
+  }
+  for (const key of Object.keys(target)) {
+    delete (target as Record<string, unknown>)[key];
+  }
+  Object.assign(target, source);
+}
+
+/**
  *
  * Container factory capable of creating the different kinds of actions.
  * For each type of action a dedicated factory will be returned.
@@ -137,7 +152,9 @@ export class ActionCreator<
 
   /**
    *
-   * Returns a copy of the internal state of the `ActionCreator`
+   * Passes a copy of the internal state of the `ActionCreator` to the given callback.
+   * When the callback returns a configuration, it replaces the action configuration
+   * in the `ConfigurationFactory`.
    *
    * @param callBack
    * @returns
@@ -146,7 +163,7 @@ export class ActionCreator<
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
-      this.actionConfig = newConfig;
+      replaceInPlace(this.actionConfig, newConfig);
     }
     return this;
   }

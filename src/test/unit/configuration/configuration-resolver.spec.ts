@@ -9,8 +9,11 @@ function createMockImporter() {
   const lookup: Record<string, any> = {};
   return {
     lookup,
+    // Unregistered names resolve to a dummy operation function
     import: vi.fn((name: string) => {
-      return lookup[name] ? {[name]: lookup[name]} : {[name]: {}};
+      return Object.hasOwn(lookup, name)
+        ? {[name]: lookup[name]}
+        : {[name]: () => {}};
     }),
     addEntry(name: string, value: any) {
       lookup[name] = value;
@@ -351,5 +354,242 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
 
     // expect
     expect(config.layoutTemplate).toBe('<div>This is my template</div>');
+  });
+
+  describe<ConfigurationResolverSuiteContext>('unknown operations', () => {
+    function createActionWithOperation(systemName: string) {
+      return {
+        id: 'action-id',
+        name: 'TestAction',
+        startOperations: [
+          {
+            id: 'op-id',
+            systemName,
+            operationData: {selector: '#progress'},
+          },
+        ],
+        endOperations: [],
+      } as any;
+    }
+
+    test<ConfigurationResolverSuiteContext>('given a config whose action startOperation has systemName selectElemnt, when process is called, then it throws naming the operation, its JSON path and the closest known name', context => {
+      // given
+      const {importer, eventbus} = context;
+      importer.addEntry('selectElemnt', undefined);
+      const resourceImporter = {
+        ...importer,
+        import: importer.import,
+        getOperationNames: () => ['selectElement', 'removeElement', 'when'],
+      };
+      const config = createTestConfig();
+      config.actions = [createActionWithOperation('selectElemnt')];
+      const resolver = new ConfigurationResolver(resourceImporter, eventbus);
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unknown operation 'selectElemnt' at actions[0].startOperations[0].systemName. Did you mean 'selectElement'?"
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an unknown end operation in a timeline action, when process is called, then the error names the timeline action JSON path', context => {
+      // given
+      const {importer, eventbus} = context;
+      importer.addEntry('doesNotExist', undefined);
+      const config = createTestConfig();
+      const timelineAction = {
+        ...createActionWithOperation('selectElement'),
+        duration: {start: 0, end: 1},
+        endOperations: [
+          {id: 'a', systemName: 'removeElement', operationData: {}},
+          {id: 'b', systemName: 'doesNotExist', operationData: {}},
+        ],
+      };
+      config.timelines = [
+        {
+          id: 't1',
+          uri: 'uri',
+          type: 'animation',
+          duration: 10,
+          loop: false,
+          selector: '#sel',
+          timelineActions: [timelineAction, timelineAction],
+        },
+      ];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Unknown operation 'doesNotExist' at timelines[0].timelineActions[0].endOperations[1].systemName. Check the spelling, or make sure the operation is available from the resource importer."
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an unknown operation in an init action, when process is called, then the error names the initActions path', context => {
+      // given
+      const {importer, eventbus} = context;
+      importer.addEntry('nope', {});
+      const config = createTestConfig();
+      config.initActions = [
+        createActionWithOperation('selectElement'),
+        createActionWithOperation('nope'),
+      ];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        /at initActions\[1\]\.startOperations\[0\]\.systemName/
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an unknown operation in an event action, when process is called, then the error names the eventActions path', context => {
+      // given
+      const {importer, eventbus} = context;
+      importer.addEntry('nope', undefined);
+      const config = createTestConfig();
+      config.eventActions = [
+        {
+          ...createActionWithOperation('nope'),
+          eventName: 'evt',
+        },
+      ];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() =>
+        resolver.process(config, createMockActionRegistryListener() as any)
+      ).toThrowError(/at eventActions\[0\]\.startOperations\[0\]\.systemName/);
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('duplicate action names', () => {
+    function createAction(id: string, name: string) {
+      return {id, name, startOperations: [], endOperations: []} as any;
+    }
+
+    test<ConfigurationResolverSuiteContext>('given two actions configured with the same name, when process is called, then it throws naming the duplicate name and both JSON paths', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.actions = [
+        createAction('1', 'Show'),
+        createAction('2', 'Hide'),
+        createAction('3', 'Show'),
+      ];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        "Duplicate action name 'Show' at actions[0].name and actions[2].name"
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given an event action with the same name as an action, when process is called, then it throws naming both JSON paths', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.actions = [createAction('1', 'Show')];
+      config.eventActions = [{...createAction('2', 'Show'), eventName: 'evt'}];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() =>
+        resolver.process(config, createMockActionRegistryListener() as any)
+      ).toThrowError(
+        "Duplicate action name 'Show' at actions[0].name and eventActions[0].name"
+      );
+    });
+
+    test<ConfigurationResolverSuiteContext>('given actions with unique names, when process is called, then the lookup contains every action', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.actions = [createAction('1', 'Show'), createAction('2', 'Hide')];
+      config.eventActions = [{...createAction('3', 'Evt'), eventName: 'evt'}];
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      const [lookup] = resolver.process(
+        config,
+        createMockActionRegistryListener() as any
+      );
+
+      // expect
+      expect(Object.keys(lookup)).toEqual(['Show', 'Hide', 'Evt']);
+    });
+  });
+
+  describe<ConfigurationResolverSuiteContext>('placeholder order', () => {
+    test<ConfigurationResolverSuiteContext>('given config with id config:layoutTemplate declared before layoutTemplate template:main, when process is called, then resolved id equals the imported template html', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.id = 'config:layoutTemplate';
+      config.layoutTemplate = 'template:main';
+      importer.addEntry('main', '<div>main</div>');
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      const [, processedConfig] = resolver.process(config);
+
+      // expect
+      expect(processedConfig.id).toBe('<div>main</div>');
+      expect(processedConfig.layoutTemplate).toBe('<div>main</div>');
+    });
+
+    test<ConfigurationResolverSuiteContext>('given a config: placeholder that points at another config: placeholder declared later, when process is called, then both resolve to the final value', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.id = 'config:containerSelector';
+      config.containerSelector = 'config:engine.systemName';
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test
+      const [, processedConfig] = resolver.process(config);
+
+      // expect
+      expect(processedConfig.id).toBe('TestEngine');
+      expect(processedConfig.containerSelector).toBe('TestEngine');
+    });
+
+    test<ConfigurationResolverSuiteContext>('given two config: placeholders that point at each other, when process is called, then it throws a circular placeholder error', context => {
+      // given
+      const {importer, eventbus} = context;
+      const config = createTestConfig();
+      config.id = 'config:containerSelector';
+      config.containerSelector = 'config:id';
+      const resolver = new ConfigurationResolver(
+        importer as unknown as ISimpleResourceImporter,
+        eventbus
+      );
+
+      // test + expect
+      expect(() => resolver.process(config)).toThrowError(
+        /Circular config: placeholder/
+      );
+    });
   });
 });

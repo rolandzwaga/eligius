@@ -15,6 +15,7 @@ import {
   ts,
   type VariableDeclaration,
 } from 'ts-morph';
+import {getTypeFromProperty} from './property-type.ts';
 
 /**
  * Converts a file path to use path aliases based on the project's tsconfig paths.
@@ -58,7 +59,7 @@ const project = new Project({
 });
 project.addSourceFilesAtPaths('./src/operation/*.ts');
 
-const createOperationMetadata = (sourceFile: SourceFile) => {
+const createOperationMetadata = (sourceFile: SourceFile): boolean => {
   const statement = sourceFile
     .getVariableStatements()
     .find(
@@ -68,7 +69,7 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Can't find an exported statement in ${sourceFile.getBaseName()}`
     );
-    return;
+    return false;
   }
 
   const declaration = statement.getDeclarations()[0];
@@ -76,7 +77,7 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Exported variable statement in ${sourceFile.getBaseName()} doesn't have any declarations`
     );
-    return;
+    return false;
   }
 
   const typeRef = declaration.getDescendantsOfKind(SyntaxKind.TypeReference)[0];
@@ -84,7 +85,7 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     console.error(
       `declaration ${declaration.getName()} in ${sourceFile.getBaseName()} does not have any type refences`
     );
-    return;
+    return false;
   }
 
   const typeArgs = typeRef.getTypeArguments();
@@ -92,7 +93,7 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     console.error(
       `The type reference for ${declaration.getName()} in ${sourceFile.getBaseName()} doesn't have any generics`
     );
-    return;
+    return false;
   }
 
   // Use the type node's text (AST) rather than the resolved type (type checker)
@@ -108,7 +109,7 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Can't figure out the type name of the typeref of ${declaration.getName()} in ${sourceFile.getBaseName()}`
     );
-    return;
+    return false;
   }
 
   const interfaceOrTypeAlias =
@@ -121,10 +122,11 @@ const createOperationMetadata = (sourceFile: SourceFile) => {
     console.error(
       `The given typeref ${typeName} of ${declaration.getName()} in ${sourceFile.getBaseName()} is neither a type alias or an interface`
     );
-    return;
+    return false;
   }
 
   createSourceFile(declaration)(interfaceOrTypeAlias);
+  return true;
 };
 
 const toImport =
@@ -360,68 +362,6 @@ const getTypeFromTag = (tag: JSDocTag) => {
   return `type: '${(tag.getComment()! as string).trim()}'`;
 };
 
-const getTypeFromProperty = (property: PropertySignature) => {
-  const type = property.getType();
-  if (type.isTypeParameter()) {
-    const found = property
-      .getParent()
-      .getType()
-      .getTypeArguments()
-      .find(a => a.getText() === type.getSymbol()?.getName());
-    if (!found) {
-      throw new Error(
-        `Can't resolve type parameter ${type.getSymbol()?.getName()} of property ${property.getName()}`
-      );
-    }
-    const constraint = found.getConstraint();
-    if (!constraint) {
-      throw new Error(
-        `No constriant on type parameter ${type.getSymbol()?.getName()} of property ${property.getName()}`
-      );
-    }
-    if (constraint.isUnion()) {
-      const unionValues = constraint
-        .getUnionTypes()
-        .map(u => u.getLiteralValue() ?? u.getText());
-      return `type: [\n${unionValues
-        .map(x => x.toString().replaceAll(/['`]/g, '\\$&'))
-        .map(val => `{value: '${val}'}`)
-        .join(',\n')}\n]`;
-    }
-    return `type: ParamType:${constraint.getText()}`;
-  } else {
-    const aliasSymbol = type.getAliasSymbol();
-    const propType = aliasSymbol ? aliasSymbol.getName() : type.getText();
-    if (type.isUnion() && propType !== 'boolean') {
-      const unionValues = type
-        .getUnionTypes()
-        .map(u => u.getLiteralValue() ?? u.getText());
-      return `type: [\n${unionValues
-        .map(x => x.toString().replaceAll(/['`]/g, '\\$&'))
-        .map(val => `{value: '${val}'}`)
-        .join(',\n')}\n]`;
-    } else {
-      if (
-        propType.startsWith('Record') ||
-        propType === 'unknown' ||
-        propType === 'any'
-      ) {
-        return `type: 'ParameterType:object'`;
-      } else if (propType.endsWith('[]')) {
-        const itemType = propType.slice(0, -2);
-        if (itemType === 'unknown' || itemType === 'any') {
-          return `type: 'ParameterType:array'`;
-        } else {
-          return `type: 'ParameterType:array',\nitemType: 'ParameterType:${itemType}'`;
-        }
-      } else if (propType.startsWith('(')) {
-        return `type: 'ParameterType:function'`;
-      }
-      return `type: 'ParameterType:${propType}'`;
-    }
-  }
-};
-
 const getTag = (docs: JSDoc[]) => (tagName: string) => {
   return docs.flatMap(d => d.getTags()).find(t => t.getTagName() === tagName);
 };
@@ -479,12 +419,33 @@ const operationFiles = project
     src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts'
   );
 
+const failedFiles: string[] = [];
+const generatedFiles = operationFiles.filter(sourceFile => {
+  try {
+    if (createOperationMetadata(sourceFile)) {
+      return true;
+    }
+  } catch (e) {
+    console.error(
+      `Failed to generate metadata for ${sourceFile.getBaseName()}: ${(e as Error).message}`
+    );
+  }
+  failedFiles.push(sourceFile.getBaseName());
+  return false;
+});
+
+// Only export the metadata files that were actually written
 toIndexFile(
   project,
-  operationFiles.map(f => f.getBaseName())
+  generatedFiles.map(f => f.getBaseName())
 );
-
-operationFiles.forEach(createOperationMetadata);
 project.saveSync();
+
+if (failedFiles.length) {
+  console.error(
+    `Metadata generation failed for ${failedFiles.length} operation file(s): ${failedFiles.join(', ')}`
+  );
+  process.exit(1);
+}
 
 console.log('Ready.');

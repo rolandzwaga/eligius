@@ -30,7 +30,16 @@ const isPrivateEvent = (interfaceDecl: InterfaceDeclaration): boolean => {
   );
 };
 
-const createEventMetadata = (sourceFile: SourceFile) => {
+type TEventMetadataResult =
+  | {status: 'failed'}
+  | {status: 'private' | 'public'; iface: InterfaceDeclaration};
+
+/**
+ * Validates the event interface in the given file and writes its metadata file.
+ * Private events (tagged `@private`) get no metadata file, but they are still
+ * valid events and must stay part of the generated `EventMap`.
+ */
+const createEventMetadata = (sourceFile: SourceFile): TEventMetadataResult => {
   const interfaceDeclaration = sourceFile
     .getInterfaces()
     .find(iface => iface.isExported());
@@ -39,15 +48,7 @@ const createEventMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Can't find an exported interface in ${sourceFile.getBaseName()}`
     );
-    return;
-  }
-
-  // Skip private events
-  if (isPrivateEvent(interfaceDeclaration)) {
-    console.log(
-      `Skipping private event ${interfaceDeclaration.getName()} in ${sourceFile.getBaseName()}`
-    );
-    return null;
+    return {status: 'failed'};
   }
 
   // Validate event interface structure
@@ -58,11 +59,19 @@ const createEventMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Event interface ${interfaceDeclaration.getName()} in ${sourceFile.getBaseName()} must have 'name' and 'args' properties`
     );
-    return;
+    return {status: 'failed'};
+  }
+
+  // Private events are excluded from the metadata, not from the event types
+  if (isPrivateEvent(interfaceDeclaration)) {
+    console.log(
+      `Skipping metadata for private event ${interfaceDeclaration.getName()} in ${sourceFile.getBaseName()}`
+    );
+    return {status: 'private', iface: interfaceDeclaration};
   }
 
   createSourceFile(interfaceDeclaration, sourceFile);
-  return interfaceDeclaration;
+  return {status: 'public', iface: interfaceDeclaration};
 };
 
 const createSourceFile = (
@@ -274,28 +283,53 @@ const eventFiles = project
     src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts'
   );
 
-// Process all events and collect non-private interfaces with their source files
-const eventData: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}> =
+// Process all events. Every valid event goes into the types file, only the
+// public ones get metadata.
+const allEvents: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}> =
   [];
+const publicEvents: Array<{
+  iface: InterfaceDeclaration;
+  sourceFile: SourceFile;
+}> = [];
+const failedFiles: string[] = [];
 eventFiles.forEach(file => {
-  const result = createEventMetadata(file);
-  if (result) {
-    eventData.push({iface: result, sourceFile: file});
+  let result: TEventMetadataResult;
+  try {
+    result = createEventMetadata(file);
+  } catch (e) {
+    console.error(
+      `Failed to generate metadata for ${file.getBaseName()}: ${(e as Error).message}`
+    );
+    result = {status: 'failed'};
+  }
+
+  if (result.status === 'failed') {
+    failedFiles.push(file.getBaseName());
+    return;
+  }
+
+  allEvents.push({iface: result.iface, sourceFile: file});
+  if (result.status === 'public') {
+    publicEvents.push({iface: result.iface, sourceFile: file});
   }
 });
 
 // Generate metadata index file
 toIndexFile(
   project,
-  eventData.map(({sourceFile}) => {
-    const fileName = sourceFile.getBaseName();
-    return fileName;
-  })
+  publicEvents.map(({sourceFile}) => sourceFile.getBaseName())
 );
 
 // Generate types file (EventMap, EventName, AllEvents)
-toTypesFile(project, eventData);
+toTypesFile(project, allEvents);
 
 project.saveSync();
+
+if (failedFiles.length) {
+  console.error(
+    `Metadata generation failed for ${failedFiles.length} event file(s): ${failedFiles.join(', ')}`
+  );
+  process.exit(1);
+}
 
 console.log('Ready.');

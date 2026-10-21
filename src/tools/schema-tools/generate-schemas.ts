@@ -9,12 +9,14 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import camelCaseToDash from '@util/camel-case-to-dash.ts';
 import {emptyDirSync} from 'fs-extra';
 import {
   type Config,
   createGenerator,
   type SchemaGenerator,
 } from 'ts-json-schema-generator';
+import {Node, Project, type VariableDeclaration} from 'ts-morph';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const operationsDirectory = path.join(schemaDirectory, 'operations');
@@ -101,21 +103,74 @@ function generateConfigurationSchema() {
   }
 }
 
-function generateOperationSchemas() {
-  // Read the operation index to find all operation data types
-  const indexPath = path.join(process.cwd(), 'src/operation/index.ts');
-  const indexContent = fs.readFileSync(indexPath, 'utf-8');
+interface IOperationExport {
+  operationName: string;
+  /**
+   * Name of the operation data interface or type alias, undefined when the
+   * operation has no dedicated data type (e.g. `TOperation<TOperationData>`).
+   */
+  dataTypeName?: string;
+}
 
-  // Extract operation data type names (e.g., ISelectElementOperationData)
-  const typeRegex = /export type \{(I\w+OperationData)\}/g;
-  const operationTypes: string[] = [];
-  let match: RegExpExecArray | null;
+/**
+ * Enumerates every operation exported from src/operation/index.ts, together with
+ * the data type name of its `TOperation<TData, ...>` declaration.
+ */
+function findOperationExports(indexPath: string): IOperationExport[] {
+  const project = new Project({
+    tsConfigFilePath: path.join(process.cwd(), 'tsconfig.json'),
+    skipAddingFilesFromTsConfig: true,
+  });
+  const indexFile = project.addSourceFileAtPath(indexPath);
+  project.resolveSourceFileDependencies();
 
-  while ((match = typeRegex.exec(indexContent)) !== null) {
-    operationTypes.push(match[1]);
+  const operationExports: IOperationExport[] = [];
+  for (const [name, declarations] of indexFile.getExportedDeclarations()) {
+    const declaration = declarations[0];
+    if (!Node.isVariableDeclaration(declaration)) {
+      continue;
+    }
+    operationExports.push({
+      operationName: name,
+      dataTypeName: getOperationDataTypeName(declaration),
+    });
   }
+  return operationExports;
+}
 
-  console.log(`  Found ${operationTypes.length} operation types\n`);
+function getOperationDataTypeName(
+  declaration: VariableDeclaration
+): string | undefined {
+  const typeNode = declaration.getTypeNode();
+  if (!typeNode || !Node.isTypeReference(typeNode)) {
+    return undefined;
+  }
+  const [dataTypeArgument] = typeNode.getTypeArguments();
+  if (!dataTypeArgument || !Node.isTypeReference(dataTypeArgument)) {
+    return undefined;
+  }
+  const typeName = dataTypeArgument.getTypeName();
+  if (!Node.isIdentifier(typeName)) {
+    return undefined;
+  }
+  // Only a data type declared next to the operation counts, shared types like
+  // TOperationData describe no operation specific data.
+  const definition = typeName
+    .getDefinitionNodes()
+    .find(
+      node =>
+        (Node.isInterfaceDeclaration(node) ||
+          Node.isTypeAliasDeclaration(node)) &&
+        node.getSourceFile() === declaration.getSourceFile()
+    );
+  return definition ? typeName.getText() : undefined;
+}
+
+function generateOperationSchemas() {
+  const indexPath = path.join(process.cwd(), 'src/operation/index.ts');
+  const operationExports = findOperationExports(indexPath);
+
+  console.log(`  Found ${operationExports.length} operations\n`);
 
   // Create a single generator for all operations
   const config: Config = {
@@ -126,7 +181,15 @@ function generateOperationSchemas() {
     jsDoc: 'extended',
     topRef: false,
     skipTypeCheck: true,
-    extraTags: ['type', 'required', 'erased', 'output', 'category', 'example'],
+    extraTags: [
+      'type',
+      'required',
+      'erased',
+      'output',
+      'dependency',
+      'category',
+      'example',
+    ],
     additionalProperties: true, // Operations may have dynamic properties
   };
 
@@ -140,10 +203,21 @@ function generateOperationSchemas() {
 
   let successCount = 0;
 
-  for (const typeName of operationTypes) {
-    const operationName = typeNameToOperationName(typeName);
+  for (const {operationName, dataTypeName} of operationExports) {
     const fileName = `${camelCaseToDash(operationName)}.json`;
 
+    if (!dataTypeName) {
+      // Operations without a data type only need their systemName
+      fs.writeFileSync(
+        path.join(operationsDirectory, fileName),
+        JSON.stringify(createFallbackOperationSchema(operationName), null, 2)
+      );
+      console.log(`  ✓ ${fileName} (no operation data type)`);
+      successCount++;
+      continue;
+    }
+
+    const typeName = dataTypeName;
     try {
       const schema = generator.createSchema(typeName);
 
@@ -180,6 +254,21 @@ function generateOperationSchemas() {
   }
 
   console.log(`\n  Generated: ${successCount}`);
+
+  // Every exported operation must have a schema, otherwise valid configurations
+  // fail to validate against the IOperationConfiguration oneOf.
+  const missing = operationExports.filter(
+    ({operationName}) =>
+      !fs.existsSync(
+        path.join(operationsDirectory, `${camelCaseToDash(operationName)}.json`)
+      )
+  );
+  if (missing.length) {
+    console.error(
+      `  Missing operation schemas for: ${missing.map(x => x.operationName).join(', ')}`
+    );
+    process.exit(1);
+  }
 }
 
 function createOperationSchema(
@@ -214,97 +303,102 @@ function createOperationSchema(
     additionalProperties: false,
   };
 
-  // Add operationData if the schema has properties
-  if (dataSchema.properties && Object.keys(dataSchema.properties).length > 0) {
-    schema.required.push('operationData');
+  // operationData is optional in IOperationConfiguration, so it is always allowed.
+  // It only becomes required when at least one of its properties is required.
+  const operationDataSchema: any = {
+    type: 'object',
+    description: 'Operation-specific configuration data',
+    properties: {},
+    additionalProperties: true,
+  };
 
-    // Process the data schema properties
-    const operationDataSchema: any = {
-      type: 'object',
-      description: 'Operation-specific configuration data',
-      properties: {},
-      additionalProperties: true,
-    };
+  // Extract required properties
+  const requiredProps: string[] = [];
 
-    // Extract required properties
-    const requiredProps: string[] = [];
-
-    for (const [propName, propSchema] of Object.entries(
-      dataSchema.properties as Record<string, any>
-    )) {
-      // Check for @required tag in description or schema
-      const isRequired =
-        propSchema.description?.includes('@required') ||
-        propSchema.required === true ||
-        dataSchema.required?.includes(propName);
-
-      // Check for @output tag - these are output properties, not input
-      const isOutput =
-        propSchema.description?.includes('@output') ||
-        propSchema.output === true;
-
-      // Clean up description (remove JSDoc tags)
-      let cleanDescription = propSchema.description || '';
-      cleanDescription = cleanDescription
-        .replace(/@type=\S+/g, '')
-        .replace(/@required/g, '')
-        .replace(/@erased/g, '')
-        .replace(/@output/g, '')
-        .trim();
-
-      const processedProp: any = {};
-
-      // Map the type properly - handle custom ParameterType annotations
-      const schemaType = propSchema.type;
-      if (
-        typeof schemaType === 'string' &&
-        schemaType.startsWith('= ParameterType:')
-      ) {
-        // Map ParameterType to JSON Schema types
-        const paramType = schemaType.replace('= ParameterType:', '');
-        processedProp.type = mapParameterTypeToJsonSchema(paramType);
-      } else if (schemaType) {
-        processedProp.type = schemaType;
-      }
-
-      // Copy other valid JSON Schema properties
-      if (propSchema.$ref) processedProp.$ref = propSchema.$ref;
-      if (propSchema.items) processedProp.items = propSchema.items;
-      if (propSchema.enum) processedProp.enum = propSchema.enum;
-      if (propSchema.const) processedProp.const = propSchema.const;
-      if (propSchema.anyOf) processedProp.anyOf = propSchema.anyOf;
-      if (propSchema.oneOf) processedProp.oneOf = propSchema.oneOf;
-      if (propSchema.allOf) processedProp.allOf = propSchema.allOf;
-      if (propSchema.properties)
-        processedProp.properties = propSchema.properties;
-      if (propSchema.additionalProperties !== undefined)
-        processedProp.additionalProperties = propSchema.additionalProperties;
-      if (propSchema.default !== undefined)
-        processedProp.default = propSchema.default;
-      if (propSchema.pattern) processedProp.pattern = propSchema.pattern;
-      if (propSchema.minimum !== undefined)
-        processedProp.minimum = propSchema.minimum;
-      if (propSchema.maximum !== undefined)
-        processedProp.maximum = propSchema.maximum;
-
-      if (cleanDescription) {
-        processedProp.description = cleanDescription;
-      }
-
-      // Don't add output-only properties to required
-      if (isRequired && !isOutput) {
-        requiredProps.push(propName);
-      }
-
-      operationDataSchema.properties[propName] = processedProp;
+  for (const [propName, propSchema] of Object.entries(
+    (dataSchema.properties ?? {}) as Record<string, any>
+  )) {
+    // @dependency properties are supplied at runtime by a previous operation,
+    // not by the configuration
+    const isDependency =
+      propSchema.dependency !== undefined ||
+      propSchema.description?.includes('@dependency');
+    if (isDependency) {
+      continue;
     }
 
-    if (requiredProps.length > 0) {
-      operationDataSchema.required = requiredProps;
+    // Check for @required tag in description or schema
+    const isRequired =
+      propSchema.description?.includes('@required') ||
+      propSchema.required === true ||
+      dataSchema.required?.includes(propName);
+
+    // Check for @output tag - these are output properties, not input
+    const isOutput =
+      propSchema.description?.includes('@output') || propSchema.output === true;
+
+    // Clean up description (remove JSDoc tags)
+    let cleanDescription = propSchema.description || '';
+    cleanDescription = cleanDescription
+      .replace(/@type=\S+/g, '')
+      .replace(/@required/g, '')
+      .replace(/@erased/g, '')
+      .replace(/@output/g, '')
+      .replace(/@dependency/g, '')
+      .trim();
+
+    const processedProp: any = {};
+
+    // Map the type properly - handle custom ParameterType annotations
+    const schemaType = propSchema.type;
+    if (
+      typeof schemaType === 'string' &&
+      schemaType.startsWith('= ParameterType:')
+    ) {
+      // Map ParameterType to JSON Schema types
+      const paramType = schemaType.replace('= ParameterType:', '');
+      processedProp.type = mapParameterTypeToJsonSchema(paramType);
+    } else if (schemaType) {
+      processedProp.type = schemaType;
     }
 
-    schema.properties.operationData = operationDataSchema;
+    // Copy other valid JSON Schema properties
+    if (propSchema.$ref) processedProp.$ref = propSchema.$ref;
+    if (propSchema.items) processedProp.items = propSchema.items;
+    if (propSchema.enum) processedProp.enum = propSchema.enum;
+    if (propSchema.const) processedProp.const = propSchema.const;
+    if (propSchema.anyOf) processedProp.anyOf = propSchema.anyOf;
+    if (propSchema.oneOf) processedProp.oneOf = propSchema.oneOf;
+    if (propSchema.allOf) processedProp.allOf = propSchema.allOf;
+    if (propSchema.properties) processedProp.properties = propSchema.properties;
+    if (propSchema.additionalProperties !== undefined)
+      processedProp.additionalProperties = propSchema.additionalProperties;
+    if (propSchema.default !== undefined)
+      processedProp.default = propSchema.default;
+    if (propSchema.pattern) processedProp.pattern = propSchema.pattern;
+    if (propSchema.minimum !== undefined)
+      processedProp.minimum = propSchema.minimum;
+    if (propSchema.maximum !== undefined)
+      processedProp.maximum = propSchema.maximum;
+
+    if (cleanDescription) {
+      processedProp.description = cleanDescription;
+    }
+
+    // Don't add output-only properties to required
+    if (isRequired && !isOutput) {
+      requiredProps.push(propName);
+    }
+
+    operationDataSchema.properties[propName] = processedProp;
   }
+
+  if (requiredProps.length > 0) {
+    operationDataSchema.required = requiredProps;
+    schema.required.push('operationData');
+  }
+
+  schema.properties.operationData = operationDataSchema;
 
   // Add definitions if any, but filter out external types like jQuery
   if (
@@ -321,6 +415,7 @@ function createOperationSchema(
 
   // Replace $ref to JQuery with object type
   replaceJQueryRefs(schema);
+  pruneDefinitions(schema);
 
   return schema;
 }
@@ -373,24 +468,6 @@ function postProcessConfigSchema(schema: any): any {
   return processed;
 }
 
-function typeNameToOperationName(typeName: string): string {
-  // ISelectElementOperationData -> selectElement
-  // Remove leading 'I' and trailing 'OperationData'
-  let name = typeName;
-  if (name.startsWith('I')) {
-    name = name.substring(1);
-  }
-  if (name.endsWith('OperationData')) {
-    name = name.substring(0, name.length - 'OperationData'.length);
-  }
-  // Convert to camelCase (first letter lowercase)
-  return name.charAt(0).toLowerCase() + name.slice(1);
-}
-
-function camelCaseToDash(str: string): string {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-}
-
 /**
  * Maps ParameterType annotations to JSON Schema types.
  * ParameterTypes are custom metadata for editor tooling.
@@ -440,12 +517,64 @@ function mapParameterTypeToJsonSchema(paramType: string): string {
  * not browser/DOM types from lib.dom.d.ts.
  */
 function filterExternalDefinitions(
-  _definitions: Record<string, any>
+  definitions: Record<string, any>
 ): Record<string, any> {
-  // For operation schemas, we don't need any external definitions.
-  // All operation data types are simple objects with primitive properties.
-  // External types like JQuery, HTMLElement etc. are replaced with {type: "object"}
-  return {};
+  // External types like JQuery, HTMLElement etc. are dropped here, their $refs
+  // are replaced with {type: "object"} by replaceJQueryRefs. Local definitions
+  // (e.g. StorageType, Record<string, string>) are kept, because the operation
+  // data properties $ref them.
+  return Object.fromEntries(
+    Object.entries(definitions).filter(
+      ([name]) => !isExternalType(decodeURIComponent(name))
+    )
+  );
+}
+
+/**
+ * Removes the definitions that the schema does not reference, and replaces any
+ * $ref that points at a missing definition with an unconstrained schema, so that
+ * every $ref in the schema resolves.
+ */
+function pruneDefinitions(schema: any): void {
+  const definitions: Record<string, any> = schema.definitions ?? {};
+  const reachable = new Set<string>();
+
+  const visit = (node: any): void => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) {
+      node.forEach(visit);
+      return;
+    }
+    if (
+      typeof node.$ref === 'string' &&
+      node.$ref.startsWith('#/definitions/')
+    ) {
+      // Definition keys are plain type names, $refs are URI encoded
+      const name = decodeURIComponent(
+        node.$ref.substring('#/definitions/'.length)
+      );
+      if (!Object.hasOwn(definitions, name)) {
+        delete node.$ref;
+      } else if (!reachable.has(name)) {
+        reachable.add(name);
+        visit(definitions[name]);
+      }
+    }
+    for (const [key, value] of Object.entries(node)) {
+      if (node === schema && key === 'definitions') continue;
+      visit(value);
+    }
+  };
+  visit(schema);
+
+  for (const name of Object.keys(definitions)) {
+    if (!reachable.has(name)) {
+      delete definitions[name];
+    }
+  }
+  if (schema.definitions && Object.keys(schema.definitions).length === 0) {
+    delete schema.definitions;
+  }
 }
 
 /**
@@ -498,16 +627,18 @@ function isExternalType(typeName: string): boolean {
 
 function createFallbackOperationSchema(
   operationName: string,
-  typeName: string
+  typeName?: string
 ): any {
-  // Create a minimal schema for operations with complex generic types
-  // that ts-json-schema-generator cannot handle
+  // Create a minimal schema for operations without a data type, or with complex
+  // generic types that ts-json-schema-generator cannot handle
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
     $id: `https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(operationName)}.json`,
     type: 'object',
     title: `${operationName} Operation`,
-    description: `Schema for the ${operationName} operation (generated from ${typeName})`,
+    description: typeName
+      ? `Schema for the ${operationName} operation (generated from ${typeName})`
+      : `Schema for the ${operationName} operation`,
     required: ['systemName'],
     properties: {
       id: {
