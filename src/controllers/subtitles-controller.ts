@@ -1,5 +1,6 @@
 import {BaseController} from '@controllers/base-controller.ts';
 import type {IEventbus} from '@eventbus/types.ts';
+import {sanitizeHtml} from '@util/sanitize-html.ts';
 import type {
   IStrictDuration,
   ISubtitleCollection,
@@ -22,6 +23,16 @@ export interface ISubtitlesControllerOperationData {
   subtitleData: ISubtitleCollection[];
 }
 
+/**
+ * This controller shows the subtitle whose duration contains the current
+ * timeline position in the selected element, in the current language, and
+ * re-renders it after a `language-change` event.
+ *
+ * Subtitle texts may contain simple inline markup. They are passed through
+ * `sanitizeHtml` before insertion, so `<br>`, `<i>`, `<em>`,
+ * `<strong>` and `<span>` render, while scripts, event handlers,
+ * `javascript:` URLs, images, iframes and SVG are removed.
+ */
 export class SubtitlesController extends BaseController<ISubtitlesControllerOperationData> {
   actionLookup: Record<string, any> = {};
   currentLanguage: TLanguageCode | null = null;
@@ -88,7 +99,9 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
 
   setTitle(container: JQuery, titleLanguageLookup: Record<string, string>) {
     if (this.currentLanguage) {
-      container.html(titleLanguageLookup[this.currentLanguage] ?? '');
+      container.html(
+        sanitizeHtml(titleLanguageLookup[this.currentLanguage] ?? '')
+      );
     }
   }
 
