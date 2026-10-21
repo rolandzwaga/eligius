@@ -1,13 +1,13 @@
 import {BaseController} from '@controllers/base-controller.ts';
-import type {IEventbus} from '@eventbus/types.ts';
 import type {
-  AnimationConfigWithData,
-  AnimationItem,
-  CanvasRendererConfig,
-  HTMLRendererConfig,
-  LottiePlayer,
-  SVGRendererConfig,
-} from 'lottie-web';
+  ILottieAnimationItem,
+  TLottieRendererConfig,
+} from '@controllers/types.ts';
+import type {IEventbus} from '@eventbus/types.ts';
+// lottie-web is an optional peer, so only the implementation below uses its
+// types. Public members use the structural types from controllers/types.ts,
+// which keeps lottie-web out of the published declarations.
+import type {AnimationConfigWithData, LottiePlayer} from 'lottie-web';
 import type {TLanguageCode} from '../types.ts';
 
 let lottieLoader: Promise<LottiePlayer> | null = null;
@@ -54,7 +54,7 @@ export interface IInnerMetadata {
   /**
    * @type=ParameterType:string
    */
-  renderer: SVGRendererConfig | CanvasRendererConfig | HTMLRendererConfig;
+  renderer: TLottieRendererConfig;
   loop: boolean;
   autoplay: boolean;
   /**
@@ -111,7 +111,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
    * through `request-translation`. Will be removed in the next major version.
    */
   labelData: Record<string, Record<string, string>> = {};
-  animationItem: AnimationItem | null = null;
+  animationItem: ILottieAnimationItem | null = null;
   serializedData: string | null = null;
   /**
    * @deprecated Never used: see `iefallback`. Will be removed in the next

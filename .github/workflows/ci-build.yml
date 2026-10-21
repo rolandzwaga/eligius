@@ -43,6 +43,12 @@ jobs:
       - name: Type check
         run: npm run typecheck
 
+      # Type-checks dist/*.d.mts in throwaway consumer projects (skipLibCheck
+      # off): the DOM-free entries without jquery or lottie-web, the main entry
+      # with @types/jquery but without lottie-web. Needs the build above.
+      - name: Check published declarations
+        run: npm run check:types
+
       - name: Lint
         run: npm run lint
 
