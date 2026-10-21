@@ -99,6 +99,15 @@ type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
  * fs.writeFileSync("/my/path/configuration.json", JSON.stringify(configuration), {encoding:'utf-8'})
  * ```
  *
+ * In plain Node (build tools, code generators) import the factory from `eligius/configuration-api`.
+ * That entry does not load jQuery or the other DOM dependencies. It supports every method except the
+ * `...ByType` ones, which need the operation implementations; use the name based methods there:
+ * ```ts
+ * import {ConfigurationFactory} from 'eligius/configuration-api';
+ *
+ * factory.createAction('MyAction').addStartOperation('selectElement', {selector: '#app'});
+ * ```
+ *
  * The `ConfigurationFactory` can also be used to edit an existing configuration. In this case, simply
  * pass the JSON configuration to the `ConfigurationFactory`'s constructor:
  * ```ts

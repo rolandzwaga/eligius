@@ -9,8 +9,11 @@ import type {
   TOperationType,
 } from '@configuration/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
-import * as operations from '@operation/index.ts';
 import {v4 as uuidv4} from 'uuid';
+import {
+  assertKnownOperationName,
+  getOperationNameByType,
+} from './operation-lookup.ts';
 import {syncInPlace} from './sync-in-place.ts';
 
 /**
@@ -161,23 +164,21 @@ export class ActionCreator<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addStartOperationByType<
     T extends TOperationType,
     Dt extends Partial<ExtractOperationDataType<T>>,
   >(operationClass: T, operationData: Dt) {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
+    return this.addStartOperation(
+      getOperationNameByType(
+        operationClass,
+        'addStartOperationByType',
+        'addStartOperation'
+      ),
+      operationData
     );
-
-    if (entries) {
-      return this.addStartOperation(
-        entries[0] as TOperationName,
-        operationData
-      );
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   /**
@@ -192,9 +193,7 @@ export class ActionCreator<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
   >(systemName: T, operationData: O) {
-    if (!(operations as Record<string, any>)[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName);
 
     const {startOperations} = this.actionConfig;
     startOperations.push({
@@ -236,20 +235,21 @@ export class EndableActionCreator<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addEndOperationByType<
     T extends TOperationType,
     Dt extends Partial<ExtractOperationDataType<T>>,
   >(operationClass: T, operationData: Dt) {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
+    return this.addEndOperation(
+      getOperationNameByType(
+        operationClass,
+        'addEndOperationByType',
+        'addEndOperation'
+      ),
+      operationData
     );
-
-    if (entries) {
-      return this.addEndOperation(entries[0] as TOperationName, operationData);
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   /**
@@ -264,10 +264,7 @@ export class EndableActionCreator<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
   >(systemName: TOperationName, operationData: O) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    if (!operations[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName);
 
     let {endOperations} = this.actionConfig;
     if (!endOperations) {

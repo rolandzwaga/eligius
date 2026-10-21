@@ -15,6 +15,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./metadata": "./dist/metadata.mjs",
+    "./configuration-api": "./dist/configuration-api.mjs",
     "./package.json": "./package.json"
   },
   "typesVersions": {

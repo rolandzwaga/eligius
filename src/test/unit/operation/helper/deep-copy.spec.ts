@@ -1,5 +1,5 @@
 import {Action} from '@action/action.ts';
-import {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
+import {ConfigurationFactory} from '@configuration/api/index.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {mapArray} from '@operation/map-array.ts';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
