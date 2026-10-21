@@ -27,7 +27,9 @@ const keywords: Record<string, boolean | null> = {
 };
 
 /**
- * Parses one operand of a comparison expression.
+ * Parses one operand of a condition expression. The tokenizer in `parse-expression.ts`
+ * calls it for every operand it finds, so this function is the single definition of the
+ * operand grammar.
  *
  * The operand grammar:
  * - a number: `100`, `-1.5`, `2e3` (the whole token must be numeric, so `10px` is invalid);
@@ -39,13 +41,16 @@ const keywords: Record<string, boolean | null> = {
  * @param token The operand text, already trimmed.
  * @param operationName The operation parsing the expression, named in the error.
  * @param expression The whole expression, quoted in the error.
+ * @param position The 0-based position of the operand in the expression, named in the error
+ * when given.
  * @returns The parsed operand.
  * @throws When the token matches none of the forms above.
  */
 export function parseOperand(
   token: string,
   operationName: string,
-  expression: string
+  expression: string,
+  position?: number
 ): TOperand {
   const quoted = quotedPattern.exec(token);
   if (quoted) {
@@ -64,7 +69,7 @@ export function parseOperand(
     return {kind: 'chain', chain: token as ExternalProperty};
   }
   throw new Error(
-    `${operationName}: unknown operand '${token}' in expression '${expression}'. Use a number, a quoted string ('text'), true, false, null, or a property chain starting with $operationdata., $globaldata. or $scope.`
+    `${operationName}: unknown operand '${token}' in expression '${expression}'${position === undefined ? '' : ` at position ${position}`}. Use a number, a quoted string ('text'), true, false, null, or a property chain starting with $operationdata., $globaldata. or $scope.`
   );
 }
 
