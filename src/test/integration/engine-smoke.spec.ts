@@ -1,3 +1,4 @@
+import {EngineEventbusAdapter} from '@adapters/engine-eventbus-adapter.ts';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
@@ -272,6 +273,8 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       timelineProviders,
       localeManager
     );
+    // EngineFactory connects this adapter; it owns the eventbus commands
+    new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
 
     // test
@@ -297,6 +300,8 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       timelineProviders,
       localeManager
     );
+    // EngineFactory connects this adapter; it owns the eventbus commands
+    new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
 
     // test
@@ -322,6 +327,8 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       timelineProviders,
       localeManager
     );
+    // EngineFactory connects this adapter; it owns the eventbus commands
+    new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
 
     // test

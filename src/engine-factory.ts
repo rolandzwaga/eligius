@@ -150,15 +150,24 @@ export class EngineFactory implements IEngineFactory {
     const {systemName} = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
+    // Registrations that belong to this engine. The returned destroy() removes
+    // them; they are also kept in the factory-wide list so factory.destroy()
+    // still removes them (removers are idempotent).
+    const engineRemovers: TEventbusRemover[] = [];
+    const addEngineRemover = (remover: TEventbusRemover) => {
+      engineRemovers.push(remover);
+      this._eventRemovers.push(remover);
+    };
+
     let actionRegistryListener: ActionRegistryEventbusListener | undefined;
     if (configuration.eventActions?.length) {
       actionRegistryListener = new ActionRegistryEventbusListener();
-      this._eventRemovers.push(
+      addEngineRemover(
         this._eventbus.registerEventlistener(actionRegistryListener)
       );
     }
 
-    this._eventRemovers.push(
+    addEngineRemover(
       this._eventbus.registerInterceptor(
         'request-timeline-uri',
         new RequestVideoUriInterceptor(this._eventbus)
@@ -175,6 +184,10 @@ export class EngineFactory implements IEngineFactory {
 
     const timelineProviders = this._createTimelineProviders(
       resolvedConfiguration
+    );
+    const timelineProvidersByUri = this.createTimelineProvidersByUri(
+      resolvedConfiguration,
+      timelineProviders
     );
 
     // Initialize locale manager with locales from configuration
@@ -194,7 +207,8 @@ export class EngineFactory implements IEngineFactory {
       resolvedConfiguration,
       this._eventbus,
       timelineProviders,
-      localeManager
+      localeManager,
+      timelineProvidersByUri
     );
 
     // Create and connect adapters
@@ -224,15 +238,20 @@ export class EngineFactory implements IEngineFactory {
       localeManager,
       eventbus: this._eventbus,
       destroy: async () => {
-        // Disconnect adapters first
+        // Stop external input first, so no key press restarts playback.
         engineInputAdapter.disconnect();
-        localeEventbusAdapter.disconnect();
-        engineEventbusAdapter.disconnect();
 
-        // Destroy engine (which also destroys localeManager internally)
-        await engineInstance.destroy();
-        // Note: localeManager.destroy() is NOT called here because
-        // engineInstance.destroy() already calls it
+        try {
+          // Destroy the engine while the eventbus adapters are still
+          // connected: end operations need their request responders (for
+          // example 'request-engine-root' for selectElement).
+          // engineInstance.destroy() also destroys the localeManager.
+          await engineInstance.destroy();
+        } finally {
+          localeEventbusAdapter.disconnect();
+          engineEventbusAdapter.disconnect();
+          engineRemovers.forEach(remove => remove());
+        }
       },
     };
   }
@@ -390,4 +409,63 @@ export class EngineFactory implements IEngineFactory {
 
     return result;
   }
+
+  /**
+   * Creates the timeline provider for every timeline, keyed by timeline URI.
+   *
+   * The first timeline of each type reuses the provider created for that type
+   * by {@link createTimelineProvidersForConfig}. Every other timeline gets its
+   * own position source, constructed with its own duration, and shares the
+   * type's container provider and playlist.
+   *
+   * Position sources that render their own DOM container (they implement
+   * `IContainerProvider`, like VideoPositionSource) take their duration from
+   * the media rather than from the timeline. They are shared by all timelines
+   * of a type, so switching timelines does not create a second player.
+   *
+   * @param configuration - The resolved engine configuration
+   * @param providersByType - The providers created per timeline type
+   * @returns A record of timeline URIs to their provider info
+   */
+  createTimelineProvidersByUri(
+    configuration: IResolvedEngineConfiguration,
+    providersByType: Record<TimelineTypes, ITimelineProviderInfo>
+  ): Record<string, ITimelineProviderInfo> {
+    const {timelineProviderSettings, timelines} = configuration;
+    const result: Record<string, ITimelineProviderInfo> = {};
+
+    timelines?.forEach(timeline => {
+      const typeProvider = providersByType[timeline.type];
+      const settings = timelineProviderSettings?.[timeline.type];
+      if (!typeProvider || !settings) {
+        return;
+      }
+
+      const isFirstOfType =
+        timelines.find(t => t.type === timeline.type) === timeline;
+      if (isFirstOfType || hasIntrinsicContainer(typeProvider.positionSource)) {
+        result[timeline.uri] = typeProvider;
+        return;
+      }
+
+      result[timeline.uri] = {
+        positionSource: this.createPositionSourceForTimeline(
+          timeline,
+          settings
+        ),
+        containerProvider: typeProvider.containerProvider,
+        playlist: typeProvider.playlist,
+      };
+    });
+
+    return result;
+  }
+}
+
+function hasIntrinsicContainer(source: IPositionSource): boolean {
+  const candidate = source as Partial<IContainerProvider>;
+  return (
+    typeof candidate.getContainer === 'function' &&
+    typeof candidate.onContainerReady === 'function'
+  );
 }

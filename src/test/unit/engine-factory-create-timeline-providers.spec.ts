@@ -370,3 +370,66 @@ describe('EngineFactory.createEngine with new config format', () => {
     expect(settings.animation?.container?.selector).toBe('#container');
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// createTimelineProvidersByUri Tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('EngineFactory.createTimelineProvidersByUri', () => {
+  beforeEach<FactoryTestContext>(context => {
+    context.factory = new EngineFactory(createMockImporter() as any, window);
+  });
+
+  function animationTimeline(uri: string, duration: number) {
+    return {
+      id: uri,
+      uri,
+      type: 'animation' as const,
+      duration,
+      loop: false,
+      selector: '#animation',
+      timelineActions: [],
+    };
+  }
+
+  test<FactoryTestContext>('given two animation timelines of 10s and 20s, when created, then each gets its own position source with its own duration', ({
+    factory,
+  }) => {
+    const config = createMockConfiguration({
+      timelineProviderSettings: {
+        animation: createProviderSettings({
+          container: {systemName: 'DomContainerProvider', selector: '#stage'},
+        }),
+      },
+      timelines: [animationTimeline('t1', 10), animationTimeline('t2', 20)],
+    });
+    const byType = factory.createTimelineProvidersForConfig(config);
+
+    const byUri = factory.createTimelineProvidersByUri(config, byType);
+
+    expect(byUri.t1).toBe(byType.animation);
+    expect(byUri.t2.positionSource).not.toBe(byType.animation.positionSource);
+    expect(byUri.t1.positionSource.getDuration()).toBe(10);
+    expect(byUri.t2.positionSource.getDuration()).toBe(20);
+    expect(byUri.t2.containerProvider).toBe(byType.animation.containerProvider);
+  });
+
+  test<FactoryTestContext>('given a position source with its own container (like a video player), when created, then it is shared by all timelines of that type', ({
+    factory,
+  }) => {
+    const config = createMockConfiguration({
+      timelineProviderSettings: {animation: createProviderSettings()},
+      timelines: [animationTimeline('t1', 10), animationTimeline('t2', 20)],
+    });
+    const playerLikeSource = Object.assign(
+      new RafPositionSource({duration: 10}),
+      {getContainer: vi.fn(), onContainerReady: vi.fn()}
+    );
+    const byType = {animation: {positionSource: playerLikeSource}} as any;
+
+    const byUri = factory.createTimelineProvidersByUri(config, byType);
+
+    expect(byUri.t1.positionSource).toBe(playerLikeSource);
+    expect(byUri.t2.positionSource).toBe(playerLikeSource);
+  });
+});

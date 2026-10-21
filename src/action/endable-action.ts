@@ -18,19 +18,11 @@ export class EndableAction extends Action {
       return Promise.resolve(initOperationData ?? {});
     }
 
-    this._initializeScopeStack();
-
-    return new Promise<TOperationData>((resolve, reject) => {
-      this.executeOperation(
-        this.endOperations,
-        0,
-        resolve,
-        reject,
-        initOperationData
-      );
-    }).catch(e => {
-      console.error(`Error in action end '${this.name}'`);
-      throw e;
-    });
+    return this._runOperations(this.endOperations, initOperationData).catch(
+      e => {
+        console.error(`Error in action end '${this.name}'`);
+        throw e;
+      }
+    );
   }
 }

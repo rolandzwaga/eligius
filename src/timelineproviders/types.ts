@@ -273,6 +273,20 @@ export interface IPlaylist<TItem = unknown> {
  */
 export interface IContainerProvider {
   /**
+   * Optional asynchronous initialisation, for example resolving the container
+   * element. The engine awaits it before the provider's timeline is first
+   * activated.
+   *
+   * @throws If the container cannot be resolved
+   */
+  init?(): Promise<void>;
+
+  /**
+   * Optional cleanup. The engine calls it once when it is destroyed.
+   */
+  destroy?(): void;
+
+  /**
    * Get the container element.
    *
    * @returns jQuery-wrapped container element, or `undefined` if not available

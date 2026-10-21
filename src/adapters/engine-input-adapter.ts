@@ -49,7 +49,10 @@ export class EngineInputAdapter implements IAdapter {
   private _registerHotkeys(): void {
     const handleSpaceBound = this._handleSpacePress.bind(this);
     hotkeys('space', handleSpaceBound);
-    this._removers.push(() => hotkeys.unbind('space', handleSpaceBound));
+    // The binding lives in hotkeys' default 'all' scope. Unbind from that
+    // scope explicitly: without a scope hotkeys uses the *current* scope, which
+    // a KeyboardStepSource changes while it is active.
+    this._removers.push(() => hotkeys.unbind('space', 'all', handleSpaceBound));
   }
 
   private _handleSpacePress(
@@ -61,7 +64,9 @@ export class EngineInputAdapter implements IAdapter {
     if (this._engine.playState === 'playing') {
       this._engine.pause();
     } else {
-      this._engine.start();
+      this._engine.start()?.catch(error => {
+        console.error('[EngineInputAdapter] engine.start() failed', error);
+      });
     }
 
     return false;

@@ -1,6 +1,8 @@
-import {Action} from '@action/index.ts';
+import {Action, EndableAction} from '@action/index.ts';
 import type {IResolvedOperation} from '@configuration/types.ts';
 import {Eventbus} from '@eventbus/index.ts';
+import {endForEach} from '@operation/end-for-each.ts';
+import {forEach} from '@operation/for-each.ts';
 import type {IOperationScope} from '@operation/types.ts';
 import {
   afterEach,
@@ -213,5 +215,105 @@ describe<ActionContext>('Action', () => {
     const operationData = await action.start();
     expect(operationData.result[0]).toBe(0);
     expect(operationData.result[1]).toBe(1);
+  });
+
+  test<ActionContext>('given an Action with forEach over 20000 items and one sync inner op, when start is called, then it resolves and the inner op ran 20000 times', async context => {
+    // given
+    const {action} = context;
+    // The collection is passed by reference through the operation data, so
+    // the per-iteration deepCopy of the forEach configuration stays cheap.
+    const items = Array.from({length: 20000}, (_, i) => i);
+    const inner = vi.fn((data: any) => data);
+    action.startOperations.push(
+      {
+        id: 'loop',
+        systemName: 'forEach',
+        operationData: {collection: '$operationData.items'},
+        instance: forEach as any,
+      },
+      {id: 'inner', systemName: 'inner', operationData: {}, instance: inner},
+      {
+        id: 'end-loop',
+        systemName: 'endForEach',
+        operationData: {},
+        instance: endForEach as any,
+      }
+    );
+
+    // test
+    await action.start({items});
+
+    // expect
+    expect(inner).toHaveBeenCalledTimes(20000);
+  });
+
+  test<ActionContext>('given a sync operation that throws, when start is called, then the returned promise rejects with that error', async context => {
+    // given
+    const {action} = context;
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    action.startOperations.push({
+      id: 'boom',
+      systemName: 'boom',
+      operationData: {},
+      instance: () => {
+        throw new Error('boom');
+      },
+    });
+
+    // test & expect
+    await expect(action.start()).rejects.toThrow('boom');
+  });
+
+  test<ActionContext>('given a start chain awaiting a promise inside a forEach, when end() runs before that promise resolves, then the start chain keeps its own loop scope', async () => {
+    // given
+    const recorded: unknown[] = [];
+    const endOperationsSeen: unknown[] = [];
+    const action = new EndableAction(
+      'concurrent',
+      [
+        {
+          id: 'loop',
+          systemName: 'forEach',
+          operationData: {collection: [1, 2, 3]},
+          instance: forEach as any,
+        },
+        {
+          id: 'record',
+          systemName: 'record',
+          operationData: {},
+          instance: function (this: IOperationScope, data: any) {
+            recorded.push(this.currentItem);
+            return Promise.resolve(data);
+          },
+        },
+        {
+          id: 'end-loop',
+          systemName: 'endForEach',
+          operationData: {},
+          instance: endForEach as any,
+        },
+      ],
+      [
+        {
+          id: 'end-op',
+          systemName: 'endOp',
+          operationData: {},
+          instance: function (this: IOperationScope, data: any) {
+            endOperationsSeen.push(this.operations);
+            return data;
+          },
+        },
+      ],
+      new Eventbus()
+    );
+
+    // test
+    const started = action.start();
+    await action.end();
+    await started;
+
+    // expect
+    expect(recorded).toEqual([1, 2, 3]);
+    expect(endOperationsSeen).toEqual([action.endOperations]);
   });
 });

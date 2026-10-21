@@ -16,9 +16,15 @@ import {createMockEventbus} from '../../fixtures/eventbus-factory.ts';
 // See specs/TESTING-GUIDE.md "Advanced: vi.hoisted() Pattern"
 const hotkeysMocks = vi.hoisted(() => {
   const handlers = new Map<string, (...args: any[]) => void>();
+  // Like hotkeys-js, bindings without an explicit scope live in 'all', and an
+  // unbind without an explicit scope only matches the *current* scope.
+  const scopes = new Map<string, string>();
+  const state = {currentScope: 'all'};
 
   const resetHandlers = () => {
     handlers.clear();
+    scopes.clear();
+    state.currentScope = 'all';
   };
 
   const trigger = (key: string, event: KeyboardEvent) => {
@@ -30,6 +36,8 @@ const hotkeysMocks = vi.hoisted(() => {
 
   return {
     handlers,
+    scopes,
+    state,
     resetHandlers,
     trigger,
   };
@@ -41,10 +49,21 @@ vi.mock('hotkeys-js', () => {
     default: Object.assign(
       (key: string, handler: (...args: any[]) => void) => {
         hotkeysMocks.handlers.set(key, handler);
+        hotkeysMocks.scopes.set(key, 'all');
       },
       {
-        unbind: (key: string) => {
-          hotkeysMocks.handlers.delete(key);
+        unbind: (key: string, scopeOrMethod?: unknown) => {
+          const scope =
+            typeof scopeOrMethod === 'string'
+              ? scopeOrMethod
+              : hotkeysMocks.state.currentScope;
+          if (hotkeysMocks.scopes.get(key) === scope) {
+            hotkeysMocks.handlers.delete(key);
+            hotkeysMocks.scopes.delete(key);
+          }
+        },
+        setScope: (scope: string) => {
+          hotkeysMocks.state.currentScope = scope;
         },
       }
     ),
@@ -150,6 +169,20 @@ describe<AdapterSuiteContext>('EngineInputAdapter', () => {
       adapter.disconnect();
 
       expect(hotkeysMocks.handlers.has('space')).toBe(false);
+    });
+
+    test<AdapterSuiteContext>('given the hotkeys scope was switched to a KeyboardStepSource scope, when the adapter is disconnected, then space no longer toggles playback', context => {
+      const {adapter, engine} = context;
+      adapter.connect();
+      hotkeysMocks.state.currentScope = 'keyboard-step-source-123';
+
+      adapter.disconnect();
+      hotkeysMocks.trigger('space', {
+        preventDefault: vi.fn(),
+      } as unknown as KeyboardEvent);
+
+      expect(hotkeysMocks.handlers.has('space')).toBe(false);
+      expect(engine.start).not.toHaveBeenCalled();
     });
 
     test<AdapterSuiteContext>('should remove resize listener', context => {

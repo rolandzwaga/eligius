@@ -162,7 +162,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     // Verify engine created successfully with all timelines
     expect(engine).not.toBeNull();
-    expect((engine as any)._timeLineActionsLookup).not.toBeUndefined();
+    expect((engine as any)._timelineSchedules).not.toBeUndefined();
 
     console.log(
       `Timeline initialization (10 timelines, 100 actions): ${duration.toFixed(2)}ms`
@@ -207,12 +207,12 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
     // Ensure engine is initialized
     await engine.init();
 
-    // test: Measure 100 timeline lookups (using internal _handleRequestTimelineUri)
+    // test: Measure 100 timeline lookups (switchTimeline resolves the URI through the Map cache)
     const startTime = performance.now();
     for (let i = 0; i < 100; i++) {
       // Access timeline lookup through internal method (simulates timeline switching)
       const uri = `timeline-${i % 20}`;
-      (engine as any)._handleRequestTimelineUri(uri, () => {});
+      engine.switchTimeline(uri);
     }
     const endTime = performance.now();
 
@@ -287,6 +287,71 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
     );
   });
 
+  test<BenchmarkContext>('given 10000 timeline actions, when 1000 position updates and a backward jump are processed, then every update stays well under one 16ms frame', async context => {
+    // given: 10000 actions spread over a 100s timeline
+    const timelineActions: any[] = [];
+    for (let i = 0; i < 10000; i++) {
+      const start = (i % 1000) / 10;
+      const action: any = {
+        name: `action-${i}`,
+        duration: {start, end: start + 0.5},
+        active: false,
+        start: () => {
+          action.active = true;
+          return Promise.resolve({});
+        },
+        end: () => {
+          action.active = false;
+          return Promise.resolve({});
+        },
+      };
+      timelineActions.push(action);
+    }
+    context.configuration.timelines = [
+      {
+        id: 'dense-timeline-id',
+        type: 'animation',
+        uri: 'dense-timeline',
+        duration: 100,
+        loop: false,
+        selector: '.benchmark-container',
+        timelineActions,
+      } as any,
+    ];
+    let onPosition: (position: number) => void = () => {};
+    context.providers.animation.positionSource.onPosition = (
+      callback: (position: number) => void
+    ) => {
+      onPosition = callback;
+    };
+    const engine = new EligiusEngine(
+      context.configuration,
+      context.eventbus,
+      context.providers,
+      context.languageManager
+    );
+    await engine.init();
+
+    // test
+    let slowest = 0;
+    const measure = (position: number) => {
+      const before = performance.now();
+      onPosition(position);
+      slowest = Math.max(slowest, performance.now() - before);
+    };
+    for (let tick = 0; tick <= 1000; tick++) {
+      measure(tick / 10);
+    }
+    measure(0);
+
+    // expect
+    expect(slowest).toBeLessThan(16);
+
+    console.log(
+      `Tick dispatch (10000 actions): slowest update ${slowest.toFixed(2)}ms`
+    );
+  });
+
   test<BenchmarkContext>('Integrated benchmark - full timeline operation', async context => {
     // given: Create realistic scenario with multiple timelines and actions
     const timelines: IResolvedTimelineConfiguration[] = [];
@@ -336,7 +401,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
     // Simulate timeline switching (tests cache)
     for (let i = 0; i < 10; i++) {
       const uri = `timeline-${i % 5}`;
-      (engine as any)._handleRequestTimelineUri(uri, () => {});
+      engine.switchTimeline(uri);
     }
 
     const endTime = performance.now();
