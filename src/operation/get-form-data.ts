@@ -2,7 +2,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IGetFormDataOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

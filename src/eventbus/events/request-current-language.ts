@@ -1,11 +1,14 @@
 import type {TLanguageCode} from '../../types.ts';
 
 /**
- * Event: request-current-language
- * @param callback - Callback that receives the current language
+ * Request: request-current-language
+ * Answered through `eventbus.request('request-current-language')` by
+ * LocaleEventbusAdapter with the active locale.
+ * @returns The current language code
  * @category Engine Request
  */
 export interface RequestCurrentLanguageEvent {
   name: 'request-current-language';
-  args: [callback: (language: TLanguageCode) => void];
+  args: [];
+  returns: TLanguageCode;
 }

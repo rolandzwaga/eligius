@@ -2,7 +2,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IGetTextContentOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

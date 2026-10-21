@@ -21,11 +21,11 @@ export interface IHttpPostOperationData {
   /**
    * @output
    */
-  response: any;
+  response?: any;
   /**
    * @output
    */
-  status: number;
+  status?: number;
 }
 
 /**

@@ -35,6 +35,37 @@ describe('isPlainObject', () => {
     }
   );
 
+  test('given an object literal and parsed JSON from another realm, when isPlainObject is called, then it returns true', async () => {
+    const vm = await import('node:vm');
+    const literal = vm.runInNewContext('({a: 1})');
+    const parsed = vm.runInNewContext('JSON.parse(\'{"b": 2}\')');
+
+    expect(Object.getPrototypeOf(literal)).not.toBe(Object.prototype);
+    expect(isPlainObject(literal)).toBe(true);
+    expect(isPlainObject(parsed)).toBe(true);
+  });
+
+  test('given an array, a Date and a class instance from another realm, when isPlainObject is called, then it returns false', async () => {
+    const vm = await import('node:vm');
+    const [array, date, instance] = vm.runInNewContext(
+      '[[1], new Date(), new (class Thing {})()]'
+    );
+
+    expect(isPlainObject(array)).toBe(false);
+    expect(isPlainObject(date)).toBe(false);
+    expect(isPlainObject(instance)).toBe(false);
+  });
+
+  test('given an object inheriting from a null-prototype object, when isPlainObject is called, then it returns false', () => {
+    expect(isPlainObject(Object.create(Object.create(null)))).toBe(false);
+  });
+
+  test('given the isPlainObject exported by deep-copy, when compared to the guard, then it is the same function', async () => {
+    const deepCopyModule = await import('@operation/helper/deep-copy.ts');
+
+    expect(deepCopyModule.isPlainObject).toBe(isPlainObject);
+  });
+
   test('given a jQuery object, when isPlainObject is called, then it returns false', async () => {
     const {default: $} = await import('jquery');
 

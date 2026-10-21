@@ -23,6 +23,10 @@ vi.mock('jquery', () => {
     empty: vi.fn(),
     // destroy() walks the engine root for controllers; this root has none
     find: vi.fn(() => ({addBack: () => ({each: vi.fn()})})),
+    // init() detaches controllers in the layout it replaces; there are none
+    children: vi.fn(() => ({
+      find: vi.fn(() => ({addBack: () => ({each: vi.fn()})})),
+    })),
   };
 
   const jqueryFn = vi.fn((selector: string) => {

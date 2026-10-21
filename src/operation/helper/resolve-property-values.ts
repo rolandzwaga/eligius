@@ -1,10 +1,11 @@
-import {deepCopy, isPlainObject} from '@operation/helper/deep-copy.ts';
+import {deepCopy} from '@operation/helper/deep-copy.ts';
 import type {ExternalProperty} from '@operation/helper/resolve-external-property-chain.ts';
 import {
   isExternalProperty,
   resolveExternalPropertyChain,
 } from '@operation/helper/resolve-external-property-chain.ts';
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
+import {isPlainObject} from '@util/guards/is-plain-object.ts';
 
 type TResolver = (propertyChain: ExternalProperty) => unknown;
 

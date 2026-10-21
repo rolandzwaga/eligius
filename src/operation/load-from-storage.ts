@@ -17,7 +17,7 @@ export interface ILoadFromStorageOperationData {
   /**
    * @output
    */
-  loadedValue: any;
+  loadedValue?: any;
 }
 
 /**

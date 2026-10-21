@@ -2,7 +2,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface ISetFocusOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

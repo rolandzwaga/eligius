@@ -12,7 +12,6 @@ export interface IValidationRules {
 
 export interface IValidateFormOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

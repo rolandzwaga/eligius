@@ -18,9 +18,11 @@ export interface ISetElementContentOperationData {
    *
    * prepend = the new content will be inserted before the current content
    *
+   * Defaults to overwrite.
+   *
    * @erased
    */
-  insertionType: 'overwrite' | 'append' | 'prepend';
+  insertionType?: 'overwrite' | 'append' | 'prepend';
 }
 
 /**

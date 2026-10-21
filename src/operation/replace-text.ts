@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IReplaceTextOperationData {
   /**
-   * @required
    * @dependency
    */
   textContent: string;
@@ -20,7 +19,7 @@ export interface IReplaceTextOperationData {
   /**
    * @output
    */
-  replacementCount: number;
+  replacementCount?: number;
 }
 
 /**

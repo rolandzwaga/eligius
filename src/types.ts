@@ -67,6 +67,11 @@ export type EngineEvents = {
    * `request-timeline-cleanup`) failed. While nothing but forward-only
    * subscriptions listen to this event, the engine also logs the error
    * message and its cause.
+   *
+   * A timeline switch that a position source requested (KeyboardStepSource
+   * in `timeline-switch` mode) and that failed is reported here as well,
+   * with `actionId` `'timeline-change-request'`, `actionName`
+   * `"switchTimeline('<uri>')"` and `phase` `'start'`.
    */
   error: [error: IEngineActionError];
 };

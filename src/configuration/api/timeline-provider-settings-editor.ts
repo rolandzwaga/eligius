@@ -113,12 +113,17 @@ export class TimelineProviderSettingsEditor {
   /**
    * Convenience method to set position source using shorthand type names.
    * @param type - Shorthand type ('raf', 'scroll', 'video')
-   * @param options - Type-specific options
+   * @param options - Type-specific options (`sources` and `poster` for video)
    * @deprecated Use setPositionSourceByName for explicit control
    */
   setPositionSourceType(
     type: 'raf' | 'scroll' | 'video',
-    options?: {selector?: string; tickInterval?: number; poster?: string}
+    options?: {
+      selector?: string;
+      tickInterval?: number;
+      poster?: string;
+      sources?: Array<{src: string; type: string}>;
+    }
   ) {
     const systemName = DEFAULT_POSITION_SOURCES[type];
     if (!systemName) {

@@ -2,14 +2,13 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IIsElementInViewportOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;
   /**
    * @output
    */
-  isInViewport: boolean;
+  isInViewport?: boolean;
 }
 
 /**

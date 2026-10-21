@@ -1,58 +1,15 @@
-import type {IAction} from '@action/types.ts';
-import type {EventMap, EventName} from '@eventbus/events/types.ts';
-import type {TLanguageCode} from '../types.ts';
+import type {EventMap, EventName, RequestMap} from '@eventbus/events/types.ts';
 
-export type {EventMap, EventName};
+/**
+ * `RequestMap` (the typed request/response queries) is generated from the
+ * request event interfaces by `npm run events-metadata`; see
+ * `src/eventbus/events/types.ts`.
+ */
+export type {EventMap, EventName, RequestMap};
 
 export type TEventHandler = (...args: any[]) => void;
 export type TEventbusRemover = () => void;
 export type TRequestResponder<T = unknown> = (...args: any[]) => T;
-
-/**
- * The request/response queries that Eligius itself answers through
- * {@link IEventbus.onRequest}, with the arguments each takes and the value it
- * returns. Querying one of these names with {@link IEventbus.request} (without
- * an explicit type argument) types the response, and registering a responder
- * for one with {@link IEventbus.onRequest} checks the responder's signature.
- *
- * The untyped string overloads remain for custom request names.
- *
- * @example
- * ```ts
- * const language = eventbus.request('request-current-language');
- * // language: TLanguageCode | undefined
- * const label = eventbus.request('request-translation', 'nav.home');
- * // label: string | undefined
- * ```
- */
-export interface RequestMap {
-  /** Current timeline position in seconds (answered by the engine adapter). */
-  'request-current-timeline-position': {args: []; returns: number};
-  /** Duration of the current timeline, if known. */
-  'timeline-duration-request': {args: []; returns: number | undefined};
-  /** DOM container of the current timeline, if any. */
-  'timeline-container-request': {
-    args: [];
-    returns: JQuery<HTMLElement> | undefined;
-  };
-  /** The engine's root element. */
-  'request-engine-root': {args: []; returns: JQuery<HTMLElement>};
-  /** URI of the current timeline. */
-  'timeline-request-current-timeline': {args: []; returns: string};
-  /** The active locale (answered by the locale adapter). */
-  'request-current-language': {args: []; returns: TLanguageCode};
-  /** A translation for the key, see `ILocaleManager.t`. */
-  'request-translation': {
-    args: [key: string | string[], params?: Record<string, unknown>];
-    returns: string;
-  };
-  /** A new instance of a registered controller (answered by EngineFactory). */
-  'request-instance': {args: [systemName: string]; returns: unknown};
-  /** A registered function, such as an operation (answered by EngineFactory). */
-  'request-function': {args: [systemName: string]; returns: unknown};
-  /** An action by name, or null when unknown (answered by EngineFactory). */
-  'request-action': {args: [actionName: string]; returns: IAction | null};
-}
 
 /**
  * Names of the request/response queries declared in {@link RequestMap}.
@@ -67,21 +24,45 @@ export type TTypedRequestResponder<K extends RequestName> = (
 ) => RequestMap[K]['returns'];
 
 /**
- * The part of the dispatch path that raised an error during a broadcast.
+ * The part of the dispatch path that raised an error during a broadcast, or
+ * `'reported'` for an error a component passed to
+ * {@link IEventbus.reportError}.
  */
-export type TEventbusErrorSource = 'handler' | 'listener' | 'interceptor';
+export type TEventbusErrorSource =
+  | 'handler'
+  | 'listener'
+  | 'interceptor'
+  | 'reported';
+
+/**
+ * Describes who reports an error through {@link IEventbus.reportError}.
+ */
+export interface IEventbusErrorReport {
+  /** The reporting component, such as `'DOMEventListenerController'`. */
+  source: string;
+  /** The eventbus event being handled when the error occurred, if any. */
+  eventName?: string;
+}
 
 /**
  * Describes where an error was raised during a broadcast. It deliberately
  * leaves out the event arguments, which may carry configuration or user data.
  */
 export interface IEventbusErrorContext {
-  /** The name of the event being broadcast. */
+  /**
+   * The name of the event being broadcast. For a reported error, the event
+   * named in the report, or an empty string.
+   */
   eventName: string;
   /** The topic the event was broadcast for, if any. */
   eventTopic: string | undefined;
-  /** Whether a handler, an eventbus listener or an interceptor failed. */
+  /**
+   * Whether a handler, an eventbus listener or an interceptor failed, or
+   * `'reported'` for an error passed to {@link IEventbus.reportError}.
+   */
   source: TEventbusErrorSource;
+  /** For a reported error: the component that reported it. */
+  reporter?: string;
 }
 
 /**
@@ -238,6 +219,23 @@ export interface IEventbus {
     eventTopic: string,
     ...args: unknown[]
   ): T | undefined;
+
+  /**
+   * Reports an error that a component caught and does not rethrow, such as
+   * an action that failed in a controller's DOM event handler. It goes the
+   * same way as a failing broadcast handler: `console.error` naming the
+   * source, then the `onHandlerError` option with source `'reported'`. It
+   * never throws.
+   *
+   * Optional, so existing `IEventbus` implementations still type check; the
+   * built-in {@link Eventbus} implements it. Callers fall back to
+   * `console.error` when it is missing.
+   *
+   * @param error - The caught error
+   * @param context - The reporting component and, if any, the eventbus event
+   * it was handling
+   */
+  reportError?(error: unknown, context: IEventbusErrorReport): void;
 
   registerEventlistener(eventbusListener: IEventbusListener): TEventbusRemover;
   registerInterceptor(

@@ -5,6 +5,7 @@ import {endForEachSystemName, forEachSystemName} from '@operation/for-each.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
 import {endWhenSystemName, whenSystemName} from '@operation/when.ts';
+import {isPlainObject} from '@util/guards/is-plain-object.ts';
 import {isPromise} from '@util/guards/is-promise.ts';
 
 export class Action implements IAction {
@@ -278,6 +279,57 @@ function withOperationContext(
 const emptyOperationData: Readonly<TOperationData> = Object.freeze({});
 
 /**
+ * Configured operation data already checked by {@link assertNoProtoKeys}.
+ * Configured data is not changed after resolution, so each object is walked
+ * once, not on every run of its operation.
+ */
+const checkedOperationData = new WeakSet<object>();
+
+/**
+ * Throws when an own `__proto__` key occurs anywhere in the configured
+ * operation data (JSON.parse creates one as a normal property). Merging with
+ * Object.assign would run the `__proto__` setter at the top level, and
+ * operations that assign or merge nested data could do the same below it.
+ * Arrays and plain objects are walked; class instances, jQuery objects and
+ * DOM nodes are not.
+ *
+ * @throws Error naming the operation and the path of the key
+ */
+function assertNoProtoKeys(operationData: TOperationData, systemName: string) {
+  if (checkedOperationData.has(operationData)) {
+    return;
+  }
+  const visiting = new Set<object>();
+  const walk = (value: unknown, path: string) => {
+    if (value === null || typeof value !== 'object' || visiting.has(value)) {
+      return;
+    }
+    if (Array.isArray(value)) {
+      visiting.add(value);
+      value.forEach((item, index) => {
+        walk(item, `${path}[${index}]`);
+      });
+      return;
+    }
+    if (!isPlainObject(value)) {
+      return;
+    }
+    visiting.add(value);
+    if (Object.hasOwn(value, '__proto__')) {
+      const at = path ? `${path}.__proto__` : '__proto__';
+      throw new Error(
+        `${systemName}: operation data must not contain a '__proto__' key (found at '${at}')`
+      );
+    }
+    for (const key of Object.keys(value)) {
+      walk(value[key], path ? `${path}.${key}` : key);
+    }
+  };
+  walk(operationData, '');
+  checkedOperationData.add(operationData);
+}
+
+/**
  * Returns the configured operation data in a form that is safe to merge into
  * the running operation data.
  *
@@ -286,6 +338,8 @@ const emptyOperationData: Readonly<TOperationData> = Object.freeze({});
  * object. Only nested objects and arrays can be mutated through the merged
  * data, so a deep copy is made only when the configured data contains one.
  * Empty data and data holding only primitives and functions is returned as-is.
+ *
+ * @throws Error when the data contains a `__proto__` key at any depth
  */
 function copyConfiguredOperationData(
   operationData: TOperationData | undefined,
@@ -294,13 +348,7 @@ function copyConfiguredOperationData(
   if (!operationData) {
     return emptyOperationData;
   }
-  // Merging uses Object.assign, which would run the __proto__ setter and
-  // replace the prototype of the running operation data.
-  if (Object.hasOwn(operationData, '__proto__')) {
-    throw new Error(
-      `${systemName}: operation data must not contain a '__proto__' key`
-    );
-  }
+  assertNoProtoKeys(operationData, systemName);
   for (const key in operationData) {
     const value = operationData[key];
     if (

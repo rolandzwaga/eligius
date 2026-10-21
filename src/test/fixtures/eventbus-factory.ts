@@ -61,6 +61,8 @@ export function createMockEventbus(): IEventbus {
       }
     ),
 
+    reportError: vi.fn(),
+
     registerEventlistener: vi.fn((): TEventbusRemover => {
       return () => {}; // No-op remover
     }),

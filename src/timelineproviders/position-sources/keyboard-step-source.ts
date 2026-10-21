@@ -237,9 +237,11 @@ export class KeyboardStepSource
   /**
    * Register callback for timeline change requests (timeline-switch mode).
    *
-   * The engine does not register one itself, so a host that wants Up/Down to
-   * switch timelines registers it here. Until a callback is registered,
-   * Up/Down keep their default browser behaviour (page scroll).
+   * EligiusEngine registers one when the configuration has more than one
+   * timeline: Up switches to the previous configured timeline and Down to the
+   * next, from its start (nothing happens at the first or last timeline).
+   * Until a callback is registered, Up/Down keep their default browser
+   * behaviour (page scroll).
    *
    * @param callback - Called with 'prev' or 'next' when Up/Down is pressed
    * @returns A function that unregisters the callback

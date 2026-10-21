@@ -35,5 +35,11 @@ export interface IEventMetadata<_TArgs extends any[] = any[]> {
 
     /** Optional description of the argument from JSDoc @param tag */
     description?: string;
+
+    /**
+     * True when the argument may be left out (an optional tuple element such
+     * as `position?: number`); absent for required arguments
+     */
+    optional?: boolean;
   }>;
 }

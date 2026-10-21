@@ -537,6 +537,7 @@ describe('EligiusEngine', () => {
         getDuration: vi.fn().mockReturnValue(10),
         onPosition: vi.fn((cb: (p: number) => void) => {
           positionCb = cb;
+          return () => {};
         }),
         onBoundaryReached: vi.fn(),
         onActivated: vi.fn(),
@@ -1768,10 +1769,12 @@ describe('EligiusEngine', () => {
         getDuration: () => duration,
         onPosition: vi.fn(callback => {
           positionCallbacks.push(callback);
+          return () => {};
         }),
-        onBoundaryReached: vi.fn(),
+        onBoundaryReached: vi.fn(() => () => {}),
         onActivated: vi.fn(callback => {
           activatedCallbacks.push(callback);
+          return () => {};
         }),
         seek: vi.fn(async (value: number) => {
           position = value;
@@ -2593,6 +2596,52 @@ describe('EligiusEngine', () => {
         expect(other.detach).toHaveBeenCalledTimes(1);
         expect(source.destroy).toHaveBeenCalled();
         expect($('.test-container').children().length).toBe(0);
+      });
+
+      test<EligiusEngineSuiteContext>('given a controller attached inside the layout, when init() runs again and replaces the layout, then the controller is detached once with the eventbus', async context => {
+        const engine = createEngineWith(
+          context,
+          createManualPositionSource(),
+          []
+        );
+        await engine.init();
+        const controller = createController('LabelController');
+        attachControllerToElement($('.content'), controller);
+
+        await engine.init();
+
+        expect(controller.detach).toHaveBeenCalledTimes(1);
+        expect(controller.detach).toHaveBeenCalledWith(context.eventbus);
+        expect($('.test-container .content').length).toBe(1);
+
+        await engine.destroy();
+        expect(controller.detach).toHaveBeenCalledTimes(1);
+      });
+
+      test<EligiusEngineSuiteContext>('given a controller whose detach throws, when init() replaces the layout, then the error is logged and the layout is still created', async context => {
+        const errorSpy = vi
+          .spyOn(console, 'error')
+          .mockImplementation(() => {});
+        const engine = createEngineWith(
+          context,
+          createManualPositionSource(),
+          []
+        );
+        await engine.init();
+        const failing = createController('Failing');
+        failing.detach.mockImplementation(() => {
+          throw new Error('detach failed');
+        });
+        attachControllerToElement($('.content'), failing);
+
+        await engine.init();
+
+        expect(failing.detach).toHaveBeenCalledTimes(1);
+        expect(errorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('EligiusEngine.init()'),
+          expect.objectContaining({message: 'detach failed'})
+        );
+        expect($('.test-container .content').length).toBe(1);
       });
 
       function operation(id: string, instance: (data: any) => any) {

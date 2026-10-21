@@ -711,9 +711,9 @@ describe('EngineFactory lifecycle (integration)', () => {
         expect(
           first.eventbus.request<any>('request-action', 'ShowMenu')?.name
         ).toBe('ShowMenu');
-        expect(second.eventbus.request('request-action', 'ShowMenu')).toBe(
-          null
-        );
+        expect(() =>
+          second.eventbus.request('request-action', 'ShowMenu')
+        ).toThrow("Unknown action 'ShowMenu'");
         expect(first.eventbus.request<any>('request-engine-root')[0]).toBe(
           $('#engine-root')[0]
         );
@@ -771,7 +771,9 @@ describe('EngineFactory lifecycle (integration)', () => {
 
         await second.destroy();
 
-        expect(eventbus.request('request-action', 'ShowInfo')).toBe(null);
+        expect(() => eventbus.request('request-action', 'ShowInfo')).toThrow(
+          "Unknown action 'ShowInfo'"
+        );
         expect(eventbus.request<any>('request-action', 'ShowMenu')?.name).toBe(
           'ShowMenu'
         );
@@ -781,12 +783,6 @@ describe('EngineFactory lifecycle (integration)', () => {
         $('#engine-root-2').remove();
       }
     });
-
-    /** Number of eventbus registrations the factory still tracks */
-    function trackedRegistrations(target: EngineFactory): number {
-      const removers = (target as any)._eventRemovers;
-      return removers.size ?? removers.length;
-    }
 
     test('given an engine option that makes the engine constructor throw, when createEngine throws, then its event action, interceptor and registrations are removed again', () => {
       const failingFactory = new EngineFactory(
@@ -894,4 +890,191 @@ describe('EngineFactory lifecycle (integration)', () => {
       expect(probes).toEqual(['init-start', 'init-end']);
     });
   });
+
+  describe('teardown of module state, pending loads and failed creation', () => {
+    test('given an initialised factory engine, when request-engine-root is requested twice, then both answers are the cached engineRoot instance', async () => {
+      const {engine} = await create(createConfig());
+
+      const first = eventbus.request('request-engine-root');
+      const second = eventbus.request('request-engine-root');
+
+      expect(first).toBe(engine.engineRoot);
+      expect(second).toBe(first);
+    });
+
+    test('given loadJson cached a response, when the last live engine is destroyed, then the next cached loadJson fetches again', async () => {
+      const {loadJson} = await import('@operation/load-json.ts');
+      const fetchMock = vi.fn(
+        async () =>
+          new Response(JSON.stringify({value: 1}), {
+            status: 200,
+            headers: {'Content-Type': 'application/json'},
+          })
+      );
+      vi.stubGlobal('fetch', fetchMock);
+      const created = await create(createConfig());
+      result = undefined;
+      const scope = {eventbus} as any;
+      await loadJson.call(scope, {url: '/data.json', cache: true});
+      await loadJson.call(scope, {url: '/data.json', cache: true});
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      await created.destroy();
+      await loadJson.call(scope, {url: '/data.json', cache: true});
+
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
+
+    test('given a $ref locale whose fetch is still pending, when the engine is destroyed, then the fetch is aborted, init rejects and the locale is never loaded', async () => {
+      let fetchSignal: AbortSignal | undefined;
+      let respond: (response: Response) => void = () => {};
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((_url: string, init?: RequestInit) => {
+          fetchSignal = init?.signal ?? undefined;
+          return new Promise<Response>(resolve => {
+            respond = resolve;
+          });
+        })
+      );
+      const config = createConfig({
+        locales: {
+          'en-US': {hello: 'Hello'},
+          'nl-NL': {$ref: '/locales/nl-NL.json'},
+        },
+      });
+      const created = factory.createEngine(config);
+      result = undefined;
+      const loadLocale = vi.spyOn(created.localeManager, 'loadLocale');
+      const init = created.engine.init();
+      init.catch(() => {});
+      await flush();
+      expect(fetchSignal).toBeDefined();
+      expect(fetchSignal?.aborted).toBe(false);
+
+      await created.destroy();
+      respond(
+        new Response(JSON.stringify({hello: 'Hallo'}), {
+          status: 200,
+          headers: {'Content-Type': 'application/json'},
+        })
+      );
+      await flush();
+
+      expect(fetchSignal?.aborted).toBe(true);
+      await expect(init).rejects.toThrow();
+      expect(loadLocale).not.toHaveBeenCalled();
+    });
+
+    test('given the engine was destroyed directly instead of through the factory result, when a $ref locale fetch is pending, then the fetch is aborted', async () => {
+      let fetchSignal: AbortSignal | undefined;
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((_url: string, init?: RequestInit) => {
+          fetchSignal = init?.signal ?? undefined;
+          return new Promise<Response>(() => {});
+        })
+      );
+      const created = factory.createEngine(
+        createConfig({
+          locales: {
+            'en-US': {hello: 'Hello'},
+            'nl-NL': {$ref: '/locales/nl-NL.json'},
+          },
+        })
+      );
+      result = created;
+      created.engine.init().catch(() => {});
+      await flush();
+
+      await created.engine.destroy();
+
+      expect(fetchSignal?.aborted).toBe(true);
+    });
+
+    test('given an adapter whose connect() throws, when createEngine throws, then the adapters connected before it and every registration are removed again', async () => {
+      const {EngineInputAdapter} = await import('@adapters/index.ts');
+      vi.spyOn(EngineInputAdapter.prototype, 'connect').mockImplementation(
+        () => {
+          throw new Error('connect failed');
+        }
+      );
+      const removersBefore = trackedRegistrations(factory);
+      const playRequests = vi.fn();
+
+      expect(() => factory.createEngine(createConfig())).toThrow(
+        'connect failed'
+      );
+
+      eventbus.on('timeline-play', playRequests);
+      eventbus.broadcast('timeline-play-request', []);
+      expect(playRequests).not.toHaveBeenCalled();
+      expect(eventbus.request('request-engine-root')).toBeUndefined();
+      expect(trackedRegistrations(factory)).toBe(removersBefore);
+    });
+
+    test('given a pending $ref locale load, when createEngine throws afterwards, then the load is aborted', async () => {
+      let fetchSignal: AbortSignal | undefined;
+      vi.stubGlobal(
+        'fetch',
+        vi.fn((_url: string, init?: RequestInit) => {
+          fetchSignal = init?.signal ?? undefined;
+          return new Promise<Response>(() => {});
+        })
+      );
+      const failingFactory = new EngineFactory(
+        new EligiusResourceImporter(),
+        window,
+        {eventbus, engineOptions: {maxCatchUp: 0}}
+      );
+      try {
+        expect(() =>
+          failingFactory.createEngine(
+            createConfig({
+              locales: {
+                'en-US': {hello: 'Hello'},
+                'nl-NL': {$ref: '/locales/nl-NL.json'},
+              },
+            })
+          )
+        ).toThrow(/maxCatchUp/);
+        await flush();
+
+        expect(fetchSignal?.aborted).toBe(true);
+      } finally {
+        failingFactory.destroy();
+      }
+    });
+
+    test('given an engine with action ShowMenu, when request-action asks for ShowMneu, then it throws a did-you-mean hint and requestAction keeps it', async () => {
+      const {requestAction} = await import('@operation/request-action.ts');
+      await create(
+        createConfig({
+          actions: [
+            {
+              id: 'show-menu',
+              name: 'ShowMenu',
+              startOperations: [],
+              endOperations: [],
+            } as any,
+          ],
+        })
+      );
+
+      expect(() => eventbus.request('request-action', 'ShowMneu')).toThrow(
+        "Unknown action 'ShowMneu'. Did you mean 'ShowMenu'?"
+      );
+      expect(() =>
+        requestAction.call({eventbus} as any, {systemName: 'ShowMneu'})
+      ).toThrow(
+        "requestAction: could not retrieve action 'ShowMneu'. Unknown action 'ShowMneu'. Did you mean 'ShowMenu'?"
+      );
+    });
+  });
+
+  /** Number of eventbus registrations the factory still tracks */
+  function trackedRegistrations(target: EngineFactory): number {
+    const removers = (target as any)._eventRemovers;
+    return removers.size ?? removers.length;
+  }
 });

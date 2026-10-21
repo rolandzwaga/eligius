@@ -11,6 +11,11 @@ import {
   formatEventArgMetadata,
   getEventArgMetadata,
 } from './event-arg-metadata.ts';
+import {
+  findEventFilesMissingFromIndex,
+  getRequestEventNames,
+  writeRequestMap,
+} from './event-registry.ts';
 import {escapeTemplateLiteral, getTag, removeGeneratedFiles} from './shared.ts';
 
 /**
@@ -231,11 +236,12 @@ const toTypesFile = (
     },
   });
 
-  // Create EventMap type
+  // Create EventMap type. A request event (one with `returns`) keeps its
+  // legacy broadcast form: its args followed by an optional result callback.
   outputSourceFile.addTypeAlias({
     name: 'EventMap',
     isExported: true,
-    type: "{[K in AllEvents as K['name']]: K['args']}",
+    type: "{[K in AllEvents as K['name']]: K extends {returns: infer R} ? [...K['args'], callback?: (result: R) => void] : K['args']}",
   });
 
   // Create EventName type
@@ -244,6 +250,12 @@ const toTypesFile = (
     isExported: true,
     type: 'keyof EventMap',
   });
+
+  // Create RequestMap from the request events
+  writeRequestMap(
+    outputSourceFile,
+    getRequestEventNames(eventData.map(({iface}) => iface))
+  );
 
   outputSourceFile.organizeImports().formatText({
     indentSize: 2,
@@ -263,6 +275,23 @@ const eventFiles = project
       src.getBaseName() !== 'types.ts' &&
       !src.getFilePath().includes('/metadata/')
   );
+
+// Every event file must be exported from the events index, otherwise it is
+// missing from the public API.
+const indexFile = project.getSourceFileOrThrow(
+  './src/eventbus/events/index.ts'
+);
+const missingFromIndex = findEventFilesMissingFromIndex(
+  eventFiles.map(file => file.getBaseName()),
+  indexFile,
+  EVENTBUS_EVENTS_ALIAS
+);
+if (missingFromIndex.length) {
+  console.error(
+    `src/eventbus/events/index.ts does not export these event file(s): ${missingFromIndex.join(', ')}. Add an \`export type {...} from '${EVENTBUS_EVENTS_ALIAS}/<file>.ts'\` line for each.`
+  );
+  process.exit(1);
+}
 
 // Remove the output of events that were renamed or removed
 removeGeneratedFiles(metadataDirectory);

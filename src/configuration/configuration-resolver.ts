@@ -22,6 +22,7 @@ import type {TOperationData} from '@operation/types.ts';
 import {findClosestNames, formatDidYouMean} from '@util/find-closest-names.ts';
 import {isFunction} from '@util/guards/is-function.ts';
 import {isObject} from '@util/guards/is-object.ts';
+import {isPlainObject} from '@util/guards/is-plain-object.ts';
 import {isString} from '@util/guards/is-string.ts';
 import {isDefined} from 'ts-is-present';
 import type {
@@ -518,6 +519,10 @@ function resolveActions(
  */
 type TPlaceholderPass = 'import' | 'config';
 
+/**
+ * Walks arrays and plain data objects only. Class instances, jQuery objects and
+ * other non-plain values (from the TypeScript API) are kept as they are.
+ */
 function resolvePlaceholders(
   configFragment: Record<string, any> | any[],
   rootConfig: any,
@@ -542,7 +547,7 @@ function resolvePlaceholders(
         `${path}[${index}]`
       );
     });
-  } else if (isObject(configFragment)) {
+  } else if (isPlainObject(configFragment)) {
     Object.keys(configFragment).forEach(key => {
       resolvePlaceholder(
         key,
@@ -594,11 +599,11 @@ function resolvePlaceholder(
       );
       configFragment[key] = json;
       // Imported values are not walked for placeholders
-      if (isObject(json) || Array.isArray(json)) {
+      if (isPlainObject(json) || Array.isArray(json)) {
         imported.add(json);
       }
     }
-  } else if (isObject(configValue) || Array.isArray(configValue)) {
+  } else if (isPlainObject(configValue) || Array.isArray(configValue)) {
     resolvePlaceholders(
       configValue,
       rootConfig,
