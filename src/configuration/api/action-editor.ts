@@ -76,8 +76,12 @@ export class ActionEditor<
    *
    * @param name
    * @returns
+   * @throws Error when the action is in `actions` or `eventActions` and another
+   * action in those lists already has the name
    */
   setName(name: string) {
+    // Optional call: an editor may be constructed with a stand-in factory
+    this.configurationFactory.assertUniqueActionName?.(name, this.actionConfig);
     this.actionConfig.name = name;
     return this;
   }
@@ -118,16 +122,21 @@ export class ActionEditor<
 
   /**
    *
-   * Adds the operation data for a start operation specified by the given system name
+   * Adds the operation data for a start operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
    * @param systemName
    * @param operationData
    * @param id
    * @returns
    */
-  addStartOperation(
-    systemName: TOperationName,
-    operationData: TOperationData,
+  addStartOperation<
+    N extends TOperationName,
+    D extends Partial<ExtractOperationDataType<GetOperationByName<N>>>,
+  >(
+    systemName: N,
+    operationData: D,
     id: string = uuidv4()
   ): OperationEditor<this, TOperation<TOperationData>> {
     assertKnownOperationName(systemName);
@@ -139,8 +148,8 @@ export class ActionEditor<
     const newConfig = {
       id,
       systemName: systemName,
-      operationData: operationData,
-    } as IOperationConfiguration<TOperation<TOperationData>>;
+      operationData: deepCopy(operationData) as TOperationData,
+    } as IOperationConfiguration<TOperationData>;
 
     startOperations.push(newConfig);
 
@@ -277,7 +286,9 @@ export class EndableActionEditor<
 
   /**
    *
-   * Adds the operation data for a start operation specified by the given system name
+   * Adds the operation data for an end operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
    * @param systemName
    * @param operationData
@@ -286,7 +297,7 @@ export class EndableActionEditor<
   addEndOperation<
     T extends TOperationName,
     O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
-  >(systemName: TOperationName, operationData: O) {
+  >(systemName: T, operationData: O) {
     assertKnownOperationName(systemName);
 
     const endOperations = this.actionConfig.endOperations
@@ -296,7 +307,7 @@ export class EndableActionEditor<
     const newConfig = {
       id: uuidv4(),
       systemName: systemName,
-      operationData: operationData,
+      operationData: deepCopy(operationData),
     };
 
     endOperations.push(newConfig);
@@ -406,7 +417,7 @@ export class TimelineActionEditor extends EndableActionEditor<ITimelineActionCon
       start,
     };
 
-    if (end) {
+    if (end !== undefined) {
       duration.end = end;
     }
 
@@ -480,13 +491,14 @@ export class OperationEditor<
 
   /**
    *
-   * Sets the operation data
+   * Sets the operation data. The operation data is copied, so later changes to
+   * the given object do not affect the configuration.
    *
    * @param operationData
    * @returns
    */
   setOperationData(operationData: ExtractOperationDataType<O>) {
-    this.operationConfig.operationData = operationData;
+    this.operationConfig.operationData = deepCopy(operationData);
     this.actionEditor.updateConfiguration();
     return this;
   }
@@ -503,12 +515,11 @@ export class OperationEditor<
     key: keyof ExtractOperationDataType<O>,
     value: ExtractOperationDataType<O>[keyof ExtractOperationDataType<O>]
   ) {
-    let {operationData} = this.operationConfig;
-    if (!operationData) {
-      operationData = {} as ExtractOperationDataType<O>;
-    }
-    operationData[key] = value;
-    return this.setOperationData(operationData);
+    // Copy on write, the current object may still be referenced elsewhere
+    return this.setOperationData({
+      ...(this.operationConfig.operationData ?? {}),
+      [key]: value,
+    } as ExtractOperationDataType<O>);
   }
 
   /**
@@ -517,11 +528,11 @@ export class OperationEditor<
    *
    * @returns
    */
-  getOperationDataKeys(): keyof ExtractOperationDataType<O> {
+  getOperationDataKeys(): Array<keyof ExtractOperationDataType<O>> {
     const {operationData} = this.operationConfig;
-    return (operationData
-      ? Object.keys(operationData)
-      : []) as unknown as keyof ExtractOperationDataType<O>;
+    return (operationData ? Object.keys(operationData) : []) as Array<
+      keyof ExtractOperationDataType<O>
+    >;
   }
 
   /**

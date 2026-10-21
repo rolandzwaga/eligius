@@ -40,7 +40,7 @@
     "test:coverage": "vitest --config src/vitest.config.ts --coverage",
     "generate-readmes": "tsx ./src/tools/doc-tools/generate-readmes",
     "generate-schema": "tsx ./src/tools/schema-tools/generate-schemas",
-    "typedoc": "typedoc --options typedoc-metadata.json & typedoc --options typedoc.json",
+    "typedoc": "typedoc --options typedoc-metadata.json && typedoc --options typedoc.json",
     "docs": "npm run generate-schema && npm run typedoc && node copy-schema && npm run generate-readmes",
     "opers-metadata": "tsx src/tools/code-generator/metadata-generator.ts",
     "ctrls-metadata": "tsx src/tools/code-generator/ctrls-metadata-generator.ts",
@@ -48,7 +48,6 @@
     "metadata": "npm run opers-metadata && npm run ctrls-metadata && npm run events-metadata",
     "ts-types": " tsc --noEmit false --emitDeclarationOnly --outDir dist",
     "build": "rimraf dist && npm run metadata && npm run generate-schema && tsdown",
-    "codemod": "tsx src/tools/code-generator/uvu2vitest-codemod.ts",
     "lint": "biome lint --write .",
     "format": "biome format --write .",
     "fix": "biome check --write ."

@@ -20,6 +20,14 @@ import {syncInPlace} from './sync-in-place.ts';
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
 
+/**
+ * Action names must be unique across these lists.
+ */
+const UNIQUE_NAME_LISTS: TEngineConfigurationLists[] = [
+  'actions',
+  'eventActions',
+];
+
 type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
   this: NewFactory,
   ...rest: any[]
@@ -44,11 +52,10 @@ type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
  *   false,                 // The presentation does NOT play in a loop
  *   ".timeline-container"  // The element within the main layout (defined by the layoutTemplate) in which the timeline will be rendered
  * )
- * .editTimelineProviderSettings()                          // Add a timeline provider
- * .addProvider("animation")                                // One that provides timelines for type 'animation'
- * .setSystemName("RequestAnimationFrameTimelineProvider")  // The system name of the provider
- * .setVendor("eligius")                                    // Eligius is the vendor in this case
- * .end();                                                  // This finally returns the ConfigurationFactory instance
+ * .editTimelineProviderSettings()                      // Add a timeline provider
+ * .addProvider("animation", "RafPositionSource")      // Timelines of type 'animation' get their time from requestAnimationFrame
+ * .setContainer(".timeline-container")                 // The element the timeline renders into
+ * .end();                                              // This finally returns the ConfigurationFactory instance
  * ```
  *
  * Then to add an init action:
@@ -79,7 +86,7 @@ type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
  * function addImage(this: ConfigurationFactory, actionName: string, imageSrc: string, imageId: string) {
  *  this.createInitAction(actionName)
  *      .addStartOperationByType(selectElement, { selector: ".timeline-container" })
- *      .addStartOperationByType(createElement, { element: 'img', attributes: {src: imageSrc, imageId} })
+ *      .addStartOperationByType(createElement, { elementName: 'img', attributes: {src: imageSrc, id: imageId} })
  *      .addStartOperationByType(setElementContent, { insertionType: "append" })
  *      .addEndOperationByType(selectElement, { selector: `#${imageId}` })
  *      .addEndOperationByType(removeElement, {});
@@ -324,11 +331,56 @@ export class ConfigurationFactory {
     collectionName: TEngineConfigurationLists,
     action: IActionConfiguration
   ) {
+    if (UNIQUE_NAME_LISTS.includes(collectionName)) {
+      this._assertActionNameFree(action.name, action);
+    }
     const actions = this._initializeCollection(
       this.configuration,
       collectionName
     );
     actions?.push(action as any);
+  }
+
+  /**
+   * Throws when the given action is in `actions` or `eventActions` and another
+   * action in those lists already has the given name. Action names must be
+   * unique across those two lists, the rule the `ConfigurationResolver`
+   * enforces, so the fluent API reports a duplicate where it is made instead of
+   * when the engine is created. Init actions and timeline actions are not
+   * checked.
+   *
+   * Called by the action creators and editors before they rename an action.
+   *
+   * @param name the new action name
+   * @param action the action that gets the name
+   * @throws Error when the name is already taken
+   */
+  assertUniqueActionName(name: string, action: IActionConfiguration): void {
+    const isChecked = UNIQUE_NAME_LISTS.some(listName =>
+      (
+        this.configuration[listName] as IActionConfiguration[] | undefined
+      )?.includes(action)
+    );
+    if (isChecked) {
+      this._assertActionNameFree(name, action);
+    }
+  }
+
+  private _assertActionNameFree(name: string, action: IActionConfiguration) {
+    // Empty names are not checked, so an action can be created first and named later
+    if (!name) {
+      return;
+    }
+    const taken = UNIQUE_NAME_LISTS.some(listName =>
+      (
+        this.configuration[listName] as IActionConfiguration[] | undefined
+      )?.some(other => other !== action && other.name === name)
+    );
+    if (taken) {
+      throw new Error(
+        `Action name '${name}' already exists in actions or eventActions. Action names must be unique across actions and eventActions.`
+      );
+    }
   }
 
   private _initializeCollection<T, K extends keyof T>(
@@ -561,12 +613,14 @@ export class ConfigurationFactory {
   editTimelineAction(uri: string, id: string) {
     const timeline = this.getTimeline(uri);
     if (!timeline) {
-      throw new Error(`Timeline not found for id ${id}`);
+      throw new Error(`No timeline found for uri '${uri}'`);
     }
     const actionConfig = timeline.timelineActions.find(a => a.id === id);
     if (actionConfig) {
       return new TimelineActionEditor(actionConfig, this);
     }
-    throw new Error(`Timeline action not found for id ${id}`);
+    throw new Error(
+      `Timeline action not found for id '${id}' in timeline '${uri}'`
+    );
   }
 }

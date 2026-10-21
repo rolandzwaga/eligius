@@ -2,13 +2,16 @@ import dashToCamelCase from '@util/dash-to-camel-case.ts';
 import {
   type ExportDeclarationStructure,
   type InterfaceDeclaration,
-  type JSDoc,
   Project,
   type SourceFile,
   StructureKind,
-  SyntaxKind,
   ts,
 } from 'ts-morph';
+import {
+  formatEventArgMetadata,
+  getEventArgMetadata,
+} from './event-arg-metadata.ts';
+import {escapeTemplateLiteral, getTag, removeGeneratedFiles} from './shared.ts';
 
 /**
  * Path alias for eventbus events directory
@@ -22,6 +25,25 @@ const project = new Project({
   skipAddingFilesFromTsConfig: true, // Don't load files from tsconfig
 });
 project.addSourceFilesAtPaths('./src/eventbus/events/*.ts');
+
+const metadataDirectory = './src/eventbus/events/metadata';
+
+/**
+ * Whether the hand maintained `IEventMetadata` declares the `optional` flag
+ * for its args. The flag is only emitted when it does, otherwise the generated
+ * files would not type-check.
+ */
+const supportsOptionalArgs = (() => {
+  const typesFile = project.addSourceFileAtPath(
+    `${metadataDirectory}/types.ts`
+  );
+  const argType = typesFile
+    .getInterface('IEventMetadata')
+    ?.getProperty('args')
+    ?.getType()
+    .getArrayElementType();
+  return argType?.getProperty('optional') !== undefined;
+})();
 
 const isPrivateEvent = (interfaceDecl: InterfaceDeclaration): boolean => {
   const docs = interfaceDecl.getJsDocs();
@@ -104,9 +126,6 @@ const createSourceFile = (
     namedImports: ['IEventMetadata'],
   });
 
-  // Get args tuple from the interface property type node (not the type object)
-  const argsProperty = interfaceDecl.getProperty('args')!;
-
   // Extract function name (camelCase) from fileName
   const functionName = dashToCamelCase(fileName);
 
@@ -117,8 +136,12 @@ const createSourceFile = (
     statements: writer => {
       writer.writeLine('return {');
       writer.writeLine(`description: \`${getDescription(interfaceDecl)}\`,`);
-      writer.writeLine(`category: \`${getCategory(interfaceDecl)}\`,`);
-      writer.writeLine(`args: [${getArgMetadata(argsProperty)}]`);
+      writer.writeLine(
+        `category: \`${escapeTemplateLiteral(getCategory(interfaceDecl))}\`,`
+      );
+      writer.writeLine(
+        `args: [${formatEventArgMetadata(getEventArgMetadata(interfaceDecl), supportsOptionalArgs)}]`
+      );
       writer.writeLine('};');
     },
   });
@@ -138,7 +161,7 @@ const getDescription = (interfaceDecl: InterfaceDeclaration): string => {
     .getJsDocs()
     .map(x => x.getCommentText())
     .join('');
-  return description?.replaceAll('`', '\\`') || '';
+  return escapeTemplateLiteral(description);
 };
 
 const getCategory = (interfaceDecl: InterfaceDeclaration): string => {
@@ -148,51 +171,6 @@ const getCategory = (interfaceDecl: InterfaceDeclaration): string => {
     return tag;
   }
   return 'Unknown';
-};
-
-const getArgMetadata = (argsProperty: any): string => {
-  // Get the type node (AST node) instead of the type (type-checker type)
-  const typeNode = argsProperty.getTypeNode();
-
-  if (!typeNode || typeNode.getKind() !== SyntaxKind.TupleType) {
-    return '';
-  }
-
-  const elements = typeNode.getElements();
-
-  if (elements.length === 0) {
-    return '';
-  }
-
-  return elements
-    .map((element: any, index: number) => {
-      let name = `arg${index}`;
-      let type = 'unknown';
-
-      // Check if this is a named tuple member
-      if (element.getKind() === SyntaxKind.NamedTupleMember) {
-        name = element.getName();
-        const typeNode = element.getTypeNode();
-        type = typeNode ? typeNode.getText() : 'unknown';
-      } else {
-        // Regular tuple element (no name)
-        type = element.getText();
-      }
-
-      // Try to find @param JSDoc for this argument
-      const description = ''; // We'll add @param support later if needed
-
-      return `
-      {
-        name: '${name}',
-        type: '${type}'${description ? `,\n        description: '${description}'` : ''}
-      }`;
-    })
-    .join(',');
-};
-
-const getTag = (docs: JSDoc[]) => (tagName: string) => {
-  return docs.flatMap(d => d.getTags()).find(t => t.getTagName() === tagName);
 };
 
 const toIndexFile = (project: Project, fileNames: string[]) => {
@@ -280,8 +258,14 @@ const toTypesFile = (
 const eventFiles = project
   .getSourceFiles()
   .filter(
-    src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts'
+    src =>
+      src.getBaseName() !== 'index.ts' &&
+      src.getBaseName() !== 'types.ts' &&
+      !src.getFilePath().includes('/metadata/')
   );
+
+// Remove the output of events that were renamed or removed
+removeGeneratedFiles(metadataDirectory);
 
 // Process all events. Every valid event goes into the types file, only the
 // public ones get metadata.

@@ -16,7 +16,19 @@ import {
   createGenerator,
   type SchemaGenerator,
 } from 'ts-json-schema-generator';
-import {Node, Project, type VariableDeclaration} from 'ts-morph';
+import {
+  type InterfaceDeclaration,
+  type JSDocTag,
+  Node,
+  Project,
+  type PropertySignature,
+  type TypeAliasDeclaration,
+  type VariableDeclaration,
+} from 'ts-morph';
+import {
+  isParameterTypeTag,
+  parameterTypeTagToJsonSchemaType,
+} from './parameter-type-schema.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const operationsDirectory = path.join(schemaDirectory, 'operations');
@@ -110,6 +122,11 @@ interface IOperationExport {
    * operation has no dedicated data type (e.g. `TOperation<TOperationData>`).
    */
   dataTypeName?: string;
+  /**
+   * The declaration of the operation data type, used when ts-json-schema-generator
+   * cannot handle it (generic or non-exported types).
+   */
+  dataTypeDeclaration?: InterfaceDeclaration | TypeAliasDeclaration;
 }
 
 /**
@@ -130,17 +147,22 @@ function findOperationExports(indexPath: string): IOperationExport[] {
     if (!Node.isVariableDeclaration(declaration)) {
       continue;
     }
+    const dataType = getOperationDataType(declaration);
     operationExports.push({
       operationName: name,
-      dataTypeName: getOperationDataTypeName(declaration),
+      dataTypeName: dataType?.name,
+      dataTypeDeclaration: dataType?.declaration,
     });
   }
   return operationExports;
 }
 
-function getOperationDataTypeName(
-  declaration: VariableDeclaration
-): string | undefined {
+function getOperationDataType(declaration: VariableDeclaration):
+  | {
+      name: string;
+      declaration: InterfaceDeclaration | TypeAliasDeclaration;
+    }
+  | undefined {
   const typeNode = declaration.getTypeNode();
   if (!typeNode || !Node.isTypeReference(typeNode)) {
     return undefined;
@@ -158,12 +180,14 @@ function getOperationDataTypeName(
   const definition = typeName
     .getDefinitionNodes()
     .find(
-      node =>
+      (node): node is InterfaceDeclaration | TypeAliasDeclaration =>
         (Node.isInterfaceDeclaration(node) ||
           Node.isTypeAliasDeclaration(node)) &&
         node.getSourceFile() === declaration.getSourceFile()
     );
-  return definition ? typeName.getText() : undefined;
+  return definition
+    ? {name: typeName.getText(), declaration: definition}
+    : undefined;
 }
 
 function generateOperationSchemas() {
@@ -202,12 +226,17 @@ function generateOperationSchemas() {
   }
 
   let successCount = 0;
+  const fallbacks: string[] = [];
+  const failures: string[] = [];
 
-  for (const {operationName, dataTypeName} of operationExports) {
+  for (const {
+    operationName,
+    dataTypeName,
+    dataTypeDeclaration,
+  } of operationExports) {
     const fileName = `${camelCaseToDash(operationName)}.json`;
 
     if (!dataTypeName) {
-      // Operations without a data type only need their systemName
       fs.writeFileSync(
         path.join(operationsDirectory, fileName),
         JSON.stringify(createFallbackOperationSchema(operationName), null, 2)
@@ -236,24 +265,39 @@ function generateOperationSchemas() {
       console.log(`  ✓ ${fileName}`);
       successCount++;
     } catch (error) {
-      // Create a fallback schema for complex generic types
-      const fallbackSchema = createFallbackOperationSchema(
+      const reason = (error as Error).message.split('\n')[0];
+      if (!dataTypeDeclaration) {
+        // Without the declaration the @required properties would be lost
+        console.error(`  ✗ ${fileName} (${reason}, no declaration found)`);
+        failures.push(operationName);
+        continue;
+      }
+      // ts-json-schema-generator cannot handle some types (generics, types that
+      // are not exported), describe them from the declaration instead.
+      const fallbackSchema = createOperationSchemaFromDeclaration(
         operationName,
-        typeName
+        dataTypeDeclaration
       );
       fs.writeFileSync(
         path.join(operationsDirectory, fileName),
         JSON.stringify(fallbackSchema, null, 2)
       );
 
-      console.log(
-        `  ✓ ${fileName} (fallback - ${(error as Error).message.split('\n')[0]})`
-      );
-      successCount++;
+      console.warn(`  ⚠ ${fileName} (fallback - ${reason})`);
+      fallbacks.push(operationName);
     }
   }
 
   console.log(`\n  Generated: ${successCount}`);
+  if (fallbacks.length) {
+    console.warn(
+      `  Generated from the declaration (fallback): ${fallbacks.length} (${fallbacks.join(', ')})`
+    );
+  }
+  if (failures.length) {
+    console.error(`  Failed: ${failures.length} (${failures.join(', ')})`);
+    process.exit(1);
+  }
 
   // Every exported operation must have a schema, otherwise valid configurations
   // fail to validate against the IOperationConfiguration oneOf.
@@ -281,27 +325,7 @@ function createOperationSchema(
     dataSchema.description || `Schema for the ${operationName} operation`;
 
   // Build the operation schema wrapper
-  const schema: any = {
-    $schema: 'http://json-schema.org/draft-07/schema#',
-    $id: `https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(operationName)}.json`,
-    type: 'object',
-    title: `${operationName} Operation`,
-    description,
-    required: ['systemName'],
-    properties: {
-      id: {
-        type: 'string',
-        description: 'Unique identifier for the operation (UUID format)',
-        pattern:
-          '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
-      },
-      systemName: {
-        const: operationName,
-        description: 'The operation system name',
-      },
-    },
-    additionalProperties: false,
-  };
+  const schema = createOperationSchemaWrapper(operationName, description);
 
   // operationData is optional in IOperationConfiguration, so it is always allowed.
   // It only becomes required when at least one of its properties is required.
@@ -327,11 +351,13 @@ function createOperationSchema(
       continue;
     }
 
-    // Check for @required tag in description or schema
+    // Only the @required tag makes a property required, the same rule the
+    // operation metadata uses. ts-json-schema-generator also lists every
+    // non-optional TypeScript property in dataSchema.required, but operations
+    // default many of those (e.g. setElementContent's insertionType).
     const isRequired =
       propSchema.description?.includes('@required') ||
-      propSchema.required === true ||
-      dataSchema.required?.includes(propName);
+      propSchema.required === true;
 
     // Check for @output tag - these are output properties, not input
     const isOutput =
@@ -351,13 +377,22 @@ function createOperationSchema(
 
     // Map the type properly - handle custom ParameterType annotations
     const schemaType = propSchema.type;
-    if (
-      typeof schemaType === 'string' &&
-      schemaType.startsWith('= ParameterType:')
-    ) {
-      // Map ParameterType to JSON Schema types
-      const paramType = schemaType.replace('= ParameterType:', '');
-      processedProp.type = mapParameterTypeToJsonSchema(paramType);
+    if (isParameterTypeTag(schemaType)) {
+      // The TypeScript type is the source of truth: when it produced a
+      // composition or a reference, the @type editor hint adds no type.
+      const hasTypeFromTypeScript =
+        propSchema.anyOf ||
+        propSchema.oneOf ||
+        propSchema.allOf ||
+        propSchema.$ref ||
+        propSchema.enum ||
+        propSchema.const !== undefined;
+      const mappedType = hasTypeFromTypeScript
+        ? undefined
+        : parameterTypeTagToJsonSchemaType(schemaType);
+      if (mappedType) {
+        processedProp.type = mappedType;
+      }
     } else if (schemaType) {
       processedProp.type = schemaType;
     }
@@ -423,21 +458,8 @@ function createOperationSchema(
 function postProcessConfigSchema(schema: any): any {
   const processed = JSON.parse(JSON.stringify(schema));
 
-  // Set required fields for the root configuration
-  if (processed.properties) {
-    processed.required = [
-      'id',
-      'engine',
-      'containerSelector',
-      'cssFiles',
-      'language',
-      'layoutTemplate',
-      'availableLanguages',
-      'initActions',
-      'actions',
-      'timelines',
-    ];
-  }
+  // The root `required` list comes from IEngineConfiguration, so it follows
+  // the interface when that changes.
 
   // Get list of all operation schema files
   const operationSchemaFiles = fs
@@ -466,47 +488,6 @@ function postProcessConfigSchema(schema: any): any {
   }
 
   return processed;
-}
-
-/**
- * Maps ParameterType annotations to JSON Schema types.
- * ParameterTypes are custom metadata for editor tooling.
- */
-function mapParameterTypeToJsonSchema(paramType: string): string {
-  const typeMap: Record<string, string> = {
-    // String-like types
-    htmlElementName: 'string',
-    className: 'string',
-    selector: 'string',
-    string: 'string',
-    eventTopic: 'string',
-    eventName: 'string',
-    systemName: 'string',
-    actionName: 'string',
-    controllerName: 'string',
-    url: 'string',
-    htmlContent: 'string',
-    labelId: 'string',
-    ImagePath: 'string',
-    QuadrantPosition: 'string',
-    expression: 'string',
-    mathfunction: 'string',
-    languagecode: 'string',
-    // Primitive types
-    number: 'number',
-    boolean: 'boolean',
-    // Complex types
-    object: 'object',
-    array: 'array',
-    dimensions: 'object',
-    dimensionsModifier: 'object',
-    jQuery: 'object',
-    cssProperties: 'object',
-    function: 'string', // Functions are typically passed as strings in JSON config
-    Date: 'string', // Dates are typically passed as ISO strings in JSON config
-  };
-
-  return typeMap[paramType] || 'string';
 }
 
 /**
@@ -625,39 +606,126 @@ function isExternalType(typeName: string): boolean {
   );
 }
 
-function createFallbackOperationSchema(
+/**
+ * The schema of an operation configuration without its operationData.
+ * `id` is required like in `IOperationConfiguration`, any string is accepted
+ * (the resolver does not require UUIDs).
+ */
+function createOperationSchemaWrapper(
   operationName: string,
-  typeName?: string
+  description: string
 ): any {
-  // Create a minimal schema for operations without a data type, or with complex
-  // generic types that ts-json-schema-generator cannot handle
   return {
     $schema: 'http://json-schema.org/draft-07/schema#',
     $id: `https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(operationName)}.json`,
     type: 'object',
     title: `${operationName} Operation`,
-    description: typeName
-      ? `Schema for the ${operationName} operation (generated from ${typeName})`
-      : `Schema for the ${operationName} operation`,
-    required: ['systemName'],
+    description,
+    required: ['id', 'systemName'],
     properties: {
       id: {
         type: 'string',
-        description: 'Unique identifier for the operation (UUID format)',
-        pattern:
-          '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+        description: 'Unique identifier for the operation',
       },
       systemName: {
         const: operationName,
         description: 'The operation system name',
       },
-      operationData: {
-        type: 'object',
-        description:
-          'Operation-specific configuration data. See TypeScript definition for full type information.',
-        additionalProperties: true,
-      },
     },
     additionalProperties: false,
   };
+}
+
+function createFallbackOperationSchema(operationName: string): any {
+  // Operations without a data type only need their systemName
+  const schema = createOperationSchemaWrapper(
+    operationName,
+    `Schema for the ${operationName} operation`
+  );
+  schema.properties.operationData = {
+    type: 'object',
+    description: 'Operation-specific configuration data',
+    additionalProperties: true,
+  };
+  return schema;
+}
+
+/**
+ * Builds an operation schema from the operation data declaration, for the types
+ * ts-json-schema-generator cannot handle. Properties get their description and
+ * their `@type` tag type, and `@required` properties stay required, so the
+ * schema is as strict as the operation metadata.
+ */
+function createOperationSchemaFromDeclaration(
+  operationName: string,
+  declaration: InterfaceDeclaration | TypeAliasDeclaration
+): any {
+  const schema = createOperationSchemaWrapper(
+    operationName,
+    `Schema for the ${operationName} operation (generated from ${declaration.getName()})`
+  );
+  const operationDataSchema: any = {
+    type: 'object',
+    description: 'Operation-specific configuration data',
+    properties: {},
+    additionalProperties: true,
+  };
+  const requiredProps: string[] = [];
+
+  for (const property of getDeclarationProperties(declaration)) {
+    const tags = property.getJsDocs().flatMap(doc => doc.getTags());
+    const hasTag = (name: string) => tags.some(t => t.getTagName() === name);
+    if (hasTag('dependency')) {
+      continue;
+    }
+
+    const processedProp: any = {};
+    const typeTag = tags.find(t => t.getTagName() === 'type');
+    const mappedType = typeTag
+      ? parameterTypeTagToJsonSchemaType(getTagText(typeTag))
+      : undefined;
+    if (mappedType) {
+      processedProp.type = mappedType;
+    }
+    const description = property
+      .getJsDocs()
+      .map(doc => doc.getDescription().trim())
+      .filter(Boolean)
+      .join('\n');
+    if (description) {
+      processedProp.description = description;
+    }
+
+    if (hasTag('required') && !hasTag('output')) {
+      requiredProps.push(property.getName());
+    }
+    operationDataSchema.properties[property.getName()] = processedProp;
+  }
+
+  if (requiredProps.length > 0) {
+    operationDataSchema.required = requiredProps;
+    schema.required.push('operationData');
+  }
+  schema.properties.operationData = operationDataSchema;
+  return schema;
+}
+
+function getDeclarationProperties(
+  declaration: InterfaceDeclaration | TypeAliasDeclaration
+): PropertySignature[] {
+  if (Node.isInterfaceDeclaration(declaration)) {
+    return declaration.getProperties();
+  }
+  const typeNode = declaration.getTypeNode();
+  return Node.isTypeLiteral(typeNode) ? typeNode.getProperties() : [];
+}
+
+function getTagText(tag: JSDocTag): string {
+  const comment = tag.getComment();
+  if (typeof comment === 'string') {
+    return comment;
+  }
+  // The comment of `@type=ParameterType:x` may not be a plain string, fall
+  // back to the tag text without the tag name
+  return tag.getText().replace(/^@type/, '');
 }
