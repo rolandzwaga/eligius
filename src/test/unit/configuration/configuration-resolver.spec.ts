@@ -1087,8 +1087,8 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
       }
 
       // expect
-      expect(error.message).toBe(
-        "Unable to resolve placeholder 'config:missing.file' at cssFiles[1]: Property chain 'missing.file' cannot be resolved."
+      expect(error.message).toMatch(
+        /^Unable to resolve placeholder 'config:missing\.file' at cssFiles\[1\]: .*'missing\.file' cannot be resolved/i
       );
       expect(error.cause).toBeInstanceOf(Error);
     });

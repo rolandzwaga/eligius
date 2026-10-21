@@ -4,7 +4,7 @@ import type {IEventbus} from '@eventbus/types.ts';
 import {addControllerToElement} from '@operation/add-controller-to-element.ts';
 import {removeElement} from '@operation/remove-element.ts';
 import type {IOperationScope} from '@operation/types.ts';
-import {applyOperation, defaultScope} from '@util/apply-operation.ts';
+import {applyOperation, createDefaultScope} from '@util/apply-operation.ts';
 import $ from 'jquery';
 import {beforeEach, describe, expect, test, vi} from 'vitest';
 
@@ -31,7 +31,7 @@ describe('removeElement', () => {
     document.body.innerHTML =
       '<div id="stage"><div id="bar"><span id="inner"></span></div></div>';
     eventbus = new Eventbus();
-    scope = {...defaultScope, eventbus};
+    scope = {...createDefaultScope(), eventbus};
   });
 
   test('given an element, when removeElement runs, then it is removed from the DOM and the operation data is returned', () => {

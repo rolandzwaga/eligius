@@ -5,7 +5,7 @@ import {addControllerToElement} from '@operation/add-controller-to-element.ts';
 import {clearElement} from '@operation/clear-element.ts';
 import {detachControllersWithin} from '@operation/helper/detach-controllers-within.ts';
 import type {IOperationScope} from '@operation/types.ts';
-import {applyOperation, defaultScope} from '@util/apply-operation.ts';
+import {applyOperation, createDefaultScope} from '@util/apply-operation.ts';
 import $ from 'jquery';
 import {beforeEach, describe, expect, test, vi} from 'vitest';
 
@@ -32,7 +32,7 @@ describe('clearElement', () => {
     document.body.innerHTML =
       '<div id="stage"><div id="bar"><span id="inner"></span></div><p>text</p></div>';
     eventbus = new Eventbus();
-    scope = {...defaultScope, eventbus};
+    scope = {...createDefaultScope(), eventbus};
   });
 
   function attach(selector: string, controller: TimeListeningController) {

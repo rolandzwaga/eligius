@@ -1,7 +1,7 @@
 import {Eventbus} from '@eventbus/eventbus.ts';
 import {reparentElement} from '@operation/reparent-element.ts';
 import type {IOperationScope} from '@operation/types.ts';
-import {applyOperation, defaultScope} from '@util/apply-operation.ts';
+import {applyOperation, createDefaultScope} from '@util/apply-operation.ts';
 import $ from 'jquery';
 import {beforeEach, describe, expect, test, vi} from 'vitest';
 
@@ -18,7 +18,7 @@ describe('reparentElement', () => {
       <div id="outside" class="panel"></div>`;
     const eventbus = new Eventbus();
     eventbus.onRequest('request-engine-root', () => $('#root'));
-    scope = {...defaultScope, eventbus};
+    scope = {...createDefaultScope(), eventbus};
   });
 
   test('given a selector matching one element, when reparentElement runs, then the element moves there and newParentSelector is erased', () => {
@@ -152,7 +152,7 @@ describe('reparentElement', () => {
 
   test('given no engine root, when reparentElement runs, then it throws', () => {
     // given
-    const noRootScope = {...defaultScope, eventbus: new Eventbus()};
+    const noRootScope = {...createDefaultScope(), eventbus: new Eventbus()};
 
     // test & expect
     expect(() =>

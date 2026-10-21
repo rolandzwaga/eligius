@@ -6,7 +6,7 @@ import {
   type ISetElementContentOperationData,
   setElementContent,
 } from '@operation/set-element-content.ts';
-import {applyOperation, defaultScope} from '@util/apply-operation.ts';
+import {applyOperation, createDefaultScope} from '@util/apply-operation.ts';
 import $ from 'jquery';
 import {describe, expect, test, vi} from 'vitest';
 
@@ -116,7 +116,7 @@ describe('setElementContent', () => {
       document.body.innerHTML =
         '<div id="stage"><div id="bar"><span id="inner"></span></div></div>';
       const eventbus = new Eventbus();
-      const scope = {...defaultScope, eventbus};
+      const scope = {...createDefaultScope(), eventbus};
       const onStage = new TimeListeningController();
       const onBar = new TimeListeningController();
       const onInner = new TimeListeningController();
