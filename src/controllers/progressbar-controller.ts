@@ -1,6 +1,5 @@
 import {BaseController} from '@controllers/base-controller.ts';
 import type {IEventbus} from '@eventbus/types.ts';
-import type {TOperationData} from '@operation/types.ts';
 
 export interface IProgressbarControllerOperationData {
   /**
@@ -24,13 +23,20 @@ export class ProgressbarController extends BaseController<IProgressbarController
   textElement: JQuery | null = null;
   duration: number = 0;
   private _eventbus: IEventbus | null = null;
+  /** The inline pointer-events value attach() replaced, restored on detach */
+  private _previousPointerEvents: string | null = null;
+  /** The last width and text written, so unchanged values are not rewritten */
+  private _renderedWidth: string | null = null;
+  private _renderedText: string | null = null;
 
-  init(operationData: TOperationData) {
+  init(operationData: IProgressbarControllerOperationData) {
+    this.operationData = operationData;
     this.selectedElement = operationData.selectedElement;
     this.textElement = operationData.textElement;
   }
 
   attach(eventbus: IEventbus) {
+    this.beginAttach(eventbus);
     this.addListener(eventbus, 'timeline-time', this._positionUpdateHandler);
     this.addListener(eventbus, 'timeline-duration', this._durationHandler);
 
@@ -39,7 +45,12 @@ export class ProgressbarController extends BaseController<IProgressbarController
     // switch) arrive through 'timeline-duration'.
     this._refreshDuration();
 
-    this.selectedElement?.css({'pointer-events': 'none'});
+    if (this.selectedElement) {
+      this._previousPointerEvents =
+        (this.selectedElement[0] as HTMLElement | undefined)?.style
+          ?.pointerEvents ?? '';
+      this.selectedElement.css({'pointer-events': 'none'});
+    }
 
     const container = this.selectedElement?.parent();
 
@@ -53,6 +64,12 @@ export class ProgressbarController extends BaseController<IProgressbarController
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
     this._eventbus = null;
+    if (this._previousPointerEvents !== null) {
+      this.selectedElement?.css('pointer-events', this._previousPointerEvents);
+      this._previousPointerEvents = null;
+    }
+    this._renderedWidth = null;
+    this._renderedText = null;
   }
 
   /**
@@ -80,8 +97,18 @@ export class ProgressbarController extends BaseController<IProgressbarController
       return;
     }
     const percentage = clamp((100 / this.duration) * position, 0, 100);
-    this.selectedElement?.css('width', `${percentage}%`);
-    this.textElement?.text(`${Math.floor(percentage)}%`);
+    // 'timeline-time' arrives every frame; only touch the DOM when the
+    // rendered value changes. A 0.1% width step is at most a pixel or two.
+    const width = `${Math.round(percentage * 10) / 10}%`;
+    if (width !== this._renderedWidth) {
+      this._renderedWidth = width;
+      this.selectedElement?.css('width', width);
+    }
+    const text = `${Math.floor(percentage)}%`;
+    if (text !== this._renderedText) {
+      this._renderedText = text;
+      this.textElement?.text(text);
+    }
   }
 
   private _clickHandler(eventbus: IEventbus, container: JQuery, event: any) {

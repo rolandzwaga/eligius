@@ -58,11 +58,14 @@ export interface IInnerMetadata {
   loop: boolean;
   autoplay: boolean;
   /**
-   * ParameterType:object
+   * The lottie animation data. Give either this or `json`; `json` wins when
+   * both are set.
+   *
+   * @type=ParameterType:object
    */
   animationData: any;
   /**
-   * @required
+   * The lottie animation data. Give either this or `animationData`.
    */
   json: any;
   /**
@@ -71,15 +74,22 @@ export interface IInnerMetadata {
    */
   labelIds: string[];
   viewBox: string;
+  /**
+   * @deprecated Ignored: the fallback targeted Internet Explorer and legacy
+   * Edge, which are no longer supported. Will be removed in the next major
+   * version.
+   */
   iefallback: any;
 }
 
 export interface ILottieControllerMetadata extends IInnerMetadata {
   /**
+   * The animation file name. It is not loaded; it is only read for freeze and
+   * end markers, like `my-url/filename[freeze=10,end=21].json`.
+   *
    * @type=ParameterType:url
-   * @required
    */
-  url: string;
+  url?: string;
 }
 
 /**
@@ -94,9 +104,19 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
 export class LottieController extends BaseController<ILottieControllerMetadata> {
   name = 'LottieController';
   currentLanguage: TLanguageCode = 'nl-NL';
+  /**
+   * @deprecated Label collections come from a `request-label-collections`
+   * responder, which nothing in Eligius provides since the labels array was
+   * removed in 2.2.0. Use translation keys as label ids instead; they resolve
+   * through `request-translation`. Will be removed in the next major version.
+   */
   labelData: Record<string, Record<string, string>> = {};
   animationItem: AnimationItem | null = null;
   serializedData: string | null = null;
+  /**
+   * @deprecated Never used: see `iefallback`. Will be removed in the next
+   * major version.
+   */
   serializedIEData: string | null = null;
   freezePosition = -1;
   endPosition = -1;
@@ -105,16 +125,25 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
   /** Incremented by detach() so an attach still loading lottie-web gives up */
   private _attachGeneration = 0;
 
+  /**
+   * @throws when neither `json` nor `animationData` is given
+   */
   init(operationData: ILottieControllerMetadata) {
     this.operationData = {...operationData};
 
-    if (operationData.url.indexOf('[') > -1) {
+    const animationData =
+      this.operationData.json || this.operationData.animationData;
+    if (!animationData) {
+      throw new Error(
+        `${this.name}: provide the animation as 'json' or 'animationData'`
+      );
+    }
+
+    if (operationData.url?.includes('[')) {
       this._parseFilename(operationData.url);
     }
 
-    this.serializedData = this.operationData.json
-      ? JSON.stringify(this.operationData.json)
-      : JSON.stringify(this.operationData.animationData);
+    this.serializedData = JSON.stringify(animationData);
 
     if (this.operationData.iefallback) {
       this.serializedIEData = JSON.stringify(this.operationData.iefallback);
@@ -154,6 +183,9 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
       return;
     }
 
+    // A second attach (also one made while the first is still loading
+    // lottie-web) detaches first, which makes the earlier attach give up.
+    this.beginAttach(eventbus);
     const generation = this._attachGeneration;
     const lottie = await loadLottie();
     if (generation !== this._attachGeneration || !this.operationData) {
@@ -168,6 +200,8 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
       this.currentLanguage =
         eventbus.request<TLanguageCode>('request-current-language') ?? 'en-US';
       this.addListener(eventbus, 'language-change', this._handleLanguageChange);
+      // Deprecated path (see labelData): only a host-provided responder
+      // answers this request
       const labelCollections =
         eventbus.request<any[]>(
           'request-label-collections',
@@ -218,10 +252,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     }
 
     this.animationItem?.destroy();
-    let serialized =
-      this._isIE() && this.serializedIEData
-        ? this.serializedIEData
-        : this.serializedData;
+    let serialized = this.serializedData;
 
     const {labelIds} = this.operationData;
     if (labelIds?.length) {
@@ -299,17 +330,28 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     return translation ? translation : undefined;
   }
 
+  /**
+   * Rebuilds the animation with the texts of the new language and moves it to
+   * the frame the old one was at, playing or paused as before, so a language
+   * switch does not restart it. Frames are counted from the start of the
+   * current segment, which for the freeze segment is frame 0.
+   */
   private _handleLanguageChange(code: TLanguageCode) {
     this.currentLanguage = code;
+    const previous = this.animationItem;
+    const frame = previous?.currentFrame;
+    const wasPaused = previous?.isPaused;
+
     this._createAnimation();
-  }
 
-  private _isIE() {
-    const isIE = false || !!(window.document as any).documentMode;
-
-    // Edge 20+
-    const isEdge = !isIE && !!(window as any).StyleMedia;
-
-    return isEdge || isIE;
+    const item = this.animationItem;
+    if (!item || item === previous || typeof frame !== 'number') {
+      return;
+    }
+    if (wasPaused) {
+      item.goToAndStop(frame, true);
+    } else {
+      item.goToAndPlay(frame, true);
+    }
   }
 }

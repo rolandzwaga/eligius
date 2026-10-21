@@ -173,6 +173,97 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     await vi.waitFor(() => expect(action.start).toHaveBeenCalledTimes(1));
     button.remove();
   });
+  test<DOMEventListenerControllerSuiteContext>("given a DOMEventListenerController attached with actions ['a','b'] where action a's start rejects, when the element's click event fires, then the rejection is reported (no unhandled rejection) and action b's start is not called", async context => {
+    const {eventbus} = context;
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const unhandled = vi.fn();
+    process.on('unhandledRejection', unhandled);
+    const button = $('<button/>').appendTo(document.body);
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: button,
+      eventName: 'click',
+      actions: ['a', 'b'],
+    });
+    controller.attach(eventbus);
+    const [infoA, infoB] = controller.actionInstanceInfos ?? [];
+    const actionA = infoA.action as unknown as ReturnType<
+      typeof createMockAction
+    >;
+    const actionB = infoB.action as unknown as ReturnType<
+      typeof createMockAction
+    >;
+    const failure = new Error('boom');
+    actionA.start.mockRejectedValueOnce(failure);
+
+    try {
+      button.trigger('click');
+
+      await vi.waitFor(() =>
+        expect(consoleError).toHaveBeenCalledWith(
+          "DOMEventListenerController: action 'a' (start) failed for DOM event 'click'",
+          failure
+        )
+      );
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(actionB.start).not.toHaveBeenCalled();
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      process.off('unhandledRejection', unhandled);
+      button.remove();
+    }
+  });
+
+  test<DOMEventListenerControllerSuiteContext>("given actions ['a','end:b'] where b's end rejects, when the event fires, then that failure is reported too", async context => {
+    const {eventbus} = context;
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const button = $('<button/>').appendTo(document.body);
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: button,
+      eventName: 'click',
+      actions: ['a', 'end:b'],
+    });
+    controller.attach(eventbus);
+    const actionB = controller.actionInstanceInfos?.[1]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    actionB.end.mockRejectedValueOnce(new Error('end failed'));
+
+    button.trigger('click');
+
+    await vi.waitFor(() =>
+      expect(consoleError).toHaveBeenCalledWith(
+        "DOMEventListenerController: action 'b' (end) failed for DOM event 'click'",
+        expect.any(Error)
+      )
+    );
+    button.remove();
+  });
+
+  test<DOMEventListenerControllerSuiteContext>('given an action name that request-action does not know, when attach is called, then it throws an error naming the controller, the action and the event', context => {
+    const {operationData} = context;
+    const eventbus = {
+      request: vi.fn((_topic: string, name: string) =>
+        name === 'actionName2' ? undefined : createMockAction(name)
+      ),
+    } as unknown as IEventbus;
+    const controller = new DOMEventListenerController();
+    controller.init({
+      ...operationData,
+      actions: ['actionName1', 'end:actionName2'],
+    });
+
+    expect(() => controller.attach(eventbus)).toThrow(
+      'DOMEventListenerController: unknown action "actionName2" for DOM event "test"'
+    );
+    expect(operationData.selectedElement.on).not.toHaveBeenCalled();
+    expect(controller.actionInstanceInfos).toBeUndefined();
+  });
+
   test<DOMEventListenerControllerSuiteContext>('should call the select event handler', async context => {
     // given
     const {controller, operationData, eventbus} = context;

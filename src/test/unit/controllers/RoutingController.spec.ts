@@ -1,4 +1,6 @@
 import {RoutingController} from '@controllers/routing-controller.js';
+import {Eventbus} from '@eventbus/eventbus.js';
+import {RequestVideoUriInterceptor} from '@eventbus/request-video-uri-interceptor.js';
 import type {IEventbus} from '@eventbus/types.js';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -225,22 +227,31 @@ describe('RoutingController', () => {
       expect(otherHandler).toHaveBeenCalledTimes(1);
     });
 
-    it('should push initial state when no navigation ID in URL', () => {
-      // Set location without navId
+    it('given a URL without a hash and non-empty navigation data, when RoutingController.attach is called, then history.replaceState is called with {navigationId: nav1} and #/nav1 and history.pushState is not called', () => {
       setUrl('/');
+      controller.init({json: createNavigationData()});
 
-      const operationData = {
-        json: createNavigationData(),
-      };
-
-      controller.init(operationData);
       controller.attach(mockEventbus);
 
-      expect(window.history.pushState).toHaveBeenCalledWith(
+      expect(window.history.replaceState).toHaveBeenCalledWith(
         {navigationId: 'nav1'},
         '',
         '#/nav1'
       );
+      expect(window.history.pushState).not.toHaveBeenCalled();
+    });
+
+    it('given a URL hash with a negative position, when attach is called, then the requested position is 0', () => {
+      setUrl('/#/nav2/-1');
+      controller.init({json: createNavigationData()});
+
+      controller.attach(mockEventbus);
+
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        1,
+        0,
+        true,
+      ]);
     });
   });
 
@@ -263,35 +274,59 @@ describe('RoutingController', () => {
   });
 
   describe('history state management', () => {
-    it('should handle push-history-state event', () => {
-      const operationData = {
-        json: createNavigationData(),
-      };
+    it('given push-history-state with position -1 and an engine at position 10, when it is handled, then the URL and state use the rewound position 7', () => {
+      mockEventbus.onRequest('request-current-timeline-position', () => 10);
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
 
-      const testEventbus = createMockEventbus();
-      const originalBroadcast = testEventbus.broadcast;
+      mockEventbus.broadcast('push-history-state', [
+        {
+          navigationData: controller.navLookup.nav2,
+          title: 'Test Title',
+          position: -1,
+        },
+      ]);
 
-      // Mock broadcast to provide video position
-      (testEventbus.broadcast as any) = (eventName: string, args?: any[]) => {
-        if (eventName === 'request-current-video-position' && args) {
-          args[0](10); // Current position 10 seconds
-        }
-        originalBroadcast.call(testEventbus, eventName as any, args as any);
-      };
-
-      controller.init(operationData);
-      controller.attach(testEventbus);
-
-      const state = {
-        navigationData: controller.navLookup['nav2'],
-        title: 'Test Title',
-        position: -1, // Will request current position
-      };
-
-      testEventbus.broadcast('push-history-state', [state]);
-
-      expect(window.history.pushState).toHaveBeenCalled();
+      expect(window.history.pushState).toHaveBeenCalledWith(
+        {navigationId: 'nav2', position: 7},
+        'Test Title',
+        '#/nav2/7'
+      );
       expect(window.document.title).toBe('Test Title');
+    });
+
+    it('given no engine position responder but a legacy request-current-video-position handler, when push-history-state has no position, then the legacy position is used', () => {
+      mockEventbus.on(
+        'request-current-video-position',
+        (callback: (position: number) => void) => callback(2)
+      );
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('push-history-state', [
+        {navigationData: controller.navLookup.nav2, title: 'T'},
+      ]);
+
+      expect(window.history.pushState).toHaveBeenCalledWith(
+        {navigationId: 'nav2', position: 0},
+        'T',
+        '#/nav2/0'
+      );
+    });
+
+    it('given a RoutingController and a responder for request-current-navigation that returns visible navigation data without a position on a real Eventbus, when before-request-video-url is broadcast with [1, 0, false], then window.history.pushState is not called with a URL ending in /-1 and the pushed state position is not negative', () => {
+      const eventbus = new Eventbus();
+      controller.init({json: createNavigationData()});
+      controller.attach(eventbus);
+      eventbus.on('request-current-navigation', callback =>
+        callback({navigationData: controller.navLookup.nav2, title: 'Nav 2'})
+      );
+
+      eventbus.broadcast('before-request-video-url', [1, 0, false]);
+
+      const calls = vi.mocked(window.history.pushState).mock.calls;
+      expect(calls).toEqual([[{navigationId: 'nav2'}, 'Nav 2', '#/nav2']]);
+      controller.detach(eventbus);
     });
 
     it('should handle popstate event', () => {
@@ -329,6 +364,35 @@ describe('RoutingController', () => {
         'highlight-navigation',
         [0] // nav1's videoUrlIndex (first navigation)
       );
+    });
+
+    it('given the URL hash is #/nav2/10 and an attached RoutingController, when a popstate event fires with null state, then request-video-url is broadcast for nav2 at position 10 instead of the first navigation entry', () => {
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
+      setUrl('/#/nav2/10');
+      vi.mocked(mockEventbus.broadcast).mockClear();
+
+      firePopstate(null);
+
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith(
+        'highlight-navigation',
+        [1]
+      );
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        1,
+        10,
+        true,
+      ]);
+    });
+
+    it('given a popstate event with a state object that the host page created, when it is handled, then nothing is broadcast', () => {
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
+      vi.mocked(mockEventbus.broadcast).mockClear();
+
+      firePopstate({foo: 1});
+
+      expect(mockEventbus.broadcast).not.toHaveBeenCalled();
     });
 
     it('given a popstate event whose state names an unknown navigation id, when it is handled, then it falls back to the first navigation entry', () => {
@@ -380,6 +444,71 @@ describe('RoutingController', () => {
         'request-current-navigation',
         expect.any(Array)
       );
+    });
+  });
+
+  describe('timeline navigation', () => {
+    const createTimelineNavigationData = () => ({
+      navigationData: [
+        {id: 'nav1', videoUrlIndex: 0, timelineUri: 'intro', visible: true},
+        {id: 'nav2', videoUrlIndex: 1, timelineUri: 'chapter-1', visible: true},
+      ],
+      roots: ['nav1', 'nav2'],
+    });
+
+    /**
+     * A real Eventbus with the interceptor EngineFactory registers, so
+     * 'request-timeline-uri' produces 'before-request-timeline-uri'.
+     */
+    const createEngineLikeEventbus = () => {
+      const eventbus = new Eventbus();
+      eventbus.registerInterceptor(
+        'request-timeline-uri',
+        new RequestVideoUriInterceptor(eventbus)
+      );
+      const requests: unknown[][] = [];
+      eventbus.on('request-timeline-uri', (...args) => requests.push(args));
+      const navigationRequests = vi.fn();
+      eventbus.on('request-current-navigation', navigationRequests);
+      return {eventbus, requests, navigationRequests};
+    };
+
+    it('given navigation items with a timelineUri, when attach reads #/nav2/4 from the URL, then request-timeline-uri is broadcast and no history entry is saved for it', () => {
+      setUrl('/#/nav2/4');
+      const {eventbus, requests, navigationRequests} =
+        createEngineLikeEventbus();
+      controller.init({json: createTimelineNavigationData()});
+
+      controller.attach(eventbus);
+
+      expect(requests).toEqual([['chapter-1', 4]]);
+      expect(navigationRequests).not.toHaveBeenCalled();
+      controller.detach(eventbus);
+    });
+
+    it('given navigation items with a timelineUri, when a popstate event fires, then request-timeline-uri is broadcast without saving the current entry', () => {
+      const {eventbus, requests, navigationRequests} =
+        createEngineLikeEventbus();
+      controller.init({json: createTimelineNavigationData()});
+      controller.attach(eventbus);
+      requests.length = 0;
+
+      firePopstate({navigationId: 'nav2', position: 3});
+
+      expect(requests).toEqual([['chapter-1', 3]]);
+      expect(navigationRequests).not.toHaveBeenCalled();
+      controller.detach(eventbus);
+    });
+
+    it('given another component requests a timeline, when before-request-timeline-uri is broadcast, then the current navigation entry is saved', () => {
+      const {eventbus, navigationRequests} = createEngineLikeEventbus();
+      controller.init({json: createTimelineNavigationData()});
+      controller.attach(eventbus);
+
+      eventbus.broadcast('request-timeline-uri', ['chapter-1', 0]);
+
+      expect(navigationRequests).toHaveBeenCalledTimes(1);
+      controller.detach(eventbus);
     });
   });
 });

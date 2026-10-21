@@ -82,6 +82,7 @@ export class LabelController extends BaseController<ILabelControllerMetadata> {
       return;
     }
 
+    this.beginAttach(eventbus);
     this._eventbus = eventbus;
     this._setLabel();
     this.addListener(eventbus, 'language-change', this._handleLanguageChange);
