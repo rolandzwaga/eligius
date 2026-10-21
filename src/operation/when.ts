@@ -1,18 +1,14 @@
-import {parseOperand, resolveOperand} from '@operation/helper/parse-operand.ts';
+import {
+  evaluateExpression,
+  parseExpression,
+} from '@operation/helper/parse-expression.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {IOperationScope, TOperation} from '@operation/types.ts';
 
-type TOperator = '!=' | '==' | '>=' | '<=' | '>' | '<';
-type TValue =
-  | `'${string}'`
-  | number
-  | boolean
-  | null
-  | `$operationdata.${string}`
-  | `$globaldata.${string}`
-  | `$scope.${string}`;
-
-type TExpression = `${TValue}${TOperator}${TValue}`;
+/**
+ * A condition expression, see {@link when} for the grammar.
+ */
+type TExpression = string;
 
 export interface IWhenOperationData {
   /**
@@ -29,10 +25,9 @@ export interface IWhenOperationData {
  *
  * Practically, this means an `if` or `if`/`else` statement control flow implementation in a list of operations.
  *
- * The expression is passed in as a formatted string.
- * The left and right values of the expression can be defined like this:
+ * The expression is passed in as a formatted string. An operand can be one of:
  *
- * 'constant': for a constant string
+ * 'constant': for a constant string (operators and parentheses inside the quotes are text)
  * 100: for a constant number (the whole operand must be numeric, `10px` is invalid)
  * true, false, null: for a boolean or null constant
  * $operationData.foo: for an operation data value
@@ -41,7 +36,28 @@ export interface IWhenOperationData {
  * $scope.variables.foo: for a variable set with `setVariable`
  *
  * Any other operand is an error, so a misspelled chain prefix fails instead of being compared
- * as a string. `==` and `!=` compare strictly (without type conversion).
+ * as a string.
+ *
+ * Operands are combined with these operators, from highest to lowest precedence:
+ *
+ * `!`: negation
+ * `==`, `!=`, `>`, `<`, `>=`, `<=`: comparison (`==` and `!=` compare strictly, without type
+ * conversion; comparisons do not chain, so write `0<$scope.loopIndex && $scope.loopIndex<5`)
+ * `&&`: and
+ * `||`: or
+ *
+ * Parentheses group. A bare operand is true when its value is truthy, so `'false'` and `'0'`
+ * are true and `0`, `''`, `null` and a missing value are false. `!`, `&&` and `||` always
+ * produce `true` or `false`. `!` binds tighter than a comparison: `!$operationdata.a==1`
+ * compares `!$operationdata.a` with 1, write `!($operationdata.a==1)` to negate the comparison.
+ * `&&` and `||` short-circuit: when the left side decides the result, the right side is not
+ * resolved, so `$operationdata.user && $operationdata.user.name=='John'` does not fail when
+ * `user` is missing.
+ *
+ * Arithmetic (`+`, `-`, `*`, `/`) is not supported: `-` is a valid character in a property
+ * chain, so `$operationdata.a-1` would be ambiguous. Nothing in the expression is executed as
+ * code, and property chains are resolved with the usual prototype-pollution and global-object
+ * guards.
  *
  * @example
  * $scope.variables.foo=='bar'
@@ -51,11 +67,21 @@ export interface IWhenOperationData {
  * $globalData.foo>$scope.variables.bar
  * @example
  * $operationData.foo!=100
+ * @example
+ * $scope.variables.position>=10 && $scope.variables.position<12
+ * @example
+ * ($scope.variables.answered && $scope.variables.score>=5) || $scope.variables.skipped
+ * @example
+ * !$operationdata.isHidden
+ * @example
+ * $operationdata.label=='a && b' || $operationdata.label=='(none)'
  *
  * @param operationData
  * @returns
- * @throws When the expression has no operator, an operand is empty, or an operand is not one of
- * the forms above. The message names the operand and the expression.
+ * @throws When the expression is not a string or is empty, an operand is not one of the forms
+ * above, a string is not closed, an operator is unknown or misplaced, or parentheses do not
+ * balance. The message names the problem, its 0-based position and the expression, for example
+ * `when: unexpected ')' at position 4 in expression '1==1)'.`
  *
  * @category Control Flow
  */
@@ -63,81 +89,18 @@ export const when: TOperation<
   IWhenOperationData,
   Omit<IWhenOperationData, 'expression'>
 > = function (operationData: IWhenOperationData) {
-  const [left, operator, right] = parseExpression(
-    operationData.expression,
-    operationData,
-    this
-  );
+  const condition = parseExpression(operationData.expression, 'when');
+  const evaluation = evaluateExpression(condition, operationData, this);
 
   removeProperties(operationData, 'expression');
 
-  this.whenEvaluation = evaluations[operator](left, right);
+  this.whenEvaluation = evaluation;
 
   if (!this.whenEvaluation) {
     this.newIndex = findNextFlowControlIndex(this);
   }
 
   return operationData;
-};
-
-function parseExpression(
-  expression: TExpression,
-  operationData: IWhenOperationData,
-  operationScope: IOperationScope
-): [TValue, TOperator, TValue] {
-  const [left, operator, right] = splitExpression(expression);
-  const leftOperand = parseOperand(left, 'when', expression);
-  const rightOperand = parseOperand(right, 'when', expression);
-
-  return [
-    resolveOperand(leftOperand, operationData, operationScope) as TValue,
-    operator,
-    resolveOperand(rightOperand, operationData, operationScope) as TValue,
-  ];
-}
-
-// Two-character operators first, so '>=' is not read as '>' followed by '='.
-const operators: TOperator[] = ['!=', '==', '>=', '<=', '>', '<'];
-
-/**
- * Splits the expression on the first operator that is not inside a quoted
- * string literal. Throws when there is no operator or an operand is empty.
- */
-function splitExpression(expression: string): [string, TOperator, string] {
-  let inQuote = false;
-  for (let i = 0; i < expression.length; i++) {
-    if (expression[i] === "'") {
-      inQuote = !inQuote;
-      continue;
-    }
-    if (inQuote) {
-      continue;
-    }
-    const operator = operators.find(op => expression.startsWith(op, i));
-    if (operator) {
-      const left = expression.substring(0, i).trim();
-      const right = expression.substring(i + operator.length).trim();
-      if (left.length && right.length) {
-        return [left, operator, right];
-      }
-      break;
-    }
-  }
-  throw new Error(`when: invalid expression '${expression}'`);
-}
-
-type TComparable = TValue | undefined;
-
-const evaluations: Record<
-  TOperator,
-  (left: TComparable, right: TComparable) => boolean
-> = {
-  '==': (left, right) => left === right,
-  '!=': (left, right) => left !== right,
-  '>=': (left, right) => (left as any) >= (right as any),
-  '<=': (left, right) => (left as any) <= (right as any),
-  '>': (left, right) => (left as any) > (right as any),
-  '<': (left, right) => (left as any) < (right as any),
 };
 
 /**
