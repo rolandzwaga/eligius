@@ -53,9 +53,20 @@ export const createElement: TOperation<
   this: IOperationScope,
   operationData: ICreateElementOperationData<T>
 ) {
-  operationData = resolvePropertyValues(operationData, this, operationData);
-
-  const {elementName, attributes, text} = operationData;
+  // Resolve only this operation's own properties: other operation data is
+  // passed on to later operations untouched.
+  const {elementName, attributes, text} = resolvePropertyValues(
+    operationData,
+    this,
+    {
+      elementName: operationData.elementName,
+      attributes: operationData.attributes,
+      text: operationData.text,
+    }
+  ) as Pick<
+    ICreateElementOperationData<T>,
+    'elementName' | 'attributes' | 'text'
+  >;
 
   removeProperties(operationData, 'elementName', 'attributes', 'text');
 

@@ -1,5 +1,5 @@
 import {DOMEventListenerController} from '@controllers/dom-event-listener-controller.ts';
-import type {IEventbus} from '@eventbus/index.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
 import {createMockAction} from '@test/fixtures/action-factory.ts';
 import $ from 'jquery';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
@@ -214,6 +214,79 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
       process.off('unhandledRejection', unhandled);
       button.remove();
     }
+  });
+
+  test('given an eventbus with reportError, when an action fails for a DOM event, then the failure goes to reportError naming the controller and keeps the original error as cause', async () => {
+    const onHandlerError = vi.fn();
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const eventbus = new Eventbus({onHandlerError});
+    const failing = createMockAction('a');
+    const failure = new Error('boom');
+    failing.start.mockRejectedValueOnce(failure);
+    eventbus.onRequest('request-action', () => failing as any);
+    const reportError = vi.spyOn(eventbus, 'reportError');
+    const button = $('<button/>').appendTo(document.body);
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: button,
+      eventName: 'click',
+      actions: ['a'],
+    });
+    controller.attach(eventbus);
+
+    try {
+      button.trigger('click');
+
+      await vi.waitFor(() => expect(reportError).toHaveBeenCalledTimes(1));
+      const [reported, context] = reportError.mock.calls[0];
+      expect(context).toEqual({source: 'DOMEventListenerController'});
+      expect((reported as Error).message).toBe(
+        "DOMEventListenerController: action 'a' (start) failed for DOM event 'click'"
+      );
+      expect((reported as Error).cause).toBe(failure);
+      expect(onHandlerError).toHaveBeenCalledWith(
+        reported,
+        expect.objectContaining({
+          source: 'reported',
+          reporter: 'DOMEventListenerController',
+        })
+      );
+      expect(consoleError).toHaveBeenCalledWith(
+        'Error reported by DOMEventListenerController:',
+        reported
+      );
+    } finally {
+      button.remove();
+    }
+  });
+
+  test('given request-action throws a did-you-mean hint, when attach is called, then the error names the controller, the action, the event and keeps the hint', () => {
+    const hint = new Error("Unknown action 'Shwo'. Did you mean 'Show'?");
+    const eventbus = {
+      request: vi.fn(() => {
+        throw hint;
+      }),
+    } as unknown as IEventbus;
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: createMockElement() as any,
+      eventName: 'click',
+      actions: ['Shwo'],
+    });
+
+    let error: any;
+    try {
+      controller.attach(eventbus);
+    } catch (thrown) {
+      error = thrown;
+    }
+
+    expect(error.message).toBe(
+      `DOMEventListenerController: unknown action "Shwo" for DOM event "click". Unknown action 'Shwo'. Did you mean 'Show'?`
+    );
+    expect(error.cause).toBe(hint);
   });
 
   test<DOMEventListenerControllerSuiteContext>("given actions ['a','end:b'] where b's end rejects, when the event fires, then that failure is reported too", async context => {

@@ -6,7 +6,6 @@ export type ScrollLogicalPosition = 'start' | 'center' | 'end' | 'nearest';
 
 export interface IScrollToElementOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

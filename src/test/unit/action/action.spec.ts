@@ -517,5 +517,73 @@ describe<ActionContext>('Action', () => {
       expect(seen).toHaveLength(0);
       expect(({} as any).polluted).toBeUndefined();
     });
+
+    test.each([
+      [
+        'a nested object',
+        '{"properties": {"style": {"__proto__": {"polluted": true}}}}',
+        'properties.style.__proto__',
+      ],
+      [
+        'an object inside an array',
+        '{"items": [1, {"__proto__": {"polluted": true}}]}',
+        'items[1].__proto__',
+      ],
+    ])(
+      'given configured operation data with a __proto__ key in %s, when start is called, then it rejects naming the operation and the path',
+      async (_, json, path) => {
+        silenceLog();
+        const seen: object[] = [];
+        const action = new Action(
+          'ctx',
+          [
+            op(
+              'victim',
+              data => {
+                seen.push(data);
+                return data;
+              },
+              JSON.parse(json)
+            ),
+          ],
+          new Eventbus()
+        );
+
+        const error: any = await action.start().catch(e => e);
+
+        expect(error.message).toContain('victim');
+        expect(error.message).toContain(path);
+        expect(seen).toHaveLength(0);
+        expect(({} as any).polluted).toBeUndefined();
+      }
+    );
+
+    test('given configured operation data whose nested values are safe and include a class instance and a cycle, when start is called twice, then it runs normally', async () => {
+      class Holder {
+        value = 1;
+      }
+      const cyclic: Record<string, unknown> = {name: 'loop'};
+      cyclic.self = cyclic;
+      const seen: object[] = [];
+      const action = new Action(
+        'ctx',
+        [
+          op(
+            'safe',
+            data => {
+              seen.push(data);
+              return data;
+            },
+            {nested: {list: [{a: 1}]}, holder: new Holder(), cyclic}
+          ),
+        ],
+        new Eventbus()
+      );
+
+      await action.start();
+      await action.start();
+
+      expect(seen).toHaveLength(2);
+    });
   });
 });

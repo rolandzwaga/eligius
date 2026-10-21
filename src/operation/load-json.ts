@@ -34,8 +34,8 @@ const addToCache = (key: string, value: unknown) => {
  * If the cache property is set to true and a cached value already exists, a copy of it is assigned
  * instead of re-retrieving it from the url. Mutating the returned json never changes the cache.
  *
- * The cache lives for the lifetime of the page and is shared by every engine; call
- * {@link clearJsonCache} to empty it.
+ * The cache is shared by every engine. It is emptied when the last live engine created by
+ * `EngineFactory` is destroyed; call {@link clearJsonCache} to empty it earlier.
  *
  * @throws When the url is empty, the request fails, the server responds with an error status, or the body is not valid JSON.
  *
@@ -94,6 +94,9 @@ export const loadJson: TOperation<
 
 /**
  * Removes every response that {@link loadJson} cached with `cache: true`.
+ *
+ * `EngineFactory` calls it when the last live engine is destroyed. It is exported from the
+ * package entry, not from the operations index, because it is not an operation.
  */
 export const clearJsonCache = (): void => {
   jsonCache.clear();

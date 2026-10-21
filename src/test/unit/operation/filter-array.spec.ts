@@ -37,8 +37,8 @@ describe('filterArray', () => {
 
     // Assert
     expect(result.filteredArray).toHaveLength(2);
-    expect(result.filteredArray[0]).toEqual({name: 'Alice', age: 25});
-    expect(result.filteredArray[1]).toEqual({name: 'Charlie', age: 25});
+    expect(result.filteredArray?.[0]).toEqual({name: 'Alice', age: 25});
+    expect(result.filteredArray?.[1]).toEqual({name: 'Charlie', age: 25});
   });
 
   test('should filter array with custom predicate function', () => {

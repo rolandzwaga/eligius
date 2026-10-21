@@ -1,6 +1,7 @@
 export type {BeforeRequestTimelineUriEvent} from '@eventbus/events/before-request-timeline-uri.ts';
 export type {BeforeRequestVideoUrlEvent} from '@eventbus/events/before-request-video-url.ts';
 export type {DomMutationEvent} from '@eventbus/events/dom-mutation.ts';
+export type {EngineCommandErrorEvent} from '@eventbus/events/engine-command-error.ts';
 export type {EngineErrorEvent} from '@eventbus/events/engine-error.ts';
 export type {HighlightNavigationEvent} from '@eventbus/events/highlight-navigation.ts';
 export type {LanguageChangeEvent} from '@eventbus/events/language-change.ts';
@@ -18,6 +19,7 @@ export type {RequestLabelCollectionEvent} from '@eventbus/events/request-label-c
 export type {RequestLabelCollectionsEvent} from '@eventbus/events/request-label-collections.ts';
 export type {RequestTimelineCleanupEvent} from '@eventbus/events/request-timeline-cleanup.ts';
 export type {RequestTimelineUriEvent} from '@eventbus/events/request-timeline-uri.ts';
+export type {RequestTranslationEvent} from '@eventbus/events/request-translation.ts';
 export type {RequestVideoCleanupEvent} from '@eventbus/events/request-video-cleanup.ts';
 export type {RequestVideoUrlEvent} from '@eventbus/events/request-video-url.ts';
 export type {CompleteEvent} from '@eventbus/events/timeline-complete.ts';

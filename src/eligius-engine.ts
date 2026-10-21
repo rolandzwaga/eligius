@@ -180,6 +180,22 @@ interface IPendingStart {
 const noop = () => {};
 const resolved: Promise<void> = Promise.resolve();
 
+/**
+ * A position source that asks the engine to switch to the previous or next
+ * timeline, like KeyboardStepSource in `timeline-switch` mode.
+ */
+interface ITimelineChangeRequester {
+  onTimelineChangeRequest(
+    callback: (direction: 'prev' | 'next') => void
+  ): (() => void) | void;
+}
+
+/**
+ * `actionId` of the error the engine emits when a timeline switch that a
+ * position source requested fails.
+ */
+const TIMELINE_CHANGE_REQUEST_ID = 'timeline-change-request';
+
 interface ISignal {
   promise: Promise<void>;
   resolve: () => void;
@@ -289,6 +305,8 @@ export class EligiusEngine implements IEligiusEngine {
 
   /** Position sources whose callbacks are registered */
   private _wiredSources: Set<IPositionSource> = new Set();
+  /** Removes registrations on sources that destroy() must undo */
+  private _sourceRemovers: Array<() => void> = [];
   /** Position sources whose init() succeeded */
   private _preparedSources: Set<IPositionSource> = new Set();
   /** Container providers whose init() succeeded */
@@ -733,6 +751,12 @@ export class EligiusEngine implements IEligiusEngine {
       );
     }
     const source = providerInfo.positionSource;
+    const {playlist} = providerInfo;
+    if (playlist?.hasItem && !playlist.hasItem(timelineConfig.uri)) {
+      throw new Error(
+        `EligiusEngine.switchTimeline('${timelineConfig.uri}'): the timeline's playlist has no item '${timelineConfig.uri}'`
+      );
+    }
 
     // Initialise first: when that fails (a video that does not load) the
     // current timeline keeps running and a later switch retries.
@@ -849,6 +873,18 @@ export class EligiusEngine implements IEligiusEngine {
     const {layoutTemplate} = this.configuration;
 
     if (layoutTemplate?.length) {
+      // html() drops the jQuery data of the replaced elements, so controllers
+      // still attached to them would stay subscribed to the eventbus.
+      const errors = detachControllersWithin(
+        container.children(),
+        this.eventbus
+      );
+      errors.forEach(error => {
+        console.error(
+          'EligiusEngine.init(): detaching a controller from the replaced layout failed',
+          error
+        );
+      });
       container.html(layoutTemplate);
     } else {
       console.warn('layoutTemplate is empty, unable to create layout');
@@ -961,6 +997,48 @@ export class EligiusEngine implements IEligiusEngine {
         this._onFirstFrameCallback();
       }
     });
+    this._wireTimelineChangeRequests(source);
+  }
+
+  /**
+   * Sources that ask for timeline changes (KeyboardStepSource in
+   * `timeline-switch` mode) switch to the previous or next configured
+   * timeline, from its start. Requests at the first or the last timeline do
+   * nothing. A failed switch is reported through the `error` event.
+   */
+  private _wireTimelineChangeRequests(source: IPositionSource) {
+    const requester = source as Partial<ITimelineChangeRequester>;
+    if (
+      typeof requester.onTimelineChangeRequest !== 'function' ||
+      (this.configuration.timelines?.length ?? 0) < 2
+    ) {
+      // With a single timeline Up/Down keep their default behaviour.
+      return;
+    }
+    const remover = requester.onTimelineChangeRequest(direction => {
+      if (this._destroyed || source !== this._activePositionSource) {
+        return;
+      }
+      const uris = (this.configuration.timelines ?? []).map(
+        timeline => timeline.uri
+      );
+      const index = uris.indexOf(this._currentTimelineUri);
+      const target = index + (direction === 'next' ? 1 : -1);
+      if (index === -1 || target < 0 || target >= uris.length) {
+        return;
+      }
+      const uri = uris[target];
+      this.switchTimeline(uri, 0).catch(error => {
+        this._reportActionError(
+          {id: TIMELINE_CHANGE_REQUEST_ID, name: `switchTimeline('${uri}')`},
+          'start',
+          error
+        );
+      });
+    });
+    if (typeof remover === 'function') {
+      this._sourceRemovers.push(remover);
+    }
   }
 
   private async _prepareContainer(
@@ -1086,6 +1164,11 @@ export class EligiusEngine implements IEligiusEngine {
     });
 
     attempt(() => this.localeManager.destroy());
+
+    const sourceRemovers = this._sourceRemovers.splice(0);
+    sourceRemovers.forEach(remove => {
+      attempt(remove);
+    });
 
     this._activePositionSource = undefined;
     this._activeContainerProvider = undefined;
@@ -1393,7 +1476,7 @@ export class EligiusEngine implements IEligiusEngine {
    * the original stack is kept.
    */
   private _reportActionError(
-    action: IEndableAction,
+    action: Pick<IAction, 'id' | 'name'>,
     phase: TActionPhase,
     cause: unknown
   ) {

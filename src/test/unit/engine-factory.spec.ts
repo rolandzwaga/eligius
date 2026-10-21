@@ -199,7 +199,7 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
         // Destroy the factory
         factory.destroy();
 
-        // The request-action handler should return null for any action
+        // The request-action handler should throw for any action
         // since _actionsLookup should be cleared
         // We can test this by creating a new engine and checking the eventbus
         // but since factory is destroyed, we just verify no errors occur

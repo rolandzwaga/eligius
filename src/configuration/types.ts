@@ -151,7 +151,7 @@ export type ITimelineFlow = Record<string, never>;
  * // RAF-based position source
  * const rafConfig: IPositionSourceConfig = {
  *   systemName: 'RafPositionSource',
- *   tickInterval: 1000,
+ *   tickInterval: 100,
  * };
  *
  * // Scroll-based position source
@@ -164,6 +164,7 @@ export type ITimelineFlow = Record<string, never>;
  * const videoConfig: IPositionSourceConfig = {
  *   systemName: 'VideoPositionSource',
  *   selector: '#video-player',
+ *   sources: [{src: '/intro.mp4', type: 'video/mp4'}],
  *   poster: '/poster.jpg',
  * };
  * ```
@@ -184,9 +185,21 @@ export interface IPositionSourceConfig {
 
   /**
    * Interval between position updates in milliseconds (RAF sources).
-   * @default 1000
+   *
+   * The default of 100 ms matches the 0.1 second precision at which actions
+   * are keyed. A larger interval emits fewer position updates (less work per
+   * second), but actions then start and end up to one interval late. Earlier
+   * releases defaulted to 1000.
+   *
+   * @default 100
    */
   tickInterval?: number;
+
+  /**
+   * Media to load (video sources), each with its URL and MIME type.
+   * `VideoPositionSource` requires a non-empty list.
+   */
+  sources?: Array<{src: string; type: string}>;
 
   /**
    * Optional poster image URL (video sources).
@@ -308,7 +321,7 @@ export interface IPlaylistConfig<TItem = unknown> {
  * @example
  * ```typescript
  * const settings: ITimelineProviderSettings = {
- *   positionSource: { systemName: 'RafPositionSource', tickInterval: 1000 },
+ *   positionSource: { systemName: 'RafPositionSource', tickInterval: 100 },
  *   container: { systemName: 'DomContainerProvider', selector: '#render-area' },
  * };
  * ```

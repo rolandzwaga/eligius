@@ -1,5 +1,7 @@
 import type {
   IEventbus,
+  IEventbusErrorContext,
+  IEventbusErrorReport,
   IEventbusInterceptor,
   IEventbusListener,
   IEventbusOptions,
@@ -349,6 +351,31 @@ export class Eventbus implements IEventbus {
   }
 
   /**
+   * Reports an error a component caught, the same way as a failing handler:
+   * `console.error` naming the source, then the `onHandlerError` option with
+   * source `'reported'`. Never throws.
+   *
+   * @param error - The caught error
+   * @param context - The reporting component and, if any, the event it was
+   * handling
+   */
+  reportError(error: unknown, context: IEventbusErrorReport): void {
+    const {source, eventName} = context;
+    const event = eventName ? ` for "${eventName}"` : '';
+    console.error(`Error reported by ${source}${event}:`, error);
+    this._notifyErrorHook(
+      error,
+      {
+        eventName: eventName ?? '',
+        eventTopic: undefined,
+        source: 'reported',
+        reporter: source,
+      },
+      `${source}${event}`
+    );
+  }
+
+  /**
    * Logs the error with the event name and topic, never the event arguments
    * (they can carry configuration or user data), then passes it to the
    * `onHandlerError` option.
@@ -364,14 +391,26 @@ export class Eventbus implements IEventbus {
       `Error in eventbus ${source} for "${eventName}"${topic}:`,
       error
     );
+    this._notifyErrorHook(
+      error,
+      {eventName, eventTopic, source},
+      `"${eventName}"${topic}`
+    );
+  }
+
+  private _notifyErrorHook(
+    error: unknown,
+    context: IEventbusErrorContext,
+    description: string
+  ): void {
     if (!this.onHandlerError) {
       return;
     }
     try {
-      this.onHandlerError(error, {eventName, eventTopic, source});
+      this.onHandlerError(error, context);
     } catch (hookError) {
       console.error(
-        `Error in eventbus onHandlerError for "${eventName}"${topic}:`,
+        `Error in eventbus onHandlerError for ${description}:`,
         hookError
       );
     }

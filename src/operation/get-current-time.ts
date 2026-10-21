@@ -4,11 +4,11 @@ export interface IGetCurrentTimeOperationData {
   /**
    * @output
    */
-  timestamp: number;
+  timestamp?: number;
   /**
    * @output
    */
-  date: Date;
+  date?: Date;
 }
 
 /**

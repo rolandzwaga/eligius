@@ -555,6 +555,69 @@ describe<EventbusSuiteContext>('Eventbus', () => {
       });
     });
 
+    test('given an onHandlerError option, when a component calls reportError, then it is logged naming the source and the hook receives it as a reported error', () => {
+      // given
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const onHandlerError = vi.fn();
+      const eventbus = new Eventbus({onHandlerError});
+      const error = new Error('action failed');
+
+      // test
+      eventbus.reportError(error, {
+        source: 'DOMEventListenerController',
+        eventName: 'click',
+      });
+      eventbus.reportError('plain', {source: 'OtherController'});
+
+      // expect
+      expect(consoleError).toHaveBeenNthCalledWith(
+        1,
+        'Error reported by DOMEventListenerController for "click":',
+        error
+      );
+      expect(consoleError).toHaveBeenNthCalledWith(
+        2,
+        'Error reported by OtherController:',
+        'plain'
+      );
+      expect(onHandlerError).toHaveBeenNthCalledWith(1, error, {
+        eventName: 'click',
+        eventTopic: undefined,
+        source: 'reported',
+        reporter: 'DOMEventListenerController',
+      });
+      expect(onHandlerError).toHaveBeenNthCalledWith(2, 'plain', {
+        eventName: '',
+        eventTopic: undefined,
+        source: 'reported',
+        reporter: 'OtherController',
+      });
+    });
+
+    test('given an onHandlerError hook that throws, when reportError is called, then the hook error is logged and reportError does not throw', () => {
+      // given
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const hookError = new Error('hook failed');
+      const eventbus = new Eventbus({
+        onHandlerError: () => {
+          throw hookError;
+        },
+      });
+
+      // test + expect
+      expect(() =>
+        eventbus.reportError(new Error('x'), {source: 'SomeController'})
+      ).not.toThrow();
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.stringContaining('onHandlerError'),
+        hookError
+      );
+    });
+
     test('given an onHandlerError option, when an interceptor and a listener throw, then the hook reports each with its source', () => {
       // given
       vi.spyOn(console, 'error').mockImplementation(() => {});

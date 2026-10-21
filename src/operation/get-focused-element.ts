@@ -6,7 +6,7 @@ export interface IGetFocusedElementOperationData {
    * @type=ParameterType:jQuery
    * @output
    */
-  focusedElement: JQuery;
+  focusedElement?: JQuery;
 }
 
 /**

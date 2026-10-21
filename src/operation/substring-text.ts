@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface ISubstringTextOperationData {
   /**
-   * @required
    * @dependency
    */
   textContent: string;
@@ -20,7 +19,7 @@ export interface ISubstringTextOperationData {
   /**
    * @output
    */
-  substring: string;
+  substring?: string;
 }
 
 /**

@@ -19,11 +19,13 @@ import {
   type TEventbusRemover,
 } from '@eventbus/index.ts';
 import {clearGlobals} from '@operation/helper/globals.ts';
+import {clearJsonCache} from '@operation/load-json.ts';
 import type {
   IContainerProvider,
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
+import {findClosestNames, formatDidYouMean} from '@util/find-closest-names.ts';
 import {LocaleLoader} from './locale/locale-loader.ts';
 import {LocaleManager} from './locale/locale-manager.ts';
 import {
@@ -45,10 +47,16 @@ import type {
 
 /**
  * Number of engines created by any factory whose destroy() has not run yet.
- * The global data store (see globals.ts) is module-wide, so it is cleared
- * only when this drops to zero.
+ * The global data store (see globals.ts) and the loadJson cache are
+ * module-wide, so they are cleared only when this drops to zero.
  */
 let liveEngineCount = 0;
+
+/**
+ * How long one external (`$ref`) locale file may take to load before
+ * engine.init() rejects, in milliseconds.
+ */
+const LOCALE_LOAD_TIMEOUT_MS = 30000;
 
 /**
  * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.
@@ -106,6 +114,7 @@ export class EngineFactory implements IEngineFactory {
       this._registerResponders(
         this._sharedEventbus,
         systemName => this._findLiveAction(systemName),
+        () => this._liveActionNames(),
         remover => this._eventRemovers.add(remover)
       );
     }
@@ -135,11 +144,13 @@ export class EngineFactory implements IEngineFactory {
   /**
    * Registers the 'request-instance', 'request-action' and
    * 'request-function' responders on an eventbus. Instances are constructed
-   * with that eventbus.
+   * with that eventbus. 'request-action' throws for an unknown action name,
+   * with a "did you mean" hint built from `knownActions`.
    */
   private _registerResponders(
     eventbus: IEventbus,
     findAction: (systemName: string) => IAction | undefined,
+    knownActions: () => string[],
     addRemover: (remover: TEventbusRemover) => void
   ) {
     addRemover(
@@ -149,17 +160,13 @@ export class EngineFactory implements IEngineFactory {
       })
     );
     addRemover(
-      eventbus.onRequest(
-        'request-action',
-        (systemName: string): IAction | null => {
-          const action = findAction(systemName);
-          if (action) {
-            return action;
-          }
-          console.error(`Unknown action: ${systemName}`);
-          return null;
+      eventbus.onRequest('request-action', (systemName: string): IAction => {
+        const action = findAction(systemName);
+        if (action) {
+          return action;
         }
-      )
+        throw new Error(unknownActionMessage(systemName, knownActions()));
+      })
     );
     addRemover(
       eventbus.onRequest('request-function', (systemName: string) =>
@@ -178,6 +185,14 @@ export class EngineFactory implements IEngineFactory {
     return undefined;
   }
 
+  private _liveActionNames(): string[] {
+    const names = new Set<string>();
+    this._actionLookups.forEach(lookup => {
+      Object.keys(lookup).forEach(name => names.add(name));
+    });
+    return [...names];
+  }
+
   /**
    * Creates a fully wired engine with adapters and event handlers.
    *
@@ -190,7 +205,12 @@ export class EngineFactory implements IEngineFactory {
    * Unless the factory was given an eventbus, the engine gets an eventbus of
    * its own, so several live engines from one factory do not answer each
    * other's requests or react to each other's commands. When this method
-   * throws, nothing it registered is left on the eventbus.
+   * throws, nothing it registered is left on the eventbus and pending
+   * external locale loads are aborted.
+   *
+   * External (`$ref`) locales are loaded with a 30 second timeout per file.
+   * Destroying the engine (through the returned `destroy()` or
+   * `engine.destroy()`) aborts loads that are still pending.
    *
    * @param configuration - The engine configuration
    * @param resolver - Optional custom configuration resolver
@@ -221,6 +241,8 @@ export class EngineFactory implements IEngineFactory {
       engineRemovers.push(remover);
       this._eventRemovers.add(remover);
     };
+    // Aborts this engine's pending external locale loads.
+    const localeLoads = new AbortController();
     const removeEngineRegistrations = () => {
       const removers = engineRemovers.splice(0);
       removers.forEach(remove => {
@@ -265,6 +287,7 @@ export class EngineFactory implements IEngineFactory {
           eventbus,
           name =>
             Object.hasOwn(actionLookup, name) ? actionLookup[name] : undefined,
+          () => Object.keys(actionLookup),
           addEngineRemover
         );
       }
@@ -288,7 +311,11 @@ export class EngineFactory implements IEngineFactory {
 
       // Load inline locales now; external ($ref) locales load in the
       // background and engine.init() waits for them.
-      const localesReady = this._loadLocales(localeManager, locales);
+      const localesReady = this._loadLocales(
+        localeManager,
+        locales,
+        localeLoads.signal
+      );
 
       engineInstance = new EngineClass(
         resolvedConfiguration,
@@ -313,7 +340,10 @@ export class EngineFactory implements IEngineFactory {
         engineInputAdapter,
       ];
       adapters.forEach(adapter => adapter.connect());
+      // Also when the engine is destroyed without the returned destroy().
+      engineInstance.on('destroyed', () => localeLoads.abort());
     } catch (error) {
+      localeLoads.abort();
       adapters.forEach(adapter => adapter.disconnect());
       removeEngineRegistrations();
       throw error;
@@ -328,6 +358,8 @@ export class EngineFactory implements IEngineFactory {
     const destroyEngine = async () => {
       // Stop external input first, so no key press restarts playback.
       engineInputAdapter.disconnect();
+      // A pending locale load must not resume after destroy.
+      localeLoads.abort();
 
       try {
         // Destroy the engine while the eventbus adapters are still
@@ -346,6 +378,7 @@ export class EngineFactory implements IEngineFactory {
         // so only clear it once no engine is left to use it.
         if (liveEngineCount === 0) {
           clearGlobals();
+          clearJsonCache();
         }
       }
     };
@@ -367,15 +400,21 @@ export class EngineFactory implements IEngineFactory {
    * Loads the configured locales into the locale manager.
    *
    * Inline locale data is loaded synchronously. Entries that reference an
-   * external file (`{$ref: '...'}`) are fetched with {@link LocaleLoader}.
+   * external file (`{$ref: '...'}`) are fetched with {@link LocaleLoader},
+   * with a timeout per file and `signal` to abort them.
    *
+   * @param localeManager - The manager to load the locales into
+   * @param locales - The configured locales
+   * @param signal - Aborts the external loads; once aborted, nothing more is
+   * loaded into the manager
    * @returns A promise that settles when the external locales are loaded, or
    * undefined when there are none. It rejects with an error naming the locale
    * that failed.
    */
   private _loadLocales(
     localeManager: LocaleManager,
-    locales: ILocalesConfiguration | undefined
+    locales: ILocalesConfiguration | undefined,
+    signal: AbortSignal
   ): Promise<void> | undefined {
     if (!locales) {
       return undefined;
@@ -394,10 +433,20 @@ export class EngineFactory implements IEngineFactory {
       return undefined;
     }
 
-    const loader = new LocaleLoader();
+    const loader = new LocaleLoader({
+      timeoutMs: LOCALE_LOAD_TIMEOUT_MS,
+      signal,
+    });
     const loads = [...references].map(([locale, reference]) =>
       loader.load(locale, reference).then(
-        result => localeManager.loadLocale(result.locale, result.data),
+        result => {
+          if (signal.aborted) {
+            throw new Error(
+              `[EngineFactory] Loading locale '${locale}' was aborted because the engine was destroyed`
+            );
+          }
+          localeManager.loadLocale(result.locale, result.data);
+        },
         (error: unknown) => {
           const message =
             error instanceof Error ? error.message : String(error);
@@ -619,6 +668,13 @@ export class EngineFactory implements IEngineFactory {
 
     return result;
   }
+}
+
+function unknownActionMessage(name: string, knownNames: string[]): string {
+  const suggestion = formatDidYouMean(findClosestNames(name, knownNames));
+  return `Unknown action '${name}'. ${
+    suggestion || 'Check the action name in the configuration.'
+  }`;
 }
 
 function hasIntrinsicContainer(source: IPositionSource): boolean {

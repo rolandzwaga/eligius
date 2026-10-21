@@ -91,7 +91,9 @@ export interface IPositionSource {
    *
    * Transitions state from `inactive` or `suspended` to `active`.
    *
-   * @throws If activation fails (e.g., autoplay blocked, permission denied)
+   * @throws (rejects) If activation fails (e.g., autoplay blocked, permission
+   * denied), and after {@link destroy} has been called: a destroyed source
+   * cannot be activated again
    */
   activate(): Promise<void>;
 
@@ -140,8 +142,9 @@ export interface IPositionSource {
    * Frequency depends on the source type (e.g., RAF tick, video timeupdate).
    *
    * @param callback - Function receiving the current position
+   * @returns A function that unregisters the callback
    */
-  onPosition(callback: (position: number) => void): void;
+  onPosition(callback: (position: number) => void): () => void;
 
   /**
    * Register a callback for boundary events.
@@ -150,8 +153,9 @@ export interface IPositionSource {
    * For looping sources, `'end'` is emitted before reset.
    *
    * @param callback - Function receiving the boundary type
+   * @returns A function that unregisters the callback
    */
-  onBoundaryReached(callback: (boundary: TBoundary) => void): void;
+  onBoundaryReached(callback: (boundary: TBoundary) => void): () => void;
 
   /**
    * Register a callback for when the source becomes active.
@@ -161,8 +165,9 @@ export interface IPositionSource {
    * the first tick, for video sources it's when playback actually starts.
    *
    * @param callback - Function called when source becomes active
+   * @returns A function that unregisters the callback
    */
-  onActivated(callback: () => void): void;
+  onActivated(callback: () => void): () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -243,13 +248,25 @@ export interface IPlaylist<TItem = unknown> {
   selectItem(identifier: string): void;
 
   /**
+   * Optional: whether an item with the given identifier exists, without
+   * changing the selection. When a playlist implements it, the engine checks
+   * the timeline URI with it before a timeline switch deactivates the
+   * current timeline, so an unknown identifier cannot stop a switch halfway.
+   *
+   * @param identifier - Identifier to look up
+   * @returns true when `selectItem(identifier)` would succeed
+   */
+  hasItem?(identifier: string): boolean;
+
+  /**
    * Register a callback for item changes.
    *
    * Called whenever the current item changes via `selectItem()`.
    *
    * @param callback - Function receiving the new current item
+   * @returns A function that unregisters the callback
    */
-  onItemChange(callback: (item: TItem) => void): void;
+  onItemChange(callback: (item: TItem) => void): () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

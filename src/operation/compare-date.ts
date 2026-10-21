@@ -15,19 +15,19 @@ export interface ICompareDateOperationData {
   /**
    * @output
    */
-  comparison: number;
+  comparison?: number;
   /**
    * @output
    */
-  isEqual: boolean;
+  isEqual?: boolean;
   /**
    * @output
    */
-  isBefore: boolean;
+  isBefore?: boolean;
   /**
    * @output
    */
-  isAfter: boolean;
+  isAfter?: boolean;
 }
 
 /**

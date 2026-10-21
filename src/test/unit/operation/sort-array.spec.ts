@@ -36,9 +36,9 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray[0].age).toBe(20);
-    expect(result.sortedArray[1].age).toBe(25);
-    expect(result.sortedArray[2].age).toBe(30);
+    expect(result.sortedArray?.[0].age).toBe(20);
+    expect(result.sortedArray?.[1].age).toBe(25);
+    expect(result.sortedArray?.[2].age).toBe(30);
   });
 
   test('should sort array by property descending', () => {
@@ -62,9 +62,9 @@ describe('sortArray', () => {
     });
 
     // Assert
-    expect(result.sortedArray[0].age).toBe(30);
-    expect(result.sortedArray[1].age).toBe(25);
-    expect(result.sortedArray[2].age).toBe(20);
+    expect(result.sortedArray?.[0].age).toBe(30);
+    expect(result.sortedArray?.[1].age).toBe(25);
+    expect(result.sortedArray?.[2].age).toBe(20);
   });
 
   test('should sort primitive array ascending', () => {

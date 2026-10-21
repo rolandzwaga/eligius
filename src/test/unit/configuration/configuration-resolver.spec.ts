@@ -1035,6 +1035,50 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
       );
     });
 
+    test<ConfigurationResolverSuiteContext>('given operation data holding a class instance with a placeholder-like string, when process is called, then the instance is not walked or rewritten', context => {
+      // given
+      const {eventbus} = context;
+      class Widget {
+        label = 'template:widget';
+      }
+      const widget = new Widget();
+      const config = createTestConfig();
+      config.actions = [
+        {
+          id: 'a',
+          name: 'A',
+          startOperations: [
+            {
+              id: 'o',
+              systemName: 'setData',
+              operationData: {properties: {widget, title: 'template:title'}},
+            },
+          ],
+          endOperations: [],
+        },
+      ];
+      const importer = {
+        import: vi.fn((name: string) =>
+          name === 'setData'
+            ? {setData: (data: any) => data}
+            : {[name]: `<p>${name}</p>`}
+        ),
+      };
+      const resolver = new ConfigurationResolver(importer as any, eventbus);
+
+      // test
+      const [, resolved] = resolver.process(config);
+
+      // expect
+      const properties = (
+        resolved.actions[0].startOperations[0].operationData as any
+      ).properties;
+      expect(properties.title).toBe('<p>title</p>');
+      expect(properties.widget).toBe(widget);
+      expect(widget.label).toBe('template:widget');
+      expect(importer.import).not.toHaveBeenCalledWith('widget');
+    });
+
     test<ConfigurationResolverSuiteContext>('given an importer that registers a template with an undefined value, when process is called, then the placeholder resolves to undefined without an error', context => {
       // given
       const {eventbus} = context;

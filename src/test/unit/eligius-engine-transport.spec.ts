@@ -3,6 +3,7 @@ import type {IResolvedOperation} from '@configuration/types.ts';
 import {Eventbus} from '@eventbus/index.ts';
 import type {ILocaleManager} from '@locale/types.ts';
 import type {
+  IPlaylist,
   IPositionSource,
   ISeekable,
   TSourceState,
@@ -63,10 +64,12 @@ function createManualPositionSource(duration = 10): ManualSource {
     getDuration: () => duration,
     onPosition: vi.fn(callback => {
       positionCallbacks.push(callback);
+      return () => {};
     }),
-    onBoundaryReached: vi.fn(),
+    onBoundaryReached: vi.fn(() => () => {}),
     onActivated: vi.fn(callback => {
       activatedCallbacks.push(callback);
+      return () => {};
     }),
     seek: vi.fn(async (value: number) => {
       position = value;
@@ -182,6 +185,7 @@ interface ITimelineSetup {
   actions?: TimelineAction[];
   loop?: boolean;
   duration?: number;
+  playlist?: IPlaylist;
 }
 
 function createEngine(
@@ -211,7 +215,9 @@ function createEngine(
   };
   const byUri: Record<string, ITimelineProviderInfo> = {};
   timelines.forEach(timeline => {
-    byUri[timeline.uri] = {positionSource: timeline.source};
+    byUri[timeline.uri] = timeline.playlist
+      ? {positionSource: timeline.source, playlist: timeline.playlist}
+      : {positionSource: timeline.source};
   });
   const localeManager = {destroy: vi.fn()} as unknown as ILocaleManager;
   return new EligiusEngine(
@@ -883,6 +889,217 @@ describe('EligiusEngine transport commands', () => {
       await expect(engine.switchTimeline('mian')).rejects.toThrow(
         "EligiusEngine.switchTimeline('mian'): unknown timeline URI. Did you mean 'main'? Known timelines: 'intro', 'main'"
       );
+    });
+
+    test('given a playlist that has no item for the target URI, when switchTimeline is awaited, then it rejects naming the URI and the current timeline keeps playing', async () => {
+      const log: string[] = [];
+      const first = createManualPositionSource();
+      const second = createManualPositionSource();
+      const playlist: IPlaylist = {
+        currentItem: {uri: 't1'},
+        items: [{uri: 't1'}],
+        selectItem: vi.fn(),
+        hasItem: vi.fn((identifier: string) => identifier === 't1'),
+        onItemChange: vi.fn(() => () => {}),
+      };
+      const engine = createEngine([
+        {
+          uri: 't1',
+          source: first,
+          actions: [recordingAction(log, 'A', 0, 10)],
+        },
+        {uri: 't2', source: second, playlist},
+      ]);
+      await engine.init();
+      await engine.start();
+
+      await expect(engine.switchTimeline('t2')).rejects.toThrow(
+        "EligiusEngine.switchTimeline('t2'): the timeline's playlist has no item 't2'"
+      );
+
+      expect(first.deactivate).not.toHaveBeenCalled();
+      expect(first.state).toBe('active');
+      expect(second.init).not.toHaveBeenCalled();
+      expect(playlist.selectItem).not.toHaveBeenCalled();
+      expect(engine.currentTimelineUri).toBe('t1');
+      expect(engine.playState).toBe('playing');
+      expect(log).toEqual(['A-start']);
+    });
+
+    test('given a playlist whose hasItem knows the target URI, when switchTimeline is awaited, then it switches and selects the item', async () => {
+      const second = createManualPositionSource();
+      const playlist: IPlaylist = {
+        currentItem: {uri: 't1'},
+        items: [{uri: 't1'}, {uri: 't2'}],
+        selectItem: vi.fn(),
+        hasItem: vi.fn(() => true),
+        onItemChange: vi.fn(() => () => {}),
+      };
+      const engine = createEngine([
+        {uri: 't1', source: createManualPositionSource()},
+        {uri: 't2', source: second, playlist},
+      ]);
+      await engine.init();
+
+      await engine.switchTimeline('t2');
+
+      expect(playlist.hasItem).toHaveBeenCalledWith('t2');
+      expect(playlist.selectItem).toHaveBeenCalledWith('t2');
+      expect(engine.currentTimelineUri).toBe('t2');
+    });
+  });
+
+  describe('keyboard timeline-switch requests', () => {
+    type SwitchingSource = ManualSource & {
+      requestChange(direction: 'prev' | 'next'): void;
+      onTimelineChangeRequest: ReturnType<typeof vi.fn>;
+      changeCallbacks: Array<(direction: 'prev' | 'next') => void>;
+    };
+
+    /** A manual source that, like KeyboardStepSource, asks for timeline changes */
+    function createSwitchingSource(): SwitchingSource {
+      const source = createManualPositionSource() as SwitchingSource;
+      source.changeCallbacks = [];
+      source.onTimelineChangeRequest = vi.fn(
+        (callback: (direction: 'prev' | 'next') => void) => {
+          source.changeCallbacks.push(callback);
+          return () => {
+            source.changeCallbacks = source.changeCallbacks.filter(
+              registered => registered !== callback
+            );
+          };
+        }
+      );
+      source.requestChange = direction => {
+        source.changeCallbacks.forEach(callback => callback(direction));
+      };
+      return source;
+    }
+
+    test('given three timelines with switching sources, when next is requested twice and prev once, then the engine moves to t2, t3 and back to t2 at position 0', async () => {
+      const sources = [
+        createSwitchingSource(),
+        createSwitchingSource(),
+        createSwitchingSource(),
+      ];
+      const engine = createEngine([
+        {uri: 't1', source: sources[0]},
+        {uri: 't2', source: sources[1]},
+        {uri: 't3', source: sources[2]},
+      ]);
+      const changes: string[] = [];
+      engine.on('timelineChange', uri => changes.push(uri));
+      await engine.init();
+      await engine.start();
+      sources[0].report(4);
+
+      sources[0].requestChange('next');
+      await flush();
+      sources[1].report(2);
+      sources[1].requestChange('next');
+      await flush();
+      sources[2].requestChange('prev');
+      await flush();
+
+      expect(changes).toEqual(['t2', 't3', 't2']);
+      expect(engine.currentTimelineUri).toBe('t2');
+      expect(engine.position).toBe(0);
+    });
+
+    test('given the first and the last timeline, when prev is requested on the first and next on the last, then nothing switches', async () => {
+      const first = createSwitchingSource();
+      const last = createSwitchingSource();
+      const engine = createEngine([
+        {uri: 't1', source: first},
+        {uri: 't2', source: last},
+      ]);
+      const changes: string[] = [];
+      engine.on('timelineChange', uri => changes.push(uri));
+      await engine.init();
+      await engine.start();
+
+      first.requestChange('prev');
+      await flush();
+      expect(changes).toEqual([]);
+
+      first.requestChange('next');
+      await flush();
+      last.requestChange('next');
+      await flush();
+
+      expect(changes).toEqual(['t2']);
+      expect(engine.currentTimelineUri).toBe('t2');
+    });
+
+    test('given a source that is not the active one, when it requests a change, then the engine ignores it', async () => {
+      const first = createSwitchingSource();
+      const second = createSwitchingSource();
+      const engine = createEngine([
+        {uri: 't1', source: first},
+        {uri: 't2', source: second},
+      ]);
+      await engine.init();
+      await engine.switchTimeline('t2');
+      const changes: string[] = [];
+      engine.on('timelineChange', uri => changes.push(uri));
+
+      first.requestChange('next');
+      first.requestChange('prev');
+      await flush();
+
+      expect(changes).toEqual([]);
+      expect(engine.currentTimelineUri).toBe('t2');
+    });
+
+    test('given a switch that fails because the next source cannot initialise, when next is requested, then the failure is reported through the error event and t1 stays active', async () => {
+      const first = createSwitchingSource();
+      const broken = createSwitchingSource();
+      (broken.init as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('video failed to load')
+      );
+      const engine = createEngine([
+        {uri: 't1', source: first},
+        {uri: 't2', source: broken},
+      ]);
+      const errors = vi.fn();
+      engine.on('error', errors);
+      await engine.init();
+      await engine.start();
+
+      first.requestChange('next');
+      await flush();
+
+      expect(errors).toHaveBeenCalledTimes(1);
+      const [error] = errors.mock.calls[0];
+      expect(error.message).toContain("switchTimeline('t2')");
+      expect(error.message).toContain('video failed to load');
+      expect(error.cause).toEqual(new Error('video failed to load'));
+      expect(engine.currentTimelineUri).toBe('t1');
+      expect(engine.playState).toBe('playing');
+    });
+
+    test('given a single timeline, when the engine is initialised, then it does not ask the source for timeline change requests', async () => {
+      const only = createSwitchingSource();
+      const engine = createEngine([{uri: 't1', source: only}]);
+
+      await engine.init();
+
+      expect(only.onTimelineChangeRequest).not.toHaveBeenCalled();
+    });
+
+    test('given an initialised engine, when it is destroyed, then its timeline change registration is removed', async () => {
+      const first = createSwitchingSource();
+      const engine = createEngine([
+        {uri: 't1', source: first},
+        {uri: 't2', source: createSwitchingSource()},
+      ]);
+      await engine.init();
+      expect(first.onTimelineChangeRequest).toHaveBeenCalledTimes(1);
+      expect(first.changeCallbacks).toHaveLength(1);
+
+      await engine.destroy();
+
+      expect(first.changeCallbacks).toHaveLength(0);
     });
   });
 

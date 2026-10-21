@@ -132,7 +132,8 @@ function normalizeUrl(url: string): string {
  * is unsafe.
  *
  * @param url An attribute value as the DOM returns it (entities decoded).
- * @returns Whether the URL may be written to an `href`-like attribute.
+ * @returns Whether the URL may be written to an `href`-like attribute. A
+ * value that is not a string is never safe.
  *
  * @example
  * isSafeUrl('https://example.com'); // true
@@ -140,6 +141,9 @@ function normalizeUrl(url: string): string {
  * isSafeUrl(' JavaScript:alert(1)'); // false
  */
 export function isSafeUrl(url: string): boolean {
+  if (typeof url !== 'string') {
+    return false;
+  }
   const scheme = SCHEME_PATTERN.exec(normalizeUrl(url));
   return !scheme || SAFE_SCHEMES.has(scheme[1].toLowerCase());
 }
@@ -204,16 +208,24 @@ function copyAllowedElement(source: Element, doc: Document): Element {
  * built as a fresh tree of copied text and allowed elements, so nothing of
  * the parsed input is reused.
  *
- * @param html The untrusted HTML fragment.
+ * @param html The untrusted HTML fragment. `null` and `undefined` give an
+ * empty string; any other value that is not a string is converted with
+ * `String()` and then sanitized, so a node or object is never passed through.
  * @param doc The document used to parse the fragment. Defaults to the global
  * `document`.
- * @returns The sanitized HTML.
+ * @returns The sanitized HTML, always a string.
  *
  * @example
  * sanitizeHtml('Hi<br><strong>there</strong><img src=x onerror=alert(1)>');
  * // 'Hi<br><strong>there</strong>'
  */
 export function sanitizeHtml(html: string, doc: Document = document): string {
+  if (typeof html !== 'string') {
+    if (html === null || html === undefined) {
+      return '';
+    }
+    html = String(html);
+  }
   if (!/[<&]/.test(html)) {
     return html;
   }

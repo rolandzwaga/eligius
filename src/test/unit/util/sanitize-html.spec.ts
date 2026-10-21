@@ -281,4 +281,48 @@ describe('isSafeUrl', () => {
   ])('given %j, when checked, then it is unsafe', url => {
     expect(isSafeUrl(url)).toBe(false);
   });
+
+  test.each([
+    ['undefined', undefined],
+    ['null', null],
+    ['a number', 42],
+    ['an object', {toString: () => 'https://example.com'}],
+  ])(
+    'given %s instead of a string, when checked, then it is unsafe',
+    (_, url) => {
+      expect(isSafeUrl(url as any)).toBe(false);
+    }
+  );
+});
+
+describe('sanitizeHtml with values that are not strings', () => {
+  test.each([
+    ['undefined', undefined],
+    ['null', null],
+  ])(
+    'given %s, when sanitized, then it returns an empty string',
+    (_, value) => {
+      expect(sanitizeHtml(value as any)).toBe('');
+    }
+  );
+
+  test('given a number, when sanitized, then it returns its string form', () => {
+    expect(sanitizeHtml(42 as any)).toBe('42');
+  });
+
+  test('given a DOM element, when sanitized, then a string is returned and the element is not passed through', () => {
+    const element = document.createElement('img');
+    element.setAttribute('onerror', 'alert(1)');
+
+    const result = sanitizeHtml(element as any);
+
+    expect(typeof result).toBe('string');
+    expect(result).not.toContain('onerror');
+  });
+
+  test('given an object whose toString returns markup, when sanitized, then the markup is sanitized', () => {
+    const value = {toString: () => '<img src=x onerror=alert(1)><b>ok</b>'};
+
+    expect(sanitizeHtml(value as any)).toBe('<b>ok</b>');
+  });
 });

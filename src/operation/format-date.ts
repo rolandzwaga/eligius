@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IFormatDateOperationData {
   /**
-   * @required
    * @dependency
    */
   date: Date | string | number;
@@ -15,7 +14,7 @@ export interface IFormatDateOperationData {
   /**
    * @output
    */
-  formattedDate: string;
+  formattedDate?: string;
 }
 
 const FORMAT_TOKENS = /YYYY|MM|DD|HH|mm|ss/g;

@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface ISplitStringOperationData {
   /**
-   * @required
    * @dependency
    */
   textContent: string;
@@ -20,7 +19,7 @@ export interface ISplitStringOperationData {
   /**
    * @output
    */
-  resultArray: string[];
+  resultArray?: string[];
 }
 
 /**

@@ -189,4 +189,36 @@ describe('createElement', () => {
     // expect
     expect(newData.template.prop('outerHTML')).toBe('<my-widget></my-widget>');
   });
+
+  test('given unrelated operation data holding property chain strings, when createElement is called, then only elementName, attributes and text are resolved', () => {
+    // given
+    const operationData = {
+      elementName: '$operationdata.tag',
+      tag: 'section',
+      label: 'resolved label',
+      attributes: {title: '$operationdata.label'},
+      passThrough: '$operationdata.label',
+      nested: {chain: '$scope.currentItem.label'},
+    };
+    const scope: IOperationScope = {
+      currentIndex: 0,
+      eventbus: {} as IEventbus,
+      operations: [],
+      currentItem: {label: 'from scope'},
+    };
+
+    // test
+    const newData: any = applyOperation(
+      createElement,
+      operationData as any,
+      scope
+    );
+
+    // expect
+    expect(newData.template.prop('outerHTML')).toBe(
+      '<section title="resolved label"></section>'
+    );
+    expect(newData.passThrough).toBe('$operationdata.label');
+    expect(newData.nested).toEqual({chain: '$scope.currentItem.label'});
+  });
 });

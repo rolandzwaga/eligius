@@ -16,11 +16,11 @@ export interface IHttpDeleteOperationData {
   /**
    * @output
    */
-  response: any;
+  response?: any;
   /**
    * @output
    */
-  status: number;
+  status?: number;
 }
 
 /**

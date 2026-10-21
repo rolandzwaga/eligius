@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IFindInArrayOperationData {
   /**
-   * @required
    * @dependency
    */
   arrayData: any[];
@@ -25,11 +24,11 @@ export interface IFindInArrayOperationData {
   /**
    * @output
    */
-  foundItem: any | undefined;
+  foundItem?: any | undefined;
   /**
    * @output
    */
-  foundIndex: number;
+  foundIndex?: number;
 }
 
 /**

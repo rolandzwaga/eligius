@@ -10,7 +10,6 @@ export type TextTransformation =
 
 export interface IFormatTextOperationData {
   /**
-   * @required
    * @dependency
    */
   textContent: string;
@@ -22,7 +21,7 @@ export interface IFormatTextOperationData {
   /**
    * @output
    */
-  formattedText: string;
+  formattedText?: string;
 }
 
 /**

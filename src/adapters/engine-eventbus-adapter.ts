@@ -209,12 +209,7 @@ export class EngineEventbusAdapter implements IAdapter {
           `[EngineEventbusAdapter] engine.${command}() failed`,
           error
         );
-        // 'engine-command-error' is not declared in src/eventbus/events
-        // yet, hence the casts.
-        this._eventbus.broadcast(
-          'engine-command-error' as EventName,
-          [command, error] as never
-        );
+        this._eventbus.broadcast('engine-command-error', [command, error]);
       });
     }
   }

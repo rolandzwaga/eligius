@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IFilterArrayOperationData {
   /**
-   * @required
    * @dependency
    */
   arrayData: any[];
@@ -25,7 +24,7 @@ export interface IFilterArrayOperationData {
   /**
    * @output
    */
-  filteredArray: any[];
+  filteredArray?: any[];
 }
 
 /**

@@ -240,14 +240,12 @@ describe.skipIf(!schemaExists)('generated JSON schema', () => {
   });
 });
 
-// ajv is not a declared dependency, these tests run where it is installed
-const ajvModuleName = 'ajv';
-const AjvClass: any = await import(/* @vite-ignore */ ajvModuleName).then(
-  module => module.default ?? module,
-  () => undefined
-);
+// ajv is a devDependency; a missing install fails this file instead of
+// skipping the validation tests
+const ajvModule: any = await import('ajv');
+const AjvClass: any = ajvModule.default ?? ajvModule;
 
-describe.skipIf(!schemaExists || !AjvClass)(
+describe.skipIf(!schemaExists)(
   'generated JSON schema validation with ajv',
   () => {
     function createAjv() {

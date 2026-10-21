@@ -1,4 +1,12 @@
+import {isPlainObject} from '@util/guards/is-plain-object.ts';
 import {isDefined} from 'ts-is-present';
+
+/**
+ * Re-exported for existing imports; the implementation lives in
+ * `@util/guards/is-plain-object.ts`. Objects from another realm (an iframe,
+ * or the realm `fetch` parses JSON in) count as plain too.
+ */
+export {isPlainObject};
 
 const copyFunction =
   typeof structuredClone !== 'undefined'
@@ -74,17 +82,6 @@ function copyValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
   const copy = copyFunction(value);
   seen.set(value, copy);
   return copy;
-}
-
-/**
- * Returns true when the value's prototype is `Object.prototype` or `null`.
- *
- * `Object.prototype` of another realm (an iframe, or the realm `fetch` parses JSON in) counts
- * too, so this checks for a prototype that has no prototype itself.
- */
-export function isPlainObject(value: object): boolean {
-  const prototype = Object.getPrototypeOf(value);
-  return prototype === null || Object.getPrototypeOf(prototype) === null;
 }
 
 function isReferenceOnly(value: object) {
