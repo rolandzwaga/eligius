@@ -2,6 +2,7 @@ import {SubtitlesController} from '@controllers/subtitles-controller.js';
 import type {IEventbus} from '@eventbus/types.js';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {createMockJQueryElement} from '@test/fixtures/jquery-factory.js';
+import $ from 'jquery';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 describe('SubtitlesController', () => {
@@ -391,6 +392,65 @@ describe('SubtitlesController', () => {
       mockEventbus.broadcast('language-change', ['de-DE']);
 
       expect(mockContainer.html()).toBe('');
+    });
+  });
+
+  describe('untrusted subtitle markup', () => {
+    const createHostileSubtitleData = () => [
+      {
+        languageCode: 'en-US' as const,
+        titles: [
+          {
+            id: 'sub1',
+            text: '<i>Hello</i><br>World<img src=x onerror="alert(1)"><script>alert(2)</script>',
+            duration: {start: 0, end: 5},
+          },
+        ],
+      },
+      {
+        languageCode: 'nl-NL' as const,
+        titles: [
+          {
+            id: 'sub1',
+            text: '<a href="javascript:alert(3)">Hallo</a><svg onload="alert(4)"></svg>',
+            duration: {start: 0, end: 5},
+          },
+        ],
+      },
+    ];
+
+    beforeEach(() => {
+      document.body.innerHTML = '<div id="subtitles"></div>';
+    });
+
+    it('given subtitle text with script and onerror payloads, when the subtitle is shown, then only the allowed formatting is rendered', () => {
+      const container = $('#subtitles');
+      controller.init({
+        selectedElement: container,
+        language: 'en-US',
+        subtitleData: createHostileSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [1]);
+
+      expect(container[0].innerHTML).toBe('<i>Hello</i><br>World');
+      expect(container.find('img, script')).toHaveLength(0);
+    });
+
+    it('given a shown subtitle, when the language changes to one with a javascript link and svg, then the link has no href and the svg is dropped', () => {
+      const container = $('#subtitles');
+      controller.init({
+        selectedElement: container,
+        language: 'en-US',
+        subtitleData: createHostileSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+      mockEventbus.broadcast('timeline-time', [1]);
+
+      mockEventbus.broadcast('language-change', ['nl-NL']);
+
+      expect(container[0].innerHTML).toBe('<a>Hallo</a>');
     });
   });
 });
