@@ -1,7 +1,7 @@
 import type {IEventbus} from '@eventbus/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EngineEventbusAdapter} from '../../../adapters/engine-eventbus-adapter.ts';
-import type {IEligiusEngine} from '../../../types.ts';
+import type {IEligiusEngine, IEngineActionError} from '../../../types.ts';
 import {createMockEventbus} from '../../fixtures/eventbus-factory.ts';
 
 type EngineEventHandlers = {
@@ -16,6 +16,7 @@ type EngineEventHandlers = {
   timelineFirstFrame: () => void;
   timelineRestart: () => void;
   duration: (duration: number) => void;
+  error: (error: IEngineActionError) => void;
 };
 
 /**
@@ -38,6 +39,7 @@ function createEngineEventCapture(): {
     timelineFirstFrame: () => {},
     timelineRestart: () => {},
     duration: () => {},
+    error: () => {},
   };
 
   const mockOnImpl = (
@@ -471,6 +473,26 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
         (call: any[]) => call[0] === 'timeline-duration'
       );
       expect(broadcastCall[1][0]()).toBe(120);
+    });
+
+    test<AdapterSuiteContext>('given a connected adapter, when the engine emits error, then engine-error is broadcast once with the error', context => {
+      const {adapter, engine, eventbus} = context;
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
+      const error = Object.assign(new Error('boom'), {
+        actionName: 'Failing',
+        actionId: 'failing-id',
+        phase: 'start',
+        cause: new Error('boom'),
+      }) as IEngineActionError;
+
+      adapter.connect();
+      handlers.error(error);
+
+      const calls = (eventbus.broadcast as any).mock.calls.filter(
+        (call: any[]) => call[0] === 'engine-error'
+      );
+      expect(calls).toEqual([['engine-error', [error]]]);
     });
   });
 });

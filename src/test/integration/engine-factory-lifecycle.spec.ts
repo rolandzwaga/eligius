@@ -437,6 +437,82 @@ describe('EngineFactory lifecycle (integration)', () => {
     await expect(result.engine.init()).rejects.toThrow(/nl-NL/);
   });
 
+  test('given a timeline action whose start operation fails, when the clock crosses its start, then the engine error event and engine-error are emitted once each and no rejection is unhandled', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const unhandled = vi.fn();
+    process.on('unhandledRejection', unhandled);
+    try {
+      const {engine} = await create(
+        createConfig({
+          timelines: [
+            timeline('t1', 10, [
+              {
+                id: 'failing-action',
+                name: 'Failing',
+                duration: {start: 0.2, end: 5},
+                // removeElement without a selected element throws
+                startOperations: [op('removeElement')],
+                endOperations: [],
+              },
+            ]),
+          ],
+        })
+      );
+      const engineErrors = vi.fn();
+      engine.on('error', engineErrors);
+      const eventbusErrors = countCalls(eventbus, 'engine-error');
+      await engine.start();
+
+      tick(300);
+      await flush();
+      await flush();
+
+      expect(engineErrors).toHaveBeenCalledTimes(1);
+      expect(eventbusErrors).toHaveBeenCalledTimes(1);
+      const [error] = engineErrors.mock.calls[0];
+      expect(eventbusErrors).toHaveBeenCalledWith(error);
+      expect(error).toMatchObject({
+        actionName: 'Failing',
+        actionId: 'failing-action',
+        phase: 'start',
+      });
+      expect(error.message).toContain("Error in action start 'Failing'");
+      expect(unhandled).not.toHaveBeenCalled();
+    } finally {
+      process.off('unhandledRejection', unhandled);
+    }
+  });
+
+  test('given a controller added by an init action and never removed, when the factory destroy() is awaited, then the controller is detached and its eventbus listener is gone', async () => {
+    const config = createConfig({
+      locales: {'en-US': {hello: 'Hello'}},
+      initActions: [
+        {
+          id: 'init-label',
+          name: 'AddLabel',
+          startOperations: [
+            op('selectElement', {selector: '#stage'}),
+            op('getControllerInstance', {systemName: 'LabelController'}),
+            op('addControllerToElement', {translationKey: 'hello'}),
+          ],
+          endOperations: [],
+        },
+      ],
+    });
+    const {destroy} = await create(config);
+    const [controller] = $('#stage').data('eligiusEngineControllers');
+    expect(controller.name).toBe('LabelController');
+    const detach = vi.spyOn(controller, 'detach');
+    expect(controller.eventListeners).toHaveLength(1);
+
+    result = undefined;
+    await destroy();
+
+    expect(detach).toHaveBeenCalledTimes(1);
+    expect(detach).toHaveBeenCalledWith(eventbus);
+    expect(controller.eventListeners).toHaveLength(0);
+  });
+
   test('given two live engines, when one is destroyed and then the other, then global data survives the first destroy and is cleared after the last', async () => {
     const {setGlobals, getGlobals} = await import(
       '@operation/helper/globals.ts'

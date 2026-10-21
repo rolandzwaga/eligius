@@ -1,5 +1,6 @@
 export type {BeforeRequestTimelineUriEvent} from '@eventbus/events/before-request-timeline-uri.ts';
 export type {DomMutationEvent} from '@eventbus/events/dom-mutation.ts';
+export type {EngineErrorEvent} from '@eventbus/events/engine-error.ts';
 export type {LanguageChangeEvent} from '@eventbus/events/language-change.ts';
 export type {RequestActionEvent} from '@eventbus/events/request-action.ts';
 export type {RequestCurrentLanguageEvent} from '@eventbus/events/request-current-language.ts';

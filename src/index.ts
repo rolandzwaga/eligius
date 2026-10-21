@@ -23,7 +23,7 @@ export * from '@operation/types.ts';
 export * from '@timelineproviders/index.ts';
 export * from '@timelineproviders/types.ts';
 export * from '@util/typed-event-emitter.ts';
-export {EligiusEngine} from './eligius-engine.ts';
+export {EligiusEngine, EngineActionError} from './eligius-engine.ts';
 export {EngineFactory} from './engine-factory.ts';
 export * from './locale/index.ts';
 export * from './types.ts';
