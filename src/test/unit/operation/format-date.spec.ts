@@ -92,4 +92,20 @@ describe('formatDate', () => {
 
     expect('format' in operationData).toBe(false);
   });
+
+  test('given the epoch timestamp 0, when formatDate is called, then it formats the date instead of throwing', () => {
+    const operationData: IFormatDateOperationData = {
+      date: 0,
+      format: 'YYYY',
+      formattedDate: '',
+    };
+
+    const result = applyOperation(formatDate, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    expect(result.formattedDate).toBe(String(new Date(0).getFullYear()));
+  });
 });

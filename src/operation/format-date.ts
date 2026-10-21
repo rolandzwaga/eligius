@@ -29,7 +29,7 @@ export const formatDate: TOperation<
 > = (operationData: IFormatDateOperationData) => {
   const {date, format} = operationData;
 
-  if (!date) {
+  if (date == null || date === '') {
     throw new Error('formatDate: date is required');
   }
 

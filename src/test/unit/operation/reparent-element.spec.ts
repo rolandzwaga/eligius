@@ -3,7 +3,8 @@ import {
   reparentElement,
 } from '@operation/reparent-element.ts';
 import {applyOperation} from '@util/apply-operation.ts';
-import {describe, expect, test} from 'vitest';
+import $ from 'jquery';
+import {describe, expect, test, vi} from 'vitest';
 
 class MockElement {
   selector: string = '';
@@ -32,7 +33,7 @@ describe('reparentElement', () => {
     applyOperation(reparentElement, operationData);
 
     // expect
-    expect(mockElement.calledRemove).toBe(true);
+    expect(mockElement.calledRemove).toBe(false);
     expect(mockElement.selector).toBe('.parent-class');
   });
 
@@ -49,5 +50,31 @@ describe('reparentElement', () => {
 
     // expect
     expect('newParentSelector' in newData).toBe(false);
+  });
+
+  test('given an element with controller data and a jQuery click handler, when reparentElement moves it, then the data and the handler survive', () => {
+    // given
+    document.body.innerHTML =
+      '<div id="old-parent"><div id="subject"></div></div><div id="new-parent"></div>';
+    const selectedElement = $('#subject');
+    const controller = {name: 'TestController'};
+    selectedElement.data('eligiusEngineControllers', [controller]);
+    const clickHandler = vi.fn();
+    selectedElement.on('click', clickHandler);
+    const operationData = {
+      selectedElement,
+      newParentSelector: '#new-parent',
+    };
+
+    // test
+    applyOperation(reparentElement, operationData);
+
+    // expect
+    const moved = $('#new-parent > #subject');
+    expect(moved.length).toBe(1);
+    expect($('#old-parent').children().length).toBe(0);
+    expect(moved.data('eligiusEngineControllers')).toEqual([controller]);
+    moved.trigger('click');
+    expect(clickHandler).toHaveBeenCalledTimes(1);
   });
 });

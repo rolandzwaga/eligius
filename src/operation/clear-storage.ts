@@ -20,6 +20,10 @@ export interface IClearStorageOperationData {
  * Clears data from browser storage (localStorage or sessionStorage).
  *
  * If `key` is provided, removes only that key. If `key` is omitted, clears all storage.
+ * A `key` that is present but empty, blank or not a string is rejected, so a value resolved
+ * from missing data never wipes the whole storage.
+ *
+ * @throws When `key` is present but is not a non-empty string.
  *
  * @returns Operation data with storage properties erased
  *
@@ -48,12 +52,16 @@ export const clearStorage: TOperation<
 > = (operationData: IClearStorageOperationData) => {
   const {key, storageType} = operationData;
 
+  if (key !== undefined && (typeof key !== 'string' || key.trim() === '')) {
+    throw new Error('clearStorage: key must be a non-empty string');
+  }
+
   const storage = storageType === 'session' ? sessionStorage : localStorage;
 
-  if (key && key.trim() !== '') {
-    storage.removeItem(key);
-  } else {
+  if (key === undefined) {
     storage.clear();
+  } else {
+    storage.removeItem(key);
   }
 
   removeProperties(operationData, 'key', 'storageType');

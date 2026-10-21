@@ -84,7 +84,10 @@ export const formatText: TOperation<
       text = text.charAt(0).toUpperCase() + text.slice(1);
       break;
     case 'titlecase':
-      text = text.replace(/\b\w/g, char => char.toUpperCase());
+      // A letter starts a word unless a letter, digit or apostrophe precedes it
+      text = text.replace(/(?<![\p{L}\p{N}'’])\p{L}/gu, char =>
+        char.toUpperCase()
+      );
       break;
     case 'trim':
       text = text.trim();

@@ -21,16 +21,13 @@ describe('httpDelete', () => {
     const mockResponse = {success: true};
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({
-        ok: true,
-        status: 200,
-        statusText: 'OK',
-        headers: {
-          get: (name: string) =>
-            name === 'content-type' ? 'application/json' : null,
-        },
-        json: async () => mockResponse,
-      })
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify(mockResponse), {
+          status: 200,
+          statusText: 'OK',
+          headers: {'content-type': 'application/json'},
+        })
+      )
     );
 
     const operationData: IHttpDeleteOperationData = {
@@ -168,5 +165,90 @@ describe('httpDelete', () => {
     // Assert
     expect('url' in operationData).toBe(false);
     expect('headers' in operationData).toBe(false);
+  });
+
+  test('given fetch resolves with status 403 Forbidden, when httpDelete is called, then the error message has a single operation prefix', async () => {
+    // given
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(
+          new Response(null, {status: 403, statusText: 'Forbidden'})
+        )
+    );
+    const operationData: IHttpDeleteOperationData = {
+      url: 'https://api.example.com/users/123',
+      response: undefined as any,
+      status: 0,
+    };
+
+    // test + expect
+    await expect(
+      applyOperation(httpDelete, operationData, {
+        currentIndex: 0,
+        eventbus: mockEventbus,
+        operations: [],
+      })
+    ).rejects.toThrow(new Error('httpDelete: HTTP error 403 Forbidden'));
+  });
+
+  test('given fetch rejects, when httpDelete runs, then it rethrows with the operation name and keeps the original error as cause', async () => {
+    // given
+    const abortError = new DOMException(
+      'The operation was aborted.',
+      'AbortError'
+    );
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(abortError));
+    const operationData: IHttpDeleteOperationData = {
+      url: 'https://api.example.com/users/123',
+      response: undefined as any,
+      status: 0,
+    };
+
+    // test
+    let error: Error | undefined;
+    try {
+      await applyOperation(httpDelete, operationData, {
+        currentIndex: 0,
+        eventbus: mockEventbus,
+        operations: [],
+      });
+    } catch (e) {
+      error = e as Error;
+    }
+
+    // expect
+    expect(error?.message).toBe('httpDelete: The operation was aborted.');
+    expect(error?.cause).toBe(abortError);
+  });
+
+  test('given a JSON content type with an empty body, when httpDelete runs, then it resolves with response null', async () => {
+    // given
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response('', {
+          status: 200,
+          headers: {'content-type': 'application/json'},
+        })
+      )
+    );
+    const operationData: IHttpDeleteOperationData = {
+      url: 'https://api.example.com/users/123',
+      response: undefined as any,
+      status: 0,
+    };
+
+    // test
+    const result = await applyOperation(httpDelete, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect(result.status).toBe(200);
+    expect(result.response).toBeNull();
   });
 });

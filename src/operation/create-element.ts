@@ -6,6 +6,8 @@ import type {RequireKeys} from '@/types.ts';
 
 export type TTagNames = keyof HTMLElementTagNameMap;
 
+const validElementName = /^[a-z][a-z0-9-]*$/i;
+
 export interface ICreateElementOperationData<T extends TTagNames> {
   /**
    * @type=ParameterType:htmlElementName
@@ -33,8 +35,12 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  * This operation creates the DOM element described by the given elementName and attributes and assigns
  * the instance to the `template` property on the current operation data.
  *
+ * The element is built with DOM APIs: attribute values are set with `.attr()` and `text` is set as
+ * text content, so neither is parsed as HTML.
+ *
  * @param operationData
  * @returns
+ * @throws When `elementName` is not a valid element name.
  * @category DOM
  */
 export const createElement: TOperation<
@@ -53,16 +59,25 @@ export const createElement: TOperation<
 
   removeProperties(operationData, 'elementName', 'attributes', 'text');
 
-  const serializedAttrs = attributes
-    ? ` ${Object.entries(attributes)
-        .filter(([_, value]) => Boolean(value))
-        .map(([key, value]) => `${key}="${value}"`)
-        .join(' ')}`
-    : '';
+  if (!validElementName.test(String(elementName))) {
+    throw new Error(
+      `createElement: invalid elementName '${String(elementName)}', expected a tag name such as 'div' or 'my-element'`
+    );
+  }
 
-  const template = text
-    ? $(`<${elementName}${serializedAttrs}>${text}</${elementName}>`)
-    : $(`<${elementName}${serializedAttrs}/>`);
+  const template = $<HTMLElement>(document.createElement(elementName));
+
+  if (attributes) {
+    Object.entries(attributes)
+      .filter(([_, value]) => Boolean(value))
+      .forEach(([key, value]) => {
+        template.attr(key, String(value));
+      });
+  }
+
+  if (text) {
+    template.text(text);
+  }
 
   operationData.template = template;
 

@@ -1,4 +1,5 @@
 import {internalResolve} from '@operation/helper/internal-resolve.ts';
+import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
 
 export interface IAnimateWithClassOperationData {
@@ -9,8 +10,14 @@ export interface IAnimateWithClassOperationData {
   /**
    * @type=ParameterType:className
    * @required
+   * @erased
    */
   className: string;
+  /**
+   * When true (the default), the class is removed again after the animation ends
+   *
+   * @erased
+   */
   removeClass?: boolean;
 }
 
@@ -23,28 +30,29 @@ export interface IAnimateWithClassOperationData {
  */
 export const animateWithClass: TOperation<
   IAnimateWithClassOperationData,
-  Promise<IAnimateWithClassOperationData>
+  Omit<IAnimateWithClassOperationData, 'className' | 'removeClass'>
 > = (operationData: IAnimateWithClassOperationData) => {
-  let {selectedElement, className, removeClass} = operationData;
-  removeClass = removeClass !== undefined ? removeClass : true;
+  const {selectedElement, className} = operationData;
+  const removeClass = operationData.removeClass ?? true;
 
-  const promise = new Promise<IAnimateWithClassOperationData>(
-    (resolve, reject) => {
-      try {
-        selectedElement.one(
-          'webkitAnimationEnd oanimationend oAnimationEnd msAnimationEnd animationEnd',
-          () => {
-            if (removeClass) {
-              selectedElement.removeClass(className);
-            }
-            internalResolve(resolve, {}, operationData);
-          }
-        );
-      } catch (e) {
-        reject(e);
-      }
+  removeProperties(operationData, 'className', 'removeClass');
+
+  const promise = new Promise<
+    Omit<IAnimateWithClassOperationData, 'className' | 'removeClass'>
+  >((resolve, reject) => {
+    try {
+      const handleAnimationEnd = () => {
+        selectedElement.off('animationend', handleAnimationEnd);
+        if (removeClass) {
+          selectedElement.removeClass(className);
+        }
+        internalResolve(resolve, {}, operationData);
+      };
+      selectedElement.on('animationend', handleAnimationEnd);
+    } catch (e) {
+      reject(e);
     }
-  );
+  });
 
   selectedElement.addClass(className);
 

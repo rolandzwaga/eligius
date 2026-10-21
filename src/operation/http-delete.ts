@@ -1,6 +1,27 @@
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
 
+/**
+ * Reads the response body as JSON. Returns `null` for 204/205 responses and empty bodies.
+ */
+async function readJsonBody(response: Response): Promise<any> {
+  if (response.status === 204 || response.status === 205) {
+    return null;
+  }
+  const text = await response.text();
+  if (text.trim() === '') {
+    return null;
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      `httpDelete: invalid JSON response: ${(error as Error).message}`,
+      {cause: error}
+    );
+  }
+}
+
 export interface IHttpDeleteOperationData {
   /**
    * @required
@@ -25,7 +46,9 @@ export interface IHttpDeleteOperationData {
 /**
  * Performs an HTTP DELETE request to the specified URL.
  *
- * @returns Operation data with `response` (parsed JSON or empty) and `status` (HTTP status code)
+ * @returns Operation data with `response` (parsed JSON, or `null` for non-JSON and empty bodies)
+ * and `status` (HTTP status code)
+ * @throws When the request fails, the server responds with an error status, or a JSON body is invalid.
  *
  * @example
  * ```typescript
@@ -49,33 +72,33 @@ export const httpDelete: TOperation<
     throw new Error('httpDelete: url is required');
   }
 
+  let response: Response;
   try {
-    const response = await fetch(url, {
+    response = await fetch(url, {
       method: 'DELETE',
       headers,
     });
-
-    operationData.status = response.status;
-
-    if (!response.ok) {
-      throw new Error(
-        `httpDelete: HTTP error ${response.status} ${response.statusText}`
-      );
-    }
-
-    // DELETE may return empty body (204 No Content)
-    const contentType = response.headers.get('content-type');
-    if (contentType?.includes('application/json')) {
-      const data = await response.json();
-      operationData.response = data;
-    } else {
-      operationData.response = null;
-    }
-
-    removeProperties(operationData, 'url', 'headers');
-
-    return operationData;
   } catch (error) {
-    throw new Error(`httpDelete: ${(error as Error).message}`);
+    throw new Error(`httpDelete: ${(error as Error).message}`, {
+      cause: error,
+    });
   }
+
+  operationData.status = response.status;
+
+  if (!response.ok) {
+    throw new Error(
+      `httpDelete: HTTP error ${response.status} ${response.statusText}`
+    );
+  }
+
+  // DELETE may return an empty body (204 No Content) or a non-JSON body
+  const contentType = response.headers.get('content-type');
+  operationData.response = contentType?.includes('application/json')
+    ? await readJsonBody(response)
+    : null;
+
+  removeProperties(operationData, 'url', 'headers');
+
+  return operationData;
 };

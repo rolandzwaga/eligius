@@ -154,4 +154,24 @@ describe('saveToStorage', () => {
     expect('value' in operationData).toBe(false);
     expect('storageType' in operationData).toBe(false);
   });
+
+  test('given saveToStorage with key, value and storageType, when the operation runs, then the returned operation data has no key property', () => {
+    // Arrange
+    const operationData: ISaveToStorageOperationData = {
+      key: 'a',
+      value: 1,
+      storageType: 'local',
+    };
+
+    // Act
+    const result = applyOperation(saveToStorage, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // Assert
+    expect('key' in result).toBe(false);
+    expect(localStorage.getItem('a')).toBe('1');
+  });
 });

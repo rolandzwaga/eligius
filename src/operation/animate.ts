@@ -4,7 +4,7 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IAnimateOperationData {
   /**
-   * @type=ParameterType:boolean
+   * @type=ParameterType:string
    * @erased
    */
   animationEasing?: string;
@@ -27,7 +27,7 @@ export interface IAnimateOperationData {
 
 /**
  * This operation animates the specified selected element with the given [jQuery animation](https://api.jquery.com/animate/) properties, duration and easing.
- * It resolves after the animation completes.
+ * It resolves after the animation completes, or immediately when the selected element set is empty.
  *
  * @param operationData
  * @returns
@@ -56,6 +56,11 @@ export const animate: TOperation<
   );
 
   const promise = new Promise<IAnimateOperationData>((resolve, reject) => {
+    // jQuery never calls the complete callback for an empty set
+    if (selectedElement.length === 0) {
+      internalResolve(resolve, {}, operationData);
+      return;
+    }
     try {
       if (animationEasing) {
         selectedElement.animate(

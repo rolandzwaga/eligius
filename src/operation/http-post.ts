@@ -1,6 +1,27 @@
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
 
+/**
+ * Reads the response body as JSON. Returns `null` for 204/205 responses and empty bodies.
+ */
+async function readJsonBody(response: Response): Promise<any> {
+  if (response.status === 204 || response.status === 205) {
+    return null;
+  }
+  const text = await response.text();
+  if (text.trim() === '') {
+    return null;
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(
+      `httpPost: invalid JSON response: ${(error as Error).message}`,
+      {cause: error}
+    );
+  }
+}
+
 export interface IHttpPostOperationData {
   /**
    * @required
@@ -30,7 +51,9 @@ export interface IHttpPostOperationData {
 /**
  * Performs an HTTP POST request to the specified URL.
  *
- * @returns Operation data with `response` (parsed JSON) and `status` (HTTP status code)
+ * @returns Operation data with `response` (parsed JSON, or `null` for 204 No Content and empty bodies)
+ * and `status` (HTTP status code)
+ * @throws When the request fails, the server responds with an error status, or the body is not valid JSON.
  *
  * @example
  * ```typescript
@@ -55,8 +78,9 @@ export const httpPost: TOperation<
     throw new Error('httpPost: url is required');
   }
 
+  let response: Response;
   try {
-    const response = await fetch(url, {
+    response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,22 +88,21 @@ export const httpPost: TOperation<
       },
       body: JSON.stringify(body),
     });
-
-    operationData.status = response.status;
-
-    if (!response.ok) {
-      throw new Error(
-        `httpPost: HTTP error ${response.status} ${response.statusText}`
-      );
-    }
-
-    const data = await response.json();
-    operationData.response = data;
-
-    removeProperties(operationData, 'url', 'body', 'headers');
-
-    return operationData;
   } catch (error) {
-    throw new Error(`httpPost: ${(error as Error).message}`);
+    throw new Error(`httpPost: ${(error as Error).message}`, {cause: error});
   }
+
+  operationData.status = response.status;
+
+  if (!response.ok) {
+    throw new Error(
+      `httpPost: HTTP error ${response.status} ${response.statusText}`
+    );
+  }
+
+  operationData.response = await readJsonBody(response);
+
+  removeProperties(operationData, 'url', 'body', 'headers');
+
+  return operationData;
 };
