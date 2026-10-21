@@ -2,13 +2,12 @@ import {LottieController} from '@controllers/lottie-controller.js';
 import type {IEventbus} from '@eventbus/types.js';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {createMockJQueryElement} from '@test/fixtures/jquery-factory.js';
-import lt from 'lottie-web';
+import type {LottiePlayer} from 'lottie-web';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
-const lottie = lt.default ?? lt;
-
-// Mock lottie-web
-vi.mock('lottie-web', () => {
+// One shared lottie-web module object, so a test that swaps the mock with
+// vi.doMock can restore exactly the same module afterwards.
+const lottieMock = vi.hoisted(() => {
   const mockAnimationItem = {
     destroy: vi.fn(),
     play: vi.fn(),
@@ -25,9 +24,15 @@ vi.mock('lottie-web', () => {
   };
 
   return {
-    default: MockLottie,
+    MockLottie,
+    factory: () => ({default: MockLottie}),
   };
 });
+
+// LottieController loads lottie-web with a dynamic import(); vi.mock covers it
+vi.mock('lottie-web', lottieMock.factory);
+
+const lottie = lottieMock.MockLottie as unknown as LottiePlayer;
 
 /**
  * Creates a mock eventbus with common request implementations for language and label handling.
@@ -69,6 +74,19 @@ describe('LottieController', () => {
     controller = new LottieController();
     mockEventbus = createMockEventbus();
     mockElement = createMockJQueryElement();
+  });
+
+  const createOperationData = () => ({
+    selectedElement: mockElement,
+    renderer: {className: 'svg'},
+    loop: false,
+    autoplay: true,
+    animationData: {v: '5.0.0'},
+    json: null,
+    labelIds: [] as string[],
+    viewBox: '',
+    iefallback: null,
+    url: 'animation.json',
   });
 
   describe('init', () => {
@@ -169,13 +187,13 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(controller.animationItem).toBeDefined();
       expect(controller.animationItem).not.toBeNull();
     });
 
-    it('should request current language when labelIds provided', () => {
+    it('should request current language when labelIds provided', async () => {
       // Setup mock eventbus to provide request responses
       (mockEventbus.request as any).mockImplementation((eventName: string) => {
         if (eventName === 'request-current-language') {
@@ -204,14 +222,14 @@ describe('LottieController', () => {
       controller.labelData = {label1: {}};
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(mockEventbus.request).toHaveBeenCalledWith(
         'request-current-language'
       );
     });
 
-    it('should register language change listener when labelIds provided', () => {
+    it('should register language change listener when labelIds provided', async () => {
       // Setup mock eventbus
       const mockBroadcast = mockEventbus.broadcast as any;
       mockBroadcast.mockImplementation((eventName: string, args?: any[]) => {
@@ -240,7 +258,7 @@ describe('LottieController', () => {
       controller.labelData = {label1: {}};
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(mockEventbus.on).toHaveBeenCalledWith(
         'language-change',
@@ -248,13 +266,111 @@ describe('LottieController', () => {
       );
     });
 
-    it('should handle missing operationData gracefully', () => {
-      expect(() => {
-        controller.attach(mockEventbus);
-      }).not.toThrow();
+    it('should handle missing operationData gracefully', async () => {
+      await expect(controller.attach(mockEventbus)).resolves.toBeUndefined();
+      expect(lottie.loadAnimation).not.toHaveBeenCalled();
     });
 
-    it('given an initialised LottieController with animationData, when attach is called, then lottie.loadAnimation is called exactly once and the created animation item is not destroyed', () => {
+    it('given an initialised controller, when attach is called, then it returns a promise and the animation exists once it resolves', async () => {
+      controller.init(createOperationData());
+
+      const result = controller.attach(mockEventbus);
+
+      expect(result).toBeInstanceOf(Promise);
+      await result;
+      expect(lottie.loadAnimation).toHaveBeenCalledTimes(1);
+      expect(controller.animationItem).not.toBeNull();
+    });
+
+    it('given attach has not resolved yet, when detach is called, then no animation is created and no listeners are registered', async () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      controller.init({
+        ...createOperationData(),
+        labelIds: ['title'],
+      });
+
+      const pending = controller.attach(mockEventbus);
+      controller.detach(mockEventbus);
+      await pending;
+
+      expect(lottie.loadAnimation).not.toHaveBeenCalled();
+      expect(controller.animationItem).toBeNull();
+      expect((controller as any).eventListeners).toHaveLength(0);
+    });
+  });
+
+  describe('lazy lottie-web loading', () => {
+    const importFreshController = async () => {
+      vi.resetModules();
+      const module = await import('@controllers/lottie-controller.ts');
+      return module.LottieController;
+    };
+
+    const restoreLottieMock = () => {
+      vi.doMock('lottie-web', lottieMock.factory);
+      vi.resetModules();
+    };
+
+    it('given the lottie-controller module is imported, when no controller has attached, then lottie-web is not loaded', async () => {
+      const factory = vi.fn(lottieMock.factory);
+      vi.doMock('lottie-web', factory);
+      try {
+        const FreshController = await importFreshController();
+        expect(factory).not.toHaveBeenCalled();
+
+        const freshController = new FreshController();
+        freshController.init(createOperationData());
+        await freshController.attach(mockEventbus);
+
+        expect(factory).toHaveBeenCalledTimes(1);
+        expect(lottie.loadAnimation).toHaveBeenCalledTimes(1);
+      } finally {
+        restoreLottieMock();
+      }
+    });
+
+    it('given lottie-web was loaded once, when a second controller attaches, then lottie-web is not imported again', async () => {
+      const factory = vi.fn(lottieMock.factory);
+      vi.doMock('lottie-web', factory);
+      try {
+        const FreshController = await importFreshController();
+        const first = new FreshController();
+        first.init(createOperationData());
+        await first.attach(mockEventbus);
+        vi.doMock('lottie-web', () => {
+          throw new Error('lottie-web must not be imported twice');
+        });
+
+        const second = new FreshController();
+        second.init(createOperationData());
+        await second.attach(mockEventbus);
+
+        expect(factory).toHaveBeenCalledTimes(1);
+        expect(lottie.loadAnimation).toHaveBeenCalledTimes(2);
+      } finally {
+        restoreLottieMock();
+      }
+    });
+
+    it('given lottie-web is not installed, when attach is called, then it rejects with an error naming the lottie-web peer dependency', async () => {
+      vi.doMock('lottie-web', () => {
+        throw new Error("Cannot find package 'lottie-web'");
+      });
+      try {
+        const FreshController = await importFreshController();
+        const freshController = new FreshController();
+        freshController.init(createOperationData());
+
+        await expect(freshController.attach(mockEventbus)).rejects.toThrow(
+          /LottieController requires the optional peer dependency 'lottie-web'/
+        );
+        expect(freshController.animationItem).toBeNull();
+      } finally {
+        restoreLottieMock();
+      }
+    });
+
+    it('given an initialised LottieController with animationData, when attach is called, then lottie.loadAnimation is called exactly once and the created animation item is not destroyed', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -269,14 +385,14 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(lottie.loadAnimation).toHaveBeenCalledTimes(1);
       expect(controller.animationItem!.destroy).not.toHaveBeenCalled();
       expect(controller.animationItem!.playSegments).toHaveBeenCalledTimes(1);
     });
 
-    it('given a controller that was detached, when attach is called again, then a new animation is loaded', () => {
+    it('given a controller that was detached, when attach is called again, then a new animation is loaded', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -291,9 +407,9 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
       controller.detach(mockEventbus);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(lottie.loadAnimation).toHaveBeenCalledTimes(2);
       expect(controller.animationItem).not.toBeNull();
@@ -301,7 +417,7 @@ describe('LottieController', () => {
   });
 
   describe('detach', () => {
-    it('should destroy animation item when no endPosition set', () => {
+    it('should destroy animation item when no endPosition set', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -316,7 +432,7 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       const animationItem = controller.animationItem!;
       const destroySpy = vi.spyOn(animationItem, 'destroy');
@@ -329,7 +445,7 @@ describe('LottieController', () => {
       expect(controller.animationItem).toBeNull();
     });
 
-    it('given a looping animation with a url without [freeze,end], when attach then detach are called, then the animation item is destroyed immediately', () => {
+    it('given a looping animation with a url without [freeze,end], when attach then detach are called, then the animation item is destroyed immediately', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -344,7 +460,7 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       const animationItem = controller.animationItem!;
       const destroySpy = vi.spyOn(animationItem, 'destroy');
@@ -358,7 +474,7 @@ describe('LottieController', () => {
       expect(controller.animationItem).toBeNull();
     });
 
-    it('given a looping animation with [freeze,end] in the url, when detach is called, then the animation item is destroyed immediately because it would never complete', () => {
+    it('given a looping animation with [freeze,end] in the url, when detach is called, then the animation item is destroyed immediately because it would never complete', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -373,7 +489,7 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       const animationItem = controller.animationItem!;
       const destroySpy = vi.spyOn(animationItem, 'destroy');
@@ -387,7 +503,7 @@ describe('LottieController', () => {
       expect(playSegmentsSpy).not.toHaveBeenCalled();
     });
 
-    it('given a url with only a freeze position, when detach is called, then the animation plays out to its natural end and is destroyed on complete', () => {
+    it('given a url with only a freeze position, when detach is called, then the animation plays out to its natural end and is destroyed on complete', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -402,7 +518,7 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       const animationItem = controller.animationItem!;
       const destroySpy = vi.spyOn(animationItem, 'destroy');
@@ -424,7 +540,7 @@ describe('LottieController', () => {
       expect(controller.animationItem).toBeNull();
     });
 
-    it('should play end segment when endPosition is set', () => {
+    it('should play end segment when endPosition is set', async () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -439,7 +555,7 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       const playSegmentsSpy = vi.spyOn(
         controller.animationItem!,
@@ -451,7 +567,7 @@ describe('LottieController', () => {
       expect(playSegmentsSpy).toHaveBeenCalledWith([0, 50], true);
     });
 
-    it('should call unsubscribe functions returned from event registration', () => {
+    it('should call unsubscribe functions returned from event registration', async () => {
       // Use helper for eventbus setup
       const testEventbus = createLottieTestEventbus();
 
@@ -478,7 +594,7 @@ describe('LottieController', () => {
 
       controller.labelData = {label1: {}};
       controller.init(operationData);
-      controller.attach(testEventbus);
+      await controller.attach(testEventbus);
 
       // Verify event listeners were registered
       expect(testEventbus.on).toHaveBeenCalled();
@@ -496,7 +612,7 @@ describe('LottieController', () => {
   });
 
   describe('label replacement', () => {
-    it('should replace label placeholders with current language text', () => {
+    it('should replace label placeholders with current language text', async () => {
       const testEventbus = createLottieTestEventbus({
         language: 'en-US',
         labelCollections: [[{code: 'en-US', label: 'Hello'}]],
@@ -517,13 +633,13 @@ describe('LottieController', () => {
 
       controller.labelData = {label1: {}};
       controller.init(operationData);
-      controller.attach(testEventbus);
+      await controller.attach(testEventbus);
 
       // Animation should be created with replaced text
       expect(controller.animationItem).toBeDefined();
     });
 
-    it('should set currentLanguage on attach when labelIds provided', () => {
+    it('should set currentLanguage on attach when labelIds provided', async () => {
       const testEventbus = createLottieTestEventbus({language: 'en-US'});
 
       const operationData = {
@@ -541,12 +657,12 @@ describe('LottieController', () => {
 
       controller.labelData = {label1: {'en-US': 'Hello'}};
       controller.init(operationData);
-      controller.attach(testEventbus);
+      await controller.attach(testEventbus);
 
       expect(controller.currentLanguage).toBe('en-US');
     });
 
-    it('should update currentLanguage when language-change event fires', () => {
+    it('should update currentLanguage when language-change event fires', async () => {
       // Capture the language-change handler when registered
       let languageChangeHandler: ((newLanguage: string) => void) | null = null;
       const testEventbus = createLottieTestEventbus({language: 'en-US'});
@@ -576,7 +692,7 @@ describe('LottieController', () => {
         label1: {'en-US': 'Hello', 'nl-NL': 'Hallo'},
       };
       controller.init(operationData);
-      controller.attach(testEventbus);
+      await controller.attach(testEventbus);
 
       // Verify handler was captured
       expect(languageChangeHandler).not.toBeNull();
@@ -603,7 +719,7 @@ describe('LottieController', () => {
     const lastAnimationData = () =>
       vi.mocked(lottie.loadAnimation).mock.calls.at(-1)?.[0] as any;
 
-    it('given a request-label-collections responder and no pre-seeded labelData, when attach is called, then it does not throw and the placeholder is replaced', () => {
+    it('given a request-label-collections responder and no pre-seeded labelData, when attach is called, then it does not throw and the placeholder is replaced', async () => {
       mockEventbus.onRequest('request-current-language', () => 'en-US');
       mockEventbus.onRequest('request-label-collections', () => [
         [{code: 'en-US', label: 'Hi'}],
@@ -611,11 +727,11 @@ describe('LottieController', () => {
 
       controller.init(createLabelOperationData(['title'], '!!title!!'));
 
-      expect(() => controller.attach(mockEventbus)).not.toThrow();
+      await expect(controller.attach(mockEventbus)).resolves.toBeUndefined();
       expect(lastAnimationData().animationData.text).toBe('Hi');
     });
 
-    it('given no label collections but a request-translation responder, when attach is called, then the placeholder is replaced with the translation', () => {
+    it('given no label collections but a request-translation responder, when attach is called, then the placeholder is replaced with the translation', async () => {
       mockEventbus.onRequest('request-current-language', () => 'en-US');
       mockEventbus.onRequest('request-translation', (key: string) =>
         key === 'title' ? 'Hallo' : ''
@@ -624,22 +740,22 @@ describe('LottieController', () => {
       controller.init(
         createLabelOperationData(['title', 'missing'], '!!title!! !!missing!!')
       );
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(lastAnimationData().animationData.text).toBe('Hallo !!missing!!');
     });
 
-    it('given a translation that contains quotes and backslashes, when attach is called, then the animation data stays valid JSON', () => {
+    it('given a translation that contains quotes and backslashes, when attach is called, then the animation data stays valid JSON', async () => {
       mockEventbus.onRequest('request-current-language', () => 'en-US');
       mockEventbus.onRequest('request-translation', () => 'Say "hi" \\o/');
 
       controller.init(createLabelOperationData(['title'], '!!title!!'));
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(lastAnimationData().animationData.text).toBe('Say "hi" \\o/');
     });
 
-    it('given a language-change, when the animation is recreated, then the translation for the new language is used', () => {
+    it('given a language-change, when the animation is recreated, then the translation for the new language is used', async () => {
       let language = 'en-US';
       mockEventbus.onRequest('request-current-language', () => language);
       mockEventbus.onRequest('request-translation', () =>
@@ -647,7 +763,7 @@ describe('LottieController', () => {
       );
 
       controller.init(createLabelOperationData(['title'], '!!title!!'));
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
       expect(lastAnimationData().animationData.text).toBe('Hello');
 
       language = 'nl-NL';
@@ -656,14 +772,14 @@ describe('LottieController', () => {
       expect(lastAnimationData().animationData.text).toBe('Hallo');
     });
 
-    it('given a label collection for a __proto__ label id, when attach is called, then Object.prototype is not polluted', () => {
+    it('given a label collection for a __proto__ label id, when attach is called, then Object.prototype is not polluted', async () => {
       mockEventbus.onRequest('request-current-language', () => 'en-US');
       mockEventbus.onRequest('request-label-collections', () => [
         [{code: 'polluted', label: 'yes'}],
       ]);
 
       controller.init(createLabelOperationData(['__proto__'], 'x'));
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       expect(({} as any).polluted).toBeUndefined();
     });
@@ -697,7 +813,7 @@ describe('LottieController', () => {
   });
 
   describe('viewBox handling', () => {
-    it('should set viewBox attribute when provided', () => {
+    it('should set viewBox attribute when provided', async () => {
       const mockSvgElement = createMockJQueryElement();
       mockSvgElement.attr = vi.fn().mockReturnValue(mockSvgElement);
       mockElement.find = vi.fn().mockReturnValue(mockSvgElement);
@@ -716,7 +832,7 @@ describe('LottieController', () => {
       };
 
       controller.init(operationData);
-      controller.attach(mockEventbus);
+      await controller.attach(mockEventbus);
 
       // Verify find and attr were called
       expect(mockElement.find).toHaveBeenCalledWith('svg');

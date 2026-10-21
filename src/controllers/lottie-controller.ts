@@ -5,12 +5,40 @@ import type {
   AnimationItem,
   CanvasRendererConfig,
   HTMLRendererConfig,
+  LottiePlayer,
   SVGRendererConfig,
 } from 'lottie-web';
-import lt from 'lottie-web';
 import type {TLanguageCode} from '../types.ts';
 
-const lottie = lt.default ?? lt;
+let lottieLoader: Promise<LottiePlayer> | null = null;
+
+/**
+ * Loads lottie-web, an optional peer dependency, on first use and caches it.
+ * A failed load is not cached, so a later attach can try again.
+ *
+ * @returns the lottie player
+ * @throws when lottie-web cannot be imported
+ */
+function loadLottie(): Promise<LottiePlayer> {
+  lottieLoader ??= import('lottie-web').then(
+    module => {
+      // Depending on the bundler's CommonJS interop, the player is the
+      // module's default export or sits one `default` deeper
+      const exported = module.default as LottiePlayer & {
+        default?: LottiePlayer;
+      };
+      return exported.default ?? exported;
+    },
+    (error: unknown) => {
+      lottieLoader = null;
+      throw new Error(
+        "LottieController requires the optional peer dependency 'lottie-web'. Install it with: npm install lottie-web",
+        {cause: error}
+      );
+    }
+  );
+  return lottieLoader;
+}
 
 const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
 
@@ -59,6 +87,9 @@ export interface ILottieControllerMetadata extends IInnerMetadata {
  *
  * The url may encode freeze and end positions like this: my-url/filename[freeze=10,end=21].json
  *
+ * lottie-web is an optional peer dependency. It is loaded with a dynamic
+ * `import()` the first time a LottieController attaches, so applications that
+ * never use this controller do not need it installed.
  */
 export class LottieController extends BaseController<ILottieControllerMetadata> {
   name = 'LottieController';
@@ -70,6 +101,9 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
   freezePosition = -1;
   endPosition = -1;
   private _eventbus: IEventbus | null = null;
+  private _lottie: LottiePlayer | null = null;
+  /** Incremented by detach() so an attach still loading lottie-web gives up */
+  private _attachGeneration = 0;
 
   init(operationData: ILottieControllerMetadata) {
     this.operationData = {...operationData};
@@ -104,11 +138,29 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     });
   }
 
-  attach(eventbus: IEventbus) {
+  /**
+   * Loads lottie-web (on first use), registers the language listener when
+   * label ids are configured and creates the animation.
+   *
+   * If detach() is called before lottie-web has loaded, the attach is
+   * abandoned: no listeners are registered and no animation is created.
+   *
+   * @param eventbus - The eventbus to request labels and language from
+   * @returns a promise that resolves once the animation has been created
+   * @throws when the optional peer dependency lottie-web cannot be loaded
+   */
+  async attach(eventbus: IEventbus): Promise<void> {
     if (!this.operationData) {
       return;
     }
 
+    const generation = this._attachGeneration;
+    const lottie = await loadLottie();
+    if (generation !== this._attachGeneration || !this.operationData) {
+      return;
+    }
+
+    this._lottie = lottie;
     this._eventbus = eventbus;
 
     const {labelIds} = this.operationData;
@@ -136,6 +188,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
    */
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
+    this._attachGeneration++;
     this._eventbus = null;
 
     const animationItem = this.animationItem;
@@ -160,7 +213,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
   }
 
   private _createAnimation() {
-    if (!this.operationData || !this.serializedData) {
+    if (!this.operationData || !this.serializedData || !this._lottie) {
       return;
     }
 
@@ -190,7 +243,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
       animationData,
     };
 
-    this.animationItem = lottie.loadAnimation(animationSettings);
+    this.animationItem = this._lottie.loadAnimation(animationSettings);
 
     if (this.freezePosition > -1) {
       this.animationItem.playSegments([0, this.freezePosition], true);

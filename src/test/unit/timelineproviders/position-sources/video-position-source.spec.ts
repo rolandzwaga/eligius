@@ -103,8 +103,9 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-// Mock video.js module
-vi.mock('video.js', () => {
+// One shared video.js module object, so a test that swaps the mock with
+// vi.doMock can restore exactly the same module afterwards.
+const videojsModule = vi.hoisted(() => {
   const videojsFn = (
     _elementOrId: string | HTMLElement,
     _options: Record<string, unknown>,
@@ -119,8 +120,11 @@ vi.mock('video.js', () => {
     return player;
   };
   videojsFn.log = {level: vi.fn()};
-  return {default: videojsFn};
+  return {factory: () => ({default: videojsFn})};
 });
+
+// VideoPositionSource loads video.js with a dynamic import(); vi.mock covers it
+vi.mock('video.js', videojsModule.factory);
 
 // Import after mock setup
 import {VideoPositionSource} from '@timelineproviders/position-sources/video-position-source.ts';
@@ -780,6 +784,72 @@ describe('VideoPositionSource', () => {
 
       await settled;
       expect(mocks.getVideojsCallCount()).toBe(0);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // video.js is an optional peer dependency, loaded on first init()
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('lazy video.js loading', () => {
+    const importFreshSource = async () => {
+      vi.resetModules();
+      const module = await import(
+        '@timelineproviders/position-sources/video-position-source.ts'
+      );
+      return module.VideoPositionSource;
+    };
+
+    const restoreVideojsMock = () => {
+      vi.doMock('video.js', videojsModule.factory);
+      vi.resetModules();
+    };
+
+    const createSource = (Source: typeof VideoPositionSource) =>
+      new Source({
+        selector: '#video-container',
+        sources: [{src: 'video.mp4', type: 'video/mp4'}],
+      });
+
+    test('given the module is imported, when no source has been initialised, then video.js is not loaded until init()', async () => {
+      const factory = vi.fn(videojsModule.factory);
+      vi.doMock('video.js', factory);
+      try {
+        const FreshSource = await importFreshSource();
+        const source = createSource(FreshSource);
+        expect(factory).not.toHaveBeenCalled();
+
+        const initPromise = source.init();
+        await vi.waitFor(() => {
+          expect(mocks.getVideojsCallCount()).toBe(1);
+        });
+        await vi.advanceTimersByTimeAsync(10);
+        mocks.triggerOneEvent('canplay');
+        await initPromise;
+
+        expect(factory).toHaveBeenCalledTimes(1);
+        source.destroy();
+      } finally {
+        restoreVideojsMock();
+      }
+    });
+
+    test('given video.js is not installed, when init() is called, then init() rejects with an error naming the video.js peer dependency', async () => {
+      vi.doMock('video.js', () => {
+        throw new Error("Cannot find package 'video.js'");
+      });
+      try {
+        const FreshSource = await importFreshSource();
+        const source = createSource(FreshSource);
+
+        await expect(source.init()).rejects.toThrow(
+          /VideoPositionSource requires the optional peer dependency 'video.js'/
+        );
+        expect(mocks.getVideojsCallCount()).toBe(0);
+        source.destroy();
+      } finally {
+        restoreVideojsMock();
+      }
     });
   });
 
