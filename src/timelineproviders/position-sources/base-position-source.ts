@@ -113,8 +113,28 @@ export abstract class BasePositionSource implements IPositionSource {
       return;
     }
 
+    const previousState = this._state;
     this._state = 'active';
-    this.startTicking();
+    const started = this.startTicking();
+
+    if (started) {
+      // Asynchronous start (e.g. media playback). Activation only counts once
+      // it has succeeded.
+      try {
+        await started;
+      } catch (error) {
+        if (this._state !== 'active') {
+          // Superseded by suspend/deactivate/destroy while starting
+          return;
+        }
+        this._state = previousState;
+        throw error;
+      }
+
+      if (this._state !== 'active') {
+        return;
+      }
+    }
 
     // Emit activated callbacks (first frame semantics)
     for (const callback of this._activatedCallbacks) {
@@ -229,8 +249,13 @@ export abstract class BasePositionSource implements IPositionSource {
    *
    * Called when transitioning to `active` state.
    * Override to start timers, begin listening to events, etc.
+   *
+   * May return a promise when starting is asynchronous (for example media
+   * playback). `activate()` then waits for it: if it rejects, the state
+   * reverts to its previous value, the activated callbacks are not called,
+   * and `activate()` rethrows the error.
    */
-  protected abstract startTicking(): void;
+  protected abstract startTicking(): void | Promise<void>;
 
   /**
    * Stop emitting position updates.

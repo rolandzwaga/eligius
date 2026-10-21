@@ -73,6 +73,8 @@ const mocks = vi.hoisted(() => {
   });
 
   let mockPlayer = createMockPlayer();
+  let videojsCallCount = 0;
+  let videojsError: Error | null = null;
 
   return {
     eventHandlers,
@@ -84,7 +86,19 @@ const mocks = vi.hoisted(() => {
     getMockPlayer: () => mockPlayer,
     resetMockPlayer: () => {
       mockPlayer = createMockPlayer();
+      videojsCallCount = 0;
+      videojsError = null;
       return mockPlayer;
+    },
+    recordVideojsCall: () => {
+      videojsCallCount++;
+      if (videojsError) {
+        throw videojsError;
+      }
+    },
+    getVideojsCallCount: () => videojsCallCount,
+    setVideojsError: (error: Error | null) => {
+      videojsError = error;
     },
   };
 });
@@ -96,6 +110,7 @@ vi.mock('video.js', () => {
     _options: Record<string, unknown>,
     readyCallback?: () => void
   ) => {
+    mocks.recordVideojsCall();
     const player = mocks.getMockPlayer();
     if (readyCallback) {
       // Call ready callback asynchronously, binding player as `this`
@@ -134,6 +149,11 @@ describe('VideoPositionSource', () => {
     context.mockPlayer = mocks.resetMockPlayer();
     mocks.resetHandlers();
 
+    // The source rejects init when its container is missing
+    const container = document.createElement('div');
+    container.id = 'video-container';
+    document.body.appendChild(container);
+
     // Create source with mock configuration
     context.source = new VideoPositionSource({
       selector: '#video-container',
@@ -146,6 +166,7 @@ describe('VideoPositionSource', () => {
   });
 
   afterEach(() => {
+    document.getElementById('video-container')?.remove();
     vi.useRealTimers();
     vi.clearAllMocks();
   });
@@ -226,8 +247,8 @@ describe('VideoPositionSource', () => {
       mocks.triggerOneEvent('canplay');
       await initPromise;
 
-      // Trigger firstplay event
-      mocks.triggerOneEvent('firstplay');
+      // video.js 8 has no player 'firstplay' event; first 'playing' marks readiness
+      mocks.triggerOneEvent('playing');
 
       expect(containerReadyCallback).toHaveBeenCalled();
     });
@@ -640,8 +661,8 @@ describe('VideoPositionSource', () => {
 
       expect(containerReadyCallback).not.toHaveBeenCalled();
 
-      // Trigger firstplay event
-      mocks.triggerOneEvent('firstplay');
+      // video.js 8 has no player 'firstplay' event; first 'playing' marks readiness
+      mocks.triggerOneEvent('playing');
 
       expect(containerReadyCallback).toHaveBeenCalledTimes(1);
     });
@@ -660,7 +681,7 @@ describe('VideoPositionSource', () => {
       mocks.triggerOneEvent('canplay');
       await initPromise;
 
-      mocks.triggerOneEvent('firstplay');
+      mocks.triggerOneEvent('playing');
 
       expect(callback1).toHaveBeenCalled();
       expect(callback2).toHaveBeenCalled();
@@ -698,6 +719,156 @@ describe('VideoPositionSource', () => {
       source.destroy();
 
       expect(source.state).toBe('inactive');
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Failure paths: init errors, autoplay rejection, destroy while pending
+  // ─────────────────────────────────────────────────────────────────────────
+
+  describe('init failures', () => {
+    test<VideoPositionSourceTestContext>('given a player that emits error and never canplay, when init() is called, then init() rejects', async ({
+      source,
+    }) => {
+      const initPromise = source.init();
+      const settled = expect(initPromise).rejects.toThrow(
+        'VideoPositionSource'
+      );
+      await vi.advanceTimersByTimeAsync(10);
+
+      mocks.triggerOneEvent('error');
+
+      await settled;
+    });
+
+    test('given a selector that matches nothing, when init() is called, then init() rejects without calling videojs', async () => {
+      const source = new VideoPositionSource({
+        selector: '#does-not-exist',
+        sources: [{src: 'video.mp4', type: 'video/mp4'}],
+      });
+
+      const settled = expect(source.init()).rejects.toThrow('#does-not-exist');
+      await vi.advanceTimersByTimeAsync(10);
+
+      await settled;
+      expect(mocks.getVideojsCallCount()).toBe(0);
+    });
+
+    test<VideoPositionSourceTestContext>('given videojs() throws, when init() is called, then init() rejects with that error', async ({
+      source,
+    }) => {
+      mocks.setVideojsError(
+        new Error('The element or ID supplied is not valid')
+      );
+
+      const settled = expect(source.init()).rejects.toThrow(
+        'The element or ID supplied is not valid'
+      );
+      await vi.advanceTimersByTimeAsync(10);
+
+      await settled;
+    });
+
+    test<VideoPositionSourceTestContext>('given init() was called but not awaited, when destroy() is called and timers run, then videojs is not called and init settles', async ({
+      source,
+    }) => {
+      const initPromise = source.init();
+      const settled = expect(initPromise).rejects.toThrow('destroyed');
+
+      source.destroy();
+      await vi.advanceTimersByTimeAsync(10);
+
+      await settled;
+      expect(mocks.getVideojsCallCount()).toBe(0);
+    });
+  });
+
+  describe('autoplay rejection', () => {
+    const initSource = async (source: VideoPositionSource) => {
+      const initPromise = source.init();
+      await vi.advanceTimersByTimeAsync(10);
+      mocks.triggerOneEvent('canplay');
+      await initPromise;
+    };
+
+    test<VideoPositionSourceTestContext>('given player.play() rejects with NotAllowedError, when activate() is awaited, then it rejects, state is not active and onActivated is not called', async ({
+      source,
+      mockPlayer,
+    }) => {
+      const activated = vi.fn();
+      source.onActivated(activated);
+      await initSource(source);
+      const notAllowed = new Error('play() failed');
+      notAllowed.name = 'NotAllowedError';
+      mockPlayer.play.mockRejectedValueOnce(notAllowed);
+
+      await expect(source.activate()).rejects.toBe(notAllowed);
+
+      expect(source.state).toBe('inactive');
+      expect(activated).not.toHaveBeenCalled();
+    });
+
+    test<VideoPositionSourceTestContext>('given player.play() resolves, when activate() is awaited, then onActivated is called once', async ({
+      source,
+    }) => {
+      const activated = vi.fn();
+      source.onActivated(activated);
+      await initSource(source);
+
+      await source.activate();
+
+      expect(source.state).toBe('active');
+      expect(activated).toHaveBeenCalledTimes(1);
+    });
+
+    test<VideoPositionSourceTestContext>('given loop and a rejected replay, when the video ends, then the rejection is handled', async ({
+      source,
+      mockPlayer,
+    }) => {
+      source.loop = true;
+      await initSource(source);
+      await source.activate();
+      const replay = Promise.reject(new Error('NotAllowedError'));
+      const catchSpy = vi.spyOn(replay, 'catch');
+      mockPlayer.play.mockReturnValueOnce(replay);
+
+      mocks.triggerEvent('ended');
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(catchSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('container ready', () => {
+    test<VideoPositionSourceTestContext>('given container already ready, when onContainerReady is registered, then the callback is called immediately', async ({
+      source,
+    }) => {
+      const initPromise = source.init();
+      await vi.advanceTimersByTimeAsync(10);
+      mocks.triggerOneEvent('canplay');
+      await initPromise;
+      mocks.triggerOneEvent('playing');
+
+      const lateCallback = vi.fn();
+      source.onContainerReady(lateCallback);
+
+      expect(lateCallback).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('destroy while seeking', () => {
+    test<VideoPositionSourceTestContext>('given a seek waiting for seeked, when destroy() is called, then the seek promise settles', async ({
+      source,
+    }) => {
+      const initPromise = source.init();
+      await vi.advanceTimersByTimeAsync(10);
+      mocks.triggerOneEvent('canplay');
+      await initPromise;
+
+      const seekPromise = source.seek(30);
+      source.destroy();
+
+      await expect(seekPromise).resolves.toBeTypeOf('number');
     });
   });
 

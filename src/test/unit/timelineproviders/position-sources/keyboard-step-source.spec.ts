@@ -464,7 +464,7 @@ describe('KeyboardStepSource', () => {
       expect(source.getPosition()).toBe(0);
     });
 
-    test('should emit both boundaries on wrap from start', async () => {
+    test('given position 0 and wrap, when left arrow pressed, then no boundary is emitted', async () => {
       const boundaryCallback = vi.fn();
       const source = new KeyboardStepSource({
         duration: 60,
@@ -477,6 +477,42 @@ describe('KeyboardStepSource', () => {
 
       mocks.simulateKeyPress('left');
 
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).not.toHaveBeenCalled();
+    });
+
+    test('given position 0 and wrap, when shift+left pressed, then it wraps to the end without emitting a boundary', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: true,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+
+      mocks.simulateKeyPress('shift+left');
+
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).not.toHaveBeenCalled();
+    });
+
+    test('given position one step before the end, when right arrow pressed, then end boundary is emitted', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: true,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(59);
+
+      mocks.simulateKeyPress('right');
+
+      expect(source.getPosition()).toBe(60);
       expect(boundaryCallback).toHaveBeenCalledWith('end');
     });
 
@@ -526,6 +562,44 @@ describe('KeyboardStepSource', () => {
       mocks.simulateKeyPress('right');
 
       expect(source.getPosition()).toBe(60);
+    });
+
+    test('given wrap off and position 59.5 of 60, when right arrow pressed, then position clamps to 60 and end is emitted once', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: false,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(59.5);
+
+      mocks.simulateKeyPress('right');
+      mocks.simulateKeyPress('right');
+
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).toHaveBeenCalledTimes(1);
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
+    });
+
+    test('given wrap off and position 55 of 60, when shift+right pressed, then end boundary is emitted', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: false,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(55);
+
+      mocks.simulateKeyPress('shift+right');
+
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
     });
 
     test('should not emit boundary when clamped at start', async () => {
@@ -724,6 +798,60 @@ describe('KeyboardStepSource', () => {
       mocks.simulateKeyPress('down');
 
       expect(markerJumpCallback).toHaveBeenCalledWith(1, 10);
+    });
+
+    test('given markers [5, 10, 20] at position 0, when down arrow pressed, then position is 5 and onMarkerJump is called with (0, 5)', async () => {
+      const markerJumpCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'chapter-navigation',
+        markers: [5, 10, 20],
+      });
+      source.onMarkerJump(markerJumpCallback);
+      await source.init();
+      await source.activate();
+
+      mocks.simulateKeyPress('down');
+
+      expect(source.getPosition()).toBe(5);
+      expect(markerJumpCallback).toHaveBeenCalledWith(0, 5);
+    });
+
+    test('given markers [5, 10, 20] at position 2 with wrap, when up arrow pressed, then it wraps to the last marker', async () => {
+      const markerJumpCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'chapter-navigation',
+        markers: [5, 10, 20],
+      });
+      source.onMarkerJump(markerJumpCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(2);
+
+      mocks.simulateKeyPress('up');
+
+      expect(source.getPosition()).toBe(20);
+      expect(markerJumpCallback).toHaveBeenCalledWith(2, 20);
+    });
+
+    test('given markers [5, 10, 20] at position 2 without wrap, when up arrow pressed, then position does not move', async () => {
+      const markerJumpCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'chapter-navigation',
+        markers: [5, 10, 20],
+        wrapNavigation: false,
+      });
+      source.onMarkerJump(markerJumpCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(2);
+
+      mocks.simulateKeyPress('up');
+
+      expect(source.getPosition()).toBe(2);
+      expect(markerJumpCallback).not.toHaveBeenCalled();
     });
 
     test('should auto-sort markers on init', async () => {

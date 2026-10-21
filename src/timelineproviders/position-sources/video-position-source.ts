@@ -82,6 +82,13 @@ export class VideoPositionSource
   private _videoElementId: string;
   private readonly _containerReadyCallbacks: Array<() => void> = [];
   private readonly _eventHandlers: Array<() => void> = [];
+  private _containerReady = false;
+  private _initTimer: ReturnType<typeof setTimeout> | null = null;
+  private _pendingInit: {
+    resolve: () => void;
+    reject: (error: unknown) => void;
+  } | null = null;
+  private readonly _pendingSeeks = new Set<(position: number) => void>();
 
   // ─────────────────────────────────────────────────────────────────────────
   // Constructor
@@ -104,52 +111,48 @@ export class VideoPositionSource
   // ─────────────────────────────────────────────────────────────────────────
 
   protected doInit(): Promise<void> {
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve, reject) => {
+      if ($(this._config.selector).length === 0) {
+        reject(
+          new Error(
+            `VideoPositionSource: container not found for selector '${this._config.selector}'`
+          )
+        );
+        return;
+      }
+
+      this._pendingInit = {resolve, reject};
+
       // Create video element in container
       this._createVideoElement();
 
       // Initialize video.js player
-      setTimeout(() => {
-        this._player = videojs(
-          this._videoElementId,
-          {
-            controls: false,
-            controlBar: false,
-            liveui: false,
-            autoplay: false,
-            preload: 'auto',
-            loop: this.loop,
-            sources: this._config.sources,
-            ...this._config.options,
-          },
-          () => {
-            // Player ready callback
-            if (this._player) {
-              // Register event handlers
-              this._addPlayerListener(
-                'timeupdate',
-                this._handleTimeUpdate.bind(this)
-              );
-              this._addPlayerListener('ended', this._handleEnded.bind(this));
-
-              // Register one-time handlers
-              this._player.one('firstplay', () => {
-                this._notifyContainerReady();
-              });
-
-              this._player.one('canplay', () => {
-                resolve();
-              });
-
-              this._player.load();
-            }
-          }
-        );
+      this._initTimer = setTimeout(() => {
+        this._initTimer = null;
+        try {
+          this._createPlayer();
+        } catch (error) {
+          this._settleInit(error);
+        }
       }, 0);
     });
   }
 
   protected doDestroy(): void {
+    // Cancel a pending player creation and settle pending promises
+    if (this._initTimer !== null) {
+      clearTimeout(this._initTimer);
+      this._initTimer = null;
+    }
+    this._settleInit(
+      new Error('VideoPositionSource: destroyed before init completed')
+    );
+
+    const position = this._player?.currentTime() ?? this.getPosition();
+    for (const settleSeek of [...this._pendingSeeks]) {
+      settleSeek(position);
+    }
+
     // Remove all event listeners
     for (const removeHandler of this._eventHandlers) {
       removeHandler();
@@ -166,10 +169,11 @@ export class VideoPositionSource
     $(`#${this._videoElementId}`).remove();
   }
 
-  protected startTicking(): void {
-    // Video.js handles ticking via timeupdate event
-    // Just start playback
-    this._player?.play();
+  protected async startTicking(): Promise<void> {
+    // Video.js handles ticking via timeupdate event, so just start playback.
+    // play() rejects when the browser blocks autoplay; activate() then
+    // reverts the state and rethrows.
+    await this._player?.play();
   }
 
   protected stopTicking(): void {
@@ -192,14 +196,22 @@ export class VideoPositionSource
       return this.getPosition();
     }
 
+    const player = this._player;
     return new Promise<number>(resolve => {
-      this._player!.one('seeked', () => {
+      // Settled by 'seeked', or by destroy() if the player goes away first
+      const settle = (actualPosition: number) => {
+        this._pendingSeeks.delete(settle);
+        resolve(actualPosition);
+      };
+      this._pendingSeeks.add(settle);
+
+      player.one('seeked', () => {
         const actualPosition = this._player?.currentTime() ?? 0;
         this.setPosition(actualPosition);
-        resolve(actualPosition);
+        settle(actualPosition);
       });
 
-      this._player!.currentTime(position);
+      player.currentTime(position);
     });
   }
 
@@ -219,9 +231,16 @@ export class VideoPositionSource
   /**
    * Register a callback for when the container is ready.
    *
+   * The container is ready once playback has started for the first time. If
+   * it is already ready, the callback is invoked immediately.
+   *
    * @param callback - Function called when container is ready
    */
   onContainerReady(callback: () => void): void {
+    if (this._containerReady) {
+      callback();
+      return;
+    }
     this._containerReadyCallbacks.push(callback);
   }
 
@@ -262,6 +281,81 @@ export class VideoPositionSource
   // ─────────────────────────────────────────────────────────────────────────
   // Private Methods
   // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Create the video.js player and settle the pending init on 'canplay'
+   * (resolve) or 'error' (reject).
+   */
+  private _createPlayer(): void {
+    this._player = videojs(
+      this._videoElementId,
+      {
+        controls: false,
+        controlBar: false,
+        liveui: false,
+        autoplay: false,
+        preload: 'auto',
+        loop: this.loop,
+        sources: this._config.sources,
+        ...this._config.options,
+      },
+      () => {
+        // Player ready callback (skipped if destroyed in the meantime)
+        const player = this._player;
+        if (!player) {
+          return;
+        }
+
+        // Register event handlers
+        this._addPlayerListener(
+          'timeupdate',
+          this._handleTimeUpdate.bind(this)
+        );
+        this._addPlayerListener('ended', this._handleEnded.bind(this));
+
+        // video.js 8 has no player 'firstplay' event, so the first
+        // 'playing' marks the container as ready
+        player.one('playing', () => {
+          this._notifyContainerReady();
+        });
+
+        player.one('error', () => {
+          const mediaError = player.error?.();
+          const sources = this._config.sources.map(s => s.src).join(', ');
+          this._settleInit(
+            new Error(
+              `VideoPositionSource: failed to load video (${sources})${
+                mediaError?.message ? `: ${mediaError.message}` : ''
+              }`
+            )
+          );
+        });
+
+        player.one('canplay', () => {
+          this._settleInit();
+        });
+
+        player.load();
+      }
+    );
+  }
+
+  /**
+   * Settle the pending init promise once: resolve without an error, reject
+   * with one.
+   */
+  private _settleInit(error?: unknown): void {
+    const pending = this._pendingInit;
+    if (!pending) {
+      return;
+    }
+    this._pendingInit = null;
+    if (error === undefined) {
+      pending.resolve();
+    } else {
+      pending.reject(error);
+    }
+  }
 
   /**
    * Create the video element in the container.
@@ -321,8 +415,9 @@ export class VideoPositionSource
       this.setPosition(0);
       this.emitBoundary('start');
 
-      // Continue playing
-      this._player?.play();
+      // Continue playing. Nobody awaits this replay, so handle a rejection
+      // here instead of leaving it unhandled.
+      this._player?.play()?.catch(() => {});
     } else {
       // Deactivate
       this.deactivate();
@@ -333,7 +428,10 @@ export class VideoPositionSource
    * Notify all container ready callbacks.
    */
   private _notifyContainerReady(): void {
-    for (const callback of this._containerReadyCallbacks) {
+    this._containerReady = true;
+    const callbacks = [...this._containerReadyCallbacks];
+    this._containerReadyCallbacks.length = 0;
+    for (const callback of callbacks) {
       callback();
     }
   }

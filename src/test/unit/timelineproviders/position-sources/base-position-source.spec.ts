@@ -362,4 +362,78 @@ describe('BasePositionSource', () => {
       expect(source.loop).toBe(false);
     });
   });
+
+  describe('async startTicking', () => {
+    class AsyncStartSource extends TestablePositionSource {
+      public startResult: Promise<void> = Promise.resolve();
+
+      protected override startTicking(): Promise<void> {
+        return this.startResult;
+      }
+    }
+
+    test('given startTicking rejects, when activate is awaited, then it rejects, state reverts and onActivated is not called', async () => {
+      const source = new AsyncStartSource(60);
+      const activated = vi.fn();
+      source.onActivated(activated);
+      await source.init();
+      source.startResult = Promise.reject(new Error('NotAllowedError'));
+
+      await expect(source.activate()).rejects.toThrow('NotAllowedError');
+
+      expect(source.state).toBe('inactive');
+      expect(activated).not.toHaveBeenCalled();
+    });
+
+    test('given a suspended source whose startTicking rejects, when activate is awaited, then state stays suspended', async () => {
+      const source = new AsyncStartSource(60);
+      await source.init();
+      await source.activate();
+      source.suspend();
+      source.startResult = Promise.reject(new Error('NotAllowedError'));
+
+      await expect(source.activate()).rejects.toThrow('NotAllowedError');
+
+      expect(source.state).toBe('suspended');
+    });
+
+    test('given startTicking resolves, when activate is awaited, then onActivated fires after it resolves', async () => {
+      const source = new AsyncStartSource(60);
+      const activated = vi.fn();
+      source.onActivated(activated);
+      await source.init();
+      let resolveStart: () => void = () => {};
+      source.startResult = new Promise<void>(resolve => {
+        resolveStart = resolve;
+      });
+
+      const activation = source.activate();
+      expect(source.state).toBe('active');
+      expect(activated).not.toHaveBeenCalled();
+
+      resolveStart();
+      await activation;
+
+      expect(activated).toHaveBeenCalledTimes(1);
+    });
+
+    test('given suspend is called while startTicking is pending, when it rejects, then activate resolves and state stays suspended', async () => {
+      const source = new AsyncStartSource(60);
+      const activated = vi.fn();
+      source.onActivated(activated);
+      await source.init();
+      let rejectStart: (error: Error) => void = () => {};
+      source.startResult = new Promise<void>((_resolve, reject) => {
+        rejectStart = reject;
+      });
+
+      const activation = source.activate();
+      source.suspend();
+      rejectStart(new Error('AbortError'));
+
+      await expect(activation).resolves.toBeUndefined();
+      expect(source.state).toBe('suspended');
+      expect(activated).not.toHaveBeenCalled();
+    });
+  });
 });

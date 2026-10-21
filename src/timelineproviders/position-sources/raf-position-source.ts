@@ -183,7 +183,9 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
 
     // Check if we've reached or exceeded the end
     if (newPosition >= duration) {
-      // Emit end boundary
+      // Report the final position while still active, so actions keyed at
+      // the duration run before the end boundary (and also when looping).
+      this.setPosition(duration);
       this.emitBoundary('end');
 
       if (this.loop) {
@@ -194,8 +196,6 @@ export class RafPositionSource extends BasePositionSource implements ISeekable {
         this.setPosition(0);
         this.emitBoundary('start');
       } else {
-        // Set position to duration and deactivate
-        this.setPosition(duration);
         this.deactivate();
       }
     } else {

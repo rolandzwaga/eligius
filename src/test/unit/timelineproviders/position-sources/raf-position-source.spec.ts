@@ -892,6 +892,41 @@ describe('RafPositionSource clock anchoring', () => {
     expect(source.getPosition()).toBe(1);
   });
 
+  test('given a 3s looping source, when a tick at 3000ms elapsed arrives, then position 3 is emitted before the end boundary', async () => {
+    const events: string[] = [];
+    const shortSource = new RafPositionSource({duration: 3});
+    shortSource.loop = true;
+    shortSource.onPosition(p => events.push(`position:${p}`));
+    shortSource.onBoundaryReached(b => events.push(`boundary:${b}`));
+    await shortSource.init();
+    await shortSource.activate();
+    events.length = 0;
+
+    latestTick()(3000);
+
+    expect(events).toEqual([
+      'position:3',
+      'boundary:end',
+      'position:0',
+      'boundary:start',
+    ]);
+  });
+
+  test('given a 3s non-looping source, when a tick at 3000ms elapsed arrives, then position 3 is emitted before the end boundary', async () => {
+    const events: string[] = [];
+    const shortSource = new RafPositionSource({duration: 3});
+    shortSource.onPosition(p => events.push(`position:${p}`));
+    shortSource.onBoundaryReached(b => events.push(`boundary:${b}`));
+    await shortSource.init();
+    await shortSource.activate();
+    events.length = 0;
+
+    latestTick()(3000);
+
+    expect(events).toEqual(['position:3', 'boundary:end']);
+    expect(shortSource.state).toBe('inactive');
+  });
+
   test('given source reactivated after deactivate, when 1000ms elapse, then position is 1', async () => {
     await source.init();
     await source.activate();
