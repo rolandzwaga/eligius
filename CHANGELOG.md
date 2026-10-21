@@ -1,8 +1,41 @@
 # Change Log
 
 ## Unreleased
-  - Fixed: `RafPositionSource` treated the absolute animation frame timestamp as elapsed time, so a timeline started after the page had been open longer than its duration ended on its first tick. `animationInterval` now reports elapsed time since it started, and the source anchors each ticking session to the position it had when the session began, so resume after suspend and seek while playing no longer jump.
-  - Fixed: `LocaleEventbusAdapter` and `LocaleManager` rebroadcast each other's `language-change` until the stack overflowed. The adapter now ignores its own rebroadcasts and does not re-forward changes that came from the eventbus. `setLocale` with the already current locale is a no-op and emits no `change` event.
+
+Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit-report.md`). About 100 confirmed bugs are fixed, each with a regression test. Contains one breaking change, so it needs a major version bump.
+
+### Breaking Changes
+
+- **`EligiusEngine` no longer wires itself to the eventbus.** The engine and `EngineEventbusAdapter` both handled eventbus commands and both broadcast engine events, so every command ran twice (play-toggle cancelled itself) and every event was sent twice. The adapter is now the only owner.
+  - Was: a directly constructed `new EligiusEngine(...)` answered `timeline-play-request`, `timeline-pause-request`, `timeline-stop-request`, `timeline-seek-request`, `timeline-play-toggle-request` and `request-timeline-uri`, and broadcast `timeline-*` events.
+  - Now: connect `new EngineEventbusAdapter(engine, eventbus).connect()` yourself. `EngineFactory.createEngine` already does this, so factory users need no change. Callback-style queries (`request-engine-root`, `request-current-timeline-position`, `timeline-duration-request`, and so on) still work without the adapter.
+
+### Behaviour changes that may surface in existing configurations
+
+- `ConfigurationResolver` now throws on unknown operation names, with the JSON path and the closest known name, and on duplicate action names. Such configurations were already broken at runtime.
+- `LocaleManager.loadLocale` throws on unresolved `{$ref}` data; `EngineFactory` now resolves `$ref` locales itself (see Fixed).
+- `LocaleManager.setLocale` with a locale that is not loaded falls back to the default locale with a warning.
+- Property chains (`$operationdata`, `$globaldata`, `$scope`, `setData`, `invokeObjectMethod`) reject `__proto__`, `prototype` and `constructor` segments.
+- `createElement` treats `text` as plain text. Use `setElementContent` for HTML.
+- `animateWithClass` erases `className` and `removeClass`; `loadFromStorage` and `saveToStorage` erase `key`, matching their `@erased` tags.
+- `loadJson` rejects on HTTP error statuses and returns copies of cached data. HTTP operations accept 204 and empty bodies.
+- `clearStorage` throws on an empty or blank key instead of clearing all storage.
+- `when` unquotes string literals and throws on an invalid expression.
+- `engine.init()` rejects when a video fails to load, a container selector matches nothing, or a `$ref` locale fails to load. `engine.start()` rejects when autoplay is blocked. All of these used to hang or fail silently.
+- Keyboard timelines emit `end` when stepping onto the end and no boundary on a backward wrap.
+- A first timeline with `loop: true` now loops; before, `loop` was only applied on a switch.
+
+### Fixed
+
+- **Clock and dispatch.** `RafPositionSource` used the absolute frame timestamp as elapsed time and lost its position on resume and seek. Actions only fired when a position exactly equalled a configured key, so video, scroll and keyboard timelines and any skipped frame missed them. Dispatch now uses interval crossing over a schedule sorted once at init, with reconciliation on backward jumps, and start-only actions can no longer start twice.
+- **Lifecycle.** Factory `destroy()` runs end operations before disconnecting adapters, keeps tearing down when one step throws, and removes the engine's event-action listener and interceptor. `stop()` ends active actions. Container providers are initialised and destroyed. The shared global data store is cleared when the last engine is destroyed, and `clearGlobals` is exported.
+- **Timelines.** Each timeline gets its own position source and duration. `switchTimeline` initialises and wires the target source, honours the start position (also when looping) and resolves only once playback is set up.
+- **Locale.** `language-change` no longer recurses. External `{$ref}` locale files are loaded by `EngineFactory`, and `init()` waits for them. `LocaleLoader` binds `fetch` and handles diamond references. `loadLocale` deep-merges.
+- **Eventbus.** Broadcast iterates a snapshot, `once()` removes itself before running, and each event action gets its own operation data.
+- **Operations.** `breakForEach`/`continueForEach` work inside `when` blocks. Nested `when` without `otherwise` no longer skips the outer branch. `customFunction` accepts non-promise returns. `startAction` settles without `actionOperationData`. `deepCopy` keeps functions, jQuery objects and DOM nodes. `reparentElement` keeps jQuery data and controllers. `createElement` no longer builds HTML from strings. Large `forEach` loops no longer overflow the stack. Smaller fixes in `animate`, `compareDate`, `formatDate`, `formatText` and `replaceText`.
+- **Controllers.** Subtitles show at fractional positions. Lottie no longer creates its animation twice and destroys it on detach. Navigation and routing handle unknown hashes, build menus without HTML strings and can be re-attached. `DOMEventListenerController` removes only its own handler. The progress bar handles zero durations and measures clicks against its container.
+- **Position sources.** Video init and seek settle on errors and destroy; readiness uses `playing` instead of the non-existent `firstplay`. Scroll picks up existing scroll on activate and reaches its end boundary with fractional offsets.
+- **Configuration and tooling.** Fluent API editors write back to the factory configuration. The schema generator covers every exported operation, no longer marks `@dependency` properties required, and keeps the definitions it references. Metadata generators handle optional properties, keep `@private` events in `EventMap`, and exit non-zero on failure. Operation and controller READMEs show descriptions and only link to existing schemas.
 
 ## 2.2.1
   - Fixed: Locale types has some circular reference warnings
