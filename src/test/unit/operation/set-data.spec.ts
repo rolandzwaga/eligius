@@ -66,4 +66,46 @@ describe('setData', () => {
     expect(newData.testTarget.value).toBe('foo');
     expect(scope.currentItem.value).toBe(100);
   });
+
+  test.each([
+    ['$operationdata.__proto__.polluted', '__proto__'],
+    ['$globaldata.__proto__.polluted', '__proto__'],
+    ['$globaldata.constructor.prototype.polluted', 'constructor'],
+    ['$operationdata.constructor.prototype.polluted', 'constructor'],
+    ['$scope.__proto__.polluted', '__proto__'],
+  ])(
+    'given setData with properties {%s: yes}, when the operation runs, then it throws and Object.prototype is not polluted',
+    (target, segment) => {
+      // given
+      const operationData = {
+        properties: {[target]: 'yes'},
+      } as ISetDataOperationData;
+
+      // test & expect
+      expect(() =>
+        applyOperation(setData, operationData, {} as IOperationScope)
+      ).toThrow(
+        `setData: property chain '${target}' contains forbidden segment '${segment}'`
+      );
+      expect(({} as any).polluted).toBeUndefined();
+    }
+  );
+
+  test('given setData targeting a final __proto__ property, when the operation runs, then it throws and does not replace the prototype', () => {
+    // given
+    const target = {};
+    const operationData = {
+      properties: {'$operationdata.target.__proto__': '$operationdata.evil'},
+      target,
+      evil: {polluted: 'yes'},
+    } as ISetDataOperationData & Record<string, any>;
+
+    // test & expect
+    expect(() =>
+      applyOperation(setData, operationData, {} as IOperationScope)
+    ).toThrow(
+      "setData: property chain '$operationdata.target.__proto__' contains forbidden segment '__proto__'"
+    );
+    expect((target as any).polluted).toBeUndefined();
+  });
 });

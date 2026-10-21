@@ -1,3 +1,5 @@
+import {assertSafePropertyChain} from '@operation/helper/assert-safe-property-chain.ts';
+
 /**
  /**
  * Gets the value for the given property chain. A property chain is defined by a string array.
@@ -16,10 +18,19 @@
  * ```
  *
  * The result of the invocation `getPropertyChainValue([mySource, subSource, element, value], foo)` would then yield the value `bar`.
+ *
+ * Chains containing a `__proto__`, `prototype` or `constructor` segment are rejected to
+ * prevent prototype pollution and access to the `Function` constructor.
+ *
+ * @param propertyChain The chain segments. Segments may use dot or bracket notation themselves.
+ * @param sourceObject The object to resolve the chain against.
+ * @param operationName The operation resolving the chain, named in the error when the chain is rejected.
+ * @throws When an intermediate value is null or undefined, or when the chain contains a forbidden segment.
  */
 export function getPropertyChainValue(
   propertyChain: string[],
-  sourceObject: Record<string, any>
+  sourceObject: Record<string, any>,
+  operationName?: string
 ) {
   let suffix = null;
 
@@ -35,8 +46,12 @@ export function getPropertyChainValue(
       .filter(part => part.length > 0)
   );
 
+  assertSafePropertyChain(chain, chain.join('.'), operationName);
+
   const result = chain.reduce((currentInstance, prop, index) => {
-    if (!currentInstance) {
+    // Only null and undefined cannot be indexed; '', 0 and false are valid
+    // intermediates ('' .length, (0).toFixed).
+    if (currentInstance === null || currentInstance === undefined) {
       throw new Error(
         `Property chain '${chain.join('.')}' cannot be resolved.`
       );

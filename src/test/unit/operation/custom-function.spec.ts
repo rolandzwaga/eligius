@@ -103,4 +103,44 @@ describe('customFunction', () => {
     expect('systemName' in result).toBe(false);
     return result;
   });
+
+  test('given a custom function that synchronously returns its operationData object, when customFunction is applied, then it returns the operation data (systemName removed) instead of rejecting', async () => {
+    // given
+    const operationData: Record<string, any> = {
+      systemName: 'double',
+      x: 2,
+    };
+    const mockEventbus = createMockEventbusWithFunction(function (
+      d: Record<string, any>
+    ) {
+      d.x = d.x * 2;
+      return d;
+    });
+
+    // test
+    const result = await applyOperation(customFunction, operationData as any, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect(result).toEqual({x: 4});
+  });
+
+  test('given a custom function that returns a non-object truthy value, when customFunction is applied, then the operation data is returned', async () => {
+    // given
+    const operationData = {systemName: 'truthy', y: 1};
+    const mockEventbus = createMockEventbusWithFunction(() => 42);
+
+    // test
+    const result = await applyOperation(customFunction, operationData as any, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect(result).toEqual({y: 1});
+  });
 });

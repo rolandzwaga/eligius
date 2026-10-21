@@ -1,3 +1,4 @@
+import {assertSafePropertyChain} from '@operation/helper/assert-safe-property-chain.ts';
 import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
 import {getGlobals, type TGlobalCache} from '@operation/helper/globals.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
@@ -64,6 +65,9 @@ function resolveTargets(
         )}`
       );
     }
+    // Guard every segment, including the property that is written, against
+    // prototype pollution before anything is resolved or assigned.
+    assertSafePropertyChain(path, item, 'setData');
     const property = path.pop() ?? '';
     const propertyValue = resolveExternalPropertyChain(
       operationData,
@@ -83,7 +87,8 @@ function resolveTargets(
 
     const propertyTarget = getPropertyChainValue(
       path,
-      (targets as any)[rootTarget]
+      (targets as any)[rootTarget],
+      'setData'
     ) as Record<string, any>;
 
     propertyTarget[property] = propertyValue;

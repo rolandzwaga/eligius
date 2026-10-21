@@ -1,3 +1,4 @@
+import {continuePendingLoopJump} from '@operation/helper/loop-jump.ts';
 import type {TOperation} from '@operation/types.ts';
 
 /**
@@ -9,5 +10,6 @@ export const endWhen: TOperation<Record<string, unknown>> = function (
   operationData: Record<string, unknown>
 ) {
   delete this.whenEvaluation;
+  continuePendingLoopJump(this);
   return operationData;
 };

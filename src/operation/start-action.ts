@@ -28,20 +28,33 @@ export const startAction: TOperation<
   IStartActionOperationData,
   Omit<IStartActionOperationData, 'actionOperationData'>
 > = (operationData: IStartActionOperationData) => {
-  let {actionInstance, actionOperationData, ...newOperationData} =
-    operationData;
+  let {
+    actionInstance,
+    actionOperationData = {},
+    ...newOperationData
+  } = operationData;
 
   return new Promise((resolve, reject) => {
+    if (!actionInstance) {
+      reject(new Error('startAction: actionInstance is required'));
+      return;
+    }
+
     newOperationData = mergeOperationData(
       newOperationData,
       actionOperationData
     );
 
-    actionInstance.start(newOperationData).then(() => {
-      Object.keys(actionOperationData).forEach(key => {
-        delete (newOperationData as any)[key];
-      });
-      internalResolve(resolve, {...newOperationData, actionInstance});
-    }, reject);
+    // The catch also rejects on errors thrown by the fulfilment handler, so the
+    // returned promise always settles.
+    actionInstance
+      .start(newOperationData)
+      .then(() => {
+        Object.keys(actionOperationData).forEach(key => {
+          delete (newOperationData as any)[key];
+        });
+        internalResolve(resolve, {...newOperationData, actionInstance});
+      })
+      .catch(reject);
   });
 };

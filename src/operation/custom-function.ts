@@ -1,6 +1,7 @@
 import {internalResolve} from '@operation/helper/internal-resolve.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
+import {isPromise} from '@util/guards/is-promise.ts';
 
 export interface ICustomFunctionOperationData {
   /**
@@ -36,10 +37,12 @@ export const customFunction: TOperation<
     return operationData;
   }
 
-  const promise = func.apply(this, [operationData]);
-  if (promise) {
+  const result = func.apply(this, [operationData]);
+  // The function's return value is ignored, but a promise is awaited. Only a real
+  // thenable takes that path; a synchronous function may return anything.
+  if (result !== null && isPromise(result)) {
     return new Promise<ICustomFunctionOperationData>((resolve, reject) => {
-      promise.then(() => {
+      result.then(() => {
         internalResolve(resolve, {}, operationData);
       }, reject);
     });

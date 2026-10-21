@@ -53,18 +53,22 @@ function resolveNewProperties(
         return;
       }
 
+      // Nested values are resolved into the matching node of `copy`, never into
+      // `properties`, so a separate properties object is left unmutated. When
+      // `copy` is `properties` itself the nodes are identical and this resolves in place.
       if (isExternalProperty(value)) {
         copy[key] = resolvePropertyChain(value);
       } else if (Array.isArray(value)) {
-        value.forEach((item, index, arr) => {
+        const copyArray = copy[key];
+        value.forEach((item, index) => {
           if (isExternalProperty(item)) {
-            arr[index] = resolvePropertyChain(item);
+            copyArray[index] = resolvePropertyChain(item);
           } else if (isObject(item)) {
-            resolveNewProperties(item, item, resolvePropertyChain);
+            resolveNewProperties(item, copyArray[index], resolvePropertyChain);
           }
         });
       } else if (isObject(value)) {
-        resolveNewProperties(value, value, resolvePropertyChain);
+        resolveNewProperties(value, copy[key], resolvePropertyChain);
       } else {
         copy[key] = value;
       }

@@ -92,4 +92,50 @@ describe('resolvePropertyValues', () => {
     // expect
     expect(resolved.resolvedItem).toBe(100);
   });
+
+  test('given setOperationData-style properties with a nested object and an array holding $operationdata strings, when resolvePropertyValues is called with a separate properties object, then the returned copy has the resolved values and the input is not mutated', () => {
+    // given
+    const operationData: any = {name: 'x', x: 5};
+    const operationScope = {} as IOperationScope;
+    const properties = {
+      nested: {a: '$operationdata.name', deeper: {b: '$operationdata.x'}},
+      arr: ['$operationdata.name', {c: '$operationdata.x'}, 'literal'],
+    };
+    const original = JSON.parse(JSON.stringify(properties));
+
+    // test
+    const resolved = resolvePropertyValues<any>(
+      operationData,
+      operationScope,
+      properties
+    );
+
+    // expect
+    expect(resolved).toEqual({
+      nested: {a: 'x', deeper: {b: 5}},
+      arr: ['x', {c: 5}, 'literal'],
+    });
+    expect(properties).toEqual(original);
+  });
+
+  test('given properties that are the operation data itself, when nested values are resolved, then they are resolved in place', () => {
+    // given
+    const operationData: any = {
+      name: 'x',
+      nested: {a: '$operationdata.name'},
+      arr: ['$operationdata.name'],
+    };
+
+    // test
+    const resolved = resolvePropertyValues<any>(
+      operationData,
+      {} as IOperationScope,
+      operationData
+    );
+
+    // expect
+    expect(resolved).toBe(operationData);
+    expect(resolved.nested.a).toBe('x');
+    expect(resolved.arr[0]).toBe('x');
+  });
 });
