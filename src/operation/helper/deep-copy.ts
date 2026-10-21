@@ -8,12 +8,17 @@ const copyFunction =
 /**
  * Deep copies the given value.
  *
- * Arrays and plain objects are copied recursively (cycles are preserved). Functions,
- * jQuery instances and DOM nodes cannot be cloned meaningfully, so they are kept by
- * reference; this lets function-valued operation data (such as `mapArray`'s
- * `mapFunction` or `sortArray`'s `sortComparator`, supplied through the TypeScript
- * fluent API) and stored elements survive the copy. Other objects (Date, Map, Set,
- * RegExp, ...) are copied with `structuredClone`.
+ * Arrays and plain objects are copied recursively (cycles are preserved). Date, RegExp,
+ * Map, Set, Error, ArrayBuffer and typed array values are copied with `structuredClone`.
+ *
+ * Everything else is kept by reference:
+ * - functions, so function-valued operation data (such as `mapArray`'s `mapFunction` or
+ *   `sortArray`'s `sortComparator`, supplied through the TypeScript fluent API) survives
+ *   the copy;
+ * - jQuery instances and DOM nodes;
+ * - class instances (controllers, actions, the eventbus and other objects whose prototype
+ *   is not `Object.prototype` or `null`). `structuredClone` would either throw on them or
+ *   return a plain object without their methods.
  *
  * @param original The value to copy.
  * @returns The copy.
@@ -62,14 +67,24 @@ function copyValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
     return copy;
   }
 
+  if (!isStructuredCloneable(value)) {
+    return value;
+  }
+
   const copy = copyFunction(value);
   seen.set(value, copy);
   return copy;
 }
 
-function isPlainObject(value: object) {
+/**
+ * Returns true when the value's prototype is `Object.prototype` or `null`.
+ *
+ * `Object.prototype` of another realm (an iframe, or the realm `fetch` parses JSON in) counts
+ * too, so this checks for a prototype that has no prototype itself.
+ */
+export function isPlainObject(value: object): boolean {
   const prototype = Object.getPrototypeOf(value);
-  return prototype === Object.prototype || prototype === null;
+  return prototype === null || Object.getPrototypeOf(prototype) === null;
 }
 
 function isReferenceOnly(value: object) {
@@ -78,3 +93,23 @@ function isReferenceOnly(value: object) {
     (typeof Node !== 'undefined' && value instanceof Node)
   );
 }
+
+/**
+ * Built-in value types that `structuredClone` copies faithfully.
+ */
+function isStructuredCloneable(value: object) {
+  // Tags instead of instanceof, so values from another realm are recognised.
+  return (
+    cloneableTags.has(Object.prototype.toString.call(value)) ||
+    ArrayBuffer.isView(value)
+  );
+}
+
+const cloneableTags = new Set([
+  '[object Date]',
+  '[object RegExp]',
+  '[object Map]',
+  '[object Set]',
+  '[object Error]',
+  '[object ArrayBuffer]',
+]);

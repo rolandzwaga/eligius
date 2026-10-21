@@ -63,3 +63,48 @@ describe('getControllerInstance', () => {
     expect('systemName' in newData).toBe(false);
   });
 });
+
+describe('getControllerInstance with an unknown name', () => {
+  const scopeWith = (request: (...args: any[]) => any) => ({
+    currentIndex: -1,
+    eventbus: {request} as unknown as IEventbus,
+    operations: [],
+  });
+
+  test('given no responder answers, when getControllerInstance runs, then it throws naming the operation and the systemName', () => {
+    expect(() =>
+      applyOperation(
+        getControllerInstance,
+        {systemName: 'LabelControler' as any},
+        scopeWith(() => undefined)
+      )
+    ).toThrow(
+      "getControllerInstance: no controller registered for systemName 'LabelControler'"
+    );
+  });
+
+  test('given the systemName is not a class, when creating it throws, then the error names getControllerInstance and keeps the cause', () => {
+    // given
+    const failure = new TypeError('addClass is not a constructor');
+
+    // test
+    let error: any;
+    try {
+      applyOperation(
+        getControllerInstance,
+        {systemName: 'addClass' as any},
+        scopeWith(() => {
+          throw failure;
+        })
+      );
+    } catch (e) {
+      error = e;
+    }
+
+    // expect
+    expect(error.message).toBe(
+      "getControllerInstance: could not retrieve controller 'addClass'. addClass is not a constructor"
+    );
+    expect(error.cause).toBe(failure);
+  });
+});

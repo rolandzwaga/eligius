@@ -43,3 +43,35 @@ describe('calc', () => {
     expect((result as any).calculationResult).toBe(200);
   });
 });
+
+describe('calc input resolution and validation', () => {
+  test('given unrelated operation data with an unresolvable property chain, when calc runs, then it neither throws nor resolves that data', () => {
+    // given
+    const nested = {chain: '$operationdata.a.b'};
+    const operationData: any = {
+      left: 1,
+      right: 2,
+      operator: '+',
+      leftover: '$operationdata.a.b',
+      nested,
+    };
+
+    // test
+    const result: any = applyOperation(calc, operationData);
+
+    // expect
+    expect(result.calculationResult).toBe(3);
+    expect(result.leftover).toBe('$operationdata.a.b');
+    expect(result.nested).toBe(nested);
+    expect(nested.chain).toBe('$operationdata.a.b');
+  });
+
+  test.each(['^', 'constructor', 'toString'])(
+    'given operator %s, when calc runs, then it throws naming calc',
+    operator => {
+      expect(() =>
+        applyOperation(calc, {left: 1, right: 2, operator} as any)
+      ).toThrow(`calc: unknown operator '${operator}'`);
+    }
+  );
+});

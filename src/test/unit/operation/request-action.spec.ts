@@ -53,3 +53,46 @@ describe('requestAction', () => {
     expect('systemName' in newData).toBe(false);
   });
 });
+
+describe('requestAction with an unknown name', () => {
+  const scopeWith = (request: (...args: any[]) => any) => ({
+    currentIndex: -1,
+    eventbus: {request} as any,
+    operations: [],
+  });
+
+  test('given the request-action responder answers null, when requestAction runs, then it throws naming the operation and the systemName', () => {
+    expect(() =>
+      applyOperation(
+        requestAction,
+        {systemName: 'ShowPanle'},
+        scopeWith(() => null)
+      )
+    ).toThrow("requestAction: no action registered for systemName 'ShowPanle'");
+  });
+
+  test('given the request-action responder throws a did you mean hint, when requestAction runs, then the hint is kept and the original error is the cause', () => {
+    // given
+    const hint = new Error("Did you mean 'ShowPanel'?");
+
+    // test
+    let error: any;
+    try {
+      applyOperation(
+        requestAction,
+        {systemName: 'ShowPanle'},
+        scopeWith(() => {
+          throw hint;
+        })
+      );
+    } catch (e) {
+      error = e;
+    }
+
+    // expect
+    expect(error.message).toBe(
+      "requestAction: could not retrieve action 'ShowPanle'. Did you mean 'ShowPanel'?"
+    );
+    expect(error.cause).toBe(hint);
+  });
+});

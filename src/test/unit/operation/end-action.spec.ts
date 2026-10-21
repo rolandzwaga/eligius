@@ -1,6 +1,11 @@
+import {EndableAction} from '@action/endable-action.ts';
+import {Eventbus} from '@eventbus/eventbus.ts';
+import {addClass} from '@operation/add-class.ts';
 import {endAction} from '@operation/end-action.ts';
 import type {TOperation} from '@operation/index.ts';
+import {selectElement} from '@operation/select-element.ts';
 import {applyOperation} from '@util/apply-operation.ts';
+import $ from 'jquery';
 import {describe, expect, test, vi} from 'vitest';
 
 class MockAction {
@@ -61,6 +66,44 @@ describe('endAction', () => {
         actionOperationData: {},
       } as any)
     ).rejects.toBe(failure);
+  });
+
+  test('given an endable action whose end operations select another element, when endAction resolves, then the caller keeps its own selectedElement and values overridden by actionOperationData', async () => {
+    // given
+    document.body.innerHTML = '<div id="a"></div><div id="b"></div>';
+    const eventbus = new Eventbus();
+    eventbus.onRequest('request-engine-root', () => $('body'));
+    const op = (systemName: string, instance: any, operationData = {}) => ({
+      id: systemName,
+      systemName,
+      operationData,
+      instance,
+    });
+    const panel = new EndableAction(
+      'Panel',
+      [],
+      [
+        op('selectElement', selectElement, {selector: '#b'}),
+        op('addClass', addClass, {className: 'closed'}),
+      ],
+      eventbus
+    );
+    const callerElement = $('#a');
+
+    // test
+    const result: any = await applyOperation(endAction, {
+      actionInstance: panel,
+      selectedElement: callerElement,
+      label: 'caller',
+      actionOperationData: {label: 'inner'},
+    } as any);
+
+    // expect
+    expect($('#b').hasClass('closed')).toBe(true);
+    expect(result.selectedElement).toBe(callerElement);
+    expect(result.label).toBe('caller');
+    expect('actionOperationData' in result).toBe(false);
+    document.body.innerHTML = '';
   });
 });
 

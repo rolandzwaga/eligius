@@ -2,7 +2,10 @@ import {assertSafePropertyChain} from '@operation/helper/assert-safe-property-ch
 import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
 import {getGlobals, type TGlobalCache} from '@operation/helper/globals.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
-import {resolveExternalPropertyChain} from '@operation/helper/resolve-external-property-chain.ts';
+import {
+  findDeclaringScope,
+  resolveExternalPropertyChain,
+} from '@operation/helper/resolve-external-property-chain.ts';
 import type {
   IOperationScope,
   TOperation,
@@ -33,6 +36,13 @@ export interface ISetDataOperationData {
  *  '$scope.newIndex': 100,                    // The constant 100 will be assigned to $scope.newIndex
  * })
  * ```
+ *
+ * A `$scope` target with a property chain, such as `$scope.variables.total`, is written to the
+ * nearest scope that declares the chain's first property, the same scope a `$scope` read
+ * resolves from. Inside a `when` or `forEach` block this updates the action's variables.
+ *
+ * @throws When a target is not `$scope`, `$operationdata` or `$globaldata`, when it contains a
+ * forbidden segment, or when the part before the written property does not resolve to an object.
  *
  * @category Data
  */
@@ -80,7 +90,9 @@ function resolveTargets(
       operationdata: TOperationData;
       globaldata: TGlobalCache;
     } = {
-      scope,
+      // An empty path (such as '$scope.newIndex') writes to the current scope.
+      scope:
+        path.length > 0 ? (findDeclaringScope(path[0], scope) ?? scope) : scope,
       operationdata: operationData,
       globaldata: getGlobals(),
     };
@@ -90,6 +102,16 @@ function resolveTargets(
       (targets as any)[rootTarget],
       'setData'
     ) as Record<string, any>;
+
+    if (
+      propertyTarget === null ||
+      (typeof propertyTarget !== 'object' &&
+        typeof propertyTarget !== 'function')
+    ) {
+      throw new Error(
+        `setData: cannot write '${item}': '${[`$${rootTarget}`, ...path].join('.')}' does not resolve to an object`
+      );
+    }
 
     propertyTarget[property] = propertyValue;
   });

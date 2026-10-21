@@ -550,3 +550,51 @@ describe<WhenSuiteContext>('when', () => {
     expect(operationScope.newIndex).toBe(4);
   });
 });
+
+describe('when operand grammar', () => {
+  const scope = () => ({currentIndex: 0, operations: []}) as any;
+
+  function evaluate(expression: string, data: Record<string, any> = {}) {
+    const operationScope = scope();
+    applyOperation(when, {...data, expression} as any, operationScope);
+    return operationScope.whenEvaluation;
+  }
+
+  test('given operationData {flag: true} and expression $operationdata.flag==true, when the when operation is applied, then whenEvaluation is true', () => {
+    expect(evaluate('$operationdata.flag==true', {flag: true})).toBe(true);
+  });
+
+  test.each([
+    ['$operationdata.flag==false', {flag: false}, true],
+    ['$operationdata.flag!=false', {flag: true}, true],
+    ['$operationdata.flag==true', {flag: 'true'}, false],
+    ['$operationdata.value==null', {value: null}, true],
+    ['$operationdata.value!=null', {value: 0}, true],
+    ['-1.5<0', {}, true],
+    ['2e3==2000', {}, true],
+    ['.5==0.5', {}, true],
+    ["'true'==$operationdata.text", {text: 'true'}, true],
+  ])(
+    'given expression %s, when it is evaluated, then the result is %s',
+    (expression, data, expected) => {
+      expect(evaluate(expression, data)).toBe(expected);
+    }
+  );
+
+  test.each([
+    ['$operatondata.x==1', '$operatondata.x'],
+    ['@count>3', '@count'],
+    ['10px==10', '10px'],
+    ['abc==1', 'abc'],
+    ['TRUE==true', 'TRUE'],
+    ['$operationdata.==1', '$operationdata.'],
+    ['$operationdata.a..b==1', '$operationdata.a..b'],
+  ])(
+    'given expression %s with an invalid operand, when it is evaluated, then it throws naming the operand',
+    (expression, operand) => {
+      expect(() => evaluate(expression)).toThrow(
+        `when: unknown operand '${operand}' in expression '${expression}'`
+      );
+    }
+  );
+});

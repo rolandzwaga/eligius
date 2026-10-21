@@ -96,13 +96,13 @@ describe('getNestedValue', () => {
 
   test('given a null intermediate value, when the chain reads past it, then it still throws', () => {
     expect(() => getPropertyChainValue(['a', 'b'], {a: null})).toThrow(
-      "Property chain 'a.b' cannot be resolved."
+      "Property chain 'a.b' cannot be resolved: 'a' is null."
     );
   });
 
   test('given an undefined intermediate value, when the chain reads past it, then it still throws', () => {
     expect(() => getPropertyChainValue(['a', 'b', 'c'], {a: {}})).toThrow(
-      "Property chain 'a.b.c' cannot be resolved."
+      "Property chain 'a.b.c' cannot be resolved: 'a.b' is undefined."
     );
   });
 
@@ -144,5 +144,45 @@ describe('getNestedValue', () => {
       'b'
     );
     expect(getPropertyChainValue(['items', 'length'], {items: ['a']})).toBe(1);
+  });
+});
+
+describe('getPropertyChainValue errors and global object guard', () => {
+  test('given an operation name, when the chain cannot be resolved, then the error names the operation and the part that did not resolve', () => {
+    expect(() =>
+      getPropertyChainValue(['a', 'b', 'c'], {a: {}}, 'selectElement')
+    ).toThrow(
+      "selectElement: property chain 'a.b.c' cannot be resolved: 'a.b' is undefined."
+    );
+  });
+
+  test('given a chain through ownerDocument.defaultView, when it is resolved, then it throws instead of returning window', () => {
+    const element = document.createElement('div');
+
+    expect(() =>
+      getPropertyChainValue(
+        ['element', 'ownerDocument', 'defaultView', 'eval'],
+        {element},
+        'setOperationData'
+      )
+    ).toThrow(
+      "setOperationData: property chain 'element.ownerDocument.defaultView.eval' reaches the global object at 'element.ownerDocument.defaultView'"
+    );
+  });
+
+  test('given a chain that ends at the global object, when it is resolved, then it throws', () => {
+    expect(() => getPropertyChainValue(['win'], {win: window})).toThrow(
+      /reaches the global object at 'win'/
+    );
+  });
+
+  test('given a chain through the document, when it reads a plain value, then it resolves', () => {
+    const element = document.createElement('div');
+
+    expect(
+      getPropertyChainValue(['element', 'ownerDocument', 'nodeType'], {
+        element,
+      })
+    ).toBe(9);
   });
 });

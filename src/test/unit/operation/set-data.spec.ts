@@ -1,6 +1,19 @@
+import {Action} from '@action/action.ts';
+import {Eventbus} from '@eventbus/eventbus.ts';
+import {endForEach} from '@operation/end-for-each.ts';
+import {
+  endForEachSystemName,
+  forEach,
+  forEachSystemName,
+} from '@operation/for-each.ts';
 import {getGlobals} from '@operation/helper/globals.ts';
 import {setGlobal} from '@operation/helper/set-global.ts';
-import {type IOperationScope, setData} from '@operation/index.ts';
+import {
+  type IOperationScope,
+  setData,
+  setOperationData,
+  setVariable,
+} from '@operation/index.ts';
 import type {ISetDataOperationData} from '@operation/set-data.ts';
 import {applyOperation} from '@util/apply-operation.ts';
 import {afterAll, describe, expect, test} from 'vitest';
@@ -107,5 +120,50 @@ describe('setData', () => {
       "setData: property chain '$operationdata.target.__proto__' contains forbidden segment '__proto__'"
     );
     expect((target as any).polluted).toBeUndefined();
+  });
+
+  test('given a variable set with setVariable before a forEach loop, when setData writes $scope.variables.sum inside the loop body, then the action resolves and the outer scope variables.sum holds the last item', async () => {
+    // given
+    const op = (systemName: string, instance: any, operationData = {}) => ({
+      id: systemName,
+      systemName,
+      operationData,
+      instance,
+    });
+    const action = new Action(
+      'test',
+      [
+        op('setVariable', setVariable, {name: 'sum', value: 0}),
+        op(forEachSystemName, forEach, {collection: [1, 2]}),
+        op('setData', setData, {
+          properties: {'$scope.variables.sum': '$scope.currentItem'},
+        }),
+        op(endForEachSystemName, endForEach),
+        op('setOperationData', setOperationData, {
+          properties: {sum: '$scope.variables.sum'},
+        }),
+      ],
+      new Eventbus()
+    );
+
+    // test
+    const result = await action.start();
+
+    // expect
+    expect(result.sum).toBe(2);
+  });
+
+  test('given a target whose parent does not resolve to an object, when setData runs, then it throws naming setData and the target', () => {
+    // given
+    const operationData = {
+      properties: {'$scope.variables.sum': 1},
+    } as ISetDataOperationData;
+
+    // test & expect
+    expect(() =>
+      applyOperation(setData, operationData, {} as IOperationScope)
+    ).toThrow(
+      "setData: cannot write '$scope.variables.sum': '$scope.variables' does not resolve to an object"
+    );
   });
 });

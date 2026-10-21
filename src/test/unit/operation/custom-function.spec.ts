@@ -2,7 +2,16 @@ import {Action} from '@action/action.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
 import {EligiusResourceImporter} from '@importer/eligius-resource-importer.ts';
 import {customFunction} from '@operation/custom-function.ts';
+import {endForEach} from '@operation/end-for-each.ts';
+import {endWhen} from '@operation/end-when.ts';
+import {
+  endForEachSystemName,
+  forEach,
+  forEachSystemName,
+} from '@operation/for-each.ts';
 import type {IOperationScope, TOperation} from '@operation/index.ts';
+import {setVariable} from '@operation/set-variable.ts';
+import {when} from '@operation/when.ts';
 import {applyOperation} from '@util/apply-operation.ts';
 import {describe, expect, test, vi} from 'vitest';
 import {EngineFactory} from '@/engine-factory.ts';
@@ -243,5 +252,90 @@ describe('customFunction', () => {
 
     // expect
     expect(result).toEqual({y: 1});
+  });
+});
+
+describe('customFunction this inside nested blocks', () => {
+  test('given a customFunction inside a when block inside a forEach over [1,2], when the action starts, then the function sees this.currentItem 1 and 2 and this.loopIndex 0 and 1', async () => {
+    // given
+    const seen: unknown[][] = [];
+    const eventbus = new Eventbus();
+    eventbus.onRequest(
+      'request-function',
+      () =>
+        function (this: IOperationScope) {
+          seen.push([
+            this.currentItem,
+            this.loopIndex,
+            (this.variables as any)?.label,
+          ]);
+        }
+    );
+    const op = (systemName: string, instance: any, operationData = {}) => ({
+      id: systemName,
+      systemName,
+      operationData,
+      instance,
+    });
+    const action = new Action(
+      'test',
+      [
+        op('setVariable', setVariable, {name: 'label', value: 'outer'}),
+        op(forEachSystemName, forEach, {collection: [1, 2]}),
+        op('when', when, {expression: '1==1'}),
+        op('customFunction', customFunction, {systemName: 'fn'}),
+        op('endWhen', endWhen),
+        op(endForEachSystemName, endForEach),
+      ],
+      eventbus
+    );
+
+    // test
+    await action.start();
+
+    // expect
+    expect(seen).toEqual([
+      [1, 0, 'outer'],
+      [2, 1, 'outer'],
+    ]);
+  });
+
+  test('given a customFunction inside a when block, when it assigns to this, then the assignment lands on the block scope', async () => {
+    // given
+    let blockScope: IOperationScope | undefined;
+    const eventbus = new Eventbus();
+    eventbus.onRequest(
+      'request-function',
+      () =>
+        function (this: IOperationScope) {
+          (this as any).marker = 'set';
+        }
+    );
+    const op = (systemName: string, instance: any, operationData = {}) => ({
+      id: systemName,
+      systemName,
+      operationData,
+      instance,
+    });
+    const action = new Action(
+      'test',
+      [
+        op('when', when, {expression: '1==1'}),
+        op('customFunction', customFunction, {systemName: 'fn'}),
+        op('capture', function (this: IOperationScope, data: any) {
+          blockScope = this;
+          return data;
+        }),
+        op('endWhen', endWhen),
+      ],
+      eventbus
+    );
+
+    // test
+    await action.start();
+
+    // expect
+    expect((blockScope as any).marker).toBe('set');
+    expect((blockScope?.parent as any).marker).toBeUndefined();
   });
 });

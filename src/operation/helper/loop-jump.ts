@@ -1,3 +1,4 @@
+import {clearLoopCollection} from '@operation/for-each.ts';
 import type {IOperationScope} from '@operation/types.ts';
 import {endWhenSystemName, whenSystemName} from '@operation/when.ts';
 
@@ -91,6 +92,7 @@ function applyLoopJump(loopScope: IOperationScope, jump: TLoopJump) {
   delete loopScope.currentItem;
 
   if (jump === 'break') {
+    clearLoopCollection(loopScope);
     delete loopScope.loopIndex;
     delete loopScope.loopLength;
     delete loopScope.loopStartIndex;

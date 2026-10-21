@@ -1,5 +1,6 @@
 import type {IAction} from '@action/types.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
+import {requestNamedEntry} from '@operation/helper/request-registered-entry.ts';
 import type {TOperation} from '@operation/types.ts';
 
 export interface IRequestActionOperationData {
@@ -20,6 +21,10 @@ export interface IRequestActionOperationData {
  * This operation requests an action instance with the specified name and assigns it
  * to the `actionInstance` property on the current operation data.
  *
+ * @throws Error naming requestAction and the `systemName` when no action with that
+ * name exists, so the misspelled name is reported here instead of by a later
+ * `startAction` or `endAction`.
+ *
  * @category Action
  */
 export const requestAction: TOperation<
@@ -30,10 +35,13 @@ export const requestAction: TOperation<
 
   removeProperties(operationData, 'systemName');
 
-  operationData.actionInstance = this.eventbus.request<IAction>(
+  operationData.actionInstance = requestNamedEntry(
+    this.eventbus,
     'request-action',
-    systemName
-  );
+    'requestAction',
+    systemName,
+    'action'
+  ) as IAction;
 
   return operationData as Required<IRequestActionOperationData>;
 };
