@@ -1,15 +1,37 @@
 import {BaseController} from '@controllers/base-controller.ts';
+import {
+  buildNavigationData,
+  requestNavigation,
+} from '@controllers/helper/navigation-data.ts';
 import type {IEventbus} from '@eventbus/types.ts';
-import type {TOperationData} from '@operation/types.ts';
 
 export interface IRoutingControllerOperationData {
   /**
+   * The navigation json, in the same format as NavigationController's. Give
+   * an entry a `timelineUri` to let the engine switch to that timeline on
+   * back/forward navigation.
+   *
    * @required
    */
   json: any;
 }
 
 /**
+ * Seconds subtracted from the current position when the current entry is
+ * saved, so going back resumes slightly before the point where the user left.
+ */
+const REWIND_SECONDS = 3;
+
+/**
+ * Keeps the browser history in sync with the navigation entries: each entry
+ * gets a `#/<id>/<position>` URL, and back/forward navigation requests the
+ * entry in the URL.
+ *
+ * Requests go to the engine as `request-timeline-uri` for entries with a
+ * `timelineUri`, and as the legacy `request-video-url` otherwise. Before the
+ * engine switches timelines (`before-request-timeline-uri`, or the legacy
+ * `before-request-video-url`), the current entry is saved with its position.
+ *
  * This is a work in progress, do not use this yet please....
  */
 export class RoutingController extends BaseController<IRoutingControllerOperationData> {
@@ -19,16 +41,35 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
   navigation: any = null;
   eventbus: IEventbus | null = null;
   private _popstateHandler: ((event: PopStateEvent) => void) | null = null;
+  /** True while this controller requests an entry from the history */
+  private _isHistoryRequest = false;
 
-  init(operationData: TOperationData) {
-    this.navigation = this._buildNavigationData(operationData.json);
+  /**
+   * @throws when the json has no navigationData array or names an unknown
+   * navigation id in roots, nextId or children
+   */
+  init(operationData: IRoutingControllerOperationData) {
+    this.operationData = operationData;
+    const {roots, navLookup, navVidIdLookup} = buildNavigationData(
+      operationData.json,
+      this.name
+    );
+    this.navigation = roots;
+    this.navLookup = navLookup;
+    this.navVidIdLookup = navVidIdLookup;
   }
 
   attach(eventbus: IEventbus) {
+    this.beginAttach(eventbus);
     this.addListener(
       eventbus,
       'before-request-video-url',
       this._handleBeforeRequestVideoUrl
+    );
+    this.addListener(
+      eventbus,
+      'before-request-timeline-uri',
+      this._handleBeforeRequestTimelineUri
     );
     this.addListener(
       eventbus,
@@ -48,14 +89,15 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
     if (navId) {
       const nav = this._findNavigation(navId);
       if (nav) {
-        this.eventbus.broadcast('request-video-url', [
-          nav.videoUrlIndex,
-          this._parsePosition(this._getQueryVariable(1)),
-          true,
-        ]);
+        this._requestFromHistory(
+          nav,
+          this._parsePosition(this._getQueryVariable(1))
+        );
       }
     } else if (this.navigation?.length) {
-      window.history.pushState(
+      // Tag the current entry instead of adding one, so the first Back press
+      // leaves the page.
+      window.history.replaceState(
         {navigationId: this.navigation[0].id},
         '',
         `#/${this.navigation[0].id}`
@@ -63,18 +105,48 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
     }
   }
 
-  private _handlePopstate(event: any) {
-    const nav = this._findNavigation(event.state?.navigationId);
+  /**
+   * Requests the entry in the URL. A null state comes from a hash change (an
+   * in-page link, an edited URL, or the entry before this controller added
+   * state), so the URL is read. A state object without a navigation id belongs
+   * to the host page and is ignored.
+   */
+  private _handlePopstate(event: PopStateEvent) {
+    const state = event.state;
+    let navId: unknown;
+    let rawPosition: unknown;
+    if (state === null || state === undefined) {
+      navId = this._getQueryVariable(0) || undefined;
+      rawPosition = this._getQueryVariable(1);
+    } else if (typeof state?.navigationId === 'string') {
+      navId = state.navigationId;
+      rawPosition = state.position;
+    } else {
+      return;
+    }
+
+    const nav = this._findNavigation(navId);
     if (!nav) {
       return;
     }
-    const position = this._parsePosition(event.state?.position);
     this.eventbus?.broadcast('highlight-navigation', [nav.videoUrlIndex]);
-    this.eventbus?.broadcast('request-video-url', [
-      nav.videoUrlIndex,
-      position,
-      true,
-    ]);
+    this._requestFromHistory(nav, this._parsePosition(rawPosition));
+  }
+
+  /**
+   * Requests an entry without saving the current one: the history already
+   * has it.
+   */
+  private _requestFromHistory(nav: any, position: number) {
+    if (!this.eventbus) {
+      return;
+    }
+    this._isHistoryRequest = true;
+    try {
+      requestNavigation(this.eventbus, nav, position, true);
+    } finally {
+      this._isHistoryRequest = false;
+    }
   }
 
   /**
@@ -88,9 +160,12 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
     return this.navigation?.[0];
   }
 
+  /**
+   * @returns the position as a finite, non-negative number, or 0
+   */
   private _parsePosition(value: unknown): number {
     const position = Number.parseFloat(String(value));
-    return Number.isFinite(position) ? position : 0;
+    return Number.isFinite(position) && position >= 0 ? position : 0;
   }
 
   detach(eventbus: IEventbus) {
@@ -107,14 +182,27 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
     _requestedVideoPosition: number = 0,
     isHistoryRequest: boolean = false
   ) {
-    isHistoryRequest =
-      isHistoryRequest !== undefined ? isHistoryRequest : false;
     if (!isHistoryRequest) {
-      const resultCallback = (item: any) => {
-        this._pushState(item);
-      };
-      this.eventbus?.broadcast('request-current-navigation', [resultCallback]);
+      this._saveCurrentNavigation();
     }
+  }
+
+  /**
+   * The interceptor passes on the `request-timeline-uri` arguments, which
+   * have no history flag; requests this controller makes itself are skipped
+   * through `_isHistoryRequest`.
+   */
+  private _handleBeforeRequestTimelineUri(_uri?: string, _position?: number) {
+    if (!this._isHistoryRequest) {
+      this._saveCurrentNavigation();
+    }
+  }
+
+  private _saveCurrentNavigation() {
+    const resultCallback = (item: any) => {
+      this._pushState(item);
+    };
+    this.eventbus?.broadcast('request-current-navigation', [resultCallback]);
   }
 
   private _getQueryVariable(variableIdx: number) {
@@ -135,76 +223,54 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
   }
 
   private _pushState(state: any) {
-    if (state?.navigationData?.visible) {
-      let currentPosition = state.position !== undefined ? state.position : -1;
-      if (currentPosition < 0) {
-        const resultCallback = (position: number) => {
-          currentPosition = position > 3 ? position - 3 : 0;
-        };
-        this.eventbus?.broadcast('request-current-video-position', [
-          resultCallback,
-        ]);
-      }
-
-      const currentState = window.history.state;
-      if (
-        currentState &&
-        currentState.navigationId !== state.navigationData.id
-      ) {
-        window.history.pushState(
-          {navigationId: state.navigationData.id, position: currentPosition},
-          state.title,
-          `#/${state.navigationData.id}/${currentPosition}`
-        );
-      } else if (
-        currentState &&
-        currentState.navigationId === state.navigationData.id
-      ) {
-        window.history.replaceState(
-          {
-            navigationId: currentState.navigationId,
-            position: currentPosition,
-          },
-          state.title,
-          `#/${currentState.navigationId}/${currentPosition}`
-        );
-      } else {
-        window.history.pushState(
-          {navigationId: state.navigationData.id, position: currentPosition},
-          state.title,
-          `#/${state.navigationData.id}/${currentPosition}`
-        );
-      }
-      window.document.title = state.title;
+    if (!state?.navigationData?.visible) {
+      return;
     }
+
+    const navigationId = state.navigationData.id;
+    const position = this._resolveStatePosition(state.position);
+    const historyState =
+      position === undefined ? {navigationId} : {navigationId, position};
+    const url =
+      position === undefined
+        ? `#/${navigationId}`
+        : `#/${navigationId}/${position}`;
+
+    if (window.history.state?.navigationId === navigationId) {
+      window.history.replaceState(historyState, state.title, url);
+    } else {
+      window.history.pushState(historyState, state.title, url);
+    }
+    window.document.title = state.title;
   }
 
-  private _buildNavigationData(data: any) {
-    const result: any[] = [];
-    data.navigationData.forEach((nav: any, index: any) => {
-      this.navLookup[nav.id] = nav;
-      this.navVidIdLookup[nav.videoUrlIndex] = nav;
-      nav.previous = data.navigationData[index - 1];
-    });
+  /**
+   * A missing or negative position means "where the timeline is now": the
+   * engine position minus a short rewind. When nothing reports a position,
+   * the position is left out of the URL and the state.
+   */
+  private _resolveStatePosition(position: unknown): number | undefined {
+    if (
+      typeof position === 'number' &&
+      Number.isFinite(position) &&
+      position >= 0
+    ) {
+      return position;
+    }
 
-    data.navigationData.forEach((nav: any, index: number) => {
-      if (nav.nextId) {
-        nav.next = this.navLookup[nav.nextId];
-        delete nav.nextId;
-      } else {
-        nav.next = data.navigationData[index + 1];
-      }
-    });
-
-    data.roots.forEach((id: string) => {
-      const nav = this.navLookup[id];
-      if (nav.children) {
-        nav.children = nav.children.map((childId: string) => {
-          return this.navLookup[childId];
-        });
-      }
-      result.push(nav);
-    });
-    return result;
+    let current = this.eventbus?.request<number>(
+      'request-current-timeline-position'
+    );
+    if (current === undefined) {
+      // Legacy hosts answer through a callback broadcast
+      this.eventbus?.broadcast('request-current-video-position', [
+        (value: number) => {
+          current = value;
+        },
+      ]);
+    }
+    return typeof current === 'number' && Number.isFinite(current)
+      ? Math.max(0, current - REWIND_SECONDS)
+      : undefined;
   }
 }

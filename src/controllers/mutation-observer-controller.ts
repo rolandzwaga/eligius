@@ -125,14 +125,19 @@ export class MutationObserverController extends BaseController<IMutationObserver
    * Initialize the controller with configuration metadata.
    *
    * @param operationData - Configuration for observation behavior
+   * @throws when the options would make `MutationObserver.observe` throw:
+   * nothing to observe, or an attribute or character data option without the
+   * matching observe flag
    */
   init(operationData: IMutationObserverControllerMetadata): void {
     this.operationData = Object.assign({}, operationData);
+    this._buildObserverOptions();
   }
 
   /**
    * Attach the controller and start observing mutations.
    * Creates MutationObserver instance and begins monitoring the target element.
+   * Attaching again replaces the previous observer.
    *
    * @param eventbus - Eligius eventbus for broadcasting mutation events
    */
@@ -146,6 +151,9 @@ export class MutationObserverController extends BaseController<IMutationObserver
     if (!nativeElement) {
       return;
     }
+
+    // Disconnects an observer left by a previous attach
+    this.beginAttach(eventbus);
 
     // Build observer options from metadata
     const options = this._buildObserverOptions();
@@ -178,9 +186,11 @@ export class MutationObserverController extends BaseController<IMutationObserver
 
   /**
    * Build MutationObserverInit options from controller metadata.
-   * Applies default values for optional configuration properties.
+   * Applies default values for optional configuration properties, and leaves
+   * out `attributeFilter` when it is not configured.
    *
    * @returns MutationObserverInit options object
+   * @throws when the combination of options is invalid
    * @private
    */
   private _buildObserverOptions(): MutationObserverInit {
@@ -198,15 +208,36 @@ export class MutationObserverController extends BaseController<IMutationObserver
       attributeFilter,
     } = this.operationData;
 
-    return {
+    const fail = (message: string): never => {
+      throw new Error(`${this.name}: ${message}`);
+    };
+    if (!observeAttributes && !observeChildList && !observeCharacterData) {
+      fail(
+        'at least one of observeAttributes, observeChildList or observeCharacterData must be true'
+      );
+    }
+    if (!observeAttributes && attributeFilter !== undefined) {
+      fail('attributeFilter requires observeAttributes');
+    }
+    if (!observeAttributes && attributeOldValue) {
+      fail('attributeOldValue requires observeAttributes');
+    }
+    if (!observeCharacterData && characterDataOldValue) {
+      fail('characterDataOldValue requires observeCharacterData');
+    }
+
+    const options: MutationObserverInit = {
       attributes: observeAttributes,
       childList: observeChildList,
       characterData: observeCharacterData,
       subtree: observeSubtree,
       attributeOldValue,
       characterDataOldValue,
-      attributeFilter,
     };
+    if (attributeFilter !== undefined) {
+      options.attributeFilter = attributeFilter;
+    }
+    return options;
   }
 
   /**

@@ -786,7 +786,7 @@ describe('LottieController', () => {
   });
 
   describe('error handling', () => {
-    it('should handle missing animation data gracefully', () => {
+    it('given neither json nor animationData, when init is called, then it throws an error naming the controller and both options', () => {
       const operationData = {
         selectedElement: mockElement,
         renderer: {className: 'svg'},
@@ -802,7 +802,18 @@ describe('LottieController', () => {
 
       expect(() => {
         controller.init(operationData);
-      }).not.toThrow();
+      }).toThrow(
+        "LottieController: provide the animation as 'json' or 'animationData'"
+      );
+    });
+
+    it('given only animationData and no url, when init and attach are called, then the animation is created', async () => {
+      const {url: _url, ...operationData} = createOperationData();
+
+      expect(() => controller.init(operationData)).not.toThrow();
+      await controller.attach(mockEventbus);
+
+      expect(lottie.loadAnimation).toHaveBeenCalledTimes(1);
     });
 
     it('should handle detach when no animation exists', () => {
@@ -840,6 +851,98 @@ describe('LottieController', () => {
         'viewBox',
         '0 0 100 100'
       );
+    });
+  });
+
+  describe('language change keeps the playhead', () => {
+    const createItem = (currentFrame: number, isPaused: boolean) => ({
+      destroy: vi.fn(),
+      playSegments: vi.fn(),
+      goToAndPlay: vi.fn(),
+      goToAndStop: vi.fn(),
+      addEventListener: vi.fn(),
+      currentFrame,
+      isPaused,
+    });
+
+    const attachWithLabels = async () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      controller.init({...createOperationData(), labelIds: ['title']});
+      await controller.attach(mockEventbus);
+    };
+
+    it.each([
+      [false, 'goToAndPlay'],
+      [true, 'goToAndStop'],
+    ] as const)(
+      'given an animation at frame 42 with isPaused %s, when the language changes, then the new animation resumes at frame 42 with %s',
+      async (isPaused, method) => {
+        const first = createItem(42, isPaused);
+        const second = createItem(0, false);
+        vi.mocked(lottie.loadAnimation)
+          .mockReturnValueOnce(first as any)
+          .mockReturnValueOnce(second as any);
+        await attachWithLabels();
+
+        mockEventbus.broadcast('language-change', ['nl-NL']);
+
+        expect(first.destroy).toHaveBeenCalled();
+        expect(second[method]).toHaveBeenCalledWith(42, true);
+      }
+    );
+
+    it('given a frozen animation, when the language changes, then the freeze segment is replayed and the frame restored', async () => {
+      const first = createItem(10, true);
+      const second = createItem(0, false);
+      vi.mocked(lottie.loadAnimation)
+        .mockReturnValueOnce(first as any)
+        .mockReturnValueOnce(second as any);
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      controller.init({
+        ...createOperationData(),
+        labelIds: ['title'],
+        url: 'animation[freeze=10].json',
+      });
+      await controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('language-change', ['nl-NL']);
+
+      expect(second.playSegments).toHaveBeenCalledWith([0, 10], true);
+      expect(second.goToAndStop).toHaveBeenCalledWith(10, true);
+    });
+  });
+
+  describe('lifecycle', () => {
+    it('given two attach calls before lottie-web has loaded, when both resolve, then one animation and one language listener exist', async () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      controller.init({...createOperationData(), labelIds: ['title']});
+
+      await Promise.all([
+        controller.attach(mockEventbus),
+        controller.attach(mockEventbus),
+      ]);
+
+      expect(lottie.loadAnimation).toHaveBeenCalledTimes(1);
+      expect(
+        vi
+          .mocked(mockEventbus.on)
+          .mock.calls.filter(([name]) => name === 'language-change')
+      ).toHaveLength(1);
+    });
+
+    it('given a browser that looks like legacy IE or Edge and an iefallback, when attach is called, then the regular animation data is used', async () => {
+      vi.stubGlobal('StyleMedia', {});
+      controller.init({
+        ...createOperationData(),
+        animationData: {v: 'regular'},
+        iefallback: {v: 'ie'},
+      });
+
+      await controller.attach(mockEventbus);
+
+      expect(
+        (vi.mocked(lottie.loadAnimation).mock.calls[0][0] as any).animationData
+      ).toEqual({v: 'regular'});
     });
   });
 });

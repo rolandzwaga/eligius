@@ -395,6 +395,220 @@ describe('SubtitlesController', () => {
     });
   });
 
+  describe('starting language', () => {
+    it('given the eventbus answers request-current-language with nl-NL and the controller is configured with language en-US, when the controller is attached and timeline-time reaches a subtitle range, then the Dutch subtitle text is rendered', () => {
+      mockEventbus.onRequest('request-current-language', () => 'nl-NL');
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [1]);
+
+      expect(mockContainer.html()).toBe('Hallo Wereld');
+    });
+
+    it('given no language is configured, when the controller is attached to an eventbus that knows the current language, then subtitles are rendered in it', () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      controller.init({
+        selectedElement: mockContainer,
+        subtitleData: createSubtitleData(),
+      } as any);
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [1]);
+
+      expect(mockContainer.html()).toBe('Hello World');
+    });
+
+    it('given nothing answers request-current-language, when the controller is attached, then the configured language is used', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'nl-NL',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [1]);
+
+      expect(mockContainer.html()).toBe('Hallo Wereld');
+    });
+  });
+
+  describe('invalid subtitle data', () => {
+    it('given subtitleData where nl-NL has fewer titles than en-US, when SubtitlesController.init is called, then it throws an error naming SubtitlesController and subtitleData[1] (nl-NL) instead of a TypeError reading text', () => {
+      const subtitleData = createSubtitleData();
+      subtitleData[1].titles.pop();
+
+      expect(() =>
+        controller.init({
+          selectedElement: mockContainer,
+          language: 'en-US',
+          subtitleData,
+        })
+      ).toThrow(
+        'SubtitlesController: subtitleData[1] (nl-NL) has 1 titles, expected 2 (titles are matched by index across languages)'
+      );
+    });
+
+    it('given a subtitleData entry without a titles array, when init is called, then it throws an error naming the entry', () => {
+      const subtitleData = createSubtitleData() as any[];
+      subtitleData[1] = {languageCode: 'nl-NL'};
+
+      expect(() =>
+        controller.init({
+          selectedElement: mockContainer,
+          language: 'en-US',
+          subtitleData,
+        })
+      ).toThrow(
+        'SubtitlesController: subtitleData[1] (nl-NL) has no titles array'
+      );
+    });
+
+    it.each([
+      ['empty', []],
+      ['missing', undefined],
+    ])(
+      'given %s subtitleData, when the controller is initialised and time passes, then it does not throw and renders nothing',
+      (_label, subtitleData) => {
+        expect(() =>
+          controller.init({
+            selectedElement: mockContainer,
+            language: 'en-US',
+            subtitleData: subtitleData as any,
+          })
+        ).not.toThrow();
+        controller.attach(mockEventbus);
+
+        mockEventbus.broadcast('timeline-time', [1]);
+
+        expect(mockContainer.html()).toBe('');
+        expect(controller.subtitleDurations).toEqual([]);
+      }
+    );
+  });
+
+  describe('range lookup', () => {
+    const createManySubtitles = (count: number) => [
+      {
+        languageCode: 'en-US' as const,
+        titles: Array.from({length: count}, (_, i) => ({
+          id: `t${i}`,
+          text: `Title ${i}`,
+          // 1 second titles with 1 second gaps
+          duration: {start: i * 2, end: i * 2 + 1},
+        })),
+      },
+    ];
+
+    /**
+     * Wraps the ranges in getters that count how often a range boundary is read.
+     */
+    const countRangeReads = () => {
+      let reads = 0;
+      const ranges = (controller as any)._titleRanges as any[];
+      ranges.forEach((range, index) => {
+        const {start, end, show} = range;
+        ranges[index] = {
+          get start() {
+            reads++;
+            return start;
+          },
+          get end() {
+            reads++;
+            return end;
+          },
+          show,
+        };
+      });
+      return () => reads;
+    };
+
+    it('given 200 subtitles, when the timeline plays through them at 60fps, then each tick reads a constant number of range boundaries', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createManySubtitles(200),
+      });
+      controller.attach(mockEventbus);
+      const reads = countRangeReads();
+
+      const ticks = 400 * 60;
+      for (let i = 0; i < ticks; i++) {
+        mockEventbus.broadcast('timeline-time', [i / 60]);
+      }
+
+      expect(mockContainer.html()).toBe('');
+      expect(reads() / ticks).toBeLessThan(6);
+    });
+
+    it('given 200 subtitles, when the timeline seeks back and forth, then the subtitle at each position is shown', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createManySubtitles(200),
+      });
+      controller.attach(mockEventbus);
+
+      for (const [position, expected] of [
+        [300.5, 'Title 150'],
+        [0.5, 'Title 0'],
+        [398.2, 'Title 199'],
+        [101.5, ''],
+        [11, ''],
+        [10.99, 'Title 5'],
+      ] as const) {
+        mockEventbus.broadcast('timeline-seeked', [position, 400]);
+        expect(mockContainer.html()).toBe(expected);
+      }
+    });
+
+    it('given overlapping subtitle ranges, when a position is inside both, then the first configured subtitle is shown', () => {
+      const subtitleData = [
+        {
+          languageCode: 'en-US' as const,
+          titles: [
+            {id: 'a', text: 'Late', duration: {start: 5, end: 20}},
+            {id: 'b', text: 'Early', duration: {start: 0, end: 10}},
+          ],
+        },
+      ];
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData,
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [2]);
+      expect(mockContainer.html()).toBe('Early');
+
+      mockEventbus.broadcast('timeline-time', [7]);
+      expect(mockContainer.html()).toBe('Late');
+    });
+  });
+
+  describe('re-attach', () => {
+    it('given an attached controller, when attach is called again without detach, then each subtitle change renders once', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+      controller.attach(mockEventbus);
+      const htmlSpy = vi.spyOn(mockContainer, 'html');
+
+      mockEventbus.broadcast('timeline-time', [1]);
+      mockEventbus.broadcast('language-change', ['nl-NL']);
+
+      expect(htmlSpy).toHaveBeenCalledTimes(2);
+    });
+  });
+
   describe('untrusted subtitle markup', () => {
     const createHostileSubtitleData = () => [
       {

@@ -1,5 +1,10 @@
 import type {IController} from '@controllers/types.js';
-import type {EventName, IEventbus, TEventbusRemover} from '@eventbus/types.js';
+import type {
+  EventMap,
+  EventName,
+  IEventbus,
+  TEventbusRemover,
+} from '@eventbus/types.js';
 import type {TOperationData} from '@operation/types.js';
 
 /**
@@ -8,8 +13,9 @@ import type {TOperationData} from '@operation/types.js';
  * Benefits:
  * - Eliminates boilerplate event listener tracking code
  * - Automatic binding of event handlers to controller instance
+ * - Handler arguments are type checked against the event's argument tuple
  * - Centralized cleanup preventing memory leaks
- * - Consistent event management pattern across all controllers
+ * - An attached-state guard, so a second attach never duplicates listeners
  *
  * @example
  * ```typescript
@@ -21,11 +27,12 @@ import type {TOperationData} from '@operation/types.js';
  *   }
  *
  *   attach(eventbus: IEventbus): void {
- *     this.addListener(eventbus, 'my-event', this.handleMyEvent);
+ *     this.beginAttach(eventbus);
+ *     this.addListener(eventbus, 'timeline-time', this.handleTime);
  *     // Handler automatically bound, cleanup tracked
  *   }
  *
- *   private handleMyEvent(): void {
+ *   private handleTime(position: number): void {
  *     // 'this' context preserved
  *   }
  * }
@@ -40,37 +47,39 @@ export abstract class BaseController<T extends TOperationData>
 
   // Protected state
   protected eventListeners: TEventbusRemover[] = [];
+  /** True between {@link BaseController.beginAttach} and the next detach. */
+  protected isAttached = false;
 
   /**
    * Register event listener with automatic binding and cleanup tracking
    *
    * @param eventbus - The eventbus to register with
    * @param eventName - Name of the event to listen for
-   * @param handler - Event handler function (will be bound to this controller)
+   * @param handler - Event handler function (will be bound to this controller).
+   * Its parameters must match the event's argument tuple.
    */
-  protected addListener(
+  protected addListener<E extends EventName>(
     eventbus: IEventbus,
-    eventName: EventName,
-    handler: (...args: any[]) => void
+    eventName: E,
+    handler: (this: this, ...args: EventMap[E]) => void
   ): void {
-    const boundHandler = handler.bind(this);
-    const remover = eventbus.on(eventName, boundHandler as any);
+    const boundHandler = handler.bind(this) as (...args: EventMap[E]) => void;
+    const remover = eventbus.on(eventName, boundHandler);
     this.eventListeners.push(remover);
   }
 
   /**
-   * Register multiple event listeners at once
+   * Call at the start of `attach`. When the controller is still attached, it
+   * is detached first, so attaching twice replaces the previous attachment
+   * instead of registering every listener (and any DOM it builds) twice.
    *
-   * @param eventbus - The eventbus to register with
-   * @param listeners - Array of {eventName, handler} pairs
+   * @param eventbus - The eventbus passed to `attach`
    */
-  protected attachMultiple(
-    eventbus: IEventbus,
-    listeners: Array<{eventName: string; handler: (...args: any[]) => void}>
-  ): void {
-    listeners.forEach(({eventName, handler}) => {
-      this.addListener(eventbus, eventName as EventName, handler);
-    });
+  protected beginAttach(eventbus: IEventbus): void {
+    if (this.isAttached) {
+      this.detach(eventbus);
+    }
+    this.isAttached = true;
   }
 
   /**
@@ -82,6 +91,7 @@ export abstract class BaseController<T extends TOperationData>
   public detach(_eventbus: IEventbus): void {
     this.eventListeners.forEach(remover => remover());
     this.eventListeners = [];
+    this.isAttached = false;
   }
 
   // Abstract methods (must be implemented by subclasses)

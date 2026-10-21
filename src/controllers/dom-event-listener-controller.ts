@@ -32,6 +32,10 @@ export interface IDOMEventListenerControllerOperationData {
  *
  * By default the `start` operations of the specified actions are executed. To execute the `end` operations instead,
  * prefix the action name with `end:`.
+ *
+ * The actions run in order, each receiving the operation data the previous one returned. When an action fails, the
+ * error is logged with `console.error` (naming this controller, the action and the DOM event) and the remaining
+ * actions are skipped.
  */
 export class DOMEventListenerController
   implements IController<IDOMEventListenerControllerOperationData>
@@ -50,6 +54,12 @@ export class DOMEventListenerController
     };
   }
 
+  /**
+   * Looks up the configured actions and starts listening for the DOM event.
+   *
+   * @param eventbus - The eventbus to request the actions from
+   * @throws when an action name is unknown (`request-action` returns nothing)
+   */
   attach(eventbus: IEventbus) {
     if (!this.operationData) {
       return;
@@ -57,22 +67,23 @@ export class DOMEventListenerController
 
     const {selectedElement, actions, eventName} = this.operationData;
     if (!this.actionInstanceInfos) {
-      this.actionInstanceInfos = [];
-
-      actions.forEach((actionName: string) => {
-        const [isStart, name] = this._isStartAction(actionName);
-        const actionInstance = eventbus.request<IEndableAction>(
-          'request-action',
-          name
-        );
-        if (actionInstance) {
-          this.actionInstanceInfos?.push({
-            start: isStart,
-            action: actionInstance,
-          });
+      const actionInstanceInfos = actions.map(
+        (actionName: string): IActionInstanceInfo => {
+          const [isStart, name] = this._isStartAction(actionName);
+          const actionInstance = eventbus.request<IEndableAction>(
+            'request-action',
+            name
+          );
+          if (!actionInstance) {
+            throw new Error(
+              `${this.name}: unknown action "${name}" for DOM event "${eventName}"`
+            );
+          }
+          return {start: isStart, action: actionInstance};
         }
-      });
+      );
 
+      this.actionInstanceInfos = actionInstanceInfos;
       this._boundEventHandler = this._eventHandler.bind(this);
       selectedElement.on(eventName, this._boundEventHandler);
     }
@@ -96,30 +107,44 @@ export class DOMEventListenerController
       ? deepCopy(this.operationData.actionOperationData)
       : {};
 
-    if (event.target) {
+    if (event?.target) {
       actionOperationData.eventTarget = event.target;
     }
 
-    this._executeAction(this.actionInstanceInfos, actionOperationData, 0);
+    // _executeActions never rejects, so the DOM handler leaves no floating
+    // rejection behind
+    void this._executeActions(
+      this.actionInstanceInfos,
+      actionOperationData,
+      this.operationData.eventName
+    );
   }
 
-  private async _executeAction(
+  /**
+   * Runs the actions one after another, merging each action's result into the
+   * operation data for the next. A failing action is reported with
+   * `console.error`, naming this controller, the action, the phase and the DOM
+   * event, and stops the chain, since later actions consume the earlier
+   * actions' output. The operation data is never logged.
+   */
+  private async _executeActions(
     actions: IActionInstanceInfo[],
     operationData: TOperationData,
-    idx: number
-  ) {
-    if (idx < actions.length) {
-      const actionInfo = actions[idx];
-      const {action} = actionInfo;
-      const method = actionInfo.start
-        ? action.start.bind(action)
-        : action.end.bind(action);
-      const resultOperationData = await method(operationData);
-      this._executeAction(
-        actions,
-        Object.assign(operationData, resultOperationData),
-        ++idx
-      );
+    eventName: string
+  ): Promise<void> {
+    for (const {start, action} of actions) {
+      try {
+        const resultOperationData = start
+          ? await action.start(operationData)
+          : await action.end(operationData);
+        Object.assign(operationData, resultOperationData);
+      } catch (error) {
+        console.error(
+          `${this.name}: action '${action.name}' (${start ? 'start' : 'end'}) failed for DOM event '${eventName}'`,
+          error
+        );
+        return;
+      }
     }
   }
 

@@ -58,6 +58,23 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     expect(operationData).not.toBe(controller.operationData);
   });
 
+  test<LabelControllerSuiteContext>('given an attached LabelController, when attach is called again without detach, then a language-change renders the label once', context => {
+    const {controller, operationData, eventbus} = context;
+    let translations = 0;
+    eventbus.onRequest('request-translation', () => {
+      translations++;
+      return 'Home';
+    });
+    controller.init(operationData);
+    controller.attach(eventbus);
+    controller.attach(eventbus);
+    translations = 0;
+
+    eventbus.broadcast('language-change', ['nl-NL']);
+
+    expect(translations).toBe(1);
+  });
+
   test<LabelControllerSuiteContext>('given translationKey, when attached, then uses request-translation', context => {
     // given
     const {controller, operationData, eventbus} = context;
