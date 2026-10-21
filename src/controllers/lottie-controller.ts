@@ -12,6 +12,12 @@ import type {TLanguageCode} from '../types.ts';
 
 const lottie = lt.default ?? lt;
 
+const UNSAFE_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+
+function isUnsafeKey(key: string): boolean {
+  return UNSAFE_KEYS.has(key);
+}
+
 export interface IInnerMetadata {
   /**
    * @dependency
@@ -63,6 +69,7 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
   serializedIEData: string | null = null;
   freezePosition = -1;
   endPosition = -1;
+  private _eventbus: IEventbus | null = null;
 
   init(operationData: ILottieControllerMetadata) {
     this.operationData = {...operationData};
@@ -102,6 +109,8 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
       return;
     }
 
+    this._eventbus = eventbus;
+
     const {labelIds} = this.operationData;
     if (labelIds?.length) {
       this.currentLanguage =
@@ -115,31 +124,37 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
       this._createTextDataLookup(labelCollections);
     }
     this._createAnimation();
-    this._createAnimation();
   }
 
+  /**
+   * Removes the listeners and releases the lottie animation.
+   *
+   * When the url configured a freeze position and the animation does not loop,
+   * the animation first plays out from the freeze position to the end position
+   * (or its natural end) and is destroyed when it completes. Otherwise it is
+   * destroyed immediately, since a looping animation never completes.
+   */
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
+    this._eventbus = null;
 
-    if (this.animationItem) {
-      if (this.endPosition > -1) {
-        this.animationItem.addEventListener(
-          'complete',
-          this._destroy.bind(this)
-        );
-        this.animationItem.playSegments(
-          [this.freezePosition, this.endPosition],
-          true
-        );
-      } else {
-        this.animationItem.destroy();
-      }
+    const animationItem = this.animationItem;
+    if (!animationItem) {
+      return;
     }
-  }
 
-  private _destroy() {
-    if (this.animationItem) {
-      this.animationItem.destroy();
+    if (this.freezePosition > -1 && !this.operationData?.loop) {
+      const endPosition =
+        this.endPosition > -1 ? this.endPosition : animationItem.timeCompleted;
+      animationItem.addEventListener('complete', () => {
+        animationItem.destroy();
+        if (this.animationItem === animationItem) {
+          this.animationItem = null;
+        }
+      });
+      animationItem.playSegments([this.freezePosition, endPosition], true);
+    } else {
+      animationItem.destroy();
       this.animationItem = null;
     }
   }
@@ -160,7 +175,9 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
       // O(n) regex-based replacement - single pass through string
       // Replaces all !!labelId!! patterns in one operation
       serialized = serialized.replace(/!!([^!]+)!!/g, (match, labelId) => {
-        return this.labelData[labelId]?.[this.currentLanguage] ?? match;
+        const text = this._resolveLabel(labelId);
+        // The placeholder sits inside a JSON string literal, so escape the text
+        return text === undefined ? match : JSON.stringify(text).slice(1, -1);
       });
     }
     const animationData = JSON.parse(serialized);
@@ -174,9 +191,6 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
     };
 
     this.animationItem = lottie.loadAnimation(animationSettings);
-    if (this.endPosition < 0) {
-      this.endPosition = this.animationItem.timeCompleted;
-    }
 
     if (this.freezePosition > -1) {
       this.animationItem.playSegments([0, this.freezePosition], true);
@@ -190,12 +204,46 @@ export class LottieController extends BaseController<ILottieControllerMetadata> 
 
   private _createTextDataLookup(data: any[]) {
     data.forEach((infos, index) => {
+      const labelId = this.operationData?.labelIds[index];
+      if (!labelId || isUnsafeKey(labelId) || !Array.isArray(infos)) {
+        return;
+      }
+      if (!Object.hasOwn(this.labelData, labelId)) {
+        this.labelData[labelId] = {};
+      }
+      const languageLookup = this.labelData[labelId];
       infos.forEach((d: any) => {
-        if (this.operationData) {
-          this.labelData[this.operationData.labelIds[index]][d.code] = d.label;
+        if (typeof d?.code === 'string' && !isUnsafeKey(d.code)) {
+          languageLookup[d.code] = d.label;
         }
       });
     });
+  }
+
+  /**
+   * Resolves the text for a label id in the current language. Label collections
+   * take precedence; otherwise the label id is looked up as a translation key
+   * through the locale manager (`request-translation`).
+   *
+   * @returns the text, or undefined when no text is available
+   */
+  private _resolveLabel(labelId: string): string | undefined {
+    if (Object.hasOwn(this.labelData, labelId)) {
+      const languageLookup = this.labelData[labelId];
+      if (Object.hasOwn(languageLookup, this.currentLanguage)) {
+        return languageLookup[this.currentLanguage];
+      }
+    }
+
+    if (!this.operationData?.labelIds.includes(labelId)) {
+      return undefined;
+    }
+
+    const translation = this._eventbus?.request<string>(
+      'request-translation',
+      labelId
+    );
+    return translation ? translation : undefined;
   }
 
   private _handleLanguageChange(code: TLanguageCode) {

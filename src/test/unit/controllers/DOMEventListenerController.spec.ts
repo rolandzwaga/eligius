@@ -1,6 +1,7 @@
 import {DOMEventListenerController} from '@controllers/dom-event-listener-controller.ts';
 import type {IEventbus} from '@eventbus/index.ts';
 import {createMockAction} from '@test/fixtures/action-factory.ts';
+import $ from 'jquery';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 
 function createMockEventbusWithActionCallback() {
@@ -106,12 +107,71 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
     const {controller, operationData, eventbus} = context;
 
     controller.init(operationData);
+    controller.attach(eventbus);
+    const handler = operationData.selectedElement.eventHandler;
 
     // test
     controller.detach(eventbus as any as IEventbus);
 
-    // expect
-    expect(operationData.selectedElement.eventName).toBe('test');
+    // expect: only this controller's own handler is removed
+    expect(operationData.selectedElement.off).toHaveBeenCalledWith(
+      'test',
+      handler
+    );
+    expect(controller.actionInstanceInfos).toBeUndefined();
+  });
+
+  test<DOMEventListenerControllerSuiteContext>('given a controller that was never attached, when detach is called, then no handlers are removed from the element', context => {
+    const {controller, operationData, eventbus} = context;
+    controller.init(operationData);
+
+    controller.detach(eventbus);
+
+    expect(operationData.selectedElement.off).not.toHaveBeenCalled();
+  });
+
+  test<DOMEventListenerControllerSuiteContext>('given two DOMEventListenerControllers listening for click on the same element, when one is detached, then a click still executes the other controller actions', async context => {
+    const {eventbus} = context;
+    const button = $('<button/>').appendTo(document.body);
+    const hostHandler = vi.fn();
+    button.on('click', hostHandler);
+
+    const first = new DOMEventListenerController();
+    const second = new DOMEventListenerController();
+    first.init({selectedElement: button, eventName: 'click', actions: ['a1']});
+    second.init({selectedElement: button, eventName: 'click', actions: ['a2']});
+    first.attach(eventbus);
+    second.attach(eventbus);
+
+    first.detach(eventbus);
+    button.trigger('click');
+
+    const secondAction = second.actionInstanceInfos?.[0]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    await vi.waitFor(() => expect(secondAction.start).toHaveBeenCalledTimes(1));
+    expect(hostHandler).toHaveBeenCalledTimes(1);
+    button.remove();
+  });
+
+  test<DOMEventListenerControllerSuiteContext>('given a detached controller, when attach is called again, then a click executes its actions once', async context => {
+    const {eventbus} = context;
+    const button = $('<button/>').appendTo(document.body);
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: button,
+      eventName: 'click',
+      actions: ['a1'],
+    });
+    controller.attach(eventbus);
+    controller.detach(eventbus);
+
+    controller.attach(eventbus);
+    button.trigger('click');
+
+    const action = controller.actionInstanceInfos?.[0]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    await vi.waitFor(() => expect(action.start).toHaveBeenCalledTimes(1));
+    button.remove();
   });
   test<DOMEventListenerControllerSuiteContext>('should call the select event handler', async context => {
     // given

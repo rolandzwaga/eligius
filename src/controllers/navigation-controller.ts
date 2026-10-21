@@ -26,6 +26,9 @@ export class NavigationController extends BaseController<INavigationControllerOp
   labelControllers: LabelController[] = [];
   eventbus: IEventbus | null = null;
   container: JQuery | null = null;
+  private _menuElement: JQuery | null = null;
+  private _anchorLookup = new Map<string, JQuery>();
+  private _highlightedAnchor: JQuery | null = null;
 
   init(operationData: TOperationData) {
     this.container = operationData.selectedElement;
@@ -53,17 +56,22 @@ export class NavigationController extends BaseController<INavigationControllerOp
     this.addListener(eventbus, 'video-complete', this._handleVideoComplete);
 
     this._buildHtml(this.container, this.navigation);
-    this._initHistory.bind(this);
+    this._initHistory();
   }
 
+  /**
+   * Sets the active navigation point and the menu highlight from the URL hash,
+   * falling back to the item with videoUrlIndex 0 when the hash is missing or
+   * names an unknown navigation id.
+   */
   private _initHistory() {
-    this.activeNavigationPoint = this.navVidIdLookup[0];
     const navId = this._getQueryVariable(0);
-    let videoIndex = 0;
-    if (navId) {
-      const nav = this.navLookup[navId];
-      videoIndex = nav.videoUrlIndex;
-    }
+    const nav =
+      navId && Object.hasOwn(this.navLookup, navId)
+        ? this.navLookup[navId]
+        : undefined;
+    const videoIndex = nav?.videoUrlIndex ?? 0;
+    this.activeNavigationPoint = this.navVidIdLookup[videoIndex] ?? null;
     this._highlightMenu(videoIndex);
   }
 
@@ -106,9 +114,15 @@ export class NavigationController extends BaseController<INavigationControllerOp
     });
 
     this.labelControllers.length = 0;
+    this.ctrlLookup = {};
+
+    // Removing the menu also unbinds its jQuery mouseup handlers
+    this._menuElement?.remove();
+    this._menuElement = null;
+    this._anchorLookup.clear();
+    this._highlightedAnchor = null;
+
     this.eventbus = null;
-    this.container = null;
-    window.onpopstate = null;
   }
 
   private _pushCurrentState(position = -1) {
@@ -137,12 +151,17 @@ export class NavigationController extends BaseController<INavigationControllerOp
     const ul = $('<ul/>');
     data.forEach(this._addNavElement.bind(this, ul));
     parentElm.append(ul);
+    this._menuElement = ul;
   }
 
   private _addNavElement(parentElm: JQuery, data: any) {
     if (data.visible) {
       const li = $('<li/>');
-      const a = $(`<a href='javascript:;' id='nav_${data.videoUrlIndex}'/>`);
+      // Configuration values are only ever set as attribute values, never parsed as HTML
+      const a = $('<a/>')
+        .attr('href', 'javascript:;')
+        .attr('id', `nav_${data.videoUrlIndex}`);
+      this._anchorLookup.set(String(data.videoUrlIndex), a);
       li.append(a);
       this._addLabel(a, data.labelId);
       this._addClickHandler(a, data.videoUrlIndex);
@@ -164,7 +183,7 @@ export class NavigationController extends BaseController<INavigationControllerOp
   private _menuMouseupHandler(videoIndex: number) {
     const navdata = this.navVidIdLookup[videoIndex];
     if (navdata) {
-      this.eventbus?.broadcast('request-video-url', [navdata.videoUrlIndex]);
+      // _handleNavigateVideoUrl broadcasts request-video-url
       this._handleNavigateVideoUrl(navdata.videoUrlIndex);
     }
   }
@@ -183,17 +202,18 @@ export class NavigationController extends BaseController<INavigationControllerOp
   }
 
   private _highlightMenu(index: number) {
-    const navElm = $(`#nav_${index}`);
+    const navElm = this._anchorLookup.get(String(index));
 
-    if (navElm.length) {
-      $('.current-menu-item').removeClass('current-menu-item');
+    if (navElm) {
+      this._highlightedAnchor?.removeClass('current-menu-item');
       navElm.addClass('current-menu-item');
+      this._highlightedAnchor = navElm;
     }
   }
 
   private _handleVideoComplete(index: number) {
     const navData = this.navVidIdLookup[index];
-    if (navData.autoNext) {
+    if (navData?.autoNext && navData.next) {
       this.eventbus?.broadcast('request-video-url', [
         navData.next.videoUrlIndex,
       ]);

@@ -28,6 +28,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
   lastFunc: (() => void) | null = null;
   name = 'SubtitlesController';
   subtitleDurations: IStrictDuration[] | null = null;
+  private _titleRanges: Array<IStrictDuration & {show: () => void}> = [];
 
   attach(eventbus: IEventbus) {
     this.addListener(eventbus, 'timeline-time', this.onTimeHandler);
@@ -51,22 +52,27 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     this.lastFunc = null;
   }
 
+  /**
+   * Shows the subtitle whose range contains the given position, or removes the
+   * current subtitle when no range contains it.
+   *
+   * Positions arrive as fractional seconds, so the lookup is range based
+   * (`start <= position < end`) rather than an exact key match.
+   */
   onTimeHandler(position: number) {
-    const func = this.actionLookup[position];
-    if (func && this.lastFunc !== func) {
-      this.lastFunc = func;
-      func();
+    const func = this._findTitleFunc(position);
+    if (func) {
+      if (this.lastFunc !== func) {
+        this.lastFunc = func;
+        func();
+      }
+    } else if (this.lastFunc) {
+      this.removeTitle();
     }
   }
 
   onSeekedHandler(position: number, _duration: number) {
-    const subtitleDuration = this.subtitleDurations?.find(
-      x => x.start <= position && x.end >= position
-    );
-
-    const func = subtitleDuration
-      ? this.actionLookup[subtitleDuration.start ?? -1]
-      : undefined;
+    const func = this._findTitleFunc(position);
     if (func && this.lastFunc !== func) {
       this.lastFunc = func;
       func();
@@ -75,9 +81,14 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     }
   }
 
+  private _findTitleFunc(position: number): (() => void) | undefined {
+    return this._titleRanges.find(x => x.start <= position && position < x.end)
+      ?.show;
+  }
+
   setTitle(container: JQuery, titleLanguageLookup: Record<string, string>) {
     if (this.currentLanguage) {
-      container.html(titleLanguageLookup[this.currentLanguage]);
+      container.html(titleLanguageLookup[this.currentLanguage] ?? '');
     }
   }
 
@@ -88,6 +99,7 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     const subtitleData = operationData.subtitleData;
     const titles = subtitleData[0].titles;
     const subtitleTimeLookup: Record<number, () => void> = {};
+    this._titleRanges = [];
 
     for (let i = 0, ii = titles.length; i < ii; i++) {
       const titleLanguageLookup: Record<string, string> = {};
@@ -97,11 +109,11 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
         titleLanguageLookup[subs.languageCode] = subs.titles[i].text;
       }
 
-      subtitleTimeLookup[titles[i].duration.start] = this.setTitle.bind(
-        this,
-        container,
-        titleLanguageLookup
-      );
+      const show = this.setTitle.bind(this, container, titleLanguageLookup);
+      const {start, end} = titles[i].duration;
+      this._titleRanges.push({start, end, show});
+
+      subtitleTimeLookup[start] = show;
       subtitleTimeLookup[titles[i].duration.end] = this.removeTitle.bind(
         this,
         container
