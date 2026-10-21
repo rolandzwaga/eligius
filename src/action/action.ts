@@ -15,6 +15,12 @@ export class Action implements IAction {
    * overlapping executions of the same action never share scopes.
    */
   protected _scopeStack: IOperationScope[] = [];
+  /**
+   * The configured `forEach` operation data copied when a loop starts, keyed
+   * by the loop's scope. Later iterations of the same loop merge this copy
+   * again instead of deep-copying the collection on every iteration.
+   */
+  private _loopOperationData = new WeakMap<IOperationScope, TOperationData>();
 
   constructor(
     public name: string,
@@ -127,17 +133,26 @@ export class Action implements IAction {
         }
 
         const operationInfo = operations[index];
-        const copy = deepCopy(operationInfo.operationData ?? {});
-        const mergedOperationData = Object.assign(operationData, copy);
+        const isLoopIteration =
+          operationInfo.systemName === forEachSystemName &&
+          scope.owner === operationInfo;
+        const configuredData =
+          (isLoopIteration ? this._loopOperationData.get(scope) : undefined) ??
+          copyConfiguredOperationData(operationInfo.operationData);
+        const mergedOperationData = Object.assign(
+          operationData,
+          configuredData
+        );
 
         if (operationInfo.systemName === whenSystemName) {
           scope = this._pushScope(scopeStack, scope);
         } else if (
           operationInfo.systemName === forEachSystemName &&
-          scope.owner !== operationInfo
+          !isLoopIteration
         ) {
           scope = this._pushScope(scopeStack, scope);
           scope.owner = operationInfo;
+          this._loopOperationData.set(scope, configuredData);
         }
 
         const operationResult = operationInfo.instance.call(
@@ -180,4 +195,35 @@ export class Action implements IAction {
       reject(error);
     }
   }
+}
+
+const emptyOperationData: Readonly<TOperationData> = Object.freeze({});
+
+/**
+ * Returns the configured operation data in a form that is safe to merge into
+ * the running operation data.
+ *
+ * Merging copies the top-level properties, so operations that delete or
+ * reassign properties (such as `@erased` ones) never touch the configured
+ * object. Only nested objects and arrays can be mutated through the merged
+ * data, so a deep copy is made only when the configured data contains one.
+ * Empty data and data holding only primitives and functions is returned as-is.
+ */
+function copyConfiguredOperationData(
+  operationData: TOperationData | undefined
+): TOperationData {
+  if (!operationData) {
+    return emptyOperationData;
+  }
+  for (const key in operationData) {
+    const value = operationData[key];
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      Object.hasOwn(operationData, key)
+    ) {
+      return deepCopy(operationData);
+    }
+  }
+  return operationData;
 }
