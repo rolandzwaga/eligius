@@ -10,6 +10,30 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
   - Was: a directly constructed `new EligiusEngine(...)` answered `timeline-play-request`, `timeline-pause-request`, `timeline-stop-request`, `timeline-seek-request`, `timeline-play-toggle-request` and `request-timeline-uri`, and broadcast `timeline-*` events.
   - Now: connect `new EngineEventbusAdapter(engine, eventbus).connect()` yourself. `EngineFactory.createEngine` already does this, so factory users need no change. Callback-style queries (`request-engine-root`, `request-current-timeline-position`, `timeline-duration-request`, and so on) still work without the adapter.
 
+### Added
+
+- **Engine error event.** `EligiusEngine` emits `error` with an `EngineActionError` (action name, id, phase, cause, and the failing operation's `systemName` and index) when an action it starts or ends fails. `EngineEventbusAdapter` forwards it as the public `engine-error` eventbus event. Without listeners the message is logged.
+- **`eligius/configuration-api`**, a DOM-free entry for the fluent `ConfigurationFactory`, so build tools can create configurations in plain Node. The `...ByType` methods need the main `eligius` entry; elsewhere use the name-based methods.
+- **`Eventbus` option `onHandlerError`** to observe errors thrown or rejected by handlers, listeners and interceptors.
+
+### Changed
+
+- **lottie-web and video.js are optional peer dependencies**, loaded on first use by `LottieController` and `VideoPositionSource`. Install them yourself if you use Lottie or video timelines; npm no longer installs them automatically. `LottieController.attach()` now always returns a Promise.
+- **Eventbus error isolation.** A handler, listener or interceptor that throws or rejects during a broadcast no longer stops the remaining handlers or throws into the broadcaster. The error is logged with the event name and topic and passed to `onHandlerError`. Request responders still throw to the requester.
+- **Event actions report failures.** `ActionRegistryEventbusListener.handleEvent` returns the started actions' promise, so a failing event action is reported through the eventbus error path instead of becoming an unhandled rejection. `IEventbusListener.handleEvent` may now return a promise.
+- **Ordering.** Within one position update, starts wait for that update's ends to finish.
+- **Unknown names fail loudly.** `EligiusResourceImporter.import` throws for unknown system names with a "did you mean" hint, instead of returning `{name: undefined}`. `customFunction` and `getImport` throw an error naming the operation and the unknown name. Unresolvable `template:` and `json:` placeholders name the placeholder.
+- The fluent API and the name providers validate names against the generated metadata instead of importing the operation and controller implementations.
+
+### Security
+
+- `LabelController` and `SubtitlesController` sanitize translation and subtitle text before inserting it. Inline formatting (`<br>`, `<strong>`, `<em>`, `<span>`, http, https, mailto and relative links) still renders; scripts, event handlers, `javascript:` and `data:` URLs, images, iframes and SVG are removed. `LabelController` refuses `on*` and `srcdoc` as `attributeName` and only writes safe URLs to URL attributes such as `href`.
+- Configured operation data with its own `__proto__` key is rejected with an error naming the operation, instead of replacing the prototype of the running operation data.
+
+### Performance
+
+- Actions no longer deep-copy empty or primitive-only operation data on every execution, and `forEach` copies a literal collection once per loop run instead of once per iteration, so the cost grows with n rather than n².
+
 ### Behaviour changes that may surface in existing configurations
 
 - `ConfigurationResolver` now throws on unknown operation names, with the JSON path and the closest known name, and on duplicate action names. Such configurations were already broken at runtime.
@@ -28,6 +52,7 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 ### Fixed
 
 - **Clock and dispatch.** `RafPositionSource` used the absolute frame timestamp as elapsed time and lost its position on resume and seek. Actions only fired when a position exactly equalled a configured key, so video, scroll and keyboard timelines and any skipped frame missed them. Dispatch now uses interval crossing over a schedule sorted once at init, with reconciliation on backward jumps, and start-only actions can no longer start twice.
+- **Controller cleanup.** `destroy()` detaches controllers still attached to elements inside the engine root, so their eventbus listeners no longer leak.
 - **Lifecycle.** Factory `destroy()` runs end operations before disconnecting adapters, keeps tearing down when one step throws, and removes the engine's event-action listener and interceptor. `stop()` ends active actions. Container providers are initialised and destroyed. The shared global data store is cleared when the last engine is destroyed, and `clearGlobals` is exported.
 - **Timelines.** Each timeline gets its own position source and duration. `switchTimeline` initialises and wires the target source, honours the start position (also when looping) and resolves only once playback is set up.
 - **Locale.** `language-change` no longer recurses. External `{$ref}` locale files are loaded by `EngineFactory`, and `init()` waits for them. `LocaleLoader` binds `fetch` and handles diamond references. `loadLocale` deep-merges.

@@ -116,6 +116,9 @@ export class Action implements IAction {
   ): void {
     let index = operationIndex;
     let operationData: TOperationData = previousOperationData ?? {};
+    // The operation being executed, used to annotate errors
+    let failingOperation: IResolvedOperation | undefined;
+    let failingIndex = operationIndex;
 
     try {
       while (true) {
@@ -133,12 +136,17 @@ export class Action implements IAction {
         }
 
         const operationInfo = operations[index];
+        failingOperation = operationInfo;
+        failingIndex = index;
         const isLoopIteration =
           operationInfo.systemName === forEachSystemName &&
           scope.owner === operationInfo;
         const configuredData =
           (isLoopIteration ? this._loopOperationData.get(scope) : undefined) ??
-          copyConfiguredOperationData(operationInfo.operationData);
+          copyConfiguredOperationData(
+            operationInfo.operationData,
+            operationInfo.systemName
+          );
         const mergedOperationData = Object.assign(
           operationData,
           configuredData
@@ -172,29 +180,69 @@ export class Action implements IAction {
 
         if (isPromise(operationResult)) {
           const nextIndex = index;
+          const asyncOperation = operationInfo;
+          const asyncIndex = index - 1;
+          // The rejection handler annotates only this operation's own failure;
+          // later operations are annotated by the executeOperation call that
+          // runs them.
           operationResult
-            .then(promisedOperationResult =>
-              this.executeOperation(
-                operations,
-                nextIndex,
-                resolve,
-                reject,
-                promisedOperationResult as TOperationData,
-                scopeStack
-              )
+            .then(
+              promisedOperationResult =>
+                this.executeOperation(
+                  operations,
+                  nextIndex,
+                  resolve,
+                  reject,
+                  promisedOperationResult as TOperationData,
+                  scopeStack
+                ),
+              (error: unknown) =>
+                reject(withOperationContext(error, asyncOperation, asyncIndex))
             )
-            .catch((error: any) => {
-              reject(error);
-            });
+            .catch(reject);
           return;
         }
 
         operationData = (operationResult as TOperationData | undefined) ?? {};
       }
     } catch (error) {
-      reject(error);
+      reject(
+        failingOperation
+          ? withOperationContext(error, failingOperation, failingIndex)
+          : error
+      );
     }
   }
+}
+
+/**
+ * An error that carries the operation it came from.
+ *
+ * `EligiusEngine` reads these properties to name the failing operation in its
+ * `error` event.
+ */
+export interface IOperationErrorContext {
+  operationSystemName?: string;
+  operationIndex?: number;
+}
+
+/**
+ * Adds the failing operation's system name and index to an error, unless an
+ * inner action already did (the innermost operation is the most specific).
+ * Non-Error values are wrapped in an Error that keeps their message.
+ */
+function withOperationContext(
+  error: unknown,
+  operation: IResolvedOperation,
+  index: number
+): Error & IOperationErrorContext {
+  const annotated: Error & IOperationErrorContext =
+    error instanceof Error ? error : new Error(String(error), {cause: error});
+  if (annotated.operationSystemName === undefined) {
+    annotated.operationSystemName = operation.systemName;
+    annotated.operationIndex = index;
+  }
+  return annotated;
 }
 
 const emptyOperationData: Readonly<TOperationData> = Object.freeze({});
@@ -210,10 +258,18 @@ const emptyOperationData: Readonly<TOperationData> = Object.freeze({});
  * Empty data and data holding only primitives and functions is returned as-is.
  */
 function copyConfiguredOperationData(
-  operationData: TOperationData | undefined
+  operationData: TOperationData | undefined,
+  systemName: string
 ): TOperationData {
   if (!operationData) {
     return emptyOperationData;
+  }
+  // Merging uses Object.assign, which would run the __proto__ setter and
+  // replace the prototype of the running operation data.
+  if (Object.hasOwn(operationData, '__proto__')) {
+    throw new Error(
+      `${systemName}: operation data must not contain a '__proto__' key`
+    );
   }
   for (const key in operationData) {
     const value = operationData[key];

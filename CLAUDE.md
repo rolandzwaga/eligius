@@ -1,6 +1,6 @@
 # Eligius Development Guidelines
 
-Last re-aligned with the codebase: 2026-10-12
+Last re-aligned with the codebase: 2026-10-21
 
 Eligius is a configuration-driven timeline engine for the browser. A JSON configuration describes timelines, actions, and operations; the engine executes those actions at the right timeline positions against the DOM.
 
@@ -25,8 +25,10 @@ All versions live in [package.json](package.json). Do not hardcode version numbe
 
 **Peer dependencies** (consumer provided, externalized by the build):
 - jquery (DOM manipulation)
-- lottie-web (LottieController)
-- video.js (VideoPositionSource)
+- lottie-web (LottieController), optional, loaded with a dynamic `import()` on first use
+- video.js (VideoPositionSource), optional, loaded with a dynamic `import()` on first use
+
+Never import lottie-web or video.js statically outside type imports; that would make them required again.
 
 **Node**: `engines.node` in `package.json` is the minimum. CI runs on the version pinned in `.github/workflows/ci-build.yml`.
 
@@ -67,6 +69,7 @@ eligius/
     engine-factory.ts       # EngineFactory
     index.ts                # Public API entry (dist/index.mjs)
     metadata.ts             # Metadata-only entry (dist/metadata.mjs, no DOM deps)
+    configuration-api.ts    # Fluent ConfigurationFactory entry (dist/configuration-api.mjs, no DOM deps)
     types.ts                # Core types
     vitest.config.ts        # Vitest config (lives in src/, not root)
   build/                    # Importer template
@@ -191,7 +194,7 @@ Never use `../../..` paths across modules.
 ### ESM
 - ESM only. No `require()`.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
-- `src/metadata.ts` is a separate entry that must stay free of jquery, lottie-web, and video.js imports (it only imports types from operations). See the comment in `tsdown.config.ts`.
+- `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery, lottie-web, and video.js imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
 
 ## Testing
 
@@ -225,7 +228,7 @@ await engine.switchTimeline('other-timeline', 0);
 await destroy();
 ```
 
-`IEligiusEngine` exposes read-only `position`, `duration`, `playState` (`'playing' | 'paused' | 'stopped'`), `currentTimelineUri`, `container`, and `engineRoot`. It is a `TypedEventEmitter<EngineEvents>` with events such as `start`, `pause`, `stop`, `time`, `duration`, `seekStart`, `seekComplete`, and `timelineComplete`. See `src/types.ts` for the full list.
+`IEligiusEngine` exposes read-only `position`, `duration`, `playState` (`'playing' | 'paused' | 'stopped'`), `currentTimelineUri`, `container`, and `engineRoot`. It is a `TypedEventEmitter<EngineEvents>` with events such as `start`, `pause`, `stop`, `time`, `duration`, `seekStart`, `seekComplete`, `timelineComplete`, and `error` (an `EngineActionError` naming the action, phase and failing operation, forwarded to the eventbus as `engine-error`). See `src/types.ts` for the full list.
 
 ### Timeline providers (decomposed architecture)
 
@@ -328,7 +331,7 @@ Extend `BaseController`, which provides `addListener` and `attachMultiple` and r
 
 ### Eventbus
 
-`Eventbus` (`src/eventbus/`) is a typed pub/sub bus. `IEventbus` provides `on`, `off`, `once`, `broadcast`, `broadcastForTopic`, `onRequest`, `request`, `requestForTopic`, `registerEventlistener`, `registerInterceptor`, and `clear`. Event names and argument tuples are typed through `EventMap` and `EventName`, generated from the interfaces in `src/eventbus/events/`.
+`Eventbus` (`src/eventbus/`) is a typed pub/sub bus. `IEventbus` provides `on`, `off`, `once`, `broadcast`, `broadcastForTopic`, `onRequest`, `request`, `requestForTopic`, `registerEventlistener`, `registerInterceptor`, and `clear`. A throwing or rejecting handler, listener or interceptor never stops dispatch or throws into the broadcaster; it is logged and passed to the optional `onHandlerError` constructor option. Request responders still throw to the requester. Event names and argument tuples are typed through `EventMap` and `EventName`, generated from the interfaces in `src/eventbus/events/`.
 
 ```typescript
 eventbus.broadcast('timeline-seek-request', [5.0]);
@@ -394,7 +397,8 @@ const config = factory.getConfiguration();
 - Strings: `dashToCamelCase`, `camelCaseToDash`, `uppercaseFirstChar`
 - Data: `prepareValueForSerialization`, `mergeIfMissing`
 - `applyOperation` and `defaultScope`: run a single operation with a scope (used by actions and tests)
-- `animationInterval`: RAF-based interval helper
+- `animationInterval`: RAF-based interval helper (its callback receives elapsed milliseconds since start)
+- `sanitizeHtml`: allowlist HTML sanitizer used before inserting translation or subtitle text into the DOM (internal, not exported)
 - `TypedEventEmitter`: typed emitter used by the engine and position sources
 
 ## Design Rules

@@ -2236,8 +2236,12 @@ describe('EligiusEngine', () => {
           actionId: 'Failing-id',
           phase: 'start',
           cause: boom,
+          operationSystemName: 'record',
+          operationIndex: 0,
         });
-        expect(error.message).toBe("Error in action start 'Failing': boom");
+        expect(error.message).toBe(
+          "Error in action start 'Failing' at operation 'record' (index 0): boom"
+        );
       });
 
       test<EligiusEngineSuiteContext>('given a timeline action whose end operation throws, when the position crosses its end, then the engine emits one error with the end phase', async context => {
@@ -2305,7 +2309,7 @@ describe('EligiusEngine', () => {
         await flushAsync();
 
         expect(consoleError).toHaveBeenCalledWith(
-          "Error in action start 'Failing': boom"
+          "Error in action start 'Failing' at operation 'record' (index 0): boom"
         );
       });
 
@@ -2347,7 +2351,7 @@ describe('EligiusEngine', () => {
         await flushAsync();
 
         expect(consoleError).toHaveBeenCalledWith(
-          "Error in action start 'Failing': boom"
+          "Error in action start 'Failing' at operation 'record' (index 0): boom"
         );
       });
 

@@ -22,22 +22,50 @@ export class ActionRegistryEventbusListener implements IEventbusListener {
     this._actionRegistry.get(eventName)?.push(action);
   }
 
+  /**
+   * Starts every action registered for the event.
+   *
+   * @returns A promise that settles once all started actions have finished,
+   * or undefined when no action is registered. It rejects with the failing
+   * action's error, or with an AggregateError when several fail. The Eventbus
+   * watches this promise and reports a rejection like any handler error.
+   */
   handleEvent(
     eventName: string,
     eventTopic: string | undefined,
     args: any[]
-  ): void {
+  ): Promise<void> | undefined {
     if (eventTopic) {
       eventName = `${eventName}:${eventTopic}`;
     }
     const actions = this._actionRegistry.get(eventName);
-    if (actions) {
-      // Each action gets its own operation data: Action merges into and
-      // mutates the object it is given, so sharing one would leak state
-      // (selectedElement, variables, ...) from one action into the next.
-      actions.forEach(action => {
-        action.start({eventArgs: Array.isArray(args) ? [...args] : args});
-      });
+    if (!actions?.length) {
+      return undefined;
     }
+
+    // Each action gets its own operation data: Action merges into and
+    // mutates the object it is given, so sharing one would leak state
+    // (selectedElement, variables, ...) from one action into the next.
+    const runs = actions.map(action =>
+      action.start({eventArgs: Array.isArray(args) ? [...args] : args})
+    );
+
+    return Promise.allSettled(runs).then(results => {
+      const errors = results
+        .filter(
+          (result): result is PromiseRejectedResult =>
+            result.status === 'rejected'
+        )
+        .map(result => result.reason);
+      if (errors.length === 1) {
+        throw errors[0];
+      }
+      if (errors.length > 1) {
+        throw new AggregateError(
+          errors,
+          `${errors.length} event actions failed for '${eventName}'`
+        );
+      }
+    });
   }
 }

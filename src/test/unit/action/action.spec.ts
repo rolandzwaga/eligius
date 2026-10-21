@@ -397,4 +397,103 @@ describe<ActionContext>('Action', () => {
     expect(recorded).toEqual([1, 2, 3]);
     expect(endOperationsSeen).toEqual([action.endOperations]);
   });
+
+  describe('operation context on errors', () => {
+    function op(
+      systemName: string,
+      instance: (...args: any[]) => any,
+      operationData: Record<string, unknown> = {}
+    ): IResolvedOperation {
+      return {id: systemName, systemName, operationData, instance} as any;
+    }
+    const silenceLog = () =>
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    test('given the second operation throws synchronously, when start is called, then the error carries that operation name and index', async () => {
+      silenceLog();
+      const failure = new Error('boom');
+      const action = new Action(
+        'ctx',
+        [
+          op('first', data => data),
+          op('second', () => {
+            throw failure;
+          }),
+        ],
+        new Eventbus()
+      );
+
+      const error: any = await action.start().catch(e => e);
+
+      expect(error).toBe(failure);
+      expect(error.operationSystemName).toBe('second');
+      expect(error.operationIndex).toBe(1);
+    });
+
+    test('given the third operation returns a rejected promise, when start is called, then the error carries that operation name and index', async () => {
+      silenceLog();
+      const action = new Action(
+        'ctx',
+        [
+          op('first', async data => data),
+          op('second', data => data),
+          op('third', () => Promise.reject(new Error('async boom'))),
+        ],
+        new Eventbus()
+      );
+
+      const error: any = await action.start().catch(e => e);
+
+      expect(error.message).toBe('async boom');
+      expect(error.operationSystemName).toBe('third');
+      expect(error.operationIndex).toBe(2);
+    });
+
+    test('given an operation that throws a string, when start is called, then it rejects with an Error that keeps the message and carries the operation context', async () => {
+      silenceLog();
+      const action = new Action(
+        'ctx',
+        [
+          op('only', () => {
+            throw 'plain string';
+          }),
+        ],
+        new Eventbus()
+      );
+
+      const error: any = await action.start().catch(e => e);
+
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe('plain string');
+      expect(error.operationSystemName).toBe('only');
+      expect(error.operationIndex).toBe(0);
+    });
+
+    test('given configured operation data with its own __proto__ key, when start is called, then it rejects naming the operation and no prototype is replaced', async () => {
+      silenceLog();
+      const seen: object[] = [];
+      const operationData = JSON.parse('{"__proto__": {"polluted": true}}');
+      const action = new Action(
+        'ctx',
+        [
+          op(
+            'victim',
+            data => {
+              seen.push(data);
+              return data;
+            },
+            operationData
+          ),
+        ],
+        new Eventbus()
+      );
+
+      const error: any = await action.start().catch(e => e);
+
+      expect(error.message).toMatch(/victim/);
+      expect(error.message).toMatch(/__proto__/);
+      expect(seen).toHaveLength(0);
+      expect(({} as any).polluted).toBeUndefined();
+    });
+  });
 });

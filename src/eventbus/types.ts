@@ -159,11 +159,17 @@ export interface IEventbus {
 }
 
 export interface IEventbusListener {
+  /**
+   * Called for every broadcast event.
+   *
+   * May return a promise; the Eventbus does not await it, but reports a
+   * rejection the same way as a thrown error.
+   */
   handleEvent(
     eventName: string,
     eventTopic: string | undefined,
     args: any[]
-  ): void;
+  ): void | Promise<unknown>;
 }
 
 export interface IEventbusInterceptor {
