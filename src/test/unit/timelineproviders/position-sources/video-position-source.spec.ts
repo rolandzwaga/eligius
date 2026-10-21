@@ -75,6 +75,7 @@ const mocks = vi.hoisted(() => {
   let mockPlayer = createMockPlayer();
   let videojsCallCount = 0;
   let videojsError: Error | null = null;
+  let lastVideojsOptions: Record<string, unknown> | undefined;
 
   return {
     eventHandlers,
@@ -90,13 +91,15 @@ const mocks = vi.hoisted(() => {
       videojsError = null;
       return mockPlayer;
     },
-    recordVideojsCall: () => {
+    recordVideojsCall: (options?: Record<string, unknown>) => {
       videojsCallCount++;
+      lastVideojsOptions = options;
       if (videojsError) {
         throw videojsError;
       }
     },
     getVideojsCallCount: () => videojsCallCount,
+    getLastVideojsOptions: () => lastVideojsOptions,
     setVideojsError: (error: Error | null) => {
       videojsError = error;
     },
@@ -108,10 +111,10 @@ const mocks = vi.hoisted(() => {
 const videojsModule = vi.hoisted(() => {
   const videojsFn = (
     _elementOrId: string | HTMLElement,
-    _options: Record<string, unknown>,
+    options: Record<string, unknown>,
     readyCallback?: () => void
   ) => {
-    mocks.recordVideojsCall();
+    mocks.recordVideojsCall(options);
     const player = mocks.getMockPlayer();
     if (readyCallback) {
       // Call ready callback asynchronously, binding player as `this`
@@ -981,5 +984,163 @@ describe('VideoPositionSource', () => {
       // Cleanup
       document.body.removeChild(container);
     });
+  });
+});
+
+describe('VideoPositionSource configuration validation and seek settling', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mocks.resetMockPlayer();
+    mocks.resetHandlers();
+    const container = document.createElement('div');
+    container.id = 'video-container';
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    document.getElementById('video-container')?.remove();
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  const initSource = async (source: VideoPositionSource) => {
+    const initPromise = source.init();
+    await vi.advanceTimersByTimeAsync(10);
+    mocks.triggerOneEvent('canplay');
+    await initPromise;
+  };
+
+  test("given a VideoPositionSource config with selector and poster but no sources, when init() is called, then init() rejects with an error naming the missing 'sources' instead of staying pending", async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      poster: '/p.jpg',
+    } as unknown as ConstructorParameters<typeof VideoPositionSource>[0]);
+
+    await expect(source.init()).rejects.toThrow(
+      "VideoPositionSource: 'sources' is required (an array of {src, type})"
+    );
+    expect(mocks.getVideojsCallCount()).toBe(0);
+    expect(document.querySelector('#video-container video')).toBeNull();
+  });
+
+  test('given an empty sources array, when init() is called, then init() rejects', async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [],
+    });
+
+    await expect(source.init()).rejects.toThrow(/'sources' is required/);
+  });
+
+  test('given sources passed through the video.js options, when init() is called, then init() resolves', async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      options: {sources: [{src: 'video.mp4', type: 'video/mp4'}]},
+    } as unknown as ConstructorParameters<typeof VideoPositionSource>[0]);
+
+    await initSource(source);
+
+    expect(mocks.getLastVideojsOptions()?.sources).toEqual([
+      {src: 'video.mp4', type: 'video/mp4'},
+    ]);
+  });
+
+  test('given a top-level poster, when the player is created, then video.js receives the poster', async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+      poster: '/p.jpg',
+    });
+
+    await initSource(source);
+
+    expect(mocks.getLastVideojsOptions()?.poster).toBe('/p.jpg');
+  });
+
+  test('given no poster, when the player is created, then no poster option is passed', async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    });
+
+    await initSource(source);
+
+    expect(mocks.getLastVideojsOptions()).not.toHaveProperty('poster');
+  });
+
+  test("given a pending video seek, when the player emits 'error' instead of 'seeked', then the seek promise settles with the current time", async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    });
+    await initSource(source);
+    const player = mocks.getMockPlayer();
+    player.currentTime.mockImplementation((time?: number) =>
+      time === undefined ? 12 : undefined
+    );
+
+    const seekPromise = source.seek(120);
+    mocks.triggerOneEvent('error');
+
+    await expect(seekPromise).resolves.toBe(12);
+    expect(player.off).toHaveBeenCalledWith('seeked', expect.any(Function));
+  });
+
+  test("given a pending video seek, when the media is reset ('emptied') instead of seeked, then the seek promise settles", async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    });
+    await initSource(source);
+
+    const seekPromise = source.seek(30);
+    mocks.triggerOneEvent('emptied');
+
+    await expect(seekPromise).resolves.toBeTypeOf('number');
+  });
+
+  test("given a seek that completed with 'seeked', when the error listeners are checked, then they were removed", async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    });
+    await initSource(source);
+    const player = mocks.getMockPlayer();
+
+    const seekPromise = source.seek(30);
+    mocks.triggerOneEvent('seeked');
+    await seekPromise;
+
+    expect(player.off).toHaveBeenCalledWith('error', expect.any(Function));
+    expect(player.off).toHaveBeenCalledWith('emptied', expect.any(Function));
+  });
+
+  test('given play, pause, play while the first play() is pending, when the first play rejects with AbortError and the second resolves, then the source is active and onActivated fires once', async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    });
+    const activated = vi.fn();
+    source.onActivated(activated);
+    await initSource(source);
+    const player = mocks.getMockPlayer();
+    const plays: Array<{resolve: () => void; reject: (e: Error) => void}> = [];
+    player.play.mockImplementation(
+      () =>
+        new Promise<undefined>((resolve, reject) => {
+          plays.push({resolve: () => resolve(undefined), reject});
+        })
+    );
+
+    const first = source.activate();
+    source.suspend();
+    const second = source.activate();
+    plays[0].reject(new Error('AbortError'));
+    plays[1].resolve();
+
+    await expect(first).resolves.toBeUndefined();
+    await expect(second).resolves.toBeUndefined();
+    expect(source.state).toBe('active');
+    expect(activated).toHaveBeenCalledTimes(1);
   });
 });

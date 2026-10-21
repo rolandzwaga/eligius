@@ -63,3 +63,90 @@ describe('animationInterval', () => {
     expect(callback).not.toHaveBeenCalled();
   });
 });
+
+describe('animationInterval cleanup and resilience', () => {
+  let now = 0;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    now = 0;
+    vi.spyOn(performance, 'now').mockImplementation(() => now);
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn((frame: FrameRequestCallback) => setTimeout(() => frame(now), 0))
+    );
+    vi.stubGlobal(
+      'cancelAnimationFrame',
+      vi.fn((id: number) => clearTimeout(id))
+    );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('given a running interval, when the signal is aborted, then no timer or animation frame remains', () => {
+    const controller = new AbortController();
+    animationInterval(1000, controller.signal, vi.fn());
+
+    expect(vi.getTimerCount()).toBe(1);
+    controller.abort();
+
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test('given an animation frame already requested, when the signal is aborted, then the frame is cancelled', () => {
+    const controller = new AbortController();
+    const callback = vi.fn();
+    animationInterval(1000, controller.signal, callback);
+    // Fire the timer, which requests the frame, but not the frame itself
+    vi.advanceTimersToNextTimer();
+    expect(requestAnimationFrame).toHaveBeenCalledTimes(1);
+
+    controller.abort();
+
+    expect(cancelAnimationFrame).toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  test('given an already aborted signal, when the interval is started, then nothing is scheduled', () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    animationInterval(1000, controller.signal, vi.fn());
+
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test('given a callback that throws, when the next interval passes, then the interval keeps running', () => {
+    vi.stubGlobal(
+      'requestAnimationFrame',
+      vi.fn((frame: FrameRequestCallback) => {
+        frame(now);
+        return 1;
+      })
+    );
+    const controller = new AbortController();
+    const elapsed: number[] = [];
+    const callback = vi.fn((value: number) => {
+      elapsed.push(value);
+      if (value === 1000) {
+        throw new Error('consumer failure');
+      }
+    });
+    animationInterval(1000, controller.signal, callback);
+
+    now = 1000;
+    try {
+      vi.advanceTimersByTime(1000);
+    } catch {
+      // The callback's error may surface through the fake timer
+    }
+    now = 2000;
+    vi.advanceTimersByTime(1000);
+
+    expect(elapsed).toEqual([1000, 2000]);
+    controller.abort();
+  });
+});

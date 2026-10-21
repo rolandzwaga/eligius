@@ -26,6 +26,13 @@ export interface SimplePlaylistConfig<TItem> {
  * Implements `IPlaylist<TItem>` for use with timeline providers that
  * support multiple content sources.
  *
+ * Nothing in the engine subscribes to `onItemChange`, and the built-in
+ * position sources cannot change their media, so a playlist only has an
+ * effect through callbacks the host registers. When the engine switches
+ * timelines it calls `selectItem()` with the timeline URI, so key the
+ * playlist by timeline URI (`identifierKey` pointing at a property that
+ * holds it); use `hasItem()` to check an identifier without the throw.
+ *
  * @typeParam TItem - Type of playlist items
  *
  * @example
@@ -110,9 +117,7 @@ export class SimplePlaylist<TItem = unknown> implements IPlaylist<TItem> {
    * @throws Error if no item matches the identifier
    */
   selectItem(identifier: string): void {
-    const index = this._items.findIndex(
-      item => String(item[this._identifierKey]) === identifier
-    );
+    const index = this._indexOf(identifier);
 
     if (index === -1) {
       throw new Error(`Playlist item not found: ${identifier}`);
@@ -126,26 +131,50 @@ export class SimplePlaylist<TItem = unknown> implements IPlaylist<TItem> {
   }
 
   /**
+   * Whether an item with the given identifier exists. Does not change the
+   * selection.
+   *
+   * @param identifier - Identifier to look up
+   * @returns true when `selectItem(identifier)` would succeed
+   */
+  hasItem(identifier: string): boolean {
+    return this._indexOf(identifier) !== -1;
+  }
+
+  /**
    * Register a callback for item changes.
    *
    * Called whenever the current item changes via `selectItem()`.
    *
    * @param callback - Function receiving the new current item
+   * @returns A function that unregisters the callback
    */
-  onItemChange(callback: (item: TItem) => void): void {
+  onItemChange(callback: (item: TItem) => void): () => void {
     this._changeCallbacks.push(callback);
+    return () => {
+      const index = this._changeCallbacks.indexOf(callback);
+      if (index !== -1) {
+        this._changeCallbacks.splice(index, 1);
+      }
+    };
   }
 
   // ─────────────────────────────────────────────────────────────────────────
   // Private Methods
   // ─────────────────────────────────────────────────────────────────────────
 
+  private _indexOf(identifier: string): number {
+    return this._items.findIndex(
+      item => String(item[this._identifierKey]) === identifier
+    );
+  }
+
   /**
    * Notify all registered change callbacks.
    */
   private _notifyChange(): void {
     const currentItem = this.currentItem;
-    for (const callback of this._changeCallbacks) {
+    for (const callback of [...this._changeCallbacks]) {
       callback(currentItem);
     }
   }
