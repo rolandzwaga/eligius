@@ -24,8 +24,10 @@ export interface ILoadFromStorageOperationData {
  * Loads data from browser storage (localStorage or sessionStorage).
  *
  * Deserializes the stored JSON value. Returns `null` if key doesn't exist.
+ * When `storageType` is omitted, localStorage is used.
  *
  * @returns Operation data with `loadedValue` containing the deserialized data
+ * @throws When the key is empty, storageType is not 'local' or 'session', or the stored value is not valid JSON.
  *
  * @example
  * ```typescript
@@ -59,6 +61,18 @@ export const loadFromStorage: TOperation<
     throw new Error('loadFromStorage: key is required');
   }
 
+  // A missing storageType keeps the long-standing localStorage default; any other
+  // value, such as a typo, must not silently read from the wrong storage
+  if (
+    storageType !== undefined &&
+    storageType !== 'local' &&
+    storageType !== 'session'
+  ) {
+    throw new Error(
+      `loadFromStorage: storageType must be 'local' or 'session', got "${String(storageType)}"`
+    );
+  }
+
   const storage = storageType === 'session' ? sessionStorage : localStorage;
   const stored = storage.getItem(key);
 
@@ -67,9 +81,10 @@ export const loadFromStorage: TOperation<
   } else {
     try {
       operationData.loadedValue = JSON.parse(stored);
-    } catch {
+    } catch (error) {
       throw new Error(
-        `loadFromStorage: failed to parse stored value for key "${key}"`
+        `loadFromStorage: failed to parse stored value for key "${key}"`,
+        {cause: error}
       );
     }
   }

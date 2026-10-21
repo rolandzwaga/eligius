@@ -25,8 +25,11 @@ export interface ISaveToStorageOperationData {
  * Saves data to browser storage (localStorage or sessionStorage).
  *
  * Serializes the value as JSON before storing. Supports any JSON-serializable data type.
+ * Use `null` to store an empty value; `undefined` cannot be stored as JSON and is rejected.
+ * When `storageType` is omitted, localStorage is used.
  *
  * @returns Operation data with storage properties erased
+ * @throws When the key is empty, the value is undefined, or storageType is not 'local' or 'session'.
  *
  * @example
  * ```typescript
@@ -58,6 +61,24 @@ export const saveToStorage: TOperation<
 
   if (!key || key.trim() === '') {
     throw new Error('saveToStorage: key is required');
+  }
+
+  // A missing storageType keeps the long-standing localStorage default; any other
+  // value, such as a typo, must not silently write to persistent storage
+  if (
+    storageType !== undefined &&
+    storageType !== 'local' &&
+    storageType !== 'session'
+  ) {
+    throw new Error(
+      `saveToStorage: storageType must be 'local' or 'session', got "${String(storageType)}"`
+    );
+  }
+
+  // JSON.stringify(undefined) is undefined, which setItem would store as the
+  // string 'undefined' that loadFromStorage cannot parse
+  if (value === undefined) {
+    throw new Error(`saveToStorage: value is required (key "${key}")`);
   }
 
   const storage = storageType === 'session' ? sessionStorage : localStorage;

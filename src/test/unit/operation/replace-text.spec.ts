@@ -182,4 +182,21 @@ describe('replaceText', () => {
     expect(result.textContent).toBe('abc');
     expect(result.replacementCount).toBe(0);
   });
+
+  test('given an empty string searchPattern, when replaceText is applied, then it throws instead of inserting the replacement between every character', () => {
+    const operationData: IReplaceTextOperationData = {
+      textContent: 'abc',
+      searchPattern: '',
+      replacement: '+',
+      replacementCount: 0,
+    };
+
+    expect(() =>
+      applyOperation(replaceText, operationData, {
+        currentIndex: 0,
+        eventbus: mockEventbus,
+        operations: [],
+      })
+    ).toThrow('replaceText: searchPattern must not be empty');
+  });
 });
