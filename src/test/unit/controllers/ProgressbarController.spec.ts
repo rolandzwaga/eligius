@@ -195,17 +195,15 @@ describe('ProgressbarController', () => {
         return undefined;
       });
 
+      // The click position is measured against the container the handler is bound to
+      mockParentElement.getBoundingClientRect = () => ({left: 0, width: 200});
+
       controller.init(operationData);
       controller.attach(mockEventbus);
 
       // Mock click event (50% through the bar)
       const mockClickEvent = {
-        target: {
-          getBoundingClientRect: () => ({
-            left: 0,
-            width: 200,
-          }),
-        },
+        target: mockParentElement,
         clientX: 100, // 50% of 200 width
       };
 
@@ -217,6 +215,109 @@ describe('ProgressbarController', () => {
         'timeline-seek-request',
         [50]
       );
+    });
+
+    it('given a progressbar whose container also holds the text element and a 100s duration, when the text element is clicked at clientX 420 inside a 500px-wide container, then timeline-seek-request is broadcast with 84 rather than 50', () => {
+      let duration = 100;
+      (mockEventbus.request as any).mockImplementation((eventName: string) =>
+        eventName === 'timeline-duration-request' ? duration : undefined
+      );
+      mockParentElement.getBoundingClientRect = () => ({left: 0, width: 500});
+      controller.init({
+        selectedElement: mockSelectedElement,
+        textElement: mockTextElement,
+      });
+      controller.attach(mockEventbus);
+
+      mockParentElement.trigger('click', {
+        target: {getBoundingClientRect: () => ({left: 400, width: 40})},
+        clientX: 420,
+      });
+
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith(
+        'timeline-seek-request',
+        [84]
+      );
+
+      // and the seek position keeps sub-second (0.1s) precision
+      duration = 5;
+      mockParentElement.trigger('click', {
+        target: mockParentElement,
+        clientX: 123,
+      });
+      expect(mockEventbus.broadcast).toHaveBeenLastCalledWith(
+        'timeline-seek-request',
+        [1.2]
+      );
+    });
+
+    it('given a duration of 0, when the container is clicked, then no seek request is broadcast', () => {
+      mockParentElement.getBoundingClientRect = () => ({left: 0, width: 500});
+      controller.init({
+        selectedElement: mockSelectedElement,
+        textElement: mockTextElement,
+      });
+      controller.attach(mockEventbus);
+
+      mockParentElement.trigger('click', {
+        target: mockParentElement,
+        clientX: 250,
+      });
+
+      expect(mockEventbus.broadcast).not.toHaveBeenCalledWith(
+        'timeline-seek-request',
+        expect.anything()
+      );
+    });
+  });
+
+  describe('duration changes', () => {
+    it("given ProgressbarController attached with duration 60, when the timeline duration becomes 120 and 'timeline-time' 90 is broadcast, then the selected element width is 75%", () => {
+      let duration = 60;
+      (mockEventbus.request as any).mockImplementation((eventName: string) =>
+        eventName === 'timeline-duration-request' ? duration : undefined
+      );
+      controller.init({
+        selectedElement: mockSelectedElement,
+        textElement: mockTextElement,
+      });
+      controller.attach(mockEventbus);
+
+      duration = 120;
+      mockEventbus.broadcast('timeline-time', [90]);
+
+      expect(mockSelectedElement.getCssProperties().width).toBe('75%');
+      expect(mockTextElement.text()).toBe('75%');
+    });
+
+    it('given a duration of 0, when timeline-time is broadcast, then no NaN or Infinity percentage is rendered', () => {
+      controller.init({
+        selectedElement: mockSelectedElement,
+        textElement: mockTextElement,
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [0]);
+      mockEventbus.broadcast('timeline-time', [5]);
+
+      expect(mockSelectedElement.getCssProperties().width).toBeUndefined();
+      expect(mockTextElement.text()).toBe('');
+    });
+
+    it('given a position past the duration, when timeline-time is broadcast, then the percentage is clamped to 100', () => {
+      (mockEventbus.request as any).mockImplementation((eventName: string) =>
+        eventName === 'timeline-duration-request' ? 60 : undefined
+      );
+      controller.init({
+        selectedElement: mockSelectedElement,
+        textElement: mockTextElement,
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [90]);
+
+      expect(mockSelectedElement.getCssProperties().width).toBe('100%');
+      expect(mockTextElement.text()).toBe('100%');
     });
   });
 });

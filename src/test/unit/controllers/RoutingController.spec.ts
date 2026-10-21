@@ -142,6 +142,67 @@ describe('RoutingController', () => {
       ]);
     });
 
+    it('given URL hash #/unknown-id and valid navigation data, when RoutingController.attach is called, then it does not throw and broadcasts request-video-url for the first navigation entry with position 0', () => {
+      setUrl('/#/unknown-id');
+      controller.init({json: createNavigationData()});
+
+      expect(() => controller.attach(mockEventbus)).not.toThrow();
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        0,
+        0,
+        true,
+      ]);
+    });
+
+    it('given RoutingController initialised with navigation data and location hash #/doesnotexist/5, when attach is called, then it broadcasts request-video-url for the first navigation entry at the requested position', () => {
+      setUrl('/#/doesnotexist/5');
+      controller.init({json: createNavigationData()});
+
+      expect(() => controller.attach(mockEventbus)).not.toThrow();
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        0,
+        5,
+        true,
+      ]);
+    });
+
+    it('given a URL hash without a position segment, when attach is called, then the requested position is 0 rather than NaN', () => {
+      setUrl('/#/nav2');
+      controller.init({json: createNavigationData()});
+
+      controller.attach(mockEventbus);
+
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        1,
+        0,
+        true,
+      ]);
+    });
+
+    it('given a URL hash naming an Object.prototype property, when attach is called, then it falls back to the first navigation entry', () => {
+      setUrl('/#/constructor/3');
+      controller.init({json: createNavigationData()});
+
+      controller.attach(mockEventbus);
+
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        0,
+        3,
+        true,
+      ]);
+    });
+
+    it('given a window.onpopstate handler replaced by someone else after attach, when detach is called, then that handler is left in place', () => {
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
+      const otherHandler = vi.fn();
+      window.onpopstate = otherHandler;
+
+      controller.detach(mockEventbus);
+
+      expect(window.onpopstate).toBe(otherHandler);
+    });
+
     it('should push initial state when no navigation ID in URL', () => {
       // Set location without navId
       setUrl('/');
@@ -259,6 +320,22 @@ describe('RoutingController', () => {
         'highlight-navigation',
         [0] // nav1's videoUrlIndex (first navigation)
       );
+    });
+
+    it('given a popstate event whose state names an unknown navigation id, when it is handled, then it does not throw and falls back to the first navigation entry', () => {
+      controller.init({json: createNavigationData()});
+      controller.attach(mockEventbus);
+
+      expect(() =>
+        window.onpopstate!({
+          state: {navigationId: 'gone', position: 4},
+        } as any)
+      ).not.toThrow();
+      expect(mockEventbus.broadcast).toHaveBeenCalledWith('request-video-url', [
+        0,
+        4,
+        true,
+      ]);
     });
   });
 

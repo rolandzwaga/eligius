@@ -326,4 +326,71 @@ describe('SubtitlesController', () => {
       expect(controller.lastFunc).toBeNull();
     });
   });
+
+  describe('fractional positions', () => {
+    it('given a subtitle from 10 to 15, when timeline-time is broadcast with fractional positions inside the range, then the subtitle is shown', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [9.98]);
+      expect(mockContainer.html()).toBe('');
+
+      mockEventbus.broadcast('timeline-time', [10.02]);
+      expect(mockContainer.html()).toBe('Goodbye World');
+
+      mockEventbus.broadcast('timeline-time', [14.97]);
+      expect(mockContainer.html()).toBe('Goodbye World');
+    });
+
+    it('given a shown subtitle, when timeline-time passes its end with a fractional position, then the subtitle is removed', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [0.03]);
+      expect(mockContainer.html()).toBe('Hello World');
+
+      mockEventbus.broadcast('timeline-time', [5.02]);
+      expect(mockContainer.html()).toBe('');
+      expect(controller.lastFunc).toBeNull();
+    });
+
+    it('given a seek to exactly the end of a subtitle, when timeline-seeked is broadcast, then the subtitle is not shown', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-seeked', [5, 100]);
+
+      expect(mockContainer.html()).toBe('');
+    });
+  });
+
+  describe('language without subtitles', () => {
+    it('given subtitle shown in en-US and subtitleData without de-DE, when language-change is broadcast with de-DE, then the English text is removed', () => {
+      controller.init({
+        selectedElement: mockContainer,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+
+      mockEventbus.broadcast('timeline-time', [0]);
+      expect(mockContainer.html()).toBe('Hello World');
+
+      mockEventbus.broadcast('language-change', ['de-DE']);
+
+      expect(mockContainer.html()).toBe('');
+    });
+  });
 });

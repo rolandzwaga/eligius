@@ -2,7 +2,10 @@ import {LottieController} from '@controllers/lottie-controller.js';
 import type {IEventbus} from '@eventbus/types.js';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.js';
 import {createMockJQueryElement} from '@test/fixtures/jquery-factory.js';
+import lt from 'lottie-web';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+
+const lottie = lt.default ?? lt;
 
 // Mock lottie-web
 vi.mock('lottie-web', () => {
@@ -250,6 +253,51 @@ describe('LottieController', () => {
         controller.attach(mockEventbus);
       }).not.toThrow();
     });
+
+    it('given an initialised LottieController with animationData, when attach is called, then lottie.loadAnimation is called exactly once and the created animation item is not destroyed', () => {
+      const operationData = {
+        selectedElement: mockElement,
+        renderer: {className: 'svg'},
+        loop: false,
+        autoplay: true,
+        animationData: {v: '5.0.0'},
+        json: null,
+        labelIds: [],
+        viewBox: '',
+        iefallback: null,
+        url: 'animation[freeze=10,end=50].json',
+      };
+
+      controller.init(operationData);
+      controller.attach(mockEventbus);
+
+      expect(lottie.loadAnimation).toHaveBeenCalledTimes(1);
+      expect(controller.animationItem!.destroy).not.toHaveBeenCalled();
+      expect(controller.animationItem!.playSegments).toHaveBeenCalledTimes(1);
+    });
+
+    it('given a controller that was detached, when attach is called again, then a new animation is loaded', () => {
+      const operationData = {
+        selectedElement: mockElement,
+        renderer: {className: 'svg'},
+        loop: true,
+        autoplay: true,
+        animationData: {v: '5.0.0'},
+        json: null,
+        labelIds: [],
+        viewBox: '',
+        iefallback: null,
+        url: 'animation.json',
+      };
+
+      controller.init(operationData);
+      controller.attach(mockEventbus);
+      controller.detach(mockEventbus);
+      controller.attach(mockEventbus);
+
+      expect(lottie.loadAnimation).toHaveBeenCalledTimes(2);
+      expect(controller.animationItem).not.toBeNull();
+    });
   });
 
   describe('detach', () => {
@@ -270,14 +318,110 @@ describe('LottieController', () => {
       controller.init(operationData);
       controller.attach(mockEventbus);
 
-      // Manually set endPosition to -1 to trigger immediate destroy path
-      controller.endPosition = -1;
-
-      const destroySpy = vi.spyOn(controller.animationItem!, 'destroy');
+      const animationItem = controller.animationItem!;
+      const destroySpy = vi.spyOn(animationItem, 'destroy');
+      const playSegmentsSpy = vi.spyOn(animationItem, 'playSegments');
 
       controller.detach(mockEventbus);
 
       expect(destroySpy).toHaveBeenCalled();
+      expect(playSegmentsSpy).not.toHaveBeenCalled();
+      expect(controller.animationItem).toBeNull();
+    });
+
+    it('given a looping animation with a url without [freeze,end], when attach then detach are called, then the animation item is destroyed immediately', () => {
+      const operationData = {
+        selectedElement: mockElement,
+        renderer: {className: 'svg'},
+        loop: true,
+        autoplay: true,
+        animationData: {v: '5.0.0'},
+        json: null,
+        labelIds: [],
+        viewBox: '',
+        iefallback: null,
+        url: 'animation.json',
+      };
+
+      controller.init(operationData);
+      controller.attach(mockEventbus);
+
+      const animationItem = controller.animationItem!;
+      const destroySpy = vi.spyOn(animationItem, 'destroy');
+      const playSegmentsSpy = vi.spyOn(animationItem, 'playSegments');
+
+      controller.detach(mockEventbus);
+
+      expect(controller.endPosition).toBe(-1);
+      expect(destroySpy).toHaveBeenCalledTimes(1);
+      expect(playSegmentsSpy).not.toHaveBeenCalled();
+      expect(controller.animationItem).toBeNull();
+    });
+
+    it('given a looping animation with [freeze,end] in the url, when detach is called, then the animation item is destroyed immediately because it would never complete', () => {
+      const operationData = {
+        selectedElement: mockElement,
+        renderer: {className: 'svg'},
+        loop: true,
+        autoplay: true,
+        animationData: {v: '5.0.0'},
+        json: null,
+        labelIds: [],
+        viewBox: '',
+        iefallback: null,
+        url: 'animation[freeze=10,end=50].json',
+      };
+
+      controller.init(operationData);
+      controller.attach(mockEventbus);
+
+      const animationItem = controller.animationItem!;
+      const destroySpy = vi.spyOn(animationItem, 'destroy');
+      const playSegmentsSpy = vi.spyOn(animationItem, 'playSegments');
+      // attach plays the [0, freeze] segment; only detach's calls matter here
+      playSegmentsSpy.mockClear();
+
+      controller.detach(mockEventbus);
+
+      expect(destroySpy).toHaveBeenCalledTimes(1);
+      expect(playSegmentsSpy).not.toHaveBeenCalled();
+    });
+
+    it('given a url with only a freeze position, when detach is called, then the animation plays out to its natural end and is destroyed on complete', () => {
+      const operationData = {
+        selectedElement: mockElement,
+        renderer: {className: 'svg'},
+        loop: false,
+        autoplay: true,
+        animationData: {v: '5.0.0'},
+        json: null,
+        labelIds: [],
+        viewBox: '',
+        iefallback: null,
+        url: 'animation[freeze=10].json',
+      };
+
+      controller.init(operationData);
+      controller.attach(mockEventbus);
+
+      const animationItem = controller.animationItem!;
+      const destroySpy = vi.spyOn(animationItem, 'destroy');
+      const playSegmentsSpy = vi.spyOn(animationItem, 'playSegments');
+      const addEventListenerSpy = vi.spyOn(animationItem, 'addEventListener');
+
+      controller.detach(mockEventbus);
+
+      // timeCompleted of the mocked animation item is 100
+      expect(playSegmentsSpy).toHaveBeenCalledWith([10, 100], true);
+      expect(destroySpy).not.toHaveBeenCalled();
+
+      const completeHandler = addEventListenerSpy.mock.calls.find(
+        ([name]) => name === 'complete'
+      )?.[1] as () => void;
+      completeHandler();
+
+      expect(destroySpy).toHaveBeenCalledTimes(1);
+      expect(controller.animationItem).toBeNull();
     });
 
     it('should play end segment when endPosition is set', () => {
@@ -441,6 +585,87 @@ describe('LottieController', () => {
       languageChangeHandler!('nl-NL');
 
       expect(controller.currentLanguage).toBe('nl-NL');
+    });
+
+    const createLabelOperationData = (labelIds: string[], text: string) => ({
+      selectedElement: mockElement,
+      renderer: {className: 'svg'},
+      loop: false,
+      autoplay: true,
+      animationData: {v: '5.0.0', text},
+      json: null,
+      labelIds,
+      viewBox: '',
+      iefallback: null,
+      url: 'animation.json',
+    });
+
+    const lastAnimationData = () =>
+      vi.mocked(lottie.loadAnimation).mock.calls.at(-1)?.[0] as any;
+
+    it('given a request-label-collections responder and no pre-seeded labelData, when attach is called, then it does not throw and the placeholder is replaced', () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      mockEventbus.onRequest('request-label-collections', () => [
+        [{code: 'en-US', label: 'Hi'}],
+      ]);
+
+      controller.init(createLabelOperationData(['title'], '!!title!!'));
+
+      expect(() => controller.attach(mockEventbus)).not.toThrow();
+      expect(lastAnimationData().animationData.text).toBe('Hi');
+    });
+
+    it('given no label collections but a request-translation responder, when attach is called, then the placeholder is replaced with the translation', () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      mockEventbus.onRequest('request-translation', (key: string) =>
+        key === 'title' ? 'Hallo' : ''
+      );
+
+      controller.init(
+        createLabelOperationData(['title', 'missing'], '!!title!! !!missing!!')
+      );
+      controller.attach(mockEventbus);
+
+      expect(lastAnimationData().animationData.text).toBe('Hallo !!missing!!');
+    });
+
+    it('given a translation that contains quotes and backslashes, when attach is called, then the animation data stays valid JSON', () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      mockEventbus.onRequest('request-translation', () => 'Say "hi" \\o/');
+
+      controller.init(createLabelOperationData(['title'], '!!title!!'));
+      controller.attach(mockEventbus);
+
+      expect(lastAnimationData().animationData.text).toBe('Say "hi" \\o/');
+    });
+
+    it('given a language-change, when the animation is recreated, then the translation for the new language is used', () => {
+      let language = 'en-US';
+      mockEventbus.onRequest('request-current-language', () => language);
+      mockEventbus.onRequest('request-translation', () =>
+        language === 'en-US' ? 'Hello' : 'Hallo'
+      );
+
+      controller.init(createLabelOperationData(['title'], '!!title!!'));
+      controller.attach(mockEventbus);
+      expect(lastAnimationData().animationData.text).toBe('Hello');
+
+      language = 'nl-NL';
+      mockEventbus.broadcast('language-change', ['nl-NL']);
+
+      expect(lastAnimationData().animationData.text).toBe('Hallo');
+    });
+
+    it('given a label collection for a __proto__ label id, when attach is called, then Object.prototype is not polluted', () => {
+      mockEventbus.onRequest('request-current-language', () => 'en-US');
+      mockEventbus.onRequest('request-label-collections', () => [
+        [{code: 'polluted', label: 'yes'}],
+      ]);
+
+      controller.init(createLabelOperationData(['__proto__'], 'x'));
+      controller.attach(mockEventbus);
+
+      expect(({} as any).polluted).toBeUndefined();
     });
   });
 

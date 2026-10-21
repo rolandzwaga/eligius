@@ -39,6 +39,7 @@ export class DOMEventListenerController
   operationData?: IDOMEventListenerControllerOperationData;
   actionInstanceInfos?: IActionInstanceInfo[];
   name = 'DOMEventListenerController';
+  private _boundEventHandler: ((event: any) => void) | null = null;
 
   init(operationData: IDOMEventListenerControllerOperationData) {
     this.operationData = {
@@ -72,7 +73,8 @@ export class DOMEventListenerController
         }
       });
 
-      selectedElement.on(eventName, this._eventHandler.bind(this));
+      this._boundEventHandler = this._eventHandler.bind(this);
+      selectedElement.on(eventName, this._boundEventHandler);
     }
   }
 
@@ -121,7 +123,19 @@ export class DOMEventListenerController
     }
   }
 
+  /**
+   * Removes only the handler this controller registered, so other handlers for
+   * the same event on the element keep working, and resets the action
+   * instances so a later attach registers again.
+   */
   detach(_eventbus: IEventbus) {
-    this.operationData?.selectedElement.off(this.operationData.eventName);
+    if (this.operationData && this._boundEventHandler) {
+      this.operationData.selectedElement.off(
+        this.operationData.eventName,
+        this._boundEventHandler
+      );
+    }
+    this._boundEventHandler = null;
+    this.actionInstanceInfos = undefined;
   }
 }

@@ -18,6 +18,7 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
   navVidIdLookup: Record<string, any> = {};
   navigation: any = null;
   eventbus: IEventbus | null = null;
+  private _popstateHandler: ((event: PopStateEvent) => void) | null = null;
 
   init(operationData: TOperationData) {
     this.navigation = this._buildNavigationData(operationData.json);
@@ -35,18 +36,20 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
       this._handlePushHistoryState
     );
     this.eventbus = eventbus;
-    window.onpopstate = this._handlePopstate.bind(this);
+    this._popstateHandler = this._handlePopstate.bind(this);
+    window.onpopstate = this._popstateHandler;
 
     const navId = this._getQueryVariable(0);
     if (navId) {
-      const nav = this.navLookup[navId];
-      const pos = +this._getQueryVariable(1);
-      this.eventbus.broadcast('request-video-url', [
-        nav.videoUrlIndex,
-        pos,
-        true,
-      ]);
-    } else {
+      const nav = this._findNavigation(navId);
+      if (nav) {
+        this.eventbus.broadcast('request-video-url', [
+          nav.videoUrlIndex,
+          this._parsePosition(this._getQueryVariable(1)),
+          true,
+        ]);
+      }
+    } else if (this.navigation?.length) {
       window.history.pushState(
         {navigationId: this.navigation[0].id},
         '',
@@ -56,11 +59,11 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
   }
 
   private _handlePopstate(event: any) {
-    const navigationId = event.state
-      ? event.state.navigationId
-      : this.navigation[0].id;
-    const position = event.state?.position ?? 0;
-    const nav = this.navLookup[navigationId];
+    const nav = this._findNavigation(event.state?.navigationId);
+    if (!nav) {
+      return;
+    }
+    const position = this._parsePosition(event.state?.position);
     this.eventbus?.broadcast('highlight-navigation', [nav.videoUrlIndex]);
     this.eventbus?.broadcast('request-video-url', [
       nav.videoUrlIndex,
@@ -69,9 +72,29 @@ export class RoutingController extends BaseController<IRoutingControllerOperatio
     ]);
   }
 
+  /**
+   * Looks up a navigation entry by id (own properties only), falling back to
+   * the first navigation entry for a missing or unknown id.
+   */
+  private _findNavigation(navId: unknown): any | undefined {
+    if (typeof navId === 'string' && Object.hasOwn(this.navLookup, navId)) {
+      return this.navLookup[navId];
+    }
+    return this.navigation?.[0];
+  }
+
+  private _parsePosition(value: unknown): number {
+    const position = Number.parseFloat(String(value));
+    return Number.isFinite(position) ? position : 0;
+  }
+
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
-    window.onpopstate = null;
+    // Only clear the handler this controller installed
+    if (this._popstateHandler && window.onpopstate === this._popstateHandler) {
+      window.onpopstate = null;
+    }
+    this._popstateHandler = null;
     this.eventbus = null;
   }
 
