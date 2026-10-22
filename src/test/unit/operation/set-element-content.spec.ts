@@ -2,6 +2,7 @@ import type {IController} from '@controllers/types.ts';
 import {Eventbus} from '@eventbus/eventbus.ts';
 import type {IEventbus} from '@eventbus/types.ts';
 import {addControllerToElement} from '@operation/add-controller-to-element.ts';
+import {createElement} from '@operation/create-element.ts';
 import {
   type ISetElementContentOperationData,
   setElementContent,
@@ -204,5 +205,75 @@ describe('setElementContent', () => {
       ).toThrow(/^setElementContent:/);
       expect($('#stage').html()).toBe('<p>new</p>');
     });
+  });
+});
+
+describe('setElementContent insertionType validation', () => {
+  test.each(['apend', 'replace', 'Overwrite', ''])(
+    "given insertionType '%s', when setElementContent runs, then it throws naming the operation and the value and leaves the element unchanged",
+    insertionType => {
+      // given
+      document.body.innerHTML = '<div id="stage"><p>old</p></div>';
+      const operationData = {
+        selectedElement: $('#stage'),
+        template: '<p>new</p>',
+        insertionType: insertionType as any,
+      };
+
+      // test & expect
+      expect(() =>
+        applyOperation(setElementContent, operationData, createDefaultScope())
+      ).toThrow(
+        `setElementContent: unknown insertionType '${insertionType}', expected 'overwrite', 'append' or 'prepend'`
+      );
+      expect($('#stage').html()).toBe('<p>old</p>');
+    }
+  );
+
+  test('given no insertionType, when setElementContent runs, then the content is overwritten', () => {
+    // given
+    document.body.innerHTML = '<div id="stage"><p>old</p></div>';
+
+    // test
+    applyOperation(
+      setElementContent,
+      {selectedElement: $('#stage'), template: '<p>new</p>'},
+      createDefaultScope()
+    );
+
+    // expect
+    expect($('#stage').html()).toBe('<p>new</p>');
+  });
+});
+
+describe('setElementContent with hostile user data', () => {
+  test('given a template built by createElement from user text holding script and handler markup, when it is set as content, then the markup stays text and nothing runs', () => {
+    // given
+    document.body.innerHTML = '<div id="stage"></div>';
+    const payload =
+      '<script>globalThis.__pwned = true</script><img src=x onerror="globalThis.__pwned = true">';
+    const scope = createDefaultScope();
+    const created: any = applyOperation(
+      createElement,
+      {
+        elementName: 'p',
+        text: '$operationdata.comment',
+        comment: payload,
+      } as any,
+      scope
+    );
+
+    // test
+    applyOperation(
+      setElementContent,
+      {selectedElement: $('#stage'), template: created.template},
+      scope
+    );
+
+    // expect
+    expect($('#stage script').length).toBe(0);
+    expect($('#stage img').length).toBe(0);
+    expect($('#stage p').text()).toBe(payload);
+    expect((globalThis as any).__pwned).toBeUndefined();
   });
 });

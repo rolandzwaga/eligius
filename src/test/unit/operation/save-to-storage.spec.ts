@@ -78,13 +78,12 @@ describe('saveToStorage', () => {
     expect(localStorage.getItem('simple-key')).toBe('"simple value"');
   });
 
-  test('should default to localStorage when storageType not specified', () => {
+  test('given no storageType, when saveToStorage runs, then the value is written to localStorage and not to sessionStorage', () => {
     // Arrange
-    const operationData: ISaveToStorageOperationData = {
+    const operationData = {
       key: 'default-key',
       value: 'test',
-      storageType: 'local',
-    };
+    } as ISaveToStorageOperationData;
 
     // Act
     applyOperation(saveToStorage, operationData, {
@@ -94,7 +93,8 @@ describe('saveToStorage', () => {
     });
 
     // Assert
-    expect(localStorage.getItem('default-key')).toBeDefined();
+    expect(localStorage.getItem('default-key')).toBe('"test"');
+    expect(sessionStorage.getItem('default-key')).toBeNull();
   });
 
   test('should overwrite existing value', () => {

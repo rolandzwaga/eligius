@@ -1,4 +1,6 @@
+import {Action} from '@action/action.ts';
 import type {IController} from '@controllers/types.ts';
+import {Eventbus} from '@eventbus/eventbus.ts';
 import {removeGlobal} from '@operation/helper/remove-global.ts';
 import {resolveExternalPropertyChain} from '@operation/helper/resolve-external-property-chain.ts';
 import {setGlobal} from '@operation/helper/set-global.ts';
@@ -284,5 +286,125 @@ describe('invokeObjectMethod', () => {
     expect(() => applyOperation(invokeObjectMethod, operationData)).toThrow(
       'invokeObjectMethod: invoking methods on the Function constructor is not allowed'
     );
+  });
+});
+
+describe('invokeObjectMethod with an instance reached through a property chain', () => {
+  const pwned = () => (globalThis as any).__pwned;
+  const op = (systemName: string, instance: any, operationData = {}) => ({
+    id: systemName,
+    systemName,
+    operationData,
+    instance,
+  });
+
+  function runChain(instanceChain: string, methodName: string, args: any[]) {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const action = new Action(
+      'InvokeThroughChain',
+      [
+        op('setOperationData', setOperationData, {
+          properties: {instance: instanceChain},
+        }),
+        op('invokeObjectMethod', invokeObjectMethod, {
+          methodName,
+          methodArguments: args,
+        }),
+      ],
+      new Eventbus()
+    );
+    return action
+      .start({selectedElement: $(element)})
+      .finally(() => element.remove());
+  }
+
+  test.each([
+    ['eval', ['globalThis.__pwned = true']],
+    ['Function', ['globalThis.__pwned = true']],
+    ['setTimeout', ['globalThis.__pwned = true', 0]],
+  ])(
+    'given an action that sets instance to $operationdata.selectedElement.0.ownerDocument.defaultView, when invokeObjectMethod runs with methodName %s, then the action rejects and the code does not run',
+    async (methodName, args) => {
+      await expect(
+        runChain(
+          '$operationdata.selectedElement.0.ownerDocument.defaultView',
+          methodName,
+          args
+        )
+      ).rejects.toThrow(/reaches the global object/);
+      expect(pwned()).toBeUndefined();
+    }
+  );
+
+  test.each([
+    ['write', ['<img src=x onerror="globalThis.__pwned = true">']],
+    ['writeln', ['<script>globalThis.__pwned = true</script>']],
+    ['open', ['javascript:globalThis.__pwned = true']],
+    ['createElement', ['script']],
+  ])(
+    'given an action that sets instance to $operationdata.selectedElement.0.ownerDocument, when invokeObjectMethod runs with methodName %s, then the action rejects because a document is refused as instance',
+    async (methodName, args) => {
+      await expect(
+        runChain(
+          '$operationdata.selectedElement.0.ownerDocument',
+          methodName,
+          args
+        )
+      ).rejects.toThrow(/invokeObjectMethod: instance must be a controller/);
+      expect(pwned()).toBeUndefined();
+    }
+  );
+
+  test('given an action that sets instance to the selected DOM element, when invokeObjectMethod runs insertAdjacentHTML with markup, then the action rejects and nothing is inserted', async () => {
+    const element = document.createElement('div');
+    document.body.appendChild(element);
+    const action = new Action(
+      'InvokeOnElement',
+      [
+        op('setOperationData', setOperationData, {
+          properties: {instance: '$operationdata.selectedElement.0'},
+        }),
+        op('invokeObjectMethod', invokeObjectMethod, {
+          methodName: 'insertAdjacentHTML',
+          methodArguments: [
+            'beforeend',
+            '<img src=x onerror="globalThis.__pwned = true">',
+          ],
+        }),
+      ],
+      new Eventbus()
+    );
+
+    try {
+      await expect(action.start({selectedElement: $(element)})).rejects.toThrow(
+        /invokeObjectMethod: instance must be a controller/
+      );
+      expect(element.childNodes.length).toBe(0);
+      expect(pwned()).toBeUndefined();
+    } finally {
+      element.remove();
+    }
+  });
+
+  test('given a plain object in operation data reached through a chain, when invokeObjectMethod runs constructor with a code string, then the action rejects without reaching the Function constructor', async () => {
+    const action = new Action(
+      'InvokeConstructor',
+      [
+        op('setOperationData', setOperationData, {
+          properties: {instance: '$operationdata.service'},
+        }),
+        op('invokeObjectMethod', invokeObjectMethod, {
+          methodName: 'constructor',
+          methodArguments: ['globalThis.__pwned = true'],
+        }),
+      ],
+      new Eventbus()
+    );
+
+    await expect(action.start({service: {run: () => 1}})).rejects.toThrow(
+      "invokeObjectMethod: method name 'constructor' is not allowed"
+    );
+    expect(pwned()).toBeUndefined();
   });
 });

@@ -1,3 +1,4 @@
+import {assertSafeAttribute} from '@operation/helper/assert-safe-attribute.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import {resolvePropertyValues} from '@operation/helper/resolve-property-values.ts';
 import type {IOperationScope, TOperation} from '@operation/types.ts';
@@ -38,9 +39,14 @@ export interface ICreateElementOperationData<T extends TTagNames> {
  * The element is built with DOM APIs: attribute values are set with `.attr()` and `text` is set as
  * text content, so neither is parsed as HTML.
  *
+ * Values may be resolved from user data, so nothing that runs script is created: `script`
+ * elements, event handler (`on*`) and `srcdoc` attributes, and `javascript:` or `vbscript:`
+ * URLs in URL attributes such as `href`, `src` and `formaction` are refused.
+ *
  * @param operationData
  * @returns
- * @throws When `elementName` is not a valid element name.
+ * @throws When `elementName` is not a valid element name or is `script`, or when an attribute
+ * is refused (see above). The message names the operation.
  * @category DOM
  */
 export const createElement: TOperation<
@@ -76,15 +82,25 @@ export const createElement: TOperation<
     );
   }
 
+  if (String(elementName).toLowerCase() === 'script') {
+    throw new Error(
+      "createElement: elementName 'script' is not allowed, configuration may not create scripts"
+    );
+  }
+
+  const entries = Object.entries(attributes ?? {}).filter(([_, value]) =>
+    Boolean(value)
+  );
+  // Check every attribute before the element is created
+  entries.forEach(([key, value]) => {
+    assertSafeAttribute('createElement', key, value);
+  });
+
   const template = $<HTMLElement>(document.createElement(elementName));
 
-  if (attributes) {
-    Object.entries(attributes)
-      .filter(([_, value]) => Boolean(value))
-      .forEach(([key, value]) => {
-        template.attr(key, String(value));
-      });
-  }
+  entries.forEach(([key, value]) => {
+    template.attr(key, String(value));
+  });
 
   if (text) {
     template.text(text);
