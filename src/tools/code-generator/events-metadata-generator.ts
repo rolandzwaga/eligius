@@ -12,6 +12,7 @@ import {
   getEventArgMetadata,
 } from './event-arg-metadata.ts';
 import {
+  findDuplicateEventNames,
   findEventFilesMissingFromIndex,
   getRequestEventNames,
   writeRequestMap,
@@ -326,6 +327,17 @@ eventFiles.forEach(file => {
     publicEvents.push({iface: result.iface, sourceFile: file});
   }
 });
+
+// Two events with one name would merge into a single EventMap entry
+const duplicateNames = findDuplicateEventNames(
+  allEvents.map(({iface}) => iface)
+);
+if (duplicateNames.length) {
+  console.error(
+    `Event names must be unique, these are declared more than once: ${duplicateNames.join(', ')}`
+  );
+  process.exit(1);
+}
 
 // Generate metadata index file
 toIndexFile(

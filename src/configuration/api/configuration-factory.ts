@@ -531,10 +531,24 @@ export class ConfigurationFactory {
    * Starts the creation of a new action with the specified name that gets added to the `eventActions` list
    *
    * @param name
+   * @param eventName the event that starts the action. Without it the action can
+   * only be started by name (for example by a `DOMEventListenerController`).
+   * @param eventTopic optional topic of the event
    * @returns
+   *
+   * @example
+   * ```ts
+   * factory
+   *   .createEventAction('OnLanguageChange', 'language-change')
+   *   .addStartOperation('log', {});
+   * ```
    */
-  createEventAction(name: string) {
-    return this.actionCreatorFactory.createEventAction(name);
+  createEventAction(name: string, eventName?: string, eventTopic?: string) {
+    return this.actionCreatorFactory.createEventAction(
+      name,
+      eventName,
+      eventTopic
+    );
   }
 
   /**

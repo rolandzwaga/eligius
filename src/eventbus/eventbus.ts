@@ -285,7 +285,8 @@ export class Eventbus implements IEventbus {
     if (handlers) {
       // Iterate snapshots: an interceptor, listener or handler that removes
       // itself (or an earlier one) during dispatch would otherwise make the
-      // loop skip the entry that moves into the freed slot.
+      // loop skip the entry that moves into the freed slot. Handlers added
+      // during dispatch wait for the next broadcast.
       const interceptors = this._getEventInterceptors(
         eventName,
         eventTopic
@@ -319,6 +320,11 @@ export class Eventbus implements IEventbus {
 
       const hasArgs = args?.length > 0;
       for (const handler of snapshot) {
+        // Skip a handler that an earlier one removed, or that clear() dropped,
+        // during this dispatch: its owner may already be detached.
+        if (!this._getEventHandlers(eventName, eventTopic).includes(handler)) {
+          continue;
+        }
         try {
           this._watchResult(
             hasArgs ? handler(...args) : handler(),

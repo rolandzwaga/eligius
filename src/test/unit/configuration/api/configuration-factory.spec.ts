@@ -1225,3 +1225,42 @@ describe('ConfigurationFactory per-timeline provider overrides', () => {
     ).toEqual({systemName: 'KeyboardStepSource', markers: [0, 10, 20]});
   });
 });
+
+describe('ConfigurationFactory.createEventAction event names', () => {
+  test('given an event name and topic, when createEventAction is called, then the event action carries them and its start operations', () => {
+    // given
+    const factory = new ConfigurationFactory();
+    factory.init('en-US');
+
+    // test
+    factory
+      .createEventAction('OnLanguageChange', 'language-change', 'menu')
+      .addStartOperation('selectElement', {selector: '#menu'});
+
+    // expect
+    const [eventAction] = factory.getConfiguration().eventActions ?? [];
+    expect(eventAction).toMatchObject({
+      name: 'OnLanguageChange',
+      eventName: 'language-change',
+      eventTopic: 'menu',
+      startOperations: [
+        {systemName: 'selectElement', operationData: {selector: '#menu'}},
+      ],
+    });
+  });
+
+  test('given no event name, when createEventAction is called, then the event action has no eventName or eventTopic keys', () => {
+    // given
+    const factory = new ConfigurationFactory();
+    factory.init('en-US');
+
+    // test
+    factory.createEventAction('StartedByName');
+
+    // expect
+    const [eventAction] = factory.getConfiguration().eventActions ?? [];
+    expect(eventAction.name).toBe('StartedByName');
+    expect(Object.hasOwn(eventAction, 'eventName')).toBe(false);
+    expect(Object.hasOwn(eventAction, 'eventTopic')).toBe(false);
+  });
+});

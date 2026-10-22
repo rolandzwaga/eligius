@@ -322,3 +322,56 @@ describe('TypedEventEmitter', () => {
     });
   });
 });
+
+describe('TypedEventEmitter emit while handlers change', () => {
+  test('given a handler that removes a later handler during emit, when the event is emitted, then the removed handler is not called and the rest are', () => {
+    // given
+    const emitter = new TypedEventEmitter<TestEvents>();
+    const laterHandler = vi.fn();
+    const lastHandler = vi.fn();
+    emitter.on('withArg', () => emitter.off('withArg', laterHandler));
+    emitter.on('withArg', laterHandler);
+    emitter.on('withArg', lastHandler);
+
+    // test
+    emitter.emit('withArg', 'first');
+
+    // expect
+    expect(laterHandler).not.toHaveBeenCalled();
+    expect(lastHandler).toHaveBeenCalledWith('first');
+  });
+
+  test('given a handler that calls removeAllListeners during emit, when the event is emitted, then later handlers are not called', () => {
+    // given
+    const emitter = new TypedEventEmitter<TestEvents>();
+    const laterHandler = vi.fn();
+    emitter.on('simple', () => emitter.removeAllListeners());
+    emitter.on('simple', laterHandler);
+
+    // test
+    emitter.emit('simple');
+
+    // expect
+    expect(laterHandler).not.toHaveBeenCalled();
+  });
+
+  test('given a handler that re-emits the event before a once handler, when the event is emitted, then the once handler is called exactly once', () => {
+    // given
+    const emitter = new TypedEventEmitter<TestEvents>();
+    const onceHandler = vi.fn();
+    let depth = 0;
+    emitter.on('simple', () => {
+      depth += 1;
+      if (depth === 1) {
+        emitter.emit('simple');
+      }
+    });
+    emitter.once('simple', onceHandler);
+
+    // test
+    emitter.emit('simple');
+
+    // expect
+    expect(onceHandler).toHaveBeenCalledTimes(1);
+  });
+});

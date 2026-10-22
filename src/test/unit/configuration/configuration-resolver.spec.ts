@@ -1,6 +1,9 @@
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
-import type {IEngineConfiguration} from '@configuration/types.ts';
-import type {Eventbus} from '@eventbus/index.ts';
+import type {
+  IEngineConfiguration,
+  IEventActionConfiguration,
+} from '@configuration/types.ts';
+import {ActionRegistryEventbusListener, Eventbus} from '@eventbus/index.ts';
 import {EligiusResourceImporter} from '@importer/eligius-resource-importer.ts';
 import {createMockEventbus} from '@test/fixtures/eventbus-factory.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
@@ -1536,5 +1539,154 @@ describe('ConfigurationResolver per-timeline provider overrides', () => {
     expect(() => process(config)).toThrowError(
       /^Configuration incomplete: it needs to have at least one timeline provider setting at timelineProviderSettings/
     );
+  });
+});
+
+describe('ConfigurationResolver event actions without an eventName', () => {
+  test('given an event action without eventName, when process is called with a real listener on a real eventbus, then it is in the lookup and no broadcast starts it', async () => {
+    // given
+    const eventbus = new Eventbus();
+    const listener = new ActionRegistryEventbusListener();
+    eventbus.registerEventlistener(listener);
+    const importer = createMockImporter();
+    const config = createTestConfig();
+    config.eventActions = [
+      {
+        id: 'evt-1',
+        name: 'StartedByName',
+        startOperations: [{id: 'op-1', systemName: 'log', operationData: {}}],
+      } as unknown as IEventActionConfiguration,
+    ];
+    const resolver = new ConfigurationResolver(
+      importer as unknown as ISimpleResourceImporter,
+      eventbus
+    );
+
+    // test
+    const [lookup] = resolver.process(config, listener);
+    const start = vi.spyOn(lookup.StartedByName, 'start');
+    eventbus.broadcast('language-change', ['nl-NL']);
+    eventbus.broadcast('timeline-play-request', []);
+
+    // expect
+    expect(lookup.StartedByName.name).toBe('StartedByName');
+    expect(start).not.toHaveBeenCalled();
+  });
+});
+
+describe('ConfigurationResolver input isolation', () => {
+  function createConfigWithEverything(): IEngineConfiguration {
+    const config = createTestConfig();
+    config.timelineProviderSettings = {
+      animation: {
+        positionSource: {systemName: 'RafPositionSource'},
+        container: {systemName: 'DomContainerProvider', selector: '#tl'},
+      },
+    };
+    config.actions = [
+      {
+        id: 'a-1',
+        name: 'Show',
+        startOperations: [
+          {
+            id: 'op-1',
+            systemName: 'selectElement',
+            operationData: {selector: '#title', nested: {list: [1, 2]}},
+          },
+        ],
+        endOperations: [],
+      },
+    ];
+    config.timelines = [
+      {
+        id: 'tl-1',
+        uri: 'main',
+        type: 'animation',
+        duration: 10,
+        loop: false,
+        selector: '#tl',
+        positionSource: {systemName: 'RafPositionSource', fps: 30} as any,
+        timelineActions: [
+          {
+            id: 'ta-1',
+            name: 'Intro',
+            duration: {start: 0, end: 2},
+            startOperations: [
+              {
+                id: 'op-2',
+                systemName: 'selectElement',
+                operationData: {selector: '#intro'},
+              },
+            ],
+            endOperations: [],
+          },
+        ],
+      },
+    ];
+    return config;
+  }
+
+  test('given a configuration without placeholders, when process is called, then the input configuration is structurally unchanged', () => {
+    // given
+    const importer = createMockImporter();
+    const config = createConfigWithEverything();
+    const before = structuredClone(config);
+    const resolver = new ConfigurationResolver(
+      importer as unknown as ISimpleResourceImporter,
+      createMockEventbus() as Eventbus
+    );
+
+    // test
+    resolver.process(config);
+
+    // expect
+    expect(config).toEqual(before);
+  });
+
+  test('given a resolved configuration, when its operation data, provider settings and overrides are mutated, then the input configuration does not change', () => {
+    // given
+    const importer = createMockImporter();
+    const config = createConfigWithEverything();
+    const before = structuredClone(config);
+    const resolver = new ConfigurationResolver(
+      importer as unknown as ISimpleResourceImporter,
+      createMockEventbus() as Eventbus
+    );
+    const [lookup, resolved] = resolver.process(config);
+
+    // test
+    const showData = (lookup.Show as any).startOperations[0].operationData;
+    showData.selector = '#changed';
+    showData.nested.list.push(3);
+    const introData = (resolved.timelines[0].timelineActions[0] as any)
+      .startOperations[0].operationData;
+    introData.selector = '#changed';
+    (resolved.timelineProviderSettings as any).animation.container.selector =
+      '#changed';
+    (resolved.timelines[0].positionSource as any).fps = 60;
+
+    // expect
+    expect(config).toEqual(before);
+  });
+
+  test('given one configuration processed twice, when the first result is mutated, then the second result is not affected', () => {
+    // given
+    const importer = createMockImporter();
+    const config = createConfigWithEverything();
+    const resolver = new ConfigurationResolver(
+      importer as unknown as ISimpleResourceImporter,
+      createMockEventbus() as Eventbus
+    );
+    const [firstLookup] = resolver.process(config);
+
+    // test
+    (firstLookup.Show as any).startOperations[0].operationData.selector =
+      '#changed';
+    const [secondLookup] = resolver.process(config);
+
+    // expect
+    expect(
+      (secondLookup.Show as any).startOperations[0].operationData.selector
+    ).toBe('#title');
   });
 });

@@ -56,18 +56,52 @@ export function getRequestEventNames(
     if (!iface.getProperty('returns')) {
       return [];
     }
-    const nameType = iface.getProperty('name')?.getTypeNode();
-    if (!nameType || !Node.isLiteralTypeNode(nameType)) {
+    const eventName = getEventNameLiteral(iface);
+    if (eventName === undefined) {
       return [];
     }
-    const literal = nameType.getLiteral();
-    if (!Node.isStringLiteral(literal)) {
-      return [];
-    }
-    return [
-      {eventName: literal.getLiteralValue(), interfaceName: iface.getName()},
-    ];
+    return [{eventName, interfaceName: iface.getName()}];
   });
+}
+
+/**
+ * Returns the string literal of the interface's `name` property, or
+ * `undefined` when it is not a string literal type.
+ */
+function getEventNameLiteral(iface: InterfaceDeclaration): string | undefined {
+  const nameType = iface.getProperty('name')?.getTypeNode();
+  if (!nameType || !Node.isLiteralTypeNode(nameType)) {
+    return undefined;
+  }
+  const literal = nameType.getLiteral();
+  return Node.isStringLiteral(literal) ? literal.getLiteralValue() : undefined;
+}
+
+/**
+ * Returns the event names that more than one event interface declares. The
+ * generated `EventMap` would silently merge such events into one entry whose
+ * arguments are the union of both, so generation must fail instead.
+ *
+ * @param interfaces - Event interfaces
+ * @returns One message per duplicated name, naming the interfaces, in order of
+ * first appearance
+ */
+export function findDuplicateEventNames(
+  interfaces: readonly InterfaceDeclaration[]
+): string[] {
+  const byName = new Map<string, string[]>();
+  for (const iface of interfaces) {
+    const eventName = getEventNameLiteral(iface);
+    if (eventName === undefined) {
+      continue;
+    }
+    const names = byName.get(eventName) ?? [];
+    names.push(iface.getName());
+    byName.set(eventName, names);
+  }
+  return [...byName]
+    .filter(([, names]) => names.length > 1)
+    .map(([eventName, names]) => `'${eventName}' (${names.join(', ')})`);
 }
 
 /**

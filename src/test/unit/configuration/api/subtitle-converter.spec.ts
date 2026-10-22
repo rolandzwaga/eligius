@@ -72,3 +72,28 @@ describe('SubtitleImporter', () => {
     ]);
   });
 });
+
+describe('SubtitleImporter blank line runs', () => {
+  test('given two captions separated by three blank lines, when importSubtitles is called, then exactly two subtitles are returned and the second keeps its duration and text', () => {
+    // given
+    const lines = [
+      '00:01:00:00 00:01:02:00',
+      'First line',
+      'Second line',
+      '',
+      '\r',
+      '',
+      '00:01:05:00 00:01:07:00',
+      'Next caption',
+    ];
+
+    // test
+    const titles = new SubtitleImporter().importSubtitles(lines);
+
+    // expect
+    expect(titles.map(({text, duration}) => ({text, duration}))).toEqual([
+      {text: 'First line\nSecond line', duration: {start: 60, end: 62}},
+      {text: 'Next caption', duration: {start: 65, end: 67}},
+    ]);
+  });
+});
