@@ -1183,3 +1183,235 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
     });
   });
 });
+
+describe('ConfigurationResolver per-timeline provider overrides', () => {
+  function timeline(overrides: Record<string, unknown> = {}): any {
+    return {
+      id: 't1',
+      uri: 't1',
+      type: 'animation',
+      duration: 10,
+      loop: false,
+      selector: '#sel',
+      timelineActions: [],
+      ...overrides,
+    };
+  }
+
+  function createConfig(timelines: any[]): IEngineConfiguration {
+    const config = createTestConfig();
+    config.timelineProviderSettings = {
+      animation: {
+        positionSource: {systemName: 'RafPositionSource'},
+        container: {systemName: 'DomContainerProvider', selector: '#stage'},
+      },
+    };
+    config.timelines = timelines;
+    return config;
+  }
+
+  function process(config: IEngineConfiguration) {
+    return new ConfigurationResolver(
+      new EligiusResourceImporter(),
+      createMockEventbus() as Eventbus
+    ).process(config);
+  }
+
+  test('given a valid positionSource override, when process is called, then the resolved timeline carries a copy of it', () => {
+    const positionSource = {
+      systemName: 'ScrollPositionSource',
+      selector: '#chapter',
+    };
+    const config = createConfig([timeline({positionSource})]);
+
+    const [, resolved] = process(config);
+
+    expect(resolved.timelines[0].positionSource).toEqual(positionSource);
+    expect(resolved.timelines[0].positionSource).not.toBe(positionSource);
+  });
+
+  test('given a timeline without overrides, when process is called, then the resolved timeline has no override properties', () => {
+    const [, resolved] = process(createConfig([timeline()]));
+
+    expect(resolved.timelines[0]).not.toHaveProperty('positionSource');
+    expect(resolved.timelines[0]).not.toHaveProperty('containerProvider');
+  });
+
+  test('given a positionSource override with a misspelt systemName, when process is called, then it throws naming the JSON path and the closest name', () => {
+    const config = createConfig([
+      timeline(),
+      timeline({
+        uri: 't2',
+        positionSource: {systemName: 'ScrolPositionSource', selector: '#a'},
+      }),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      "Unknown position source 'ScrolPositionSource' at timelines[1].positionSource.systemName. Did you mean 'ScrollPositionSource'"
+    );
+  });
+
+  test('given a containerProvider override with an unknown systemName, when process is called, then it throws naming the JSON path', () => {
+    const config = createConfig([
+      timeline({containerProvider: {systemName: 'NoSuchProvider'}}),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      /^Unknown container provider 'NoSuchProvider' at timelines\[0\]\.containerProvider\.systemName\./
+    );
+  });
+
+  test('given a positionSource override naming an operation, when process is called, then it throws naming the JSON path', () => {
+    const config = createConfig([
+      timeline({positionSource: {systemName: 'addClass'}}),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      "Unknown position source 'addClass' at timelines[0].positionSource.systemName: 'addClass' is an operation or controller, not a position source."
+    );
+  });
+
+  test('given a positionSource override that is not an object, when process is called, then it throws naming the JSON path', () => {
+    const config = createConfig([timeline({positionSource: 'scroll'})]);
+
+    expect(() => process(config)).toThrowError(
+      'Invalid configuration at timelines[0].positionSource: expected an object with position source settings, got a string.'
+    );
+  });
+
+  test('given a positionSource systemName that is not a string, when process is called, then it throws naming the JSON path', () => {
+    const config = createConfig([timeline({positionSource: {systemName: 42}})]);
+
+    expect(() => process(config)).toThrowError(
+      'Invalid configuration at timelines[0].positionSource.systemName: expected the name of a position source class, got 42.'
+    );
+  });
+
+  test('given a ScrollPositionSource override without a selector, when process is called, then it throws naming the missing setting', () => {
+    const config = createConfig([
+      timeline({positionSource: {systemName: 'ScrollPositionSource'}}),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      "Missing setting at timelines[0].positionSource.selector: 'ScrollPositionSource' requires 'selector', and neither timelines[0].positionSource nor timelineProviderSettings.animation.positionSource provides it."
+    );
+  });
+
+  test('given a mediaplayer override that only changes the poster, when the type settings provide selector and sources, then process accepts it', () => {
+    const config = createConfig([
+      timeline({type: 'mediaplayer', positionSource: {poster: '/b.jpg'}}),
+    ]);
+    config.timelineProviderSettings = {
+      mediaplayer: {
+        positionSource: {
+          systemName: 'VideoPositionSource',
+          selector: '#video',
+          sources: [{src: '/a.mp4', type: 'video/mp4'}],
+        },
+      },
+    };
+
+    const [, resolved] = process(config);
+
+    expect(resolved.timelines[0].positionSource).toEqual({poster: '/b.jpg'});
+  });
+
+  test('given a VideoPositionSource override with an empty sources list, when process is called, then it throws naming sources', () => {
+    const config = createConfig([
+      timeline({
+        positionSource: {
+          systemName: 'VideoPositionSource',
+          selector: '#video',
+          sources: [],
+        },
+      }),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      /^Missing setting at timelines\[0\]\.positionSource\.sources: 'VideoPositionSource' requires 'sources'/
+    );
+  });
+
+  test('given a VideoPositionSource override with sources in options, when process is called, then it is accepted', () => {
+    const config = createConfig([
+      timeline({
+        positionSource: {
+          systemName: 'VideoPositionSource',
+          selector: '#video',
+          options: {sources: [{src: '/a.mp4', type: 'video/mp4'}]},
+        },
+      }),
+    ]);
+
+    expect(() => process(config)).not.toThrow();
+  });
+
+  test('given a timeline type without provider settings and an override with a systemName, when process is called, then it is accepted', () => {
+    const config = createConfig([
+      timeline(),
+      timeline({
+        uri: 't2',
+        type: 'mediaplayer',
+        positionSource: {systemName: 'RafPositionSource'},
+      }),
+    ]);
+
+    expect(() => process(config)).not.toThrow();
+  });
+
+  test('given a timeline type without provider settings and an override without a systemName, when process is called, then it throws naming the missing settings and the alternative', () => {
+    const config = createConfig([
+      timeline({type: 'mediaplayer', positionSource: {selector: '#a'}}),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      "Missing timeline provider settings at timelineProviderSettings.mediaplayer for timelines[0] (type 'mediaplayer'). Add a provider for the 'mediaplayer' timeline type, or give timelines[0].positionSource a systemName of its own."
+    );
+  });
+
+  test('given a containerProvider override without a systemName and no type container, when process is called, then it throws naming the systemName path', () => {
+    const config = createConfig([
+      timeline({containerProvider: {selector: '#a'}}),
+    ]);
+    config.timelineProviderSettings = {
+      animation: {positionSource: {systemName: 'RafPositionSource'}},
+    };
+
+    expect(() => process(config)).toThrowError(
+      'Missing systemName at timelines[0].containerProvider.systemName: there are no settings at timelineProviderSettings.animation.container to merge the override over, so it has to name the container provider class.'
+    );
+  });
+
+  test('given a DomContainerProvider override with an empty selector, when process is called, then it throws naming the selector', () => {
+    const config = createConfig([
+      timeline({containerProvider: {selector: ''}}),
+    ]);
+
+    expect(() => process(config)).toThrowError(
+      /^Missing setting at timelines\[0\]\.containerProvider\.selector: 'DomContainerProvider' requires 'selector'/
+    );
+  });
+
+  test('given no timelineProviderSettings and every timeline naming its own position source, when process is called, then it is accepted with empty provider settings', () => {
+    const config = createConfig([
+      timeline({positionSource: {systemName: 'RafPositionSource'}}),
+    ]);
+    config.timelineProviderSettings = undefined;
+
+    const [, resolved] = process(config);
+
+    expect(resolved.timelineProviderSettings).toEqual({});
+  });
+
+  test('given no timelineProviderSettings and a timeline without its own position source, when process is called, then it still throws the incomplete configuration error', () => {
+    const config = createConfig([
+      timeline({positionSource: {systemName: 'RafPositionSource'}}),
+      timeline({uri: 't2'}),
+    ]);
+    config.timelineProviderSettings = undefined;
+
+    expect(() => process(config)).toThrowError(
+      /^Configuration incomplete: it needs to have at least one timeline provider setting at timelineProviderSettings/
+    );
+  });
+});

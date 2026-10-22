@@ -1040,3 +1040,103 @@ describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
     });
   });
 });
+
+describe('ConfigurationFactory per-timeline provider overrides', () => {
+  function createFactory() {
+    const factory = new ConfigurationFactory();
+    factory
+      .init('en-US')
+      .addTimeline('intro', 'animation', 10, false, '#intro')
+      .addTimeline('chapter', 'animation', 60, false, '#chapter');
+    return factory;
+  }
+
+  test('given a timeline, when setTimelinePositionSource is called, then only that timeline gets the override and the factory is returned', () => {
+    const factory = createFactory();
+
+    const returned = factory.setTimelinePositionSource('chapter', {
+      systemName: 'ScrollPositionSource',
+      selector: '#chapter',
+    });
+
+    expect(returned).toBe(factory);
+    expect(factory.getTimeline('chapter')?.positionSource).toEqual({
+      systemName: 'ScrollPositionSource',
+      selector: '#chapter',
+    });
+    expect(factory.getTimeline('intro')?.positionSource).toBeUndefined();
+  });
+
+  test('given an override object, when it is changed after setTimelinePositionSource, then the configuration keeps the value it was given', () => {
+    const factory = createFactory();
+    const override = {selector: '#a'};
+
+    factory.setTimelinePositionSource('chapter', override);
+    override.selector = '#b';
+
+    expect(factory.getTimeline('chapter')?.positionSource).toEqual({
+      selector: '#a',
+    });
+  });
+
+  test('given a timeline with an override, when setTimelinePositionSource is called with undefined, then the override is removed', () => {
+    const factory = createFactory();
+    factory.setTimelinePositionSource('chapter', {selector: '#a'});
+
+    factory.setTimelinePositionSource('chapter', undefined);
+
+    expect(factory.getTimeline('chapter')).not.toHaveProperty('positionSource');
+  });
+
+  test('given a timeline, when setTimelineContainerProvider is called and then removed, then the override is set and removed', () => {
+    const factory = createFactory();
+
+    factory.setTimelineContainerProvider('chapter', {selector: '#chapter'});
+    expect(factory.getTimeline('chapter')?.containerProvider).toEqual({
+      selector: '#chapter',
+    });
+
+    factory.setTimelineContainerProvider('chapter', undefined);
+    expect(factory.getTimeline('chapter')).not.toHaveProperty(
+      'containerProvider'
+    );
+  });
+
+  test('given an unknown uri, when a timeline override setter is called, then it throws naming the method and the uri', () => {
+    const factory = createFactory();
+
+    expect(() =>
+      factory.setTimelinePositionSource('nope', {selector: '#a'})
+    ).toThrowError(
+      "ConfigurationFactory.setTimelinePositionSource: no timeline found for uri 'nope'"
+    );
+    expect(() =>
+      factory.setTimelineContainerProvider('nope', {selector: '#a'})
+    ).toThrowError(
+      "ConfigurationFactory.setTimelineContainerProvider: no timeline found for uri 'nope'"
+    );
+  });
+
+  test('given a factory without timelines, when setTimelinePositionSource is called, then it throws naming the uri', () => {
+    const factory = new ConfigurationFactory();
+    factory.init('en-US');
+
+    expect(() =>
+      factory.setTimelinePositionSource('intro', {selector: '#a'})
+    ).toThrowError("no timeline found for uri 'intro'");
+  });
+
+  test('given an override, when getConfiguration is called, then the copy carries it', () => {
+    const factory = createFactory();
+    factory.setTimelinePositionSource('chapter', {
+      systemName: 'KeyboardStepSource',
+      markers: [0, 10, 20],
+    });
+
+    const configuration = factory.getConfiguration();
+
+    expect(
+      configuration.timelines.find(t => t.uri === 'chapter')?.positionSource
+    ).toEqual({systemName: 'KeyboardStepSource', markers: [0, 10, 20]});
+  });
+});
