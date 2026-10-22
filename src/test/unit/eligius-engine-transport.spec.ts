@@ -1219,4 +1219,215 @@ describe('EligiusEngine transport commands', () => {
       );
     });
   });
+
+  describe('audit gaps: failing ends, overlapping switch, early destroy', () => {
+    test('given active X [0,3] whose end throws and a healthy Y [1,3], when seek(5) onto A [4,6] is awaited, then Y is ended, A is started, seekComplete is emitted and an end-phase error names X', async () => {
+      const log: string[] = [];
+      const source = createManualPositionSource();
+      const x = failingAction('X', 0, 3, 'end');
+      const y = recordingAction(log, 'Y', 1, 3);
+      const a = recordingAction(log, 'A', 4, 6);
+      const engine = createEngine([{uri: 't1', source, actions: [x, y, a]}]);
+      const errors = vi.fn();
+      const seekComplete = vi.fn();
+      engine.on('error', errors);
+      engine.on('seekComplete', seekComplete);
+      await engine.init();
+      await engine.start();
+      source.report(2);
+      expect(x.active && y.active).toBe(true);
+
+      await expect(engine.seek(5)).resolves.toBe(5);
+      await flush();
+
+      expect(log).toEqual(['Y-start', 'Y-end', 'A-start']);
+      expect(x.active).toBe(false);
+      expect(a.active).toBe(true);
+      expect(seekComplete).toHaveBeenCalledTimes(1);
+      expect(seekComplete).toHaveBeenCalledWith(5, 10);
+      expect(errors).toHaveBeenCalledTimes(1);
+      expect(errors.mock.calls[0][0]).toMatchObject({
+        actionName: 'X',
+        phase: 'end',
+      });
+    });
+
+    test('given seek(5) on t1 waiting behind a slow end, when switchTimeline(t2, 2) is called before the end finishes, then the seek does not start t1 actions, reports nothing of t1 and t2 plays with its own actions', async () => {
+      const log: string[] = [];
+      const s1 = createManualPositionSource();
+      const s2 = createManualPositionSource();
+      const c = slowEndingAction(log, 'C', 0, 3);
+      const a = recordingAction(log, 'A', 4, 6);
+      const b = recordingAction(log, 'B', 0, 10);
+      const engine = createEngine([
+        {uri: 't1', source: s1, actions: [c.action, a]},
+        {uri: 't2', source: s2, actions: [b]},
+      ]);
+      const times: number[] = [];
+      const seekComplete = vi.fn();
+      engine.on('time', position => times.push(position));
+      engine.on('seekComplete', seekComplete);
+      await engine.init();
+      await engine.start();
+      s1.report(1);
+      times.length = 0;
+
+      const seeking = engine.seek(5);
+      const switching = engine.switchTimeline('t2', 2);
+      await flush();
+      c.release();
+      await switching;
+      await expect(seeking).resolves.toBe(2);
+      await flush();
+
+      expect(engine.currentTimelineUri).toBe('t2');
+      expect(s1.state).toBe('inactive');
+      expect(s2.state).toBe('active');
+      expect(a.active).toBe(false);
+      expect(b.active).toBe(true);
+      expect(log).toEqual(['C-start', 'C-end-begin', 'B-start', 'C-end-done']);
+      // The superseded seek reports no position of the timeline that was
+      // switched away from.
+      expect(seekComplete).not.toHaveBeenCalled();
+      expect(times).toEqual([]);
+    });
+
+    test('given an engine that was never initialised, when destroy() is awaited, then it resolves, emits destroyed, destroys the locale manager and init() rejects afterwards', async () => {
+      const source = createManualPositionSource();
+      const localeManager = {destroy: vi.fn()} as unknown as ILocaleManager;
+      const engine = new EligiusEngine(
+        {
+          containerSelector: '.transport-root',
+          layoutTemplate: '<div class="stage"></div>',
+          initActions: [],
+          timelines: [
+            {
+              type: 'animation',
+              uri: 't1',
+              duration: 10,
+              selector: '.stage',
+              loop: false,
+              timelineActions: [],
+            },
+          ],
+        } as any,
+        new Eventbus(),
+        {animation: {positionSource: source}} as any,
+        localeManager
+      );
+      const destroyed = vi.fn();
+      engine.on('destroyed', destroyed);
+
+      await expect(engine.destroy()).resolves.toBeUndefined();
+
+      expect(destroyed).toHaveBeenCalledTimes(1);
+      expect(localeManager.destroy).toHaveBeenCalledTimes(1);
+      expect(source.init).not.toHaveBeenCalled();
+      expect(source.activate).not.toHaveBeenCalled();
+      expect(engine.playState).toBe('stopped');
+      await expect(engine.init()).rejects.toThrow(/destroyed/);
+    });
+
+    test('given timelines with their own container providers, when a timelineChange listener reads engine.container and engine.duration, then it gets those of the new timeline', async () => {
+      $('.transport-root').append(
+        '<div class="c1"></div><div class="c2"></div>'
+      );
+      const container = (selector: string) => ({
+        init: vi.fn().mockResolvedValue(undefined),
+        destroy: vi.fn(),
+        getContainer: () => $(selector) as JQuery<HTMLElement>,
+        onContainerReady: (callback: () => void) => callback(),
+      });
+      const s1 = createManualPositionSource(10);
+      const s2 = createManualPositionSource(20);
+      const byUri: Record<string, ITimelineProviderInfo> = {
+        t1: {positionSource: s1, containerProvider: container('.c1')},
+        t2: {positionSource: s2, containerProvider: container('.c2')},
+      };
+      const timeline = (uri: string, duration: number) => ({
+        type: 'animation',
+        uri,
+        duration,
+        selector: '.stage',
+        loop: false,
+        timelineActions: [],
+      });
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const engine = new EligiusEngine(
+        {
+          containerSelector: '.transport-root',
+          layoutTemplate: '',
+          initActions: [],
+          timelines: [timeline('t1', 10), timeline('t2', 20)],
+        } as any,
+        new Eventbus(),
+        {animation: byUri.t1} as any,
+        {destroy: vi.fn()} as unknown as ILocaleManager,
+        byUri
+      );
+      const seen: Array<{
+        uri: string;
+        container: Element | undefined;
+        duration: number | undefined;
+      }> = [];
+      engine.on('timelineChange', uri =>
+        seen.push({
+          uri,
+          container: engine.container?.[0],
+          duration: engine.duration,
+        })
+      );
+      await engine.init();
+
+      await engine.switchTimeline('t2');
+
+      expect(seen).toEqual([{uri: 't2', container: $('.c2')[0], duration: 20}]);
+    });
+  });
+
+  describe('audit gaps: seek with several asynchronous starts', () => {
+    test('given A, B and C [2,8] whose start operations each await a fetch, when seek(5) is awaited, then it resolves while the fetches are pending and all three starts began without waiting for each other', async () => {
+      const log: string[] = [];
+      const source = createManualPositionSource();
+      const names = ['A', 'B', 'C'];
+      const fetches = names.map(() => deferred());
+      const actions = names.map(
+        (name, index) =>
+          new TimelineAction(
+            name,
+            [
+              op(`${name}-fetch`, data => {
+                log.push(`${name}-start-begin`);
+                return fetches[index].promise.then(() => data);
+              }),
+              record(log, `${name}-start-done`),
+            ],
+            [],
+            {start: 2, end: 8},
+            new Eventbus()
+          )
+      );
+      const engine = createEngine([{uri: 't1', source, actions}]);
+      const seekComplete = vi.fn();
+      engine.on('seekComplete', seekComplete);
+      await engine.init();
+
+      await expect(engine.seek(5)).resolves.toBe(5);
+
+      expect(seekComplete).toHaveBeenCalledTimes(1);
+      expect(log).toEqual(['A-start-begin', 'B-start-begin', 'C-start-begin']);
+      expect(actions.every(action => action.active)).toBe(true);
+
+      fetches[2].resolve();
+      fetches[1].resolve();
+      fetches[0].resolve();
+      await flush();
+
+      expect(log.slice(3)).toEqual([
+        'C-start-done',
+        'B-start-done',
+        'A-start-done',
+      ]);
+    });
+  });
 });

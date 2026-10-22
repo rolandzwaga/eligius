@@ -580,7 +580,10 @@ export class EligiusEngine implements IEligiusEngine {
    * event. Other commands only wait for the source to seek, not for the
    * end operations. A later `seek()` or `stop()` supersedes this one: it
    * then resolves with the position at that moment without emitting
-   * `seekComplete`, and its starts that had not run yet are dropped.
+   * `seekComplete`, and its starts that had not run yet are dropped. When a
+   * `switchTimeline()` replaces the timeline before the seek's starts have
+   * begun, it resolves with the new timeline's position, also without
+   * emitting `seekComplete`.
    *
    * @param position - Target position in seconds
    * @returns Actual position after seek
@@ -605,6 +608,10 @@ export class EligiusEngine implements IEligiusEngine {
         return this.position;
       }
       await this._waitUnlessSuperseded(step.reconciled, token);
+      if (!this._destroyed && step.source !== this._activePositionSource) {
+        // A switchTimeline() took over: the seeked timeline is gone.
+        return this.position;
+      }
       const finalPosition = step.source.getPosition();
       if (!this._isSuperseded(token)) {
         this._emitter.emit('seekComplete', finalPosition, step.duration);

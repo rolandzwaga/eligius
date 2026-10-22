@@ -189,20 +189,30 @@ describe<EngineFactorySuiteContext>('EngineFactory', () => {
     });
 
     describe('factory destroy cleanup', () => {
-      test<EngineFactorySuiteContext>('should clear _actionsLookup on factory destroy', context => {
+      test<EngineFactorySuiteContext>('given an engine with action ShowMenu, when the factory is destroyed, then its action lookup is cleared and request-action is no longer answered', context => {
         const {factory} = context;
-        const config = createMinimalConfig();
+        const config: IEngineConfiguration = {
+          ...createMinimalConfig(),
+          actions: [
+            {
+              id: 'show-menu',
+              name: 'ShowMenu',
+              startOperations: [],
+              endOperations: [],
+            },
+          ],
+        };
+        const {eventbus} = factory.createEngine(config);
+        expect(eventbus.request<any>('request-action', 'ShowMenu')?.name).toBe(
+          'ShowMenu'
+        );
+        expect((factory as any)._actionLookups.size).toBe(1);
 
-        // Create an engine (this populates _actionsLookup)
-        factory.createEngine(config);
-
-        // Destroy the factory
         factory.destroy();
 
-        // The request-action handler should throw for any action
-        // since _actionsLookup should be cleared
-        // We can test this by creating a new engine and checking the eventbus
-        // but since factory is destroyed, we just verify no errors occur
+        expect((factory as any)._actionLookups.size).toBe(0);
+        expect((factory as any)._eventRemovers.size).toBe(0);
+        expect(eventbus.request('request-action', 'ShowMenu')).toBeUndefined();
         expect(() => factory.destroy()).not.toThrow();
       });
     });
