@@ -130,6 +130,26 @@ describe('property helpers', () => {
     expect(getTypeFromTag(tag)).toMatch(/^type: '.*ParameterType:className'$/);
   });
 
+  test('given a @type tag with an unknown parameter type, when converted, then it throws naming the property and the type', () => {
+    // given
+    const property = createSourceFile(`
+      export interface IData {
+        /**
+         * @type=ParameterType:string|ParameterType:somethingNew
+         */
+        value: string;
+      }`)
+      .getInterfaceOrThrow('IData')
+      .getPropertyOrThrow('value');
+    const tag = property
+      .getJsDocs()
+      .flatMap(doc => doc.getTags())
+      .find(t => t.getTagName() === 'type')!;
+
+    // expect
+    expect(() => getTypeFromTag(tag)).toThrow(/value.*somethingNew/);
+  });
+
   test('given a generic interface, when converted to a data type, then the constraint is filled in', () => {
     // given
     const generic = createSourceFile(source).getInterfaceOrThrow('IGeneric');

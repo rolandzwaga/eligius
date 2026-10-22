@@ -1,4 +1,5 @@
 import type {Node, PropertySignature, Type} from 'ts-morph';
+import {assertParameterType} from './shared.ts';
 
 /**
  * Returns the `type: ...` metadata entry for the given property, based on its TypeScript type.
@@ -16,6 +17,7 @@ import type {Node, PropertySignature, Type} from 'ts-morph';
  *
  * @param property
  * @returns
+ * @throws When the type maps to a parameter type that is not in `PARAMETER_TYPES`
  */
 export const getTypeFromProperty = (property: PropertySignature): string => {
   const type = stripNullish(property.getType());
@@ -46,7 +48,13 @@ export const getTypeFromProperty = (property: PropertySignature): string => {
 const stripNullish = (type: Type): Type =>
   type.isUnion() ? type.getNonNullableType() : type;
 
-const toTypeEntry = (type: Type, enclosingNode: Node): string => {
+const toTypeEntry = (type: Type, property: PropertySignature): string => {
+  const parameterType = (name: string) => {
+    const result = `ParameterType:${name}`;
+    assertParameterType(result, property.getName(), type.getText(property));
+    return result;
+  };
+
   if (type.isUnion()) {
     const members = type.getUnionTypes();
     if (members.every(u => u.isBooleanLiteral())) {
@@ -61,20 +69,19 @@ const toTypeEntry = (type: Type, enclosingNode: Node): string => {
     }
     const parameterTypes = [
       ...new Set(
-        members.map(
-          member =>
-            `ParameterType:${toParameterType(member, enclosingNode).name}`
+        members.map(member =>
+          parameterType(toParameterType(member, property).name)
         )
       ),
     ];
     return `type: '${parameterTypes.join('|')}'`;
   }
 
-  const {name, itemType} = toParameterType(type, enclosingNode);
+  const {name, itemType} = toParameterType(type, property);
   if (itemType) {
-    return `type: 'ParameterType:${name}',\nitemType: 'ParameterType:${itemType}'`;
+    return `type: '${parameterType(name)}',\nitemType: '${parameterType(itemType)}'`;
   }
-  return `type: 'ParameterType:${name}'`;
+  return `type: '${parameterType(name)}'`;
 };
 
 const toParameterType = (

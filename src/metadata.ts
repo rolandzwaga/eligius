@@ -18,4 +18,5 @@ export * from '@controllers/metadata/types.ts';
 export * as eventmetadata from '@eventbus/events/metadata/index.ts';
 export * from '@eventbus/events/metadata/types.ts';
 export * as metadata from '@operation/metadata/index.ts';
+export {PARAMETER_TYPES} from '@operation/metadata/parameter-types.ts';
 export * from '@operation/metadata/types.ts';

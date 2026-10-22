@@ -1,3 +1,5 @@
+import type {PARAMETER_TYPES} from './parameter-types.ts';
+
 export type THasRequired = {
   required?: boolean;
 };
@@ -48,34 +50,13 @@ export type TParameterTypesDelimited =
   | `${TParameterTypes}`
   | `${TParameterTypes}|${string}`;
 
-export type TParameterTypes =
-  | 'ParameterType:htmlElementName'
-  | 'ParameterType:className'
-  | 'ParameterType:selector'
-  | 'ParameterType:string'
-  | 'ParameterType:number'
-  | 'ParameterType:object'
-  | 'ParameterType:boolean'
-  | 'ParameterType:array'
-  | 'ParameterType:eventTopic'
-  | 'ParameterType:eventName'
-  | 'ParameterType:systemName'
-  | 'ParameterType:actionName'
-  | 'ParameterType:controllerName'
-  | 'ParameterType:dimensions'
-  | 'ParameterType:dimensionsModifier'
-  | 'ParameterType:url'
-  | 'ParameterType:htmlContent'
-  | 'ParameterType:labelId'
-  | 'ParameterType:ImagePath'
-  | 'ParameterType:QuadrantPosition'
-  | 'ParameterType:jQuery'
-  | 'ParameterType:expression'
-  | 'ParameterType:mathfunction'
-  | 'ParameterType:cssProperties'
-  | 'ParameterType:function'
-  | 'ParameterType:Date'
-  | 'ParameterType:languagecode';
+export type TParameterTypes = (typeof PARAMETER_TYPES)[number];
+
+/**
+ * A parameter type without its `ParameterType:` prefix, e.g. `className`.
+ */
+export type TParameterTypeName =
+  TParameterTypes extends `ParameterType:${infer Name}` ? Name : never;
 
 export type TOperationCategory =
   | 'DOM' //DOM manipulation and element operations

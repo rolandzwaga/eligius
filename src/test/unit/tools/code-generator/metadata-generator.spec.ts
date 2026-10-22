@@ -147,6 +147,16 @@ describe('operation metadata generator output', () => {
     expect([...generatedNames].sort()).toEqual([...operationNames].sort());
   });
 
+  test('given the generated metadata index, when its runtime exports are listed, then every export is a metadata function', () => {
+    // test
+    const nonFunctions = Object.entries(operationMetadata)
+      .filter(([, value]) => typeof value !== 'function')
+      .map(([name]) => name);
+
+    // expect
+    expect(nonFunctions).toEqual([]);
+  });
+
   test('given every operation, when its generated description and category are compared with the source JSDoc, then the text survives escaping unchanged', () => {
     // given
     const mismatches: string[] = [];

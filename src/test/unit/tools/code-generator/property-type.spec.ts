@@ -1,6 +1,10 @@
 // @vitest-environment node
+import * as controllerMetadata from '@controllers/metadata/index.ts';
 import {LabelController} from '@controllers/metadata/index.ts';
+import * as operationMetadata from '@operation/metadata/index.ts';
 import {animateWithClass, clearStorage} from '@operation/metadata/index.ts';
+import {PARAMETER_TYPES} from '@operation/metadata/parameter-types.ts';
+import type {TPropertyMetadata} from '@operation/metadata/types.ts';
 import {Project} from 'ts-morph';
 import {describe, expect, test} from 'vitest';
 import {getTypeFromProperty} from '@/tools/code-generator/property-type.ts';
@@ -136,9 +140,108 @@ describe('getTypeFromProperty', () => {
     // expect
     expect(result).toBe(`type: 'ParameterType:string'`);
   });
+
+  test('given a string | DOM node union property, when the type is resolved, then every DOM node type is a parameter type', () => {
+    // given
+    const source =
+      'export interface ITest { template?: string | Element | Text | Comment | Document | DocumentFragment; }';
+
+    // test
+    const result = getPropertyType(source, 'template');
+
+    // expect
+    expect(result).toBe(
+      `type: 'ParameterType:string|ParameterType:Element|ParameterType:Text|ParameterType:Comment|ParameterType:Document|ParameterType:DocumentFragment'`
+    );
+  });
+
+  test('given a property of a type that is not a parameter type, when the type is resolved, then it throws naming the property and the type', () => {
+    // given
+    const source = 'export interface ITest { lookup?: Map<string, number>; }';
+
+    // test
+    const resolve = () => getPropertyType(source, 'lookup');
+
+    // expect
+    expect(resolve).toThrow(/lookup.*Map<string, number>/);
+  });
+
+  test('given a union with a member that is not a parameter type, when the type is resolved, then it throws naming the property and the type', () => {
+    // given
+    const source = 'export interface ITest { value?: string | Blob; }';
+
+    // test
+    const resolve = () => getPropertyType(source, 'value');
+
+    // expect
+    expect(resolve).toThrow(/value.*Blob/);
+  });
+
+  test('given an array of a type that is not a parameter type, when the type is resolved, then it throws naming the property and the type', () => {
+    // given
+    const source = 'export interface ITest { items?: Blob[]; }';
+
+    // test
+    const resolve = () => getPropertyType(source, 'items');
+
+    // expect
+    expect(resolve).toThrow(/items.*Blob/);
+  });
 });
 
+/**
+ * Returns every `ParameterType:<name>` a property metadata entry refers to, its
+ * `|` delimited type and its item type.
+ */
+function getParameterTypes(property: TPropertyMetadata): string[] {
+  if (typeof property === 'string') {
+    return property.split('|');
+  }
+  const types = Array.isArray(property.type) ? [] : property.type.split('|');
+  return 'itemType' in property ? [...types, property.itemType] : types;
+}
+
+function getAllMetadataProperties() {
+  const sources = [
+    ...Object.entries(operationMetadata),
+    ...Object.entries(controllerMetadata),
+  ];
+  return sources
+    .filter(([, factory]) => typeof factory === 'function')
+    .flatMap(([name, factory]) => {
+      const metadata = (
+        factory as () => {
+          properties?: Record<string, TPropertyMetadata | undefined>;
+          outputProperties?: Record<string, TPropertyMetadata | undefined>;
+        }
+      )();
+      return [
+        ...Object.entries(metadata.properties ?? {}),
+        ...Object.entries(metadata.outputProperties ?? {}),
+      ].map(([property, entry]) => ({name: `${name}.${property}`, entry}));
+    });
+}
+
 describe('generated metadata', () => {
+  test('given every operation and controller metadata, when splitting each type on |, then every part is a known parameter type', () => {
+    // given
+    const properties = getAllMetadataProperties();
+    const known = new Set<string>(PARAMETER_TYPES);
+
+    // test
+    const unknown = properties.flatMap(({name, entry}) =>
+      entry
+        ? getParameterTypes(entry)
+            .filter(type => !known.has(type))
+            .map(type => `${name}: ${type}`)
+        : []
+    );
+
+    // expect
+    expect(properties.length).toBeGreaterThan(0);
+    expect(unknown).toEqual([]);
+  });
+
   test('given the clearStorage metadata, when reading the optional key property, then its type is ParameterType:string', () => {
     // test
     const metadata = clearStorage();

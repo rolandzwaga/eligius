@@ -34,7 +34,12 @@ const tscPath = require.resolve('typescript/lib/tsc.js');
 const IS_ANY = 'type IsAny<T> = 0 extends 1 & T ? true : false;';
 
 const metadataConsumer = `
-import {ctrlmetadata, eventmetadata, metadata} from 'eligius/metadata';
+import {
+  ctrlmetadata,
+  eventmetadata,
+  metadata,
+  PARAMETER_TYPES,
+} from 'eligius/metadata';
 import type {
   IControllerMetadata,
   IEventMetadata,
@@ -51,6 +56,7 @@ const category: string = addClass.category;
 const lottie = ctrlmetadata.LottieController();
 const event: IEventMetadata = eventmetadata.timelineSeekRequest();
 const parameterType: TParameterTypes = 'ParameterType:className';
+const parameterTypes: readonly TParameterTypes[] = PARAMETER_TYPES;
 
 // The jQuery and lottie typed members must keep a real type, not collapse to any
 type Selected = DataOf<typeof addClass>['selectedElement'];
@@ -58,7 +64,14 @@ type Renderer = CtrlDataOf<typeof lottie>['renderer'];
 const selectedIsTyped: IsAny<Selected> = false;
 const rendererIsTyped: IsAny<Renderer> = false;
 
-export {category, event, parameterType, selectedIsTyped, rendererIsTyped};
+export {
+  category,
+  event,
+  parameterType,
+  parameterTypes,
+  selectedIsTyped,
+  rendererIsTyped,
+};
 `;
 
 const configurationApiConsumer = `

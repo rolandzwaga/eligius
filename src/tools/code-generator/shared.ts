@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import {PARAMETER_TYPES} from '@operation/metadata/parameter-types.ts';
 import {
   type InterfaceDeclaration,
   type JSDoc,
@@ -201,13 +202,44 @@ export const toStringLiteral = (text: string): string =>
     .replaceAll('\r', '\\r')
     .replaceAll('\n', '\\n')}'`;
 
+const knownParameterTypes: ReadonlySet<string> = new Set(PARAMETER_TYPES);
+
+/**
+ * Throws when a parameter type is not one of `PARAMETER_TYPES`, so an unknown
+ * type name fails the metadata generation instead of reaching the metadata.
+ *
+ * @param parameterType - The parameter type, e.g. `ParameterType:string`
+ * @param propertyName - The property the type belongs to
+ * @param typeText - The TypeScript type or `@type` tag of the property
+ * @throws When the parameter type is unknown
+ */
+export const assertParameterType = (
+  parameterType: string,
+  propertyName: string,
+  typeText: string
+): void => {
+  if (!knownParameterTypes.has(parameterType)) {
+    throw new Error(
+      `Property '${propertyName}' of type '${typeText}' maps to '${parameterType}', which is not in PARAMETER_TYPES (src/operation/metadata/parameter-types.ts). Add it there and to parameterTypeMap, or give the property a @type tag.`
+    );
+  }
+};
+
 /**
  * Returns the `type: '...'` metadata entry for a `@type` tag.
+ *
+ * @throws When the tag names an unknown parameter type
  */
 export const getTypeFromTag = (tag: JSDocTag): string => {
   const comment = tag.getComment();
-  const text = typeof comment === 'string' ? comment : '';
-  return `type: ${toStringLiteral(text.trim())}`;
+  const text = (typeof comment === 'string' ? comment : '').trim();
+  const propertyName =
+    tag.getFirstAncestorByKind(SyntaxKind.PropertySignature)?.getName() ??
+    '<unknown>';
+  for (const part of text.replace(/^=\s*/, '').split('|')) {
+    assertParameterType(part.trim(), propertyName, `@type=${text}`);
+  }
+  return `type: ${toStringLiteral(text)}`;
 };
 
 /**
