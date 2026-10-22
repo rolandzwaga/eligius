@@ -1,7 +1,6 @@
 import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {
   ExtractOperationDataType,
-  GetOperationByName,
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
@@ -18,6 +17,8 @@ import type {IDuration} from '../../types.ts';
 import {
   assertKnownOperationName,
   getOperationNameByType,
+  type TFluentOperationData,
+  type TFluentOperationName,
 } from './operation-lookup.ts';
 import {syncInPlace} from './sync-in-place.ts';
 
@@ -126,20 +127,22 @@ export class ActionEditor<
    * The operation data is copied, so later changes to the given object do not
    * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @param id
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addStartOperation<
-    N extends TOperationName,
-    D extends Partial<ExtractOperationDataType<GetOperationByName<N>>>,
+    N extends TFluentOperationName,
+    D extends TFluentOperationData<N>,
   >(
     systemName: N,
     operationData: D,
     id: string = uuidv4()
   ): OperationEditor<this, TOperation<TOperationData>> {
-    assertKnownOperationName(systemName);
+    assertKnownOperationName(systemName, this.getCustomOperationNames());
 
     const startOperations = this.actionConfig.startOperations
       ? this.actionConfig.startOperations.slice()
@@ -247,6 +250,17 @@ export class ActionEditor<
   next() {
     return this.configurationFactory;
   }
+
+  /**
+   * Returns the custom operation names that the `ConfigurationFactory` accepts
+   * besides the built-in operations (its `customOperations` option).
+   *
+   * @returns the custom operation names, or `undefined` when the editor has no factory
+   */
+  getCustomOperationNames(): ReadonlySet<string> | undefined {
+    // Optional chaining: an editor may be constructed with a stand-in factory
+    return this.configurationFactory?.customOperationNames;
+  }
 }
 
 /**
@@ -290,15 +304,17 @@ export class EndableActionEditor<
    * The operation data is copied, so later changes to the given object do not
    * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addEndOperation<
-    T extends TOperationName,
-    O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
+    T extends TFluentOperationName,
+    O extends TFluentOperationData<T>,
   >(systemName: T, operationData: O) {
-    assertKnownOperationName(systemName);
+    assertKnownOperationName(systemName, this.getCustomOperationNames());
 
     const endOperations = this.actionConfig.endOperations
       ? this.actionConfig.endOperations.slice()
@@ -478,11 +494,16 @@ export class OperationEditor<
    *
    * Sets the system name
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
-  setSystemName(systemName: TOperationName) {
-    assertKnownOperationName(systemName);
+  setSystemName(systemName: TFluentOperationName) {
+    assertKnownOperationName(
+      systemName,
+      this.actionEditor.getCustomOperationNames?.()
+    );
 
     this.operationConfig.systemName = systemName;
     this.actionEditor.updateConfiguration();

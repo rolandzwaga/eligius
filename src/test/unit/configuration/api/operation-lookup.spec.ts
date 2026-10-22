@@ -39,6 +39,28 @@ describe('operation-lookup', () => {
     expect(() => assertKnownOperationName('selectElement')).not.toThrow();
   });
 
+  test('given custom operation names, when a custom name is asserted, then it does not throw, and a misspelled one suggests the custom name', () => {
+    const customNames = new Set(['trackEvent']);
+
+    expect(() =>
+      assertKnownOperationName('trackEvent', customNames)
+    ).not.toThrow();
+    expect(() => assertKnownOperationName('trackEvent')).toThrowError(
+      /^Unknown operation: trackEvent\. To add a custom operation/
+    );
+    expect(() =>
+      assertKnownOperationName('trackEvnt', customNames)
+    ).toThrowError(
+      /^Unknown operation: trackEvnt\. Did you mean 'trackEvent'\?/
+    );
+  });
+
+  test('given a misspelled built-in name, when asserted, then the message suggests the built-in name', () => {
+    expect(() => assertKnownOperationName('selectElemnt')).toThrowError(
+      /^Unknown operation: selectElemnt\. Did you mean 'selectElement'\?/
+    );
+  });
+
   test('given the fluent API barrel is loaded, when an operation function is looked up, then its system name is returned', () => {
     expect(
       getOperationNameByType(

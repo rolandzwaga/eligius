@@ -90,6 +90,72 @@ describe('customFunction with an unknown systemName', () => {
     }
   });
 
+  test('given an EligiusResourceImporter with a registered function, when customFunction is applied with its name, then the function is called with the operation data', async () => {
+    // given
+    const eventbus = new Eventbus();
+    const formatPrice = vi.fn((operationData: any) => {
+      operationData.price = `EUR ${operationData.amount}`;
+    });
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({functions: {formatPrice}}),
+      window,
+      {eventbus}
+    );
+
+    // test
+    try {
+      const result: any = await applyOperation(
+        customFunction,
+        {systemName: 'formatPrice', amount: 5} as any,
+        {currentIndex: -1, eventbus, operations: []}
+      );
+
+      // expect
+      expect(formatPrice).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({amount: 5, price: 'EUR 5'});
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an EligiusResourceImporter with a registered function and a misspelled systemName, when customFunction is applied, then it throws suggesting the registered name', () => {
+    // given
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({functions: {formatPrice: () => {}}}),
+      window,
+      {eventbus}
+    );
+
+    // test + expect
+    try {
+      expect(() => applyWithEventbus(eventbus, 'formatPrise')).toThrowError(
+        "customFunction: could not retrieve function 'formatPrise'. EligiusResourceImporter: unknown system name 'formatPrise'. Did you mean 'formatPrice'?"
+      );
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an EligiusResourceImporter with a registered template, when customFunction is applied with its name, then it throws because the template is not a function', () => {
+    // given
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({templates: {intro: '<p></p>'}}),
+      window,
+      {eventbus}
+    );
+
+    // test + expect
+    try {
+      expect(() => applyWithEventbus(eventbus, 'intro')).toThrowError(
+        "customFunction: systemName 'intro' does not resolve to a function."
+      );
+    } finally {
+      factory.destroy();
+    }
+  });
+
   test('given an unknown systemName inside an action, when the action starts, then the start promise rejects with the customFunction error', async () => {
     // given
     const mockEventbus = {request: vi.fn(() => undefined)};

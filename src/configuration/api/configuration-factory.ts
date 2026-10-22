@@ -28,6 +28,45 @@ const UNIQUE_NAME_LISTS: TEngineConfigurationLists[] = [
   'eventActions',
 ];
 
+/**
+ * Options for the {@link ConfigurationFactory} constructor.
+ */
+export interface IConfigurationFactoryOptions {
+  /**
+   * The system names of custom operations that the name based methods
+   * (`addStartOperation`, `addEndOperation`, `setSystemName`) accept besides
+   * the built-in operations. Only names are needed, so this works in the
+   * DOM-free `eligius/configuration-api` entry as well.
+   *
+   * The implementations are registered with the engine separately, for
+   * example `new EligiusResourceImporter({operations: {trackEvent}})`. Custom
+   * operations have no generated metadata, so their operation data is not
+   * typed or schema-validated.
+   */
+  customOperations?: readonly string[];
+}
+
+function toCustomOperationNames(
+  customOperations: readonly string[] | undefined
+): ReadonlySet<string> {
+  if (customOperations === undefined) {
+    return new Set();
+  }
+  if (!Array.isArray(customOperations)) {
+    throw new Error(
+      'ConfigurationFactory: options.customOperations must be an array of operation names.'
+    );
+  }
+  for (const [index, name] of customOperations.entries()) {
+    if (typeof name !== 'string' || !name.length) {
+      throw new Error(
+        `ConfigurationFactory: options.customOperations[${index}] must be a non-empty string.`
+      );
+    }
+  }
+  return new Set(customOperations);
+}
+
 type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
   this: NewFactory,
   ...rest: any[]
@@ -130,10 +169,30 @@ export class ConfigurationFactory {
   actionCreatorFactory: ActionCreatorFactory;
 
   /**
-   * Constructs a new `ConfigurationFactory`
-   * @param config an optional existing configuration that will be used as a starting point
+   * The custom operation names this factory accepts besides the built-in
+   * operations, from the `customOperations` option.
    */
-  constructor(public configuration: IEngineConfiguration = {} as any) {
+  readonly customOperationNames: ReadonlySet<string>;
+
+  /**
+   * Constructs a new `ConfigurationFactory`
+   * @param configuration an optional existing configuration that will be used as a starting point
+   * @param options optional settings, see {@link IConfigurationFactoryOptions}
+   * @throws Error when `options.customOperations` is not an array of non-empty strings
+   *
+   * @example Accepting a custom operation
+   * ```ts
+   * const factory = new ConfigurationFactory(undefined, {customOperations: ['trackEvent']});
+   * factory.createAction('Track').addStartOperation('trackEvent', {category: 'intro'});
+   * ```
+   */
+  constructor(
+    public configuration: IEngineConfiguration = {} as any,
+    options: IConfigurationFactoryOptions = {}
+  ) {
+    this.customOperationNames = toCustomOperationNames(
+      options?.customOperations
+    );
     this.actionCreatorFactory = new ActionCreatorFactory(this);
   }
 

@@ -1,11 +1,9 @@
 import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {
   ExtractOperationDataType,
-  GetOperationByName,
   IActionConfiguration,
   IEndableActionConfiguration,
   ITimelineActionConfiguration,
-  TOperationName,
   TOperationType,
 } from '@configuration/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
@@ -13,6 +11,8 @@ import {v4 as uuidv4} from 'uuid';
 import {
   assertKnownOperationName,
   getOperationNameByType,
+  type TFluentOperationData,
+  type TFluentOperationName,
 } from './operation-lookup.ts';
 import {syncInPlace} from './sync-in-place.ts';
 
@@ -191,15 +191,17 @@ export class ActionCreator<
    * The operation data is copied, so later changes to the given object do not
    * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addStartOperation<
-    T extends TOperationName,
-    O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
+    T extends TFluentOperationName,
+    O extends TFluentOperationData<T>,
   >(systemName: T, operationData: O) {
-    assertKnownOperationName(systemName);
+    assertKnownOperationName(systemName, this._customOperationNames());
 
     const {startOperations} = this.actionConfig;
     startOperations.push({
@@ -218,6 +220,14 @@ export class ActionCreator<
    */
   next() {
     return this.factory;
+  }
+
+  /**
+   * The custom operation names of the `ConfigurationFactory`. Optional calls:
+   * a creator may be constructed with a stand-in factory.
+   */
+  protected _customOperationNames(): ReadonlySet<string> | undefined {
+    return this.factory.end?.()?.customOperationNames;
   }
 }
 
@@ -264,15 +274,17 @@ export class EndableActionCreator<
    * The operation data is copied, so later changes to the given object do not
    * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addEndOperation<
-    T extends TOperationName,
-    O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
+    T extends TFluentOperationName,
+    O extends TFluentOperationData<T>,
   >(systemName: T, operationData: O) {
-    assertKnownOperationName(systemName);
+    assertKnownOperationName(systemName, this._customOperationNames());
 
     let {endOperations} = this.actionConfig;
     if (!endOperations) {

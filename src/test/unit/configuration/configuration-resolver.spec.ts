@@ -1183,3 +1183,126 @@ describe<ConfigurationResolverSuiteContext>('ConfigurationResolver', () => {
     });
   });
 });
+
+describe('ConfigurationResolver with registered resources', () => {
+  function createConfigWithOperation(
+    systemName: string,
+    operationData: Record<string, unknown> = {}
+  ): IEngineConfiguration {
+    const config = createTestConfig();
+    config.actions = [
+      {
+        id: 'action-id',
+        name: 'TestAction',
+        startOperations: [{id: 'op-id', systemName, operationData}],
+        endOperations: [],
+      },
+    ];
+    return config;
+  }
+
+  class CustomController {
+    name = 'CustomController';
+    init() {}
+    attach() {}
+    detach() {}
+  }
+
+  test('given a registered operation, when a configuration uses it, then the resolved operation is the registered function', () => {
+    // given
+    const trackEvent = (operationData: any) => operationData;
+    const importer = new EligiusResourceImporter({operations: {trackEvent}});
+    const resolver = new ConfigurationResolver(importer, createMockEventbus());
+
+    // test
+    const [, resolved] = resolver.process(
+      createConfigWithOperation('trackEvent', {category: 'intro'})
+    );
+
+    // expect
+    const [operation] = (resolved.actions[0] as any).startOperations;
+    expect(operation.instance).toBe(trackEvent);
+    expect(operation.operationData).toEqual({category: 'intro'});
+  });
+
+  test('given a misspelled registered operation name, when process is called, then the did-you-mean hint suggests the registered operation', () => {
+    // given
+    const importer = new EligiusResourceImporter({
+      operations: {trackAnalyticsEvent: (data: any) => data},
+    });
+    const resolver = new ConfigurationResolver(importer, createMockEventbus());
+
+    // test + expect
+    expect(() =>
+      resolver.process(createConfigWithOperation('trackAnalyticEvent'))
+    ).toThrowError(
+      "Unknown operation 'trackAnalyticEvent' at actions[0].startOperations[0].systemName. Did you mean 'trackAnalyticsEvent'?"
+    );
+  });
+
+  test('given a registered function used as an operation systemName, when process is called, then it throws pointing at customFunction', () => {
+    // given
+    const importer = new EligiusResourceImporter({
+      functions: {formatPrice: () => undefined},
+    });
+    const resolver = new ConfigurationResolver(importer, createMockEventbus());
+
+    // test + expect
+    expect(() =>
+      resolver.process(createConfigWithOperation('formatPrice'))
+    ).toThrowError(
+      "Unknown operation 'formatPrice' at actions[0].startOperations[0].systemName. 'formatPrice' is a custom function, not an operation: call it with the customFunction operation ({systemName: 'formatPrice'})."
+    );
+  });
+
+  test('given a registered controller used as an operation systemName, when process is called, then it throws pointing at addControllerToElement', () => {
+    // given
+    const importer = new EligiusResourceImporter({
+      controllers: {CustomController},
+    });
+    const resolver = new ConfigurationResolver(importer, createMockEventbus());
+
+    // test + expect
+    expect(() =>
+      resolver.process(createConfigWithOperation('CustomController'))
+    ).toThrowError(
+      "Unknown operation 'CustomController' at actions[0].startOperations[0].systemName. 'CustomController' is a controller, not an operation: attach it with the addControllerToElement operation."
+    );
+  });
+
+  test('given a registered template and JSON value, when the configuration has template: and json: placeholders, then they are replaced, the JSON with a copy', () => {
+    // given
+    const settings = {colors: ['red', 'green']};
+    const importer = new EligiusResourceImporter({
+      templates: {layout: '<div id="stage"></div>'},
+      json: {settings},
+    });
+    const resolver = new ConfigurationResolver(importer, createMockEventbus());
+    const config = createConfigWithOperation('log', {
+      logValue: 'json:settings',
+    });
+    config.layoutTemplate = 'template:layout';
+
+    // test
+    const [, resolved] = resolver.process(config);
+
+    // expect
+    expect(resolved.layoutTemplate).toBe('<div id="stage"></div>');
+    const [operation] = (resolved.actions[0] as any).startOperations;
+    expect(operation.operationData.logValue).toEqual(settings);
+    expect(operation.operationData.logValue).not.toBe(settings);
+  });
+
+  test('given a misspelled json: placeholder, when process is called, then it throws naming the placeholder and suggesting the registered name', () => {
+    // given
+    const importer = new EligiusResourceImporter({json: {settings: {}}});
+    const resolver = new ConfigurationResolver(importer, createMockEventbus());
+    const config = createTestConfig();
+    config.containerSelector = 'json:setings';
+
+    // test + expect
+    expect(() => resolver.process(config)).toThrowError(
+      "Unable to resolve placeholder 'json:setings' at containerSelector: EligiusResourceImporter: unknown system name 'setings'. Did you mean 'settings'?"
+    );
+  });
+});

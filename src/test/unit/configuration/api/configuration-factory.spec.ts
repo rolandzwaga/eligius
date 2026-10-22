@@ -987,6 +987,91 @@ describe<ConfigurationFactorySuiteContext>('ConfigurationFactory', () => {
     });
   });
 
+  describe('custom operations', () => {
+    test('given a factory with customOperations, when the custom operation is added through every name based method, then it is accepted with untyped operation data', () => {
+      // given
+      const factory = new ConfigurationFactory(undefined, {
+        customOperations: ['trackEvent'],
+      });
+      const creator = factory.init('en-US').createAction('Track');
+
+      // test
+      creator
+        .addStartOperation('trackEvent', {category: 'intro', count: 1})
+        .addEndOperation('trackEvent', {category: 'outro'});
+      const editor = factory.editAction(creator.getId());
+      editor.addStartOperation('trackEvent', {label: 'x'});
+      editor.addEndOperation('trackEvent', {});
+      editor.addStartOperation('selectElement', {selector: '#a'});
+      const operationEditor = editor
+        .editStartOperation(creator.actionConfig.startOperations[2].id)
+        .setSystemName('trackEvent');
+      // Built-in operations keep their typed operation data
+      // @ts-expect-error selector must be a string
+      editor.addStartOperation('selectElement', {selector: 5});
+
+      // expect
+      expect(operationEditor.getSystemName()).toBe('trackEvent');
+      expect(
+        creator.actionConfig.startOperations.map(o => o.systemName)
+      ).toEqual(['trackEvent', 'trackEvent', 'trackEvent', 'selectElement']);
+      expect(creator.actionConfig.endOperations.map(o => o.systemName)).toEqual(
+        ['trackEvent', 'trackEvent']
+      );
+      expect(factory.customOperationNames).toEqual(new Set(['trackEvent']));
+    });
+
+    test('given a factory without customOperations, when a custom name is added or set, then it throws', () => {
+      // given
+      const factory = new ConfigurationFactory();
+      const creator = factory.init('en-US').createAction('Track');
+      creator.addStartOperation('selectElement', {selector: '#a'});
+      const operationEditor = factory
+        .editAction(creator.getId())
+        .editStartOperation(creator.actionConfig.startOperations[0].id);
+
+      // test + expect
+      expect(() => creator.addStartOperation('trackEvent', {})).toThrowError(
+        /^Unknown operation: trackEvent\./
+      );
+      expect(() => operationEditor.setSystemName('trackEvent')).toThrowError(
+        /^Unknown operation: trackEvent\./
+      );
+      expect(factory.customOperationNames.size).toBe(0);
+    });
+
+    test('given invalid customOperations, when the factory is constructed, then it throws naming the option', () => {
+      // test + expect
+      expect(
+        () =>
+          new ConfigurationFactory(undefined, {
+            customOperations: 'trackEvent' as any,
+          })
+      ).toThrowError(
+        'ConfigurationFactory: options.customOperations must be an array of operation names.'
+      );
+      expect(
+        () =>
+          new ConfigurationFactory(undefined, {customOperations: ['ok', '']})
+      ).toThrowError(
+        'ConfigurationFactory: options.customOperations[1] must be a non-empty string.'
+      );
+    });
+
+    test('given an existing configuration and customOperations, when the factory is constructed, then it edits the given configuration', () => {
+      // given
+      const configuration = {actions: []} as unknown as IEngineConfiguration;
+
+      // test
+      const factory = new ConfigurationFactory(configuration, {
+        customOperations: ['trackEvent'],
+      });
+
+      // expect
+      expect(factory.configuration).toBe(configuration);
+    });
+  });
+
   describe<ConfigurationFactorySuiteContext>('timeline action durations', () => {
     test<ConfigurationFactorySuiteContext>('given a timeline action, when addDuration(0, 0) is called, then end 0 is kept', context => {
       // given

@@ -87,6 +87,64 @@ describe('Fluent configuration API in a DOM-less Node environment', () => {
     ).toThrowError(/addStartOperation\(/);
   });
 
+  test('given no DOM and a factory with a custom operation name, when the custom operation is added by name, then the configuration contains it', () => {
+    const factory = new ConfigurationFactory(undefined, {
+      customOperations: ['trackEvent'],
+    });
+    factory
+      .init('en-US')
+      .setContainerSelector('#app')
+      .addTimeline('main', 'animation', 60, false, '#timeline');
+
+    factory
+      .createTimelineAction('main', 'Track')
+      .addDuration(0, 1)
+      .addStartOperation('trackEvent', {category: 'intro'})
+      .addEndOperation('trackEvent', {category: 'outro'})
+      .next()
+      .end();
+
+    factory
+      .createAction('Edited')
+      .next()
+      .end()
+      .editAction(factory.getConfiguration().actions[0].id)
+      .addStartOperation('selectElement', {selector: '#app'})
+      .setSystemName('trackEvent');
+
+    const config = factory.getConfiguration();
+    const [timelineAction] = config.timelines[0].timelineActions;
+    expect(timelineAction.startOperations[0]).toMatchObject({
+      systemName: 'trackEvent',
+      operationData: {category: 'intro'},
+    });
+    expect(timelineAction.endOperations[0].systemName).toBe('trackEvent');
+    expect(config.actions[0].startOperations[0]).toMatchObject({
+      systemName: 'trackEvent',
+      operationData: {selector: '#app'},
+    });
+  });
+
+  test('given no DOM and a factory without the custom operation name, when the custom operation is added, then it throws explaining the customOperations option', () => {
+    const factory = new ConfigurationFactory(undefined, {
+      customOperations: ['trackEvent'],
+    });
+    factory.init('en-US');
+
+    expect(() =>
+      new ConfigurationFactory()
+        .createAction('Plain')
+        .addStartOperation('trackEvent', {})
+    ).toThrowError(
+      "Unknown operation: trackEvent. To add a custom operation, declare its name in the ConfigurationFactory options: new ConfigurationFactory(undefined, {customOperations: ['myOperation']})."
+    );
+    expect(() =>
+      factory.createAction('Typo').addStartOperation('trackEvnt', {})
+    ).toThrowError(
+      /^Unknown operation: trackEvnt\. Did you mean 'trackEvent'\?/
+    );
+  });
+
   test('given no DOM, when the name providers are used, then they list the operations and controllers', () => {
     const operationNames = new OperationNamesProvider().getOperationNames();
     expect(operationNames).toContain('selectElement');

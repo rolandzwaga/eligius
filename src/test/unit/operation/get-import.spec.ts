@@ -88,6 +88,56 @@ describe('getImport with an unknown systemName', () => {
   });
 });
 
+describe('getImport with registered resources', () => {
+  test('given an EligiusResourceImporter with a registered JSON value, template and function, when getImport is applied with each name, then importedInstance is the registered value', () => {
+    // given
+    const eventbus = new Eventbus();
+    const settings = {colors: ['red']};
+    const greet = () => 'hello';
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({
+        json: {settings},
+        templates: {intro: '<p class="intro"></p>'},
+        functions: {greet},
+      }),
+      window,
+      {eventbus}
+    );
+
+    // test + expect
+    try {
+      expect(applyWithEventbus(eventbus, 'settings').importedInstance).toBe(
+        settings
+      );
+      expect(applyWithEventbus(eventbus, 'intro').importedInstance).toBe(
+        '<p class="intro"></p>'
+      );
+      expect(applyWithEventbus(eventbus, 'greet').importedInstance).toBe(greet);
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an EligiusResourceImporter with a registered JSON value and a misspelled systemName, when getImport is applied, then it throws suggesting the registered name', () => {
+    // given
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({json: {chartData: [1, 2]}}),
+      window,
+      {eventbus}
+    );
+
+    // test + expect
+    try {
+      expect(() => applyWithEventbus(eventbus, 'chartDta')).toThrowError(
+        "getImport: could not retrieve 'chartDta'. EligiusResourceImporter: unknown system name 'chartDta'. Did you mean 'chartData'?"
+      );
+    } finally {
+      factory.destroy();
+    }
+  });
+});
+
 type GetImportSuiteContext = {
   eventbus: any;
   requestedTopic: string;
