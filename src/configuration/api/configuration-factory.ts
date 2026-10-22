@@ -7,7 +7,9 @@ import {
 import {TimelineProvidersSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
 import type {
   IActionConfiguration,
+  IContainerProviderConfig,
   IEngineConfiguration,
+  IPositionSourceConfig,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
 } from '@configuration/types.ts';
@@ -583,6 +585,78 @@ export class ConfigurationFactory {
     };
     timelines.push(timelineConfig);
     return this;
+  }
+
+  /**
+   * Gives the timeline its own position source settings, merged over the
+   * settings of its type in `timelineProviderSettings` (see
+   * `ITimelineConfiguration.positionSource`).
+   *
+   * @param uri - URI of the timeline
+   * @param positionSource - The override. Leave out `systemName` to change
+   * single settings of the type's position source, or name another class to
+   * replace it for this timeline. `undefined` removes the override.
+   * @returns The factory
+   * @throws Error when no timeline has the URI
+   *
+   * @example
+   * ```ts
+   * factory
+   *   .addTimeline('intro', 'animation', 10, false, '#intro')
+   *   .addTimeline('chapter-1', 'animation', 60, false, '#chapter-1')
+   *   .setTimelinePositionSource('chapter-1', {
+   *     systemName: 'ScrollPositionSource',
+   *     selector: '#chapter-1',
+   *   });
+   * ```
+   */
+  setTimelinePositionSource(
+    uri: string,
+    positionSource: Partial<IPositionSourceConfig> | undefined
+  ) {
+    const timeline = this._requireTimeline(uri, 'setTimelinePositionSource');
+    if (positionSource === undefined) {
+      delete timeline.positionSource;
+    } else {
+      timeline.positionSource = deepCopy(positionSource);
+    }
+    return this;
+  }
+
+  /**
+   * Gives the timeline its own container provider settings, merged over the
+   * `container` settings of its type in `timelineProviderSettings` (see
+   * `ITimelineConfiguration.containerProvider`).
+   *
+   * @param uri - URI of the timeline
+   * @param containerProvider - The override, for example
+   * `{selector: '#chapter-1'}`. `undefined` removes the override.
+   * @returns The factory
+   * @throws Error when no timeline has the URI
+   */
+  setTimelineContainerProvider(
+    uri: string,
+    containerProvider: Partial<IContainerProviderConfig> | undefined
+  ) {
+    const timeline = this._requireTimeline(uri, 'setTimelineContainerProvider');
+    if (containerProvider === undefined) {
+      delete timeline.containerProvider;
+    } else {
+      timeline.containerProvider = deepCopy(containerProvider);
+    }
+    return this;
+  }
+
+  private _requireTimeline(uri: string, methodName: string) {
+    const timeline = this.configuration.timelines
+      ? this.getTimeline(uri)
+      : undefined;
+    if (!timeline) {
+      throw new Error(
+        `ConfigurationFactory.${methodName}: no timeline found for uri '${uri}'`
+      );
+    }
+    return timeline;
   }
 
   /**

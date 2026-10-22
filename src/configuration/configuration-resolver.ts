@@ -1,5 +1,9 @@
 import {Action, EndableAction, TimelineAction} from '@action/index.ts';
 import type {IAction} from '@action/types.ts';
+import {
+  effectiveContainerProvider,
+  effectivePositionSource,
+} from '@configuration/timeline-provider-overrides.ts';
 import type {
   IActionConfiguration,
   IEndableActionConfiguration,
@@ -49,7 +53,12 @@ import type {
  * @throws When `actions`, `initActions`, `timelines`, an action's `startOperations` or
  * `endOperations`, or a timeline's `timelineActions` is not an array.
  * @throws When a timeline action has no valid `duration`, or when a timeline's `type` has no
- * entry in `timelineProviderSettings`.
+ * entry in `timelineProviderSettings` and the timeline has no `positionSource` with a `systemName`
+ * of its own.
+ * @throws When a timeline's `positionSource` or `containerProvider` override is not an object,
+ * names a `systemName` the importer does not provide, or leaves out a setting that the provider
+ * requires (for example `selector` of `ScrollPositionSource`) once it is merged over the type's
+ * settings.
  * @throws When a `template:`, `json:` or `config:` placeholder cannot be resolved.
  */
 export class ConfigurationResolver implements IConfigurationResolver {
@@ -82,7 +91,13 @@ export class ConfigurationResolver implements IConfigurationResolver {
       ''
     );
 
-    if (!isObject(configuration.timelineProviderSettings)) {
+    if (
+      !isObject(configuration.timelineProviderSettings) &&
+      !(
+        configuration.timelineProviderSettings === undefined &&
+        everyTimelineHasOwnPositionSource(configuration.timelines)
+      )
+    ) {
       throw new Error(
         `Configuration incomplete: it needs to have at least one timeline provider setting at timelineProviderSettings, got ${describeValue(configuration.timelineProviderSettings)}.`
       );
@@ -91,9 +106,8 @@ export class ConfigurationResolver implements IConfigurationResolver {
     const resolvedConfig: IResolvedEngineConfiguration = {
       id: configuration.id,
       engine: {...configuration.engine},
-      timelineProviderSettings: deepCopy(
-        configuration.timelineProviderSettings
-      ),
+      timelineProviderSettings:
+        deepCopy(configuration.timelineProviderSettings) ?? {},
       containerSelector: configuration.containerSelector,
       cssFiles: deepCopy(configuration.cssFiles),
       language: configuration.language,
@@ -119,7 +133,7 @@ export class ConfigurationResolver implements IConfigurationResolver {
       ),
     };
 
-    assertTimelineProviderSettings(configuration);
+    assertTimelineProviderSettings(configuration, this.importer);
 
     let eventActions: IEventActionRegistration[] = [];
     if (isDefined(configuration.eventActions)) {
@@ -194,19 +208,196 @@ function assertArray(value: unknown, path: string): asserts value is unknown[] {
 }
 
 /**
- * Every timeline type needs provider settings, otherwise the engine silently
- * has no position source for those timelines.
+ * Every timeline needs a position source: from the provider settings of its
+ * type, or from a `positionSource` override with a `systemName` of its own.
+ * Otherwise the engine silently has no position source for it.
+ *
+ * Overrides are checked here so a mistake fails at resolution with its JSON
+ * path, not at init or on the first switch to the timeline.
  */
-function assertTimelineProviderSettings(configuration: IEngineConfiguration) {
+function assertTimelineProviderSettings(
+  configuration: IEngineConfiguration,
+  importer: ISimpleResourceImporter
+) {
   const settings = configuration.timelineProviderSettings ?? {};
   configuration.timelines.forEach((timeline, index) => {
+    const path = `timelines[${index}]`;
     const {type} = timeline;
-    if (!Object.hasOwn(settings, type) || !isObject(settings[type])) {
+    const typeSettings =
+      Object.hasOwn(settings, type) && isObject(settings[type])
+        ? settings[type]
+        : undefined;
+
+    assertProviderOverride(
+      timeline.positionSource,
+      `${path}.positionSource`,
+      'position source',
+      importer
+    );
+    assertProviderOverride(
+      timeline.containerProvider,
+      `${path}.containerProvider`,
+      'container provider',
+      importer
+    );
+
+    if (!typeSettings && !isString(timeline.positionSource?.systemName)) {
       throw new Error(
-        `Missing timeline provider settings at timelineProviderSettings.${type} for timelines[${index}] (type '${type}'). Add a provider for the '${type}' timeline type.`
+        `Missing timeline provider settings at timelineProviderSettings.${type} for ${path} (type '${type}'). Add a provider for the '${type}' timeline type, or give ${path}.positionSource a systemName of its own.`
+      );
+    }
+
+    if (isDefined(timeline.positionSource)) {
+      assertMergedProviderSettings(
+        effectivePositionSource(timeline, typeSettings),
+        `${path}.positionSource`,
+        `timelineProviderSettings.${type}.positionSource`,
+        'position source'
+      );
+    }
+    if (isDefined(timeline.containerProvider)) {
+      assertMergedProviderSettings(
+        effectiveContainerProvider(timeline, typeSettings),
+        `${path}.containerProvider`,
+        `timelineProviderSettings.${type}.container`,
+        'container provider'
       );
     }
   });
+}
+
+/**
+ * True when there are timelines and every one names its own position source,
+ * so the configuration needs no `timelineProviderSettings`.
+ */
+function everyTimelineHasOwnPositionSource(timelines: unknown): boolean {
+  return (
+    Array.isArray(timelines) &&
+    timelines.length > 0 &&
+    timelines.every(
+      timeline =>
+        isObject(timeline) &&
+        isObject(timeline.positionSource) &&
+        isString(timeline.positionSource.systemName)
+    )
+  );
+}
+
+/**
+ * Settings that the built-in providers cannot work without. They are checked
+ * for timelines that override their provider settings, after the merge.
+ */
+const REQUIRED_PROVIDER_SETTINGS: Record<string, readonly string[]> = {
+  ScrollPositionSource: ['selector'],
+  VideoPositionSource: ['selector', 'sources'],
+  DomContainerProvider: ['selector'],
+};
+
+/**
+ * Checks the shape of a per-timeline provider override and that its
+ * `systemName`, when given, is provided by the importer.
+ */
+function assertProviderOverride(
+  override: unknown,
+  path: string,
+  kind: string,
+  importer: ISimpleResourceImporter
+) {
+  if (!isDefined(override)) {
+    return;
+  }
+  if (!isObject(override)) {
+    throw new Error(
+      `Invalid configuration at ${path}: expected an object with ${kind} settings, got ${describeValue(override)}.`
+    );
+  }
+  const {systemName} = override;
+  if (!isDefined(systemName)) {
+    return;
+  }
+  if (!isString(systemName)) {
+    throw new Error(
+      `Invalid configuration at ${path}.systemName: expected the name of a ${kind} class, got ${describeValue(systemName)}.`
+    );
+  }
+
+  let entry: unknown;
+  try {
+    entry = importer.import(systemName)?.[systemName];
+  } catch {
+    entry = undefined;
+  }
+  if (!isFunction(entry)) {
+    const didYouMean = formatDidYouMean(
+      findClosestNames(
+        systemName,
+        getImporterNames(importer, 'getProviderNames')
+      )
+    );
+    throw new Error(
+      `Unknown ${kind} '${systemName}' at ${path}.systemName. ${
+        didYouMean ||
+        `Check the spelling, or make sure the ${kind} is available from the resource importer.`
+      }`
+    );
+  }
+  const isListedAs = (getterName: string) =>
+    getImporterNames(importer, getterName).includes(systemName);
+  if (
+    !isListedAs('getProviderNames') &&
+    (isListedAs('getOperationNames') || isListedAs('getControllerNames'))
+  ) {
+    throw new Error(
+      `Unknown ${kind} '${systemName}' at ${path}.systemName: '${systemName}' is an operation or controller, not a ${kind}.`
+    );
+  }
+}
+
+/**
+ * Checks the settings a timeline ends up with once its override is merged
+ * over the settings of its type: a `systemName`, and the settings the
+ * built-in provider of that name requires.
+ */
+function assertMergedProviderSettings(
+  merged: Record<string, unknown> | undefined,
+  path: string,
+  typePath: string,
+  kind: string
+) {
+  const systemName = merged?.systemName;
+  if (!merged || !isString(systemName)) {
+    throw new Error(
+      `Missing systemName at ${path}.systemName: there are no settings at ${typePath} to merge the override over, so it has to name the ${kind} class.`
+    );
+  }
+  const required = Object.hasOwn(REQUIRED_PROVIDER_SETTINGS, systemName)
+    ? REQUIRED_PROVIDER_SETTINGS[systemName]
+    : [];
+  for (const key of required) {
+    if (!hasRequiredSetting(merged, key)) {
+      throw new Error(
+        `Missing setting at ${path}.${key}: '${systemName}' requires '${key}', and neither ${path} nor ${typePath} provides it.`
+      );
+    }
+  }
+}
+
+function hasRequiredSetting(
+  settings: Record<string, unknown>,
+  key: string
+): boolean {
+  if (key === 'sources') {
+    // VideoPositionSource also takes its sources from options.sources
+    const options = settings.options;
+    const fromOptions = isObject(options) ? options.sources : undefined;
+    return isNonEmptyArray(settings.sources) || isNonEmptyArray(fromOptions);
+  }
+  const value = settings[key];
+  return isString(value) ? value.length > 0 : isDefined(value);
+}
+
+function isNonEmptyArray(value: unknown): boolean {
+  return Array.isArray(value) && value.length > 0;
 }
 
 function createActionsLookup(
@@ -265,6 +456,13 @@ function resolveTimelines(
       assertArray(config.timelineActions, `${path}.timelineActions`);
       return {
         ...config,
+        // Copies, so the resolved configuration does not share the overrides
+        ...(isDefined(config.positionSource) && {
+          positionSource: deepCopy(config.positionSource),
+        }),
+        ...(isDefined(config.containerProvider) && {
+          containerProvider: deepCopy(config.containerProvider),
+        }),
         timelineActions: config.timelineActions.map((actionConfig, index) =>
           resolveTimelineAction(
             importer,

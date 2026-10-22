@@ -39,6 +39,8 @@ export interface IEngineInfo {
 /**
  * Provider settings indexed by timeline type.
  * Allows different configurations for 'animation' vs 'mediaplayer' timelines.
+ * A single timeline can override them with its own `positionSource` and
+ * `containerProvider` (see {@link ITimelineConfiguration.positionSource}).
  */
 export type TTimelineProviderSettings = Partial<
   Record<TimelineTypes, ITimelineProviderSettings>
@@ -348,6 +350,10 @@ export interface IResolvedTimelineConfiguration {
    * Defaults to the timeline selector if not specified.
    */
   container?: string;
+  /** See {@link ITimelineConfiguration.positionSource} */
+  positionSource?: Partial<IPositionSourceConfig>;
+  /** See {@link ITimelineConfiguration.containerProvider} */
+  containerProvider?: Partial<IContainerProviderConfig>;
 }
 
 /**
@@ -374,7 +380,11 @@ export interface ITimelineConfiguration {
   id: string;
   /** URI for timeline identification and switching */
   uri: string;
-  /** Timeline type: 'animation' (RAF-based) or 'mediaplayer' (video-based) */
+  /**
+   * Timeline type: 'animation' or 'mediaplayer'. Selects the provider
+   * settings in `timelineProviderSettings`, which `positionSource` and
+   * `containerProvider` can override for this timeline.
+   */
   type: TimelineTypes;
   /** Duration in seconds */
   duration: number;
@@ -390,6 +400,39 @@ export interface ITimelineConfiguration {
    * Used by position sources that don't have an intrinsic container.
    */
   container?: string;
+  /**
+   * Optional position source settings for this timeline only, merged over
+   * `timelineProviderSettings[type].positionSource`.
+   *
+   * - Leave out `systemName` (or repeat the type's) to change single
+   *   settings, for example only the `selector` of a scroll timeline. The
+   *   other settings of the type still apply.
+   * - Name a different `systemName` to give this timeline another kind of
+   *   source, for example a `ScrollPositionSource` chapter in a
+   *   configuration whose animation timelines use `RafPositionSource`. The
+   *   type's position source settings are then not used, and when every
+   *   timeline of a type does this, the type needs no
+   *   `timelineProviderSettings` entry.
+   *
+   * A source that renders its own container (`VideoPositionSource`) is
+   * shared by every timeline of the type with the same effective settings,
+   * so only an override that changes the video settings creates a second
+   * player. Other sources are created once per timeline, as without an
+   * override.
+   *
+   * @example
+   * ```json
+   * {"positionSource": {"systemName": "ScrollPositionSource", "selector": "#chapter-2"}}
+   * ```
+   */
+  positionSource?: Partial<IPositionSourceConfig>;
+  /**
+   * Optional container provider settings for this timeline only, merged over
+   * `timelineProviderSettings[type].container` by the same rules as
+   * `positionSource`. Timelines with the same effective settings share
+   * one container provider.
+   */
+  containerProvider?: Partial<IContainerProviderConfig>;
 }
 
 /**

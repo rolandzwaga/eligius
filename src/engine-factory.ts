@@ -6,9 +6,18 @@ import {
   LocaleEventbusAdapter,
 } from '@adapters/index.ts';
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
+import {
+  effectiveContainerProvider,
+  effectivePositionSource,
+  overridesContainerProvider,
+  overridesPositionSource,
+  providerConfigKey,
+} from '@configuration/timeline-provider-overrides.ts';
 import type {
   IEngineConfiguration,
+  IPositionSourceConfig,
   IResolvedEngineConfiguration,
+  IResolvedTimelineConfiguration,
   ITimelineProviderSettings,
 } from '@configuration/types.ts';
 import {
@@ -584,7 +593,9 @@ export class EngineFactory implements IEngineFactory {
    *
    * This method iterates over timelineProviderSettings and creates a
    * ITimelineProviderInfo for each configured timeline type by:
-   * 1. Finding the first timeline that matches the type
+   * 1. Finding the first timeline that matches the type, skipping timelines
+   *    whose `positionSource` override changes the type's settings (when
+   *    every timeline of the type has one, the first timeline is used)
    * 2. Using the timeline's duration for the position source
    * 3. Assembling components from the settings
    *
@@ -597,7 +608,7 @@ export class EngineFactory implements IEngineFactory {
   ): Record<TimelineTypes, ITimelineProviderInfo> {
     const {timelineProviderSettings, timelines} = configuration;
 
-    const result = Object.entries(timelineProviderSettings).reduce<
+    const result = Object.entries(timelineProviderSettings ?? {}).reduce<
       Record<TimelineTypes, ITimelineProviderInfo>
     >(
       (acc, [timelineType, settings]) => {
@@ -605,8 +616,13 @@ export class EngineFactory implements IEngineFactory {
           return acc;
         }
 
-        // Find the first timeline that matches this type
-        const matchingTimeline = timelines.find(t => t.type === timelineType);
+        // The first timeline of this type that uses the type's position
+        // source settings unchanged
+        const matchingTimeline = representativeTimeline(
+          timelines,
+          timelineType as TimelineTypes,
+          settings
+        );
         if (!matchingTimeline) {
           throw new Error(
             `Timeline provider settings for '${timelineType}' has no matching timeline in configuration`
@@ -633,14 +649,24 @@ export class EngineFactory implements IEngineFactory {
    * own position source, constructed with its own duration, and shares the
    * type's container provider and playlist.
    *
+   * A timeline whose `positionSource` or `containerProvider` override changes
+   * the settings of its type gets that component built from the merged
+   * settings (see `ITimelineConfiguration.positionSource`). The
+   * components it does not override, and the playlist, come from its type.
+   *
    * Position sources that render their own DOM container (they implement
    * `IContainerProvider`, like VideoPositionSource) take their duration from
    * the media rather than from the timeline. They are shared by all timelines
-   * of a type, so switching timelines does not create a second player.
+   * of a type with the same effective settings, so switching timelines does
+   * not create a second player; a timeline whose override changes the video
+   * settings gets a player of its own. Overridden container providers are
+   * shared the same way.
    *
    * @param configuration - The resolved engine configuration
    * @param providersByType - The providers created per timeline type
    * @returns A record of timeline URIs to their provider info
+   * @throws Error when a position source or container provider cannot be
+   * imported, or an overridden position source has no `systemName`
    */
   createTimelineProvidersByUri(
     configuration: IResolvedEngineConfiguration,
@@ -648,32 +674,129 @@ export class EngineFactory implements IEngineFactory {
   ): Record<string, ITimelineProviderInfo> {
     const {timelineProviderSettings, timelines} = configuration;
     const result: Record<string, ITimelineProviderInfo> = {};
+    const sharedSources = new Map<string, IPositionSource>();
+    const sharedContainers = new Map<string, IContainerProvider | undefined>();
 
     timelines?.forEach(timeline => {
-      const typeProvider = providersByType[timeline.type];
+      const typeProvider: ITimelineProviderInfo | undefined =
+        providersByType[timeline.type];
       const settings = timelineProviderSettings?.[timeline.type];
-      if (!typeProvider || !settings) {
+      const ownSource = overridesPositionSource(timeline, settings);
+      const ownContainer = overridesContainerProvider(timeline, settings);
+
+      const typeInfo =
+        !ownSource && typeProvider && settings
+          ? this._typeProviderInfo(timeline, timelines, settings, typeProvider)
+          : undefined;
+      if (!ownSource && !ownContainer) {
+        if (typeInfo) {
+          result[timeline.uri] = typeInfo;
+        }
         return;
       }
 
-      const isFirstOfType =
-        timelines.find(t => t.type === timeline.type) === timeline;
-      if (isFirstOfType || hasIntrinsicContainer(typeProvider.positionSource)) {
-        result[timeline.uri] = typeProvider;
+      const positionSource = ownSource
+        ? this._overriddenPositionSource(timeline, settings, sharedSources)
+        : typeInfo?.positionSource;
+      if (!positionSource) {
         return;
       }
 
       result[timeline.uri] = {
-        positionSource: this.createPositionSourceForTimeline(
-          timeline,
-          settings
-        ),
-        containerProvider: typeProvider.containerProvider,
-        playlist: typeProvider.playlist,
+        positionSource,
+        containerProvider: ownContainer
+          ? this._overriddenContainerProvider(
+              timeline,
+              settings,
+              sharedContainers
+            )
+          : typeProvider?.containerProvider,
+        playlist: typeProvider?.playlist,
       };
     });
 
     return result;
+  }
+
+  /**
+   * The provider of a timeline that uses the settings of its type: the type
+   * provider itself for the timeline it was created for and for sources with
+   * their own container, otherwise a new position source with the timeline's
+   * duration next to the type's container provider and playlist.
+   */
+  private _typeProviderInfo(
+    timeline: IResolvedTimelineConfiguration,
+    timelines: IResolvedTimelineConfiguration[],
+    settings: ITimelineProviderSettings,
+    typeProvider: ITimelineProviderInfo
+  ): ITimelineProviderInfo {
+    if (
+      representativeTimeline(timelines, timeline.type, settings) === timeline ||
+      hasIntrinsicContainer(typeProvider.positionSource)
+    ) {
+      return typeProvider;
+    }
+    return {
+      positionSource: this.createPositionSourceForTimeline(timeline, settings),
+      containerProvider: typeProvider.containerProvider,
+      playlist: typeProvider.playlist,
+    };
+  }
+
+  /**
+   * Creates the position source of a timeline from its override merged over
+   * the type's settings. Sources with their own container are shared by the
+   * timelines of a type with the same merged settings.
+   */
+  private _overriddenPositionSource(
+    timeline: IResolvedTimelineConfiguration,
+    settings: ITimelineProviderSettings | undefined,
+    sharedSources: Map<string, IPositionSource>
+  ): IPositionSource {
+    const config = effectivePositionSource(timeline, settings);
+    if (!config || typeof config.systemName !== 'string') {
+      throw new Error(
+        `Timeline '${timeline.uri}' has a positionSource override without a systemName, and there are no timelineProviderSettings.${timeline.type} to merge it over.`
+      );
+    }
+    const timelineSettings: ITimelineProviderSettings = {
+      positionSource: config as IPositionSourceConfig,
+    };
+    const SourceClass = this._importSystemEntry(config.systemName);
+    if (!isIntrinsicContainerClass(SourceClass)) {
+      return this.createPositionSourceForTimeline(timeline, timelineSettings);
+    }
+
+    const key = `${timeline.type}:${providerConfigKey(config)}`;
+    let source = sharedSources.get(key);
+    if (!source) {
+      source = this.createPositionSourceForTimeline(timeline, timelineSettings);
+      sharedSources.set(key, source);
+    }
+    return source;
+  }
+
+  /**
+   * Creates the container provider of a timeline from its override merged
+   * over the type's settings, shared by the timelines of a type with the
+   * same merged settings.
+   */
+  private _overriddenContainerProvider(
+    timeline: IResolvedTimelineConfiguration,
+    settings: ITimelineProviderSettings | undefined,
+    sharedContainers: Map<string, IContainerProvider | undefined>
+  ): IContainerProvider | undefined {
+    const config = effectiveContainerProvider(timeline, settings);
+    const key = `${timeline.type}:${providerConfigKey(config)}`;
+    if (!sharedContainers.has(key)) {
+      sharedContainers.set(
+        key,
+        this.createContainerProviderForTimeline({
+          container: config,
+        } as ITimelineProviderSettings)
+      );
+    }
+    return sharedContainers.get(key);
   }
 }
 
@@ -689,5 +812,34 @@ function hasIntrinsicContainer(source: IPositionSource): boolean {
   return (
     typeof candidate.getContainer === 'function' &&
     typeof candidate.onContainerReady === 'function'
+  );
+}
+
+/**
+ * Whether instances of the position source class render their own container,
+ * judged from its prototype so no instance is needed.
+ */
+function isIntrinsicContainerClass(SourceClass: unknown): boolean {
+  const prototype = (SourceClass as {prototype?: unknown})?.prototype;
+  return (
+    typeof prototype === 'object' &&
+    prototype !== null &&
+    hasIntrinsicContainer(prototype as IPositionSource)
+  );
+}
+
+/**
+ * The timeline the provider of a type is created for: the first timeline of
+ * the type that uses the type's position source settings unchanged, or the
+ * first timeline of the type when every one of them overrides them.
+ */
+function representativeTimeline(
+  timelines: IResolvedTimelineConfiguration[],
+  type: TimelineTypes,
+  settings: ITimelineProviderSettings
+): IResolvedTimelineConfiguration | undefined {
+  const ofType = timelines.filter(t => t.type === type);
+  return (
+    ofType.find(t => !overridesPositionSource(t, settings)) ?? ofType.at(0)
   );
 }
