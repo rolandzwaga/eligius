@@ -37,7 +37,13 @@ export interface ISetElementContentOperationData {
  * With `overwrite`, controllers attached to the replaced content (by `addControllerToElement`) are
  * detached first. Controllers on the selected element itself stay attached.
  *
+ * The template is inserted as HTML: a string template is parsed by jQuery, which also runs the
+ * scripts and inline event handlers it contains. Only use string templates from the configuration
+ * or the resource importer; build content from user data with `createElement`, whose `text` is
+ * never parsed as HTML.
+ *
  * @throws AggregateError When one or more controller `detach()` calls throw. The content is replaced anyway.
+ * @throws When `insertionType` is not `overwrite`, `append` or `prepend`. Nothing is changed.
  *
  * @category DOM
  */
@@ -56,20 +62,26 @@ export const setElementContent: TOperation<
 
   let detachErrors: unknown[] = [];
 
-  switch (true) {
-    case insertionType === 'overwrite':
+  switch (insertionType) {
+    case 'overwrite':
       detachErrors = detachControllersWithin(
         selectedElement.children(),
         this.eventbus
       );
       selectedElement.html(template);
       break;
-    case insertionType === 'append':
+    case 'append':
       selectedElement.append(template);
       break;
-    case insertionType === 'prepend':
+    case 'prepend':
       selectedElement.prepend(template);
       break;
+    default:
+      // A misspelled insertionType would otherwise leave the element unchanged
+      // without any sign of the mistake
+      throw new Error(
+        `setElementContent: unknown insertionType '${String(insertionType)}', expected 'overwrite', 'append' or 'prepend'`
+      );
   }
 
   removeProperties(operationData, 'insertionType', 'template');
