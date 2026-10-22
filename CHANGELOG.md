@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit-report.md`). About 100 confirmed bugs are fixed, each with a regression test. Contains one breaking change, so it needs a major version bump.
+Release from two full codebase audits (reports in `specs/main/codebase-audit-report.md` and `specs/main/codebase-audit-report-2.md`). About 190 confirmed bugs are fixed, each with a regression test, and the second audit's improvements, optimisations, expansions and test gaps are done. Contains breaking changes, so it needs a major version bump.
 
 ### Breaking Changes
 
@@ -57,6 +57,8 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 - `invokeObjectMethod` only calls application code: plain objects and app class instances, never native or jQuery functions, host objects or `window`. Property chains can no longer reach the global object.
 - `__proto__`, `constructor` and `prototype` keys are rejected or dropped at every depth: configured operation data, `extendController`, global and variable names, `getFormData` fields, and `getConfiguration(callback)` through `syncInPlace`.
 - `reparentElement` rejects HTML and resolves its selector inside the engine root.
+- `createElement` and `setElementAttributes` refuse event-handler (`on*`) and `srcdoc` attributes, and `javascript:`/`vbscript:` URLs in URL attributes such as `href`, `src`, `action` and `formaction`; `createElement` refuses `script` elements. Configurations that wrote `onclick`-style attributes through these operations now fail.
+- `setElementContent` string templates are inserted as HTML and may run scripts; they must come from configuration or the importer, never from user data. Build content from user data with `createElement`.
 
 ### Performance
 
@@ -102,6 +104,7 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 - Calling `engine.destroy()` directly (without the factory's `destroy()`) left the play-toggle hotkey bound.
 - Registered JSON and templates whose value is `0`, `''` or `false` were rejected by `getImport` and `customFunction` lookups.
 - README: `createEngine` returns `localeManager` (not `languageManager`), and `KeyboardStepSource` is listed with the other position sources.
+- **Test-gap pass.** Closing the second audit's 145 test gaps found nine more bugs: an Eventbus or TypedEventEmitter broadcast still called handlers an earlier handler had just removed (including `once()` handlers, which could also run twice on a re-emit); `seek()` overtaken by `switchTimeline()` emitted `seekComplete` and `time` with the previous timeline's position; `engine.destroy()` called directly on a factory-created engine left its adapters, resize listener, eventbus registrations and action lookup behind and never lowered the live-engine count; `SubtitlesController.detach` left its subtitle on screen; `setElementContent` silently ignored an unknown `insertionType`; `ConfigurationFactory.createEventAction` could not set `eventName` (now `createEventAction(name, eventName?, eventTopic?)`); and the events metadata generator merged two event interfaces with the same name instead of failing.
 
 ## 2.2.1
   - Fixed: Locale types has some circular reference warnings
