@@ -1077,4 +1077,304 @@ describe('EngineFactory lifecycle (integration)', () => {
     const removers = (target as any)._eventRemovers;
     return removers.size ?? removers.length;
   }
+
+  describe('audit gaps: direct destroy, failed creation, several engines, async starts and large jumps', () => {
+    const showMenu = {
+      id: 'show-menu',
+      name: 'ShowMenu',
+      startOperations: [],
+      endOperations: [],
+    } as any;
+
+    test('given a factory-created engine, when it is destroyed with engine.destroy() instead of the factory destroy(), then its resize listener and eventbus registrations are removed and the live engine count drops once', async () => {
+      const {setGlobals, getGlobals} = await import(
+        '@operation/helper/globals.ts'
+      );
+      const removeListener = vi.spyOn(window, 'removeEventListener');
+      const removersBefore = trackedRegistrations(factory);
+      const created = await create(createConfig({actions: [showMenu]}));
+      result = undefined;
+      setGlobals({shared: 'value'});
+      expect(trackedRegistrations(factory)).toBeGreaterThan(removersBefore);
+
+      await created.engine.destroy();
+      await flush();
+
+      expect(
+        removeListener.mock.calls.some(([type]) => type === 'resize')
+      ).toBe(true);
+      expect(trackedRegistrations(factory)).toBe(removersBefore);
+      // It was the last live engine
+      expect(getGlobals('shared')).toBeUndefined();
+      expect(() => eventbus.request('request-action', 'ShowMenu')).toThrow(
+        "Unknown action 'ShowMenu'"
+      );
+
+      // A new engine is not warned about as a second live engine, and the
+      // factory destroy() of the destroyed engine does not count it again.
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      await create(createConfig());
+      setGlobals({shared: 'second'});
+      await created.destroy();
+
+      expect(warn).not.toHaveBeenCalledWith(
+        expect.stringContaining('second live engine')
+      );
+      expect(getGlobals('shared')).toBe('second');
+    });
+
+    test('given a configuration whose resolver throws on an unknown operation, when createEngine is retried with a valid configuration on the same factory, then only the retried engine answers events and interceptors', async () => {
+      // EngineEventbusAdapter logs the switch to the unknown URI
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const removersBefore = trackedRegistrations(factory);
+      const eventAction = (name: string) => ({
+        id: `event-action-${name}`,
+        name,
+        eventName: 'probe-trigger',
+        startOperations: [probe(name)],
+      });
+
+      expect(() =>
+        factory.createEngine(
+          createConfig({
+            eventActions: [eventAction('Broken')],
+            timelines: [
+              timeline('t1', 10, [
+                {
+                  id: 'unknown-op-action',
+                  name: 'UnknownOp',
+                  duration: {start: 0, end: 1},
+                  startOperations: [op('noSuchOperation')],
+                  endOperations: [],
+                },
+              ]),
+            ],
+          })
+        )
+      ).toThrow(/noSuchOperation/);
+      expect(trackedRegistrations(factory)).toBe(removersBefore);
+
+      await create(createConfig({eventActions: [eventAction('Retried')]}));
+      const before = countCalls(eventbus, 'before-request-timeline-uri');
+      eventbus.broadcast('probe-trigger' as any, []);
+      eventbus.broadcast('request-timeline-uri', ['unknown-uri']);
+      await flush();
+
+      expect(probes).toEqual(['Retried']);
+      expect(before).toHaveBeenCalledTimes(1);
+    });
+
+    test('given an action whose end operation fails and no engine-error listener, when the clock crosses its end, then the engine logs the error message with its cause once', async () => {
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const {engine} = await create(
+        createConfig({
+          timelines: [
+            timeline('t1', 10, [
+              {
+                id: 'failing-end',
+                name: 'FailingEnd',
+                duration: {start: 0.2, end: 0.4},
+                startOperations: [probe('FailingEnd-start')],
+                // removeElement without a selected element throws
+                endOperations: [op('removeElement')],
+              },
+            ]),
+          ],
+        })
+      );
+      await engine.start();
+
+      tick(300);
+      tick(500);
+      await flush();
+      await flush();
+
+      expect(probes).toEqual(['FailingEnd-start']);
+      const logged = consoleError.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' &&
+          message.startsWith("Error in action end 'FailingEnd'")
+      );
+      expect(logged).toHaveLength(1);
+      expect(logged[0][0]).toContain("at operation 'removeElement'");
+      expect(logged[0][1]).toBeInstanceOf(Error);
+    });
+
+    test('given two engines from one factory without a shared eventbus, when translations, elements and actions are requested on the second engine, then they resolve against the second engine', async () => {
+      const ownFactory = new EngineFactory(
+        new EligiusResourceImporter(),
+        window
+      );
+      $('<div id="engine-root-2"></div>').appendTo(document.body);
+      const first = ownFactory.createEngine(
+        createConfig({
+          layoutTemplate: '<div id="stage"><p class="title">A</p></div>',
+          locales: {'en-US': {greeting: 'Hello from A'}},
+          actions: [showMenu],
+        })
+      );
+      const second = ownFactory.createEngine(
+        createConfig({
+          containerSelector: '#engine-root-2',
+          layoutTemplate: '<div id="stage-2"><p class="title">B</p></div>',
+          locales: {'en-US': {greeting: 'Hello from B'}},
+          timelineProviderSettings: {
+            animation: {
+              positionSource: {
+                systemName: 'RafPositionSource',
+                tickInterval: 100,
+              },
+              container: {
+                systemName: 'DomContainerProvider',
+                selector: '#stage-2',
+              },
+            },
+          },
+          actions: [{...showMenu, id: 'show-info', name: 'ShowInfo'}],
+        })
+      );
+      try {
+        await first.engine.init();
+        await second.engine.init();
+        const {selectElement} = await import('@operation/select-element.ts');
+
+        const selected = selectElement.call(
+          {eventbus: second.eventbus} as any,
+          {selector: '.title'} as any
+        ) as any;
+
+        expect(second.eventbus.request('request-translation', 'greeting')).toBe(
+          'Hello from B'
+        );
+        expect(first.eventbus.request('request-translation', 'greeting')).toBe(
+          'Hello from A'
+        );
+        expect(selected.selectedElement.text()).toBe('B');
+        expect(
+          second.eventbus.request<any>('request-action', 'ShowInfo')?.name
+        ).toBe('ShowInfo');
+        expect(() =>
+          second.eventbus.request('request-action', 'ShowMenu')
+        ).toThrow("Unknown action 'ShowMenu'");
+      } finally {
+        await first.destroy();
+        await second.destroy();
+        ownFactory.destroy();
+        $('#engine-root-2').remove();
+      }
+    });
+
+    test('given an action whose start operation awaits a fetch, when the clock passes its start and its end before the fetch settles, then other actions are not held up and its end operations run after its start operations', async () => {
+      let respond: (response: Response) => void = () => {};
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(
+          () =>
+            new Promise<Response>(resolve => {
+              respond = resolve;
+            })
+        )
+      );
+      const {engine} = await create(
+        createConfig({
+          timelines: [
+            timeline('t1', 10, [
+              {
+                id: 'action-Fetching',
+                name: 'Fetching',
+                duration: {start: 0.2, end: 0.4},
+                startOperations: [
+                  op('loadJson', {url: '/data/chapter.json'}),
+                  probe('Fetching-start'),
+                ],
+                endOperations: [probe('Fetching-end')],
+              },
+              timelineAction('Other', 0.3, 5),
+            ]),
+          ],
+        })
+      );
+      await engine.start();
+
+      tick(300);
+      tick(500);
+      await flush();
+
+      expect(probes).toEqual(['Other-start']);
+
+      respond(
+        new Response(JSON.stringify({title: 'Chapter'}), {
+          status: 200,
+          headers: {'Content-Type': 'application/json'},
+        })
+      );
+      await flush();
+      await flush();
+
+      expect(probes).toEqual(['Other-start', 'Fetching-start', 'Fetching-end']);
+    });
+
+    function shortActions(count: number) {
+      return Array.from({length: count}, (_, index) =>
+        timelineAction(`S${index}`, index + 0.5, index + 0.7)
+      );
+    }
+
+    test('given 40 short actions on a 60s timeline, when a background tab resumes and one frame jumps from 0.1 to 45, then every skipped action starts and ends exactly once, in order, within that frame', async () => {
+      const {engine} = await create(
+        createConfig({
+          timelines: [timeline('t1', 60, shortActions(40))],
+        })
+      );
+      await engine.start();
+      tick(100);
+
+      tick(45000);
+      const inFrame = [...probes];
+
+      expect(engine.position).toBe(45);
+      expect(inFrame).toHaveLength(80);
+      expect(inFrame).toEqual(
+        Array.from({length: 40}, (_, index) => [
+          `S${index}-start`,
+          `S${index}-end`,
+        ]).flat()
+      );
+      await flush();
+      expect(probes).toEqual(inFrame);
+    });
+
+    test('given maxCatchUp of 2 seconds, when one frame jumps from 0.1 to 45, then the frame only starts the action covering 45', async () => {
+      const catchUpFactory = new EngineFactory(
+        new EligiusResourceImporter(),
+        window,
+        {eventbus, engineOptions: {maxCatchUp: 2}}
+      );
+      const created = catchUpFactory.createEngine(
+        createConfig({
+          timelines: [
+            timeline('t1', 60, [
+              ...shortActions(40),
+              timelineAction('Covering', 44, 50),
+            ]),
+          ],
+        })
+      );
+      try {
+        await created.engine.init();
+        await created.engine.start();
+        tick(100);
+
+        tick(45000);
+
+        expect(created.engine.position).toBe(45);
+        expect(probes).toEqual(['Covering-start']);
+      } finally {
+        await created.destroy();
+        catchUpFactory.destroy();
+      }
+    });
+  });
 });

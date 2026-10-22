@@ -220,7 +220,8 @@ export class EngineFactory implements IEngineFactory {
    *
    * External (`$ref`) locales are loaded with a 30 second timeout per file.
    * Destroying the engine (through the returned `destroy()` or
-   * `engine.destroy()`) aborts loads that are still pending.
+   * `engine.destroy()`) aborts loads that are still pending, disconnects the
+   * adapters and removes the engine's eventbus registrations.
    *
    * @param configuration - The engine configuration
    * @param resolver - Optional custom configuration resolver
@@ -267,6 +268,27 @@ export class EngineFactory implements IEngineFactory {
     let engineInstance: IEligiusEngine;
     let localeManager: LocaleManager;
     let adapters: IAdapter[] = [];
+    let released = false;
+    // Undoes what a successful createEngine set up, once, whether the engine
+    // is destroyed through the returned destroy() or engine.destroy().
+    const releaseEngine = () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      adapters.forEach(adapter => adapter.disconnect());
+      removeEngineRegistrations();
+      liveEngineCount--;
+      if (!ownsEventbus) {
+        this._liveSharedEngines--;
+      }
+      // The global data store is shared by every engine on the page,
+      // so only clear it once no engine is left to use it.
+      if (liveEngineCount === 0) {
+        clearGlobals();
+        clearJsonCache();
+      }
+    };
     let engineInputAdapter: EngineInputAdapter;
     try {
       // Resolve first: it throws on unknown names and duplicate actions, and
@@ -354,10 +376,12 @@ export class EngineFactory implements IEngineFactory {
       ];
       adapters.forEach(adapter => adapter.connect());
       // Also when the engine is destroyed without the returned destroy().
-      // The key bindings go too, so a destroyed engine keeps no hotkey.
+      // The key bindings go too, so a destroyed engine keeps no hotkey. The
+      // rest is released once the other 'destroyed' listeners have run.
       engineInstance.on('destroyed', () => {
         localeLoads.abort();
         engineInputAdapter.disconnect();
+        queueMicrotask(releaseEngine);
       });
     } catch (error) {
       localeLoads.abort();
@@ -385,18 +409,7 @@ export class EngineFactory implements IEngineFactory {
         // engineInstance.destroy() also destroys the localeManager.
         await engineInstance.destroy();
       } finally {
-        adapters.forEach(adapter => adapter.disconnect());
-        removeEngineRegistrations();
-        liveEngineCount--;
-        if (!ownsEventbus) {
-          this._liveSharedEngines--;
-        }
-        // The global data store is shared by every engine on the page,
-        // so only clear it once no engine is left to use it.
-        if (liveEngineCount === 0) {
-          clearGlobals();
-          clearJsonCache();
-        }
+        releaseEngine();
       }
     };
 
