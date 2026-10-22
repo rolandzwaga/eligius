@@ -16,11 +16,11 @@ The main concepts in Eligius are timelines, actions and operations. A timeline c
 
 Actions can be called on specified points on such a timeline. An action consists of a list of start and end operations.
 
-An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `select-element`, `create-element` or `add-class`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/main/src/operation)
+An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `selectElement`, `createElement` or `addClass`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/main/src/operation)
 By composing these atomic operations complex functionality can be achieved.
 
-An example of an action is adding and removing an image from the DOM at specific times. This action would consist of these start operations: `select-element`(to select the element that will act as the image's parent), `create-element`(to create the img element with the required src attribute) and `set-element-contents`(to add the img element to the previously selected parent).
-The end operations would be: `select-element`(to select the parent again) and `clear-element`(to remove the img element).
+An example of an action is adding and removing an image from the DOM at specific times. This action would consist of these start operations: `selectElement` (to select the element that will act as the image's parent), `createElement` (to create the img element with the required src attribute) and `setElementContent` (to add the img element to the previously selected parent).
+The end operations would be: `selectElement` (to select the parent again) and `clearElement` (to remove the img element).
 
 A more comprehensive example could be, for example, a rich subtitling system for a videoplayer where the videoplayer acts as the timeline provider and Eligius is used to render the subtitles on top of it.
 
@@ -31,6 +31,8 @@ The final two puzzle pieces are the `EngineFactory` and `EligiusEngine`. The Fac
 The Eligius engine is populated by a JSON configuration. Think of this JSON as its file format. This configuration contains all of the timelines, actions, operations and other data for the engine to run. A JSON schema for this configuration can be found [here](https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json).
 
 This section describes the different parts of this configuration.
+
+Every configuration, action, operation and timeline needs a unique `id`; the examples below leave them out for brevity. Invalid configurations fail when the engine is created, with an error that names the JSON path.
 
 ### systemName property
 
@@ -68,12 +70,12 @@ The engine setting defines the engine for which this configuration is written. C
 }
 ```
 
-These settings describe the providers that are available for the different kinds of timelines. The `tickInterval` property controls the precision of timeline positions - a value of `100` (milliseconds) enables 0.1 second precision, allowing fractional positions like `1.3` or `5.7`. Timeline providers are assembled from decomposed components:
+These settings describe the providers that are available for the different kinds of timelines (`animation` or `mediaplayer`); every timeline type in use needs an entry. The `tickInterval` property controls the precision of timeline positions - a value of `100` (milliseconds, the default) enables 0.1 second precision, allowing fractional positions like `1.3` or `5.7`. Timeline providers are assembled from decomposed components:
 
 **Position Sources** (required) - drive timeline position:
 - `RafPositionSource` - RequestAnimationFrame-based, for animation timelines
 - `ScrollPositionSource` - Scroll-based, for scroll-driven timelines
-- `VideoPositionSource` - Video.js-based, for video timelines (requires video.js as a peer dependency)
+- `VideoPositionSource` - Video.js-based, for video timelines (requires the optional video.js peer dependency, loaded on first use)
 - `KeyboardStepSource` - Keyboard-driven stepping through markers or fixed steps
 
 **Container Providers** (optional) - manage DOM elements where content is rendered:
@@ -126,11 +128,13 @@ Eligius aims to be fully multi lingual. This setting describes the different lan
     ...
     "availableLanguages": [
         {
-        "code": "en-US",
+        "id": "lang-en",
+        "languageCode": "en-US",
         "label": "English"
         },
         {
-        "code": "nl-NL",
+        "id": "lang-nl",
+        "languageCode": "nl-NL",
         "label": "Nederlands"
         }
     ]
@@ -140,7 +144,7 @@ Eligius aims to be fully multi lingual. This setting describes the different lan
 
 ### language
 
-This defines the default language, the value needs to equal one of the `code` values in the `availableLanguages` properties.
+This defines the default language, the value needs to equal one of the `languageCode` values in the `availableLanguages` properties.
 
 ```json
 {
@@ -194,7 +198,7 @@ Use these, for example, to load data, render global UI, etc.
 
 ### actions
 
-This is a list of actions that are not directly associated with initialisation, tear down or time line positions. These can be executed from within another action.
+This is a list of actions that are not directly associated with initialisation, tear down or time line positions. These can be executed from within another action with the `startAction` and `endAction` operations, and can have `endOperations` as well.
 
 ```json
 {
@@ -273,7 +277,7 @@ An override that names a different `systemName` replaces the type settings inste
 
 ### event actions
 
-This a list of actions that can be triggered by an event broadcast. Since an event doesn't have a tear down phase, these actions can only have a list of start operations.
+This a list of actions that are triggered by an eventbus broadcast of `eventName` (optionally limited to `eventTopic`). Since an event doesn't have a tear down phase, these actions can only have a list of start operations.
 
 ```json
 {
@@ -282,7 +286,8 @@ This a list of actions that can be triggered by an event broadcast. Since an eve
         ...
         {
             "name": "some name",
-            "startOperations": [...],
+            "eventName": "show-help",
+            "startOperations": [...]
         }
         ...
     ]
@@ -290,30 +295,29 @@ This a list of actions that can be triggered by an event broadcast. Since an eve
 }
 ```
 
-### labels
+### locales
 
-A list of label information that describes all of the textual content for the presentation. 
-Labels can be rendered by the [`LabelController`](https://rolandzwaga.github.io/eligius/classes/LabelController.html). This controller listens for the appropriate language change events as well, and will change the contents of the element it controls accordingly.
+The textual content of the presentation, per language code. Translations can be nested and are looked up with dot-notation keys; `{{name}}` placeholders are filled from parameters. A language can also point to an external JSON file with `$ref`, which is loaded when the engine is created.
 
 ```json
 {
-    "labels": [
-        {
-            "id": "mainTitle",
-            "labels": [
-                {
-                "code": "en-US",
-                "label": "This is the main title"
-                },
-                {
-                "code": "nl-NL",
-                "label": "Dit is de hoofdtitel"
-                }
-            ]
-        }
-    ]
+    ...
+    "locales": {
+        "en-US": {
+            "nav": {"home": "Home"},
+            "greeting": "Hello, {{name}}!"
+        },
+        "nl-NL": {"$ref": "./locales/nl-NL.json"}
+    }
+    ...
 }
 ```
+
+Translations are rendered by the [`LabelController`](https://rolandzwaga.github.io/eligius/classes/LabelController.html), attached with the `addControllerToElement` operation and a `translationKey` such as `"nav.home"`. The controller follows language changes and updates the element it controls. Translation text is sanitized before it is inserted into the DOM. The `labels` array of earlier versions was removed in 2.2.0; see the [changelog](CHANGELOG.md) for the migration.
+
+### Security
+
+Configurations cannot run arbitrary code: operations, functions and controllers are looked up by name in the resource importer, and property chains cannot reach `window` or object prototypes. Translations and subtitles are sanitized, and `createElement`/`setElementAttributes` refuse event-handler attributes and `javascript:` URLs. `setElementContent` string templates are inserted as HTML, so build those from configuration only, never from user input.
 
 ## Running the engine
 
@@ -363,6 +367,7 @@ const unsubscribe = engine.on('time', (position) => {
 engine.on('start', () => console.log('Playback started'));
 engine.on('pause', () => console.log('Playback paused'));
 engine.on('timelineComplete', () => console.log('Timeline finished'));
+engine.on('error', error => console.error(error.message)); // EngineActionError: which action, phase and operation failed
 
 // Unsubscribe when done
 unsubscribe();
@@ -396,6 +401,8 @@ await engine.switchTimeline('timeline-uri', 5.3);  // Switch timeline, optionall
 Obviously having to type all of that JSON by hand can be a tad overwhelming and time consuming. Check out the [ConfigurationFactory](https://rolandzwaga.github.io/eligius/classes/ConfigurationFactory.html) for a strongly typed, fluent and extensible API to construct a configuration programmatically.
 
 It is encouraged to use this API to build specialized DSL's for specific presentations.
+
+Build tools that generate configurations in plain Node, without a DOM, can import the factory from the `eligius/configuration-api` entry: `import {ConfigurationFactory} from 'eligius/configuration-api';`. The `...ByType` methods need the main `eligius` entry; use the name-based methods there.
 
 Also, there is the [Eligian](https://github.com/rolandzwaga/eligian) project that aims to become an actual programming language for the Eligius runtime.
 
@@ -507,8 +514,18 @@ or
 yarn add eligius
 ```
 
+Peer dependencies:
+
+- `jquery` (required)
+- `lottie-web` (optional, only for `LottieController`, loaded on first use)
+- `video.js` (optional, only for `VideoPositionSource`, loaded on first use)
+- `@types/jquery` (optional, for TypeScript users of the main entry; also add `"DOM"` to your `lib`)
+
+Upgrading from 2.x? Version 3.0.0 has breaking changes; read the [changelog](CHANGELOG.md) first.
+
 ## development
 
 - run `npm install`
-- Use `npm run test` to run the unit tests (tests use Vitest)
-- Use `npm run build` to create a production library bundle
+- Use `npm test -- --run` to run the unit tests (tests use Vitest)
+- Use `npm run typecheck` and `npm run lint` before committing
+- Use `npm run build` to create a production library bundle, then `npm run check:types` to verify the published type declarations
