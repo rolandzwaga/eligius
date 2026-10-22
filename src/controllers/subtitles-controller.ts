@@ -76,8 +76,15 @@ export class SubtitlesController extends BaseController<ISubtitlesControllerOper
     this.addListener(eventbus, 'language-change', this.languageChangeHandler);
   }
 
+  /**
+   * Stops listening and removes the subtitle this controller is showing, since
+   * no later time event would remove it.
+   */
   detach(eventbus: IEventbus) {
     super.detach(eventbus);
+    if (this.lastFunc) {
+      this.removeTitle();
+    }
   }
 
   languageChangeHandler(newLanguage: TLanguageCode) {

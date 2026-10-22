@@ -511,4 +511,71 @@ describe('RoutingController', () => {
       controller.detach(eventbus);
     });
   });
+
+  describe('history entries on a real eventbus', () => {
+    it('given nothing answers request-current-timeline-position or request-current-video-position, when push-history-state arrives with position -1, then the entry is pushed without a position and the URL has no /-1 segment', () => {
+      const eventbus = new Eventbus();
+      controller.init({json: createNavigationData()});
+      controller.attach(eventbus);
+
+      eventbus.broadcast('push-history-state', [
+        {
+          navigationData: controller.navLookup.nav2,
+          title: 'Nav 2',
+          position: -1,
+        },
+      ]);
+
+      expect(vi.mocked(window.history.pushState).mock.calls).toEqual([
+        [{navigationId: 'nav2'}, 'Nav 2', '#/nav2'],
+      ]);
+      controller.detach(eventbus);
+    });
+
+    it('given a page opened without a hash and an attached controller, when the first entry is saved and a second entry is pushed, then the history grows by one entry and Back returns to the first entry at its saved position', async () => {
+      setUrl('/');
+      vi.stubGlobal('history', realHistory);
+      const eventbus = new Eventbus();
+      const videoUrlRequests = vi.fn();
+      eventbus.on('request-video-url', videoUrlRequests);
+      const startLength = realHistory.length;
+      controller.init({json: createNavigationData()});
+
+      controller.attach(eventbus);
+
+      // The current entry is tagged instead of a new one being added
+      expect(realHistory.length).toBe(startLength);
+      expect(realHistory.state).toEqual({navigationId: 'nav1'});
+
+      // Saving nav1 before switching updates its own entry
+      eventbus.on('request-current-navigation', callback =>
+        callback({
+          navigationData: controller.navLookup.nav1,
+          title: 'Nav 1',
+          position: 4,
+        })
+      );
+      eventbus.broadcast('before-request-video-url', [1, 0, false]);
+      expect(realHistory.length).toBe(startLength);
+      expect(realHistory.state).toEqual({navigationId: 'nav1', position: 4});
+
+      eventbus.broadcast('push-history-state', [
+        {
+          navigationData: controller.navLookup.nav2,
+          title: 'Nav 2',
+          position: 0,
+        },
+      ]);
+      expect(realHistory.length).toBe(startLength + 1);
+      expect(window.location.hash).toBe('#/nav2/0');
+
+      realHistory.back();
+
+      await vi.waitFor(() =>
+        expect(videoUrlRequests).toHaveBeenCalledWith(0, 4, true)
+      );
+      expect(window.location.hash).toBe('#/nav1/4');
+      controller.detach(eventbus);
+    });
+  });
 });
