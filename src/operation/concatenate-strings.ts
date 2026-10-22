@@ -15,7 +15,7 @@ export interface IConcatenateStringsOperationData {
   /**
    * @output
    */
-  result: string;
+  result?: string;
 }
 
 /**

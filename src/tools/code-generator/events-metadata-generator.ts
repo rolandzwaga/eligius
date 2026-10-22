@@ -2,13 +2,22 @@ import dashToCamelCase from '@util/dash-to-camel-case.ts';
 import {
   type ExportDeclarationStructure,
   type InterfaceDeclaration,
-  type JSDoc,
   Project,
   type SourceFile,
   StructureKind,
-  SyntaxKind,
   ts,
 } from 'ts-morph';
+import {
+  formatEventArgMetadata,
+  getEventArgMetadata,
+} from './event-arg-metadata.ts';
+import {
+  findDuplicateEventNames,
+  findEventFilesMissingFromIndex,
+  getRequestEventNames,
+  writeRequestMap,
+} from './event-registry.ts';
+import {escapeTemplateLiteral, getTag, removeGeneratedFiles} from './shared.ts';
 
 /**
  * Path alias for eventbus events directory
@@ -23,6 +32,25 @@ const project = new Project({
 });
 project.addSourceFilesAtPaths('./src/eventbus/events/*.ts');
 
+const metadataDirectory = './src/eventbus/events/metadata';
+
+/**
+ * Whether the hand maintained `IEventMetadata` declares the `optional` flag
+ * for its args. The flag is only emitted when it does, otherwise the generated
+ * files would not type-check.
+ */
+const supportsOptionalArgs = (() => {
+  const typesFile = project.addSourceFileAtPath(
+    `${metadataDirectory}/types.ts`
+  );
+  const argType = typesFile
+    .getInterface('IEventMetadata')
+    ?.getProperty('args')
+    ?.getType()
+    .getArrayElementType();
+  return argType?.getProperty('optional') !== undefined;
+})();
+
 const isPrivateEvent = (interfaceDecl: InterfaceDeclaration): boolean => {
   const docs = interfaceDecl.getJsDocs();
   return docs.some(doc =>
@@ -30,7 +58,16 @@ const isPrivateEvent = (interfaceDecl: InterfaceDeclaration): boolean => {
   );
 };
 
-const createEventMetadata = (sourceFile: SourceFile) => {
+type TEventMetadataResult =
+  | {status: 'failed'}
+  | {status: 'private' | 'public'; iface: InterfaceDeclaration};
+
+/**
+ * Validates the event interface in the given file and writes its metadata file.
+ * Private events (tagged `@private`) get no metadata file, but they are still
+ * valid events and must stay part of the generated `EventMap`.
+ */
+const createEventMetadata = (sourceFile: SourceFile): TEventMetadataResult => {
   const interfaceDeclaration = sourceFile
     .getInterfaces()
     .find(iface => iface.isExported());
@@ -39,15 +76,7 @@ const createEventMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Can't find an exported interface in ${sourceFile.getBaseName()}`
     );
-    return;
-  }
-
-  // Skip private events
-  if (isPrivateEvent(interfaceDeclaration)) {
-    console.log(
-      `Skipping private event ${interfaceDeclaration.getName()} in ${sourceFile.getBaseName()}`
-    );
-    return null;
+    return {status: 'failed'};
   }
 
   // Validate event interface structure
@@ -58,11 +87,19 @@ const createEventMetadata = (sourceFile: SourceFile) => {
     console.error(
       `Event interface ${interfaceDeclaration.getName()} in ${sourceFile.getBaseName()} must have 'name' and 'args' properties`
     );
-    return;
+    return {status: 'failed'};
+  }
+
+  // Private events are excluded from the metadata, not from the event types
+  if (isPrivateEvent(interfaceDeclaration)) {
+    console.log(
+      `Skipping metadata for private event ${interfaceDeclaration.getName()} in ${sourceFile.getBaseName()}`
+    );
+    return {status: 'private', iface: interfaceDeclaration};
   }
 
   createSourceFile(interfaceDeclaration, sourceFile);
-  return interfaceDeclaration;
+  return {status: 'public', iface: interfaceDeclaration};
 };
 
 const createSourceFile = (
@@ -95,9 +132,6 @@ const createSourceFile = (
     namedImports: ['IEventMetadata'],
   });
 
-  // Get args tuple from the interface property type node (not the type object)
-  const argsProperty = interfaceDecl.getProperty('args')!;
-
   // Extract function name (camelCase) from fileName
   const functionName = dashToCamelCase(fileName);
 
@@ -108,8 +142,12 @@ const createSourceFile = (
     statements: writer => {
       writer.writeLine('return {');
       writer.writeLine(`description: \`${getDescription(interfaceDecl)}\`,`);
-      writer.writeLine(`category: \`${getCategory(interfaceDecl)}\`,`);
-      writer.writeLine(`args: [${getArgMetadata(argsProperty)}]`);
+      writer.writeLine(
+        `category: \`${escapeTemplateLiteral(getCategory(interfaceDecl))}\`,`
+      );
+      writer.writeLine(
+        `args: [${formatEventArgMetadata(getEventArgMetadata(interfaceDecl), supportsOptionalArgs)}]`
+      );
       writer.writeLine('};');
     },
   });
@@ -129,7 +167,7 @@ const getDescription = (interfaceDecl: InterfaceDeclaration): string => {
     .getJsDocs()
     .map(x => x.getCommentText())
     .join('');
-  return description?.replaceAll('`', '\\`') || '';
+  return escapeTemplateLiteral(description);
 };
 
 const getCategory = (interfaceDecl: InterfaceDeclaration): string => {
@@ -139,51 +177,6 @@ const getCategory = (interfaceDecl: InterfaceDeclaration): string => {
     return tag;
   }
   return 'Unknown';
-};
-
-const getArgMetadata = (argsProperty: any): string => {
-  // Get the type node (AST node) instead of the type (type-checker type)
-  const typeNode = argsProperty.getTypeNode();
-
-  if (!typeNode || typeNode.getKind() !== SyntaxKind.TupleType) {
-    return '';
-  }
-
-  const elements = typeNode.getElements();
-
-  if (elements.length === 0) {
-    return '';
-  }
-
-  return elements
-    .map((element: any, index: number) => {
-      let name = `arg${index}`;
-      let type = 'unknown';
-
-      // Check if this is a named tuple member
-      if (element.getKind() === SyntaxKind.NamedTupleMember) {
-        name = element.getName();
-        const typeNode = element.getTypeNode();
-        type = typeNode ? typeNode.getText() : 'unknown';
-      } else {
-        // Regular tuple element (no name)
-        type = element.getText();
-      }
-
-      // Try to find @param JSDoc for this argument
-      const description = ''; // We'll add @param support later if needed
-
-      return `
-      {
-        name: '${name}',
-        type: '${type}'${description ? `,\n        description: '${description}'` : ''}
-      }`;
-    })
-    .join(',');
-};
-
-const getTag = (docs: JSDoc[]) => (tagName: string) => {
-  return docs.flatMap(d => d.getTags()).find(t => t.getTagName() === tagName);
 };
 
 const toIndexFile = (project: Project, fileNames: string[]) => {
@@ -244,11 +237,12 @@ const toTypesFile = (
     },
   });
 
-  // Create EventMap type
+  // Create EventMap type. A request event (one with `returns`) keeps its
+  // legacy broadcast form: its args followed by an optional result callback.
   outputSourceFile.addTypeAlias({
     name: 'EventMap',
     isExported: true,
-    type: "{[K in AllEvents as K['name']]: K['args']}",
+    type: "{[K in AllEvents as K['name']]: K extends {returns: infer R} ? [...K['args'], callback?: (result: R) => void] : K['args']}",
   });
 
   // Create EventName type
@@ -257,6 +251,12 @@ const toTypesFile = (
     isExported: true,
     type: 'keyof EventMap',
   });
+
+  // Create RequestMap from the request events
+  writeRequestMap(
+    outputSourceFile,
+    getRequestEventNames(eventData.map(({iface}) => iface))
+  );
 
   outputSourceFile.organizeImports().formatText({
     indentSize: 2,
@@ -271,31 +271,90 @@ const toTypesFile = (
 const eventFiles = project
   .getSourceFiles()
   .filter(
-    src => src.getBaseName() !== 'index.ts' && src.getBaseName() !== 'types.ts'
+    src =>
+      src.getBaseName() !== 'index.ts' &&
+      src.getBaseName() !== 'types.ts' &&
+      !src.getFilePath().includes('/metadata/')
   );
 
-// Process all events and collect non-private interfaces with their source files
-const eventData: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}> =
+// Every event file must be exported from the events index, otherwise it is
+// missing from the public API.
+const indexFile = project.getSourceFileOrThrow(
+  './src/eventbus/events/index.ts'
+);
+const missingFromIndex = findEventFilesMissingFromIndex(
+  eventFiles.map(file => file.getBaseName()),
+  indexFile,
+  EVENTBUS_EVENTS_ALIAS
+);
+if (missingFromIndex.length) {
+  console.error(
+    `src/eventbus/events/index.ts does not export these event file(s): ${missingFromIndex.join(', ')}. Add an \`export type {...} from '${EVENTBUS_EVENTS_ALIAS}/<file>.ts'\` line for each.`
+  );
+  process.exit(1);
+}
+
+// Remove the output of events that were renamed or removed
+removeGeneratedFiles(metadataDirectory);
+
+// Process all events. Every valid event goes into the types file, only the
+// public ones get metadata.
+const allEvents: Array<{iface: InterfaceDeclaration; sourceFile: SourceFile}> =
   [];
+const publicEvents: Array<{
+  iface: InterfaceDeclaration;
+  sourceFile: SourceFile;
+}> = [];
+const failedFiles: string[] = [];
 eventFiles.forEach(file => {
-  const result = createEventMetadata(file);
-  if (result) {
-    eventData.push({iface: result, sourceFile: file});
+  let result: TEventMetadataResult;
+  try {
+    result = createEventMetadata(file);
+  } catch (e) {
+    console.error(
+      `Failed to generate metadata for ${file.getBaseName()}: ${(e as Error).message}`
+    );
+    result = {status: 'failed'};
+  }
+
+  if (result.status === 'failed') {
+    failedFiles.push(file.getBaseName());
+    return;
+  }
+
+  allEvents.push({iface: result.iface, sourceFile: file});
+  if (result.status === 'public') {
+    publicEvents.push({iface: result.iface, sourceFile: file});
   }
 });
+
+// Two events with one name would merge into a single EventMap entry
+const duplicateNames = findDuplicateEventNames(
+  allEvents.map(({iface}) => iface)
+);
+if (duplicateNames.length) {
+  console.error(
+    `Event names must be unique, these are declared more than once: ${duplicateNames.join(', ')}`
+  );
+  process.exit(1);
+}
 
 // Generate metadata index file
 toIndexFile(
   project,
-  eventData.map(({sourceFile}) => {
-    const fileName = sourceFile.getBaseName();
-    return fileName;
-  })
+  publicEvents.map(({sourceFile}) => sourceFile.getBaseName())
 );
 
 // Generate types file (EventMap, EventName, AllEvents)
-toTypesFile(project, eventData);
+toTypesFile(project, allEvents);
 
 project.saveSync();
+
+if (failedFiles.length) {
+  console.error(
+    `Metadata generation failed for ${failedFiles.length} event file(s): ${failedFiles.join(', ')}`
+  );
+  process.exit(1);
+}
 
 console.log('Ready.');

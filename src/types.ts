@@ -3,7 +3,9 @@ import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
 } from '@configuration/types.ts';
+import type {IController} from '@controllers/types.ts';
 import type {IEventbus, IEventbusListener} from '@eventbus/types.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
@@ -60,7 +62,77 @@ export type EngineEvents = {
 
   /** Engine destroyed */
   destroyed: [];
+
+  /**
+   * A timeline action that the engine started or ended on its own (from a
+   * position update, `seek()`, `switchTimeline()`, `stop()` or
+   * `request-timeline-cleanup`) failed. While nothing but forward-only
+   * subscriptions listen to this event, the engine also logs the error
+   * message and its cause.
+   *
+   * A timeline switch that a position source requested (KeyboardStepSource
+   * in `timeline-switch` mode) and that failed is reported here as well,
+   * with `actionId` `'timeline-change-request'`, `actionName`
+   * `"switchTimeline('<uri>')"` and `phase` `'start'`.
+   */
+  error: [error: IEngineActionError];
 };
+
+/**
+ * Options for a subscription made with {@link IEligiusEngine.on}.
+ */
+export interface IEngineEventSubscriptionOptions {
+  /**
+   * The handler only passes the event on (EngineEventbusAdapter broadcasts
+   * `error` as `engine-error`). Such a subscription to `error` does not count
+   * as handling it, so the engine still logs errors while nothing else
+   * subscribes.
+   */
+  forwardOnly?: boolean;
+}
+
+/**
+ * Options for {@link EligiusEngine}.
+ */
+export interface IEligiusEngineOptions {
+  /**
+   * Largest forward jump of the playhead, in seconds, whose skipped actions
+   * are started and ended one by one. A larger jump (a background tab that
+   * becomes visible again, a scrubbed video, a dragged scrollbar) is handled
+   * like a seek: the actions covering the new position are started and the
+   * others ended, and actions whose whole range was skipped do not run.
+   *
+   * Defaults to `Infinity`: every skipped action runs.
+   */
+  maxCatchUp?: number;
+}
+
+/**
+ * The phase of an action in which an error occurred.
+ */
+export type TActionPhase = 'start' | 'end';
+
+/**
+ * Error reported through the engine's `error` event (and the `engine-error`
+ * eventbus event) when a timeline action dispatched by the engine fails.
+ *
+ * The message names the action, the phase and, when the original error
+ * carries it, the operation, followed by the original message.
+ */
+export interface IEngineActionError extends Error {
+  /** Name of the failing action */
+  readonly actionName: string;
+  /** Id of the failing action */
+  readonly actionId: string;
+  /** Whether the start or the end operations failed */
+  readonly phase: TActionPhase;
+  /** System name of the failing operation, when known */
+  readonly operationSystemName?: string;
+  /** Index of the failing operation in its operation list, when known */
+  readonly operationIndex?: number;
+  /** The original error */
+  readonly cause: unknown;
+}
 
 export type KeysOfType<T, U> = {
   [P in keyof T]-?: T[P] extends U | undefined ? P : never;
@@ -80,11 +152,16 @@ export interface IEngineFactoryResult {
   /** The locale manager instance for translations */
   localeManager: ILocaleManager;
 
-  /** The eventbus for external consumers */
+  /**
+   * The engine's eventbus: one of its own, or the eventbus passed to the
+   * factory in {@link IEngineFactoryOptions.eventbus}. An eventbus of its own
+   * is cleared when the engine is destroyed.
+   */
   eventbus: IEventbus;
 
   /**
-   * Destroy everything - engine, adapters, and cleanup
+   * Destroy everything - engine, adapters, and cleanup. Calling it again
+   * returns the promise of the first call.
    */
   destroy: () => Promise<void>;
 }
@@ -112,7 +189,85 @@ export interface IEngineFactory {
 }
 
 export interface IEngineFactoryOptions {
+  /**
+   * An eventbus for every engine the factory creates. Without it, each
+   * engine gets its own eventbus (returned as
+   * {@link IEngineFactoryResult.eventbus}), so engines never answer each
+   * other's requests or react to each other's commands.
+   *
+   * Use one live engine per eventbus: request responders such as
+   * `request-engine-root` are answered by the first engine that registered
+   * them, and commands such as `timeline-play-request` reach every engine on
+   * the bus. The factory warns when a second engine is created on a shared
+   * eventbus while another one is live.
+   */
   eventbus?: IEventbus;
+  /**
+   * Options passed to every engine the factory creates.
+   */
+  engineOptions?: IEligiusEngineOptions;
+  /**
+   * Keyboard and window input bindings for every engine the factory
+   * creates. Leave it out for the defaults: space toggles playback, and a
+   * window resize broadcasts `timeline-resize`.
+   *
+   * @example
+   * ```ts
+   * // An embedded widget: no page-wide space key, no resize listener
+   * new EngineFactory(importer, window, {
+   *   input: {playToggle: 'k', scope: 'engineRoot', resize: false},
+   * });
+   * ```
+   */
+  input?: IEngineInputOptions;
+  /**
+   * The hotkey that toggles playback (hotkeys-js syntax), or `false` for
+   * none. Defaults to `'space'`. `input.playToggle` wins when both are set.
+   *
+   * @deprecated Use {@link IEngineInputOptions.playToggle | input.playToggle}.
+   */
+  playToggleHotkey?: string | false;
+}
+
+/**
+ * Where the play toggle hotkey of an engine listens:
+ * - `'document'`: while the focus is inside the engine root, or while
+ *   nothing has focus. When several engines on a page bind the same key,
+ *   a press while nothing has focus toggles only one of them: the engine
+ *   the user last clicked or focused inside, otherwise the first one
+ *   created.
+ * - `'engineRoot'`: only while the focus is inside the engine root.
+ *
+ * In both scopes the key is left alone while the focus is on a button,
+ * link or form field, or before the engine has an active timeline.
+ */
+export type TEngineInputScope = 'document' | 'engineRoot';
+
+/**
+ * Keyboard and window input bindings of a factory-created engine; see
+ * {@link IEngineFactoryOptions.input}.
+ */
+export interface IEngineInputOptions {
+  /**
+   * The hotkey that toggles playback, in hotkeys-js syntax (for example
+   * `'space'`, `'k'` or `'ctrl+p, command+p'`), or `false` for none.
+   * Defaults to `'space'`.
+   *
+   * The key is bound in the hotkeys-js `'all'` scope, so it keeps working
+   * whatever scope a KeyboardStepSource or the host page sets. The
+   * hotkeys-js global `filter` still applies.
+   */
+  playToggle?: string | false;
+  /**
+   * Whether a (debounced) window resize broadcasts `timeline-resize`.
+   * Defaults to `true`.
+   */
+  resize?: boolean;
+  /**
+   * Where the play toggle hotkey listens; see {@link TEngineInputScope}.
+   * Defaults to `'document'`.
+   */
+  scope?: TEngineInputScope;
 }
 
 /**
@@ -149,11 +304,13 @@ export interface IEligiusEngine {
    * Subscribe to engine events
    * @param event - Event name
    * @param handler - Event handler
+   * @param options - Optional subscription options
    * @returns Unsubscribe function
    */
   on<K extends keyof EngineEvents>(
     event: K,
-    handler: (...args: EngineEvents[K]) => void
+    handler: (...args: EngineEvents[K]) => void,
+    options?: IEngineEventSubscriptionOptions
   ): () => void;
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -189,9 +346,13 @@ export interface IEligiusEngine {
   pause(): void;
 
   /**
-   * Stop playback and reset to beginning
+   * Stop playback and reset to beginning.
+   *
+   * Playback stops synchronously. Implementations may return a promise that
+   * resolves once the active timeline actions have been ended
+   * (EligiusEngine does).
    */
-  stop(): void;
+  stop(): void | Promise<void>;
 
   /**
    * Seek to a specific position
@@ -214,20 +375,143 @@ export interface IEligiusEngine {
 
 /**
  * Describes an object that acts as a registry for imported resources.
+ *
+ * The engine looks up every system name through it: the engine class,
+ * operations, controllers, timeline providers, the functions that
+ * `customFunction` calls, the values that `getImport` returns, and the
+ * values of `template:` and `json:` placeholders.
+ *
+ * Most hosts do not implement it. `EligiusResourceImporter` provides all of
+ * Eligius' own resources, and its constructor accepts custom operations,
+ * functions, controllers, templates and JSON (see
+ * {@link IEligiusResourceRegistrations}). Implement this interface only for
+ * resources that cannot be registered that way, such as a custom position
+ * source, and delegate the other names to an `EligiusResourceImporter`.
  */
 export interface ISimpleResourceImporter {
+  /**
+   * Returns the resource registered under `name`, as `{[name]: value}`.
+   *
+   * For a name it does not know, an importer should throw an error that names
+   * it (`EligiusResourceImporter` does, with a "did you mean" hint). Returning
+   * a record without a value for `name` is also accepted. The engine treats
+   * both as an unknown name: the configuration resolver reports the JSON path,
+   * and `customFunction` and `getImport` report the operation.
+   *
+   * @param name - The system name to look up
+   * @returns A record whose `name` key holds the resource
+   * @throws Error when `name` is unknown (recommended, not required)
+   */
   import(name: string): Record<string, any>;
 }
 
 /**
  * Describes an object that acts as a registry for imported resources and
  * is able to return all of the registered operation, controller and provider names.
+ *
+ * The configuration resolver uses these lists to tell an operation from a
+ * controller or provider export, and to suggest the closest names ("did you
+ * mean") for an unknown operation name. Each list should include the custom
+ * resources the importer provides.
  */
 export interface IResourceImporter extends ISimpleResourceImporter {
+  /**
+   * @returns The system names of every operation the importer provides
+   */
   getOperationNames(): string[];
+  /**
+   * @returns The system names of every controller the importer provides
+   */
   getControllerNames(): string[];
+  /**
+   * @returns The system names of every timeline provider export the importer
+   * provides
+   */
   getProviderNames(): string[];
+  /**
+   * Optional. When present, the configuration resolver rejects these names as
+   * an operation `systemName` and points to the `customFunction` operation.
+   *
+   * @returns The system names of the custom functions the importer provides
+   */
+  getFunctionNames?(): string[];
 }
+
+/**
+ * A controller class that can be registered with the
+ * `EligiusResourceImporter`. The engine constructs a new instance, with
+ * the eventbus as its only argument, each time the `getControllerInstance`
+ * operation asks for it.
+ */
+export type TControllerClass = new (
+  ...args: any[]
+) => IController<TOperationData>;
+
+/**
+ * Custom resources to register with the `EligiusResourceImporter`, keyed
+ * by system name.
+ *
+ * Every name has to be unique across all the maps. A name that is already
+ * provided by Eligius itself (an operation, controller, timeline provider,
+ * eventbus export or `EligiusEngine`) is rejected, unless `override` is `true`.
+ *
+ * @example
+ * ```ts
+ * const importer = new EligiusResourceImporter({
+ *   operations: {trackEvent},
+ *   functions: {formatPrice: data => {data.price = `€ ${data.amount}`;}},
+ *   controllers: {ChartController},
+ *   templates: {intro: '<div class="intro"></div>'},
+ *   json: {chartData: {labels: ['a', 'b'], values: [1, 2]}},
+ * });
+ * ```
+ */
+export interface IEligiusResourceRegistrations {
+  /**
+   * Custom operations, usable as an operation `systemName` in a
+   * configuration. Each value must be an operation function (`TOperation`),
+   * not a class.
+   */
+  operations?: Readonly<Record<string, TOperation<any, any>>>;
+  /**
+   * Custom functions for the `customFunction` operation. Each value must be a
+   * function, not a class. `getImport` can retrieve them as well.
+   */
+  functions?: Readonly<Record<string, (...args: any[]) => unknown>>;
+  /**
+   * Custom controllers for the `getControllerInstance` and
+   * `addControllerToElement` operations. Each value must be a class that
+   * implements {@link IController} (`name`, `init`, `attach` and `detach`).
+   */
+  controllers?: Readonly<Record<string, TControllerClass>>;
+  /**
+   * HTML templates for `template:<name>` placeholders in a configuration. Each
+   * value must be a string. `getImport` can retrieve them as well.
+   */
+  templates?: Readonly<Record<string, string>>;
+  /**
+   * Data for `json:<name>` placeholders in a configuration (the configuration
+   * receives a copy). `getImport` can retrieve them as well. A value may be
+   * anything that is not `undefined`, a function, a symbol or a bigint.
+   */
+  json?: Readonly<Record<string, unknown>>;
+  /**
+   * When `true`, a registered name may replace a resource that Eligius itself
+   * provides, for example a custom `selectElement` operation. Defaults to
+   * `false`, so a clash with a built-in name throws.
+   */
+  override?: boolean;
+}
+
+/**
+ * The kind of a registered resource.
+ */
+export type TRegisteredResourceKind =
+  | 'operation'
+  | 'function'
+  | 'controller'
+  | 'template'
+  | 'json';
 
 export interface IConfigurationResolver {
   process(

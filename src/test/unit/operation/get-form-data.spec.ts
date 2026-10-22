@@ -157,4 +157,53 @@ describe('getFormData', () => {
     // jQuery serializeArray handles multiple values by creating array or taking last value
     expect(result.formData!.interests).toBeDefined();
   });
+
+  test('given a form with an input named "constructor" valued "x" and an input named "__proto__" valued "z", when getFormData runs, then formData.constructor equals "x" and Object.hasOwn(formData, "__proto__") is true with value "z"', () => {
+    // Arrange
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input name="constructor" value="x" />
+        <input name="__proto__" value="z" />
+        <input name="toString" value="y" />
+      </form>
+    `;
+
+    // Act
+    const result = applyOperation(
+      getFormData,
+      {selectedElement: $('#testForm')},
+      {currentIndex: 0, eventbus: mockEventbus, operations: []}
+    );
+
+    // Assert
+    const formData = result.formData!;
+    expect(formData.constructor).toBe('x');
+    expect(formData.toString).toBe('y');
+    expect(Object.hasOwn(formData, '__proto__')).toBe(true);
+    expect(Object.getOwnPropertyDescriptor(formData, '__proto__')?.value).toBe(
+      'z'
+    );
+    expect(Object.getPrototypeOf(formData)).toBe(Object.prototype);
+  });
+
+  test('given two checked checkboxes with the same name, when getFormData runs, then their values are collected in an array', () => {
+    // Arrange
+    document.body.innerHTML = `
+      <form id="testForm">
+        <input type="checkbox" name="interests" value="sports" checked />
+        <input type="checkbox" name="interests" value="music" checked />
+        <input type="checkbox" name="interests" value="art" checked />
+      </form>
+    `;
+
+    // Act
+    const result = applyOperation(
+      getFormData,
+      {selectedElement: $('#testForm')},
+      {currentIndex: 0, eventbus: mockEventbus, operations: []}
+    );
+
+    // Assert
+    expect(result.formData!.interests).toEqual(['sports', 'music', 'art']);
+  });
 });

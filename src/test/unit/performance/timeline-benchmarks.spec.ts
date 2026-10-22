@@ -162,7 +162,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     // Verify engine created successfully with all timelines
     expect(engine).not.toBeNull();
-    expect((engine as any)._timeLineActionsLookup).not.toBeUndefined();
+    expect((engine as any)._timelineSchedules).not.toBeUndefined();
 
     console.log(
       `Timeline initialization (10 timelines, 100 actions): ${duration.toFixed(2)}ms`
@@ -207,12 +207,12 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
     // Ensure engine is initialized
     await engine.init();
 
-    // test: Measure 100 timeline lookups (using internal _handleRequestTimelineUri)
+    // test: Measure 100 timeline lookups (switchTimeline resolves the URI through the Map cache)
     const startTime = performance.now();
     for (let i = 0; i < 100; i++) {
       // Access timeline lookup through internal method (simulates timeline switching)
       const uri = `timeline-${i % 20}`;
-      (engine as any)._handleRequestTimelineUri(uri, () => {});
+      engine.switchTimeline(uri);
     }
     const endTime = performance.now();
 
@@ -236,8 +236,10 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
         duration: {start: i * 1.0, end: i * 1.0 + 0.5},
         start: async () => {
           executionCount++;
-          // Simulate some work
-          await new Promise(resolve => setTimeout(resolve, 1));
+          // Simulate asynchronous work with a microtask. A real setTimeout
+          // made this benchmark measure timer scheduling under parallel test
+          // load instead of the engine's own overhead.
+          await Promise.resolve();
           return {};
         },
         end: async () => {
@@ -267,23 +269,95 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
 
     await engine.init();
 
-    // test: Measure action execution (calls _executeActions internally)
+    // test: Measure action execution through the engine's own dispatch
+    // wrapper (_runActionMethod), one action after the other
     executionCount = 0;
     const startTime = performance.now();
 
-    // Execute actions by calling internal _executeActions directly
     const actions = timelineActions;
-    await (engine as any)._executeActions(actions, 'start');
+    for (const action of actions) {
+      await (engine as any)._runActionMethod(action, 'start');
+    }
 
     const endTime = performance.now();
 
     // expect: All actions executed in reasonable time
     const duration = endTime - startTime;
     expect(executionCount).toBe(10);
-    expect(duration).toBeLessThan(200); // Should complete in <200ms (includes 10x1ms delays)
+    expect(duration).toBeLessThan(200); // Engine overhead only; normally well under 10ms
 
     console.log(
       `Action execution (10 actions with async work): ${duration.toFixed(2)}ms`
+    );
+  });
+
+  test<BenchmarkContext>('given 10000 timeline actions, when 1000 position updates and a backward jump are processed, then every update stays well under one 16ms frame', async context => {
+    // given: 10000 actions spread over a 100s timeline
+    const timelineActions: any[] = [];
+    for (let i = 0; i < 10000; i++) {
+      const start = (i % 1000) / 10;
+      const action: any = {
+        name: `action-${i}`,
+        duration: {start, end: start + 0.5},
+        active: false,
+        start: () => {
+          action.active = true;
+          return Promise.resolve({});
+        },
+        end: () => {
+          action.active = false;
+          return Promise.resolve({});
+        },
+      };
+      timelineActions.push(action);
+    }
+    context.configuration.timelines = [
+      {
+        id: 'dense-timeline-id',
+        type: 'animation',
+        uri: 'dense-timeline',
+        duration: 100,
+        loop: false,
+        selector: '.benchmark-container',
+        timelineActions,
+      } as any,
+    ];
+    let onPosition: (position: number) => void = () => {};
+    context.providers.animation.positionSource.onPosition = (
+      callback: (position: number) => void
+    ) => {
+      onPosition = callback;
+    };
+    const engine = new EligiusEngine(
+      context.configuration,
+      context.eventbus,
+      context.providers,
+      context.languageManager
+    );
+    await engine.init();
+
+    // test
+    const measure = (position: number) => {
+      const before = performance.now();
+      onPosition(position);
+      return performance.now() - before;
+    };
+    const forward: number[] = [];
+    for (let tick = 0; tick <= 1000; tick++) {
+      forward.push(measure(tick / 10));
+    }
+    const backwardJump = measure(0);
+
+    // expect: assert on the 95th percentile, not the single worst sample, so
+    // a garbage-collection pause under parallel test load cannot fail the run.
+    // A per-tick regression (for example a scan over all actions) still would.
+    forward.sort((a, b) => a - b);
+    const p95 = forward[Math.floor(forward.length * 0.95)];
+    expect(p95).toBeLessThan(16);
+    expect(backwardJump).toBeLessThan(50);
+
+    console.log(
+      `Tick dispatch (10000 actions): p95 ${p95.toFixed(2)}ms, slowest ${forward[forward.length - 1].toFixed(2)}ms, backward jump ${backwardJump.toFixed(2)}ms`
     );
   });
 
@@ -336,7 +410,7 @@ describe<BenchmarkContext>('Timeline Performance Benchmarks', () => {
     // Simulate timeline switching (tests cache)
     for (let i = 0; i < 10; i++) {
       const uri = `timeline-${i % 5}`;
-      (engine as any)._handleRequestTimelineUri(uri, () => {});
+      engine.switchTimeline(uri);
     }
 
     const endTime = performance.now();

@@ -10,74 +10,64 @@ import {
   vi,
 } from 'vitest';
 
-// Use vi.hoisted for shared mock state
+// Use vi.hoisted for shared mock state. The mock models hotkeys-js 4: one
+// global current scope, handler records with a key, scope, element and
+// method, dispatch to records whose scope is the current scope or 'all', and
+// unbind by key, scope and method.
 const mocks = vi.hoisted(() => {
-  // Scope-based handlers: scope -> key -> handler
-  const scopeHandlers = new Map<
-    string,
-    Map<string, (event: KeyboardEvent) => void>
-  >();
-  // Track which scopes have element bindings
-  const scopeElements = new Map<string, HTMLElement>();
+  type THandlerRecord = {
+    key: string;
+    scope: string;
+    element: unknown;
+    method: (event: KeyboardEvent) => void;
+  };
+  const records: THandlerRecord[] = [];
   let currentScope = 'all';
 
+  const dispatch = (
+    element: unknown,
+    key: string,
+    modifiers: {shift?: boolean}
+  ): KeyboardEvent => {
+    const event = {
+      key,
+      shiftKey: modifiers.shift ?? false,
+      preventDefault: vi.fn(),
+    } as unknown as KeyboardEvent;
+    for (const record of [...records]) {
+      if (
+        record.key === key &&
+        record.element === element &&
+        (record.scope === currentScope || record.scope === 'all')
+      ) {
+        record.method(event);
+      }
+    }
+    return event;
+  };
+
   return {
-    scopeHandlers,
-    scopeElements,
+    records,
     getCurrentScope: () => currentScope,
     setCurrentScope: (scope: string) => {
-      currentScope = scope;
+      currentScope = scope || 'all';
     },
 
-    // Simulate key press (will look up handler in current scope, but skip element-bound handlers)
-    simulateKeyPress: (key: string, modifiers: {shift?: boolean} = {}) => {
-      // If the current scope has an element binding, don't trigger (global press doesn't reach element-bound handlers)
-      if (scopeElements.has(currentScope)) {
-        return;
-      }
-      const handlers = scopeHandlers.get(currentScope);
-      if (handlers) {
-        const handler = handlers.get(key);
-        if (handler) {
-          const event = {
-            key,
-            shiftKey: modifiers.shift ?? false,
-            preventDefault: vi.fn(),
-          } as unknown as KeyboardEvent;
-          handler(event);
-        }
-      }
-    },
+    // Key press on the document (reaches only handlers bound without an element)
+    simulateKeyPress: (key: string, modifiers: {shift?: boolean} = {}) =>
+      dispatch(document, key, modifiers),
 
-    // Simulate key press (scoped to element - finds scope by element)
+    // Key press on an element (reaches only handlers bound to that element)
     simulateKeyPressOnElement: (
       element: HTMLElement,
       key: string,
       modifiers: {shift?: boolean} = {}
-    ) => {
-      // Find scope for this element
-      for (const [scope, el] of scopeElements.entries()) {
-        if (el === element) {
-          const handlers = scopeHandlers.get(scope);
-          if (handlers) {
-            const handler = handlers.get(key);
-            if (handler) {
-              const event = {
-                key,
-                shiftKey: modifiers.shift ?? false,
-                preventDefault: vi.fn(),
-              } as unknown as KeyboardEvent;
-              handler(event);
-            }
-          }
-          return;
-        }
-      }
-    },
+    ) => dispatch(element, key, modifiers),
+
+    handlerCount: () => records.length,
 
     reset: () => {
-      scopeHandlers.clear();
-      scopeElements.clear();
+      records.length = 0;
       currentScope = 'all';
     },
   };
@@ -85,45 +75,31 @@ const mocks = vi.hoisted(() => {
 
 // Mock hotkeys-js
 vi.mock('hotkeys-js', () => {
-  // Create base mock function
   const hotkeysFn = vi.fn(
     (
       keys: string,
       optionsOrHandler:
+        | string
         | {element?: HTMLElement; scope?: string}
         | ((event: KeyboardEvent) => void),
       handler?: (event: KeyboardEvent) => void
     ) => {
-      const actualHandler =
+      const method =
         typeof optionsOrHandler === 'function' ? optionsOrHandler : handler!;
-      const options =
-        typeof optionsOrHandler === 'object' ? optionsOrHandler : {};
-
-      // Parse comma-separated keys
-      const keyList = keys.split(',').map(k => k.trim());
-
-      // Determine scope (default to 'all')
-      const scope = options.scope ?? 'all';
-
-      // Ensure scope exists
-      if (!mocks.scopeHandlers.has(scope)) {
-        mocks.scopeHandlers.set(scope, new Map());
+      let scope = 'all';
+      let element: unknown = document;
+      if (typeof optionsOrHandler === 'string') {
+        scope = optionsOrHandler;
+      } else if (typeof optionsOrHandler === 'object') {
+        scope = optionsOrHandler.scope ?? 'all';
+        element = optionsOrHandler.element ?? document;
       }
-
-      // Track element if provided
-      if (options.element) {
-        mocks.scopeElements.set(scope, options.element);
-      }
-
-      // Store handlers in scope
-      const handlers = mocks.scopeHandlers.get(scope)!;
-      for (const key of keyList) {
-        handlers.set(key, actualHandler);
+      for (const key of keys.split(',').map(k => k.trim())) {
+        mocks.records.push({key, scope, element, method});
       }
     }
   );
 
-  // Cast to add additional properties
   const hotkeys = hotkeysFn as typeof hotkeysFn & {
     setScope: ReturnType<typeof vi.fn>;
     getScope: ReturnType<typeof vi.fn>;
@@ -131,22 +107,49 @@ vi.mock('hotkeys-js', () => {
     unbind: ReturnType<typeof vi.fn>;
   };
 
-  // Mock setScope
   hotkeys.setScope = vi.fn((scope: string) => {
     mocks.setCurrentScope(scope);
   });
 
-  // Mock getScope
   hotkeys.getScope = vi.fn(() => mocks.getCurrentScope());
 
-  // Mock deleteScope - removes all handlers for a scope
-  hotkeys.deleteScope = vi.fn((scope: string) => {
-    mocks.scopeHandlers.delete(scope);
-    mocks.scopeElements.delete(scope);
+  // Removes the scope's handlers; resets the current scope only when it is
+  // the deleted one
+  hotkeys.deleteScope = vi.fn((scope: string, newScope?: string) => {
+    for (let i = mocks.records.length - 1; i >= 0; i--) {
+      if (mocks.records[i].scope === scope) {
+        mocks.records.splice(i, 1);
+      }
+    }
+    if (mocks.getCurrentScope() === scope) {
+      mocks.setCurrentScope(newScope || 'all');
+    }
   });
 
-  // Mock unbind (kept for compatibility but not used by new implementation)
-  hotkeys.unbind = vi.fn();
+  hotkeys.unbind = vi.fn(
+    (
+      key: string,
+      scopeOrMethod?: string | ((event: KeyboardEvent) => void),
+      method?: (event: KeyboardEvent) => void
+    ) => {
+      let scope = typeof scopeOrMethod === 'string' ? scopeOrMethod : '';
+      const handler =
+        typeof scopeOrMethod === 'function' ? scopeOrMethod : method;
+      if (!scope) {
+        scope = mocks.getCurrentScope();
+      }
+      for (let i = mocks.records.length - 1; i >= 0; i--) {
+        const record = mocks.records[i];
+        if (
+          record.key === key &&
+          record.scope === scope &&
+          (!handler || record.method === handler)
+        ) {
+          mocks.records.splice(i, 1);
+        }
+      }
+    }
+  );
 
   return {default: hotkeys};
 });
@@ -464,7 +467,7 @@ describe('KeyboardStepSource', () => {
       expect(source.getPosition()).toBe(0);
     });
 
-    test('should emit both boundaries on wrap from start', async () => {
+    test('given position 0 and wrap, when left arrow pressed, then no boundary is emitted', async () => {
       const boundaryCallback = vi.fn();
       const source = new KeyboardStepSource({
         duration: 60,
@@ -477,6 +480,42 @@ describe('KeyboardStepSource', () => {
 
       mocks.simulateKeyPress('left');
 
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).not.toHaveBeenCalled();
+    });
+
+    test('given position 0 and wrap, when shift+left pressed, then it wraps to the end without emitting a boundary', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: true,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+
+      mocks.simulateKeyPress('shift+left');
+
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).not.toHaveBeenCalled();
+    });
+
+    test('given position one step before the end, when right arrow pressed, then end boundary is emitted', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: true,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(59);
+
+      mocks.simulateKeyPress('right');
+
+      expect(source.getPosition()).toBe(60);
       expect(boundaryCallback).toHaveBeenCalledWith('end');
     });
 
@@ -526,6 +565,44 @@ describe('KeyboardStepSource', () => {
       mocks.simulateKeyPress('right');
 
       expect(source.getPosition()).toBe(60);
+    });
+
+    test('given wrap off and position 59.5 of 60, when right arrow pressed, then position clamps to 60 and end is emitted once', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: false,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(59.5);
+
+      mocks.simulateKeyPress('right');
+      mocks.simulateKeyPress('right');
+
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).toHaveBeenCalledTimes(1);
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
+    });
+
+    test('given wrap off and position 55 of 60, when shift+right pressed, then end boundary is emitted', async () => {
+      const boundaryCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'disabled',
+        wrapNavigation: false,
+      });
+      source.onBoundaryReached(boundaryCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(55);
+
+      mocks.simulateKeyPress('shift+right');
+
+      expect(source.getPosition()).toBe(60);
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
     });
 
     test('should not emit boundary when clamped at start', async () => {
@@ -726,6 +803,60 @@ describe('KeyboardStepSource', () => {
       expect(markerJumpCallback).toHaveBeenCalledWith(1, 10);
     });
 
+    test('given markers [5, 10, 20] at position 0, when down arrow pressed, then position is 5 and onMarkerJump is called with (0, 5)', async () => {
+      const markerJumpCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'chapter-navigation',
+        markers: [5, 10, 20],
+      });
+      source.onMarkerJump(markerJumpCallback);
+      await source.init();
+      await source.activate();
+
+      mocks.simulateKeyPress('down');
+
+      expect(source.getPosition()).toBe(5);
+      expect(markerJumpCallback).toHaveBeenCalledWith(0, 5);
+    });
+
+    test('given markers [5, 10, 20] at position 2 with wrap, when up arrow pressed, then it wraps to the last marker', async () => {
+      const markerJumpCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'chapter-navigation',
+        markers: [5, 10, 20],
+      });
+      source.onMarkerJump(markerJumpCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(2);
+
+      mocks.simulateKeyPress('up');
+
+      expect(source.getPosition()).toBe(20);
+      expect(markerJumpCallback).toHaveBeenCalledWith(2, 20);
+    });
+
+    test('given markers [5, 10, 20] at position 2 without wrap, when up arrow pressed, then position does not move', async () => {
+      const markerJumpCallback = vi.fn();
+      const source = new KeyboardStepSource({
+        duration: 60,
+        verticalMode: 'chapter-navigation',
+        markers: [5, 10, 20],
+        wrapNavigation: false,
+      });
+      source.onMarkerJump(markerJumpCallback);
+      await source.init();
+      await source.activate();
+      await source.seek(2);
+
+      mocks.simulateKeyPress('up');
+
+      expect(source.getPosition()).toBe(2);
+      expect(markerJumpCallback).not.toHaveBeenCalled();
+    });
+
     test('should auto-sort markers on init', async () => {
       const source = new KeyboardStepSource({
         duration: 60,
@@ -822,13 +953,7 @@ describe('KeyboardStepSource', () => {
 
   describe('keyboard binding lifecycle', () => {
     // Helper to count total handlers across all scopes
-    const getTotalHandlerCount = () => {
-      let count = 0;
-      for (const handlers of mocks.scopeHandlers.values()) {
-        count += handlers.size;
-      }
-      return count;
-    };
+    const getTotalHandlerCount = () => mocks.handlerCount();
 
     test<KeyboardStepSourceTestContext>('should bind keys on activate', async ({
       source,
@@ -987,5 +1112,294 @@ describe('KeyboardStepSource', () => {
 
       expect(activatedCallback).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('KeyboardStepSource fractional steps', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test('given KeyboardStepSource with duration 1 and stepSize 0.1, when right arrow is pressed ten times, then position is exactly 1 and the end boundary is emitted', async () => {
+    const source = new KeyboardStepSource({
+      duration: 1,
+      verticalMode: 'disabled',
+      stepSize: 0.1,
+    });
+    const positions: number[] = [];
+    const boundaries: TBoundary[] = [];
+    source.onPosition(p => positions.push(p));
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+    positions.length = 0;
+
+    for (let i = 0; i < 10; i++) {
+      mocks.simulateKeyPress('right');
+    }
+
+    expect(positions).toEqual([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]);
+    expect(source.getPosition()).toBe(1);
+    expect(boundaries).toEqual(['end']);
+  });
+
+  test('given position 1 of 1 after ten 0.1 steps, when right arrow is pressed again with wrap on, then it wraps to 0', async () => {
+    const source = new KeyboardStepSource({
+      duration: 1,
+      verticalMode: 'disabled',
+      stepSize: 0.1,
+    });
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+
+    for (let i = 0; i < 11; i++) {
+      mocks.simulateKeyPress('right');
+    }
+
+    expect(source.getPosition()).toBe(0);
+    expect(boundaries).toEqual(['end', 'start']);
+  });
+
+  test('given position 1 with stepSize 0.1, when left arrow is pressed ten times, then every position is exact and it lands on 0', async () => {
+    const source = new KeyboardStepSource({
+      duration: 1,
+      verticalMode: 'disabled',
+      stepSize: 0.1,
+      wrapNavigation: false,
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+    await source.seek(1);
+    positions.length = 0;
+
+    for (let i = 0; i < 10; i++) {
+      mocks.simulateKeyPress('left');
+    }
+
+    expect(positions).toEqual([0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0]);
+  });
+});
+
+describe('KeyboardStepSource and the global hotkeys-js scope', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test("given host set hotkeys scope to 'editor', when KeyboardStepSource is activated and then deactivated, then hotkeys.getScope() returns 'editor'", async () => {
+    const hotkeys = (await import('hotkeys-js')).default;
+    hotkeys.setScope('editor');
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    await source.init();
+
+    await source.activate();
+    expect(hotkeys.getScope()).toBe('editor');
+
+    source.deactivate();
+    expect(hotkeys.getScope()).toBe('editor');
+  });
+
+  test("given a host handler bound in the 'editor' scope, when the source is active, then both the host handler and the source's keys still work", async () => {
+    const hotkeys = (await import('hotkeys-js')).default;
+    const hostSave = vi.fn();
+    hotkeys('ctrl+s', {scope: 'editor'}, hostSave);
+    hotkeys.setScope('editor');
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    await source.init();
+    await source.activate();
+
+    mocks.simulateKeyPress('ctrl+s');
+    mocks.simulateKeyPress('right');
+
+    expect(hostSave).toHaveBeenCalledTimes(1);
+    expect(source.getPosition()).toBe(1);
+  });
+
+  test('given two active keyboard sources, when one is deactivated, then the other keeps its key bindings', async () => {
+    const first = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    const second = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    await first.init();
+    await second.init();
+    await first.activate();
+    await second.activate();
+
+    first.deactivate();
+    mocks.simulateKeyPress('right');
+
+    expect(first.getPosition()).toBe(0);
+    expect(second.getPosition()).toBe(1);
+  });
+});
+
+describe('KeyboardStepSource target element and vertical keys', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test('given a targetElement selector that matches nothing, when init is called, then it rejects naming the selector', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+      targetElement: '#does-not-exist',
+    });
+
+    await expect(source.init()).rejects.toThrow(
+      "KeyboardStepSource: target element not found for selector '#does-not-exist'"
+    );
+  });
+
+  test('given timeline-switch mode without a change request listener, when Down is pressed, then the default page scroll is not prevented', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'timeline-switch',
+    });
+    await source.init();
+    await source.activate();
+
+    const event = mocks.simulateKeyPress('down');
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  });
+
+  test('given timeline-switch mode with a change request listener, when Down is pressed, then the default is prevented and the listener is called', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'timeline-switch',
+    });
+    const listener = vi.fn();
+    source.onTimelineChangeRequest(listener);
+    await source.init();
+    await source.activate();
+
+    const event = mocks.simulateKeyPress('down');
+
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(listener).toHaveBeenCalledWith('next');
+  });
+
+  test('given registered change request and marker listeners, when the returned unsubscribe functions are called, then they no longer fire', async () => {
+    const switchSource = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'timeline-switch',
+    });
+    const changeListener = vi.fn();
+    switchSource.onTimelineChangeRequest(changeListener)();
+    await switchSource.init();
+    await switchSource.activate();
+    mocks.simulateKeyPress('down');
+    switchSource.destroy();
+
+    const chapterSource = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'chapter-navigation',
+      markers: [10, 20],
+    });
+    const markerListener = vi.fn();
+    chapterSource.onMarkerJump(markerListener)();
+    await chapterSource.init();
+    await chapterSource.activate();
+    mocks.simulateKeyPress('down');
+
+    expect(changeListener).not.toHaveBeenCalled();
+    expect(markerListener).not.toHaveBeenCalled();
+    expect(chapterSource.getPosition()).toBe(10);
+  });
+
+  test('given a destroyed source, when activate is called, then it rejects and binds no keys', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    await source.init();
+    source.destroy();
+
+    await expect(source.activate()).rejects.toThrow(/destroyed/);
+    expect(mocks.handlerCount()).toBe(0);
+  });
+});
+
+describe('KeyboardStepSource large step past the end with wrapping', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test('given wrap on and position 55 of 60, when shift+right is pressed, then the 10s step wraps to 0 and only the start boundary is emitted', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+      wrapNavigation: true,
+    });
+    const positions: number[] = [];
+    const boundaries: TBoundary[] = [];
+    source.onPosition(p => positions.push(p));
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+    await source.seek(55);
+    positions.length = 0;
+
+    const event = mocks.simulateKeyPress('shift+right');
+
+    expect(source.getPosition()).toBe(0);
+    expect(positions).toEqual([0]);
+    expect(boundaries).toEqual(['start']);
+    expect(event.preventDefault).toHaveBeenCalled();
+  });
+
+  test('given wrap on and position 50 of 60, when shift+right is pressed, then the step lands exactly on the end and emits end without wrapping', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+      wrapNavigation: true,
+    });
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+    await source.seek(50);
+
+    mocks.simulateKeyPress('shift+right');
+
+    expect(source.getPosition()).toBe(60);
+    expect(boundaries).toEqual(['end']);
+  });
+});
+
+describe('KeyboardStepSource seek after destroy', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test('given a destroyed source, when seek(30) is awaited, then it resolves with position 0 and emits nothing', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+    source.destroy();
+
+    const result = await source.seek(30);
+
+    expect(result).toBe(0);
+    expect(source.getPosition()).toBe(0);
+    expect(positions).toEqual([]);
   });
 });

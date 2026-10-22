@@ -1,7 +1,8 @@
+import {Eventbus} from '@eventbus/eventbus.ts';
 import type {IEventbus} from '@eventbus/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EngineEventbusAdapter} from '../../../adapters/engine-eventbus-adapter.ts';
-import type {IEligiusEngine} from '../../../types.ts';
+import type {IEligiusEngine, IEngineActionError} from '../../../types.ts';
 import {createMockEventbus} from '../../fixtures/eventbus-factory.ts';
 
 type EngineEventHandlers = {
@@ -16,6 +17,7 @@ type EngineEventHandlers = {
   timelineFirstFrame: () => void;
   timelineRestart: () => void;
   duration: (duration: number) => void;
+  error: (error: IEngineActionError) => void;
 };
 
 /**
@@ -38,6 +40,7 @@ function createEngineEventCapture(): {
     timelineFirstFrame: () => {},
     timelineRestart: () => {},
     duration: () => {},
+    error: () => {},
   };
 
   const mockOnImpl = (
@@ -472,5 +475,137 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
       );
       expect(broadcastCall[1][0]()).toBe(120);
     });
+
+    test<AdapterSuiteContext>('given a connected adapter, when the engine emits error, then engine-error is broadcast once with the error', context => {
+      const {adapter, engine, eventbus} = context;
+      const {handlers, mockOnImpl} = createEngineEventCapture();
+      (engine.on as any).mockImplementation(mockOnImpl);
+      const error = Object.assign(new Error('boom'), {
+        actionName: 'Failing',
+        actionId: 'failing-id',
+        phase: 'start',
+        cause: new Error('boom'),
+      }) as IEngineActionError;
+
+      adapter.connect();
+      handlers.error(error);
+
+      const calls = (eventbus.broadcast as any).mock.calls.filter(
+        (call: any[]) => call[0] === 'engine-error'
+      );
+      expect(calls).toEqual([['engine-error', [error]]]);
+    });
+  });
+  describe('idempotent connect and failure reporting', () => {
+    test<AdapterSuiteContext>('given a connected adapter, when connect() is called again, then a command reaches the engine once', context => {
+      const {adapter, engine, eventbus} = context;
+
+      adapter.connect();
+      adapter.connect();
+      eventbus.broadcast('timeline-play-request', []);
+
+      expect(engine.start).toHaveBeenCalledTimes(1);
+    });
+
+    test<AdapterSuiteContext>('given an adapter that was disconnected, when connect() is called again, then commands reach the engine again', context => {
+      const {adapter, engine, eventbus} = context;
+
+      adapter.connect();
+      adapter.disconnect();
+      adapter.connect();
+      eventbus.broadcast('timeline-play-request', []);
+
+      expect(engine.start).toHaveBeenCalledTimes(1);
+    });
+
+    test<AdapterSuiteContext>('given a start() that rejects, when timeline-play-request is broadcast, then engine-command-error is broadcast with the command and the error', async context => {
+      const {adapter, engine, eventbus} = context;
+      vi.spyOn(console, 'error').mockImplementation(() => {});
+      const blocked = new Error('autoplay blocked');
+      (engine.start as any).mockImplementation(() => Promise.reject(blocked));
+      const commandErrors = vi.fn();
+      eventbus.on('engine-command-error' as any, commandErrors);
+      adapter.connect();
+
+      eventbus.broadcast('timeline-play-request', []);
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(commandErrors).toHaveBeenCalledWith('start', blocked);
+    });
+
+    test<AdapterSuiteContext>('given a connected adapter, when it subscribes to the engine error event, then the subscription is forward-only', context => {
+      const {adapter, engine} = context;
+
+      adapter.connect();
+
+      expect(engine.on).toHaveBeenCalledWith('error', expect.any(Function), {
+        forwardOnly: true,
+      });
+    });
+  });
+});
+
+describe('EngineEventbusAdapter rejected seek and switchTimeline commands', () => {
+  function createRejectingEngine(error: Error): IEligiusEngine {
+    return {
+      position: 5,
+      duration: 100,
+      playState: 'stopped',
+      currentTimelineUri: 'timeline-1',
+      container: undefined,
+      engineRoot: {} as JQuery<HTMLElement>,
+      on: vi.fn(() => vi.fn()),
+      init: vi.fn(() => Promise.resolve({} as any)),
+      destroy: vi.fn(() => Promise.resolve()),
+      start: vi.fn(() => Promise.resolve()),
+      pause: vi.fn(),
+      stop: vi.fn(),
+      seek: vi.fn(() => Promise.reject(error)),
+      switchTimeline: vi.fn(() => Promise.reject(error)),
+    };
+  }
+
+  test('given an engine whose seek() rejects, when timeline-seek-request is broadcast on a real eventbus, then the failure is logged and engine-command-error carries seek and the error', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const failure = new Error('seek failed');
+    const engine = createRejectingEngine(failure);
+    const eventbus = new Eventbus();
+    const commandErrors = vi.fn();
+    eventbus.on('engine-command-error', commandErrors);
+    const adapter = new EngineEventbusAdapter(engine, eventbus);
+    adapter.connect();
+
+    eventbus.broadcast('timeline-seek-request', [12.5]);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(engine.seek).toHaveBeenCalledWith(12.5);
+    expect(commandErrors).toHaveBeenCalledTimes(1);
+    expect(commandErrors).toHaveBeenCalledWith('seek', failure);
+    expect(consoleError).toHaveBeenCalledWith(
+      '[EngineEventbusAdapter] engine.seek() failed',
+      failure
+    );
+    adapter.disconnect();
+  });
+
+  test('given an engine whose switchTimeline() rejects, when request-timeline-uri is broadcast on a real eventbus, then engine-command-error carries switchTimeline and the error', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const failure = new Error('unknown timeline');
+    const engine = createRejectingEngine(failure);
+    const eventbus = new Eventbus();
+    const commandErrors = vi.fn();
+    eventbus.on('engine-command-error', commandErrors);
+    const adapter = new EngineEventbusAdapter(engine, eventbus);
+    adapter.connect();
+
+    eventbus.broadcast('request-timeline-uri', ['missing-timeline', 4]);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(engine.switchTimeline).toHaveBeenCalledWith('missing-timeline', 4);
+    expect(commandErrors).toHaveBeenCalledTimes(1);
+    expect(commandErrors).toHaveBeenCalledWith('switchTimeline', failure);
+    adapter.disconnect();
   });
 });

@@ -429,7 +429,7 @@ describe('ScrollPositionSource', () => {
       await source.seek(50);
 
       // 50% of 800 = 400
-      expect(scrollToSpy).toHaveBeenCalledWith({top: 400, behavior: 'smooth'});
+      expect(scrollToSpy).toHaveBeenCalledWith({top: 400, behavior: 'instant'});
     });
 
     test<ScrollPositionSourceTestContext>('given active source, when seek called, then returns actual position after scroll', async ({
@@ -473,7 +473,7 @@ describe('ScrollPositionSource', () => {
 
       await source.seek(0);
 
-      expect(scrollToSpy).toHaveBeenCalledWith({top: 0, behavior: 'smooth'});
+      expect(scrollToSpy).toHaveBeenCalledWith({top: 0, behavior: 'instant'});
     });
 
     test<ScrollPositionSourceTestContext>('given seek to end, when at start, then scrollTop becomes max', async ({
@@ -489,23 +489,127 @@ describe('ScrollPositionSource', () => {
       await source.seek(100);
 
       // 100% of 800 = 800
-      expect(scrollToSpy).toHaveBeenCalledWith({top: 800, behavior: 'smooth'});
+      expect(scrollToSpy).toHaveBeenCalledWith({top: 800, behavior: 'instant'});
     });
 
-    test<ScrollPositionSourceTestContext>('given inactive source, when seek called, then returns current position without scrolling', async ({
+    test<ScrollPositionSourceTestContext>('given inactive source, when seek called, then it scrolls instantly and reports the target position', async ({
       source,
       mockElement,
     }) => {
       await source.init();
-      // Not activated
+      // Not activated (for example the target of a switchTimeline)
 
       const scrollToSpy = vi.fn();
       mockElement.scrollTo = scrollToSpy;
 
       const result = await source.seek(50);
 
-      expect(scrollToSpy).not.toHaveBeenCalled();
-      expect(result).toBe(0);
+      expect(scrollToSpy).toHaveBeenCalledWith({top: 400, behavior: 'instant'});
+      expect(result).toBe(50);
+      expect(source.getPosition()).toBe(50);
+    });
+
+    test<ScrollPositionSourceTestContext>('given suspended source, when seek(30) called, then position is 30 right away', async ({
+      source,
+      mockElement,
+    }) => {
+      await source.init();
+      await source.activate();
+      source.suspend();
+      mockElement.scrollTo = vi.fn();
+
+      const result = await source.seek(30);
+
+      expect(result).toBe(30);
+      expect(source.getPosition()).toBe(30);
+      expect(mockElement.scrollTo).toHaveBeenCalledWith({
+        top: 240,
+        behavior: 'instant',
+      });
+    });
+
+    test<ScrollPositionSourceTestContext>('given suspended source, when seek is out of range, then the position is clamped to [0, duration]', async ({
+      source,
+      mockElement,
+    }) => {
+      await source.init();
+      await source.activate();
+      source.suspend();
+      mockElement.scrollTo = vi.fn();
+
+      expect(await source.seek(-5)).toBe(0);
+      expect(source.getPosition()).toBe(0);
+      expect(await source.seek(150)).toBe(100);
+      expect(source.getPosition()).toBe(100);
+      expect(mockElement.scrollTo).toHaveBeenLastCalledWith({
+        top: 800,
+        behavior: 'instant',
+      });
+    });
+  });
+
+  describe('activation sync', () => {
+    test<ScrollPositionSourceTestContext>('given element already scrolled to 50% before activate, when activate called, then position is half the duration', async ({
+      source,
+      mockElement,
+      positionCallback,
+    }) => {
+      await source.init();
+      source.onPosition(positionCallback);
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 400,
+        writable: true,
+        configurable: true,
+      });
+
+      await source.activate();
+
+      expect(source.getPosition()).toBe(50);
+      expect(positionCallback).toHaveBeenCalledWith(50);
+    });
+
+    test<ScrollPositionSourceTestContext>('given scrolled source that was deactivated, when activated again, then position matches the scroll offset', async ({
+      source,
+      mockElement,
+    }) => {
+      await source.init();
+      await source.activate();
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 400,
+        writable: true,
+        configurable: true,
+      });
+      mocks.getScrollHandler()?.(new Event('scroll'));
+      source.deactivate();
+      expect(source.getPosition()).toBe(0);
+
+      await source.activate();
+
+      expect(source.getPosition()).toBe(50);
+    });
+
+    test<ScrollPositionSourceTestContext>('given element at the bottom before activate, when scrolled back to the top, then start boundary is emitted', async ({
+      source,
+      mockElement,
+      boundaryCallback,
+    }) => {
+      await source.init();
+      source.onBoundaryReached(boundaryCallback);
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 800,
+        writable: true,
+        configurable: true,
+      });
+      await source.activate();
+
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 0,
+        writable: true,
+        configurable: true,
+      });
+      mocks.getScrollHandler()?.(new Event('scroll'));
+
+      expect(boundaryCallback).toHaveBeenCalledWith('start');
     });
   });
 
@@ -532,6 +636,26 @@ describe('ScrollPositionSource', () => {
       const scrollHandler = mocks.getScrollHandler();
       scrollHandler?.(new Event('scroll'));
 
+      expect(boundaryCallback).toHaveBeenCalledWith('end');
+    });
+
+    test<ScrollPositionSourceTestContext>('given scrollTop a fraction below the max (zoom), when a scroll event fires, then end boundary is emitted at the duration', async ({
+      source,
+      mockElement,
+      boundaryCallback,
+    }) => {
+      await source.init();
+      source.onBoundaryReached(boundaryCallback);
+      await source.activate();
+
+      Object.defineProperty(mockElement, 'scrollTop', {
+        value: 799.5,
+        writable: true,
+        configurable: true,
+      });
+      mocks.getScrollHandler()?.(new Event('scroll'));
+
+      expect(source.getPosition()).toBe(100);
       expect(boundaryCallback).toHaveBeenCalledWith('end');
     });
 
@@ -647,5 +771,215 @@ describe('ScrollPositionSource', () => {
       source.loop = true;
       expect(source.loop).toBe(true);
     });
+  });
+});
+
+/**
+ * Programmatic scrolling. A browser's smooth scroll lands frames later and
+ * fires scroll events at every intermediate offset, so seeks and loop resets
+ * have to jump instantly and report their target synchronously.
+ */
+describe('ScrollPositionSource programmatic scrolling', () => {
+  let element: HTMLElement;
+  let pendingScrollEvents: Array<() => void>;
+
+  const setScrollTop = (value: number) => {
+    Object.defineProperty(element, 'scrollTop', {
+      value,
+      writable: true,
+      configurable: true,
+    });
+  };
+
+  /** Deliver the scroll events the browser queued, in order. */
+  const flushScrollEvents = () => {
+    while (pendingScrollEvents.length > 0) {
+      pendingScrollEvents.shift()?.();
+    }
+  };
+
+  const queueScrollEvent = (scrollTop: number) => {
+    pendingScrollEvents.push(() => {
+      setScrollTop(scrollTop);
+      mocks.getScrollHandler()?.(new Event('scroll'));
+    });
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    element = mocks.createMockElement();
+    mocks.setMockElement(element);
+    pendingScrollEvents = [];
+
+    // Browser-like scrollTo: 'instant' moves at once and fires one scroll
+    // event later; 'smooth' does not move yet and fires an event for each
+    // animation step afterwards. scrollTop snaps to whole pixels.
+    element.scrollTo = vi.fn((options?: ScrollToOptions | number) => {
+      const {top = 0, behavior} = options as ScrollToOptions;
+      const target = Math.round(top);
+      if (behavior === 'smooth') {
+        const from = element.scrollTop;
+        for (let step = 1; step <= 4; step++) {
+          queueScrollEvent(Math.round(from + ((target - from) * step) / 4));
+        }
+      } else {
+        setScrollTop(target);
+        queueScrollEvent(target);
+      }
+    }) as typeof element.scrollTo;
+  });
+
+  test('given an active source at 0, when seek(55) is awaited and the browser then delivers its scroll events, then 55 is reported at once and no intermediate position is emitted', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+    positions.length = 0;
+
+    const result = await source.seek(55);
+
+    expect(result).toBe(55);
+    expect(source.getPosition()).toBe(55);
+    expect(element.scrollTo).toHaveBeenCalledWith({
+      top: 440,
+      behavior: 'instant',
+    });
+
+    flushScrollEvents();
+
+    expect(positions).toEqual([55, 55]);
+    expect(source.getPosition()).toBe(55);
+  });
+
+  test('given a seek target between whole pixels, when the snapped scroll event arrives, then the exact target position is kept', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+    positions.length = 0;
+
+    // 33.3 s maps to 266.4 px, which the browser snaps to 266 px
+    await source.seek(33.3);
+    flushScrollEvents();
+
+    expect(positions).toEqual([33.3, 33.3]);
+    expect(source.getPosition()).toBe(33.3);
+  });
+
+  test('given the same seek twice, when both are awaited, then the reported position is the same', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    await source.init();
+    await source.activate();
+
+    expect(await source.seek(40)).toBe(40);
+    flushScrollEvents();
+    expect(await source.seek(40)).toBe(40);
+    flushScrollEvents();
+
+    expect(source.getPosition()).toBe(40);
+  });
+
+  test('given initialised inactive scroll source, when seek(30) is called and the source is then activated, then scrollTop maps to 30 and the first emitted position is 30 instead of 0', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+
+    await source.seek(30);
+    expect(element.scrollTop).toBe(240);
+
+    await source.activate();
+    flushScrollEvents();
+
+    expect(positions[0]).toBe(30);
+    expect(positions.every(p => p === 30)).toBe(true);
+  });
+
+  test('given a paused source, when seek(30) is followed by activate, then the first emitted position is 30', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+    source.suspend();
+    positions.length = 0;
+
+    await source.seek(30);
+    await source.activate();
+
+    expect(positions[0]).toBe(30);
+  });
+
+  test('given loop enabled and a smooth scrollTo that fires intermediate scroll events, when the scroll reaches the end, then no position between duration and 0 is emitted and scrollTo is called with behavior instant', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    source.loop = true;
+    const events: string[] = [];
+    source.onPosition(p => events.push(`${p}`));
+    source.onBoundaryReached(b => events.push(b));
+    await source.init();
+    await source.activate();
+    events.length = 0;
+
+    // The user scrolls to the bottom
+    setScrollTop(800);
+    mocks.getScrollHandler()?.(new Event('scroll'));
+    flushScrollEvents();
+
+    expect(element.scrollTo).toHaveBeenCalledWith({
+      top: 0,
+      behavior: 'instant',
+    });
+    expect(events).toEqual(['100', 'end', '0', 'start', '0']);
+    expect(source.getPosition()).toBe(0);
+    expect(source.state).toBe('active');
+  });
+
+  test('given a seek, when the user later scrolls elsewhere, then the position follows the scroll offset again', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    await source.init();
+    await source.activate();
+    await source.seek(33.3);
+    flushScrollEvents();
+
+    setScrollTop(400);
+    mocks.getScrollHandler()?.(new Event('scroll'));
+
+    expect(source.getPosition()).toBe(50);
+  });
+
+  test('given a destroyed source, when seek is called, then it does not scroll', async () => {
+    const source = new ScrollPositionSource({
+      selector: '#scroll-container',
+      duration: 100,
+    });
+    await source.init();
+    source.destroy();
+
+    await source.seek(30);
+
+    expect(element.scrollTo).not.toHaveBeenCalled();
   });
 });

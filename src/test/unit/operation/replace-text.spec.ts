@@ -117,4 +117,86 @@ describe('replaceText', () => {
     expect('searchPattern' in operationData).toBe(false);
     expect('replacement' in operationData).toBe(false);
   });
+
+  test('given textContent ab12 and a non-global regex with capture groups, when replaceText is applied, then textContent is abX and replacementCount is 1', () => {
+    // Arrange
+    const operationData: IReplaceTextOperationData = {
+      textContent: 'ab12',
+      searchPattern: /(\d)(\d)/,
+      replacement: 'X',
+      replacementCount: 0,
+    };
+
+    // Act
+    const result = applyOperation(replaceText, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // Assert
+    expect(result.textContent).toBe('abX');
+    expect(result.replacementCount).toBe(1);
+  });
+
+  test('given a global regex with capture groups and a stale lastIndex, when replaceText is applied, then every match is replaced and counted', () => {
+    // Arrange
+    const searchPattern = /(\d)(\d)/g;
+    searchPattern.lastIndex = 3;
+    const operationData: IReplaceTextOperationData = {
+      textContent: '12 ab 34',
+      searchPattern,
+      replacement: '$2$1',
+      replacementCount: 0,
+    };
+
+    // Act
+    const result = applyOperation(replaceText, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // Assert
+    expect(result.textContent).toBe('21 ab 43');
+    expect(result.replacementCount).toBe(2);
+  });
+
+  test('given a non-global regex without a match, when replaceText is applied, then replacementCount is 0', () => {
+    // Arrange
+    const operationData: IReplaceTextOperationData = {
+      textContent: 'abc',
+      searchPattern: /(\d)/,
+      replacement: 'X',
+      replacementCount: 0,
+    };
+
+    // Act
+    const result = applyOperation(replaceText, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // Assert
+    expect(result.textContent).toBe('abc');
+    expect(result.replacementCount).toBe(0);
+  });
+
+  test('given an empty string searchPattern, when replaceText is applied, then it throws instead of inserting the replacement between every character', () => {
+    const operationData: IReplaceTextOperationData = {
+      textContent: 'abc',
+      searchPattern: '',
+      replacement: '+',
+      replacementCount: 0,
+    };
+
+    expect(() =>
+      applyOperation(replaceText, operationData, {
+        currentIndex: 0,
+        eventbus: mockEventbus,
+        operations: [],
+      })
+    ).toThrow('replaceText: searchPattern must not be empty');
+  });
 });

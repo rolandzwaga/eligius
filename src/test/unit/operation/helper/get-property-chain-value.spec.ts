@@ -80,4 +80,109 @@ describe('getNestedValue', () => {
     // expect
     expect(value).toBe('42px');
   });
+
+  test('given an empty-string intermediate value, when the chain reads its length, then it returns 0 instead of throwing', () => {
+    expect(getPropertyChainValue(['a', 'length'], {a: ''})).toBe(0);
+  });
+
+  test('given zero and false intermediate values, when the chain reads a member of them, then the member is returned', () => {
+    expect(typeof getPropertyChainValue(['a', 'toFixed'], {a: 0})).toBe(
+      'function'
+    );
+    expect(typeof getPropertyChainValue(['a', 'valueOf'], {a: false})).toBe(
+      'function'
+    );
+  });
+
+  test('given a null intermediate value, when the chain reads past it, then it still throws', () => {
+    expect(() => getPropertyChainValue(['a', 'b'], {a: null})).toThrow(
+      "Property chain 'a.b' cannot be resolved: 'a' is null."
+    );
+  });
+
+  test('given an undefined intermediate value, when the chain reads past it, then it still throws', () => {
+    expect(() => getPropertyChainValue(['a', 'b', 'c'], {a: {}})).toThrow(
+      "Property chain 'a.b.c' cannot be resolved: 'a.b' is undefined."
+    );
+  });
+
+  test('given a constructor.constructor chain, when it is resolved against a plain object, then it throws instead of returning the global Function constructor', () => {
+    expect(() =>
+      getPropertyChainValue(['x', 'constructor', 'constructor'], {x: 's'})
+    ).toThrow(/forbidden segment 'constructor'/);
+  });
+
+  test.each([
+    ['__proto__', ['__proto__', 'polluted']],
+    ['prototype', ['fn', 'prototype']],
+    ['constructor', ['constructor']],
+    ['__proto__', ['items[0]', '__proto__']],
+    ['__proto__', ['a.__proto__']],
+    ['constructor', ['value', 'constructor+px']],
+  ])(
+    'given a chain containing %s, when it is resolved, then it throws naming the segment and the chain',
+    (segment, chain) => {
+      expect(() =>
+        getPropertyChainValue(chain, {
+          fn() {},
+          items: [{}],
+          a: {},
+          value: 1,
+        })
+      ).toThrow(`forbidden segment '${segment}'`);
+    }
+  );
+
+  test('given an operation name, when a forbidden chain is resolved, then the error names the operation', () => {
+    expect(() => getPropertyChainValue(['__proto__'], {}, 'setData')).toThrow(
+      "setData: property chain '__proto__' contains forbidden segment '__proto__'"
+    );
+  });
+
+  test('given array index and length segments, when they are resolved, then own array members still work', () => {
+    expect(getPropertyChainValue(['items', '1'], {items: ['a', 'b']})).toBe(
+      'b'
+    );
+    expect(getPropertyChainValue(['items', 'length'], {items: ['a']})).toBe(1);
+  });
+});
+
+describe('getPropertyChainValue errors and global object guard', () => {
+  test('given an operation name, when the chain cannot be resolved, then the error names the operation and the part that did not resolve', () => {
+    expect(() =>
+      getPropertyChainValue(['a', 'b', 'c'], {a: {}}, 'selectElement')
+    ).toThrow(
+      "selectElement: property chain 'a.b.c' cannot be resolved: 'a.b' is undefined."
+    );
+  });
+
+  test('given a chain through ownerDocument.defaultView, when it is resolved, then it throws instead of returning window', () => {
+    const element = document.createElement('div');
+
+    expect(() =>
+      getPropertyChainValue(
+        ['element', 'ownerDocument', 'defaultView', 'eval'],
+        {element},
+        'setOperationData'
+      )
+    ).toThrow(
+      "setOperationData: property chain 'element.ownerDocument.defaultView.eval' reaches the global object at 'element.ownerDocument.defaultView'"
+    );
+  });
+
+  test('given a chain that ends at the global object, when it is resolved, then it throws', () => {
+    expect(() => getPropertyChainValue(['win'], {win: window})).toThrow(
+      /reaches the global object at 'win'/
+    );
+  });
+
+  test('given a chain through the document, when it reads a plain value, then it resolves', () => {
+    const element = document.createElement('div');
+
+    expect(
+      getPropertyChainValue(['element', 'ownerDocument', 'nodeType'], {
+        element,
+      })
+    ).toBe(9);
+  });
 });

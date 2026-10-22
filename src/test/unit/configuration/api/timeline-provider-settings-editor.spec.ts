@@ -194,6 +194,19 @@ describe<TimelineProviderSettingsEditorSuiteContext>('TimelineProviderSettingsEd
     expect((providerSettings.positionSource as any).tickInterval).toBe(100);
   });
 
+  test<TimelineProviderSettingsEditorSuiteContext>('given video sources, when setPositionSourceType video is called, then the sources are stored on the position source config', context => {
+    const {editor, providerSettings} = context;
+    const sources = [{src: '/intro.mp4', type: 'video/mp4'}];
+
+    editor.setPositionSourceType('video', {sources, poster: '/poster.jpg'});
+
+    expect(providerSettings.positionSource).toEqual({
+      systemName: 'VideoPositionSource',
+      sources,
+      poster: '/poster.jpg',
+    });
+  });
+
   test<TimelineProviderSettingsEditorSuiteContext>('should set the container selector with default systemName', context => {
     // given
     const {editor, providerSettings} = context;

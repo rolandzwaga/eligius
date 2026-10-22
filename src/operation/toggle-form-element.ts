@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IToggleFormElementOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

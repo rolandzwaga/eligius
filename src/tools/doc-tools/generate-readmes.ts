@@ -1,9 +1,8 @@
 import fs from 'node:fs';
-import {EOL} from 'node:os';
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import camelCaseToDash from '@util/camel-case-to-dash.ts';
 import type {JSONOutput} from 'typedoc';
+import {generateLink, type IReadMeItemInfo} from './readme-links.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -12,6 +11,10 @@ const operationsReadMeoutputPath = path.resolve(__dirname, '../../operation');
 const controllersReadMeoutputPath = path.resolve(
   __dirname,
   '../../controllers'
+);
+const operationSchemasPath = path.resolve(
+  __dirname,
+  '../../../jsonschema/operations'
 );
 
 if (!fs.existsSync(docsJsonPath)) {
@@ -30,7 +33,15 @@ if (!fs.existsSync(controllersReadMeoutputPath)) {
 }
 
 const contents = fs.readFileSync(docsJsonPath, {encoding: 'utf-8'});
-const docs = JSON.parse(contents) as JSONOutput.ProjectReflection;
+let docs: JSONOutput.ProjectReflection;
+try {
+  docs = JSON.parse(contents) as JSONOutput.ProjectReflection;
+} catch (error) {
+  console.error(
+    `${docsJsonPath} is not valid JSON (${(error as Error).message}). Regenerate it with 'npm run typedoc'.`
+  );
+  process.exit(1);
+}
 
 writeOperationsReadMe();
 writeControllersReadMe();
@@ -47,7 +58,9 @@ function writeOperationsReadMe() {
 
   const readme = [
     ...header,
-    ...operationInfos.map(generateLink.bind(null, 'variables')),
+    ...operationInfos.map(info =>
+      generateLink('variables', info as IReadMeItemInfo, hasOperationSchema)
+    ),
   ];
 
   fs.writeFileSync(
@@ -78,7 +91,9 @@ function writeControllersReadMe() {
 
   const readme = [
     ...header,
-    ...controllerInfos.map(generateLink.bind(null, 'classes')),
+    ...controllerInfos.map(info =>
+      generateLink('classes', info as IReadMeItemInfo)
+    ),
   ];
 
   fs.writeFileSync(
@@ -97,37 +112,9 @@ function writeControllersReadMe() {
   );
 }
 
-function generateLink(linkSuffix: string, itemInfo: any) {
-  if (linkSuffix === 'variables') {
-    return `- [${
-      itemInfo.name
-    }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
-      itemInfo.name
-    }.html${getFirstCommentLine(
-      itemInfo
-    )}) - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${camelCaseToDash(
-      itemInfo.name
-    )}.json))`;
-  }
-
-  return `- [${
-    itemInfo.name
-  }](https://rolandzwaga.github.io/eligius/${linkSuffix}/${
-    itemInfo.name
-  }.html${getFirstCommentLine(itemInfo)})`;
-}
-
-function getFirstCommentLine(itemInfo: any) {
-  const signature = itemInfo.signatures?.find(
-    (x: any) => x.name === itemInfo.name
-  );
-  if (signature) {
-    const line = signature.comment?.summary?.find(
-      (x: any) => x.kind === 'text'
-    );
-    if (line) {
-      return ` "${line.text.replaceAll(EOL, ' ')}"`;
-    }
-  }
-  return '';
+/**
+ * Operations only get a schema link when `npm run generate-schema` wrote a schema for them.
+ */
+function hasOperationSchema(schemaFileName: string) {
+  return fs.existsSync(path.join(operationSchemasPath, schemaFileName));
 }

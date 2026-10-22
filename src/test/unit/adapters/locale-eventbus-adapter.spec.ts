@@ -274,4 +274,89 @@ describe<LocaleAdapterTestContext>('LocaleEventbusAdapter', () => {
       ]);
     });
   });
+
+  describe('idempotent connect', () => {
+    test<LocaleAdapterTestContext>('given a connected adapter, when connect() is called again, then it registers its listeners once', context => {
+      const {adapter, eventbus, localeManager} = context;
+
+      adapter.connect();
+      adapter.connect();
+
+      expect(localeManager.on).toHaveBeenCalledTimes(1);
+      expect(
+        (eventbus.on as any).mock.calls.filter(
+          (call: unknown[]) => call[0] === 'language-change'
+        )
+      ).toHaveLength(1);
+    });
+  });
+});
+
+/**
+ * Round-trip with a real LocaleManager and a real Eventbus. The adapter
+ * forwards manager changes to the eventbus and eventbus commands to the
+ * manager; without a re-entrancy guard the two feed each other forever.
+ */
+describe('LocaleEventbusAdapter round-trip', () => {
+  let eventbus: import('@eventbus/eventbus.ts').Eventbus;
+  let localeManager: import('@locale/locale-manager.ts').LocaleManager;
+  let adapter: import('@adapters/locale-eventbus-adapter.ts').LocaleEventbusAdapter;
+  let attr: ReturnType<typeof vi.fn>;
+
+  beforeEach(async () => {
+    const {Eventbus} = await import('@eventbus/eventbus.ts');
+    const {LocaleManager} = await import('@locale/locale-manager.ts');
+    const {LocaleEventbusAdapter} = await import(
+      '@adapters/locale-eventbus-adapter.ts'
+    );
+
+    eventbus = new Eventbus();
+    localeManager = new LocaleManager({
+      defaultLocale: 'en-US' as TLanguageCode,
+    });
+    localeManager.loadLocale('en-US' as TLanguageCode, {hello: 'Hello'});
+    localeManager.loadLocale('nl-NL' as TLanguageCode, {hello: 'Hallo'});
+
+    attr = vi.fn();
+    const engine = {
+      engineRoot: {attr} as unknown as JQuery<HTMLElement>,
+    } as unknown as IEligiusEngine;
+
+    adapter = new LocaleEventbusAdapter(localeManager, eventbus, engine);
+    adapter.connect();
+  });
+
+  test('given connected adapter, when language-change is broadcast, then listeners hear it once and the locale switches', () => {
+    const listener = vi.fn();
+    eventbus.on('language-change', listener);
+
+    expect(() =>
+      eventbus.broadcast('language-change', ['nl-NL' as TLanguageCode])
+    ).not.toThrow();
+
+    expect(localeManager.locale).toBe('nl-NL');
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith('nl-NL');
+  });
+
+  test('given connected adapter, when setLocale is called directly, then language-change is broadcast exactly once', () => {
+    const listener = vi.fn();
+    eventbus.on('language-change', listener);
+
+    localeManager.setLocale('nl-NL' as TLanguageCode);
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith('nl-NL');
+    expect(attr).toHaveBeenCalledWith('lang', 'nl');
+  });
+
+  test('given connected adapter, when language-change is broadcast, then the manager change event fires once', () => {
+    const changeHandler = vi.fn();
+    localeManager.on('change', changeHandler);
+
+    eventbus.broadcast('language-change', ['nl-NL' as TLanguageCode]);
+
+    expect(changeHandler).toHaveBeenCalledTimes(1);
+    expect(changeHandler).toHaveBeenCalledWith('nl-NL', 'en-US');
+  });
 });

@@ -7,7 +7,9 @@ import {
 import {TimelineProvidersSettingsEditor} from '@configuration/api/timeline-provider-settings-editor.ts';
 import type {
   IActionConfiguration,
+  IContainerProviderConfig,
   IEngineConfiguration,
+  IPositionSourceConfig,
   ITimelineActionConfiguration,
   ITimelineConfiguration,
 } from '@configuration/types.ts';
@@ -15,9 +17,57 @@ import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {mergeIfMissing} from '@util/merge-if-missing.ts';
 import {v4 as uuidv4} from 'uuid';
 import type {KeysOfType, TimelineTypes, TLanguageCode} from '../../types.ts';
+import {syncInPlace} from './sync-in-place.ts';
 
 /** */
 export type TEngineConfigurationLists = KeysOfType<IEngineConfiguration, any[]>;
+
+/**
+ * Action names must be unique across these lists.
+ */
+const UNIQUE_NAME_LISTS: TEngineConfigurationLists[] = [
+  'actions',
+  'eventActions',
+];
+
+/**
+ * Options for the {@link ConfigurationFactory} constructor.
+ */
+export interface IConfigurationFactoryOptions {
+  /**
+   * The system names of custom operations that the name based methods
+   * (`addStartOperation`, `addEndOperation`, `setSystemName`) accept besides
+   * the built-in operations. Only names are needed, so this works in the
+   * DOM-free `eligius/configuration-api` entry as well.
+   *
+   * The implementations are registered with the engine separately, for
+   * example `new EligiusResourceImporter({operations: {trackEvent}})`. Custom
+   * operations have no generated metadata, so their operation data is not
+   * typed or schema-validated.
+   */
+  customOperations?: readonly string[];
+}
+
+function toCustomOperationNames(
+  customOperations: readonly string[] | undefined
+): ReadonlySet<string> {
+  if (customOperations === undefined) {
+    return new Set();
+  }
+  if (!Array.isArray(customOperations)) {
+    throw new Error(
+      'ConfigurationFactory: options.customOperations must be an array of operation names.'
+    );
+  }
+  for (const [index, name] of customOperations.entries()) {
+    if (typeof name !== 'string' || !name.length) {
+      throw new Error(
+        `ConfigurationFactory: options.customOperations[${index}] must be a non-empty string.`
+      );
+    }
+  }
+  return new Set(customOperations);
+}
 
 type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
   this: NewFactory,
@@ -43,11 +93,10 @@ type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
  *   false,                 // The presentation does NOT play in a loop
  *   ".timeline-container"  // The element within the main layout (defined by the layoutTemplate) in which the timeline will be rendered
  * )
- * .editTimelineProviderSettings()                          // Add a timeline provider
- * .addProvider("animation")                                // One that provides timelines for type 'animation'
- * .setSystemName("RequestAnimationFrameTimelineProvider")  // The system name of the provider
- * .setVendor("eligius")                                    // Eligius is the vendor in this case
- * .end();                                                  // This finally returns the ConfigurationFactory instance
+ * .editTimelineProviderSettings()                      // Add a timeline provider
+ * .addProvider("animation", "RafPositionSource")      // Timelines of type 'animation' get their time from requestAnimationFrame
+ * .setContainer(".timeline-container")                 // The element the timeline renders into
+ * .end();                                              // This finally returns the ConfigurationFactory instance
  * ```
  *
  * Then to add an init action:
@@ -78,7 +127,7 @@ type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
  * function addImage(this: ConfigurationFactory, actionName: string, imageSrc: string, imageId: string) {
  *  this.createInitAction(actionName)
  *      .addStartOperationByType(selectElement, { selector: ".timeline-container" })
- *      .addStartOperationByType(createElement, { element: 'img', attributes: {src: imageSrc, imageId} })
+ *      .addStartOperationByType(createElement, { elementName: 'img', attributes: {src: imageSrc, id: imageId} })
  *      .addStartOperationByType(setElementContent, { insertionType: "append" })
  *      .addEndOperationByType(selectElement, { selector: `#${imageId}` })
  *      .addEndOperationByType(removeElement, {});
@@ -98,6 +147,15 @@ type ConfigurationFactoryExtension<NewFactory extends ConfigurationFactory> = (
  * fs.writeFileSync("/my/path/configuration.json", JSON.stringify(configuration), {encoding:'utf-8'})
  * ```
  *
+ * In plain Node (build tools, code generators) import the factory from `eligius/configuration-api`.
+ * That entry does not load jQuery or the other DOM dependencies. It supports every method except the
+ * `...ByType` ones, which need the operation implementations; use the name based methods there:
+ * ```ts
+ * import {ConfigurationFactory} from 'eligius/configuration-api';
+ *
+ * factory.createAction('MyAction').addStartOperation('selectElement', {selector: '#app'});
+ * ```
+ *
  * The `ConfigurationFactory` can also be used to edit an existing configuration. In this case, simply
  * pass the JSON configuration to the `ConfigurationFactory`'s constructor:
  * ```ts
@@ -113,10 +171,30 @@ export class ConfigurationFactory {
   actionCreatorFactory: ActionCreatorFactory;
 
   /**
-   * Constructs a new `ConfigurationFactory`
-   * @param config an optional existing configuration that will be used as a starting point
+   * The custom operation names this factory accepts besides the built-in
+   * operations, from the `customOperations` option.
    */
-  constructor(public configuration: IEngineConfiguration = {} as any) {
+  readonly customOperationNames: ReadonlySet<string>;
+
+  /**
+   * Constructs a new `ConfigurationFactory`
+   * @param configuration an optional existing configuration that will be used as a starting point
+   * @param options optional settings, see {@link IConfigurationFactoryOptions}
+   * @throws Error when `options.customOperations` is not an array of non-empty strings
+   *
+   * @example Accepting a custom operation
+   * ```ts
+   * const factory = new ConfigurationFactory(undefined, {customOperations: ['trackEvent']});
+   * factory.createAction('Track').addStartOperation('trackEvent', {category: 'intro'});
+   * ```
+   */
+  constructor(
+    public configuration: IEngineConfiguration = {} as any,
+    options: IConfigurationFactoryOptions = {}
+  ) {
+    this.customOperationNames = toCustomOperationNames(
+      options?.customOperations
+    );
     this.actionCreatorFactory = new ActionCreatorFactory(this);
   }
 
@@ -247,8 +325,9 @@ export class ConfigurationFactory {
    * @returns
    */
   editTimelineProviderSettings() {
+    this.configuration.timelineProviderSettings ??= {};
     return new TimelineProvidersSettingsEditor(
-      this.configuration.timelineProviderSettings || {},
+      this.configuration.timelineProviderSettings,
       this
     );
   }
@@ -257,7 +336,7 @@ export class ConfigurationFactory {
    *
    * Return a copy of the current state of the configuration
    *
-   * @param callBack the callback receives the configuration as well and can return a mutated version wich will be assigned to the factory's internal state
+   * @param callBack the callback receives a copy of the configuration and can return a changed version. The changes are applied to the factory's configuration in place, so editors that are still open keep working.
    * @returns
    */
   getConfiguration(
@@ -266,7 +345,12 @@ export class ConfigurationFactory {
     const copy = deepCopy<IEngineConfiguration>(this.configuration);
     if (callBack) {
       const newConfig = callBack.call(this, copy);
-      this.configuration = deepCopy<IEngineConfiguration>(newConfig);
+      // Update the existing configuration in place, so editors that hold
+      // objects inside it stay attached to the factory.
+      syncInPlace(
+        this.configuration,
+        deepCopy<IEngineConfiguration>(newConfig)
+      );
     }
     return copy;
   }
@@ -308,11 +392,56 @@ export class ConfigurationFactory {
     collectionName: TEngineConfigurationLists,
     action: IActionConfiguration
   ) {
+    if (UNIQUE_NAME_LISTS.includes(collectionName)) {
+      this._assertActionNameFree(action.name, action);
+    }
     const actions = this._initializeCollection(
       this.configuration,
       collectionName
     );
     actions?.push(action as any);
+  }
+
+  /**
+   * Throws when the given action is in `actions` or `eventActions` and another
+   * action in those lists already has the given name. Action names must be
+   * unique across those two lists, the rule the `ConfigurationResolver`
+   * enforces, so the fluent API reports a duplicate where it is made instead of
+   * when the engine is created. Init actions and timeline actions are not
+   * checked.
+   *
+   * Called by the action creators and editors before they rename an action.
+   *
+   * @param name the new action name
+   * @param action the action that gets the name
+   * @throws Error when the name is already taken
+   */
+  assertUniqueActionName(name: string, action: IActionConfiguration): void {
+    const isChecked = UNIQUE_NAME_LISTS.some(listName =>
+      (
+        this.configuration[listName] as IActionConfiguration[] | undefined
+      )?.includes(action)
+    );
+    if (isChecked) {
+      this._assertActionNameFree(name, action);
+    }
+  }
+
+  private _assertActionNameFree(name: string, action: IActionConfiguration) {
+    // Empty names are not checked, so an action can be created first and named later
+    if (!name) {
+      return;
+    }
+    const taken = UNIQUE_NAME_LISTS.some(listName =>
+      (
+        this.configuration[listName] as IActionConfiguration[] | undefined
+      )?.some(other => other !== action && other.name === name)
+    );
+    if (taken) {
+      throw new Error(
+        `Action name '${name}' already exists in actions or eventActions. Action names must be unique across actions and eventActions.`
+      );
+    }
   }
 
   private _initializeCollection<T, K extends keyof T>(
@@ -402,10 +531,24 @@ export class ConfigurationFactory {
    * Starts the creation of a new action with the specified name that gets added to the `eventActions` list
    *
    * @param name
+   * @param eventName the event that starts the action. Without it the action can
+   * only be started by name (for example by a `DOMEventListenerController`).
+   * @param eventTopic optional topic of the event
    * @returns
+   *
+   * @example
+   * ```ts
+   * factory
+   *   .createEventAction('OnLanguageChange', 'language-change')
+   *   .addStartOperation('log', {});
+   * ```
    */
-  createEventAction(name: string) {
-    return this.actionCreatorFactory.createEventAction(name);
+  createEventAction(name: string, eventName?: string, eventTopic?: string) {
+    return this.actionCreatorFactory.createEventAction(
+      name,
+      eventName,
+      eventTopic
+    );
   }
 
   /**
@@ -456,6 +599,78 @@ export class ConfigurationFactory {
     };
     timelines.push(timelineConfig);
     return this;
+  }
+
+  /**
+   * Gives the timeline its own position source settings, merged over the
+   * settings of its type in `timelineProviderSettings` (see
+   * `ITimelineConfiguration.positionSource`).
+   *
+   * @param uri - URI of the timeline
+   * @param positionSource - The override. Leave out `systemName` to change
+   * single settings of the type's position source, or name another class to
+   * replace it for this timeline. `undefined` removes the override.
+   * @returns The factory
+   * @throws Error when no timeline has the URI
+   *
+   * @example
+   * ```ts
+   * factory
+   *   .addTimeline('intro', 'animation', 10, false, '#intro')
+   *   .addTimeline('chapter-1', 'animation', 60, false, '#chapter-1')
+   *   .setTimelinePositionSource('chapter-1', {
+   *     systemName: 'ScrollPositionSource',
+   *     selector: '#chapter-1',
+   *   });
+   * ```
+   */
+  setTimelinePositionSource(
+    uri: string,
+    positionSource: Partial<IPositionSourceConfig> | undefined
+  ) {
+    const timeline = this._requireTimeline(uri, 'setTimelinePositionSource');
+    if (positionSource === undefined) {
+      delete timeline.positionSource;
+    } else {
+      timeline.positionSource = deepCopy(positionSource);
+    }
+    return this;
+  }
+
+  /**
+   * Gives the timeline its own container provider settings, merged over the
+   * `container` settings of its type in `timelineProviderSettings` (see
+   * `ITimelineConfiguration.containerProvider`).
+   *
+   * @param uri - URI of the timeline
+   * @param containerProvider - The override, for example
+   * `{selector: '#chapter-1'}`. `undefined` removes the override.
+   * @returns The factory
+   * @throws Error when no timeline has the URI
+   */
+  setTimelineContainerProvider(
+    uri: string,
+    containerProvider: Partial<IContainerProviderConfig> | undefined
+  ) {
+    const timeline = this._requireTimeline(uri, 'setTimelineContainerProvider');
+    if (containerProvider === undefined) {
+      delete timeline.containerProvider;
+    } else {
+      timeline.containerProvider = deepCopy(containerProvider);
+    }
+    return this;
+  }
+
+  private _requireTimeline(uri: string, methodName: string) {
+    const timeline = this.configuration.timelines
+      ? this.getTimeline(uri)
+      : undefined;
+    if (!timeline) {
+      throw new Error(
+        `ConfigurationFactory.${methodName}: no timeline found for uri '${uri}'`
+      );
+    }
+    return timeline;
   }
 
   /**
@@ -545,12 +760,14 @@ export class ConfigurationFactory {
   editTimelineAction(uri: string, id: string) {
     const timeline = this.getTimeline(uri);
     if (!timeline) {
-      throw new Error(`Timeline not found for id ${id}`);
+      throw new Error(`No timeline found for uri '${uri}'`);
     }
     const actionConfig = timeline.timelineActions.find(a => a.id === id);
     if (actionConfig) {
       return new TimelineActionEditor(actionConfig, this);
     }
-    throw new Error(`Timeline action not found for id ${id}`);
+    throw new Error(
+      `Timeline action not found for id '${id}' in timeline '${uri}'`
+    );
   }
 }

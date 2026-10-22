@@ -1,8 +1,184 @@
-import type {IEventbus} from '@eventbus/index.ts';
+import {Action} from '@action/action.ts';
+import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import {EligiusResourceImporter} from '@importer/eligius-resource-importer.ts';
 import {customFunction} from '@operation/custom-function.ts';
+import {endForEach} from '@operation/end-for-each.ts';
+import {endWhen} from '@operation/end-when.ts';
+import {
+  endForEachSystemName,
+  forEach,
+  forEachSystemName,
+} from '@operation/for-each.ts';
 import type {IOperationScope, TOperation} from '@operation/index.ts';
+import {setVariable} from '@operation/set-variable.ts';
+import {when} from '@operation/when.ts';
 import {applyOperation} from '@util/apply-operation.ts';
 import {describe, expect, test, vi} from 'vitest';
+import {EngineFactory} from '@/engine-factory.ts';
+
+function applyWithEventbus(eventbus: unknown, systemName: string) {
+  return applyOperation(
+    customFunction,
+    {systemName},
+    {
+      currentIndex: -1,
+      eventbus: eventbus as IEventbus,
+      operations: [],
+    }
+  );
+}
+
+describe('customFunction with an unknown systemName', () => {
+  test('given no function is registered for the systemName, when customFunction is applied, then it throws naming the operation and the missing name', () => {
+    // given
+    const mockEventbus = {request: vi.fn(() => undefined)};
+
+    // test + expect
+    expect(() => applyWithEventbus(mockEventbus, 'missingFn')).toThrowError(
+      "customFunction: no function registered for systemName 'missingFn'. Check the spelling, or make sure the resource importer provides it."
+    );
+  });
+
+  test('given the request-function responder throws, when customFunction is applied, then it throws naming the operation and the name, keeping the responder message and cause', () => {
+    // given
+    const lookupError = new Error("Did you mean 'myFn'?");
+    const mockEventbus = {
+      request: vi.fn(() => {
+        throw lookupError;
+      }),
+    };
+
+    // test
+    let error: any;
+    try {
+      applyWithEventbus(mockEventbus, 'myFm');
+    } catch (e) {
+      error = e;
+    }
+
+    // expect
+    expect(error.message).toBe(
+      "customFunction: could not retrieve function 'myFm'. Did you mean 'myFn'?"
+    );
+    expect(error.cause).toBe(lookupError);
+  });
+
+  test('given the systemName resolves to a value that is not a function, when customFunction is applied, then it throws naming the operation and the name', () => {
+    // given
+    const mockEventbus = {request: vi.fn(() => ({notAFunction: true}))};
+
+    // test + expect
+    expect(() => applyWithEventbus(mockEventbus, 'notFn')).toThrowError(
+      "customFunction: systemName 'notFn' does not resolve to a function."
+    );
+  });
+
+  test('given an EngineFactory with the EligiusResourceImporter and a misspelled systemName, when customFunction is applied, then it throws suggesting the closest registered name', () => {
+    // given
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(new EligiusResourceImporter(), window, {
+      eventbus,
+    });
+
+    // test + expect
+    try {
+      expect(() => applyWithEventbus(eventbus, 'selectElemnt')).toThrowError(
+        "customFunction: could not retrieve function 'selectElemnt'. EligiusResourceImporter: unknown system name 'selectElemnt'. Did you mean 'selectElement'?"
+      );
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an EligiusResourceImporter with a registered function, when customFunction is applied with its name, then the function is called with the operation data', async () => {
+    // given
+    const eventbus = new Eventbus();
+    const formatPrice = vi.fn((operationData: any) => {
+      operationData.price = `EUR ${operationData.amount}`;
+    });
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({functions: {formatPrice}}),
+      window,
+      {eventbus}
+    );
+
+    // test
+    try {
+      const result: any = await applyOperation(
+        customFunction,
+        {systemName: 'formatPrice', amount: 5} as any,
+        {currentIndex: -1, eventbus, operations: []}
+      );
+
+      // expect
+      expect(formatPrice).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({amount: 5, price: 'EUR 5'});
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an EligiusResourceImporter with a registered function and a misspelled systemName, when customFunction is applied, then it throws suggesting the registered name', () => {
+    // given
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({functions: {formatPrice: () => {}}}),
+      window,
+      {eventbus}
+    );
+
+    // test + expect
+    try {
+      expect(() => applyWithEventbus(eventbus, 'formatPrise')).toThrowError(
+        "customFunction: could not retrieve function 'formatPrise'. EligiusResourceImporter: unknown system name 'formatPrise'. Did you mean 'formatPrice'?"
+      );
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an EligiusResourceImporter with a registered template, when customFunction is applied with its name, then it throws because the template is not a function', () => {
+    // given
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({templates: {intro: '<p></p>'}}),
+      window,
+      {eventbus}
+    );
+
+    // test + expect
+    try {
+      expect(() => applyWithEventbus(eventbus, 'intro')).toThrowError(
+        "customFunction: systemName 'intro' does not resolve to a function."
+      );
+    } finally {
+      factory.destroy();
+    }
+  });
+
+  test('given an unknown systemName inside an action, when the action starts, then the start promise rejects with the customFunction error', async () => {
+    // given
+    const mockEventbus = {request: vi.fn(() => undefined)};
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const action = new Action(
+      'test',
+      [
+        {
+          id: 'op',
+          systemName: 'customFunction',
+          operationData: {systemName: 'missingFn'},
+          instance: customFunction as any,
+        },
+      ],
+      mockEventbus as unknown as IEventbus
+    );
+
+    // test + expect
+    await expect(action.start()).rejects.toThrowError(
+      /customFunction: no function registered for systemName 'missingFn'/
+    );
+  });
+});
 
 function createMockEventbusWithFunction(testFunction: Function) {
   return {
@@ -102,5 +278,130 @@ describe('customFunction', () => {
     // expect
     expect('systemName' in result).toBe(false);
     return result;
+  });
+
+  test('given a custom function that synchronously returns its operationData object, when customFunction is applied, then it returns the operation data (systemName removed) instead of rejecting', async () => {
+    // given
+    const operationData: Record<string, any> = {
+      systemName: 'double',
+      x: 2,
+    };
+    const mockEventbus = createMockEventbusWithFunction(function (
+      d: Record<string, any>
+    ) {
+      d.x = d.x * 2;
+      return d;
+    });
+
+    // test
+    const result = await applyOperation(customFunction, operationData as any, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect(result).toEqual({x: 4});
+  });
+
+  test('given a custom function that returns a non-object truthy value, when customFunction is applied, then the operation data is returned', async () => {
+    // given
+    const operationData = {systemName: 'truthy', y: 1};
+    const mockEventbus = createMockEventbusWithFunction(() => 42);
+
+    // test
+    const result = await applyOperation(customFunction, operationData as any, {
+      currentIndex: -1,
+      eventbus: mockEventbus as unknown as IEventbus,
+      operations: [],
+    });
+
+    // expect
+    expect(result).toEqual({y: 1});
+  });
+});
+
+describe('customFunction this inside nested blocks', () => {
+  test('given a customFunction inside a when block inside a forEach over [1,2], when the action starts, then the function sees this.currentItem 1 and 2 and this.loopIndex 0 and 1', async () => {
+    // given
+    const seen: unknown[][] = [];
+    const eventbus = new Eventbus();
+    eventbus.onRequest(
+      'request-function',
+      () =>
+        function (this: IOperationScope) {
+          seen.push([
+            this.currentItem,
+            this.loopIndex,
+            (this.variables as any)?.label,
+          ]);
+        }
+    );
+    const op = (systemName: string, instance: any, operationData = {}) => ({
+      id: systemName,
+      systemName,
+      operationData,
+      instance,
+    });
+    const action = new Action(
+      'test',
+      [
+        op('setVariable', setVariable, {name: 'label', value: 'outer'}),
+        op(forEachSystemName, forEach, {collection: [1, 2]}),
+        op('when', when, {expression: '1==1'}),
+        op('customFunction', customFunction, {systemName: 'fn'}),
+        op('endWhen', endWhen),
+        op(endForEachSystemName, endForEach),
+      ],
+      eventbus
+    );
+
+    // test
+    await action.start();
+
+    // expect
+    expect(seen).toEqual([
+      [1, 0, 'outer'],
+      [2, 1, 'outer'],
+    ]);
+  });
+
+  test('given a customFunction inside a when block, when it assigns to this, then the assignment lands on the block scope', async () => {
+    // given
+    let blockScope: IOperationScope | undefined;
+    const eventbus = new Eventbus();
+    eventbus.onRequest(
+      'request-function',
+      () =>
+        function (this: IOperationScope) {
+          (this as any).marker = 'set';
+        }
+    );
+    const op = (systemName: string, instance: any, operationData = {}) => ({
+      id: systemName,
+      systemName,
+      operationData,
+      instance,
+    });
+    const action = new Action(
+      'test',
+      [
+        op('when', when, {expression: '1==1'}),
+        op('customFunction', customFunction, {systemName: 'fn'}),
+        op('capture', function (this: IOperationScope, data: any) {
+          blockScope = this;
+          return data;
+        }),
+        op('endWhen', endWhen),
+      ],
+      eventbus
+    );
+
+    // test
+    await action.start();
+
+    // expect
+    expect((blockScope as any).marker).toBe('set');
+    expect((blockScope?.parent as any).marker).toBeUndefined();
   });
 });

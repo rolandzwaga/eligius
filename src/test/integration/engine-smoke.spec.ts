@@ -1,3 +1,4 @@
+import {EngineEventbusAdapter} from '@adapters/engine-eventbus-adapter.ts';
 import type {
   IResolvedEngineConfiguration,
   IResolvedTimelineConfiguration,
@@ -20,6 +21,12 @@ vi.mock('jquery', () => {
     length: 1,
     html: vi.fn(),
     empty: vi.fn(),
+    // destroy() walks the engine root for controllers; this root has none
+    find: vi.fn(() => ({addBack: () => ({each: vi.fn()})})),
+    // init() detaches controllers in the layout it replaces; there are none
+    children: vi.fn(() => ({
+      find: vi.fn(() => ({addBack: () => ({each: vi.fn()})})),
+    })),
   };
 
   const jqueryFn = vi.fn((selector: string) => {
@@ -272,6 +279,8 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       timelineProviders,
       localeManager
     );
+    // EngineFactory connects this adapter; it owns the eventbus commands
+    new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
 
     // test
@@ -297,7 +306,11 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       timelineProviders,
       localeManager
     );
+    // EngineFactory connects this adapter; it owns the eventbus commands
+    new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
+    // Pausing only suspends a playing source
+    (animationPositionSource as {state: TSourceState}).state = 'active';
 
     // test
     eventbus.broadcast('timeline-pause-request', []);
@@ -322,6 +335,8 @@ describe<EngineSmokeTestContext>('EligiusEngine smoke tests', () => {
       timelineProviders,
       localeManager
     );
+    // EngineFactory connects this adapter; it owns the eventbus commands
+    new EngineEventbusAdapter(engine, eventbus).connect();
     await engine.init();
 
     // test

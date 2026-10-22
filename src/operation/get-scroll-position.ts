@@ -4,11 +4,11 @@ export interface IGetScrollPositionOperationData {
   /**
    * @output
    */
-  scrollX: number;
+  scrollX?: number;
   /**
    * @output
    */
-  scrollY: number;
+  scrollY?: number;
 }
 
 /**

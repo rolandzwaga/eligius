@@ -16,11 +16,11 @@ The main concepts in Eligius are timelines, actions and operations. A timeline c
 
 Actions can be called on specified points on such a timeline. An action consists of a list of start and end operations.
 
-An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `select-element`, `create-element` or `add-class`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/main/src/operation)
+An operation is an atomic function. A context, for sharing data, is passed between each successive operation. Examples of operations are `selectElement`, `createElement` or `addClass`. [Here is a complete list of all available operations.](https://github.com/rolandzwaga/eligius/tree/main/src/operation)
 By composing these atomic operations complex functionality can be achieved.
 
-An example of an action is adding and removing an image from the DOM at specific times. This action would consist of these start operations: `select-element`(to select the element that will act as the image's parent), `create-element`(to create the img element with the required src attribute) and `set-element-contents`(to add the img element to the previously selected parent).
-The end operations would be: `select-element`(to select the parent again) and `clear-element`(to remove the img element).
+An example of an action is adding and removing an image from the DOM at specific times. This action would consist of these start operations: `selectElement` (to select the element that will act as the image's parent), `createElement` (to create the img element with the required src attribute) and `setElementContent` (to add the img element to the previously selected parent).
+The end operations would be: `selectElement` (to select the parent again) and `clearElement` (to remove the img element).
 
 A more comprehensive example could be, for example, a rich subtitling system for a videoplayer where the videoplayer acts as the timeline provider and Eligius is used to render the subtitles on top of it.
 
@@ -32,10 +32,12 @@ The Eligius engine is populated by a JSON configuration. Think of this JSON as i
 
 This section describes the different parts of this configuration.
 
+Every configuration, action, operation and timeline needs a unique `id`; the examples below leave them out for brevity. Invalid configurations fail when the engine is created, with an error that names the JSON path.
+
 ### systemName property
 
 In the rest of this section the property name `systemName` will be shown often. The value of this property describes a named import.
-Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://rolandzwaga.github.io/eligius/classes/EligiusResourceImporter.html).
+Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://rolandzwaga.github.io/eligius/classes/EligiusResourceImporter.html). It can also serve your own operations, functions, controllers, templates and JSON, see [Extending Eligius](#extending-eligius).
 
 ### engine
 
@@ -68,12 +70,13 @@ The engine setting defines the engine for which this configuration is written. C
 }
 ```
 
-These settings describe the providers that are available for the different kinds of timelines. The `tickInterval` property controls the precision of timeline positions - a value of `100` (milliseconds) enables 0.1 second precision, allowing fractional positions like `1.3` or `5.7`. Timeline providers are assembled from decomposed components:
+These settings describe the providers that are available for the different kinds of timelines (`animation` or `mediaplayer`); every timeline type in use needs an entry. The `tickInterval` property controls the precision of timeline positions - a value of `100` (milliseconds, the default) enables 0.1 second precision, allowing fractional positions like `1.3` or `5.7`. Timeline providers are assembled from decomposed components:
 
 **Position Sources** (required) - drive timeline position:
 - `RafPositionSource` - RequestAnimationFrame-based, for animation timelines
 - `ScrollPositionSource` - Scroll-based, for scroll-driven timelines
-- `VideoPositionSource` - Video.js-based, for video timelines (requires video.js as a peer dependency)
+- `VideoPositionSource` - Video.js-based, for video timelines (requires the optional video.js peer dependency, loaded on first use)
+- `KeyboardStepSource` - Keyboard-driven stepping through markers or fixed steps
 
 **Container Providers** (optional) - manage DOM elements where content is rendered:
 - `DomContainerProvider` - Manages a DOM element by selector
@@ -125,11 +128,13 @@ Eligius aims to be fully multi lingual. This setting describes the different lan
     ...
     "availableLanguages": [
         {
-        "code": "en-US",
+        "id": "lang-en",
+        "languageCode": "en-US",
         "label": "English"
         },
         {
-        "code": "nl-NL",
+        "id": "lang-nl",
+        "languageCode": "nl-NL",
         "label": "Nederlands"
         }
     ]
@@ -139,7 +144,7 @@ Eligius aims to be fully multi lingual. This setting describes the different lan
 
 ### language
 
-This defines the default language, the value needs to equal one of the `code` values in the `availableLanguages` properties.
+This defines the default language, the value needs to equal one of the `languageCode` values in the `availableLanguages` properties.
 
 ```json
 {
@@ -193,7 +198,7 @@ Use these, for example, to load data, render global UI, etc.
 
 ### actions
 
-This is a list of actions that are not directly associated with initialisation, tear down or time line positions. These can be executed from within another action.
+This is a list of actions that are not directly associated with initialisation, tear down or time line positions. These can be executed from within another action with the `startAction` and `endAction` operations, and can have `endOperations` as well.
 
 ```json
 {
@@ -254,9 +259,25 @@ Timeline positions support fractional values (e.g., `1.3`, `5.7`) when using a `
 }
 ```
 
+#### Per-timeline position sources
+
+A timeline can override the settings of its type with `positionSource` (and `containerProvider`). Leave out `systemName` to change single settings, for example a different scroll container for one chapter:
+
+```json
+{ "uri": "chapter-2", "type": "animation", "positionSource": { "selector": "#chapter-2" }, ... }
+```
+
+Or name another class to give one timeline a different clock, for example a scroll-driven chapter next to RAF-driven animation timelines:
+
+```json
+{ "uri": "chapter-2", "type": "animation", "positionSource": { "systemName": "ScrollPositionSource", "selector": "#chapter-2" }, ... }
+```
+
+An override that names a different `systemName` replaces the type settings instead of merging with them, so options meant for one class never reach another. A timeline that names its own `systemName` needs no `timelineProviderSettings` entry for its type. Video timelines share one player unless an override changes the video settings, for example `{"positionSource": {"sources": [{"src": "/chapter-2.mp4", "type": "video/mp4"}]}}`, which gives that timeline its own player. With the fluent API use `factory.setTimelinePositionSource('chapter-2', {...})` and `setTimelineContainerProvider`.
+
 ### event actions
 
-This a list of actions that can be triggered by an event broadcast. Since an event doesn't have a tear down phase, these actions can only have a list of start operations.
+This a list of actions that are triggered by an eventbus broadcast of `eventName` (optionally limited to `eventTopic`). Since an event doesn't have a tear down phase, these actions can only have a list of start operations.
 
 ```json
 {
@@ -265,7 +286,8 @@ This a list of actions that can be triggered by an event broadcast. Since an eve
         ...
         {
             "name": "some name",
-            "startOperations": [...],
+            "eventName": "show-help",
+            "startOperations": [...]
         }
         ...
     ]
@@ -273,30 +295,29 @@ This a list of actions that can be triggered by an event broadcast. Since an eve
 }
 ```
 
-### labels
+### locales
 
-A list of label information that describes all of the textual content for the presentation. 
-Labels can be rendered by the [`LabelController`](https://rolandzwaga.github.io/eligius/classes/LabelController.html). This controller listens for the appropriate language change events as well, and will change the contents of the element it controls accordingly.
+The textual content of the presentation, per language code. Translations can be nested and are looked up with dot-notation keys; `{{name}}` placeholders are filled from parameters. A language can also point to an external JSON file with `$ref`, which is loaded when the engine is created.
 
 ```json
 {
-    "labels": [
-        {
-            "id": "mainTitle",
-            "labels": [
-                {
-                "code": "en-US",
-                "label": "This is the main title"
-                },
-                {
-                "code": "nl-NL",
-                "label": "Dit is de hoofdtitel"
-                }
-            ]
-        }
-    ]
+    ...
+    "locales": {
+        "en-US": {
+            "nav": {"home": "Home"},
+            "greeting": "Hello, {{name}}!"
+        },
+        "nl-NL": {"$ref": "./locales/nl-NL.json"}
+    }
+    ...
 }
 ```
+
+Translations are rendered by the [`LabelController`](https://rolandzwaga.github.io/eligius/classes/LabelController.html), attached with the `addControllerToElement` operation and a `translationKey` such as `"nav.home"`. The controller follows language changes and updates the element it controls. Translation text is sanitized before it is inserted into the DOM. The `labels` array of earlier versions was removed in 2.2.0; see the [changelog](CHANGELOG.md) for the migration.
+
+### Security
+
+Configurations cannot run arbitrary code: operations, functions and controllers are looked up by name in the resource importer, and property chains cannot reach `window` or object prototypes. Translations and subtitles are sanitized, and `createElement`/`setElementAttributes` refuse event-handler attributes and `javascript:` URLs. `setElementContent` string templates are inserted as HTML, so build those from configuration only, never from user input.
 
 ## Running the engine
 
@@ -308,7 +329,7 @@ import * as engineConfig from './my-eligius-config.json';
 
 const factory = new EngineFactory(new EligiusResourceImporter(), window);
 
-// createEngine returns { engine, languageManager, eventbus, destroy }
+// createEngine returns { engine, localeManager, eventbus, destroy }
 const { engine, destroy } = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
 await engine.init();
@@ -318,6 +339,20 @@ console.log('Eligius engine ready for business');
 // When done, clean up everything
 await destroy();
 ```
+
+Each engine created by the factory gets its own eventbus, returned as `eventbus`. To let several engines talk over one bus, pass it to the factory: `new EngineFactory(importer, window, {eventbus})`.
+
+### Input bindings
+
+By default the space key toggles playback and a window resize broadcasts `timeline-resize`. Configure this per factory:
+
+```ts
+new EngineFactory(new EligiusResourceImporter(), window, {
+  input: {playToggle: 'k', scope: 'engineRoot', resize: false},
+});
+```
+
+`playToggle` takes a hotkeys-js key (`'space'`, `'ctrl+p, command+p'`) or `false`. `scope: 'engineRoot'` reacts only while the focus is inside the engine root, which suits embedded widgets. With the default `scope: 'document'` a press while nothing has focus also counts; when several engines share a page, that press toggles only the engine you last clicked or focused (otherwise the first one created). Buttons, links and form fields always keep the key. `playToggleHotkey` is deprecated in favour of `input.playToggle`.
 
 ### Subscribing to Engine Events
 
@@ -332,6 +367,7 @@ const unsubscribe = engine.on('time', (position) => {
 engine.on('start', () => console.log('Playback started'));
 engine.on('pause', () => console.log('Playback paused'));
 engine.on('timelineComplete', () => console.log('Timeline finished'));
+engine.on('error', error => console.error(error.message)); // EngineActionError: which action, phase and operation failed
 
 // Unsubscribe when done
 unsubscribe();
@@ -366,7 +402,86 @@ Obviously having to type all of that JSON by hand can be a tad overwhelming and 
 
 It is encouraged to use this API to build specialized DSL's for specific presentations.
 
+Build tools that generate configurations in plain Node, without a DOM, can import the factory from the `eligius/configuration-api` entry: `import {ConfigurationFactory} from 'eligius/configuration-api';`. The `...ByType` methods need the main `eligius` entry; use the name-based methods there.
+
 Also, there is the [Eligian](https://github.com/rolandzwaga/eligian) project that aims to become an actual programming language for the Eligius runtime.
+
+## Extending Eligius
+
+Most presentations need a little application specific code: an analytics call, a store update, a chart. Register it with the `EligiusResourceImporter` constructor instead of writing a resource importer of your own:
+
+| Registration | Used by |
+|---|---|
+| `operations` | an operation `systemName` in any action |
+| `functions` | the `customFunction` operation (`{systemName: 'myFunction'}`) |
+| `controllers` | the `getControllerInstance` and `addControllerToElement` operations |
+| `templates` | `"template:<name>"` placeholders anywhere in the configuration |
+| `json` | `"json:<name>"` placeholders (the configuration receives a copy) |
+
+`getImport` can retrieve any registered resource. A registered name that clashes with a built-in name (for example a custom `selectElement`) throws, unless you pass `override: true`. Operations and functions must be functions, not classes; controllers must be classes that implement `IController`. Misspelled names fail with a "did you mean" hint that includes the registered names.
+
+A complete example: a custom `trackEvent` operation and a custom `formatPrice` function, authored with the fluent API and run by the engine.
+
+```typescript
+import {
+  ConfigurationFactory,
+  EligiusResourceImporter,
+  EngineFactory,
+  type TOperation,
+} from 'eligius';
+
+// 1. A custom operation: receives the operation data, returns it for the next operation
+interface ITrackEventOperationData {
+  category: string;
+  settings: {endpoint: string};
+}
+
+const trackEvent: TOperation<ITrackEventOperationData> = function (operationData) {
+  navigator.sendBeacon(operationData.settings.endpoint, operationData.category);
+  return operationData;
+};
+
+// 2. A custom function for customFunction: `this` is the operation scope
+function formatPrice(operationData: {amount: number; price?: string}) {
+  operationData.price = `EUR ${operationData.amount.toFixed(2)}`;
+}
+
+// 3. Author the configuration. The fluent API checks operation names, so declare the
+//    custom operation name (only the name: this also works in 'eligius/configuration-api')
+const factory = new ConfigurationFactory(undefined, {customOperations: ['trackEvent']});
+factory
+  .init('en-US')
+  .setContainerSelector('#app')
+  .setLayoutTemplate('template:layout')
+  .addTimeline('main', 'animation', 30, false, '#stage')
+  .editTimelineProviderSettings()
+  .addProvider('animation', 'RafPositionSource')
+  .setContainer('#stage');
+
+factory
+  .createTimelineAction('main', 'Intro')
+  .addDuration(0, 5)
+  .addStartOperation('trackEvent', {category: 'intro', settings: 'json:analytics'})
+  .addStartOperation('customFunction', {systemName: 'formatPrice', amount: 9.5})
+  .next()
+  .end();
+
+const configuration = factory.getConfiguration();
+
+// 4. Register the implementations and run the engine
+const importer = new EligiusResourceImporter({
+  operations: {trackEvent},
+  functions: {formatPrice},
+  templates: {layout: '<div id="stage"></div>'},
+  json: {analytics: {endpoint: '/analytics'}},
+});
+
+const {engine, destroy} = new EngineFactory(importer, window).createEngine(configuration);
+await engine.init();
+await engine.start();
+```
+
+Custom operations have no generated metadata, so the JSON schema and the fluent API do not type or validate their operation data; only their names are checked. Custom position sources, container providers and playlists cannot be registered this way: pass your own `IResourceImporter` to the `EngineFactory` and delegate the other names to an `EligiusResourceImporter`.
 
 ## Metadata import (`eligius/metadata`)
 
@@ -399,8 +514,18 @@ or
 yarn add eligius
 ```
 
+Peer dependencies:
+
+- `jquery` (required)
+- `lottie-web` (optional, only for `LottieController`, loaded on first use)
+- `video.js` (optional, only for `VideoPositionSource`, loaded on first use)
+- `@types/jquery` (optional, for TypeScript users of the main entry; also add `"DOM"` to your `lib`)
+
+Upgrading from 2.x? Version 3.0.0 has breaking changes; read the [changelog](CHANGELOG.md) first.
+
 ## development
 
 - run `npm install`
-- Use `npm run test` to run the unit tests (tests use Vitest)
-- Use `npm run build` to create a production library bundle
+- Use `npm test -- --run` to run the unit tests (tests use Vitest)
+- Use `npm run typecheck` and `npm run lint` before committing
+- Use `npm run build` to create a production library bundle, then `npm run check:types` to verify the published type declarations

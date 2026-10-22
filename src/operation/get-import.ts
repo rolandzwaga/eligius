@@ -1,3 +1,4 @@
+import {requestRegisteredEntry} from '@operation/helper/request-registered-entry.ts';
 import type {TOperation} from '@operation/types.ts';
 import type {RequireKeys} from '@/types.ts';
 
@@ -18,7 +19,16 @@ export interface IGetImportOperationData {
  * This operation retrieves the import specified by the given `systemName` and
  * assigns it to the `importedInstance` property on the current operaton date.
  *
+ * The import is looked up with the `request-function` event, which the
+ * `EngineFactory` answers from its resource importer. Functions, templates
+ * and JSON registered with the `EligiusResourceImporter` constructor
+ * (`new EligiusResourceImporter({json: {settings}})`) can be imported this
+ * way, as can every built-in operation, controller and provider export.
+ *
  * @param operationData
+ * @throws Error naming the operation and the `systemName` when nothing is
+ * registered under that name (with the closest registered names when the
+ * importer can suggest them).
  *
  * @category Utility
  */
@@ -30,8 +40,9 @@ export const getImport: TOperation<
 
   delete (operationData as any).systemName;
 
-  operationData.importedInstance = this.eventbus.request<unknown>(
-    'request-function',
+  operationData.importedInstance = requestRegisteredEntry(
+    this.eventbus,
+    'getImport',
     systemName
   );
 

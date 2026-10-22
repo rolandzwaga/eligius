@@ -13,24 +13,21 @@ export class EndableAction extends Action {
     super(name, startOperations, eventBus);
   }
 
+  /**
+   * Runs the end operations.
+   *
+   * A failure is not logged here: the returned promise rejects with the
+   * error (annotated with the failing operation), and the caller reports it.
+   * The engine reports it through its `error` event.
+   *
+   * @param initOperationData - Operation data the first end operation receives
+   * @returns The operation data of the last end operation
+   */
   end(initOperationData?: TOperationData): Promise<TOperationData> {
     if (!this.endOperations.length) {
       return Promise.resolve(initOperationData ?? {});
     }
 
-    this._initializeScopeStack();
-
-    return new Promise<TOperationData>((resolve, reject) => {
-      this.executeOperation(
-        this.endOperations,
-        0,
-        resolve,
-        reject,
-        initOperationData
-      );
-    }).catch(e => {
-      console.error(`Error in action end '${this.name}'`);
-      throw e;
-    });
+    return this._runOperations(this.endOperations, initOperationData);
   }
 }

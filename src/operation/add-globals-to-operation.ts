@@ -1,4 +1,4 @@
-import {getGlobals} from '@operation/helper/globals.ts';
+import {assertSafeGlobalName, getGlobals} from '@operation/helper/globals.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import type {TOperation} from '@operation/types.ts';
 
@@ -16,6 +16,11 @@ export interface IAddGlobalsToOperationData {
  * This operation adds the specified global property names to the current operation data.
  * It finally removes the `globalProperties` property from the current operation data.
  *
+ * Plain data is copied, so changing it does not change the global store. jQuery objects, DOM
+ * nodes, functions and class instances (such as controllers) are added by reference.
+ *
+ * @throws When a name is `__proto__`, `prototype` or `constructor`.
+ *
  * @category Data
  */
 export const addGlobalsToOperation: TOperation<
@@ -26,6 +31,7 @@ export const addGlobalsToOperation: TOperation<
 
   const globalValues = globalProperties.reduce<Record<string, any>>(
     (prev, current) => {
+      assertSafeGlobalName(current, 'addGlobalsToOperation');
       prev[current] = getGlobals(current);
       return prev;
     },

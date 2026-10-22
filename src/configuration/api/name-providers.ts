@@ -1,8 +1,12 @@
 import type {TControllerName, TOperationName} from '@configuration/types.ts';
-import * as controllers from '@controllers/index.ts';
-import * as operations from '@operation/index.ts';
+import * as controllerMetadata from '@controllers/metadata/index.ts';
 import * as operationMetadata from '@operation/metadata/index.ts';
 import type {IOperationMetadata} from '@operation/metadata/types.ts';
+import type {TOperationData} from '@operation/types.ts';
+
+// The providers read the generated metadata instead of the operation and
+// controller implementations, so they work in a DOM-less context. The metadata
+// has one entry per operation and per controller.
 
 /**
  *
@@ -10,8 +14,8 @@ import type {IOperationMetadata} from '@operation/metadata/types.ts';
  *
  */
 export class OperationNamesProvider {
-  getOperationNames(): TOperationName {
-    return Object.keys(operations) as unknown as TOperationName;
+  getOperationNames(): TOperationName[] {
+    return Object.keys(operationMetadata) as TOperationName[];
   }
 }
 
@@ -21,8 +25,8 @@ export class OperationNamesProvider {
  *
  */
 export class ControllerNamesProvider {
-  getControllerNames(): TControllerName {
-    return Object.keys(controllers) as unknown as TControllerName;
+  getControllerNames(): TControllerName[] {
+    return Object.keys(controllerMetadata) as TControllerName[];
   }
 }
 
@@ -36,7 +40,7 @@ export class OperationMetadataProvider {
     const getMetadata = (
       operationMetadata as Record<
         TOperationName,
-        () => IOperationMetadata<operations.TOperationData>
+        () => IOperationMetadata<TOperationData>
       >
     )[operationName];
     if (!getMetadata) {

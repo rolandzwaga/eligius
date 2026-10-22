@@ -1,5 +1,111 @@
 # Change Log
 
+## 3.0.0
+
+Release from two full codebase audits (reports in `specs/main/codebase-audit-report.md` and `specs/main/codebase-audit-report-2.md`). About 190 confirmed bugs are fixed, each with a regression test, and the second audit's improvements, optimisations, expansions and test gaps are done. Major release because of the breaking changes below; read them before upgrading from 2.x.
+
+### Breaking Changes
+
+- **`EligiusEngine` no longer wires itself to the eventbus.** The engine and `EngineEventbusAdapter` both handled eventbus commands and both broadcast engine events, so every command ran twice (play-toggle cancelled itself) and every event was sent twice. The adapter is now the only owner.
+  - Was: a directly constructed `new EligiusEngine(...)` answered `timeline-play-request`, `timeline-pause-request`, `timeline-stop-request`, `timeline-seek-request`, `timeline-play-toggle-request` and `request-timeline-uri`, and broadcast `timeline-*` events.
+  - Now: connect `new EngineEventbusAdapter(engine, eventbus).connect()` yourself. `EngineFactory.createEngine` already does this, so factory users need no change. Callback-style queries (`request-engine-root`, `request-current-timeline-position`, `timeline-duration-request`, and so on) still work without the adapter.
+- **Each engine gets its own eventbus.** `EngineFactory.createEngine` now creates a fresh eventbus per engine unless `options.eventbus` is passed, so engines on one factory no longer answer each other's requests. Pass a shared `options.eventbus` to keep the old sharing; the factory warns when a second live engine uses it.
+- **Stricter configurations.** These were accepted before and now throw with the JSON path: a timeline type without a `timelineProviderSettings` entry, a `config:` placeholder that resolves to `undefined`, a `template:` or `json:` name the importer does not have, a missing operation list, `duration.end` lower than `start`, controller or class names used as operations, unknown `when` operands, and unknown navigation ids. The JSON schema now requires operation `id`.
+- **Requires `"DOM"` in the consumer's TypeScript `lib`.** The DOM-free entries no longer need jquery or lottie-web types, but their declarations still use DOM types such as `HTMLElement`.
+
+### Added
+
+- **Engine error event.** `EligiusEngine` emits `error` with an `EngineActionError` (action name, id, phase, cause, and the failing operation's `systemName` and index) when an action it starts or ends fails. `EngineEventbusAdapter` forwards it as the public `engine-error` eventbus event. Without listeners the message is logged.
+- **`eligius/configuration-api`**, a DOM-free entry for the fluent `ConfigurationFactory`, so build tools can create configurations in plain Node. The `...ByType` methods need the main `eligius` entry; elsewhere use the name-based methods.
+- **`Eventbus` option `onHandlerError`** to observe errors thrown or rejected by handlers, listeners and interceptors.
+- **Compound `when` conditions:** `&&`, `||`, `!` and parentheses with standard precedence and short-circuit evaluation, through a small parser (no `eval`). A bare operand is tested for truthiness.
+- **Self-contained type declarations** for all three package entries. `eligius/metadata` and `eligius/configuration-api` type-check without jquery or lottie-web; the main entry references `@types/jquery` (new optional peer). `npm run check:types` verifies this against throwaway consumers under NodeNext, Bundler and Node10 resolution, and CI runs it.
+- Events `engine-command-error` and `request-translation`; `IEventbus.reportError`; typed requests through a generated `RequestMap`.
+- `IEngineFactoryOptions.engineOptions` (`maxCatchUp`) and `playToggleHotkey` (`string | false`); `IPlaylist.hasItem?`; `sources` in `IPositionSourceConfig`; `ILocaleLoaderOptions.timeoutMs` and `signal`; the `clearJsonCache` export.
+- Navigation entries can carry a `timelineUri`, so NavigationController and RoutingController drive timeline switches. KeyboardStepSource `timeline-switch` mode is handled by the engine.
+- `animateWithClass` option `includeDescendants`.
+- **Per-timeline position sources.** Optional `positionSource` and `containerProvider` on each timeline, merged over `timelineProviderSettings[type]` (a different `systemName` replaces the type settings). One configuration can mix a RAF intro with scroll or keyboard chapters, scroll different containers, and give mediaplayer timelines different videos. Fluent API: `ConfigurationFactory.setTimelinePositionSource()` and `setTimelineContainerProvider()`.
+- **Configurable input bindings.** `IEngineFactoryOptions.input` with `playToggle` (`string | false`), `resize` (`boolean`) and `scope` (`'document' | 'engineRoot'`), plus the types `IEngineInputOptions` and `TEngineInputScope`.
+- **Custom resource registration.** The `EligiusResourceImporter` constructor accepts `{operations, functions, controllers, templates, json, override}`. Registered entries are shape-checked, cannot shadow a built-in without `override: true`, and appear in `getOperationNames()`, `getControllerNames()`, the new `getFunctionNames()` and every "did you mean" hint. `ConfigurationFactory` options take `customOperations`, so the fluent API (including `eligius/configuration-api`) can author custom operations. New types `IEligiusResourceRegistrations`, `TControllerClass`, `TRegisteredResourceKind` and `IConfigurationFactoryOptions`. See the new README section "Extending Eligius".
+
+### Changed
+
+- **lottie-web and video.js are optional peer dependencies**, loaded on first use by `LottieController` and `VideoPositionSource`. Install them yourself if you use Lottie or video timelines; npm no longer installs them automatically. `LottieController.attach()` now always returns a Promise.
+- **Eventbus error isolation.** A handler, listener or interceptor that throws or rejects during a broadcast no longer stops the remaining handlers or throws into the broadcaster. The error is logged with the event name and topic and passed to `onHandlerError`. Request responders still throw to the requester.
+- **Event actions report failures.** `ActionRegistryEventbusListener.handleEvent` returns the started actions' promise, so a failing event action is reported through the eventbus error path instead of becoming an unhandled rejection. `IEventbusListener.handleEvent` may now return a promise.
+- **Ordering.** Within one position update, starts wait for that update's ends to finish.
+- **Unknown names fail loudly.** `EligiusResourceImporter.import` throws for unknown system names with a "did you mean" hint, instead of returning `{name: undefined}`. `customFunction` and `getImport` throw an error naming the operation and the unknown name. Unresolvable `template:` and `json:` placeholders name the placeholder.
+- The fluent API and the name providers validate names against the generated metadata instead of importing the operation and controller implementations.
+- **Transport commands are serialised.** `init`, `start`, `seek`, `switchTimeline` and `stop` run in call order; a later seek, stop or destroy supersedes a running seek, and nothing resumes after `destroy()`. `seek` and `switchTimeline` resolve once starts have begun, and `start`/`pause` emit only on a real state change.
+- `RafPositionSource` defaults to a 100 ms tick (was 1000 ms), matching the documented 0.1 s precision. Scroll seeks are instant. KeyboardStepSource no longer changes the global hotkeys-js scope. Position-source registration methods may return an unsubscribe function.
+- `Action` no longer logs failures; the engine reports them through its `error` event and logs message and cause when nobody listens.
+- `startAction` and `endAction` give the inner action its own copy of the operation data, so its changes no longer flow back into the caller. `deepCopy` keeps class instances by reference.
+- Variables set with `setVariable` or `setData` inside `when` and `forEach` blocks persist for the whole action.
+- `LocaleManager.t()` returns `''` for namespace keys and non-string results; `$ref` locales time out after 30 s and are normalised before caching.
+- Fluent API: duplicate action names throw, operation data is copied on the way in, name providers return arrays, and `addEndOperation`/`addStartOperation` type-check the data for the named operation.
+- Many operations validate their input and throw named errors (`reparentElement`, `saveToStorage`, `replaceString`, `calc`, `math`, `modifyDimensions`, `requestAction`, `getControllerInstance`, `invokeObjectMethod`).
+- Operation `@output` properties are optional and `@required` tags were corrected, so the generated JSON schema changed.
+- `timelineProviderSettings`, or a type's entry in it, is no longer required when the timelines name their own `positionSource.systemName`.
+- With several engines on one page and nothing focused, a play-toggle key press toggles one engine (the one last clicked or focused, otherwise the first created) instead of all of them.
+- After a source is activated (start, resume or timeline switch), the engine reconciles its first reported position like a seek. A scroll container scrolled while its timeline was not playing no longer starts and ends every action between the old position and its offset.
+- `getControllerInstance.systemName` accepts registered controller names.
+
+### Security
+
+- `LabelController` and `SubtitlesController` sanitize translation and subtitle text before inserting it. Inline formatting (`<br>`, `<strong>`, `<em>`, `<span>`, http, https, mailto and relative links) still renders; scripts, event handlers, `javascript:` and `data:` URLs, images, iframes and SVG are removed. `LabelController` refuses `on*` and `srcdoc` as `attributeName` and only writes safe URLs to URL attributes such as `href`.
+- Configured operation data with its own `__proto__` key is rejected with an error naming the operation, instead of replacing the prototype of the running operation data.
+- `invokeObjectMethod` only calls application code: plain objects and app class instances, never native or jQuery functions, host objects or `window`. Property chains can no longer reach the global object.
+- `__proto__`, `constructor` and `prototype` keys are rejected or dropped at every depth: configured operation data, `extendController`, global and variable names, `getFormData` fields, and `getConfiguration(callback)` through `syncInPlace`.
+- `reparentElement` rejects HTML and resolves its selector inside the engine root.
+- `createElement` and `setElementAttributes` refuse event-handler (`on*`) and `srcdoc` attributes, and `javascript:`/`vbscript:` URLs in URL attributes such as `href`, `src`, `action` and `formaction`; `createElement` refuses `script` elements. Configurations that wrote `onclick`-style attributes through these operations now fail.
+- `setElementContent` string templates are inserted as HTML and may run scripts; they must come from configuration or the importer, never from user data. Build content from user data with `createElement`.
+
+### Performance
+
+- Actions no longer deep-copy empty or primitive-only operation data on every execution, and `forEach` copies a literal collection once per loop run instead of once per iteration, so the cost grows with n rather than n².
+- Ticks that cross no action boundary allocate nothing; the engine root is cached; `forEach` resolves a property-chain collection once per loop; ProgressbarController skips unchanged DOM writes; SubtitlesController finds the current subtitle in constant time while playing; `animationInterval` cancels its timer and frame on abort.
+
+### Behaviour changes that may surface in existing configurations
+
+- `ConfigurationResolver` now throws on unknown operation names, with the JSON path and the closest known name, and on duplicate action names. Such configurations were already broken at runtime.
+- `LocaleManager.loadLocale` throws on unresolved `{$ref}` data; `EngineFactory` now resolves `$ref` locales itself (see Fixed).
+- `LocaleManager.setLocale` with a locale that is not loaded falls back to the default locale with a warning.
+- Property chains (`$operationdata`, `$globaldata`, `$scope`, `setData`, `invokeObjectMethod`) reject `__proto__`, `prototype` and `constructor` segments.
+- `createElement` treats `text` as plain text. Use `setElementContent` for HTML.
+- `animateWithClass` erases `className` and `removeClass`; `loadFromStorage` and `saveToStorage` erase `key`, matching their `@erased` tags.
+- `loadJson` rejects on HTTP error statuses and returns copies of cached data. HTTP operations accept 204 and empty bodies.
+- `clearStorage` throws on an empty or blank key instead of clearing all storage.
+- `when` unquotes string literals and throws on an invalid expression.
+- `engine.init()` rejects when a video fails to load, a container selector matches nothing, or a `$ref` locale fails to load. `engine.start()` rejects when autoplay is blocked. All of these used to hang or fail silently.
+- Keyboard timelines emit `end` when stepping onto the end and no boundary on a backward wrap.
+- A first timeline with `loop: true` now loops; before, `loop` was only applied on a switch.
+
+### Deprecated
+- Events `request-video-url`, `before-request-video-url`, `navigate-to-video-url`, `video-complete`, `request-video-cleanup`, `request-current-video-position`, `request-label-collections` and `request-label-collection` (the engine does not handle them; use navigation `timelineUri` and the timeline events).
+- `EligiusEngine.sortTimelines`, `EligiusEngine.sortActionsPerPosition`, `Action._initializeScopeStack`, the default `scopeStack` of `executeOperation`, `SubtitlesController.actionLookup` and `subtitleDurations`, `LottieController.labelData` and `serializedIEData`, and the `iefallback` setting (now ignored).
+- `IEngineFactoryOptions.playToggleHotkey` and `IEngineInputAdapterOptions.playToggleHotkey`; use `input.playToggle`.
+
+### Fixed
+
+- **Clock and dispatch.** `RafPositionSource` used the absolute frame timestamp as elapsed time and lost its position on resume and seek. Actions only fired when a position exactly equalled a configured key, so video, scroll and keyboard timelines and any skipped frame missed them. Dispatch now uses interval crossing over a schedule sorted once at init, with reconciliation on backward jumps, and start-only actions can no longer start twice.
+- **Controller cleanup.** `destroy()` detaches controllers still attached to elements inside the engine root, so their eventbus listeners no longer leak.
+- **Lifecycle.** Factory `destroy()` runs end operations before disconnecting adapters, keeps tearing down when one step throws, and removes the engine's event-action listener and interceptor. `stop()` ends active actions. Container providers are initialised and destroyed. The shared global data store is cleared when the last engine is destroyed, and `clearGlobals` is exported.
+- **Timelines.** Each timeline gets its own position source and duration. `switchTimeline` initialises and wires the target source, honours the start position (also when looping) and resolves only once playback is set up.
+- **Locale.** `language-change` no longer recurses. External `{$ref}` locale files are loaded by `EngineFactory`, and `init()` waits for them. `LocaleLoader` binds `fetch` and handles diamond references. `loadLocale` deep-merges.
+- **Eventbus.** Broadcast iterates a snapshot, `once()` removes itself before running, and each event action gets its own operation data.
+- **Operations.** `breakForEach`/`continueForEach` work inside `when` blocks. Nested `when` without `otherwise` no longer skips the outer branch. `customFunction` accepts non-promise returns. `startAction` settles without `actionOperationData`. `deepCopy` keeps functions, jQuery objects and DOM nodes. `reparentElement` keeps jQuery data and controllers. `createElement` no longer builds HTML from strings. Large `forEach` loops no longer overflow the stack. Smaller fixes in `animate`, `compareDate`, `formatDate`, `formatText` and `replaceText`.
+- **Controllers.** Subtitles show at fractional positions. Lottie no longer creates its animation twice and destroys it on detach. Navigation and routing handle unknown hashes, build menus without HTML strings and can be re-attached. `RoutingController` listens for `popstate` with `addEventListener` instead of overwriting `window.onpopstate`, so it no longer replaces the host page's handler. `DOMEventListenerController` removes only its own handler. The progress bar handles zero durations, measures clicks against its container, and follows `timeline-duration` instead of requesting the duration on every tick.
+- **Fluent API.** `ConfigurationFactory.getConfiguration(callback)` applies the callback's result in place instead of swapping in a copy, so editors that are still open keep editing the factory's configuration. The action and operation editors do the same.
+- **`endAction`** always settles: it rejects with a named error when `actionInstance` is missing, and no longer hangs with an unhandled rejection when `actionOperationData` is omitted.
+- **Position sources.** Video init and seek settle on errors and destroy; readiness uses `playing` instead of the non-existent `firstplay`. Scroll picks up existing scroll on activate and reaches its end boundary with fractional offsets.
+- **Configuration and tooling.** Fluent API editors write back to the factory configuration. The schema generator covers every exported operation, no longer marks `@dependency` properties required, and keeps the definitions it references. Metadata generators handle optional properties, keep `@private` events in `EventMap`, and exit non-zero on failure. Operation and controller READMEs show descriptions and only link to existing schemas.
+- **Second audit (75 confirmed bugs, report in `specs/main/codebase-audit-report-2.md`).** Overlapping seek, switch, stop and start leaving stale actions; pending switches resuming after `destroy()`; failing actions leaving half-finished seeks; failed source init cached as prepared; the RAF clock losing a tick on early frames and at loop wraps; scroll seeks returning before they land; keyboard steps accumulating float error; stale `activate()` rejections overwriting newer state; video init hanging without `sources`; `animateWithClass` resolving on descendant events or never settling; removed content keeping attached controllers; `validateForm` checkbox and multi-select; duplicate `Content-Type` headers; `once()` handlers that `off()` could not remove; locale `change` handlers not isolated; schema rejecting valid `forEach`, `setVariable` and `log` data; SubtitleImporter dropping ids and line breaks; Navigation and Routing controllers using events the engine no longer handles; MutationObserverController leaking on a second attach; and smaller fixes across controllers, operations and generators.
+- The `typesVersions` mapping resolves `eligius/metadata` and `eligius/configuration-api` for Node10 consumers, and the stale `typings` field is removed.
+- Calling `engine.destroy()` directly (without the factory's `destroy()`) left the play-toggle hotkey bound.
+- Registered JSON and templates whose value is `0`, `''` or `false` were rejected by `getImport` and `customFunction` lookups.
+- README: `createEngine` returns `localeManager` (not `languageManager`), and `KeyboardStepSource` is listed with the other position sources.
+- **Test-gap pass.** Closing the second audit's 145 test gaps found nine more bugs: an Eventbus or TypedEventEmitter broadcast still called handlers an earlier handler had just removed (including `once()` handlers, which could also run twice on a re-emit); `seek()` overtaken by `switchTimeline()` emitted `seekComplete` and `time` with the previous timeline's position; `engine.destroy()` called directly on a factory-created engine left its adapters, resize listener, eventbus registrations and action lookup behind and never lowered the live-engine count; `SubtitlesController.detach` left its subtitle on screen; `setElementContent` silently ignored an unknown `insertionType`; `ConfigurationFactory.createEventAction` could not set `eventName` (now `createEventAction(name, eventName?, eventTopic?)`); and the events metadata generator merged two event interfaces with the same name instead of failing.
+
 ## 2.2.1
   - Fixed: Locale types has some circular reference warnings
 

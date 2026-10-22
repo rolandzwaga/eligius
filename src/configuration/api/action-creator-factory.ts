@@ -1,16 +1,21 @@
 import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {
   ExtractOperationDataType,
-  GetOperationByName,
   IActionConfiguration,
   IEndableActionConfiguration,
+  IEventActionConfiguration,
   ITimelineActionConfiguration,
-  TOperationName,
   TOperationType,
 } from '@configuration/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
-import * as operations from '@operation/index.ts';
 import {v4 as uuidv4} from 'uuid';
+import {
+  assertKnownOperationName,
+  getOperationNameByType,
+  type TFluentOperationData,
+  type TFluentOperationName,
+} from './operation-lookup.ts';
+import {syncInPlace} from './sync-in-place.ts';
 
 /**
  *
@@ -52,10 +57,24 @@ export class ActionCreatorFactory {
    * Starts the creation of an action in the `eventActions` list with the specified name
    *
    * @param name
+   * @param eventName the event that starts the action. Without it the action can
+   * only be started by name (for example by a `DOMEventListenerController`).
+   * @param eventTopic optional topic of the event
    * @returns
    */
-  createEventAction(name: string): ActionCreator {
+  createEventAction(
+    name: string,
+    eventName?: string,
+    eventTopic?: string
+  ): ActionCreator {
     const creator = new ActionCreator(name, this);
+    const config: Partial<IEventActionConfiguration> = creator.actionConfig;
+    if (eventName !== undefined) {
+      config.eventName = eventName;
+    }
+    if (eventTopic !== undefined) {
+      config.eventTopic = eventTopic;
+    }
     this.configurationfactory.addEventAction(creator.actionConfig);
     return creator;
   }
@@ -129,15 +148,21 @@ export class ActionCreator<
    *
    * @param name
    * @returns
+   * @throws Error when the action is in `actions` or `eventActions` and another
+   * action in those lists already has the name
    */
   setName(name: string) {
+    // Optional calls: a creator may be constructed with a stand-in factory
+    this.factory.end?.()?.assertUniqueActionName?.(name, this.actionConfig);
     this.actionConfig.name = name;
     return this;
   }
 
   /**
    *
-   * Returns a copy of the internal state of the `ActionCreator`
+   * Passes a copy of the internal state of the `ActionCreator` to the given callback.
+   * When the callback returns a configuration, it replaces the action configuration
+   * in the `ConfigurationFactory`.
    *
    * @param callBack
    * @returns
@@ -146,7 +171,7 @@ export class ActionCreator<
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
-      this.actionConfig = newConfig;
+      syncInPlace(this.actionConfig, deepCopy(newConfig));
     }
     return this;
   }
@@ -158,46 +183,46 @@ export class ActionCreator<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addStartOperationByType<
     T extends TOperationType,
     Dt extends Partial<ExtractOperationDataType<T>>,
   >(operationClass: T, operationData: Dt) {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
+    return this.addStartOperation(
+      getOperationNameByType(
+        operationClass,
+        'addStartOperationByType',
+        'addStartOperation'
+      ),
+      operationData
     );
-
-    if (entries) {
-      return this.addStartOperation(
-        entries[0] as TOperationName,
-        operationData
-      );
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   /**
    *
-   * Adds the operation data for a start operation specified by the given system name
+   * Adds the operation data for a start operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addStartOperation<
-    T extends TOperationName,
-    O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
+    T extends TFluentOperationName,
+    O extends TFluentOperationData<T>,
   >(systemName: T, operationData: O) {
-    if (!(operations as Record<string, any>)[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName, this._customOperationNames());
 
     const {startOperations} = this.actionConfig;
     startOperations.push({
       id: uuidv4(),
       systemName: systemName,
-      operationData: operationData,
+      operationData: deepCopy(operationData),
     });
     return this;
   }
@@ -210,6 +235,14 @@ export class ActionCreator<
    */
   next() {
     return this.factory;
+  }
+
+  /**
+   * The custom operation names of the `ConfigurationFactory`. Optional calls:
+   * a creator may be constructed with a stand-in factory.
+   */
+  protected _customOperationNames(): ReadonlySet<string> | undefined {
+    return this.factory.end?.()?.customOperationNames;
   }
 }
 
@@ -233,38 +266,40 @@ export class EndableActionCreator<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addEndOperationByType<
     T extends TOperationType,
     Dt extends Partial<ExtractOperationDataType<T>>,
   >(operationClass: T, operationData: Dt) {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
+    return this.addEndOperation(
+      getOperationNameByType(
+        operationClass,
+        'addEndOperationByType',
+        'addEndOperation'
+      ),
+      operationData
     );
-
-    if (entries) {
-      return this.addEndOperation(entries[0] as TOperationName, operationData);
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   /**
    *
-   * Adds the operation data for an end operation specified by the given system name
+   * Adds the operation data for an end operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addEndOperation<
-    T extends TOperationName,
-    O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
-  >(systemName: TOperationName, operationData: O) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    if (!operations[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    T extends TFluentOperationName,
+    O extends TFluentOperationData<T>,
+  >(systemName: T, operationData: O) {
+    assertKnownOperationName(systemName, this._customOperationNames());
 
     let {endOperations} = this.actionConfig;
     if (!endOperations) {
@@ -273,7 +308,7 @@ export class EndableActionCreator<
     endOperations.push({
       id: uuidv4(),
       systemName: systemName,
-      operationData: operationData,
+      operationData: deepCopy(operationData),
     });
     return this;
   }
@@ -292,12 +327,18 @@ export class TimelineActionCreator extends EndableActionCreator<ITimelineActionC
    * @param start
    * @param end
    * @returns
+   * @throws Error when `end` is given and lower than `start`
    */
   addDuration(start: number, end?: number) {
+    if (end !== undefined && start > end) {
+      throw new Error(
+        `addDuration: start (${start}) cannot be higher than end (${end})`
+      );
+    }
     this.actionConfig.duration = {
       start: start,
     };
-    if (end) {
+    if (end !== undefined) {
       this.actionConfig.duration.end = end;
     }
     return this;

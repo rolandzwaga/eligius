@@ -91,7 +91,9 @@ export interface IPositionSource {
    *
    * Transitions state from `inactive` or `suspended` to `active`.
    *
-   * @throws If activation fails (e.g., autoplay blocked, permission denied)
+   * @throws (rejects) If activation fails (e.g., autoplay blocked, permission
+   * denied), and after {@link destroy} has been called: a destroyed source
+   * cannot be activated again
    */
   activate(): Promise<void>;
 
@@ -140,8 +142,9 @@ export interface IPositionSource {
    * Frequency depends on the source type (e.g., RAF tick, video timeupdate).
    *
    * @param callback - Function receiving the current position
+   * @returns A function that unregisters the callback. The built-in implementations always return one; custom implementations written for earlier versions may return nothing, so callers must handle `undefined`.
    */
-  onPosition(callback: (position: number) => void): void;
+  onPosition(callback: (position: number) => void): (() => void) | void;
 
   /**
    * Register a callback for boundary events.
@@ -150,8 +153,11 @@ export interface IPositionSource {
    * For looping sources, `'end'` is emitted before reset.
    *
    * @param callback - Function receiving the boundary type
+   * @returns A function that unregisters the callback. The built-in implementations always return one; custom implementations written for earlier versions may return nothing, so callers must handle `undefined`.
    */
-  onBoundaryReached(callback: (boundary: TBoundary) => void): void;
+  onBoundaryReached(
+    callback: (boundary: TBoundary) => void
+  ): (() => void) | void;
 
   /**
    * Register a callback for when the source becomes active.
@@ -161,8 +167,9 @@ export interface IPositionSource {
    * the first tick, for video sources it's when playback actually starts.
    *
    * @param callback - Function called when source becomes active
+   * @returns A function that unregisters the callback. The built-in implementations always return one; custom implementations written for earlier versions may return nothing, so callers must handle `undefined`.
    */
-  onActivated(callback: () => void): void;
+  onActivated(callback: () => void): (() => void) | void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -243,13 +250,25 @@ export interface IPlaylist<TItem = unknown> {
   selectItem(identifier: string): void;
 
   /**
+   * Optional: whether an item with the given identifier exists, without
+   * changing the selection. When a playlist implements it, the engine checks
+   * the timeline URI with it before a timeline switch deactivates the
+   * current timeline, so an unknown identifier cannot stop a switch halfway.
+   *
+   * @param identifier - Identifier to look up
+   * @returns true when `selectItem(identifier)` would succeed
+   */
+  hasItem?(identifier: string): boolean;
+
+  /**
    * Register a callback for item changes.
    *
    * Called whenever the current item changes via `selectItem()`.
    *
    * @param callback - Function receiving the new current item
+   * @returns A function that unregisters the callback. The built-in implementations always return one; custom implementations written for earlier versions may return nothing, so callers must handle `undefined`.
    */
-  onItemChange(callback: (item: TItem) => void): void;
+  onItemChange(callback: (item: TItem) => void): (() => void) | void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -272,6 +291,20 @@ export interface IPlaylist<TItem = unknown> {
  * ```
  */
 export interface IContainerProvider {
+  /**
+   * Optional asynchronous initialisation, for example resolving the container
+   * element. The engine awaits it before the provider's timeline is first
+   * activated.
+   *
+   * @throws If the container cannot be resolved
+   */
+  init?(): Promise<void>;
+
+  /**
+   * Optional cleanup. The engine calls it once when it is destroyed.
+   */
+  destroy?(): void;
+
   /**
    * Get the container element.
    *

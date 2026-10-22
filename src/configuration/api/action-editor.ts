@@ -1,7 +1,6 @@
 import type {ConfigurationFactory} from '@configuration/api/configuration-factory.ts';
 import type {
   ExtractOperationDataType,
-  GetOperationByName,
   IActionConfiguration,
   IEndableActionConfiguration,
   IOperationConfiguration,
@@ -10,11 +9,18 @@ import type {
   TOperationType,
 } from '@configuration/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
-import * as operations from '@operation/index.ts';
+import type * as operations from '@operation/index.ts';
 import type {TOperation, TOperationData} from '@operation/types.ts';
 import {isDefined} from 'ts-is-present';
 import {v4 as uuidv4} from 'uuid';
 import type {IDuration} from '../../types.ts';
+import {
+  assertKnownOperationName,
+  getOperationNameByType,
+  type TFluentOperationData,
+  type TFluentOperationName,
+} from './operation-lookup.ts';
+import {syncInPlace} from './sync-in-place.ts';
 
 function array_move(arr: any[], old_index: number, new_index: number) {
   if (new_index >= arr.length) {
@@ -27,7 +33,10 @@ function array_move(arr: any[], old_index: number, new_index: number) {
 
 /**
  *
- * A factory that assists in editing an action
+ * A factory that assists in editing an action.
+ *
+ * The editor works directly on the action configuration that the `ConfigurationFactory` holds,
+ * so every edit is reflected in the factory's configuration.
  *
  */
 export class ActionEditor<
@@ -38,13 +47,17 @@ export class ActionEditor<
     protected readonly configurationFactory: ConfigurationFactory
   ) {}
 
-  updateConfiguration() {
-    this.actionConfig = structuredClone(this.actionConfig);
-  }
+  /**
+   * Called by the `OperationEditor` after it has changed an operation.
+   * Operations are edited in place, so there is nothing left to synchronize.
+   */
+  updateConfiguration() {}
 
   /**
    *
-   * Returns a copy of the current internal state of the factory
+   * Passes a copy of the current action configuration to the given callback.
+   * When the callback returns a configuration, it replaces the action configuration
+   * in the factory.
    *
    * @param callBack
    * @returns
@@ -53,7 +66,7 @@ export class ActionEditor<
     const copy = deepCopy(this.actionConfig);
     const newConfig = callBack.call(this, copy);
     if (newConfig) {
-      this.actionConfig = newConfig;
+      syncInPlace(this.actionConfig, deepCopy(newConfig));
     }
     return this;
   }
@@ -64,12 +77,13 @@ export class ActionEditor<
    *
    * @param name
    * @returns
+   * @throws Error when the action is in `actions` or `eventActions` and another
+   * action in those lists already has the name
    */
   setName(name: string) {
-    this.actionConfig = {
-      ...this.actionConfig,
-      name,
-    };
+    // Optional call: an editor may be constructed with a stand-in factory
+    this.configurationFactory.assertUniqueActionName?.(name, this.actionConfig);
+    this.actionConfig.name = name;
     return this;
   }
 
@@ -90,42 +104,45 @@ export class ActionEditor<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addStartOperationByType<T extends TOperation<TOperationData>>(
     operationClass: T,
     operationData: Partial<ExtractOperationDataType<T>>
   ): OperationEditor<this, T> {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
-    );
-
-    if (entries) {
-      return this.addStartOperation(
-        entries[0] as TOperationName,
-        operationData
-      ) as OperationEditor<this, T>;
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
+    return this.addStartOperation(
+      getOperationNameByType(
+        operationClass,
+        'addStartOperationByType',
+        'addStartOperation'
+      ),
+      operationData
+    ) as OperationEditor<this, T>;
   }
 
   /**
    *
-   * Adds the operation data for a start operation specified by the given system name
+   * Adds the operation data for a start operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @param id
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
-  addStartOperation(
-    systemName: TOperationName,
-    operationData: TOperationData,
+  addStartOperation<
+    N extends TFluentOperationName,
+    D extends TFluentOperationData<N>,
+  >(
+    systemName: N,
+    operationData: D,
     id: string = uuidv4()
   ): OperationEditor<this, TOperation<TOperationData>> {
-    if (!(operations as any)[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    assertKnownOperationName(systemName, this.getCustomOperationNames());
 
     const startOperations = this.actionConfig.startOperations
       ? this.actionConfig.startOperations.slice()
@@ -134,15 +151,12 @@ export class ActionEditor<
     const newConfig = {
       id,
       systemName: systemName,
-      operationData: operationData,
-    } as IOperationConfiguration<TOperation<TOperationData>>;
+      operationData: deepCopy(operationData) as TOperationData,
+    } as IOperationConfiguration<TOperationData>;
 
     startOperations.push(newConfig);
 
-    this.actionConfig = {
-      ...this.actionConfig,
-      startOperations,
-    };
+    this.actionConfig.startOperations = startOperations;
 
     return new OperationEditor<this, TOperation<TOperationData>>(
       newConfig,
@@ -192,10 +206,7 @@ export class ActionEditor<
 
     if (idx > -1) {
       startOperations.splice(idx, 1);
-      this.actionConfig = {
-        ...this.actionConfig,
-        startOperations,
-      };
+      this.actionConfig.startOperations = startOperations;
     }
 
     return this;
@@ -224,10 +235,7 @@ export class ActionEditor<
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(startOperations, idx, newIdx);
-      this.actionConfig = {
-        ...this.actionConfig,
-        startOperations,
-      };
+      this.actionConfig.startOperations = startOperations;
     }
 
     return this;
@@ -241,6 +249,17 @@ export class ActionEditor<
    */
   next() {
     return this.configurationFactory;
+  }
+
+  /**
+   * Returns the custom operation names that the `ConfigurationFactory` accepts
+   * besides the built-in operations (its `customOperations` option).
+   *
+   * @returns the custom operation names, or `undefined` when the editor has no factory
+   */
+  getCustomOperationNames(): ReadonlySet<string> | undefined {
+    // Optional chaining: an editor may be constructed with a stand-in factory
+    return this.configurationFactory?.customOperationNames;
   }
 }
 
@@ -259,6 +278,8 @@ export class EndableActionEditor<
    * @param operationClass
    * @param operationData
    * @returns
+   * @throws Error when the function is not an operation, or when the operation
+   * implementations are not loaded (the DOM-free `eligius/configuration-api` entry)
    */
   addEndOperationByType<
     T extends TOperationType,
@@ -267,33 +288,33 @@ export class EndableActionEditor<
     operationClass: T,
     operationData: Dt
   ): OperationEditor<this, TOperationType> {
-    const entries = Object.entries(operations).find(
-      ([, value]) => value === operationClass
+    return this.addEndOperation(
+      getOperationNameByType(
+        operationClass,
+        'addEndOperationByType',
+        'addEndOperation'
+      ),
+      operationData
     );
-
-    if (entries) {
-      return this.addEndOperation(entries[0] as TOperationName, operationData);
-    }
-
-    throw new Error(`Operation class not found: ${operationClass.toString()}`);
   }
 
   /**
    *
-   * Adds the operation data for a start operation specified by the given system name
+   * Adds the operation data for an end operation specified by the given system name.
+   * The operation data is copied, so later changes to the given object do not
+   * affect the configuration.
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @param operationData
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
   addEndOperation<
-    T extends TOperationName,
-    O extends Partial<ExtractOperationDataType<GetOperationByName<T>>>,
-  >(systemName: TOperationName, operationData: O) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    if (!operations[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+    T extends TFluentOperationName,
+    O extends TFluentOperationData<T>,
+  >(systemName: T, operationData: O) {
+    assertKnownOperationName(systemName, this.getCustomOperationNames());
 
     const endOperations = this.actionConfig.endOperations
       ? this.actionConfig.endOperations.slice()
@@ -302,16 +323,17 @@ export class EndableActionEditor<
     const newConfig = {
       id: uuidv4(),
       systemName: systemName,
-      operationData: operationData,
+      operationData: deepCopy(operationData),
     };
 
     endOperations.push(newConfig);
 
     this.actionConfig.endOperations = endOperations;
 
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    const operationCsl = operations[systemName];
-    return new OperationEditor<this, typeof operationCsl>(newConfig, this);
+    return new OperationEditor<this, (typeof operations)[TOperationName]>(
+      newConfig,
+      this
+    );
   }
 
   /**
@@ -353,10 +375,7 @@ export class EndableActionEditor<
 
     if (idx > -1) {
       endOperations.splice(idx, 1);
-      this.actionConfig = {
-        ...this.actionConfig,
-        endOperations,
-      };
+      this.actionConfig.endOperations = endOperations;
     }
 
     return this;
@@ -385,10 +404,7 @@ export class EndableActionEditor<
     if (idx > -1) {
       const newIdx = direction === 'up' ? idx + 1 : idx - 1;
       array_move(endOperations, idx, newIdx);
-      this.actionConfig = {
-        ...this.actionConfig,
-        endOperations,
-      };
+      this.actionConfig.endOperations = endOperations;
     }
     return this;
   }
@@ -417,14 +433,11 @@ export class TimelineActionEditor extends EndableActionEditor<ITimelineActionCon
       start,
     };
 
-    if (end) {
+    if (end !== undefined) {
       duration.end = end;
     }
 
-    this.actionConfig = {
-      ...this.actionConfig,
-      duration,
-    };
+    this.actionConfig.duration = duration;
     return this;
   }
 }
@@ -461,7 +474,7 @@ export class OperationEditor<
     const newConfig = callBack.call(this, copy);
 
     if (newConfig) {
-      this.operationConfig = newConfig;
+      syncInPlace(this.operationConfig, deepCopy(newConfig));
     }
 
     return this;
@@ -481,14 +494,16 @@ export class OperationEditor<
    *
    * Sets the system name
    *
-   * @param systemName
+   * @param systemName a built-in operation name, or a name from the factory's
+   * `customOperations` option
    * @returns
+   * @throws Error when `systemName` is neither a built-in nor a declared custom operation
    */
-  setSystemName(systemName: TOperationName) {
-    // biome-ignore lint/performance/noDynamicNamespaceImportAccess: Dynamic operation lookup is intentional for configuration API
-    if (!operations[systemName]) {
-      throw Error(`Unknown operation: ${systemName}`);
-    }
+  setSystemName(systemName: TFluentOperationName) {
+    assertKnownOperationName(
+      systemName,
+      this.actionEditor.getCustomOperationNames?.()
+    );
 
     this.operationConfig.systemName = systemName;
     this.actionEditor.updateConfiguration();
@@ -497,13 +512,14 @@ export class OperationEditor<
 
   /**
    *
-   * Sets the operation data
+   * Sets the operation data. The operation data is copied, so later changes to
+   * the given object do not affect the configuration.
    *
    * @param operationData
    * @returns
    */
   setOperationData(operationData: ExtractOperationDataType<O>) {
-    this.operationConfig.operationData = operationData;
+    this.operationConfig.operationData = deepCopy(operationData);
     this.actionEditor.updateConfiguration();
     return this;
   }
@@ -520,12 +536,11 @@ export class OperationEditor<
     key: keyof ExtractOperationDataType<O>,
     value: ExtractOperationDataType<O>[keyof ExtractOperationDataType<O>]
   ) {
-    let {operationData} = this.operationConfig;
-    if (!operationData) {
-      operationData = {} as ExtractOperationDataType<O>;
-    }
-    operationData[key] = value;
-    return this.setOperationData(operationData);
+    // Copy on write, the current object may still be referenced elsewhere
+    return this.setOperationData({
+      ...(this.operationConfig.operationData ?? {}),
+      [key]: value,
+    } as ExtractOperationDataType<O>);
   }
 
   /**
@@ -534,11 +549,11 @@ export class OperationEditor<
    *
    * @returns
    */
-  getOperationDataKeys(): keyof ExtractOperationDataType<O> {
+  getOperationDataKeys(): Array<keyof ExtractOperationDataType<O>> {
     const {operationData} = this.operationConfig;
-    return (operationData
-      ? Object.keys(operationData)
-      : []) as unknown as keyof ExtractOperationDataType<O>;
+    return (operationData ? Object.keys(operationData) : []) as Array<
+      keyof ExtractOperationDataType<O>
+    >;
   }
 
   /**

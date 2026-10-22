@@ -2,12 +2,22 @@ import type {IAction} from '@action/types.ts';
 import {
   EngineEventbusAdapter,
   EngineInputAdapter,
+  type IAdapter,
   LocaleEventbusAdapter,
 } from '@adapters/index.ts';
 import {ConfigurationResolver} from '@configuration/configuration-resolver.ts';
+import {
+  effectiveContainerProvider,
+  effectivePositionSource,
+  overridesContainerProvider,
+  overridesPositionSource,
+  providerConfigKey,
+} from '@configuration/timeline-provider-overrides.ts';
 import type {
   IEngineConfiguration,
+  IPositionSourceConfig,
   IResolvedEngineConfiguration,
+  IResolvedTimelineConfiguration,
   ITimelineProviderSettings,
 } from '@configuration/types.ts';
 import {
@@ -17,15 +27,25 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
+import {clearGlobals} from '@operation/helper/globals.ts';
+import {clearJsonCache} from '@operation/load-json.ts';
 import type {
   IContainerProvider,
   IPlaylist,
   IPositionSource,
 } from '@timelineproviders/types.ts';
+import {findClosestNames, formatDidYouMean} from '@util/find-closest-names.ts';
+import {LocaleLoader} from './locale/locale-loader.ts';
 import {LocaleManager} from './locale/locale-manager.ts';
-import type {TLanguageCode, TLocaleData} from './locale/types.ts';
+import {
+  type ILocaleReference,
+  type ILocalesConfiguration,
+  isLocaleReference,
+  type TLanguageCode,
+} from './locale/types.ts';
 import type {
   IConfigurationResolver,
+  IEligiusEngine,
   IEngineFactory,
   IEngineFactoryOptions,
   IEngineFactoryResult,
@@ -33,6 +53,19 @@ import type {
   ITimelineProviderInfo,
   TimelineTypes,
 } from './types.ts';
+
+/**
+ * Number of engines created by any factory whose destroy() has not run yet.
+ * The global data store (see globals.ts) and the loadJson cache are
+ * module-wide, so they are cleared only when this drops to zero.
+ */
+let liveEngineCount = 0;
+
+/**
+ * How long one external (`$ref`) locale file may take to load before
+ * engine.init() rejects, in milliseconds.
+ */
+const LOCALE_LOAD_TIMEOUT_MS = 30000;
 
 /**
  * The EngineFactory is used to create and initialize an {@link IEligiusEngine} instance.
@@ -52,12 +85,28 @@ import type {
  * ```
  */
 export class EngineFactory implements IEngineFactory {
-  private _actionsLookup: Record<string, IAction> = {};
-  private _eventbus: IEventbus;
-  private _eventRemovers: TEventbusRemover[] = [];
+  /** The eventbus from the options, shared by every engine; see `options` */
+  private _sharedEventbus: IEventbus | undefined;
+  /**
+   * Every eventbus registration the factory made that is still in place.
+   * An engine's destroy() removes its own; factory.destroy() the rest.
+   */
+  private _eventRemovers: Set<TEventbusRemover> = new Set();
+  /** Action lookups of the live engines, oldest first */
+  private _actionLookups: Map<object, Record<string, IAction>> = new Map();
+  /** Live engines on the shared eventbus */
+  private _liveSharedEngines = 0;
   private _importer: ISimpleResourceImporter;
   private _windowRef: Window;
+  private _options: IEngineFactoryOptions | undefined;
 
+  /**
+   * @param importer - Resolves system names (engine, operations, controllers,
+   * providers) to their implementations
+   * @param windowRef - The window the engines run in
+   * @param options - Optional settings. Without `options.eventbus` every
+   * engine gets its own eventbus; see {@link IEngineFactoryOptions.eventbus}.
+   */
   constructor(
     importer: ISimpleResourceImporter,
     windowRef: Window,
@@ -65,46 +114,36 @@ export class EngineFactory implements IEngineFactory {
   ) {
     this._importer = importer;
     this._windowRef = windowRef;
-    this._eventbus = options?.eventbus ?? new Eventbus();
+    this._options = options;
+    this._sharedEventbus = options?.eventbus;
 
-    this._eventRemovers.push(
-      this._eventbus.onRequest(
-        'request-instance',
-        this._requestInstanceHandler.bind(this)
-      )
-    );
-    this._eventRemovers.push(
-      this._eventbus.onRequest(
-        'request-action',
-        this._requestActionHandler.bind(this)
-      )
-    );
-    this._eventRemovers.push(
-      this._eventbus.onRequest(
-        'request-function',
-        this._requestFunctionHandler.bind(this)
-      )
-    );
+    if (this._sharedEventbus) {
+      // Requests on a shared bus carry no engine identity, so 'request-action'
+      // searches the live engines, newest first.
+      this._registerResponders(
+        this._sharedEventbus,
+        systemName => this._findLiveAction(systemName),
+        () => this._liveActionNames(),
+        remover => this._eventRemovers.add(remover)
+      );
+    }
   }
 
   /**
    * Destroys the factory and cleans up all registered request handlers.
    */
   destroy() {
-    this._eventRemovers.forEach(x => x());
-    this._eventRemovers = [];
-    this._actionsLookup = {};
-  }
-
-  private _importSystemEntryWithEventbusDependency(systemName: string): any {
-    const ctor = this._importSystemEntry(systemName);
-    return new ctor(this._eventbus);
+    const removers = [...this._eventRemovers];
+    this._eventRemovers.clear();
+    removers.forEach(remove => remove());
+    this._actionLookups.clear();
   }
 
   private _importSystemEntry(systemName: string): any {
     const module = this._importer.import(systemName);
     const entry = module?.[systemName];
-    if (!entry) {
+    // Registered JSON and templates may legitimately be 0, '' or false
+    if (entry === undefined) {
       throw new Error(
         `Failed to import '${systemName}': module does not export '${systemName}'`
       );
@@ -112,22 +151,56 @@ export class EngineFactory implements IEngineFactory {
     return entry;
   }
 
-  private _requestInstanceHandler(systemName: string): any {
-    return this._importSystemEntryWithEventbusDependency(systemName);
+  /**
+   * Registers the 'request-instance', 'request-action' and
+   * 'request-function' responders on an eventbus. Instances are constructed
+   * with that eventbus. 'request-action' throws for an unknown action name,
+   * with a "did you mean" hint built from `knownActions`.
+   */
+  private _registerResponders(
+    eventbus: IEventbus,
+    findAction: (systemName: string) => IAction | undefined,
+    knownActions: () => string[],
+    addRemover: (remover: TEventbusRemover) => void
+  ) {
+    addRemover(
+      eventbus.onRequest('request-instance', (systemName: string) => {
+        const ctor = this._importSystemEntry(systemName);
+        return new ctor(eventbus);
+      })
+    );
+    addRemover(
+      eventbus.onRequest('request-action', (systemName: string): IAction => {
+        const action = findAction(systemName);
+        if (action) {
+          return action;
+        }
+        throw new Error(unknownActionMessage(systemName, knownActions()));
+      })
+    );
+    addRemover(
+      eventbus.onRequest('request-function', (systemName: string) =>
+        this._importSystemEntry(systemName)
+      )
+    );
   }
 
-  private _requestFunctionHandler(systemName: string): any {
-    return this._importSystemEntry(systemName);
-  }
-
-  private _requestActionHandler(systemName: string): IAction | null {
-    const action = this._actionsLookup[systemName];
-    if (action) {
-      return action;
-    } else {
-      console.error(`Unknown action: ${systemName}`);
-      return null;
+  private _findLiveAction(systemName: string): IAction | undefined {
+    const lookups = [...this._actionLookups.values()];
+    for (let i = lookups.length - 1; i >= 0; i--) {
+      if (Object.hasOwn(lookups[i], systemName)) {
+        return lookups[i][systemName];
+      }
     }
+    return undefined;
+  }
+
+  private _liveActionNames(): string[] {
+    const names = new Set<string>();
+    this._actionLookups.forEach(lookup => {
+      Object.keys(lookup).forEach(name => names.add(name));
+    });
+    return [...names];
   }
 
   /**
@@ -139,9 +212,22 @@ export class EngineFactory implements IEngineFactory {
    * - Instantiates the engine and locale manager
    * - Creates and connects adapters for eventbus integration
    *
+   * Unless the factory was given an eventbus, the engine gets an eventbus of
+   * its own, so several live engines from one factory do not answer each
+   * other's requests or react to each other's commands. When this method
+   * throws, nothing it registered is left on the eventbus and pending
+   * external locale loads are aborted.
+   *
+   * External (`$ref`) locales are loaded with a 30 second timeout per file.
+   * Destroying the engine (through the returned `destroy()` or
+   * `engine.destroy()`) aborts loads that are still pending, disconnects the
+   * adapters and removes the engine's eventbus registrations.
+   *
    * @param configuration - The engine configuration
    * @param resolver - Optional custom configuration resolver
    * @returns Engine result with engine, locale manager, eventbus, and destroy function
+   * @throws Error when the configuration cannot be resolved or a provider
+   * cannot be created
    */
   createEngine(
     configuration: IEngineConfiguration,
@@ -150,91 +236,262 @@ export class EngineFactory implements IEngineFactory {
     const {systemName} = configuration.engine;
     const EngineClass = this._importSystemEntry(systemName);
 
-    let actionRegistryListener: ActionRegistryEventbusListener | undefined;
-    if (configuration.eventActions?.length) {
-      actionRegistryListener = new ActionRegistryEventbusListener();
-      this._eventRemovers.push(
-        this._eventbus.registerEventlistener(actionRegistryListener)
+    const ownsEventbus = !this._sharedEventbus;
+    const eventbus = this._sharedEventbus ?? new Eventbus();
+    if (!ownsEventbus && this._liveSharedEngines > 0) {
+      console.warn(
+        '[EngineFactory] Creating a second live engine on a shared eventbus: requests such as request-engine-root are answered by the first engine and commands reach both. Use a factory without options.eventbus to give each engine its own eventbus.'
       );
     }
 
-    this._eventRemovers.push(
-      this._eventbus.registerInterceptor(
-        'request-timeline-uri',
-        new RequestVideoUriInterceptor(this._eventbus)
-      )
-    );
-
-    resolver =
-      resolver || new ConfigurationResolver(this._importer, this._eventbus);
-    const [actionLookup, resolvedConfiguration] = resolver.process(
-      configuration,
-      actionRegistryListener
-    );
-    this._actionsLookup = actionLookup;
-
-    const timelineProviders = this._createTimelineProviders(
-      resolvedConfiguration
-    );
-
-    // Initialize locale manager with locales from configuration
-    const {language, locales} = configuration;
-    const localeManager = new LocaleManager({
-      defaultLocale: language as TLanguageCode,
-    });
-
-    // Load locales from configuration
-    if (locales) {
-      for (const [locale, data] of Object.entries(locales)) {
-        localeManager.loadLocale(locale as TLanguageCode, data as TLocaleData);
+    // Registrations that belong to this engine. The returned destroy() removes
+    // them; they are also tracked factory-wide, so factory.destroy() still
+    // removes them if the engine is never destroyed.
+    const engineRemovers: TEventbusRemover[] = [];
+    const addEngineRemover = (remover: TEventbusRemover) => {
+      engineRemovers.push(remover);
+      this._eventRemovers.add(remover);
+    };
+    // Aborts this engine's pending external locale loads.
+    const localeLoads = new AbortController();
+    const removeEngineRegistrations = () => {
+      const removers = engineRemovers.splice(0);
+      removers.forEach(remove => {
+        this._eventRemovers.delete(remove);
+        remove();
+      });
+      if (ownsEventbus) {
+        eventbus.clear();
       }
+    };
+
+    let engineInstance: IEligiusEngine;
+    let localeManager: LocaleManager;
+    let adapters: IAdapter[] = [];
+    let released = false;
+    // Undoes what a successful createEngine set up, once, whether the engine
+    // is destroyed through the returned destroy() or engine.destroy().
+    const releaseEngine = () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      adapters.forEach(adapter => adapter.disconnect());
+      removeEngineRegistrations();
+      liveEngineCount--;
+      if (!ownsEventbus) {
+        this._liveSharedEngines--;
+      }
+      // The global data store is shared by every engine on the page,
+      // so only clear it once no engine is left to use it.
+      if (liveEngineCount === 0) {
+        clearGlobals();
+        clearJsonCache();
+      }
+    };
+    let engineInputAdapter: EngineInputAdapter;
+    try {
+      // Resolve first: it throws on unknown names and duplicate actions, and
+      // nothing is registered on the eventbus yet.
+      const actionRegistryListener = configuration.eventActions?.length
+        ? new ActionRegistryEventbusListener()
+        : undefined;
+      resolver =
+        resolver || new ConfigurationResolver(this._importer, eventbus);
+      const [actionLookup, resolvedConfiguration] = resolver.process(
+        configuration,
+        actionRegistryListener
+      );
+
+      const timelineProviders = this._createTimelineProviders(
+        resolvedConfiguration
+      );
+      const timelineProvidersByUri = this.createTimelineProvidersByUri(
+        resolvedConfiguration,
+        timelineProviders
+      );
+
+      const lookupKey = {};
+      this._actionLookups.set(lookupKey, actionLookup);
+      addEngineRemover(() => this._actionLookups.delete(lookupKey));
+      if (ownsEventbus) {
+        this._registerResponders(
+          eventbus,
+          name =>
+            Object.hasOwn(actionLookup, name) ? actionLookup[name] : undefined,
+          () => Object.keys(actionLookup),
+          addEngineRemover
+        );
+      }
+      if (actionRegistryListener) {
+        addEngineRemover(
+          eventbus.registerEventlistener(actionRegistryListener)
+        );
+      }
+      addEngineRemover(
+        eventbus.registerInterceptor(
+          'request-timeline-uri',
+          new RequestVideoUriInterceptor(eventbus)
+        )
+      );
+
+      // Initialize locale manager with locales from configuration
+      const {language, locales} = configuration;
+      localeManager = new LocaleManager({
+        defaultLocale: language as TLanguageCode,
+      });
+
+      // Load inline locales now; external ($ref) locales load in the
+      // background and engine.init() waits for them.
+      const localesReady = this._loadLocales(
+        localeManager,
+        locales,
+        localeLoads.signal
+      );
+
+      engineInstance = new EngineClass(
+        resolvedConfiguration,
+        eventbus,
+        timelineProviders,
+        localeManager,
+        timelineProvidersByUri,
+        localesReady,
+        this._options?.engineOptions
+      );
+
+      // Create and connect adapters
+      engineInputAdapter = new EngineInputAdapter(
+        engineInstance,
+        eventbus,
+        this._windowRef,
+        {
+          playToggleHotkey: this._options?.playToggleHotkey,
+          ...this._options?.input,
+        }
+      );
+      adapters = [
+        new EngineEventbusAdapter(engineInstance, eventbus),
+        new LocaleEventbusAdapter(localeManager, eventbus, engineInstance),
+        engineInputAdapter,
+      ];
+      adapters.forEach(adapter => adapter.connect());
+      // Also when the engine is destroyed without the returned destroy().
+      // The key bindings go too, so a destroyed engine keeps no hotkey. The
+      // rest is released once the other 'destroyed' listeners have run.
+      engineInstance.on('destroyed', () => {
+        localeLoads.abort();
+        engineInputAdapter.disconnect();
+        queueMicrotask(releaseEngine);
+      });
+    } catch (error) {
+      localeLoads.abort();
+      adapters.forEach(adapter => adapter.disconnect());
+      removeEngineRegistrations();
+      throw error;
     }
 
-    const engineInstance = new EngineClass(
-      resolvedConfiguration,
-      this._eventbus,
-      timelineProviders,
-      localeManager
-    );
+    liveEngineCount++;
+    if (!ownsEventbus) {
+      this._liveSharedEngines++;
+    }
 
-    // Create and connect adapters
-    const engineEventbusAdapter = new EngineEventbusAdapter(
-      engineInstance,
-      this._eventbus
-    );
-    const localeEventbusAdapter = new LocaleEventbusAdapter(
-      localeManager,
-      this._eventbus,
-      engineInstance
-    );
-    const engineInputAdapter = new EngineInputAdapter(
-      engineInstance,
-      this._eventbus,
-      this._windowRef
-    );
+    let destroyPromise: Promise<void> | undefined;
+    const destroyEngine = async () => {
+      // Stop external input first, so no key press restarts playback.
+      engineInputAdapter.disconnect();
+      // A pending locale load must not resume after destroy.
+      localeLoads.abort();
 
-    // Connect all adapters
-    engineEventbusAdapter.connect();
-    localeEventbusAdapter.connect();
-    engineInputAdapter.connect();
+      try {
+        // Destroy the engine while the eventbus adapters are still
+        // connected: end operations need their request responders (for
+        // example 'request-engine-root' for selectElement).
+        // engineInstance.destroy() also destroys the localeManager.
+        await engineInstance.destroy();
+      } finally {
+        releaseEngine();
+      }
+    };
 
     // Return the factory result
     return {
       engine: engineInstance,
       localeManager,
-      eventbus: this._eventbus,
-      destroy: async () => {
-        // Disconnect adapters first
-        engineInputAdapter.disconnect();
-        localeEventbusAdapter.disconnect();
-        engineEventbusAdapter.disconnect();
-
-        // Destroy engine (which also destroys localeManager internally)
-        await engineInstance.destroy();
-        // Note: localeManager.destroy() is NOT called here because
-        // engineInstance.destroy() already calls it
+      eventbus,
+      destroy: () => {
+        // Calling it again returns the first call's promise.
+        destroyPromise ??= destroyEngine();
+        return destroyPromise;
       },
     };
+  }
+
+  /**
+   * Loads the configured locales into the locale manager.
+   *
+   * Inline locale data is loaded synchronously. Entries that reference an
+   * external file (`{$ref: '...'}`) are fetched with {@link LocaleLoader},
+   * with a timeout per file and `signal` to abort them.
+   *
+   * @param localeManager - The manager to load the locales into
+   * @param locales - The configured locales
+   * @param signal - Aborts the external loads; once aborted, nothing more is
+   * loaded into the manager
+   * @returns A promise that settles when the external locales are loaded, or
+   * undefined when there are none. It rejects with an error naming the locale
+   * that failed.
+   */
+  private _loadLocales(
+    localeManager: LocaleManager,
+    locales: ILocalesConfiguration | undefined,
+    signal: AbortSignal
+  ): Promise<void> | undefined {
+    if (!locales) {
+      return undefined;
+    }
+
+    const references = new Map<TLanguageCode, ILocaleReference>();
+    for (const [locale, entry] of Object.entries(locales)) {
+      if (isLocaleReference(entry)) {
+        references.set(locale as TLanguageCode, entry);
+      } else {
+        localeManager.loadLocale(locale as TLanguageCode, entry);
+      }
+    }
+
+    if (references.size === 0) {
+      return undefined;
+    }
+
+    const loader = new LocaleLoader({
+      timeoutMs: LOCALE_LOAD_TIMEOUT_MS,
+      signal,
+    });
+    const loads = [...references].map(([locale, reference]) =>
+      loader.load(locale, reference).then(
+        result => {
+          if (signal.aborted) {
+            throw new Error(
+              `[EngineFactory] Loading locale '${locale}' was aborted because the engine was destroyed`
+            );
+          }
+          localeManager.loadLocale(result.locale, result.data);
+        },
+        (error: unknown) => {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          throw new Error(
+            `[EngineFactory] Failed to load locale '${locale}' from '${reference.$ref}': ${message}`,
+            {cause: error}
+          );
+        }
+      )
+    );
+    const ready = Promise.all(loads).then(() => undefined);
+    // An engine that is never initialised must not cause an unhandled
+    // rejection; init() still receives the rejection through `ready`.
+    ready.catch(() => {});
+    return ready;
   }
 
   private _createTimelineProviders(
@@ -350,7 +607,9 @@ export class EngineFactory implements IEngineFactory {
    *
    * This method iterates over timelineProviderSettings and creates a
    * ITimelineProviderInfo for each configured timeline type by:
-   * 1. Finding the first timeline that matches the type
+   * 1. Finding the first timeline that matches the type, skipping timelines
+   *    whose `positionSource` override changes the type's settings (when
+   *    every timeline of the type has one, the first timeline is used)
    * 2. Using the timeline's duration for the position source
    * 3. Assembling components from the settings
    *
@@ -363,7 +622,7 @@ export class EngineFactory implements IEngineFactory {
   ): Record<TimelineTypes, ITimelineProviderInfo> {
     const {timelineProviderSettings, timelines} = configuration;
 
-    const result = Object.entries(timelineProviderSettings).reduce<
+    const result = Object.entries(timelineProviderSettings ?? {}).reduce<
       Record<TimelineTypes, ITimelineProviderInfo>
     >(
       (acc, [timelineType, settings]) => {
@@ -371,8 +630,13 @@ export class EngineFactory implements IEngineFactory {
           return acc;
         }
 
-        // Find the first timeline that matches this type
-        const matchingTimeline = timelines.find(t => t.type === timelineType);
+        // The first timeline of this type that uses the type's position
+        // source settings unchanged
+        const matchingTimeline = representativeTimeline(
+          timelines,
+          timelineType as TimelineTypes,
+          settings
+        );
         if (!matchingTimeline) {
           throw new Error(
             `Timeline provider settings for '${timelineType}' has no matching timeline in configuration`
@@ -390,4 +654,206 @@ export class EngineFactory implements IEngineFactory {
 
     return result;
   }
+
+  /**
+   * Creates the timeline provider for every timeline, keyed by timeline URI.
+   *
+   * The first timeline of each type reuses the provider created for that type
+   * by {@link createTimelineProvidersForConfig}. Every other timeline gets its
+   * own position source, constructed with its own duration, and shares the
+   * type's container provider and playlist.
+   *
+   * A timeline whose `positionSource` or `containerProvider` override changes
+   * the settings of its type gets that component built from the merged
+   * settings (see `ITimelineConfiguration.positionSource`). The
+   * components it does not override, and the playlist, come from its type.
+   *
+   * Position sources that render their own DOM container (they implement
+   * `IContainerProvider`, like VideoPositionSource) take their duration from
+   * the media rather than from the timeline. They are shared by all timelines
+   * of a type with the same effective settings, so switching timelines does
+   * not create a second player; a timeline whose override changes the video
+   * settings gets a player of its own. Overridden container providers are
+   * shared the same way.
+   *
+   * @param configuration - The resolved engine configuration
+   * @param providersByType - The providers created per timeline type
+   * @returns A record of timeline URIs to their provider info
+   * @throws Error when a position source or container provider cannot be
+   * imported, or an overridden position source has no `systemName`
+   */
+  createTimelineProvidersByUri(
+    configuration: IResolvedEngineConfiguration,
+    providersByType: Record<TimelineTypes, ITimelineProviderInfo>
+  ): Record<string, ITimelineProviderInfo> {
+    const {timelineProviderSettings, timelines} = configuration;
+    const result: Record<string, ITimelineProviderInfo> = {};
+    const sharedSources = new Map<string, IPositionSource>();
+    const sharedContainers = new Map<string, IContainerProvider | undefined>();
+
+    timelines?.forEach(timeline => {
+      const typeProvider: ITimelineProviderInfo | undefined =
+        providersByType[timeline.type];
+      const settings = timelineProviderSettings?.[timeline.type];
+      const ownSource = overridesPositionSource(timeline, settings);
+      const ownContainer = overridesContainerProvider(timeline, settings);
+
+      const typeInfo =
+        !ownSource && typeProvider && settings
+          ? this._typeProviderInfo(timeline, timelines, settings, typeProvider)
+          : undefined;
+      if (!ownSource && !ownContainer) {
+        if (typeInfo) {
+          result[timeline.uri] = typeInfo;
+        }
+        return;
+      }
+
+      const positionSource = ownSource
+        ? this._overriddenPositionSource(timeline, settings, sharedSources)
+        : typeInfo?.positionSource;
+      if (!positionSource) {
+        return;
+      }
+
+      result[timeline.uri] = {
+        positionSource,
+        containerProvider: ownContainer
+          ? this._overriddenContainerProvider(
+              timeline,
+              settings,
+              sharedContainers
+            )
+          : typeProvider?.containerProvider,
+        playlist: typeProvider?.playlist,
+      };
+    });
+
+    return result;
+  }
+
+  /**
+   * The provider of a timeline that uses the settings of its type: the type
+   * provider itself for the timeline it was created for and for sources with
+   * their own container, otherwise a new position source with the timeline's
+   * duration next to the type's container provider and playlist.
+   */
+  private _typeProviderInfo(
+    timeline: IResolvedTimelineConfiguration,
+    timelines: IResolvedTimelineConfiguration[],
+    settings: ITimelineProviderSettings,
+    typeProvider: ITimelineProviderInfo
+  ): ITimelineProviderInfo {
+    if (
+      representativeTimeline(timelines, timeline.type, settings) === timeline ||
+      hasIntrinsicContainer(typeProvider.positionSource)
+    ) {
+      return typeProvider;
+    }
+    return {
+      positionSource: this.createPositionSourceForTimeline(timeline, settings),
+      containerProvider: typeProvider.containerProvider,
+      playlist: typeProvider.playlist,
+    };
+  }
+
+  /**
+   * Creates the position source of a timeline from its override merged over
+   * the type's settings. Sources with their own container are shared by the
+   * timelines of a type with the same merged settings.
+   */
+  private _overriddenPositionSource(
+    timeline: IResolvedTimelineConfiguration,
+    settings: ITimelineProviderSettings | undefined,
+    sharedSources: Map<string, IPositionSource>
+  ): IPositionSource {
+    const config = effectivePositionSource(timeline, settings);
+    if (!config || typeof config.systemName !== 'string') {
+      throw new Error(
+        `Timeline '${timeline.uri}' has a positionSource override without a systemName, and there are no timelineProviderSettings.${timeline.type} to merge it over.`
+      );
+    }
+    const timelineSettings: ITimelineProviderSettings = {
+      positionSource: config as IPositionSourceConfig,
+    };
+    const SourceClass = this._importSystemEntry(config.systemName);
+    if (!isIntrinsicContainerClass(SourceClass)) {
+      return this.createPositionSourceForTimeline(timeline, timelineSettings);
+    }
+
+    const key = `${timeline.type}:${providerConfigKey(config)}`;
+    let source = sharedSources.get(key);
+    if (!source) {
+      source = this.createPositionSourceForTimeline(timeline, timelineSettings);
+      sharedSources.set(key, source);
+    }
+    return source;
+  }
+
+  /**
+   * Creates the container provider of a timeline from its override merged
+   * over the type's settings, shared by the timelines of a type with the
+   * same merged settings.
+   */
+  private _overriddenContainerProvider(
+    timeline: IResolvedTimelineConfiguration,
+    settings: ITimelineProviderSettings | undefined,
+    sharedContainers: Map<string, IContainerProvider | undefined>
+  ): IContainerProvider | undefined {
+    const config = effectiveContainerProvider(timeline, settings);
+    const key = `${timeline.type}:${providerConfigKey(config)}`;
+    if (!sharedContainers.has(key)) {
+      sharedContainers.set(
+        key,
+        this.createContainerProviderForTimeline({
+          container: config,
+        } as ITimelineProviderSettings)
+      );
+    }
+    return sharedContainers.get(key);
+  }
+}
+
+function unknownActionMessage(name: string, knownNames: string[]): string {
+  const suggestion = formatDidYouMean(findClosestNames(name, knownNames));
+  return `Unknown action '${name}'. ${
+    suggestion || 'Check the action name in the configuration.'
+  }`;
+}
+
+function hasIntrinsicContainer(source: IPositionSource): boolean {
+  const candidate = source as Partial<IContainerProvider>;
+  return (
+    typeof candidate.getContainer === 'function' &&
+    typeof candidate.onContainerReady === 'function'
+  );
+}
+
+/**
+ * Whether instances of the position source class render their own container,
+ * judged from its prototype so no instance is needed.
+ */
+function isIntrinsicContainerClass(SourceClass: unknown): boolean {
+  const prototype = (SourceClass as {prototype?: unknown})?.prototype;
+  return (
+    typeof prototype === 'object' &&
+    prototype !== null &&
+    hasIntrinsicContainer(prototype as IPositionSource)
+  );
+}
+
+/**
+ * The timeline the provider of a type is created for: the first timeline of
+ * the type that uses the type's position source settings unchanged, or the
+ * first timeline of the type when every one of them overrides them.
+ */
+function representativeTimeline(
+  timelines: IResolvedTimelineConfiguration[],
+  type: TimelineTypes,
+  settings: ITimelineProviderSettings
+): IResolvedTimelineConfiguration | undefined {
+  const ofType = timelines.filter(t => t.type === type);
+  return (
+    ofType.find(t => !overridesPositionSource(t, settings)) ?? ofType.at(0)
+  );
 }

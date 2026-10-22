@@ -142,6 +142,29 @@ describe('TypedEventEmitter', () => {
       // Should not throw
       expect(() => emitter.off('simple', handler)).not.toThrow();
     });
+
+    test('given a handler registered with once(), when off() is called with that same handler and the event is emitted, then the handler is not called', () => {
+      const handler = vi.fn();
+      emitter.once('simple', handler);
+
+      emitter.off('simple', handler);
+      emitter.emit('simple');
+
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    test('given the same handler registered with on() and once(), when off() is called with it once, then only the earlier registration is removed', () => {
+      const handler = vi.fn();
+      emitter.on('withArg', handler);
+      emitter.once('withArg', handler);
+
+      emitter.off('withArg', handler);
+      emitter.emit('withArg', 'first');
+      emitter.emit('withArg', 'second');
+
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(handler).toHaveBeenCalledWith('first');
+    });
   });
 
   describe('emit()', () => {
@@ -176,6 +199,28 @@ describe('TypedEventEmitter', () => {
       expect(consoleError).toHaveBeenCalled();
 
       consoleError.mockRestore();
+    });
+
+    test('given an async handler that rejects, when the event is emitted, then the rejection is logged naming the event and later handlers still run', async () => {
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const failure = new Error('async failure');
+      const asyncHandler = vi.fn(async () => {
+        throw failure;
+      });
+      const nextHandler = vi.fn();
+      emitter.on('simple', asyncHandler);
+      emitter.on('simple', nextHandler);
+
+      expect(() => emitter.emit('simple')).not.toThrow();
+      await new Promise(resolve => setTimeout(resolve));
+
+      expect(nextHandler).toHaveBeenCalledTimes(1);
+      expect(consoleError).toHaveBeenCalledWith(
+        'Error in event handler for "simple":',
+        failure
+      );
     });
 
     test('should be safe to remove handler during emit (copy handlers array)', () => {
@@ -275,5 +320,58 @@ describe('TypedEventEmitter', () => {
       // Type checks pass
       expect(true).toBe(true);
     });
+  });
+});
+
+describe('TypedEventEmitter emit while handlers change', () => {
+  test('given a handler that removes a later handler during emit, when the event is emitted, then the removed handler is not called and the rest are', () => {
+    // given
+    const emitter = new TypedEventEmitter<TestEvents>();
+    const laterHandler = vi.fn();
+    const lastHandler = vi.fn();
+    emitter.on('withArg', () => emitter.off('withArg', laterHandler));
+    emitter.on('withArg', laterHandler);
+    emitter.on('withArg', lastHandler);
+
+    // test
+    emitter.emit('withArg', 'first');
+
+    // expect
+    expect(laterHandler).not.toHaveBeenCalled();
+    expect(lastHandler).toHaveBeenCalledWith('first');
+  });
+
+  test('given a handler that calls removeAllListeners during emit, when the event is emitted, then later handlers are not called', () => {
+    // given
+    const emitter = new TypedEventEmitter<TestEvents>();
+    const laterHandler = vi.fn();
+    emitter.on('simple', () => emitter.removeAllListeners());
+    emitter.on('simple', laterHandler);
+
+    // test
+    emitter.emit('simple');
+
+    // expect
+    expect(laterHandler).not.toHaveBeenCalled();
+  });
+
+  test('given a handler that re-emits the event before a once handler, when the event is emitted, then the once handler is called exactly once', () => {
+    // given
+    const emitter = new TypedEventEmitter<TestEvents>();
+    const onceHandler = vi.fn();
+    let depth = 0;
+    emitter.on('simple', () => {
+      depth += 1;
+      if (depth === 1) {
+        emitter.emit('simple');
+      }
+    });
+    emitter.once('simple', onceHandler);
+
+    // test
+    emitter.emit('simple');
+
+    // expect
+    expect(onceHandler).toHaveBeenCalledTimes(1);
   });
 });

@@ -335,22 +335,92 @@ describe<MutationObserverControllerSuiteContext>('MutationObserverController - U
     expect(controller.operationData).not.toBeNull();
   });
 
-  // T027: Write test for duplicate attach() calls (guard against multiple observers)
-  test<MutationObserverControllerSuiteContext>('should handle duplicate attach calls safely', context => {
-    // given
-    const {controller, operationData, eventbus} = context;
+  // T027: duplicate attach() calls must not stack observers
+  test<MutationObserverControllerSuiteContext>('given a MutationObserverController attached twice to the same element, when detach is called and an attribute on the element then changes, then no dom-mutation event is broadcast', async context => {
+    const {controller, operationData, eventbus, nativeElement} = context;
     controller.init(operationData);
-
-    // when - attach multiple times
     controller.attach(eventbus);
-    const firstObserver = (controller as any).observer;
-
     controller.attach(eventbus);
-    const secondObserver = (controller as any).observer;
 
-    // then - should have created new observer each time
-    expect(firstObserver).not.toBeNull();
-    expect(secondObserver).not.toBeNull();
-    // Note: This creates multiple observers. In Phase 6, we'll add guard logic.
+    controller.detach(eventbus);
+    nativeElement.setAttribute('data-test', 'after-detach');
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(context.receivedPayload).toBeNull();
+  });
+
+  test<MutationObserverControllerSuiteContext>('given a MutationObserverController attached twice, when an attribute changes, then exactly one dom-mutation event is broadcast', async context => {
+    const {controller, operationData, eventbus, nativeElement} = context;
+    const broadcasts = vi.fn();
+    eventbus.on('dom-mutation', broadcasts);
+    controller.init(operationData);
+    controller.attach(eventbus);
+    controller.attach(eventbus);
+
+    nativeElement.setAttribute('data-test', 'once');
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(broadcasts).toHaveBeenCalledTimes(1);
+    controller.detach(eventbus);
+  });
+});
+
+describe('MutationObserverController option validation', () => {
+  const createOperationData = (
+    options: Partial<IMutationObserverControllerMetadata>
+  ): IMutationObserverControllerMetadata => ({
+    selectedElement: new MockJQueryElement(
+      document.createElement('div')
+    ) as unknown as JQuery,
+    ...options,
+  });
+
+  test.each([
+    [
+      'all observation types are off',
+      {
+        observeAttributes: false,
+        observeChildList: false,
+        observeCharacterData: false,
+      },
+      'MutationObserverController: at least one of observeAttributes, observeChildList or observeCharacterData must be true',
+    ],
+    [
+      'attributeFilter is set without observeAttributes',
+      {observeAttributes: false, attributeFilter: ['class']},
+      'MutationObserverController: attributeFilter requires observeAttributes',
+    ],
+    [
+      'attributeOldValue is set without observeAttributes',
+      {observeAttributes: false, attributeOldValue: true},
+      'MutationObserverController: attributeOldValue requires observeAttributes',
+    ],
+    [
+      'characterDataOldValue is set without observeCharacterData',
+      {observeCharacterData: false, characterDataOldValue: true},
+      'MutationObserverController: characterDataOldValue requires observeCharacterData',
+    ],
+  ])(
+    'given %s, when init is called, then it throws a named error',
+    (_label, options, message) => {
+      const controller = new MutationObserverController();
+
+      expect(() => controller.init(createOperationData(options))).toThrow(
+        message
+      );
+    }
+  );
+
+  test('given observeAttributes without an attributeFilter, when attached, then observe receives no attributeFilter key', () => {
+    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+    const controller = new MutationObserverController();
+    controller.init(createOperationData({observeChildList: false}));
+
+    controller.attach(new Eventbus());
+
+    const options = observe.mock.calls[0][1];
+    expect(options).not.toHaveProperty('attributeFilter');
+    expect(options).toMatchObject({attributes: true, childList: false});
+    controller.detach(new Eventbus());
   });
 });

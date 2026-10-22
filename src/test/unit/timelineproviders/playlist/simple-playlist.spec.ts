@@ -306,3 +306,39 @@ describe('SimplePlaylist', () => {
     });
   });
 });
+
+describe('SimplePlaylist identifier lookup', () => {
+  const items = [
+    {id: 'intro', uri: '/videos/intro.mp4'},
+    {id: 'ch1', uri: '/videos/chapter-1.mp4'},
+  ];
+
+  test('given a playlist keyed by id, when hasItem is called with a known and an unknown identifier, then it reports which exists without changing the selection', () => {
+    const playlist = new SimplePlaylist({items, identifierKey: 'id'});
+    const changed = vi.fn();
+    playlist.onItemChange(changed);
+
+    expect(playlist.hasItem('ch1')).toBe(true);
+    expect(playlist.hasItem('timeline-uri')).toBe(false);
+    expect(playlist.currentItem).toBe(items[0]);
+    expect(changed).not.toHaveBeenCalled();
+  });
+
+  test('given an unknown identifier, when selectItem is called, then it still throws naming the identifier', () => {
+    const playlist = new SimplePlaylist({items, identifierKey: 'id'});
+
+    expect(() => playlist.selectItem('timeline-uri')).toThrow(
+      'Playlist item not found: timeline-uri'
+    );
+  });
+
+  test('given a registered change callback, when its unsubscribe function is called, then it no longer fires', () => {
+    const playlist = new SimplePlaylist({items, identifierKey: 'id'});
+    const changed = vi.fn();
+
+    playlist.onItemChange(changed)();
+    playlist.selectItem('ch1');
+
+    expect(changed).not.toHaveBeenCalled();
+  });
+});

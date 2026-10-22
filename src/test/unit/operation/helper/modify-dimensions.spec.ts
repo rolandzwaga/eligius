@@ -213,7 +213,29 @@ describe<ModifyDimensionsSuiteContext>('modifyDimensions', () => {
     const {dimensions} = context;
 
     expect(() => modifyDimensions(dimensions, '+0|w[ar=8-]')).toThrow(
-      'Badly formatted modifier, expect two ratios: ar=8-'
+      "modifyDimensions: invalid modifier '+0|w[ar=8-]': expected two ratios, as in 'ar=8-1', but got 'ar=8-'."
     );
   });
+});
+
+describe('modifyDimensions invalid modifiers', () => {
+  const dimensions = {width: 200, height: 300};
+
+  test.each([
+    ['x100', "unknown operator 'x', expected one of + - / *"],
+    ['+abc', 'the amount is not a number'],
+    [
+      '+0|w[8-1]',
+      "ratio modifier 'w[8-1]' must look like 'h[ar=8-1]' or 'w[ar=8-1]'",
+    ],
+    ['+0|q[ar=8-1]', "ratio modifier 'q[ar=8-1]' must look like"],
+    ['+0|h[ar=a-1]', "expected two ratios, as in 'ar=8-1', but got 'ar=a-1'"],
+  ])(
+    'given modifier %s, when it is applied, then it throws naming modifyDimensions and the modifier',
+    (modifier, reason) => {
+      expect(() => modifyDimensions(dimensions, modifier)).toThrow(
+        `modifyDimensions: invalid modifier '${modifier}': ${reason}`
+      );
+    }
+  );
 });

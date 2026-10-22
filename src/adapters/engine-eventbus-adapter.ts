@@ -1,18 +1,26 @@
 import type {EventName, IEventbus, TEventbusRemover} from '@eventbus/types.ts';
-import type {EngineEvents, IEligiusEngine} from '../types.ts';
+import type {
+  EngineEvents,
+  IEligiusEngine,
+  IEngineEventSubscriptionOptions,
+} from '../types.ts';
 import type {IAdapter} from './types.ts';
 
 /**
  * Bridges EligiusEngine to/from the eventbus.
  *
  * This adapter:
- * - Forwards engine events to eventbus broadcasts
- * - Forwards eventbus commands to engine methods
+ * - Forwards engine events to eventbus broadcasts (the engine `error` event
+ *   becomes `engine-error`)
+ * - Forwards eventbus commands to engine methods; a command that fails is
+ *   logged and broadcast as `engine-command-error` with the command name and
+ *   the error
  * - Handles eventbus state queries by reading engine properties
  */
 export class EngineEventbusAdapter implements IAdapter {
   private _engineEventRemovers: Array<() => void> = [];
   private _eventbusRemovers: TEventbusRemover[] = [];
+  private _connected = false;
 
   constructor(
     private _engine: IEligiusEngine,
@@ -20,9 +28,14 @@ export class EngineEventbusAdapter implements IAdapter {
   ) {}
 
   /**
-   * Connect adapter - start listening and forwarding
+   * Connect adapter - start listening and forwarding. Calling it again while
+   * connected does nothing.
    */
   connect(): void {
+    if (this._connected) {
+      return;
+    }
+    this._connected = true;
     this._subscribeToEngineEvents();
     this._subscribeToEventbusEvents();
   }
@@ -31,6 +44,7 @@ export class EngineEventbusAdapter implements IAdapter {
    * Disconnect adapter - stop all listeners
    */
   disconnect(): void {
+    this._connected = false;
     this._engineEventRemovers.forEach(remove => remove());
     this._engineEventRemovers = [];
 
@@ -92,13 +106,26 @@ export class EngineEventbusAdapter implements IAdapter {
     this._onEngineEvent('timelineRestart', () => {
       this._eventbus.broadcast('timeline-restart', []);
     });
+
+    // Forward-only: the engine still logs errors nobody else subscribes to,
+    // so they are not lost when nothing listens to engine-error.
+    this._onEngineEvent(
+      'error',
+      error => {
+        this._eventbus.broadcast('engine-error', [error]);
+      },
+      {forwardOnly: true}
+    );
   }
 
   private _onEngineEvent<K extends keyof EngineEvents>(
     event: K,
-    handler: (...args: EngineEvents[K]) => void
+    handler: (...args: EngineEvents[K]) => void,
+    options?: IEngineEventSubscriptionOptions
   ): void {
-    const remover = this._engine.on(event, handler);
+    const remover = options
+      ? this._engine.on(event, handler, options)
+      : this._engine.on(event, handler);
     this._engineEventRemovers.push(remover);
   }
 
@@ -106,10 +133,14 @@ export class EngineEventbusAdapter implements IAdapter {
   // Eventbus Commands → Engine Methods
   // ─────────────────────────────────────────────────────────────────────────
 
+  /**
+   * This adapter is the only place where eventbus commands reach the engine;
+   * the engine itself does not subscribe to them.
+   */
   private _subscribeToEventbusEvents(): void {
     // Playback commands
     this._onEventbusEvent('timeline-play-request', () => {
-      this._engine.start();
+      this._handleRejection('start', this._engine.start());
     });
 
     this._onEventbusEvent('timeline-pause-request', () => {
@@ -117,18 +148,18 @@ export class EngineEventbusAdapter implements IAdapter {
     });
 
     this._onEventbusEvent('timeline-stop-request', () => {
-      this._engine.stop();
+      this._handleRejection('stop', this._engine.stop());
     });
 
     this._onEventbusEvent('timeline-seek-request', (position: number) => {
-      this._engine.seek(position);
+      this._handleRejection('seek', this._engine.seek(position));
     });
 
     this._onEventbusEvent('timeline-play-toggle-request', () => {
       if (this._engine.playState === 'playing') {
         this._engine.pause();
       } else {
-        this._engine.start();
+        this._handleRejection('start', this._engine.start());
       }
     });
 
@@ -136,7 +167,10 @@ export class EngineEventbusAdapter implements IAdapter {
     this._onEventbusEvent(
       'request-timeline-uri',
       (uri: string, position: number = 0) => {
-        this._engine.switchTimeline(uri, position);
+        this._handleRejection(
+          'switchTimeline',
+          this._engine.switchTimeline(uri, position)
+        );
       }
     );
 
@@ -160,6 +194,24 @@ export class EngineEventbusAdapter implements IAdapter {
     this._registerRequest('timeline-request-current-timeline', () => {
       return this._engine.currentTimelineUri;
     });
+  }
+
+  /**
+   * Eventbus handlers cannot return the engine's promises to anyone, so
+   * report a rejection here instead of leaving it unhandled: it is logged
+   * and broadcast as `engine-command-error` (`[command, error]`), so the
+   * application can react, for example to blocked autoplay.
+   */
+  private _handleRejection(command: string, result: unknown): void {
+    if (result instanceof Promise) {
+      result.catch(error => {
+        console.error(
+          `[EngineEventbusAdapter] engine.${command}() failed`,
+          error
+        );
+        this._eventbus.broadcast('engine-command-error', [command, error]);
+      });
+    }
   }
 
   private _onEventbusEvent(

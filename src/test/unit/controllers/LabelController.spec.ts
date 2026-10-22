@@ -3,6 +3,7 @@ import {
   LabelController,
 } from '@controllers/label-controller.ts';
 import {Eventbus, type IEventbus} from '@eventbus/index.ts';
+import $ from 'jquery';
 import {beforeEach, describe, expect, type TestContext, test} from 'vitest';
 
 class MockElement {
@@ -55,6 +56,23 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
     controller.init(operationData);
     // expect
     expect(operationData).not.toBe(controller.operationData);
+  });
+
+  test<LabelControllerSuiteContext>('given an attached LabelController, when attach is called again without detach, then a language-change renders the label once', context => {
+    const {controller, operationData, eventbus} = context;
+    let translations = 0;
+    eventbus.onRequest('request-translation', () => {
+      translations++;
+      return 'Home';
+    });
+    controller.init(operationData);
+    controller.attach(eventbus);
+    controller.attach(eventbus);
+    translations = 0;
+
+    eventbus.broadcast('language-change', ['nl-NL']);
+
+    expect(translations).toBe(1);
   });
 
   test<LabelControllerSuiteContext>('given translationKey, when attached, then uses request-translation', context => {
@@ -213,5 +231,150 @@ describe<LabelControllerSuiteContext>('LabelController', () => {
 
     // test & expect - should not throw
     expect(() => controller.setTranslationKey('new.key')).not.toThrow();
+  });
+
+  describe('untrusted translation markup', () => {
+    beforeEach(() => {
+      document.body.innerHTML = '<div id="label"></div><a id="link"></a>';
+    });
+
+    test<LabelControllerSuiteContext>('given a translation with an image onerror payload, when attached, then the image is not inserted', context => {
+      // given
+      const {controller, eventbus} = context;
+      const element = $('#label');
+      controller.init({selectedElement: element, translationKey: 'nav.home'});
+      eventbus.onRequest(
+        'request-translation',
+        () => '<img src=x onerror="alert(1)">Home<script>alert(2)</script>'
+      );
+
+      // test
+      controller.attach(eventbus);
+
+      // expect
+      expect(element[0].innerHTML).toBe('Home');
+      expect(element.find('img, script')).toHaveLength(0);
+    });
+
+    test<LabelControllerSuiteContext>('given a translation with simple formatting, when attached, then the formatting is rendered', context => {
+      // given
+      const {controller, eventbus} = context;
+      const element = $('#label');
+      controller.init({selectedElement: element, translationKey: 'nav.home'});
+      eventbus.onRequest(
+        'request-translation',
+        () =>
+          'Line one<br><strong>Bold</strong> <a href="https://example.com">link</a>'
+      );
+
+      // test
+      controller.attach(eventbus);
+
+      // expect
+      expect(element[0].innerHTML).toBe(
+        'Line one<br><strong>Bold</strong> <a href="https://example.com">link</a>'
+      );
+    });
+
+    test<LabelControllerSuiteContext>('given a translation with a javascript link, when the language changes, then the link has no href', context => {
+      // given
+      const {controller, eventbus} = context;
+      const element = $('#label');
+      controller.init({selectedElement: element, translationKey: 'nav.home'});
+      let translation = 'Home';
+      eventbus.onRequest('request-translation', () => translation);
+      controller.attach(eventbus);
+
+      // test
+      translation =
+        '<a href=" JavaScript:alert(1)" onclick="alert(2)">Thuis</a>';
+      eventbus.broadcast('language-change', ['nl-NL']);
+
+      // expect
+      expect(element[0].innerHTML).toBe('<a>Thuis</a>');
+    });
+
+    test<LabelControllerSuiteContext>('given attributeName title, when the translation contains markup, then it is written as literal attribute text', context => {
+      // given
+      const {controller, eventbus} = context;
+      const element = $('#label');
+      controller.init({
+        selectedElement: element,
+        translationKey: 'nav.home',
+        attributeName: 'title',
+      });
+      eventbus.onRequest('request-translation', () => '<b>Home</b>');
+
+      // test
+      controller.attach(eventbus);
+
+      // expect
+      expect(element.attr('title')).toBe('<b>Home</b>');
+      expect(element.children()).toHaveLength(0);
+    });
+
+    test<LabelControllerSuiteContext>('given attributeName href, when the translation is a safe url, then the attribute is set', context => {
+      // given
+      const {controller, eventbus} = context;
+      const element = $('#link');
+      controller.init({
+        selectedElement: element,
+        translationKey: 'nav.url',
+        attributeName: 'href',
+      });
+      eventbus.onRequest('request-translation', () => '/nl/home');
+
+      // test
+      controller.attach(eventbus);
+
+      // expect
+      expect(element.attr('href')).toBe('/nl/home');
+    });
+
+    test<LabelControllerSuiteContext>('given attributeName href, when the translation is a javascript url, then the attribute is removed', context => {
+      // given
+      const {controller, eventbus} = context;
+      const element = $('#link').attr('href', '/old');
+      controller.init({
+        selectedElement: element,
+        translationKey: 'nav.url',
+        attributeName: 'HREF',
+      });
+      eventbus.onRequest('request-translation', () => 'javascript:alert(1)');
+
+      // test
+      controller.attach(eventbus);
+
+      // expect
+      expect(element.attr('href')).toBeUndefined();
+    });
+
+    test<LabelControllerSuiteContext>('given attributeName is an event handler attribute, when init is called, then it throws naming the controller and attribute', context => {
+      // given
+      const {controller} = context;
+
+      // test & expect
+      expect(() =>
+        controller.init({
+          selectedElement: $('#label'),
+          translationKey: 'nav.home',
+          attributeName: 'onClick',
+        })
+      ).toThrow(/LabelController.*"onClick"/);
+    });
+
+    test<LabelControllerSuiteContext>('given attributeName srcdoc, when init is called, then it throws', context => {
+      // given
+      const {controller} = context;
+
+      // test & expect
+      expect(() =>
+        controller.init({
+          selectedElement: $('#label'),
+          translationKey: 'nav.home',
+          attributeName: 'srcdoc',
+        })
+      ).toThrow(/LabelController.*"srcdoc"/);
+    });
   });
 });

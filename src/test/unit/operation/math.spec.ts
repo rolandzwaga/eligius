@@ -1,3 +1,5 @@
+import {EndableAction} from '@action/endable-action.ts';
+import {Eventbus} from '@eventbus/eventbus.ts';
 import {
   type IMathOperationData,
   type MathFunctionKeys,
@@ -75,4 +77,55 @@ describe('math', () => {
       expect('functionName' in newData).toBe(false);
     });
   });
+});
+
+describe('math input resolution', () => {
+  test('given an operationData whose actionInstance is an EndableAction with a start operation configured as {selector: $operationdata.panelSelector}, when math runs with {functionName: max, args: [1,2]}, then the action startOperations[0].operationData.selector is still $operationdata.panelSelector', () => {
+    // given
+    const actionInstance = new EndableAction(
+      'ShowPanel',
+      [
+        {
+          id: '1',
+          systemName: 'selectElement',
+          operationData: {selector: '$operationdata.panelSelector'},
+          instance: (data: any) => data,
+        },
+      ],
+      [],
+      new Eventbus()
+    );
+
+    // test
+    const result = applyOperation(math, {
+      functionName: 'max',
+      args: [1, 2],
+      actionInstance,
+    } as any);
+
+    // expect
+    expect(result.mathResult).toBe(2);
+    expect(actionInstance.startOperations[0].operationData.selector).toBe(
+      '$operationdata.panelSelector'
+    );
+  });
+
+  test('given args with a property chain, when math runs, then the chain is resolved', () => {
+    const result = applyOperation(math, {
+      functionName: 'max',
+      args: [1, '$operationdata.value'],
+      value: 5,
+    } as any);
+
+    expect(result.mathResult).toBe(5);
+  });
+
+  test.each(['nope', 'PI', 'constructor', 'toString'])(
+    'given functionName %s, when math runs, then it throws naming math',
+    functionName => {
+      expect(() =>
+        applyOperation(math, {functionName, args: [1]} as any)
+      ).toThrow(`math: unknown function '${functionName}'`);
+    }
+  );
 });

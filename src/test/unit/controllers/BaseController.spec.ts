@@ -33,14 +33,6 @@ class TestController extends BaseController<TOperationData> {
       this.addListener(eventbus, eventName as any, handler);
     });
   }
-
-  // Expose attachMultiple for testing through a public wrapper
-  attachWithMultiple(
-    eventbus: IEventbus,
-    listeners: Array<{eventName: string; handler: (...args: any[]) => void}>
-  ): void {
-    this.attachMultiple(eventbus, listeners);
-  }
 }
 
 describe('BaseController', () => {
@@ -100,45 +92,58 @@ describe('BaseController', () => {
     });
   });
 
-  describe('attachMultiple', () => {
-    it('should attach multiple listeners at once', () => {
-      const handler1 = vi.fn();
-      const handler2 = vi.fn();
-      const handler3 = vi.fn();
+  describe('typed addListener', () => {
+    it('given a handler whose parameters do not match the event arguments, when it is registered, then the compiler rejects it', () => {
+      class TypedController extends BaseController<TOperationData> {
+        name = 'TypedController';
+        init(): void {}
+        attach(eventbus: IEventbus): void {
+          this.addListener(eventbus, 'timeline-time', this.onTime);
+          // @ts-expect-error timeline-time passes a number, not a string
+          this.addListener(eventbus, 'timeline-time', this.onText);
+        }
+        onTime(_position: number) {}
+        onText(_text: string) {}
+      }
+      const typed = new TypedController();
 
-      controller.attachWithMultiple(mockEventbus, [
-        {eventName: 'event1', handler: handler1},
-        {eventName: 'event2', handler: handler2},
-        {eventName: 'event3', handler: handler3},
-      ]);
+      typed.attach(mockEventbus);
 
-      // Verify all handlers are registered and called
-      mockEventbus.broadcast('event1' as any, []);
-      mockEventbus.broadcast('event2' as any, []);
-      mockEventbus.broadcast('event3' as any, []);
+      expect(mockEventbus.on).toHaveBeenCalledTimes(2);
+    });
+  });
 
-      expect(handler1).toHaveBeenCalled();
-      expect(handler2).toHaveBeenCalled();
-      expect(handler3).toHaveBeenCalled();
+  describe('attached-state guard', () => {
+    class GuardedController extends TestController {
+      attach(eventbus: IEventbus): void {
+        this.beginAttach(eventbus);
+        super.attach(eventbus);
+      }
+    }
+
+    it('given an attached controller, when attach is called again, then every listener is registered once', () => {
+      const guarded = new GuardedController();
+      const handler = vi.fn();
+      guarded.queueListener('test-event', handler);
+
+      guarded.attach(mockEventbus);
+      guarded.attach(mockEventbus);
+      mockEventbus.broadcast('test-event' as any, []);
+
+      expect(handler).toHaveBeenCalledTimes(1);
     });
 
-    it('should track all listeners for cleanup', () => {
-      const handler1 = vi.fn();
-      const handler2 = vi.fn();
+    it('given a controller attached twice, when it is detached, then no listener remains', () => {
+      const guarded = new GuardedController();
+      const handler = vi.fn();
+      guarded.queueListener('test-event', handler);
 
-      controller.attachWithMultiple(mockEventbus, [
-        {eventName: 'event1', handler: handler1},
-        {eventName: 'event2', handler: handler2},
-      ]);
+      guarded.attach(mockEventbus);
+      guarded.attach(mockEventbus);
+      guarded.detach(mockEventbus);
+      mockEventbus.broadcast('test-event' as any, []);
 
-      // Detach should remove all listeners
-      controller.detach(mockEventbus);
-
-      mockEventbus.broadcast('event1' as any, []);
-      mockEventbus.broadcast('event2' as any, []);
-
-      expect(handler1).not.toHaveBeenCalled();
-      expect(handler2).not.toHaveBeenCalled();
+      expect(handler).not.toHaveBeenCalled();
     });
   });
 

@@ -2,7 +2,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface IGetFormDataOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;
@@ -11,6 +10,15 @@ export interface IGetFormDataOperationData {
    * @type=ParameterType:object
    */
   formData?: Record<string, any>;
+}
+
+function defineField(target: Record<string, any>, name: string, value: any) {
+  Object.defineProperty(target, name, {
+    value,
+    enumerable: true,
+    writable: true,
+    configurable: true,
+  });
 }
 
 /**
@@ -51,17 +59,20 @@ export const getFormData: TOperation<
   const formArray = selectedElement.serializeArray();
   const formData: Record<string, any> = {};
 
-  // Convert array format to object format
+  // Convert array format to object format. Only own keys count, and values are
+  // defined rather than assigned, so field names like 'constructor' or '__proto__'
+  // neither merge with inherited members nor replace the prototype.
   for (const field of formArray) {
-    // Handle multiple values for same name (checkboxes)
-    if (formData[field.name] !== undefined) {
-      // Convert to array if not already
-      if (!Array.isArray(formData[field.name])) {
-        formData[field.name] = [formData[field.name]];
+    if (Object.hasOwn(formData, field.name)) {
+      // Handle multiple values for same name (checkboxes)
+      const existing = formData[field.name];
+      if (Array.isArray(existing)) {
+        existing.push(field.value);
+      } else {
+        defineField(formData, field.name, [existing, field.value]);
       }
-      formData[field.name].push(field.value);
     } else {
-      formData[field.name] = field.value;
+      defineField(formData, field.name, field.value);
     }
   }
 

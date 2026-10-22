@@ -144,3 +144,24 @@ describe('selectElement', () => {
     );
   });
 });
+
+describe('selectElement without an engine root', () => {
+  test('given request-engine-root answers undefined (no live engine), when selectElement runs, then it does not throw, selects nothing and removes its own properties', () => {
+    const eventbus = createMockEventbusWithRoot(undefined) as any as IEventbus;
+    const operationData = {
+      selector: '.title',
+      useSelectedElementAsRoot: false,
+    } as any as ISelectElementOperationData;
+
+    const newData = applyOperation(selectElement, operationData, {
+      currentIndex: -1,
+      eventbus,
+      operations: [],
+    }) as ISelectElementOperationData;
+
+    expect(eventbus.request).toHaveBeenCalledWith('request-engine-root');
+    expect(newData.selectedElement).toBeUndefined();
+    expect(newData).not.toHaveProperty('selector');
+    expect(newData).not.toHaveProperty('useSelectedElementAsRoot');
+  });
+});

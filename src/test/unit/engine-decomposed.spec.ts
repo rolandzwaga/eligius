@@ -86,6 +86,7 @@ function createMockPlaylist<T>(
     }),
     onItemChange: vi.fn((callback: (item: T) => void) => {
       callbacks.push(callback);
+      return () => {};
     }),
   };
 }

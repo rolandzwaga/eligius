@@ -1,6 +1,6 @@
 # Eligius Development Guidelines
 
-Last re-aligned with the codebase: 2026-10-12
+Last re-aligned with the codebase: 2026-10-21
 
 Eligius is a configuration-driven timeline engine for the browser. A JSON configuration describes timelines, actions, and operations; the engine executes those actions at the right timeline positions against the DOM.
 
@@ -25,8 +25,10 @@ All versions live in [package.json](package.json). Do not hardcode version numbe
 
 **Peer dependencies** (consumer provided, externalized by the build):
 - jquery (DOM manipulation)
-- lottie-web (LottieController)
-- video.js (VideoPositionSource)
+- lottie-web (LottieController), optional, loaded with a dynamic `import()` on first use
+- video.js (VideoPositionSource), optional, loaded with a dynamic `import()` on first use
+
+Never import lottie-web or video.js statically outside type imports; that would make them required again.
 
 **Node**: `engines.node` in `package.json` is the minimum. CI runs on the version pinned in `.github/workflows/ci-build.yml`.
 
@@ -63,10 +65,10 @@ eligius/
     util/                   # Utilities
       guards/               # Type guards
     eligius-engine.ts       # EligiusEngine
-    eligius-flow-controller.ts
     engine-factory.ts       # EngineFactory
     index.ts                # Public API entry (dist/index.mjs)
     metadata.ts             # Metadata-only entry (dist/metadata.mjs, no DOM deps)
+    configuration-api.ts    # Fluent ConfigurationFactory entry (dist/configuration-api.mjs, no DOM deps)
     types.ts                # Core types
     vitest.config.ts        # Vitest config (lives in src/, not root)
   build/                    # Importer template
@@ -120,6 +122,9 @@ npm run opers-metadata
 npm run ctrls-metadata
 npm run events-metadata
 npm run generate-schema     # jsonschema/eligius-configuration.json
+
+# Published type declarations (after npm run build)
+npm run check:types         # type-checks dist/*.d.mts in throwaway consumers (NodeNext, Bundler, Node10)
 
 # Documentation
 npm run docs                # schema + typedoc + copy-schema + READMEs
@@ -191,7 +196,8 @@ Never use `../../..` paths across modules.
 ### ESM
 - ESM only. No `require()`.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
-- `src/metadata.ts` is a separate entry that must stay free of jquery, lottie-web, and video.js imports (it only imports types from operations). See the comment in `tsdown.config.ts`.
+- `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery, lottie-web, and video.js imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
+- Published declarations are self-contained: the DOM-free entries type-check without jquery or lottie-web, and the main entry references `@types/jquery` (optional peer). Lottie types in the public API are local structural copies in `src/controllers/types.ts`. Consumers still need `"DOM"` in their TypeScript `lib`. `npm run check:types` guards this.
 
 ## Testing
 
@@ -225,7 +231,7 @@ await engine.switchTimeline('other-timeline', 0);
 await destroy();
 ```
 
-`IEligiusEngine` exposes read-only `position`, `duration`, `playState` (`'playing' | 'paused' | 'stopped'`), `currentTimelineUri`, `container`, and `engineRoot`. It is a `TypedEventEmitter<EngineEvents>` with events such as `start`, `pause`, `stop`, `time`, `duration`, `seekStart`, `seekComplete`, and `timelineComplete`. See `src/types.ts` for the full list.
+`IEligiusEngine` exposes read-only `position`, `duration`, `playState` (`'playing' | 'paused' | 'stopped'`), `currentTimelineUri`, `container`, and `engineRoot`. It is a `TypedEventEmitter<EngineEvents>` with events such as `start`, `pause`, `stop`, `time`, `duration`, `seekStart`, `seekComplete`, `timelineComplete`, and `error` (an `EngineActionError` naming the action, phase and failing operation, forwarded to the eventbus as `engine-error`). See `src/types.ts` for the full list.
 
 ### Timeline providers (decomposed architecture)
 
@@ -235,12 +241,14 @@ There is no monolithic timeline provider class. `EngineFactory` composes three p
   - `RafPositionSource` (requestAnimationFrame clock)
   - `VideoPositionSource` (video.js)
   - `ScrollPositionSource` (scroll position mapped to time)
-  - `KeyboardStepSource` (hotkeys-js stepping)
+  - `KeyboardStepSource` (hotkeys-js stepping; binds in the `'all'` scope and never changes the global scope; in `timeline-switch` mode the engine switches to the previous/next timeline)
   - `BasePositionSource` is the shared base class.
 - **`IContainerProvider`**: supplies the DOM container (`DomContainerProvider`).
-- **`IPlaylist`**: ordered timeline items (`SimplePlaylist`).
+- **`IPlaylist`**: ordered timeline items (`SimplePlaylist`, with optional `hasItem`).
 
-Timeline `type` is `'animation'` or `'mediaplayer'`. Position is reported in seconds with fractional values; actions are keyed at 0.1 second precision.
+A timeline may override its type's settings with `positionSource` / `containerProvider` (merged field by field; a different `systemName` replaces them). The merge lives in `src/configuration/timeline-provider-overrides.ts` and is shared by the resolver and `EngineFactory.createTimelineProvidersByUri`. Sources that render their own container (video) are shared per type and per identical merged settings. After any activation the engine reconciles the first reported position like a seek.
+
+Timeline `type` is `'animation'` or `'mediaplayer'`. Position is reported in seconds with fractional values. Actions are dispatched by range: an update from the last position to the new one starts and ends every action whose boundary it crosses (backward jumps reconcile like a seek). `RafPositionSource` ticks every 100 ms by default. Transport commands (`init`, `start`, `seek`, `switchTimeline`, `stop`) run through one queue in call order, and nothing resumes after `destroy()`. Each factory-created engine has its own eventbus unless `options.eventbus` is passed.
 
 Requirements for new position sources: extend `BasePositionSource`, keep state transitions synchronous, make seeking idempotent, release all resources in `destroy()`.
 
@@ -294,7 +302,7 @@ export const addClass: TOperation<
 - `@type=ParameterType:<name>`: editor hint for the parameter type
 - `@category <Name>` on the operation itself (DOM, Data, Control, Controller, Form, Text, Utility, ...)
 
-**`IOperationScope`** (`this` inside an operation) carries `eventbus`, `operations`, `currentIndex`, loop bookkeeping (`loopIndex`, `loopLength`, `loopStartIndex`, `loopEndIndex`, `newIndex`), `whenEvaluation`, `variables`, `currentItem`, `owner`, and `parent`. Control-flow operations (`when`, `otherwise`, `endWhen`, `forEach`, `endForEach`, `breakForEach`, `continueForEach`, `startAction`, `endAction`) manipulate this scope.
+**`IOperationScope`** (`this` inside an operation) carries `eventbus`, `operations`, `currentIndex`, loop bookkeeping (`loopIndex`, `loopLength`, `loopStartIndex`, `loopEndIndex`, `newIndex`), `whenEvaluation`, `variables`, `currentItem`, `owner`, and `parent`. `when` accepts comparisons combined with `&&`, `||`, `!` and parentheses (`src/operation/helper/parse-expression.ts`, operands from `parse-operand.ts`); unknown operands throw. Control-flow operations (`when`, `otherwise`, `endWhen`, `forEach`, `endForEach`, `breakForEach`, `continueForEach`, `startAction`, `endAction`) manipulate this scope.
 
 **Adding an operation**:
 1. Check `src/operation/` for an existing operation that already does it.
@@ -328,7 +336,7 @@ Extend `BaseController`, which provides `addListener` and `attachMultiple` and r
 
 ### Eventbus
 
-`Eventbus` (`src/eventbus/`) is a typed pub/sub bus. `IEventbus` provides `on`, `off`, `once`, `broadcast`, `broadcastForTopic`, `onRequest`, `request`, `requestForTopic`, `registerEventlistener`, `registerInterceptor`, and `clear`. Event names and argument tuples are typed through `EventMap` and `EventName`, generated from the interfaces in `src/eventbus/events/`.
+`Eventbus` (`src/eventbus/`) is a typed pub/sub bus. `IEventbus` provides `on`, `off`, `once`, `broadcast`, `broadcastForTopic`, `onRequest`, `request`, `requestForTopic`, `registerEventlistener`, `registerInterceptor`, `clear`, and optional `reportError` (lets controllers report action failures through the same path). A throwing or rejecting handler, listener or interceptor never stops dispatch or throws into the broadcaster; it is logged and passed to the optional `onHandlerError` constructor option. Request responders still throw to the requester. Event names and argument tuples are typed through `EventMap` and `EventName`, generated from the interfaces in `src/eventbus/events/`.
 
 ```typescript
 eventbus.broadcast('timeline-seek-request', [5.0]);
@@ -343,13 +351,13 @@ eventbus.on('timeline-seek-request', position => {
 1. Create `src/eventbus/events/<event-name>.ts` exporting an interface with `name: '<event-name>'` and `args: [label: Type]` (labeled tuple).
 2. Mark internal events `@private` in the JSDoc so they are excluded from metadata.
 3. Export it from `src/eventbus/events/index.ts`.
-4. Run `npm run events-metadata`. This regenerates `src/eventbus/events/types.ts` and `src/eventbus/events/metadata/`.
+4. Run `npm run events-metadata`. This regenerates `src/eventbus/events/types.ts` (including `RequestMap`) and `src/eventbus/events/metadata/`, and fails when an event file is missing from `src/eventbus/events/index.ts`. Request events declare the responder's `args` and a `returns` type.
 
 Conventions: kebab-case names, category prefix (`timeline-`, `request-`, `language-`), `-request` suffix for request/response pairs, labeled tuple args, `[]` for no args.
 
 ### Adapters
 
-`src/adapters/` holds the glue between components and the eventbus so that neither depends on the other directly: `EngineEventbusAdapter` (engine events to eventbus and back), `EngineInputAdapter`, `LocaleEventbusAdapter`. All implement `IAdapter`. `EngineFactory.createEngine` wires them up and the returned `destroy()` tears them down.
+`src/adapters/` holds the glue between components and the eventbus so that neither depends on the other directly: `EngineEventbusAdapter` (engine events to eventbus and back), `EngineInputAdapter`, `LocaleEventbusAdapter`. All implement `IAdapter`. `EngineFactory.createEngine` wires them up and the returned `destroy()` tears them down. `EngineInputAdapter` is configured through `IEngineFactoryOptions.input` (`playToggle`, `resize`, `scope`); with several engines on a page one key press toggles a single engine.
 
 ### Locale
 
@@ -386,15 +394,18 @@ factory
 const config = factory.getConfiguration();
 ```
 
-`next()` returns to the action creator; `end()` returns to the `ConfigurationFactory`. Unknown operation names throw.
+`next()` returns to the action creator; `end()` returns to the `ConfigurationFactory`. Unknown operation names throw unless declared through `new ConfigurationFactory(config, {customOperations: [...]})`.
+
+**Custom resources**: `new EligiusResourceImporter({operations, functions, controllers, templates, json, override})` registers host code for the engine (`customFunction`, `getImport`, `template:`, `json:`, controllers). Built-in names cannot be shadowed without `override: true`. See README "Extending Eligius".
 
 ## Utilities (`src/util/`)
 
-- Guards: `isString`, `isObject`, `isFunction`, `isPromise`
+- Guards: `isString`, `isObject`, `isPlainObject` (cross-realm safe; `deep-copy.ts` re-exports it), `isFunction`, `isPromise` (null-safe)
 - Strings: `dashToCamelCase`, `camelCaseToDash`, `uppercaseFirstChar`
-- Data: `prepareValueForSerialization`, `mergeIfMissing`
-- `applyOperation` and `defaultScope`: run a single operation with a scope (used by actions and tests)
-- `animationInterval`: RAF-based interval helper
+- Data: `mergeIfMissing`; `clearGlobals` and `clearJsonCache` are exported and run when the last engine is destroyed
+- `applyOperation` and `createDefaultScope`: run a single operation with a fresh scope (used by operation specs)
+- `animationInterval`: RAF-based interval helper (its callback receives elapsed milliseconds since start)
+- `sanitizeHtml`: allowlist HTML sanitizer used before inserting translation or subtitle text into the DOM (internal, not exported)
 - `TypedEventEmitter`: typed emitter used by the engine and position sources
 
 ## Design Rules

@@ -3,7 +3,6 @@ import type {TOperation} from '@operation/types.ts';
 
 export interface ISetFormValueOperationData {
   /**
-   * @required
    * @dependency
    */
   selectedElement: JQuery;

@@ -5,7 +5,6 @@ export type SortOrder = 'asc' | 'desc';
 
 export interface ISortArrayOperationData {
   /**
-   * @required
    * @dependency
    */
   arrayData: any[];
@@ -27,7 +26,7 @@ export interface ISortArrayOperationData {
   /**
    * @output
    */
-  sortedArray: any[];
+  sortedArray?: any[];
 }
 
 /**

@@ -1,10 +1,17 @@
+import {getGlobals} from '@operation/helper/globals.ts';
 import {removeGlobal} from '@operation/helper/remove-global.ts';
 import {
   type ExternalProperty,
+  findDeclaringScope,
+  findRootScope,
   resolveExternalPropertyChain,
 } from '@operation/helper/resolve-external-property-chain.ts';
 import {setGlobal} from '@operation/helper/set-global.ts';
 import type {IOperationScope} from '@operation/index.ts';
+import {setData} from '@operation/set-data.ts';
+import {setGlobalData} from '@operation/set-global-data.ts';
+import {setOperationData} from '@operation/set-operation-data.ts';
+import {applyOperation} from '@util/apply-operation.ts';
 import {afterAll, beforeAll, describe, expect, test} from 'vitest';
 
 describe('resolveExternalPropertyChain', () => {
@@ -187,5 +194,77 @@ describe('resolveExternalPropertyChain', () => {
 
     // expect
     expect(value).toBe(arg);
+  });
+
+  test('given a $operationdata.__proto__ chain run by an operation, when it is resolved, then it throws naming the operation and the full chain', () => {
+    const scope = {
+      currentIndex: 0,
+      operations: [{systemName: 'setOperationData'}],
+    } as unknown as IOperationScope;
+
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        scope,
+        '$operationdata.x.__proto__.polluted'
+      )
+    ).toThrow(
+      "setOperationData: property chain '$operationdata.x.__proto__.polluted' contains forbidden segment '__proto__'"
+    );
+    expect(({} as any).polluted).toBeUndefined();
+  });
+
+  test('given a $globaldata.constructor chain, when it is resolved, then it throws', () => {
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        {} as IOperationScope,
+        '$globaldata.constructor.prototype'
+      )
+    ).toThrow(/forbidden segment 'constructor'/);
+  });
+
+  test('given a $scope.constructor chain, when it is resolved, then it throws', () => {
+    expect(() =>
+      resolveExternalPropertyChain(
+        {},
+        {} as IOperationScope,
+        '$scope.constructor.constructor'
+      )
+    ).toThrow(/forbidden segment 'constructor'/);
+  });
+});
+
+describe('resolveExternalPropertyChain global data copies', () => {
+  test('given setGlobalData stored settings {theme: light}, when setOperationData resolves cfg from $globaldata.settings and setData writes $operationdata.cfg.theme = dark, then getGlobals(settings).theme is still light', () => {
+    // given
+    applyOperation(setGlobalData, {
+      propertyNames: ['settings'],
+      settings: {theme: 'light'},
+    } as any);
+
+    // test
+    const withCfg = applyOperation(setOperationData, {
+      properties: {cfg: '$globaldata.settings'},
+    });
+    applyOperation(setData, {
+      ...withCfg,
+      properties: {'$operationdata.cfg.theme': 'dark'},
+    } as any);
+
+    // expect
+    expect(getGlobals('settings').theme).toBe('light');
+    removeGlobal('settings');
+  });
+});
+
+describe('findDeclaringScope', () => {
+  test('given a child scope without variables, when the variables head is looked up, then the parent that declares it is returned', () => {
+    const root = {variables: {a: 1}} as unknown as IOperationScope;
+    const child = {parent: root} as unknown as IOperationScope;
+
+    expect(findDeclaringScope('variables', child)).toBe(root);
+    expect(findDeclaringScope('missing', child)).toBeUndefined();
+    expect(findRootScope(child)).toBe(root);
   });
 });

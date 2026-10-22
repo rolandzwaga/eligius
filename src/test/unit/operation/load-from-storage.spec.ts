@@ -155,4 +155,60 @@ describe('loadFromStorage', () => {
     // Assert
     expect('storageType' in operationData).toBe(false);
   });
+
+  test('given loadFromStorage with key and storageType, when the operation runs, then the returned operation data has no key property', () => {
+    // Arrange
+    localStorage.setItem('a', '1');
+    const operationData: ILoadFromStorageOperationData = {
+      key: 'a',
+      storageType: 'local',
+      loadedValue: undefined as any,
+    };
+
+    // Act
+    const result = applyOperation(loadFromStorage, operationData, {
+      currentIndex: 0,
+      eventbus: mockEventbus,
+      operations: [],
+    });
+
+    // Assert
+    expect('key' in result).toBe(false);
+    expect('storageType' in result).toBe(false);
+    expect(result.loadedValue).toBe(1);
+  });
+
+  test("given storageType 'sesion', when loadFromStorage runs, then it throws instead of reading localStorage", () => {
+    localStorage.setItem('a', '1');
+
+    expect(() =>
+      applyOperation(
+        loadFromStorage,
+        {key: 'a', storageType: 'sesion' as any, loadedValue: undefined},
+        {currentIndex: 0, eventbus: mockEventbus, operations: []}
+      )
+    ).toThrow(
+      `loadFromStorage: storageType must be 'local' or 'session', got "sesion"`
+    );
+  });
+
+  test('given a stored value that is not JSON, when loadFromStorage runs, then the parse error is attached as cause', () => {
+    localStorage.setItem('a', 'undefined');
+
+    let error: Error | undefined;
+    try {
+      applyOperation(
+        loadFromStorage,
+        {key: 'a', storageType: 'local', loadedValue: undefined},
+        {currentIndex: 0, eventbus: mockEventbus, operations: []}
+      );
+    } catch (e) {
+      error = e as Error;
+    }
+
+    expect(error?.message).toBe(
+      'loadFromStorage: failed to parse stored value for key "a"'
+    );
+    expect(error?.cause).toBeInstanceOf(SyntaxError);
+  });
 });
