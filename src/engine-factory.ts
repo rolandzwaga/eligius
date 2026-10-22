@@ -332,7 +332,10 @@ export class EngineFactory implements IEngineFactory {
         engineInstance,
         eventbus,
         this._windowRef,
-        {playToggleHotkey: this._options?.playToggleHotkey}
+        {
+          playToggleHotkey: this._options?.playToggleHotkey,
+          ...this._options?.input,
+        }
       );
       adapters = [
         new EngineEventbusAdapter(engineInstance, eventbus),
@@ -341,7 +344,11 @@ export class EngineFactory implements IEngineFactory {
       ];
       adapters.forEach(adapter => adapter.connect());
       // Also when the engine is destroyed without the returned destroy().
-      engineInstance.on('destroyed', () => localeLoads.abort());
+      // The key bindings go too, so a destroyed engine keeps no hotkey.
+      engineInstance.on('destroyed', () => {
+        localeLoads.abort();
+        engineInputAdapter.disconnect();
+      });
     } catch (error) {
       localeLoads.abort();
       adapters.forEach(adapter => adapter.disconnect());
