@@ -142,7 +142,8 @@ export class EngineFactory implements IEngineFactory {
   private _importSystemEntry(systemName: string): any {
     const module = this._importer.import(systemName);
     const entry = module?.[systemName];
-    if (!entry) {
+    // Registered JSON and templates may legitimately be 0, '' or false
+    if (entry === undefined) {
       throw new Error(
         `Failed to import '${systemName}': module does not export '${systemName}'`
       );

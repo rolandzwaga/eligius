@@ -7,10 +7,14 @@ import type {TOperation, TOperationData} from '@operation/types.ts';
 type TSystemName = keyof typeof controllers;
 export interface IGetControllerInstanceOperationData {
   /**
+   * The name of a built-in controller, or of a controller registered on the
+   * `EligiusResourceImporter`.
+   *
+   * @type=ParameterType:controllerName
    * @required
    * @erased
    */
-  systemName: TSystemName;
+  systemName: TSystemName | (string & {});
   /**
    * @type=ParameterType:object
    * @output

@@ -24,6 +24,9 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 - `IEngineFactoryOptions.engineOptions` (`maxCatchUp`) and `playToggleHotkey` (`string | false`); `IPlaylist.hasItem?`; `sources` in `IPositionSourceConfig`; `ILocaleLoaderOptions.timeoutMs` and `signal`; the `clearJsonCache` export.
 - Navigation entries can carry a `timelineUri`, so NavigationController and RoutingController drive timeline switches. KeyboardStepSource `timeline-switch` mode is handled by the engine.
 - `animateWithClass` option `includeDescendants`.
+- **Per-timeline position sources.** Optional `positionSource` and `containerProvider` on each timeline, merged over `timelineProviderSettings[type]` (a different `systemName` replaces the type settings). One configuration can mix a RAF intro with scroll or keyboard chapters, scroll different containers, and give mediaplayer timelines different videos. Fluent API: `ConfigurationFactory.setTimelinePositionSource()` and `setTimelineContainerProvider()`.
+- **Configurable input bindings.** `IEngineFactoryOptions.input` with `playToggle` (`string | false`), `resize` (`boolean`) and `scope` (`'document' | 'engineRoot'`), plus the types `IEngineInputOptions` and `TEngineInputScope`.
+- **Custom resource registration.** The `EligiusResourceImporter` constructor accepts `{operations, functions, controllers, templates, json, override}`. Registered entries are shape-checked, cannot shadow a built-in without `override: true`, and appear in `getOperationNames()`, `getControllerNames()`, the new `getFunctionNames()` and every "did you mean" hint. `ConfigurationFactory` options take `customOperations`, so the fluent API (including `eligius/configuration-api`) can author custom operations. New types `IEligiusResourceRegistrations`, `TControllerClass`, `TRegisteredResourceKind` and `IConfigurationFactoryOptions`. See the new README section "Extending Eligius".
 
 ### Changed
 
@@ -42,6 +45,10 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 - Fluent API: duplicate action names throw, operation data is copied on the way in, name providers return arrays, and `addEndOperation`/`addStartOperation` type-check the data for the named operation.
 - Many operations validate their input and throw named errors (`reparentElement`, `saveToStorage`, `replaceString`, `calc`, `math`, `modifyDimensions`, `requestAction`, `getControllerInstance`, `invokeObjectMethod`).
 - Operation `@output` properties are optional and `@required` tags were corrected, so the generated JSON schema changed.
+- `timelineProviderSettings`, or a type's entry in it, is no longer required when the timelines name their own `positionSource.systemName`.
+- With several engines on one page and nothing focused, a play-toggle key press toggles one engine (the one last clicked or focused, otherwise the first created) instead of all of them.
+- After a source is activated (start, resume or timeline switch), the engine reconciles its first reported position like a seek. A scroll container scrolled while its timeline was not playing no longer starts and ends every action between the old position and its offset.
+- `getControllerInstance.systemName` accepts registered controller names.
 
 ### Security
 
@@ -74,6 +81,7 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 ### Deprecated
 - Events `request-video-url`, `before-request-video-url`, `navigate-to-video-url`, `video-complete`, `request-video-cleanup`, `request-current-video-position`, `request-label-collections` and `request-label-collection` (the engine does not handle them; use navigation `timelineUri` and the timeline events).
 - `EligiusEngine.sortTimelines`, `EligiusEngine.sortActionsPerPosition`, `Action._initializeScopeStack`, the default `scopeStack` of `executeOperation`, `SubtitlesController.actionLookup` and `subtitleDurations`, `LottieController.labelData` and `serializedIEData`, and the `iefallback` setting (now ignored).
+- `IEngineFactoryOptions.playToggleHotkey` and `IEngineInputAdapterOptions.playToggleHotkey`; use `input.playToggle`.
 
 ### Fixed
 
@@ -91,6 +99,9 @@ Bug-fix release from a full codebase audit (report in `specs/main/codebase-audit
 - **Configuration and tooling.** Fluent API editors write back to the factory configuration. The schema generator covers every exported operation, no longer marks `@dependency` properties required, and keeps the definitions it references. Metadata generators handle optional properties, keep `@private` events in `EventMap`, and exit non-zero on failure. Operation and controller READMEs show descriptions and only link to existing schemas.
 - **Second audit (75 confirmed bugs, report in `specs/main/codebase-audit-report-2.md`).** Overlapping seek, switch, stop and start leaving stale actions; pending switches resuming after `destroy()`; failing actions leaving half-finished seeks; failed source init cached as prepared; the RAF clock losing a tick on early frames and at loop wraps; scroll seeks returning before they land; keyboard steps accumulating float error; stale `activate()` rejections overwriting newer state; video init hanging without `sources`; `animateWithClass` resolving on descendant events or never settling; removed content keeping attached controllers; `validateForm` checkbox and multi-select; duplicate `Content-Type` headers; `once()` handlers that `off()` could not remove; locale `change` handlers not isolated; schema rejecting valid `forEach`, `setVariable` and `log` data; SubtitleImporter dropping ids and line breaks; Navigation and Routing controllers using events the engine no longer handles; MutationObserverController leaking on a second attach; and smaller fixes across controllers, operations and generators.
 - The `typesVersions` mapping resolves `eligius/metadata` and `eligius/configuration-api` for Node10 consumers, and the stale `typings` field is removed.
+- Calling `engine.destroy()` directly (without the factory's `destroy()`) left the play-toggle hotkey bound.
+- Registered JSON and templates whose value is `0`, `''` or `false` were rejected by `getImport` and `customFunction` lookups.
+- README: `createEngine` returns `localeManager` (not `languageManager`), and `KeyboardStepSource` is listed with the other position sources.
 
 ## 2.2.1
   - Fixed: Locale types has some circular reference warnings

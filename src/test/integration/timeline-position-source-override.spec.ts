@@ -256,19 +256,15 @@ describe('Per-timeline position source overrides (integration)', () => {
     expect(engine.position).toBe(1.2);
 
     // -> Scroll chapter again: it resumes at the current scroll offset (900
-    // of 1000 px). A deactivated source restarts at 0 and its activation
-    // reports the offset as a position update, so the engine plays from 0 to
-    // 18 and ChapterA, which that jump passes over, starts and ends once.
+    // of 1000 px). The engine reconciles the first position after activation
+    // like a seek, so ChapterA (5 to 15), which does not cover 18, is not
+    // started and ended on the way there.
     await engine.switchTimeline('chapter');
     await flush();
     expect(engine.currentTimelineUri).toBe('chapter');
     expect(raf.signal?.aborted).toBe(true);
     expect(engine.position).toBe(18);
-    expect(takeProbes()).toEqual([
-      'IntroA-end',
-      'ChapterA-start',
-      'ChapterA-end',
-    ]);
+    expect(takeProbes()).toEqual(['IntroA-end']);
 
     userScroll('#scroll-a', 820, 700, 600);
     await flush();
@@ -333,6 +329,50 @@ describe('Per-timeline position source overrides (integration)', () => {
     await flush();
     expect(engine.position).toBe(0);
     expect(takeProbes()).toEqual([]);
+  });
+
+  test('given a scroll timeline whose container was scrolled while it was inactive, when switching to it, then it starts at that offset without replaying the actions before it', async () => {
+    const {engine} = await create(
+      createConfig(
+        [
+          timeline('first', 10, [timelineAction('FirstA', 2, 8)], {
+            positionSource: {selector: '#scroll-a'},
+          }),
+          timeline(
+            'second',
+            40,
+            [
+              timelineAction('SecondEarly', 2, 5),
+              timelineAction('SecondA', 10, 30),
+            ],
+            {positionSource: {selector: '#scroll-b'}}
+          ),
+        ],
+        {
+          timelineProviderSettings: {
+            animation: {
+              positionSource: {
+                systemName: 'ScrollPositionSource',
+                selector: '#scroll-default',
+              },
+            },
+          },
+        }
+      )
+    );
+    await engine.start();
+    userScroll('#scroll-a', 250);
+    await flush();
+    takeProbes();
+
+    // The user scrolls the second container while the first timeline plays
+    userScroll('#scroll-b', 500);
+    await flush();
+    await engine.switchTimeline('second');
+    await flush();
+
+    expect(engine.position).toBe(20);
+    expect(takeProbes()).toEqual(['FirstA-end', 'SecondA-start']);
   });
 
   test('given a RAF type default with tickInterval 250 and a timeline overriding only tickInterval, when switching to it, then it keeps the RAF class and the type container and ticks at its own interval', async () => {

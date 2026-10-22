@@ -320,6 +320,14 @@ export class EligiusEngine implements IEligiusEngine {
   private _startedInitActions: Set<IEndableAction> = new Set();
 
   private _lastPosition: number = -1;
+  /**
+   * Set just before a source is activated. The first position it reports is
+   * then reconciled like a seek instead of dispatched as an interval from the
+   * previous position: a scroll container scrolled while its timeline was not
+   * playing would otherwise start and end every action between the previous
+   * position and its offset.
+   */
+  private _reconcileNextPosition = false;
   /** Position updates are ignored while a seek is in progress */
   private _seekDepth = 0;
   /** Settles when the last scheduled transport command has settled */
@@ -503,6 +511,7 @@ export class EligiusEngine implements IEligiusEngine {
       return;
     }
 
+    this._reconcileNextPosition = true;
     await source.activate();
     // activate() also resolves when pause/stop/destroy superseded it
     if (
@@ -809,6 +818,7 @@ export class EligiusEngine implements IEligiusEngine {
     if (this._destroyed || playToken !== this._playToken) {
       return;
     }
+    this._reconcileNextPosition = true;
     await source.activate();
   }
 
@@ -1519,6 +1529,15 @@ export class EligiusEngine implements IEligiusEngine {
 
   private _onTimeHandler(position: number) {
     if (Number.isNaN(position) || this._seekDepth > 0) {
+      return;
+    }
+    if (this._reconcileNextPosition) {
+      this._reconcileNextPosition = false;
+      if (this._lastPosition !== position) {
+        this._lastPosition = position;
+        this._reconcileActions(this._currentTimelineUri, position);
+        this._emitter.emit('time', position);
+      }
       return;
     }
     if (this._lastPosition === position) {

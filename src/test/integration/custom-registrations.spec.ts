@@ -183,4 +183,19 @@ describe('Custom registrations through EngineFactory (integration)', () => {
       "Unknown operation 'recordCal' at initActions[0].startOperations[0].systemName. Did you mean 'recordCall'?"
     );
   });
+
+  test('given registered json entries with falsy values, when getImport requests them through the factory, then 0, empty string and false are returned instead of failing', () => {
+    const eventbus = new Eventbus();
+    const factory = new EngineFactory(
+      new EligiusResourceImporter({json: {zero: 0, empty: '', off: false}}),
+      window,
+      {eventbus}
+    );
+
+    expect(eventbus.request('request-function', 'zero')).toBe(0);
+    expect(eventbus.request('request-function', 'empty')).toBe('');
+    expect(eventbus.request('request-function', 'off')).toBe(false);
+    expect(() => eventbus.request('request-function', 'missing')).toThrow();
+    factory.destroy();
+  });
 });

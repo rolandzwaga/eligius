@@ -246,6 +246,8 @@ There is no monolithic timeline provider class. `EngineFactory` composes three p
 - **`IContainerProvider`**: supplies the DOM container (`DomContainerProvider`).
 - **`IPlaylist`**: ordered timeline items (`SimplePlaylist`, with optional `hasItem`).
 
+A timeline may override its type's settings with `positionSource` / `containerProvider` (merged field by field; a different `systemName` replaces them). The merge lives in `src/configuration/timeline-provider-overrides.ts` and is shared by the resolver and `EngineFactory.createTimelineProvidersByUri`. Sources that render their own container (video) are shared per type and per identical merged settings. After any activation the engine reconciles the first reported position like a seek.
+
 Timeline `type` is `'animation'` or `'mediaplayer'`. Position is reported in seconds with fractional values. Actions are dispatched by range: an update from the last position to the new one starts and ends every action whose boundary it crosses (backward jumps reconcile like a seek). `RafPositionSource` ticks every 100 ms by default. Transport commands (`init`, `start`, `seek`, `switchTimeline`, `stop`) run through one queue in call order, and nothing resumes after `destroy()`. Each factory-created engine has its own eventbus unless `options.eventbus` is passed.
 
 Requirements for new position sources: extend `BasePositionSource`, keep state transitions synchronous, make seeking idempotent, release all resources in `destroy()`.
@@ -355,7 +357,7 @@ Conventions: kebab-case names, category prefix (`timeline-`, `request-`, `langua
 
 ### Adapters
 
-`src/adapters/` holds the glue between components and the eventbus so that neither depends on the other directly: `EngineEventbusAdapter` (engine events to eventbus and back), `EngineInputAdapter`, `LocaleEventbusAdapter`. All implement `IAdapter`. `EngineFactory.createEngine` wires them up and the returned `destroy()` tears them down.
+`src/adapters/` holds the glue between components and the eventbus so that neither depends on the other directly: `EngineEventbusAdapter` (engine events to eventbus and back), `EngineInputAdapter`, `LocaleEventbusAdapter`. All implement `IAdapter`. `EngineFactory.createEngine` wires them up and the returned `destroy()` tears them down. `EngineInputAdapter` is configured through `IEngineFactoryOptions.input` (`playToggle`, `resize`, `scope`); with several engines on a page one key press toggles a single engine.
 
 ### Locale
 
@@ -392,7 +394,9 @@ factory
 const config = factory.getConfiguration();
 ```
 
-`next()` returns to the action creator; `end()` returns to the `ConfigurationFactory`. Unknown operation names throw.
+`next()` returns to the action creator; `end()` returns to the `ConfigurationFactory`. Unknown operation names throw unless declared through `new ConfigurationFactory(config, {customOperations: [...]})`.
+
+**Custom resources**: `new EligiusResourceImporter({operations, functions, controllers, templates, json, override})` registers host code for the engine (`customFunction`, `getImport`, `template:`, `json:`, controllers). Built-in names cannot be shadowed without `override: true`. See README "Extending Eligius".
 
 ## Utilities (`src/util/`)
 

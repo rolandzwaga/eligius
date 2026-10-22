@@ -74,6 +74,7 @@ These settings describe the providers that are available for the different kinds
 - `RafPositionSource` - RequestAnimationFrame-based, for animation timelines
 - `ScrollPositionSource` - Scroll-based, for scroll-driven timelines
 - `VideoPositionSource` - Video.js-based, for video timelines (requires video.js as a peer dependency)
+- `KeyboardStepSource` - Keyboard-driven stepping through markers or fixed steps
 
 **Container Providers** (optional) - manage DOM elements where content is rendered:
 - `DomContainerProvider` - Manages a DOM element by selector
@@ -254,6 +255,22 @@ Timeline positions support fractional values (e.g., `1.3`, `5.7`) when using a `
 }
 ```
 
+#### Per-timeline position sources
+
+A timeline can override the settings of its type with `positionSource` (and `containerProvider`). Leave out `systemName` to change single settings, for example a different scroll container for one chapter:
+
+```json
+{ "uri": "chapter-2", "type": "animation", "positionSource": { "selector": "#chapter-2" }, ... }
+```
+
+Or name another class to give one timeline a different clock, for example a scroll-driven chapter next to RAF-driven animation timelines:
+
+```json
+{ "uri": "chapter-2", "type": "animation", "positionSource": { "systemName": "ScrollPositionSource", "selector": "#chapter-2" }, ... }
+```
+
+An override that names a different `systemName` replaces the type settings instead of merging with them, so options meant for one class never reach another. A timeline that names its own `systemName` needs no `timelineProviderSettings` entry for its type. Video timelines share one player unless an override changes the video settings, for example `{"positionSource": {"sources": [{"src": "/chapter-2.mp4", "type": "video/mp4"}]}}`, which gives that timeline its own player. With the fluent API use `factory.setTimelinePositionSource('chapter-2', {...})` and `setTimelineContainerProvider`.
+
 ### event actions
 
 This a list of actions that can be triggered by an event broadcast. Since an event doesn't have a tear down phase, these actions can only have a list of start operations.
@@ -308,7 +325,7 @@ import * as engineConfig from './my-eligius-config.json';
 
 const factory = new EngineFactory(new EligiusResourceImporter(), window);
 
-// createEngine returns { engine, languageManager, eventbus, destroy }
+// createEngine returns { engine, localeManager, eventbus, destroy }
 const { engine, destroy } = factory.createEngine((engineConfig as unknown) as IEngineConfiguration);
 
 await engine.init();
@@ -318,6 +335,20 @@ console.log('Eligius engine ready for business');
 // When done, clean up everything
 await destroy();
 ```
+
+Each engine created by the factory gets its own eventbus, returned as `eventbus`. To let several engines talk over one bus, pass it to the factory: `new EngineFactory(importer, window, {eventbus})`.
+
+### Input bindings
+
+By default the space key toggles playback and a window resize broadcasts `timeline-resize`. Configure this per factory:
+
+```ts
+new EngineFactory(new EligiusResourceImporter(), window, {
+  input: {playToggle: 'k', scope: 'engineRoot', resize: false},
+});
+```
+
+`playToggle` takes a hotkeys-js key (`'space'`, `'ctrl+p, command+p'`) or `false`. `scope: 'engineRoot'` reacts only while the focus is inside the engine root, which suits embedded widgets. With the default `scope: 'document'` a press while nothing has focus also counts; when several engines share a page, that press toggles only the engine you last clicked or focused (otherwise the first one created). Buttons, links and form fields always keep the key. `playToggleHotkey` is deprecated in favour of `input.playToggle`.
 
 ### Subscribing to Engine Events
 
