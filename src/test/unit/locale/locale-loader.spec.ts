@@ -619,3 +619,76 @@ describe<LocaleLoaderTestContext>('LocaleLoader', () => {
     }
   );
 });
+
+describe('LocaleLoader failed responses', () => {
+  test('given a 500 response whose body is an HTML error page, when load() is called, then it rejects with the status and the file name without parsing the body', async () => {
+    // given
+    const {LocaleLoader} = await import('@locale/locale-loader.ts');
+    const json = vi.fn(() =>
+      Promise.reject(new SyntaxError("Unexpected token '<'"))
+    );
+    const mockFetch: MockFetch = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        json,
+      })
+    );
+    const loader = new LocaleLoader({fetch: mockFetch as typeof fetch});
+
+    // test
+    const result = loader.load('en-US' as TLanguageCode, {
+      $ref: './en-US.json',
+    });
+
+    // expect
+    await expect(result).rejects.toThrow(
+      "[LocaleLoader] Failed to load locale file './en-US.json': 500 Internal Server Error"
+    );
+    expect(json).not.toHaveBeenCalled();
+  });
+
+  test('given two concurrent loads of the same file and a fetch that rejects, when both settle, then the file is fetched once, both reject naming it, and a later load fetches it again', async () => {
+    // given
+    const {LocaleLoader} = await import('@locale/locale-loader.ts');
+    let rejectFetch: (error: Error) => void = () => {};
+    const mockFetch: MockFetch = vi
+      .fn()
+      .mockImplementationOnce(
+        () =>
+          new Promise((_, reject) => {
+            rejectFetch = reject;
+          })
+      )
+      .mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({greeting: 'Hello'}),
+      });
+    const loader = new LocaleLoader({fetch: mockFetch as typeof fetch});
+
+    // test
+    const first = loader.load('en-US' as TLanguageCode, {$ref: './en-US.json'});
+    const second = loader.load('en-GB' as TLanguageCode, {
+      $ref: 'en-US.json',
+    });
+    // Let both loads reach the shared fetch before it fails.
+    await Promise.resolve();
+    rejectFetch(new TypeError('Failed to fetch'));
+
+    // expect
+    await expect(first).rejects.toThrow(
+      "[LocaleLoader] Failed to load locale file './en-US.json': Failed to fetch"
+    );
+    await expect(second).rejects.toThrow(
+      "[LocaleLoader] Failed to load locale file './en-US.json': Failed to fetch"
+    );
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+
+    const retry = await loader.load('en-US' as TLanguageCode, {
+      $ref: './en-US.json',
+    });
+    expect(retry.data).toEqual({greeting: 'Hello'});
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+  });
+});

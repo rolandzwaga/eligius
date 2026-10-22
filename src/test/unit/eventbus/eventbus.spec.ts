@@ -933,3 +933,135 @@ describe<EventbusSuiteContext>('Eventbus', () => {
     });
   });
 });
+
+describe('Eventbus dispatch while handlers change', () => {
+  test('given a handler that removes a later handler during dispatch, when the event is broadcast, then the removed handler is not invoked', () => {
+    // given
+    const eventbus = new Eventbus();
+    const laterHandler = vi.fn();
+    const thirdHandler = vi.fn();
+    eventbus.on('timeline-seek-request', () => {
+      eventbus.off('timeline-seek-request', laterHandler);
+    });
+    eventbus.on('timeline-seek-request', laterHandler);
+    eventbus.on('timeline-seek-request', thirdHandler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+
+    // expect
+    expect(laterHandler).not.toHaveBeenCalled();
+    expect(thirdHandler).toHaveBeenCalledWith(1);
+  });
+
+  test('given a handler that removes a later once handler during dispatch, when the event is broadcast twice, then the once handler is never invoked', () => {
+    // given
+    const eventbus = new Eventbus();
+    const onceHandler = vi.fn();
+    eventbus.on('timeline-seek-request', () => {
+      eventbus.off('timeline-seek-request', onceHandler);
+    });
+    eventbus.once('timeline-seek-request', onceHandler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcast('timeline-seek-request', [2]);
+
+    // expect
+    expect(onceHandler).not.toHaveBeenCalled();
+  });
+
+  test('given a handler that calls clear() during dispatch, when the event is broadcast, then later handlers are not invoked and the next broadcast reaches nobody', () => {
+    // given
+    const eventbus = new Eventbus();
+    const clearingHandler = vi.fn(() => eventbus.clear());
+    const laterHandler = vi.fn();
+    eventbus.on('timeline-seek-request', clearingHandler);
+    eventbus.on('timeline-seek-request', laterHandler);
+
+    // test
+    expect(() =>
+      eventbus.broadcast('timeline-seek-request', [1])
+    ).not.toThrow();
+    eventbus.broadcast('timeline-seek-request', [2]);
+
+    // expect
+    expect(clearingHandler).toHaveBeenCalledTimes(1);
+    expect(laterHandler).not.toHaveBeenCalled();
+  });
+
+  test('given a handler that calls clear() and registers a new handler during dispatch, when the event is broadcast again, then only the new handler is invoked', () => {
+    // given
+    const eventbus = new Eventbus();
+    const newHandler = vi.fn();
+    const clearingHandler = vi.fn(() => {
+      eventbus.clear();
+      eventbus.on('timeline-seek-request', newHandler);
+    });
+    eventbus.on('timeline-seek-request', clearingHandler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [1]);
+    eventbus.broadcast('timeline-seek-request', [2]);
+
+    // expect
+    expect(clearingHandler).toHaveBeenCalledTimes(1);
+    expect(newHandler).toHaveBeenCalledTimes(1);
+    expect(newHandler).toHaveBeenCalledWith(2);
+  });
+
+  test('given two interceptors that each transform the arguments, when the event is broadcast, then they run in registration order, each receiving the previous result, and handlers get the final arguments', () => {
+    // given
+    const eventbus = new Eventbus();
+    const order: string[] = [];
+    const double = {
+      intercept: vi.fn(([position]: [number]): [number] => {
+        order.push('double');
+        return [position * 2];
+      }),
+    };
+    const addOne = {
+      intercept: vi.fn(([position]: [number]): [number] => {
+        order.push('addOne');
+        return [position + 1];
+      }),
+    };
+    const handler = vi.fn();
+    eventbus.registerInterceptor('timeline-seek-request', double);
+    eventbus.registerInterceptor('timeline-seek-request', addOne);
+    eventbus.on('timeline-seek-request', handler);
+
+    // test
+    eventbus.broadcast('timeline-seek-request', [5]);
+
+    // expect
+    expect(order).toEqual(['double', 'addOne']);
+    expect(double.intercept).toHaveBeenCalledWith([5]);
+    expect(addOne.intercept).toHaveBeenCalledWith([10]);
+    expect(handler).toHaveBeenCalledWith(11);
+  });
+
+  test('given global and topic interceptors, when the event is broadcast for the topic, then only the topic interceptors transform the arguments', () => {
+    // given
+    const eventbus = new Eventbus();
+    const globalInterceptor = {intercept: vi.fn((): [number] => [100])};
+    const topicInterceptor = {
+      intercept: vi.fn(([position]: [number]): [number] => [position + 1]),
+    };
+    const handler = vi.fn();
+    eventbus.registerInterceptor('timeline-seek-request', globalInterceptor);
+    eventbus.registerInterceptor(
+      'timeline-seek-request',
+      topicInterceptor,
+      'timeline-1'
+    );
+    eventbus.on('timeline-seek-request', handler, 'timeline-1');
+
+    // test
+    eventbus.broadcastForTopic('timeline-seek-request', 'timeline-1', [3]);
+
+    // expect
+    expect(globalInterceptor.intercept).not.toHaveBeenCalled();
+    expect(handler).toHaveBeenCalledWith(4);
+  });
+});

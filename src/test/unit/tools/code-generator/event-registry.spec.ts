@@ -2,6 +2,7 @@
 import {Project} from 'ts-morph';
 import {describe, expect, test} from 'vitest';
 import {
+  findDuplicateEventNames,
   findEventFilesMissingFromIndex,
   getRequestEventNames,
   writeRequestMap,
@@ -91,5 +92,50 @@ describe('getRequestEventNames and writeRequestMap', () => {
     `).getInterfaces();
 
     expect(getRequestEventNames(events)).toEqual([]);
+  });
+});
+
+describe('findDuplicateEventNames', () => {
+  test('given two event interfaces that declare the same name and a third with its own, when checked, then the shared name is reported with both interfaces', () => {
+    // given
+    const events = createFile(`
+      export interface SeekEvent { name: 'timeline-seek'; args: [position: number]; }
+      export interface PlayEvent { name: 'timeline-play'; args: []; }
+      export interface SeekAgainEvent { name: 'timeline-seek'; args: [label: string]; }
+    `).getInterfaces();
+
+    // test
+    const duplicates = findDuplicateEventNames(events);
+
+    // expect
+    expect(duplicates).toEqual(["'timeline-seek' (SeekEvent, SeekAgainEvent)"]);
+  });
+
+  test('given event interfaces with unique names and one without a literal name, when checked, then nothing is reported', () => {
+    // given
+    const events = createFile(`
+      export interface PlayEvent { name: 'timeline-play'; args: []; }
+      export interface Loose { name: string; args: []; }
+      export interface AlsoLoose { name: string; args: []; }
+    `).getInterfaces();
+
+    // test + expect
+    expect(findDuplicateEventNames(events)).toEqual([]);
+  });
+
+  test('given the event interfaces in src/eventbus/events, when checked, then no event name is declared twice', () => {
+    // given
+    const eventsProject = new Project({
+      skipAddingFilesFromTsConfig: true,
+      compilerOptions: {noEmit: true},
+    });
+    const interfaces = eventsProject
+      .addSourceFilesAtPaths('./src/eventbus/events/*.ts')
+      .filter(file => !['index.ts', 'types.ts'].includes(file.getBaseName()))
+      .flatMap(file => file.getInterfaces().filter(i => i.isExported()));
+
+    // test + expect
+    expect(interfaces.length).toBeGreaterThan(10);
+    expect(findDuplicateEventNames(interfaces)).toEqual([]);
   });
 });

@@ -3,6 +3,7 @@ import type {
   ExtractOperationDataType,
   IActionConfiguration,
   IEndableActionConfiguration,
+  IEventActionConfiguration,
   ITimelineActionConfiguration,
   TOperationType,
 } from '@configuration/types.ts';
@@ -56,10 +57,24 @@ export class ActionCreatorFactory {
    * Starts the creation of an action in the `eventActions` list with the specified name
    *
    * @param name
+   * @param eventName the event that starts the action. Without it the action can
+   * only be started by name (for example by a `DOMEventListenerController`).
+   * @param eventTopic optional topic of the event
    * @returns
    */
-  createEventAction(name: string): ActionCreator {
+  createEventAction(
+    name: string,
+    eventName?: string,
+    eventTopic?: string
+  ): ActionCreator {
     const creator = new ActionCreator(name, this);
+    const config: Partial<IEventActionConfiguration> = creator.actionConfig;
+    if (eventName !== undefined) {
+      config.eventName = eventName;
+    }
+    if (eventTopic !== undefined) {
+      config.eventTopic = eventTopic;
+    }
     this.configurationfactory.addEventAction(creator.actionConfig);
     return creator;
   }

@@ -63,7 +63,8 @@ export interface ITypedEventEmitter<T extends Record<keyof T, unknown[]>> {
  * - Generic type parameter for event map
  * - Handler execution order preserved (registration order)
  * - Errors in handlers caught and logged (don't break other handlers)
- * - Copy handlers array during emit (safe removal during iteration)
+ * - Copy handlers array during emit (safe removal during iteration); a
+ *   handler removed during an emit is not called by that emit
  *
  * @example
  * ```typescript
@@ -173,6 +174,11 @@ export class TypedEventEmitter<T extends Record<keyof T, unknown[]>>
     const handlersCopy = [...eventHandlers];
 
     for (const handler of handlersCopy) {
+      // Skip a handler removed during this emit, by an earlier handler or by a
+      // nested emit that ran a once() handler.
+      if (!this.handlers.get(event)?.includes(handler)) {
+        continue;
+      }
       try {
         // Handlers are typed to return void, but async ones return a promise.
         const result: unknown = handler(...(args as T[keyof T]));
