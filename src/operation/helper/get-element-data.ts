@@ -11,4 +11,4 @@ function getElementData(
 
 const getElementControllers = getElementData.bind(null, controllersDataName);
 
-export {getElementData, getElementControllers, controllersDataName};
+export {controllersDataName, getElementControllers, getElementData};

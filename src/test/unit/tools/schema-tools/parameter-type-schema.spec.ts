@@ -1,4 +1,5 @@
 // @vitest-environment node
+import {PARAMETER_TYPES} from '@operation/metadata/parameter-types.ts';
 import {describe, expect, test} from 'vitest';
 import {
   isParameterTypeTag,
@@ -51,6 +52,30 @@ describe('parameterTypeTagToJsonSchemaType', () => {
     expect(
       parameterTypeTagToJsonSchemaType('ParameterType:constructor')
     ).toBeUndefined();
+  });
+
+  test('given every known ParameterType, when mapped, then each one has a JSON type', () => {
+    const unmapped = PARAMETER_TYPES.filter(
+      type => parameterTypeTagToJsonSchemaType(type) === undefined
+    );
+
+    expect(unmapped).toEqual([]);
+  });
+
+  test('given a string | RegExp union, when mapped, then it accepts a string or an object', () => {
+    expect(
+      parameterTypeTagToJsonSchemaType(
+        'ParameterType:string|ParameterType:RegExp'
+      )
+    ).toEqual(['string', 'object']);
+  });
+
+  test('given a string | DOM node union, when mapped, then it accepts a string or an object', () => {
+    expect(
+      parameterTypeTagToJsonSchemaType(
+        'ParameterType:string|ParameterType:Element|ParameterType:Text|ParameterType:Comment|ParameterType:Document|ParameterType:DocumentFragment'
+      )
+    ).toEqual(['string', 'object']);
   });
 });
 

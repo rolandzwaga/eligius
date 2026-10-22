@@ -1,0 +1,4 @@
+# Check out text files with LF on every platform, the line ending Biome
+# formats with. Without this, core.autocrlf=true (the Git for Windows default)
+# checks out CRLF and `npm run fix` rewrites every file.
+* text=auto eol=lf

@@ -288,7 +288,7 @@ const operationFiles = project
   );
 
 // Remove the output of operations that were renamed or removed
-removeGeneratedFiles(outputDirectory);
+removeGeneratedFiles(outputDirectory, ['types.ts', 'parameter-types.ts']);
 
 const failedFiles: string[] = [];
 const generatedFiles = operationFiles.filter(sourceFile => {

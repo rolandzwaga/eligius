@@ -1,5 +1,16 @@
 # Change Log
 
+## 3.0.1
+
+### Fixed
+
+- **Operation metadata used parameter types that `TParameterTypes` did not list.** Since 3.0.0 the generated metadata of `replaceString.pattern`, `replaceText.searchPattern` and `splitString.delimiter` used `ParameterType:RegExp`, and `setElementContent.template` used `ParameterType:Element`, `Text`, `Comment`, `Document` and `DocumentFragment`. These six names are now members of `TParameterTypes`. They map to the JSON type `object` for `@type` tags: these values reach an operation at runtime, through the operation data of an earlier operation. TypeScript consumers that hold a `Record<TParameterTypes, ...>` must add entries for the new names.
+- **The metadata generator fails on an unknown parameter type.** `npm run metadata` now stops with an error naming the property and its TypeScript type (or `@type` tag) when a type maps to a name outside `PARAMETER_TYPES`, instead of writing that name into the metadata. A test checks every operation and controller metadata type against the list.
+
+### Added
+
+- **`PARAMETER_TYPES`**, the runtime list of every `TParameterTypes` value, exported from `eligius` and `eligius/metadata` (not from the `metadata` namespace, which still holds only metadata functions). `TParameterTypes` is derived from it.
+
 ## 3.0.0
 
 Release from two full codebase audits (reports in `specs/main/codebase-audit-report.md` and `specs/main/codebase-audit-report-2.md`). About 190 confirmed bugs are fixed, each with a regression test, and the second audit's improvements, optimisations, expansions and test gaps are done. Major release because of the breaking changes below; read them before upgrading from 2.x.

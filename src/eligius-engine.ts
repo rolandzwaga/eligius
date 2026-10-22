@@ -882,7 +882,7 @@ export class EligiusEngine implements IEligiusEngine {
     const {containerSelector} = this.configuration;
     const container = $(containerSelector);
 
-    if (!container || !container.length) {
+    if (!container?.length) {
       throw new Error(`Container selector not found: ${containerSelector}`);
     }
     this._engineRoot = container;

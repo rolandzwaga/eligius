@@ -1,9 +1,11 @@
+import type {TParameterTypeName} from '@operation/metadata/types.ts';
+
 /**
  * Maps the `ParameterType` names used in `@type=ParameterType:<name>` tags to
  * JSON Schema types. ParameterTypes are editor hints, several of them share one
  * JSON type.
  */
-const parameterTypeMap: Readonly<Record<string, string>> = {
+const parameterTypeMap: Readonly<Record<TParameterTypeName, string>> = {
   // String-like types
   htmlElementName: 'string',
   className: 'string',
@@ -34,6 +36,14 @@ const parameterTypeMap: Readonly<Record<string, string>> = {
   cssProperties: 'object',
   function: 'string', // Functions are typically passed as strings in JSON config
   Date: 'string', // Dates are typically passed as ISO strings in JSON config
+  // Runtime values: JSON can't hold them literally, they arrive through the
+  // operation data of an earlier operation
+  RegExp: 'object',
+  Element: 'object',
+  Text: 'object',
+  Comment: 'object',
+  Document: 'object',
+  DocumentFragment: 'object',
 };
 
 /**
@@ -72,7 +82,7 @@ export function parameterTypeTagToJsonSchemaType(
   const types: string[] = [];
   for (const part of parts) {
     const type = Object.hasOwn(parameterTypeMap, part)
-      ? parameterTypeMap[part]
+      ? parameterTypeMap[part as TParameterTypeName]
       : undefined;
     if (!type) {
       return undefined;
