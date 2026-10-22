@@ -1,8 +1,8 @@
 # Change Log
 
-## Unreleased
+## 3.0.0
 
-Release from two full codebase audits (reports in `specs/main/codebase-audit-report.md` and `specs/main/codebase-audit-report-2.md`). About 190 confirmed bugs are fixed, each with a regression test, and the second audit's improvements, optimisations, expansions and test gaps are done. Contains breaking changes, so it needs a major version bump.
+Release from two full codebase audits (reports in `specs/main/codebase-audit-report.md` and `specs/main/codebase-audit-report-2.md`). About 190 confirmed bugs are fixed, each with a regression test, and the second audit's improvements, optimisations, expansions and test gaps are done. Major release because of the breaking changes below; read them before upgrading from 2.x.
 
 ### Breaking Changes
 
