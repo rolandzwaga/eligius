@@ -3,7 +3,9 @@ import type {
   IEngineConfiguration,
   IResolvedEngineConfiguration,
 } from '@configuration/types.ts';
+import type {IController} from '@controllers/types.ts';
 import type {IEventbus, IEventbusListener} from '@eventbus/types.ts';
+import type {TOperation, TOperationData} from '@operation/types.ts';
 import type {
   IContainerProvider,
   IPlaylist,
@@ -373,6 +375,18 @@ export interface IEligiusEngine {
 
 /**
  * Describes an object that acts as a registry for imported resources.
+ *
+ * The engine looks up every system name through it: the engine class,
+ * operations, controllers, timeline providers, the functions that
+ * `customFunction` calls, the values that `getImport` returns, and the
+ * values of `template:` and `json:` placeholders.
+ *
+ * Most hosts do not implement it. `EligiusResourceImporter` provides all of
+ * Eligius' own resources, and its constructor accepts custom operations,
+ * functions, controllers, templates and JSON (see
+ * {@link IEligiusResourceRegistrations}). Implement this interface only for
+ * resources that cannot be registered that way, such as a custom position
+ * source, and delegate the other names to an `EligiusResourceImporter`.
  */
 export interface ISimpleResourceImporter {
   /**
@@ -394,12 +408,110 @@ export interface ISimpleResourceImporter {
 /**
  * Describes an object that acts as a registry for imported resources and
  * is able to return all of the registered operation, controller and provider names.
+ *
+ * The configuration resolver uses these lists to tell an operation from a
+ * controller or provider export, and to suggest the closest names ("did you
+ * mean") for an unknown operation name. Each list should include the custom
+ * resources the importer provides.
  */
 export interface IResourceImporter extends ISimpleResourceImporter {
+  /**
+   * @returns The system names of every operation the importer provides
+   */
   getOperationNames(): string[];
+  /**
+   * @returns The system names of every controller the importer provides
+   */
   getControllerNames(): string[];
+  /**
+   * @returns The system names of every timeline provider export the importer
+   * provides
+   */
   getProviderNames(): string[];
+  /**
+   * Optional. When present, the configuration resolver rejects these names as
+   * an operation `systemName` and points to the `customFunction` operation.
+   *
+   * @returns The system names of the custom functions the importer provides
+   */
+  getFunctionNames?(): string[];
 }
+
+/**
+ * A controller class that can be registered with the
+ * `EligiusResourceImporter`. The engine constructs a new instance, with
+ * the eventbus as its only argument, each time the `getControllerInstance`
+ * operation asks for it.
+ */
+export type TControllerClass = new (
+  ...args: any[]
+) => IController<TOperationData>;
+
+/**
+ * Custom resources to register with the `EligiusResourceImporter`, keyed
+ * by system name.
+ *
+ * Every name has to be unique across all the maps. A name that is already
+ * provided by Eligius itself (an operation, controller, timeline provider,
+ * eventbus export or `EligiusEngine`) is rejected, unless `override` is `true`.
+ *
+ * @example
+ * ```ts
+ * const importer = new EligiusResourceImporter({
+ *   operations: {trackEvent},
+ *   functions: {formatPrice: data => {data.price = `€ ${data.amount}`;}},
+ *   controllers: {ChartController},
+ *   templates: {intro: '<div class="intro"></div>'},
+ *   json: {chartData: {labels: ['a', 'b'], values: [1, 2]}},
+ * });
+ * ```
+ */
+export interface IEligiusResourceRegistrations {
+  /**
+   * Custom operations, usable as an operation `systemName` in a
+   * configuration. Each value must be an operation function (`TOperation`),
+   * not a class.
+   */
+  operations?: Readonly<Record<string, TOperation<any, any>>>;
+  /**
+   * Custom functions for the `customFunction` operation. Each value must be a
+   * function, not a class. `getImport` can retrieve them as well.
+   */
+  functions?: Readonly<Record<string, (...args: any[]) => unknown>>;
+  /**
+   * Custom controllers for the `getControllerInstance` and
+   * `addControllerToElement` operations. Each value must be a class that
+   * implements {@link IController} (`name`, `init`, `attach` and `detach`).
+   */
+  controllers?: Readonly<Record<string, TControllerClass>>;
+  /**
+   * HTML templates for `template:<name>` placeholders in a configuration. Each
+   * value must be a string. `getImport` can retrieve them as well.
+   */
+  templates?: Readonly<Record<string, string>>;
+  /**
+   * Data for `json:<name>` placeholders in a configuration (the configuration
+   * receives a copy). `getImport` can retrieve them as well. A value may be
+   * anything that is not `undefined`, a function, a symbol or a bigint.
+   */
+  json?: Readonly<Record<string, unknown>>;
+  /**
+   * When `true`, a registered name may replace a resource that Eligius itself
+   * provides, for example a custom `selectElement` operation. Defaults to
+   * `false`, so a clash with a built-in name throws.
+   */
+  override?: boolean;
+}
+
+/**
+ * The kind of a registered resource.
+ */
+export type TRegisteredResourceKind =
+  | 'operation'
+  | 'function'
+  | 'controller'
+  | 'template'
+  | 'json';
 
 export interface IConfigurationResolver {
   process(

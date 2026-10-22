@@ -42,8 +42,9 @@ import type {
  * Every error names the JSON path of the offending value.
  *
  * @throws When an operation's `systemName` does not resolve to an operation function (including
- * controller, timeline provider and class exports of the importer). The message suggests the
- * closest known operation names.
+ * controller, timeline provider, custom function and class exports of the importer). The message
+ * suggests the closest operation names the importer lists, which include the custom operations
+ * registered with `EligiusResourceImporter`.
  * @throws When two actions (or an action and an event action) share the same name.
  * @throws When `actions`, `initActions`, `timelines`, an action's `startOperations` or
  * `endOperations`, or a timeline's `timelineActions` is not an array.
@@ -333,6 +334,9 @@ function describeNonOperation(
     }
     if (isListedAs('getProviderNames')) {
       return `'${systemName}' is a timeline provider export, not an operation: configure it in timelineProviderSettings.`;
+    }
+    if (isListedAs('getFunctionNames')) {
+      return `'${systemName}' is a custom function, not an operation: call it with the customFunction operation ({systemName: '${systemName}'}).`;
     }
   }
   if (isClass(instance)) {

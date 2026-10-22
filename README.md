@@ -35,7 +35,7 @@ This section describes the different parts of this configuration.
 ### systemName property
 
 In the rest of this section the property name `systemName` will be shown often. The value of this property describes a named import.
-Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://rolandzwaga.github.io/eligius/classes/EligiusResourceImporter.html).
+Currently one resource importer is supported by default: [`EligiusResourceImporter`](https://rolandzwaga.github.io/eligius/classes/EligiusResourceImporter.html). It can also serve your own operations, functions, controllers, templates and JSON, see [Extending Eligius](#extending-eligius).
 
 ### engine
 
@@ -367,6 +367,83 @@ Obviously having to type all of that JSON by hand can be a tad overwhelming and 
 It is encouraged to use this API to build specialized DSL's for specific presentations.
 
 Also, there is the [Eligian](https://github.com/rolandzwaga/eligian) project that aims to become an actual programming language for the Eligius runtime.
+
+## Extending Eligius
+
+Most presentations need a little application specific code: an analytics call, a store update, a chart. Register it with the `EligiusResourceImporter` constructor instead of writing a resource importer of your own:
+
+| Registration | Used by |
+|---|---|
+| `operations` | an operation `systemName` in any action |
+| `functions` | the `customFunction` operation (`{systemName: 'myFunction'}`) |
+| `controllers` | the `getControllerInstance` and `addControllerToElement` operations |
+| `templates` | `"template:<name>"` placeholders anywhere in the configuration |
+| `json` | `"json:<name>"` placeholders (the configuration receives a copy) |
+
+`getImport` can retrieve any registered resource. A registered name that clashes with a built-in name (for example a custom `selectElement`) throws, unless you pass `override: true`. Operations and functions must be functions, not classes; controllers must be classes that implement `IController`. Misspelled names fail with a "did you mean" hint that includes the registered names.
+
+A complete example: a custom `trackEvent` operation and a custom `formatPrice` function, authored with the fluent API and run by the engine.
+
+```typescript
+import {
+  ConfigurationFactory,
+  EligiusResourceImporter,
+  EngineFactory,
+  type TOperation,
+} from 'eligius';
+
+// 1. A custom operation: receives the operation data, returns it for the next operation
+interface ITrackEventOperationData {
+  category: string;
+  settings: {endpoint: string};
+}
+
+const trackEvent: TOperation<ITrackEventOperationData> = function (operationData) {
+  navigator.sendBeacon(operationData.settings.endpoint, operationData.category);
+  return operationData;
+};
+
+// 2. A custom function for customFunction: `this` is the operation scope
+function formatPrice(operationData: {amount: number; price?: string}) {
+  operationData.price = `EUR ${operationData.amount.toFixed(2)}`;
+}
+
+// 3. Author the configuration. The fluent API checks operation names, so declare the
+//    custom operation name (only the name: this also works in 'eligius/configuration-api')
+const factory = new ConfigurationFactory(undefined, {customOperations: ['trackEvent']});
+factory
+  .init('en-US')
+  .setContainerSelector('#app')
+  .setLayoutTemplate('template:layout')
+  .addTimeline('main', 'animation', 30, false, '#stage')
+  .editTimelineProviderSettings()
+  .addProvider('animation', 'RafPositionSource')
+  .setContainer('#stage');
+
+factory
+  .createTimelineAction('main', 'Intro')
+  .addDuration(0, 5)
+  .addStartOperation('trackEvent', {category: 'intro', settings: 'json:analytics'})
+  .addStartOperation('customFunction', {systemName: 'formatPrice', amount: 9.5})
+  .next()
+  .end();
+
+const configuration = factory.getConfiguration();
+
+// 4. Register the implementations and run the engine
+const importer = new EligiusResourceImporter({
+  operations: {trackEvent},
+  functions: {formatPrice},
+  templates: {layout: '<div id="stage"></div>'},
+  json: {analytics: {endpoint: '/analytics'}},
+});
+
+const {engine, destroy} = new EngineFactory(importer, window).createEngine(configuration);
+await engine.init();
+await engine.start();
+```
+
+Custom operations have no generated metadata, so the JSON schema and the fluent API do not type or validate their operation data; only their names are checked. Custom position sources, container providers and playlists cannot be registered this way: pass your own `IResourceImporter` to the `EngineFactory` and delegate the other names to an `EligiusResourceImporter`.
 
 ## Metadata import (`eligius/metadata`)
 

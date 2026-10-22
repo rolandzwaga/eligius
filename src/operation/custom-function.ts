@@ -19,9 +19,9 @@ export interface ICustomFunctionOperationData {
  * and invokes it with the current operation data and eventbus.
  *
  * The function is looked up with the `request-function` event, which the
- * `EngineFactory` answers from its resource importer. The default
- * `EligiusResourceImporter` only provides Eligius' own exports, so custom
- * functions need a custom resource importer.
+ * `EngineFactory` answers from its resource importer. Register the function
+ * with the `EligiusResourceImporter` constructor:
+ * `new EligiusResourceImporter({functions: {myFunction}})`.
  *
  * The function is called with the current operation data as its argument, and with `this`
  * set to a view of the operation scope. Reading a property from `this` returns it from the

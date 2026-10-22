@@ -20,7 +20,10 @@ export interface IGetImportOperationData {
  * assigns it to the `importedInstance` property on the current operaton date.
  *
  * The import is looked up with the `request-function` event, which the
- * `EngineFactory` answers from its resource importer.
+ * `EngineFactory` answers from its resource importer. Functions, templates
+ * and JSON registered with the `EligiusResourceImporter` constructor
+ * (`new EligiusResourceImporter({json: {settings}})`) can be imported this
+ * way, as can every built-in operation, controller and provider export.
  *
  * @param operationData
  * @throws Error naming the operation and the `systemName` when nothing is
