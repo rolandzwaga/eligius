@@ -667,4 +667,59 @@ describe('SubtitlesController', () => {
       expect(container[0].innerHTML).toBe('<a>Hallo</a>');
     });
   });
+
+  describe('detach while a subtitle is shown', () => {
+    it('given a subtitle is shown, when the controller is detached, then the container is emptied', () => {
+      const container = $('<div/>').appendTo(document.body);
+      controller.init({
+        selectedElement: container,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+      mockEventbus.broadcast('timeline-time', [1]);
+      expect(container.html()).toBe('Hello World');
+
+      controller.detach(mockEventbus);
+
+      expect(container.html()).toBe('');
+      expect(controller.lastFunc).toBeNull();
+      container.remove();
+    });
+
+    it('given no subtitle is shown, when the controller is detached, then content in the container is left alone', () => {
+      const container = $('<div>host text</div>').appendTo(document.body);
+      controller.init({
+        selectedElement: container,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+      mockEventbus.broadcast('timeline-time', [7]);
+
+      controller.detach(mockEventbus);
+
+      expect(container.html()).toBe('host text');
+      container.remove();
+    });
+
+    it('given a subtitle was shown before detach, when the controller is attached again at the same position, then the subtitle is shown again', () => {
+      const container = $('<div/>').appendTo(document.body);
+      controller.init({
+        selectedElement: container,
+        language: 'en-US',
+        subtitleData: createSubtitleData(),
+      });
+      controller.attach(mockEventbus);
+      mockEventbus.broadcast('timeline-time', [1]);
+      controller.detach(mockEventbus);
+
+      controller.attach(mockEventbus);
+      mockEventbus.broadcast('timeline-time', [1.5]);
+
+      expect(container.html()).toBe('Hello World');
+      controller.detach(mockEventbus);
+      container.remove();
+    });
+  });
 });

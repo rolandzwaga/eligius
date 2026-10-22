@@ -945,4 +945,21 @@ describe('LottieController', () => {
       ).toEqual({v: 'regular'});
     });
   });
+
+  describe('renderer settings', () => {
+    it('given renderer settings, when attach is called, then lottie.loadAnimation receives them as rendererSettings and keeps its default svg renderer', async () => {
+      const renderer = {
+        className: 'hero-animation',
+        preserveAspectRatio: 'xMidYMid slice',
+      };
+      controller.init({...createOperationData(), renderer});
+
+      await controller.attach(mockEventbus);
+
+      const config = vi.mocked(lottie.loadAnimation).mock.calls[0][0] as any;
+      expect(config.rendererSettings).toEqual(renderer);
+      expect(config.renderer).toBeUndefined();
+      expect(config.container).toBe(mockElement[0]);
+    });
+  });
 });
