@@ -1332,3 +1332,74 @@ describe('KeyboardStepSource target element and vertical keys', () => {
     expect(mocks.handlerCount()).toBe(0);
   });
 });
+
+describe('KeyboardStepSource large step past the end with wrapping', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test('given wrap on and position 55 of 60, when shift+right is pressed, then the 10s step wraps to 0 and only the start boundary is emitted', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+      wrapNavigation: true,
+    });
+    const positions: number[] = [];
+    const boundaries: TBoundary[] = [];
+    source.onPosition(p => positions.push(p));
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+    await source.seek(55);
+    positions.length = 0;
+
+    const event = mocks.simulateKeyPress('shift+right');
+
+    expect(source.getPosition()).toBe(0);
+    expect(positions).toEqual([0]);
+    expect(boundaries).toEqual(['start']);
+    expect(event.preventDefault).toHaveBeenCalled();
+  });
+
+  test('given wrap on and position 50 of 60, when shift+right is pressed, then the step lands exactly on the end and emits end without wrapping', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+      wrapNavigation: true,
+    });
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(b => boundaries.push(b));
+    await source.init();
+    await source.activate();
+    await source.seek(50);
+
+    mocks.simulateKeyPress('shift+right');
+
+    expect(source.getPosition()).toBe(60);
+    expect(boundaries).toEqual(['end']);
+  });
+});
+
+describe('KeyboardStepSource seek after destroy', () => {
+  beforeEach(() => {
+    mocks.reset();
+  });
+
+  test('given a destroyed source, when seek(30) is awaited, then it resolves with position 0 and emits nothing', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+    });
+    const positions: number[] = [];
+    source.onPosition(p => positions.push(p));
+    await source.init();
+    await source.activate();
+    source.destroy();
+
+    const result = await source.seek(30);
+
+    expect(result).toBe(0);
+    expect(source.getPosition()).toBe(0);
+    expect(positions).toEqual([]);
+  });
+});

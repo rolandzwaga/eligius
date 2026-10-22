@@ -1144,3 +1144,41 @@ describe('VideoPositionSource configuration validation and seek settling', () =>
     expect(activated).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('VideoPositionSource seek after destroy', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mocks.resetMockPlayer();
+    mocks.resetHandlers();
+    const container = document.createElement('div');
+    container.id = 'video-container';
+    document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    document.getElementById('video-container')?.remove();
+    vi.useRealTimers();
+    vi.clearAllMocks();
+  });
+
+  test('given an initialised source that was destroyed, when seek(30) is awaited, then it resolves with position 0 without touching the disposed player', async () => {
+    const source = new VideoPositionSource({
+      selector: '#video-container',
+      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    });
+    const initPromise = source.init();
+    await vi.advanceTimersByTimeAsync(10);
+    mocks.triggerOneEvent('canplay');
+    await initPromise;
+    const player = mocks.getMockPlayer();
+    source.destroy();
+    player.currentTime.mockClear();
+    player.one.mockClear();
+
+    const result = await source.seek(30);
+
+    expect(result).toBe(0);
+    expect(player.currentTime).not.toHaveBeenCalled();
+    expect(player.one).not.toHaveBeenCalled();
+  });
+});

@@ -1,3 +1,4 @@
+import {Eventbus} from '@eventbus/eventbus.ts';
 import type {IEventbus} from '@eventbus/types.ts';
 import {beforeEach, describe, expect, type TestContext, test, vi} from 'vitest';
 import {EngineEventbusAdapter} from '../../../adapters/engine-eventbus-adapter.ts';
@@ -541,5 +542,70 @@ describe<AdapterSuiteContext>('EngineEventbusAdapter', () => {
         forwardOnly: true,
       });
     });
+  });
+});
+
+describe('EngineEventbusAdapter rejected seek and switchTimeline commands', () => {
+  function createRejectingEngine(error: Error): IEligiusEngine {
+    return {
+      position: 5,
+      duration: 100,
+      playState: 'stopped',
+      currentTimelineUri: 'timeline-1',
+      container: undefined,
+      engineRoot: {} as JQuery<HTMLElement>,
+      on: vi.fn(() => vi.fn()),
+      init: vi.fn(() => Promise.resolve({} as any)),
+      destroy: vi.fn(() => Promise.resolve()),
+      start: vi.fn(() => Promise.resolve()),
+      pause: vi.fn(),
+      stop: vi.fn(),
+      seek: vi.fn(() => Promise.reject(error)),
+      switchTimeline: vi.fn(() => Promise.reject(error)),
+    };
+  }
+
+  test('given an engine whose seek() rejects, when timeline-seek-request is broadcast on a real eventbus, then the failure is logged and engine-command-error carries seek and the error', async () => {
+    const consoleError = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const failure = new Error('seek failed');
+    const engine = createRejectingEngine(failure);
+    const eventbus = new Eventbus();
+    const commandErrors = vi.fn();
+    eventbus.on('engine-command-error', commandErrors);
+    const adapter = new EngineEventbusAdapter(engine, eventbus);
+    adapter.connect();
+
+    eventbus.broadcast('timeline-seek-request', [12.5]);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(engine.seek).toHaveBeenCalledWith(12.5);
+    expect(commandErrors).toHaveBeenCalledTimes(1);
+    expect(commandErrors).toHaveBeenCalledWith('seek', failure);
+    expect(consoleError).toHaveBeenCalledWith(
+      '[EngineEventbusAdapter] engine.seek() failed',
+      failure
+    );
+    adapter.disconnect();
+  });
+
+  test('given an engine whose switchTimeline() rejects, when request-timeline-uri is broadcast on a real eventbus, then engine-command-error carries switchTimeline and the error', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const failure = new Error('unknown timeline');
+    const engine = createRejectingEngine(failure);
+    const eventbus = new Eventbus();
+    const commandErrors = vi.fn();
+    eventbus.on('engine-command-error', commandErrors);
+    const adapter = new EngineEventbusAdapter(engine, eventbus);
+    adapter.connect();
+
+    eventbus.broadcast('request-timeline-uri', ['missing-timeline', 4]);
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(engine.switchTimeline).toHaveBeenCalledWith('missing-timeline', 4);
+    expect(commandErrors).toHaveBeenCalledTimes(1);
+    expect(commandErrors).toHaveBeenCalledWith('switchTimeline', failure);
+    adapter.disconnect();
   });
 });

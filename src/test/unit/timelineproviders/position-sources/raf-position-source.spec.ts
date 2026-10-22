@@ -1148,3 +1148,91 @@ describe('RafPositionSource with the real animationInterval and jittered frames'
     expect(vi.getTimerCount()).toBe(0);
   });
 });
+
+describe('RafPositionSource duration that is not a multiple of the tick interval', () => {
+  let ticks: Array<(time: number) => void>;
+  const latestTick = () => ticks[ticks.length - 1];
+
+  beforeEach(() => {
+    ticks = [];
+    vi.mocked(animationInterval).mockImplementation(
+      (_ms: number, _signal: AbortSignal, callback: (time: number) => void) => {
+        ticks.push(callback);
+      }
+    );
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('given a 2.5s source with tickInterval 1000, when ticks arrive at 1000, 2000 and 3000ms, then 2.5 is reported on the 3000ms tick before the end boundary and the source deactivates', async () => {
+    const source = new RafPositionSource({duration: 2.5, tickInterval: 1000});
+    const events: string[] = [];
+    source.onPosition(p => events.push(`${p}`));
+    source.onBoundaryReached(b => events.push(b));
+    await source.init();
+    await source.activate();
+
+    latestTick()(1000);
+    latestTick()(2000);
+    expect(events).toEqual(['0', '1', '2']);
+    expect(source.state).toBe('active');
+
+    latestTick()(3000);
+
+    expect(events).toEqual(['0', '1', '2', '2.5', 'end']);
+    expect(source.state).toBe('inactive');
+  });
+
+  test('given a looping 2.5s source with tickInterval 1000, when it wraps on the 3000ms tick, then the next iteration is anchored to that tick', async () => {
+    const source = new RafPositionSource({duration: 2.5, tickInterval: 1000});
+    source.loop = true;
+    const events: string[] = [];
+    source.onPosition(p => events.push(`${p}`));
+    source.onBoundaryReached(b => events.push(b));
+    await source.init();
+    await source.activate();
+
+    latestTick()(1000);
+    latestTick()(2000);
+    latestTick()(3000);
+    latestTick()(4000);
+    latestTick()(5000);
+
+    expect(events).toEqual([
+      '0',
+      '1',
+      '2',
+      '2.5',
+      'end',
+      '0',
+      'start',
+      '1',
+      '2',
+    ]);
+    expect(source.state).toBe('active');
+  });
+});
+
+describe('RafPositionSource seek after destroy', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test('given a destroyed source, when seek(30) is awaited, then it resolves with position 0 and starts no ticking session', async () => {
+    vi.mocked(animationInterval).mockImplementation(() => {});
+    const source = new RafPositionSource({duration: 60});
+    await source.init();
+    await source.activate();
+    vi.mocked(animationInterval).mockClear();
+    source.destroy();
+
+    const result = await source.seek(30);
+
+    expect(result).toBe(0);
+    expect(source.getPosition()).toBe(0);
+    expect(source.state).toBe('inactive');
+    expect(animationInterval).not.toHaveBeenCalled();
+  });
+});
