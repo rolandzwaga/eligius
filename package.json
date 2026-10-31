@@ -65,8 +65,8 @@
     "fix": "biome check --write ."
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
-    "@rollup/plugin-alias": "6.0.0",
+    "@biomejs/biome": "2.6.2",
+    "@rollup/plugin-alias": "6.0.1",
     "@types/fs-extra": "11.0.4",
     "@types/jquery": "4.0.1",
     "@types/jsdom": "30.0.0",
