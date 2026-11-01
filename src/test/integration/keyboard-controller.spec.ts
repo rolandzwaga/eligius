@@ -219,7 +219,10 @@ describe('KeyboardController (integration)', () => {
   });
 
   test('given a KeyboardController, when the engine is destroyed, then hotkeys-js holds no binding', async () => {
-    const created = await create({keys: 'ArrowRight', actions: ['__on__seek__4']});
+    const created = await create({
+      keys: 'ArrowRight',
+      actions: ['__on__seek__4'],
+    });
 
     await created.destroy();
     result = undefined;

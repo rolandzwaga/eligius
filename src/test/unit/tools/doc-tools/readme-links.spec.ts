@@ -1,5 +1,6 @@
 import {describe, expect, test} from 'vitest';
 import {
+  buildReadme,
   generateLink,
   getFirstCommentLine,
 } from '@/tools/doc-tools/readme-links.ts';
@@ -116,5 +117,28 @@ describe('generateLink', () => {
     expect(result).toBe(
       '- [LabelController](https://rolandzwaga.github.io/eligius/classes/LabelController.html)'
     );
+  });
+});
+
+describe('buildReadme', () => {
+  test('given a title, an introduction and links, when building the README, then it is laid out the way the Biome formatter prints Markdown', () => {
+    // test
+    const result = buildReadme('Operations', 'All operations', [
+      '- [a](https://example.com/a)',
+      '- [b](https://example.com/b)',
+    ]);
+
+    // expect
+    expect(result).toBe(
+      '# Operations\n\nAll operations\n- [a](https://example.com/a)\n\n- [b](https://example.com/b)\n'
+    );
+  });
+
+  test('given no links, when building the README, then it still ends with a single newline', () => {
+    // test
+    const result = buildReadme('Controllers', 'All controllers', []);
+
+    // expect
+    expect(result).toBe('# Controllers\n\nAll controllers\n');
   });
 });
