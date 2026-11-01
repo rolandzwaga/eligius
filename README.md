@@ -94,7 +94,7 @@ A media timeline names the container, the sources (in order of preference) and a
 }
 ```
 
-The source appends a `<video class="eligius-video">` without controls to the container; size it with CSS. Since 4.0.0 there is no `options` key.
+The source appends a `<video class="eligius-video">` without controls to the container; size it with CSS. `init()` rejects when no source can be played, or when none becomes playable within `loadTimeout` milliseconds (default `30000`, `0` disables the limit). Since 4.0.0 there is no `options` key.
 
 **Container Providers** (optional) - manage DOM elements where content is rendered:
 - `DomContainerProvider` - Manages a DOM element by selector

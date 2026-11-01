@@ -1233,3 +1233,123 @@ describe('VideoPositionSource destroy', () => {
     expect(mediaCallCount()).toBe(0);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Load timeout
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource load timeout', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('given the default limit, when neither canplay nor error arrives within 30000 ms, then init() rejects naming the sources and the limit, and no video element remains', async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    const state = trackSettlement(pending);
+    await vi.advanceTimersByTimeAsync(29_999);
+    expect(state.settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await expect(pending).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4, video.webm): no source became playable within 30000 ms'
+    );
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  test('given loadTimeout 5000, when 5000 ms pass without canplay, then init() rejects naming 5000 ms', async () => {
+    const source = new VideoPositionSource(config({loadTimeout: 5000}));
+
+    const pending = source.init();
+    const state = trackSettlement(pending);
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(state.settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await expect(pending).rejects.toThrow(
+      'no source became playable within 5000 ms'
+    );
+  });
+
+  test('given a pending init, when canplay arrives before the limit, then init() resolves and no timer is left', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    await vi.advanceTimersByTimeAsync(29_000);
+    makeReady(getVideoElement());
+
+    await expect(pending).resolves.toBeUndefined();
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(getVideoElement()).not.toBeNull();
+  });
+
+  test('given a pending init, when the last source fails before the limit, then init() rejects with that failure and no timer is left', async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    emitMediaEvent(getSourceElements(getVideoElement())[1], 'error');
+
+    await expect(pending).rejects.toThrow(
+      'none of the sources could be played'
+    );
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test('given a pending init, when the source is destroyed, then no timer is left', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    source.destroy();
+
+    await expect(pending).rejects.toThrow('destroyed before init completed');
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test('given loadTimeout 0, when ten minutes pass without canplay, then init() is still pending and no timer was started', async () => {
+    const source = new VideoPositionSource(config({loadTimeout: 0}));
+
+    const state = trackSettlement(source.init());
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(600_000);
+
+    expect(state.settled).toBe(false);
+    source.destroy();
+  });
+
+  test('given an init that timed out, when init() is called again, then a fresh element loads with a new limit', async () => {
+    const source = new VideoPositionSource(config({loadTimeout: 1000}));
+    const first = source.init();
+    const firstState = trackSettlement(first);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(firstState.settled).toBe(true);
+    await expect(first).rejects.toThrow('within 1000 ms');
+
+    const second = source.init();
+    expect(document.querySelectorAll('video')).toHaveLength(1);
+    makeReady(getVideoElement());
+
+    await expect(second).resolves.toBeUndefined();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test.each([-1, Number.NaN, Number.POSITIVE_INFINITY, '30000'])(
+    'given loadTimeout %s, when init() is called, then it rejects at once naming loadTimeout and creates no element',
+    async loadTimeout => {
+      const source = new VideoPositionSource(
+        config({loadTimeout: loadTimeout as number})
+      );
+
+      await expect(source.init()).rejects.toThrow(
+        "VideoPositionSource: 'loadTimeout' must be a finite number of milliseconds, 0 or more (0 disables the limit)"
+      );
+      expect(document.querySelector('video')).toBeNull();
+      expect(media.load).not.toHaveBeenCalled();
+    }
+  );
+});

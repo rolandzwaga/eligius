@@ -35,6 +35,10 @@
 
 Configurations (and Eligian programs) that already use `selector`, `sources` and `poster` need no change. Audio sources (`audio/mpeg`, `audio/ogg`, ...) still play through `VideoPositionSource`; the `<video>` element shows no picture for them, and no poster unless one is set.
 
+### Added
+
+- **`loadTimeout` for `VideoPositionSource`**, in milliseconds (default `30000`, `0` disables it). `init()` rejects with `VideoPositionSource: failed to load video (<sources>): no source became playable within <n> ms` when no source has become playable by then. Without it, media the browser accepts but never finishes loading or reports as failed (seen in WebKit with a WebM it reported it could play) left `init()`, and so `engine.init()`, pending forever; 3.x behaved the same.
+
 ### Removed
 
 - `video.js` from `peerDependencies`, `peerDependenciesMeta`, `devDependencies` and the build externals.

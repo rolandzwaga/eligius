@@ -443,6 +443,38 @@ describe.skipIf(!schemaExists)(
       expect(valid).toBe(true);
     });
 
+    test('given a VideoPositionSource with loadTimeout 10000, when validated, then it passes', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          mediaplayer: {positionSource: {...videoSource, loadTimeout: 10000}},
+        },
+      });
+
+      // expect
+      expect(errors).toEqual([]);
+      expect(valid).toBe(true);
+    });
+
+    test('given a VideoPositionSource with loadTimeout as a string, when validated, then it fails at loadTimeout', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          mediaplayer: {
+            positionSource: {...videoSource, loadTimeout: '10000'},
+          },
+        },
+      });
+
+      // expect
+      expect(valid).toBe(false);
+      expect(
+        errors.some(error =>
+          error.instancePath.endsWith('/positionSource/loadTimeout')
+        )
+      ).toBe(true);
+    });
+
     test('given a RafPositionSource with an options key, when validated, then it passes', () => {
       // test
       const {valid, errors} = validateProviderConfiguration({

@@ -211,6 +211,14 @@ export interface IPositionSourceConfig {
   poster?: string;
 
   /**
+   * Milliseconds `VideoPositionSource` waits for a source to become playable
+   * before `init()` rejects. `0` disables the limit.
+   *
+   * @default 30000
+   */
+  loadTimeout?: number;
+
+  /**
    * Additional configuration options passed to the position source constructor.
    * Use this for custom position source implementations.
    * `VideoPositionSource` rejects an `options` key (removed in 4.0.0).

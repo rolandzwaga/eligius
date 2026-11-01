@@ -147,6 +147,8 @@ const SCENARIOS = [
     sources: () => [{src: BBB_MP4, type: 'video/x-eligius-unknown'}]},
   {key: 'bad-host', label: 'Unreachable host', note: 'DNS failure; init must reject', expect: 'reject',
     sources: () => [{src: 'https://eligius-test.invalid/video.mp4', type: 'video/mp4'}]},
+  {key: 'timeout', label: 'Load timeout', note: 'playable MP4 with loadTimeout 1 ms; init must reject naming the limit', expect: 'reject', loadTimeout: 1,
+    sources: () => [{src: BBB_MP4 + '?timeout', type: 'video/mp4'}]},
   {key: 'custom', label: 'Custom', note: 'your own src and type', expect: null,
     sources: () => [{src: $('custom-src').value.trim(), type: $('custom-type').value.trim()}]},
 ];
@@ -215,6 +217,7 @@ function createConfig(scenario) {
           selector: '#video-stage',
           sources: scenario.sources(),
           ...(poster ? {poster} : {}),
+          ...(scenario.loadTimeout !== undefined ? {loadTimeout: scenario.loadTimeout} : {}),
         },
       },
     },

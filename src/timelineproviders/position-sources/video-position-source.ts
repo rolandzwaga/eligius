@@ -44,6 +44,15 @@ export interface VideoPositionSourceConfig {
    * Optional poster image URL, shown until the first frame is available.
    */
   poster?: string;
+
+  /**
+   * Milliseconds `init()` waits for a source to become playable
+   * (`canplay`) before it rejects. Guards against media the browser accepts
+   * but never finishes loading or reports as failed. `0` disables the limit.
+   *
+   * @default 30000
+   */
+  loadTimeout?: number;
 }
 
 /** CSS class of the video element the source creates. */
@@ -52,6 +61,9 @@ const VIDEO_ELEMENT_CLASS = 'eligius-video';
 /** HTMLMediaElement constants, without reading a global of one realm. */
 const HAVE_NOTHING = 0;
 const NETWORK_NO_SOURCE = 3;
+
+/** Default of {@link VideoPositionSourceConfig.loadTimeout}. */
+const DEFAULT_LOAD_TIMEOUT_MS = 30_000;
 
 const OPTIONS_REMOVED_MESSAGE =
   "VideoPositionSource: 'options' is no longer supported (the video.js player options were removed in 4.0.0). Put 'sources' and 'poster' directly in the position source settings and delete 'options'.";
@@ -96,7 +108,8 @@ function describeMediaError(error: MediaError | null | undefined): string {
  *
  * Only browser-playable media files are supported (video or audio); there
  * is no HLS or DASH player. `init()` resolves on the first `canplay` and
- * rejects when no source can be played, on a media error, when the
+ * rejects when no source can be played, on a media error, when no source
+ * becomes playable within `loadTimeout` (30 s by default), when the
  * container or the sources are missing, when an entry has no `src`, or when
  * the removed `options` key is present. `getContainer()` returns the
  * selector's element. Browser autoplay policies may reject `activate()`
@@ -402,6 +415,19 @@ export class VideoPositionSource
         );
         return;
       }
+      const loadTimeout = this._config.loadTimeout ?? DEFAULT_LOAD_TIMEOUT_MS;
+      if (
+        typeof loadTimeout !== 'number' ||
+        !Number.isFinite(loadTimeout) ||
+        loadTimeout < 0
+      ) {
+        reject(
+          new Error(
+            "VideoPositionSource: 'loadTimeout' must be a finite number of milliseconds, 0 or more (0 disables the limit)"
+          )
+        );
+        return;
+      }
       const invalid = sources.findIndex(
         source => !isNonEmptyString(source?.src)
       );
@@ -437,6 +463,9 @@ export class VideoPositionSource
       );
       // Listeners before any <source> is attached
       this._attachListeners(video);
+      if (loadTimeout > 0) {
+        this._startLoadTimer(video, loadTimeout);
+      }
       for (const element of this._sourceElements) {
         video.appendChild(element);
       }
@@ -542,6 +571,28 @@ export class VideoPositionSource
       true,
       this._initListeners
     );
+  }
+
+  /**
+   * Reject the pending init when no source has become playable within
+   * `ms`. The timer is an init listener, so settling or tearing down init
+   * clears it.
+   */
+  private _startLoadTimer(video: HTMLVideoElement, ms: number): void {
+    const timer = setTimeout(() => {
+      if (this._video === video) {
+        this._failInit(
+          new Error(
+            `VideoPositionSource: failed to load video (${this._sourceList()}): no source became playable within ${ms} ms`
+          )
+        );
+      }
+    }, ms);
+    const clear = () => {
+      clearTimeout(timer);
+      this._initListeners.delete(clear);
+    };
+    this._initListeners.add(clear);
   }
 
   private _handleInitError(event: Event, video: HTMLVideoElement): void {
