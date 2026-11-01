@@ -9,16 +9,13 @@ import {
 import {describe, expect, test, vi} from 'vitest';
 
 // The fluent API must not load the peer dependencies. jquery@4 already throws
-// without a DOM, but lottie-web and video.js do not, and src/test/setup.ts mocks
-// lottie-web for every spec. These factories make any import of the three fail.
+// without a DOM, but lottie-web does not, and src/test/setup.ts mocks
+// lottie-web for every spec. These factories make any import of the two fail.
 vi.mock('jquery', () => {
   throw new Error('the fluent configuration API must not import jquery');
 });
 vi.mock('lottie-web', () => {
   throw new Error('the fluent configuration API must not import lottie-web');
-});
-vi.mock('video.js', () => {
-  throw new Error('the fluent configuration API must not import video.js');
 });
 
 describe('Fluent configuration API in a DOM-less Node environment', () => {

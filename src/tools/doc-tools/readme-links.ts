@@ -72,3 +72,24 @@ export function generateLink(
   }
   return `${link} - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/${schemaFileName}))`;
 }
+
+/**
+ * Builds a README from a title, an introduction and the list entries made by
+ * {@link generateLink}. The layout is the one the Biome formatter prints, so the
+ * generated file passes `biome check` as written: the list follows the introduction
+ * without a blank line, the entries are separated by blank lines and the file ends
+ * with a newline.
+ *
+ * @param title the text of the level 1 heading
+ * @param introduction the paragraph under the heading
+ * @param links the list entries
+ * @returns the README contents
+ */
+export function buildReadme(
+  title: string,
+  introduction: string,
+  links: string[]
+): string {
+  const head = `# ${title}\n\n${introduction}\n`;
+  return links.length ? `${head}${links.join('\n\n')}\n` : head;
+}

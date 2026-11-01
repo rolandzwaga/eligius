@@ -39,8 +39,6 @@ updates:
       # consumers, so handle those by hand rather than via Dependabot.
       - dependency-name: jquery
         update-types: [version-update:semver-major]
-      - dependency-name: video.js
-        update-types: [version-update:semver-major]
       - dependency-name: lottie-web
         update-types: [version-update:semver-major]
 

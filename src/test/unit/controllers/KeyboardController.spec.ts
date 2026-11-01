@@ -52,9 +52,9 @@ describe('KeyboardController', () => {
   }
 
   function attach(
-    operationData: Partial<
-      Parameters<KeyboardController['init']>[0]
-    > & {keys: string},
+    operationData: Partial<Parameters<KeyboardController['init']>[0]> & {
+      keys: string;
+    },
     bus: Eventbus = eventbus
   ): KeyboardController {
     const controller = new KeyboardController();
@@ -179,13 +179,16 @@ describe('KeyboardController', () => {
       ['Shift', "unknown key 'Shift'"],
       ['?', "unknown key '?'"],
       ['', "'keys' must be a non-empty string"],
-    ])("given keys '%s', when init is called, then it throws naming the problem", (keys, message) => {
-      const controller = new KeyboardController();
+    ])(
+      "given keys '%s', when init is called, then it throws naming the problem",
+      (keys, message) => {
+        const controller = new KeyboardController();
 
-      expect(() =>
-        controller.init({selectedElement: root, keys, actions: ['a']})
-      ).toThrow(message);
-    });
+        expect(() =>
+          controller.init({selectedElement: root, keys, actions: ['a']})
+        ).toThrow(message);
+      }
+    );
 
     test('given an unknown scope, when init is called, then it throws naming the scope', () => {
       const controller = new KeyboardController();
@@ -213,22 +216,20 @@ describe('KeyboardController', () => {
       hotkeys.filter = originalFilter;
     });
 
-    test.each([
-      '#field',
-      '#area',
-      '#choice',
-      '#editable',
-    ])('given the focus on %s inside the engine root, when a bound key is pressed, then nothing runs and the default action is kept', async selector => {
-      attach({keys: 'a'});
-      const element = document.querySelector<HTMLElement>(selector)!;
-      element.focus();
+    test.each(['#field', '#area', '#choice', '#editable'])(
+      'given the focus on %s inside the engine root, when a bound key is pressed, then nothing runs and the default action is kept',
+      async selector => {
+        attach({keys: 'a'});
+        const element = document.querySelector<HTMLElement>(selector)!;
+        element.focus();
 
-      const event = press('a', element);
-      await flush();
+        const event = press('a', element);
+        await flush();
 
-      expect(actions.a.start).not.toHaveBeenCalled();
-      expect(event.defaultPrevented).toBe(false);
-    });
+        expect(actions.a.start).not.toHaveBeenCalled();
+        expect(event.defaultPrevented).toBe(false);
+      }
+    );
 
     test('given the focus on a button inside the engine root, when a bound key is pressed, then the action runs', async () => {
       attach({keys: 'ArrowRight'});
@@ -268,9 +269,9 @@ describe('KeyboardController', () => {
     });
 
     test('given two engines that bind the same key, when it is pressed with nothing focused, then only the first one runs, and after a click inside the second only the second one runs', async () => {
-      const root2 = $('<div id="engine-2"><div id="stage-2"></div></div>').appendTo(
-        document.body
-      );
+      const root2 = $(
+        '<div id="engine-2"><div id="stage-2"></div></div>'
+      ).appendTo(document.body);
       const second = createMockAction('second');
       const eventbus2 = new Eventbus();
       eventbus2.onRequest('request-action', () => second as any);

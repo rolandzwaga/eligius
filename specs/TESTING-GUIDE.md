@@ -14,6 +14,7 @@ Comprehensive documentation for writing and maintaining tests in the Eligius pro
    - [Mocking Globals (window, document, fetch, timers)](#mocking-globals-window-document-fetch-timers)
    - [Module Mocking with vi.mock()](#module-mocking-with-vimock)
    - [Advanced: vi.hoisted() Pattern](#advanced-vihoisted-pattern)
+   - [Native media elements (HTMLMediaElement) in jsdom](#native-media-elements-htmlmediaelement-in-jsdom)
 5. [Timer Mocking](#timer-mocking)
    - [Using Fake Timers](#using-fake-timers)
    - [Timer API Reference](#timer-api-reference)
@@ -300,7 +301,7 @@ vi.mock('some-module', () => ({
 }));
 
 // Mock with default export
-vi.mock('video.js', () => ({
+vi.mock('hotkeys-js', () => ({
   default: vi.fn(),
 }));
 ```
@@ -312,18 +313,20 @@ vi.mock('video.js', () => ({
 
 ### Advanced: vi.hoisted() Pattern
 
-When mocking modules that need shared state with tests, use `vi.hoisted()`. This pattern is essential for mocking libraries like video.js where you need to:
-- Track event handlers registered by the code under test
+When mocking modules that need shared state with tests, use `vi.hoisted()`. This pattern is essential for mocking libraries like hotkeys-js where you need to:
+- Track handlers registered by the code under test
 - Trigger those handlers from tests
 - Reset mock state between tests
 
 **The Problem:**
 ```typescript
-// ❌ This DOESN'T work - mockPlayer is undefined inside vi.mock
-let mockPlayer = { play: vi.fn() };
+// ❌ This DOESN'T work - records is not initialised yet inside vi.mock
+const records: Array<{key: string; method: (event: KeyboardEvent) => void}> = [];
 
-vi.mock('video.js', () => ({
-  default: () => mockPlayer  // mockPlayer is undefined here!
+vi.mock('hotkeys-js', () => ({
+  default: (key: string, method: (event: KeyboardEvent) => void) => {
+    records.push({key, method}); // records is not available here!
+  },
 }));
 ```
 
@@ -332,100 +335,66 @@ vi.mock('video.js', () => ({
 // ✓ This WORKS - vi.hoisted() runs before vi.mock() hoisting
 const mocks = vi.hoisted(() => {
   // Define all mock state here - this runs BEFORE imports and vi.mock
-  const eventHandlers = new Map<string, Array<(...args: any[]) => void>>();
-  const oneHandlers = new Map<string, Array<(...args: any[]) => void>>();
-
-  // Helper to trigger registered event handlers from tests
-  const triggerEvent = (event: string, ...args: any[]) => {
-    const handlers = eventHandlers.get(event) || [];
-    handlers.forEach(h => h(...args));
-  };
-
-  // Helper for one-time handlers (like video.js .one())
-  const triggerOneEvent = (event: string, ...args: any[]) => {
-    const handlers = oneHandlers.get(event) || [];
-    handlers.forEach(h => h(...args));
-    oneHandlers.set(event, []); // Clear after firing
-  };
-
-  // Reset function for beforeEach
-  const resetHandlers = () => {
-    eventHandlers.clear();
-    oneHandlers.clear();
-  };
-
-  // Mock player factory
-  const createMockPlayer = () => ({
-    play: vi.fn(),
-    pause: vi.fn(),
-    currentTime: vi.fn().mockReturnValue(0),
-    duration: vi.fn().mockReturnValue(60),
-    load: vi.fn(),
-    loop: false,
-    one: vi.fn((event: string, handler: (...args: any[]) => void) => {
-      if (!oneHandlers.has(event)) oneHandlers.set(event, []);
-      oneHandlers.get(event)!.push(handler);
-    }),
-    on: vi.fn((event: string, handler: (...args: any[]) => void) => {
-      if (!eventHandlers.has(event)) eventHandlers.set(event, []);
-      eventHandlers.get(event)!.push(handler);
-    }),
-    off: vi.fn(),
-  });
-
-  let mockPlayer = createMockPlayer();
+  const records: Array<{key: string; method: (event: KeyboardEvent) => void}> = [];
 
   return {
-    eventHandlers,
-    oneHandlers,
-    triggerEvent,
-    triggerOneEvent,
-    resetHandlers,
-    createMockPlayer,
-    getMockPlayer: () => mockPlayer,
-    resetMockPlayer: () => {
-      mockPlayer = createMockPlayer();
-      return mockPlayer;
+    records,
+    // Helper to trigger registered handlers from tests
+    simulateKeyPress: (key: string) => {
+      const event = {key, preventDefault: vi.fn()} as unknown as KeyboardEvent;
+      for (const record of [...records]) {
+        if (record.key === key) {
+          record.method(event);
+        }
+      }
+      return event;
+    },
+    handlerCount: () => records.length,
+    // Reset function for beforeEach
+    reset: () => {
+      records.length = 0;
     },
   };
 });
 
-// Now vi.mock can access mocks.getMockPlayer()
-vi.mock('video.js', () => {
-  const videojsFn = (_id: string, _options: any, readyCallback: () => void) => {
-    const player = mocks.getMockPlayer();
-    setTimeout(() => readyCallback.call(player), 0);
-    return player;
-  };
-  videojsFn.log = { level: vi.fn() };
-  return { default: videojsFn };
+// Now vi.mock can access mocks.records
+vi.mock('hotkeys-js', () => {
+  const hotkeys = vi.fn(
+    (keys: string, method: (event: KeyboardEvent) => void) => {
+      for (const key of keys.split(',').map(k => k.trim())) {
+        mocks.records.push({key, method});
+      }
+    }
+  );
+  return {default: hotkeys};
 });
 
 // In tests, use the helpers:
-describe('VideoJsTimelineProvider', () => {
-  beforeEach(context => {
-    context.mockPlayer = mocks.resetMockPlayer();
-    mocks.resetHandlers();
+describe('KeyboardStepSource', () => {
+  beforeEach(() => {
+    mocks.reset();
   });
 
-  test('should handle timeupdate event', async context => {
-    const { provider, mockPlayer } = context;
-    await initProvider(provider);
+  test('given an active source, when the next key is pressed, then the position advances', async () => {
+    const source = new KeyboardStepSource({
+      duration: 60,
+      verticalMode: 'disabled',
+      stepSize: 5,
+    });
+    await source.init();
+    await source.activate();
 
-    const callback = vi.fn();
-    provider.onTime(callback);
+    mocks.simulateKeyPress('right');
 
-    // Trigger the event that was registered internally
-    mockPlayer.currentTime.mockReturnValue(5.5);
-    mocks.triggerEvent('timeupdate');
-
-    expect(callback).toHaveBeenCalledWith(5.5);
+    expect(source.getPosition()).toBe(5);
   });
 });
 ```
 
+The real spec, `src/test/unit/timelineproviders/position-sources/keyboard-step-source.spec.ts`, models hotkeys-js scopes, elements and `unbind` the same way.
+
 **When to use vi.hoisted():**
-- Mocking libraries that use callbacks (video.js, lottie-web)
+- Mocking libraries that use callbacks (hotkeys-js, lottie-web)
 - When mock state needs to be shared between vi.mock and tests
 - When you need to reset mocks between tests
 - When the mocked module registers event handlers
@@ -433,8 +402,57 @@ describe('VideoJsTimelineProvider', () => {
 **Key points:**
 - `vi.hoisted()` callback runs before all imports
 - Return an object with all mock state and helpers
-- Use getter functions (`getMockPlayer()`) to get current mock instance
+- Use getter functions when the mock instance is replaced per test
 - Always provide reset functions for `beforeEach`
+
+### Native media elements (HTMLMediaElement) in jsdom
+
+`VideoPositionSource` drives a real `<video>` element, so its spec mocks no library. jsdom (see the version in `package.json`) only stubs the media element:
+
+- `play()`, `pause()` and `load()` log "Not implemented: HTMLMediaElement's play() method" through jsdom's virtual console (vitest forwards it to `console.error`) and return `undefined`; `play()` returns no promise. `canPlayType()` returns `''`.
+- `readyState`, `networkState` and `currentTime` are plain values starting at 0 (`currentTime` is assignable and does not seek); `duration` is `NaN`; `seekable`, `buffered` and `played` are empty; there is no `error` property at all.
+- No media event ever fires by itself (`canplay`, `playing`, `timeupdate`, `seeked`, `ended`, `error`, ...), and `<source>` children never load.
+
+Use `src/test/fixtures/video-element-factory.ts`:
+
+```typescript
+import {
+  emitMediaEvent,
+  getSourceElements,
+  getVideoElement,
+  type IMediaElementStubs,
+  installMediaElementStubs,
+  makeReady,
+  setMediaProperty,
+  trackEventListeners,
+} from '@test/fixtures/video-element-factory.ts';
+
+let media: IMediaElementStubs;
+beforeEach(() => {
+  // play resolves, pause/load do nothing, canPlayType returns 'maybe';
+  // restoreMocks restores the prototype after each test
+  media = installMediaElementStubs();
+  document.body.innerHTML = '<div id="video-container"></div>';
+});
+
+test('given a pending init, when the last source fails, then init() rejects', async () => {
+  const source = new VideoPositionSource({selector: '#video-container', sources});
+  const pending = source.init();
+  const video = getVideoElement();
+
+  // error does not bubble; dispatch it where the browser would
+  emitMediaEvent(getSourceElements(video).at(-1)!, 'error');
+
+  await expect(pending).rejects.toThrow(/none of the sources could be played/);
+});
+```
+
+- `makeReady(video, {duration})` defines `readyState`, `networkState`, `duration` and `seekable`, then dispatches `canplay`.
+- `setMediaProperty(video, name, value)` defines read-only members (`duration`, `readyState`, `networkState`, `error`, `currentTime`, `seekable`) per element with `Object.defineProperty`, shadowing the prototype getter.
+- `trackEventListeners()` spies on `EventTarget.prototype.addEventListener`/`removeEventListener` (calling through); `activeOn(target)` lists the listeners still registered, to prove nothing leaks.
+- Install the stubs in every describe that creates an element, including tests that only call `destroy()`, so no "Not implemented" line reaches the output. Do not stub the prototype globally in `src/test/setup.ts`: it would hide jsdom gaps from other specs.
+
+See `src/test/unit/timelineproviders/position-sources/video-position-source.spec.ts` for the full set.
 
 ---
 
@@ -596,11 +614,13 @@ When adding fake timers to a test file:
 
 ### Real-World Example
 
-See `src/test/unit/timelineproviders/video-js-timeline-provider.spec.ts` for a complete example that combines:
+See `src/test/unit/timelineproviders/position-sources/keyboard-step-source.spec.ts` for a complete example that combines:
 - `vi.hoisted()` for shared mock state
 - `vi.useFakeTimers()` for deterministic async testing
 - Event handler tracking and triggering
 - Helper functions for common initialization patterns
+
+`src/test/unit/timelineproviders/position-sources/video-position-source.spec.ts` shows the native media element pattern: prototype stubs from `video-element-factory.ts`, media events dispatched by the test, and a listener tracker instead of library mocks.
 
 ---
 

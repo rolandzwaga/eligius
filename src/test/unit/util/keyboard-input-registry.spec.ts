@@ -13,9 +13,12 @@ describe('keyboard-input-registry', () => {
     ['Delete', 'del'],
     ['cmd+s', 'command+s'],
     ['shift+ctrl+a', 'control+shift+A'],
-  ])("given '%s' and '%s', when their shortcut ids are compared, then they are equal", (a, b) => {
-    expect(shortcutId(a)).toBe(shortcutId(b));
-  });
+  ])(
+    "given '%s' and '%s', when their shortcut ids are compared, then they are equal",
+    (a, b) => {
+      expect(shortcutId(a)).toBe(shortcutId(b));
+    }
+  );
 
   test('given shortcuts on different keys or modifiers, when their ids are compared, then they differ', () => {
     expect(shortcutId('right')).not.toBe(shortcutId('left'));
@@ -50,7 +53,10 @@ describe('keyboard-input-registry', () => {
     ['Shift', 'Shift'],
     ['hyper+a', 'hyper'],
     ['shift+', ''],
-  ])("given '%s', when it is validated, then '%s' is reported", (shortcut, invalid) => {
-    expect(findInvalidKeyName(shortcut)).toBe(invalid);
-  });
+  ])(
+    "given '%s', when it is validated, then '%s' is reported",
+    (shortcut, invalid) => {
+      expect(findInvalidKeyName(shortcut)).toBe(invalid);
+    }
+  );
 });

@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import path, {dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import type {JSONOutput} from 'typedoc';
-import {generateLink, type IReadMeItemInfo} from './readme-links.ts';
+import {
+  buildReadme,
+  generateLink,
+  type IReadMeItemInfo,
+} from './readme-links.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -51,25 +55,17 @@ function writeOperationsReadMe() {
     x => x.kind === 32 && x.sources?.[0]?.fileName?.startsWith('operation/')
   );
 
-  const header = ['# Operations'];
-  header.push(
-    'This is a list of all the available operations with links to their respective documentation'
-  );
-
-  const readme = [
-    ...header,
-    ...operationInfos.map(info =>
+  const readme = buildReadme(
+    'Operations',
+    'This is a list of all the available operations with links to their respective documentation',
+    operationInfos.map(info =>
       generateLink('variables', info as IReadMeItemInfo, hasOperationSchema)
-    ),
-  ];
-
-  fs.writeFileSync(
-    path.join(operationsReadMeoutputPath, 'README.md'),
-    readme.join('\n\n'),
-    {
-      encoding: 'utf-8',
-    }
+    )
   );
+
+  fs.writeFileSync(path.join(operationsReadMeoutputPath, 'README.md'), readme, {
+    encoding: 'utf-8',
+  });
 
   console.info(
     `${path.join(
@@ -84,21 +80,17 @@ function writeControllersReadMe() {
     x => x.kind === 128 && x.sources?.[0]?.fileName?.startsWith('controllers/')
   );
 
-  const header = ['# Controllers'];
-  header.push(
-    'This is a list of all the available controllers with links to their respective documentation'
-  );
-
-  const readme = [
-    ...header,
-    ...controllerInfos.map(info =>
+  const readme = buildReadme(
+    'Controllers',
+    'This is a list of all the available controllers with links to their respective documentation',
+    controllerInfos.map(info =>
       generateLink('classes', info as IReadMeItemInfo)
-    ),
-  ];
+    )
+  );
 
   fs.writeFileSync(
     path.join(controllersReadMeoutputPath, 'README.md'),
-    readme.join('\n\n'),
+    readme,
     {
       encoding: 'utf-8',
     }

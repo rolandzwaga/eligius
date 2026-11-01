@@ -1,7 +1,6 @@
 # Controllers
 
 This is a list of all the available controllers with links to their respective documentation
-
 - [DOMEventListenerController](https://rolandzwaga.github.io/eligius/classes/DOMEventListenerController.html "This controller attaches to the given selected element and adds a DOM event listener for the specified event name that executes the given actions with the given operation data.")
 
 - [KeyboardController](https://rolandzwaga.github.io/eligius/classes/KeyboardController.html "This controller runs the given actions when one of the given keys is pressed.")

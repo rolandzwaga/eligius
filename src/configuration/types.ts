@@ -146,7 +146,7 @@ export type ITimelineFlow = Record<string, never>;
  * Built-in position sources:
  * - `RafPositionSource`: RAF-based, drives timeline by elapsed time
  * - `ScrollPositionSource`: Scroll-based, drives timeline by scroll position
- * - `VideoPositionSource`: Video.js-based, drives timeline by video playback
+ * - `VideoPositionSource`: native HTML video element, drives timeline by media playback
  *
  * @example
  * ```typescript
@@ -198,8 +198,10 @@ export interface IPositionSourceConfig {
   tickInterval?: number;
 
   /**
-   * Media to load (video sources), each with its URL and MIME type.
-   * `VideoPositionSource` requires a non-empty list.
+   * Media to load (video sources), each with its URL and MIME type, in order
+   * of preference. `VideoPositionSource` requires a non-empty list of
+   * browser-playable media files (video or audio, for example MP4, WebM or
+   * MP3).
    */
   sources?: Array<{src: string; type: string}>;
 
@@ -209,8 +211,17 @@ export interface IPositionSourceConfig {
   poster?: string;
 
   /**
+   * Milliseconds `VideoPositionSource` waits for a source to become playable
+   * before `init()` rejects. `0` disables the limit.
+   *
+   * @default 30000
+   */
+  loadTimeout?: number;
+
+  /**
    * Additional configuration options passed to the position source constructor.
    * Use this for custom position source implementations.
+   * `VideoPositionSource` rejects an `options` key (removed in 4.0.0).
    */
   [key: string]: unknown;
 }
@@ -417,7 +428,7 @@ export interface ITimelineConfiguration {
    * A source that renders its own container (`VideoPositionSource`) is
    * shared by every timeline of the type with the same effective settings,
    * so only an override that changes the video settings creates a second
-   * player. Other sources are created once per timeline, as without an
+   * video element. Other sources are created once per timeline, as without an
    * override.
    *
    * @example

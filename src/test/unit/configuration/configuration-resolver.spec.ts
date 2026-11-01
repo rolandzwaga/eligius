@@ -1458,7 +1458,21 @@ describe('ConfigurationResolver per-timeline provider overrides', () => {
     );
   });
 
-  test('given a VideoPositionSource override with sources in options, when process is called, then it is accepted', () => {
+  function optionsRemovedMessage(path: string): string {
+    return `Invalid configuration at ${path}.options: VideoPositionSource no longer accepts 'options' (the video.js player options were removed in 4.0.0). Put 'sources' and 'poster' directly in ${path} and delete 'options'. See the 4.0.0 migration steps in CHANGELOG.md.`;
+  }
+
+  const videoTypeSettings = () => ({
+    mediaplayer: {
+      positionSource: {
+        systemName: 'VideoPositionSource',
+        selector: '#video',
+        sources: [{src: '/a.mp4', type: 'video/mp4'}],
+      },
+    },
+  });
+
+  test('given a VideoPositionSource override with sources only in options, when process is called, then it throws the options message naming timelines[0].positionSource.options instead of a missing sources setting', () => {
     const config = createConfig([
       timeline({
         positionSource: {
@@ -1469,7 +1483,110 @@ describe('ConfigurationResolver per-timeline provider overrides', () => {
       }),
     ]);
 
+    expect(() => process(config)).toThrowError(
+      optionsRemovedMessage('timelines[0].positionSource')
+    );
+  });
+
+  test('given mediaplayer type settings whose VideoPositionSource has options, when process is called, then it throws naming timelineProviderSettings.mediaplayer.positionSource.options', () => {
+    const config = createConfig([timeline({type: 'mediaplayer'})]);
+    config.timelineProviderSettings = videoTypeSettings();
+    (
+      config.timelineProviderSettings!.mediaplayer!.positionSource as any
+    ).options = {controls: true};
+
+    expect(() => process(config)).toThrowError(
+      optionsRemovedMessage(
+        'timelineProviderSettings.mediaplayer.positionSource'
+      )
+    );
+  });
+
+  test('given a VideoPositionSource type that no timeline uses has options, when process is called, then it still throws naming its path', () => {
+    const config = createConfig([timeline()]);
+    config.timelineProviderSettings = {
+      ...config.timelineProviderSettings,
+      ...videoTypeSettings(),
+    };
+    (
+      config.timelineProviderSettings!.mediaplayer!.positionSource as any
+    ).options = {};
+
+    expect(() => process(config)).toThrowError(
+      optionsRemovedMessage(
+        'timelineProviderSettings.mediaplayer.positionSource'
+      )
+    );
+  });
+
+  test('given an override without systemName that adds options over a VideoPositionSource type, when process is called, then it throws naming the override path', () => {
+    const config = createConfig([
+      timeline({type: 'mediaplayer', positionSource: {options: {muted: true}}}),
+    ]);
+    config.timelineProviderSettings = videoTypeSettings();
+
+    expect(() => process(config)).toThrowError(
+      optionsRemovedMessage('timelines[0].positionSource')
+    );
+  });
+
+  test('given an override naming RafPositionSource with options over a VideoPositionSource type, when process is called, then it is accepted', () => {
+    const config = createConfig([
+      timeline({
+        type: 'mediaplayer',
+        positionSource: {systemName: 'RafPositionSource', options: {}},
+      }),
+    ]);
+    config.timelineProviderSettings = videoTypeSettings();
+
     expect(() => process(config)).not.toThrow();
+  });
+
+  test('given a RafPositionSource type setting with an options key, when process is called, then it is accepted', () => {
+    const config = createConfig([timeline()]);
+    (
+      config.timelineProviderSettings!.animation!.positionSource as any
+    ).options = {fps: 30};
+
+    expect(() => process(config)).not.toThrow();
+  });
+
+  test('given a VideoPositionSource override with sources and poster at the top level, when process is called, then it is accepted', () => {
+    const config = createConfig([
+      timeline({
+        positionSource: {
+          systemName: 'VideoPositionSource',
+          selector: '#video',
+          sources: [{src: '/a.mp4', type: 'video/mp4'}],
+          poster: '/a.jpg',
+        },
+      }),
+    ]);
+
+    expect(() => process(config)).not.toThrow();
+  });
+
+  test('given the error for a removed options key, when its message is read, then it contains no configuration values', () => {
+    const config = createConfig([
+      timeline({
+        positionSource: {
+          systemName: 'VideoPositionSource',
+          selector: '#video',
+          sources: [{src: '/a.mp4', type: 'video/mp4'}],
+          options: {token: 'tok-123'},
+        },
+      }),
+    ]);
+
+    let message = '';
+    try {
+      process(config);
+    } catch (error) {
+      message = (error as Error).message;
+    }
+
+    expect(message).toMatch(/no longer accepts 'options'/);
+    expect(message).not.toContain('tok-123');
   });
 
   test('given a timeline type without provider settings and an override with a systemName, when process is called, then it is accepted', () => {

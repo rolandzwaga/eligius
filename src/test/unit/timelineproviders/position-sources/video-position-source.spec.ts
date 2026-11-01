@@ -1,1184 +1,1355 @@
-import type {TBoundary} from '@timelineproviders/types.ts';
 import {
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  type Mock,
-  type TestContext,
-  test,
-  vi,
-} from 'vitest';
+  emitMediaEvent,
+  getSourceElements,
+  getVideoElement,
+  type IMediaElementStubs,
+  installMediaElementStubs,
+  makeReady,
+  setMediaProperty,
+  timeRanges,
+  trackEventListeners,
+} from '@test/fixtures/video-element-factory.ts';
+import {
+  VideoPositionSource,
+  type VideoPositionSourceConfig,
+  type VideoSource,
+} from '@timelineproviders/position-sources/video-position-source.ts';
+import {isSeekable, type TBoundary} from '@timelineproviders/types.ts';
+import {afterEach, beforeEach, describe, expect, test, vi} from 'vitest';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// vi.hoisted() pattern for video.js mocking
+// Shared setup
 // ─────────────────────────────────────────────────────────────────────────────
 
-const mocks = vi.hoisted(() => {
-  // Event handler storage
-  const eventHandlers = new Map<string, Array<(...args: unknown[]) => void>>();
-  const oneHandlers = new Map<string, Array<(...args: unknown[]) => void>>();
+let media: IMediaElementStubs;
 
-  // Helper to trigger registered event handlers from tests
-  const triggerEvent = (event: string, ...args: unknown[]) => {
-    const handlers = eventHandlers.get(event) || [];
-    for (const h of handlers) {
-      h(...args);
-    }
-  };
+beforeEach(() => {
+  media = installMediaElementStubs();
+  document.body.innerHTML = '<div id="video-container"></div>';
+});
 
-  // Helper for one-time handlers (like video.js .one())
-  const triggerOneEvent = (event: string, ...args: unknown[]) => {
-    const handlers = oneHandlers.get(event) || [];
-    for (const h of handlers) {
-      h(...args);
-    }
-    oneHandlers.set(event, []); // Clear after firing
-  };
+afterEach(() => {
+  document.body.innerHTML = '';
+});
 
-  // Reset function for beforeEach
-  const resetHandlers = () => {
-    eventHandlers.clear();
-    oneHandlers.clear();
-  };
+const TWO: VideoSource[] = [
+  {src: 'video.mp4', type: 'video/mp4'},
+  {src: 'video.webm', type: 'video/webm'},
+];
 
-  // Mock player factory
-  const createMockPlayer = () => ({
-    play: vi.fn().mockResolvedValue(undefined),
-    pause: vi.fn(),
-    currentTime: vi.fn().mockReturnValue(0),
-    duration: vi.fn().mockReturnValue(60),
-    load: vi.fn(),
-    loop: false,
-    one: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
-      if (!oneHandlers.has(event)) oneHandlers.set(event, []);
-      oneHandlers.get(event)!.push(handler);
-    }),
-    on: vi.fn((event: string, handler: (...args: unknown[]) => void) => {
-      if (!eventHandlers.has(event)) eventHandlers.set(event, []);
-      eventHandlers.get(event)!.push(handler);
-    }),
-    off: vi.fn((event: string, handler?: (...args: unknown[]) => void) => {
-      if (handler) {
-        const handlers = eventHandlers.get(event);
-        if (handlers) {
-          const idx = handlers.indexOf(handler);
-          if (idx >= 0) handlers.splice(idx, 1);
-        }
-      } else {
-        eventHandlers.delete(event);
-      }
-    }),
-    el: vi.fn().mockReturnValue(document.createElement('div')),
-  });
-
-  let mockPlayer = createMockPlayer();
-  let videojsCallCount = 0;
-  let videojsError: Error | null = null;
-  let lastVideojsOptions: Record<string, unknown> | undefined;
-
+function config(
+  overrides: Partial<VideoPositionSourceConfig> = {}
+): VideoPositionSourceConfig {
   return {
-    eventHandlers,
-    oneHandlers,
-    triggerEvent,
-    triggerOneEvent,
-    resetHandlers,
-    createMockPlayer,
-    getMockPlayer: () => mockPlayer,
-    resetMockPlayer: () => {
-      mockPlayer = createMockPlayer();
-      videojsCallCount = 0;
-      videojsError = null;
-      return mockPlayer;
-    },
-    recordVideojsCall: (options?: Record<string, unknown>) => {
-      videojsCallCount++;
-      lastVideojsOptions = options;
-      if (videojsError) {
-        throw videojsError;
-      }
-    },
-    getVideojsCallCount: () => videojsCallCount,
-    getLastVideojsOptions: () => lastVideojsOptions,
-    setVideojsError: (error: Error | null) => {
-      videojsError = error;
-    },
+    selector: '#video-container',
+    sources: [{src: 'video.mp4', type: 'video/mp4'}],
+    ...overrides,
   };
-});
+}
 
-// One shared video.js module object, so a test that swaps the mock with
-// vi.doMock can restore exactly the same module afterwards.
-const videojsModule = vi.hoisted(() => {
-  const videojsFn = (
-    _elementOrId: string | HTMLElement,
-    options: Record<string, unknown>,
-    readyCallback?: () => void
-  ) => {
-    mocks.recordVideojsCall(options);
-    const player = mocks.getMockPlayer();
-    if (readyCallback) {
-      // Call ready callback asynchronously, binding player as `this`
-      setTimeout(() => readyCallback.call(player), 0);
+function container(): HTMLElement {
+  return document.getElementById('video-container') as HTMLElement;
+}
+
+async function initSource(
+  source: VideoPositionSource,
+  options?: {duration?: number}
+): Promise<HTMLVideoElement> {
+  const pending = source.init();
+  const video = getVideoElement();
+  makeReady(video, options);
+  await pending;
+  return video;
+}
+
+async function activeSource(options?: {
+  duration?: number;
+}): Promise<{source: VideoPositionSource; video: HTMLVideoElement}> {
+  const source = new VideoPositionSource(config());
+  const video = await initSource(source, options);
+  await source.activate();
+  return {source, video};
+}
+
+function trackSettlement(promise: Promise<unknown>): {settled: boolean} {
+  const state = {settled: false};
+  promise.then(
+    () => {
+      state.settled = true;
+    },
+    () => {
+      state.settled = true;
     }
-    return player;
-  };
-  videojsFn.log = {level: vi.fn()};
-  return {factory: () => ({default: videojsFn})};
-});
+  );
+  return state;
+}
 
-// VideoPositionSource loads video.js with a dynamic import(); vi.mock covers it
-vi.mock('video.js', videojsModule.factory);
+async function flushMicrotasks(): Promise<void> {
+  for (let i = 0; i < 10; i++) {
+    await Promise.resolve();
+  }
+}
 
-// Import after mock setup
-import {VideoPositionSource} from '@timelineproviders/position-sources/video-position-source.ts';
+function deferred<T>(): {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (error: unknown) => void;
+} {
+  let resolve!: (value: T) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return {promise, resolve, reject};
+}
+
+function mediaCallCount(): number {
+  return (
+    media.play.mock.calls.length +
+    media.pause.mock.calls.length +
+    media.load.mock.calls.length +
+    media.canPlayType.mock.calls.length
+  );
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Test Context
+// Construction
 // ─────────────────────────────────────────────────────────────────────────────
 
-type VideoPositionSourceTestContext = {
-  source: VideoPositionSource;
-  mockPlayer: ReturnType<typeof mocks.createMockPlayer>;
-  positionCallback: Mock<(position: number) => void>;
-  boundaryCallback: Mock<(boundary: TBoundary) => void>;
-  containerReadyCallback: Mock<() => void>;
-} & TestContext;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Tests
-// ─────────────────────────────────────────────────────────────────────────────
-
-describe('VideoPositionSource', () => {
-  beforeEach<VideoPositionSourceTestContext>(context => {
-    vi.useFakeTimers();
-
-    // Reset mocks
-    context.mockPlayer = mocks.resetMockPlayer();
-    mocks.resetHandlers();
-
-    // The source rejects init when its container is missing
-    const container = document.createElement('div');
-    container.id = 'video-container';
-    document.body.appendChild(container);
-
-    // Create source with mock configuration
-    context.source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-    });
-
-    context.positionCallback = vi.fn();
-    context.boundaryCallback = vi.fn();
-    context.containerReadyCallback = vi.fn();
-  });
-
-  afterEach(() => {
-    document.getElementById('video-container')?.remove();
-    vi.useRealTimers();
-    vi.clearAllMocks();
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // T016: Initialization and video.js setup tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('initialization and video.js setup (T016)', () => {
-    test<VideoPositionSourceTestContext>('should start in inactive state', ({
-      source,
-    }) => {
-      expect(source.state).toBe('inactive');
-    });
-
-    test<VideoPositionSourceTestContext>('should have position 0 initially', ({
-      source,
-    }) => {
-      expect(source.getPosition()).toBe(0);
-    });
-
-    test<VideoPositionSourceTestContext>('should initialize video.js player on init()', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-
-      // Advance timers to trigger the ready callback
-      await vi.advanceTimersByTimeAsync(10);
-
-      // Trigger canplay event
-      mocks.triggerOneEvent('canplay');
-
-      await initPromise;
-
-      // Player should be initialized
-      expect(source.state).toBe('inactive');
-    });
-
-    test<VideoPositionSourceTestContext>('should register event handlers on init()', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      // Should have registered timeupdate and ended handlers
-      expect(mockPlayer.on).toHaveBeenCalledWith(
-        'timeupdate',
-        expect.any(Function)
-      );
-      expect(mockPlayer.on).toHaveBeenCalledWith('ended', expect.any(Function));
-    });
-
-    test<VideoPositionSourceTestContext>('should get duration from video.js player', async ({
-      source,
-      mockPlayer,
-    }) => {
-      mockPlayer.duration.mockReturnValue(120);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      expect(source.getDuration()).toBe(120);
-    });
-
-    test<VideoPositionSourceTestContext>('should trigger container ready on first frame', async ({
-      source,
-      containerReadyCallback,
-    }) => {
-      source.onContainerReady(containerReadyCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      // video.js 8 has no player 'firstplay' event; first 'playing' marks readiness
-      mocks.triggerOneEvent('playing');
-
-      expect(containerReadyCallback).toHaveBeenCalled();
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // T017: State transitions tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('state transitions (T017)', () => {
-    test<VideoPositionSourceTestContext>('activate() should transition to active state', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      expect(source.state).toBe('active');
-    });
-
-    test<VideoPositionSourceTestContext>('activate() should call player.play()', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      expect(mockPlayer.play).toHaveBeenCalled();
-    });
-
-    test<VideoPositionSourceTestContext>('suspend() should transition to suspended state', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      source.suspend();
-
-      expect(source.state).toBe('suspended');
-    });
-
-    test<VideoPositionSourceTestContext>('suspend() should call player.pause()', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      source.suspend();
-
-      expect(mockPlayer.pause).toHaveBeenCalled();
-    });
-
-    test<VideoPositionSourceTestContext>('suspend() should preserve position', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Simulate position update
-      mockPlayer.currentTime.mockReturnValue(30);
-      mocks.triggerEvent('timeupdate');
-
-      source.suspend();
-
-      expect(source.getPosition()).toBe(30);
-    });
-
-    test<VideoPositionSourceTestContext>('deactivate() should transition to inactive state', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      source.deactivate();
-
-      expect(source.state).toBe('inactive');
-    });
-
-    test<VideoPositionSourceTestContext>('deactivate() should reset position to 0', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Simulate position update
-      mockPlayer.currentTime.mockReturnValue(30);
-      mocks.triggerEvent('timeupdate');
-
-      source.deactivate();
-
-      // Should reset currentTime to 0
-      expect(mockPlayer.currentTime).toHaveBeenCalledWith(0);
-    });
-
-    test<VideoPositionSourceTestContext>('resume from suspended should call play()', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      source.suspend();
-
-      mockPlayer.play.mockClear();
-      await source.activate();
-
-      expect(mockPlayer.play).toHaveBeenCalled();
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // T018: Position updates from timeupdate event tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('position updates from timeupdate event (T018)', () => {
-    test<VideoPositionSourceTestContext>('should emit position updates on timeupdate', async ({
-      source,
-      positionCallback,
-      mockPlayer,
-    }) => {
-      source.onPosition(positionCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Simulate timeupdate events
-      mockPlayer.currentTime.mockReturnValue(5);
-      mocks.triggerEvent('timeupdate');
-
-      expect(positionCallback).toHaveBeenCalledWith(5);
-
-      mockPlayer.currentTime.mockReturnValue(10);
-      mocks.triggerEvent('timeupdate');
-
-      expect(positionCallback).toHaveBeenCalledWith(10);
-    });
-
-    test<VideoPositionSourceTestContext>('should update internal position on timeupdate', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      mockPlayer.currentTime.mockReturnValue(15);
-      mocks.triggerEvent('timeupdate');
-
-      expect(source.getPosition()).toBe(15);
-    });
-
-    test<VideoPositionSourceTestContext>('should support multiple position callbacks', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const callback1 = vi.fn();
-      const callback2 = vi.fn();
-
-      source.onPosition(callback1);
-      source.onPosition(callback2);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      mockPlayer.currentTime.mockReturnValue(20);
-      mocks.triggerEvent('timeupdate');
-
-      expect(callback1).toHaveBeenCalledWith(20);
-      expect(callback2).toHaveBeenCalledWith(20);
-    });
-
-    test<VideoPositionSourceTestContext>('should not emit position updates when suspended', async ({
-      source,
-      positionCallback,
-      mockPlayer,
-    }) => {
-      source.onPosition(positionCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      source.suspend();
-
-      positionCallback.mockClear();
-
-      // Timeupdate shouldn't trigger callback when suspended
-      mockPlayer.currentTime.mockReturnValue(25);
-      mocks.triggerEvent('timeupdate');
-
-      expect(positionCallback).not.toHaveBeenCalled();
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // T019: Seek and boundary events tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('seek and boundary events (T019)', () => {
-    test<VideoPositionSourceTestContext>('should implement ISeekable interface', ({
-      source,
-    }) => {
-      expect(typeof source.seek).toBe('function');
-    });
-
-    test<VideoPositionSourceTestContext>('should seek to specified position', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Mock currentTime to return the sought position after seek
-      mockPlayer.currentTime.mockImplementation((time?: number) => {
-        if (time !== undefined) {
-          // Setting currentTime
-          return undefined;
-        }
-        return 30; // Return the position after seek
-      });
-
-      // Start seek
-      const seekPromise = source.seek(30);
-
-      // Trigger seeked event
-      mocks.triggerOneEvent('seeked');
-
-      const result = await seekPromise;
-
-      expect(result).toBe(30);
-    });
-
-    test<VideoPositionSourceTestContext>('should emit position callback after seek', async ({
-      source,
-      positionCallback,
-      mockPlayer,
-    }) => {
-      source.onPosition(positionCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      positionCallback.mockClear();
-
-      mockPlayer.currentTime.mockImplementation((time?: number) => {
-        if (time !== undefined) return undefined;
-        return 25;
-      });
-
-      const seekPromise = source.seek(25);
-      mocks.triggerOneEvent('seeked');
-      await seekPromise;
-
-      expect(positionCallback).toHaveBeenCalledWith(25);
-    });
-
-    test<VideoPositionSourceTestContext>('should emit end boundary when video ends', async ({
-      source,
-      boundaryCallback,
-    }) => {
-      source.onBoundaryReached(boundaryCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Trigger ended event
-      mocks.triggerEvent('ended');
-
-      expect(boundaryCallback).toHaveBeenCalledWith('end');
-    });
-
-    test<VideoPositionSourceTestContext>('should deactivate after end when loop is false', async ({
-      source,
-    }) => {
-      source.loop = false;
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Trigger ended event
-      mocks.triggerEvent('ended');
-
-      expect(source.state).toBe('inactive');
-    });
-
-    test<VideoPositionSourceTestContext>('should reset and emit start boundary when loop is true', async ({
-      source,
-      boundaryCallback,
-      mockPlayer,
-    }) => {
-      source.loop = true;
-      source.onBoundaryReached(boundaryCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-
-      // Trigger ended event
-      mocks.triggerEvent('ended');
-
-      // Should have emitted end and start
-      expect(boundaryCallback).toHaveBeenCalledWith('end');
-      expect(boundaryCallback).toHaveBeenCalledWith('start');
-
-      // Should still be active
-      expect(source.state).toBe('active');
-
-      // Should have reset currentTime
-      expect(mockPlayer.currentTime).toHaveBeenCalledWith(0);
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // T020: Container provider methods tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('container provider methods (T020)', () => {
-    test<VideoPositionSourceTestContext>('should implement IContainerProvider interface', ({
-      source,
-    }) => {
-      expect(typeof source.getContainer).toBe('function');
-      expect(typeof source.onContainerReady).toBe('function');
-    });
-
-    test<VideoPositionSourceTestContext>('should return container from getContainer()', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      const container = source.getContainer();
-
-      // Container should be a jQuery-wrapped element
-      expect(container).toBeDefined();
-    });
-
-    test<VideoPositionSourceTestContext>('should call onContainerReady callback on first frame', async ({
-      source,
-      containerReadyCallback,
-    }) => {
-      source.onContainerReady(containerReadyCallback);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      expect(containerReadyCallback).not.toHaveBeenCalled();
-
-      // video.js 8 has no player 'firstplay' event; first 'playing' marks readiness
-      mocks.triggerOneEvent('playing');
-
-      expect(containerReadyCallback).toHaveBeenCalledTimes(1);
-    });
-
-    test<VideoPositionSourceTestContext>('should support multiple container ready callbacks', async ({
-      source,
-    }) => {
-      const callback1 = vi.fn();
-      const callback2 = vi.fn();
-
-      source.onContainerReady(callback1);
-      source.onContainerReady(callback2);
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      mocks.triggerOneEvent('playing');
-
-      expect(callback1).toHaveBeenCalled();
-      expect(callback2).toHaveBeenCalled();
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Additional lifecycle tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('lifecycle', () => {
-    test<VideoPositionSourceTestContext>('destroy() should remove event listeners', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      source.destroy();
-
-      expect(mockPlayer.off).toHaveBeenCalled();
-    });
-
-    test<VideoPositionSourceTestContext>('destroy() should transition to inactive state', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      await source.activate();
-      source.destroy();
-
-      expect(source.state).toBe('inactive');
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Failure paths: init errors, autoplay rejection, destroy while pending
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('init failures', () => {
-    test<VideoPositionSourceTestContext>('given a player that emits error and never canplay, when init() is called, then init() rejects', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      const settled = expect(initPromise).rejects.toThrow(
-        'VideoPositionSource'
-      );
-      await vi.advanceTimersByTimeAsync(10);
-
-      mocks.triggerOneEvent('error');
-
-      await settled;
-    });
-
-    test('given a selector that matches nothing, when init() is called, then init() rejects without calling videojs', async () => {
-      const source = new VideoPositionSource({
-        selector: '#does-not-exist',
-        sources: [{src: 'video.mp4', type: 'video/mp4'}],
-      });
-
-      const settled = expect(source.init()).rejects.toThrow('#does-not-exist');
-      await vi.advanceTimersByTimeAsync(10);
-
-      await settled;
-      expect(mocks.getVideojsCallCount()).toBe(0);
-    });
-
-    test<VideoPositionSourceTestContext>('given videojs() throws, when init() is called, then init() rejects with that error', async ({
-      source,
-    }) => {
-      mocks.setVideojsError(
-        new Error('The element or ID supplied is not valid')
-      );
-
-      const settled = expect(source.init()).rejects.toThrow(
-        'The element or ID supplied is not valid'
-      );
-      await vi.advanceTimersByTimeAsync(10);
-
-      await settled;
-    });
-
-    test<VideoPositionSourceTestContext>('given init() was called but not awaited, when destroy() is called and timers run, then videojs is not called and init settles', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      const settled = expect(initPromise).rejects.toThrow('destroyed');
-
-      source.destroy();
-      await vi.advanceTimersByTimeAsync(10);
-
-      await settled;
-      expect(mocks.getVideojsCallCount()).toBe(0);
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // video.js is an optional peer dependency, loaded on first init()
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('lazy video.js loading', () => {
-    const importFreshSource = async () => {
-      vi.resetModules();
-      const module = await import(
-        '@timelineproviders/position-sources/video-position-source.ts'
-      );
-      return module.VideoPositionSource;
-    };
-
-    const restoreVideojsMock = () => {
-      vi.doMock('video.js', videojsModule.factory);
-      vi.resetModules();
-    };
-
-    const createSource = (Source: typeof VideoPositionSource) =>
-      new Source({
-        selector: '#video-container',
-        sources: [{src: 'video.mp4', type: 'video/mp4'}],
-      });
-
-    test('given the module is imported, when no source has been initialised, then video.js is not loaded until init()', async () => {
-      const factory = vi.fn(videojsModule.factory);
-      vi.doMock('video.js', factory);
-      try {
-        const FreshSource = await importFreshSource();
-        const source = createSource(FreshSource);
-        expect(factory).not.toHaveBeenCalled();
-
-        const initPromise = source.init();
-        await vi.waitFor(() => {
-          expect(mocks.getVideojsCallCount()).toBe(1);
-        });
-        await vi.advanceTimersByTimeAsync(10);
-        mocks.triggerOneEvent('canplay');
-        await initPromise;
-
-        expect(factory).toHaveBeenCalledTimes(1);
-        source.destroy();
-      } finally {
-        restoreVideojsMock();
-      }
-    });
-
-    test('given video.js is not installed, when init() is called, then init() rejects with an error naming the video.js peer dependency', async () => {
-      vi.doMock('video.js', () => {
-        throw new Error("Cannot find package 'video.js'");
-      });
-      try {
-        const FreshSource = await importFreshSource();
-        const source = createSource(FreshSource);
-
-        await expect(source.init()).rejects.toThrow(
-          /VideoPositionSource requires the optional peer dependency 'video.js'/
-        );
-        expect(mocks.getVideojsCallCount()).toBe(0);
-        source.destroy();
-      } finally {
-        restoreVideojsMock();
-      }
-    });
-  });
-
-  describe('autoplay rejection', () => {
-    const initSource = async (source: VideoPositionSource) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-    };
-
-    test<VideoPositionSourceTestContext>('given player.play() rejects with NotAllowedError, when activate() is awaited, then it rejects, state is not active and onActivated is not called', async ({
-      source,
-      mockPlayer,
-    }) => {
-      const activated = vi.fn();
-      source.onActivated(activated);
-      await initSource(source);
-      const notAllowed = new Error('play() failed');
-      notAllowed.name = 'NotAllowedError';
-      mockPlayer.play.mockRejectedValueOnce(notAllowed);
-
-      await expect(source.activate()).rejects.toBe(notAllowed);
-
-      expect(source.state).toBe('inactive');
-      expect(activated).not.toHaveBeenCalled();
-    });
-
-    test<VideoPositionSourceTestContext>('given player.play() resolves, when activate() is awaited, then onActivated is called once', async ({
-      source,
-    }) => {
-      const activated = vi.fn();
-      source.onActivated(activated);
-      await initSource(source);
-
-      await source.activate();
-
-      expect(source.state).toBe('active');
-      expect(activated).toHaveBeenCalledTimes(1);
-    });
-
-    test<VideoPositionSourceTestContext>('given loop and a rejected replay, when the video ends, then the rejection is handled', async ({
-      source,
-      mockPlayer,
-    }) => {
-      source.loop = true;
-      await initSource(source);
-      await source.activate();
-      const replay = Promise.reject(new Error('NotAllowedError'));
-      const catchSpy = vi.spyOn(replay, 'catch');
-      mockPlayer.play.mockReturnValueOnce(replay);
-
-      mocks.triggerEvent('ended');
-      await vi.advanceTimersByTimeAsync(0);
-
-      expect(catchSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('container ready', () => {
-    test<VideoPositionSourceTestContext>('given container already ready, when onContainerReady is registered, then the callback is called immediately', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-      mocks.triggerOneEvent('playing');
-
-      const lateCallback = vi.fn();
-      source.onContainerReady(lateCallback);
-
-      expect(lateCallback).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('destroy while seeking', () => {
-    test<VideoPositionSourceTestContext>('given a seek waiting for seeked, when destroy() is called, then the seek promise settles', async ({
-      source,
-    }) => {
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      const seekPromise = source.seek(30);
-      source.destroy();
-
-      await expect(seekPromise).resolves.toBeTypeOf('number');
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // Configuration tests
-  // ─────────────────────────────────────────────────────────────────────────
-
-  describe('configuration', () => {
-    test('should accept video sources in configuration', () => {
-      const source = new VideoPositionSource({
-        selector: '#player',
-        sources: [
-          {src: 'video.mp4', type: 'video/mp4'},
-          {src: 'video.webm', type: 'video/webm'},
-        ],
-      });
-
-      expect(source).toBeDefined();
-    });
-
-    test('should use provided selector for container', async () => {
-      // Create a container element in the DOM
-      const container = document.createElement('div');
-      container.id = 'test-player';
-      document.body.appendChild(container);
-
-      const source = new VideoPositionSource({
-        selector: '#test-player',
-        sources: [{src: 'video.mp4', type: 'video/mp4'}],
-      });
-
-      const initPromise = source.init();
-      await vi.advanceTimersByTimeAsync(10);
-      mocks.triggerOneEvent('canplay');
-      await initPromise;
-
-      const foundContainer = source.getContainer();
-      expect(foundContainer?.length).toBeGreaterThan(0);
-
-      // Cleanup
-      document.body.removeChild(container);
-    });
+describe('VideoPositionSource construction', () => {
+  test('given a new source, when it is constructed, then it is inactive at position 0, creates no video element and calls no media method', () => {
+    const source = new VideoPositionSource(config());
+
+    expect(source.state).toBe('inactive');
+    expect(source.getPosition()).toBe(0);
+    expect(document.querySelector('video')).toBeNull();
+    expect(mediaCallCount()).toBe(0);
   });
 });
 
-describe('VideoPositionSource configuration validation and seek settling', () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    mocks.resetMockPlayer();
-    mocks.resetHandlers();
-    const container = document.createElement('div');
-    container.id = 'video-container';
-    document.body.appendChild(container);
+// ─────────────────────────────────────────────────────────────────────────────
+// Element creation
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource element creation', () => {
+  test("given a container, when init() is called, then one video element whose id starts with 'video-' and whose class is 'eligius-video' is appended to the container and belongs to the container's document", () => {
+    const source = new VideoPositionSource(config());
+
+    source.init();
+
+    const video = getVideoElement(container());
+    expect(video.parentElement).toBe(container());
+    expect(video.id.startsWith('video-')).toBe(true);
+    expect(video.className).toBe('eligius-video');
+    expect(video.ownerDocument).toBe(container().ownerDocument);
   });
 
-  afterEach(() => {
-    document.getElementById('video-container')?.remove();
-    vi.useRealTimers();
-    vi.clearAllMocks();
+  test("given init() was called, when the video element is inspected, then preload is 'auto', playsInline is true and controls, autoplay, loop and muted are false", () => {
+    const source = new VideoPositionSource(config());
+
+    source.init();
+
+    const video = getVideoElement();
+    expect(video.preload).toBe('auto');
+    expect(video.playsInline).toBe(true);
+    expect(video.controls).toBe(false);
+    expect(video.autoplay).toBe(false);
+    expect(video.loop).toBe(false);
+    expect(video.muted).toBe(false);
   });
 
-  const initSource = async (source: VideoPositionSource) => {
-    const initPromise = source.init();
-    await vi.advanceTimersByTimeAsync(10);
-    mocks.triggerOneEvent('canplay');
-    await initPromise;
-  };
+  test('given two sources, when init() is called, then the video has one source child per entry in order with their src and type attributes', () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
 
-  test("given a VideoPositionSource config with selector and poster but no sources, when init() is called, then init() rejects with an error naming the missing 'sources' instead of staying pending", async () => {
+    source.init();
+
+    const sources = getSourceElements(getVideoElement());
+    expect(
+      sources.map(element => [
+        element.getAttribute('src'),
+        element.getAttribute('type'),
+      ])
+    ).toEqual([
+      ['video.mp4', 'video/mp4'],
+      ['video.webm', 'video/webm'],
+    ]);
+  });
+
+  test('given an audio/mpeg source, when init() is called, then its source child has type audio/mpeg and init() resolves on canplay', async () => {
+    const source = new VideoPositionSource(
+      config({sources: [{src: 'track.mp3', type: 'audio/mpeg'}]})
+    );
+
+    const pending = source.init();
+    const video = getVideoElement();
+    expect(getSourceElements(video)[0].getAttribute('type')).toBe('audio/mpeg');
+    makeReady(video);
+
+    await expect(pending).resolves.toBeUndefined();
+  });
+
+  test('given a source without a type, when init() is called, then its source child has no type attribute and canPlayType is not asked about it', () => {
+    const source = new VideoPositionSource(
+      config({sources: [{src: 'video.mp4'} as VideoSource]})
+    );
+
+    source.init();
+
+    const [element] = getSourceElements(getVideoElement());
+    expect(element.getAttribute('src')).toBe('video.mp4');
+    expect(element.hasAttribute('type')).toBe(false);
+    expect(media.canPlayType).not.toHaveBeenCalled();
+  });
+
+  test('given two sources of which the browser cannot play the first type, when init() is called, then only the second gets a source child', () => {
+    media.canPlayType.mockImplementation(type =>
+      type === 'video/mp4' ? '' : 'maybe'
+    );
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    source.init();
+
+    const sources = getSourceElements(getVideoElement());
+    expect(sources.map(element => element.getAttribute('src'))).toEqual([
+      'video.webm',
+    ]);
+  });
+
+  test('given a poster, when init() is called, then the video has that poster attribute', () => {
+    const source = new VideoPositionSource(config({poster: 'poster.jpg'}));
+
+    source.init();
+
+    expect(getVideoElement().getAttribute('poster')).toBe('poster.jpg');
+  });
+
+  test('given no poster, when init() is called, then the video has no poster attribute', () => {
+    const source = new VideoPositionSource(config());
+
+    source.init();
+
+    expect(getVideoElement().hasAttribute('poster')).toBe(false);
+  });
+
+  test('given init() was called, when load() runs, then the video is already in the document and has its source children', () => {
+    const seen: Array<[boolean, number]> = [];
+    media.load.mockImplementation(function (this: HTMLMediaElement) {
+      seen.push([this.isConnected, this.children.length]);
+    });
+    const source = new VideoPositionSource(config());
+
+    source.init();
+
+    expect(seen).toEqual([[true, 1]]);
+  });
+
+  test('given a selector that matches two elements, when init() is called, then only the first match gets a video element', () => {
+    document.body.innerHTML =
+      '<div class="player" id="first"></div><div class="player" id="second"></div>';
+    const source = new VideoPositionSource(config({selector: '.player'}));
+
+    source.init();
+
+    expect(
+      document.getElementById('first')?.querySelectorAll('video')
+    ).toHaveLength(1);
+    expect(
+      document.getElementById('second')?.querySelectorAll('video')
+    ).toHaveLength(0);
+  });
+
+  test('given loop set to true before init, when init() creates the element, then the native loop property is false', () => {
+    const source = new VideoPositionSource(config());
+    source.loop = true;
+
+    source.init();
+
+    expect(getVideoElement().loop).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init settlement
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource init settlement', () => {
+  test('given a pending init, when canplay fires, then init() resolves and the source is still inactive', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    makeReady(getVideoElement());
+
+    await expect(pending).resolves.toBeUndefined();
+    expect(source.state).toBe('inactive');
+  });
+
+  test('given a pending init without canplay, when pending work has run, then init() has not settled', async () => {
+    const source = new VideoPositionSource(config());
+
+    const state = trackSettlement(source.init());
+    await flushMicrotasks();
+
+    expect(state.settled).toBe(false);
+  });
+
+  test("given two sources, when the last source fires error, then init() rejects with the source list and 'none of the sources could be played'", async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    const video = getVideoElement();
+    emitMediaEvent(getSourceElements(video)[1], 'error');
+
+    await expect(pending).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4, video.webm): none of the sources could be played'
+    );
+  });
+
+  test("given two sources, when the first source fires error while networkState is NETWORK_NO_SOURCE, then init() rejects with 'none of the sources could be played'", async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    const video = getVideoElement();
+    setMediaProperty(video, 'networkState', 3);
+    emitMediaEvent(getSourceElements(video)[0], 'error');
+
+    await expect(pending).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4, video.webm): none of the sources could be played'
+    );
+  });
+
+  test('given two sources whose types the browser cannot play, when init() is called, then it rejects at once naming the sources and no video element is in the document', async () => {
+    media.canPlayType.mockReturnValue('');
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    await expect(source.init()).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4, video.webm): none of the sources has a type this browser can play'
+    );
+    expect(document.querySelector('video')).toBeNull();
+    expect(media.load).not.toHaveBeenCalled();
+  });
+
+  test('given two sources, when only the first source fires error while networkState is NETWORK_LOADING, then init() stays pending and resolves on canplay', async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    const state = trackSettlement(pending);
+    const video = getVideoElement();
+    setMediaProperty(video, 'networkState', 2);
+    emitMediaEvent(getSourceElements(video)[0], 'error');
+    await flushMicrotasks();
+
+    expect(state.settled).toBe(false);
+
+    makeReady(video);
+    await expect(pending).resolves.toBeUndefined();
+  });
+
+  test('given a pending init, when the video fires error with a MediaError message, then init() rejects with the source list and that message', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    const video = getVideoElement();
+    setMediaProperty(video, 'error', {
+      code: 4,
+      message: 'MEDIA_ELEMENT_ERROR: Format error',
+    });
+    emitMediaEvent(video, 'error');
+
+    await expect(pending).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4): MEDIA_ELEMENT_ERROR: Format error'
+    );
+  });
+
+  test('given a pending init, when the video fires error with a MediaError without a message, then the rejection names MediaError code 4', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    const video = getVideoElement();
+    setMediaProperty(video, 'error', {code: 4, message: ''});
+    emitMediaEvent(video, 'error');
+
+    await expect(pending).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4): MediaError code 4'
+    );
+  });
+
+  test('given init() resolved on canplay, when the video fires error afterwards, then no init listener remains and the source still activates', async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+
+    const video = await initSource(source);
+
+    const active = tracker.activeOn(video);
+    expect(active.some(listener => listener.type === 'canplay')).toBe(false);
+    expect(
+      active.some(listener => listener.type === 'error' && listener.capture)
+    ).toBe(false);
+
+    emitMediaEvent(video, 'error');
+    await source.activate();
+
+    expect(source.state).toBe('active');
+  });
+
+  test('given a failed init, when the rejection is observed, then the video element is removed and no listener of the source remains on it', async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    const video = getVideoElement();
+    const [sourceElement] = getSourceElements(video);
+    emitMediaEvent(sourceElement, 'error');
+
+    await expect(pending).rejects.toThrow(/failed to load video/);
+    expect(video.isConnected).toBe(false);
+    expect(document.querySelector('video')).toBeNull();
+    expect(tracker.activeOn(video)).toEqual([]);
+    expect(tracker.activeOn(sourceElement)).toEqual([]);
+    expect(media.load).toHaveBeenCalledTimes(2);
+    expect(media.pause).toHaveBeenCalled();
+  });
+
+  test('given a failed init, when init() is called again, then exactly one fresh video element is in the container, a canplay on the old element does not settle the new init, and the new init resolves on its own canplay', async () => {
+    const source = new VideoPositionSource(config());
+
+    const first = source.init();
+    const oldVideo = getVideoElement();
+    emitMediaEvent(getSourceElements(oldVideo)[0], 'error');
+    await expect(first).rejects.toThrow(/failed to load video/);
+
+    const second = source.init();
+    const state = trackSettlement(second);
+    const freshVideo = getVideoElement(container());
+    expect(freshVideo).not.toBe(oldVideo);
+
+    makeReady(oldVideo);
+    await flushMicrotasks();
+    expect(state.settled).toBe(false);
+
+    makeReady(freshVideo);
+    await expect(second).resolves.toBeUndefined();
+    expect(container().querySelectorAll('video')).toHaveLength(1);
+  });
+
+  test('given an initialised source, when init() is called again, then it resolves and no second video element exists', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+
+    await expect(source.init()).resolves.toBeUndefined();
+
+    expect(document.querySelectorAll('video')).toHaveLength(1);
+  });
+
+  test('given a pending init, when init() is called a second time, then one video element exists and both calls resolve on canplay', async () => {
+    const source = new VideoPositionSource(config());
+
+    const first = source.init();
+    const second = source.init();
+    expect(document.querySelectorAll('video')).toHaveLength(1);
+    makeReady(getVideoElement());
+
+    await expect(first).resolves.toBeUndefined();
+    await expect(second).resolves.toBeUndefined();
+  });
+
+  test('given a selector that matches nothing, when init() is called, then it rejects naming the selector and creates no element', async () => {
+    const source = new VideoPositionSource(config({selector: '#missing'}));
+
+    await expect(source.init()).rejects.toThrow(
+      "VideoPositionSource: container not found for selector '#missing'"
+    );
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  test("given no sources, when init() is called, then it rejects naming 'sources' and creates no element", async () => {
     const source = new VideoPositionSource({
       selector: '#video-container',
-      poster: '/p.jpg',
-    } as unknown as ConstructorParameters<typeof VideoPositionSource>[0]);
+      poster: 'poster.jpg',
+    } as unknown as VideoPositionSourceConfig);
 
     await expect(source.init()).rejects.toThrow(
       "VideoPositionSource: 'sources' is required (an array of {src, type})"
     );
-    expect(mocks.getVideojsCallCount()).toBe(0);
-    expect(document.querySelector('#video-container video')).toBeNull();
+    expect(document.querySelector('video')).toBeNull();
   });
 
-  test('given an empty sources array, when init() is called, then init() rejects', async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [],
-    });
+  test("given an empty sources array, when init() is called, then it rejects naming 'sources'", async () => {
+    const source = new VideoPositionSource(config({sources: []}));
 
-    await expect(source.init()).rejects.toThrow(/'sources' is required/);
+    await expect(source.init()).rejects.toThrow(
+      "VideoPositionSource: 'sources' is required (an array of {src, type})"
+    );
   });
 
-  test('given sources passed through the video.js options, when init() is called, then init() resolves', async () => {
+  test('given a source entry without src, when init() is called, then it rejects naming sources[1].src and creates no element', async () => {
+    const source = new VideoPositionSource(
+      config({
+        sources: [
+          {src: 'a.mp4', type: 'video/mp4'},
+          {type: 'video/webm'} as VideoSource,
+        ],
+      })
+    );
+
+    await expect(source.init()).rejects.toThrow(
+      'VideoPositionSource: sources[1].src must be a non-empty string'
+    );
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  test("given a config with an options key, when init() is called, then it rejects naming 'options' and creates no element", async () => {
     const source = new VideoPositionSource({
       selector: '#video-container',
       options: {sources: [{src: 'video.mp4', type: 'video/mp4'}]},
-    } as unknown as ConstructorParameters<typeof VideoPositionSource>[0]);
+    } as unknown as VideoPositionSourceConfig);
 
-    await initSource(source);
-
-    expect(mocks.getLastVideojsOptions()?.sources).toEqual([
-      {src: 'video.mp4', type: 'video/mp4'},
-    ]);
-  });
-
-  test('given a top-level poster, when the player is created, then video.js receives the poster', async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-      poster: '/p.jpg',
-    });
-
-    await initSource(source);
-
-    expect(mocks.getLastVideojsOptions()?.poster).toBe('/p.jpg');
-  });
-
-  test('given no poster, when the player is created, then no poster option is passed', async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-    });
-
-    await initSource(source);
-
-    expect(mocks.getLastVideojsOptions()).not.toHaveProperty('poster');
-  });
-
-  test("given a pending video seek, when the player emits 'error' instead of 'seeked', then the seek promise settles with the current time", async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-    });
-    await initSource(source);
-    const player = mocks.getMockPlayer();
-    player.currentTime.mockImplementation((time?: number) =>
-      time === undefined ? 12 : undefined
+    await expect(source.init()).rejects.toThrow(
+      /'options' is no longer supported/
     );
-
-    const seekPromise = source.seek(120);
-    mocks.triggerOneEvent('error');
-
-    await expect(seekPromise).resolves.toBe(12);
-    expect(player.off).toHaveBeenCalledWith('seeked', expect.any(Function));
+    expect(document.querySelector('video')).toBeNull();
   });
 
-  test("given a pending video seek, when the media is reset ('emptied') instead of seeked, then the seek promise settles", async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-    });
+  test('given a pending init, when destroy() is called, then init() rejects as destroyed, the element is removed and a later canplay on it changes nothing', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    const video = getVideoElement();
+    source.destroy();
+
+    await expect(pending).rejects.toThrow(/destroyed before init completed/);
+    expect(video.isConnected).toBe(false);
+
+    makeReady(video);
+    await flushMicrotasks();
+    expect(source.state).toBe('inactive');
+    expect(source.getDuration()).toBe(0);
+  });
+
+  test('given a destroyed source, when init() is called, then it rejects as destroyed and creates no element', async () => {
+    const source = new VideoPositionSource(config());
+    source.destroy();
+
+    await expect(source.init()).rejects.toThrow(/destroyed/);
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  test('given a source that was initialised and then destroyed, when init() is called again, then it rejects as destroyed and creates no element', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+    source.destroy();
+
+    await expect(source.init()).rejects.toThrow(/destroyed/);
+    expect(document.querySelector('video')).toBeNull();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// State transitions
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource state transitions', () => {
+  test('given an initialised source, when activate() is awaited, then the state is active and play() was called once', async () => {
+    const source = new VideoPositionSource(config());
     await initSource(source);
 
-    const seekPromise = source.seek(30);
-    mocks.triggerOneEvent('emptied');
+    await source.activate();
 
-    await expect(seekPromise).resolves.toBeTypeOf('number');
+    expect(source.state).toBe('active');
+    expect(media.play).toHaveBeenCalledTimes(1);
   });
 
-  test("given a seek that completed with 'seeked', when the error listeners are checked, then they were removed", async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-    });
+  test('given an active source, when suspend() is called, then the state is suspended and pause() was called', async () => {
+    const {source} = await activeSource();
+
+    source.suspend();
+
+    expect(source.state).toBe('suspended');
+    expect(media.pause).toHaveBeenCalledTimes(1);
+  });
+
+  test('given an active source at 15 seconds, when suspend() is called, then getPosition() is still 15', async () => {
+    const {source, video} = await activeSource();
+    video.currentTime = 15;
+    emitMediaEvent(video, 'timeupdate');
+
+    source.suspend();
+
+    expect(source.getPosition()).toBe(15);
+  });
+
+  test('given an active source, when deactivate() is called, then it is inactive, pause() was called once and currentTime and getPosition() are 0', async () => {
+    const {source, video} = await activeSource();
+    video.currentTime = 20;
+    emitMediaEvent(video, 'timeupdate');
+
+    source.deactivate();
+
+    expect(source.state).toBe('inactive');
+    expect(media.pause).toHaveBeenCalledTimes(1);
+    expect(video.currentTime).toBe(0);
+    expect(source.getPosition()).toBe(0);
+  });
+
+  test('given an initialised inactive source, when deactivate() is called, then pause() is not called', async () => {
+    const source = new VideoPositionSource(config());
     await initSource(source);
-    const player = mocks.getMockPlayer();
 
-    const seekPromise = source.seek(30);
-    mocks.triggerOneEvent('seeked');
-    await seekPromise;
+    source.deactivate();
 
-    expect(player.off).toHaveBeenCalledWith('error', expect.any(Function));
-    expect(player.off).toHaveBeenCalledWith('emptied', expect.any(Function));
+    expect(media.pause).not.toHaveBeenCalled();
   });
 
-  test('given play, pause, play while the first play() is pending, when the first play rejects with AbortError and the second resolves, then the source is active and onActivated fires once', async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
+  test('given a suspended source, when activate() is awaited, then play() is called again', async () => {
+    const {source} = await activeSource();
+    source.suspend();
+
+    await source.activate();
+
+    expect(source.state).toBe('active');
+    expect(media.play).toHaveBeenCalledTimes(2);
+  });
+
+  test('given an uninitialised source, when activate(), suspend() and deactivate() are called, then nothing throws and no media method runs', async () => {
+    const source = new VideoPositionSource(config());
+
+    await source.activate();
+    source.suspend();
+    await source.activate();
+    source.deactivate();
+
+    expect(source.state).toBe('inactive');
+    expect(mediaCallCount()).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Playback promises
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource playback promises', () => {
+  test('given play() rejects with NotAllowedError, when activate() is awaited, then it rejects with that error, the state is inactive and onActivated is not called', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+    const notAllowed = new DOMException('blocked', 'NotAllowedError');
+    media.play.mockRejectedValueOnce(notAllowed);
+    const activated = vi.fn();
+    source.onActivated(activated);
+
+    await expect(source.activate()).rejects.toBe(notAllowed);
+
+    expect(source.state).toBe('inactive');
+    expect(activated).not.toHaveBeenCalled();
+  });
+
+  test('given play() resolves, when activate() is awaited, then onActivated is called once', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+    const activated = vi.fn();
+    source.onActivated(activated);
+
+    await source.activate();
+
+    expect(activated).toHaveBeenCalledTimes(1);
+  });
+
+  test('given play, suspend, play while the first play() is pending, when the first rejects with AbortError and the second resolves, then the source is active and onActivated fires once', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+    const plays: Array<ReturnType<typeof deferred<void>>> = [];
+    media.play.mockImplementation(() => {
+      const play = deferred<void>();
+      plays.push(play);
+      return play.promise;
     });
     const activated = vi.fn();
     source.onActivated(activated);
-    await initSource(source);
-    const player = mocks.getMockPlayer();
-    const plays: Array<{resolve: () => void; reject: (e: Error) => void}> = [];
-    player.play.mockImplementation(
-      () =>
-        new Promise<undefined>((resolve, reject) => {
-          plays.push({resolve: () => resolve(undefined), reject});
-        })
-    );
 
     const first = source.activate();
     source.suspend();
     const second = source.activate();
-    plays[0].reject(new Error('AbortError'));
+    plays[0].reject(new DOMException('aborted', 'AbortError'));
     plays[1].resolve();
+    await first;
+    await second;
 
-    await expect(first).resolves.toBeUndefined();
-    await expect(second).resolves.toBeUndefined();
     expect(source.state).toBe('active');
     expect(activated).toHaveBeenCalledTimes(1);
   });
+
+  test('given play, deactivate, play while the first play() is pending, when the first rejects with AbortError and the second resolves, then the source is active and onActivated fires once', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+    const plays: Array<ReturnType<typeof deferred<void>>> = [];
+    media.play.mockImplementation(() => {
+      const play = deferred<void>();
+      plays.push(play);
+      return play.promise;
+    });
+    const activated = vi.fn();
+    source.onActivated(activated);
+
+    const first = source.activate();
+    source.deactivate();
+    const second = source.activate();
+    plays[0].reject(new DOMException('aborted', 'AbortError'));
+    plays[1].resolve();
+    await first;
+    await second;
+
+    expect(source.state).toBe('active');
+    expect(activated).toHaveBeenCalledTimes(1);
+    expect(media.pause).toHaveBeenCalledTimes(1);
+  });
+
+  test('given play() returns undefined as unstubbed jsdom does, when activate() is awaited, then the source is active', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source);
+    media.play.mockReturnValue(undefined as unknown as Promise<void>);
+
+    await source.activate();
+
+    expect(source.state).toBe('active');
+  });
 });
 
-describe('VideoPositionSource seek after destroy', () => {
+// ─────────────────────────────────────────────────────────────────────────────
+// Position updates
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource position updates', () => {
+  test('given an active source, when timeupdate fires at 5.5 seconds, then the position callback receives 5.5 and getPosition() is 5.5', async () => {
+    const {source, video} = await activeSource();
+    const onPosition = vi.fn();
+    source.onPosition(onPosition);
+
+    video.currentTime = 5.5;
+    emitMediaEvent(video, 'timeupdate');
+
+    expect(onPosition).toHaveBeenCalledWith(5.5);
+    expect(source.getPosition()).toBe(5.5);
+  });
+
+  test('given two position callbacks, when timeupdate fires, then both receive the position', async () => {
+    const {source, video} = await activeSource();
+    const first = vi.fn();
+    const second = vi.fn();
+    source.onPosition(first);
+    source.onPosition(second);
+
+    video.currentTime = 3;
+    emitMediaEvent(video, 'timeupdate');
+
+    expect(first).toHaveBeenCalledWith(3);
+    expect(second).toHaveBeenCalledWith(3);
+  });
+
+  test('given a suspended source, when timeupdate fires, then no callback runs and the position is unchanged', async () => {
+    const {source, video} = await activeSource();
+    video.currentTime = 2;
+    emitMediaEvent(video, 'timeupdate');
+    source.suspend();
+    const onPosition = vi.fn();
+    source.onPosition(onPosition);
+
+    video.currentTime = 8;
+    emitMediaEvent(video, 'timeupdate');
+
+    expect(onPosition).not.toHaveBeenCalled();
+    expect(source.getPosition()).toBe(2);
+  });
+
+  test('given an initialised inactive source, when timeupdate fires, then the position stays 0', async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+
+    video.currentTime = 4;
+    emitMediaEvent(video, 'timeupdate');
+
+    expect(source.getPosition()).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Duration
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource duration', () => {
+  test('given media metadata with a duration of 120, when getDuration() is called, then it returns 120', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source, {duration: 120});
+
+    expect(source.getDuration()).toBe(120);
+  });
+
+  test('given no metadata yet, when getDuration() is called, then it returns 0 instead of NaN', async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    setMediaProperty(video, 'duration', Number.NaN);
+
+    expect(source.getDuration()).toBe(0);
+  });
+
+  test('given unbounded media, when getDuration() is called, then it returns Infinity', async () => {
+    const source = new VideoPositionSource(config());
+    await initSource(source, {duration: Number.POSITIVE_INFINITY});
+
+    expect(source.getDuration()).toBe(Number.POSITIVE_INFINITY);
+  });
+
+  test('given an uninitialised source, when getDuration() is called, then it returns 0', () => {
+    const source = new VideoPositionSource(config());
+
+    expect(source.getDuration()).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Seeking
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource seeking', () => {
+  test('given a source, when checked with isSeekable, then it is seekable', () => {
+    expect(isSeekable(new VideoPositionSource(config()))).toBe(true);
+  });
+
+  test('given a ready video, when seek(30) is called and seeked fires, then it resolves with 30 and getPosition() is 30', async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+
+    const pending = source.seek(30);
+    expect(video.currentTime).toBe(30);
+    emitMediaEvent(video, 'seeked');
+
+    await expect(pending).resolves.toBe(30);
+    expect(source.getPosition()).toBe(30);
+  });
+
+  test('given an active source with a position callback, when a seek completes, then the callback receives the new position', async () => {
+    const {source, video} = await activeSource();
+    const onPosition = vi.fn();
+    source.onPosition(onPosition);
+
+    const pending = source.seek(12);
+    emitMediaEvent(video, 'seeked');
+    await pending;
+
+    expect(onPosition).toHaveBeenCalledWith(12);
+  });
+
+  test('given a video that fires seeked synchronously when currentTime is assigned, when seek(10) is awaited, then it resolves with 10', async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    let time = 0;
+    Object.defineProperty(video, 'currentTime', {
+      configurable: true,
+      get: () => time,
+      set(value: number) {
+        time = value;
+        video.dispatchEvent(new Event('seeked'));
+      },
+    });
+
+    await expect(source.seek(10)).resolves.toBe(10);
+  });
+
+  test("given a pending seek, when the video fires error instead of seeked, then the seek resolves with the media's current time and no seek listener remains", async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    Object.defineProperty(video, 'currentTime', {
+      configurable: true,
+      get: () => 12,
+      set: () => {},
+    });
+
+    const pending = source.seek(30);
+    emitMediaEvent(video, 'error');
+
+    await expect(pending).resolves.toBe(12);
+    const types = tracker.activeOn(video).map(listener => listener.type);
+    expect(types).not.toContain('seeked');
+    expect(types).not.toContain('error');
+    expect(types).not.toContain('emptied');
+  });
+
+  test('given a pending seek, when a source child fires error, then the seek settles', async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+
+    const pending = source.seek(30);
+    emitMediaEvent(getSourceElements(video)[0], 'error');
+
+    await expect(pending).resolves.toEqual(expect.any(Number));
+  });
+
+  test("given a pending seek, when the media is reset with emptied, then the seek resolves with the media's current time", async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    Object.defineProperty(video, 'currentTime', {
+      configurable: true,
+      get: () => 12,
+      set: () => {},
+    });
+
+    const pending = source.seek(30);
+    emitMediaEvent(video, 'emptied');
+
+    await expect(pending).resolves.toBe(12);
+  });
+
+  test('given a seek that completed with seeked, when the listeners are counted, then no seeked, error or emptied listener of the seek remains', async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+
+    const pending = source.seek(5);
+    emitMediaEvent(video, 'seeked');
+    await pending;
+
+    expect(
+      tracker
+        .activeOn(video)
+        .map(listener => listener.type)
+        .sort()
+    ).toEqual(['ended', 'playing', 'timeupdate']);
+  });
+
+  test("given a pending seek, when destroy() is called, then the seek resolves with the media's current time", async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    Object.defineProperty(video, 'currentTime', {
+      configurable: true,
+      get: () => 12,
+      set: () => {},
+    });
+
+    const pending = source.seek(30);
+    source.destroy();
+
+    await expect(pending).resolves.toBe(12);
+  });
+
+  test('given a video without metadata, when seek(5) is called, then it resolves with 5 at once, sets currentTime and the reported position to 5 and adds no listener', async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    setMediaProperty(video, 'readyState', 0);
+    const before = tracker.activeOn(video);
+
+    await expect(source.seek(5)).resolves.toBe(5);
+
+    expect(video.currentTime).toBe(5);
+    expect(source.getPosition()).toBe(5);
+    expect(tracker.activeOn(video)).toEqual(before);
+  });
+
+  test('given a video with a MediaError, when seek(5) is called, then it resolves at once with the current time and adds no listener', async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    video.currentTime = 7;
+    setMediaProperty(video, 'error', {code: 2, message: ''});
+    const before = tracker.activeOn(video);
+
+    await expect(source.seek(5)).resolves.toBe(7);
+
+    expect(tracker.activeOn(video)).toEqual(before);
+  });
+
+  test('given a ready video with nothing seekable, when seek(5) is called, then it resolves at once with the current time and adds no listener', async () => {
+    const tracker = trackEventListeners();
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    video.currentTime = 3;
+    setMediaProperty(video, 'seekable', timeRanges());
+    const before = tracker.activeOn(video);
+
+    await expect(source.seek(5)).resolves.toBe(3);
+
+    expect(tracker.activeOn(video)).toEqual(before);
+  });
+
+  test("given an initialised source that was destroyed, when seek(30) is awaited, then it resolves with 0 and the removed element's currentTime is unchanged", async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    source.destroy();
+
+    await expect(source.seek(30)).resolves.toBe(0);
+
+    expect(video.currentTime).toBe(0);
+  });
+
+  test('given an uninitialised source, when seek(30) is awaited, then it resolves with 0', async () => {
+    const source = new VideoPositionSource(config());
+
+    await expect(source.seek(30)).resolves.toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// End of media
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource end of media', () => {
+  test('given an active source, when ended fires, then the end boundary is emitted', async () => {
+    const {source, video} = await activeSource();
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(boundary => boundaries.push(boundary));
+
+    emitMediaEvent(video, 'ended');
+
+    expect(boundaries[0]).toBe('end');
+  });
+
+  test('given loop false, when ended fires, then the source is inactive and currentTime is 0', async () => {
+    const {source, video} = await activeSource();
+    video.currentTime = 60;
+
+    emitMediaEvent(video, 'ended');
+
+    expect(source.state).toBe('inactive');
+    expect(video.currentTime).toBe(0);
+  });
+
+  test('given loop true set after init, when ended fires, then end and start boundaries are emitted in order, currentTime and position are 0, play() is called again and the source stays active', async () => {
+    const {source, video} = await activeSource();
+    source.loop = true;
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(boundary => boundaries.push(boundary));
+    video.currentTime = 60;
+    emitMediaEvent(video, 'timeupdate');
+
+    emitMediaEvent(video, 'ended');
+
+    expect(boundaries).toEqual(['end', 'start']);
+    expect(video.currentTime).toBe(0);
+    expect(source.getPosition()).toBe(0);
+    expect(media.play).toHaveBeenCalledTimes(2);
+    expect(source.state).toBe('active');
+  });
+
+  test('given loop true and a rejected replay, when ended fires, then the rejection is handled', async () => {
+    const {source, video} = await activeSource();
+    source.loop = true;
+    const replay = Promise.reject(new Error('replay blocked'));
+    const catchSpy = vi.spyOn(replay, 'catch');
+    media.play.mockReturnValueOnce(replay);
+
+    emitMediaEvent(video, 'ended');
+
+    expect(catchSpy).toHaveBeenCalled();
+    await flushMicrotasks();
+  });
+
+  test('given loop true and an end callback that suspends the source, when ended fires, then no start boundary is emitted and play() is not called again', async () => {
+    const {source, video} = await activeSource();
+    source.loop = true;
+    const boundaries: TBoundary[] = [];
+    source.onBoundaryReached(boundary => {
+      boundaries.push(boundary);
+      if (boundary === 'end') {
+        source.suspend();
+      }
+    });
+
+    emitMediaEvent(video, 'ended');
+
+    expect(boundaries).toEqual(['end']);
+    expect(media.play).toHaveBeenCalledTimes(1);
+    expect(source.state).toBe('suspended');
+  });
+
+  test('given loop true and a start callback that suspends the source, when ended fires, then play() is not called again', async () => {
+    const {source, video} = await activeSource();
+    source.loop = true;
+    source.onBoundaryReached(boundary => {
+      if (boundary === 'start') {
+        source.suspend();
+      }
+    });
+
+    emitMediaEvent(video, 'ended');
+
+    expect(media.play).toHaveBeenCalledTimes(1);
+    expect(source.state).toBe('suspended');
+  });
+
+  test('given a suspended source, when ended fires, then no boundary is emitted', async () => {
+    const {source, video} = await activeSource();
+    source.suspend();
+    const onBoundary = vi.fn();
+    source.onBoundaryReached(onBoundary);
+
+    emitMediaEvent(video, 'ended');
+
+    expect(onBoundary).not.toHaveBeenCalled();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Container provider
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource container provider', () => {
+  test('given a source, when its methods are inspected, then it provides getContainer and onContainerReady', () => {
+    const source = new VideoPositionSource(config());
+
+    expect(typeof source.getContainer).toBe('function');
+    expect(typeof source.onContainerReady).toBe('function');
+  });
+
+  test("given an initialised source, when getContainer() is called, then it returns the selector's element and not the video", async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+
+    const result = source.getContainer();
+
+    expect(result?.length).toBe(1);
+    expect(result?.get(0)).toBe(container());
+    expect(result?.get(0)).not.toBe(video);
+  });
+
+  test('given a registered ready callback, when the first playing fires, then it runs once and a second playing does not run it again', async () => {
+    const {source, video} = await activeSource();
+    const ready = vi.fn();
+    source.onContainerReady(ready);
+
+    emitMediaEvent(video, 'playing');
+    emitMediaEvent(video, 'playing');
+
+    expect(ready).toHaveBeenCalledTimes(1);
+  });
+
+  test('given two registered ready callbacks, when playing fires, then both run', async () => {
+    const {source, video} = await activeSource();
+    const first = vi.fn();
+    const second = vi.fn();
+    source.onContainerReady(first);
+    source.onContainerReady(second);
+
+    emitMediaEvent(video, 'playing');
+
+    expect(first).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledTimes(1);
+  });
+
+  test('given the container is already ready, when onContainerReady is called, then the callback runs immediately', async () => {
+    const {source, video} = await activeSource();
+    emitMediaEvent(video, 'playing');
+    const late = vi.fn();
+
+    source.onContainerReady(late);
+
+    expect(late).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Destroy
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource destroy', () => {
+  test('given an initialised source, when destroy() is called, then the state is inactive', async () => {
+    const {source} = await activeSource();
+
+    source.destroy();
+
+    expect(source.state).toBe('inactive');
+  });
+
+  test('given an initialised source, when destroy() is called, then it pauses, removes the source children and the src attribute before load(), and removes the video from the document', async () => {
+    const source = new VideoPositionSource(config());
+    const video = await initSource(source);
+    video.setAttribute('src', 'video.mp4');
+    const seen: Array<[number, boolean]> = [];
+    media.load.mockImplementation(function (this: HTMLMediaElement) {
+      seen.push([this.children.length, this.hasAttribute('src')]);
+    });
+
+    source.destroy();
+
+    expect(media.pause).toHaveBeenCalled();
+    expect(seen.at(-1)).toEqual([0, false]);
+    expect(video.isConnected).toBe(false);
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  test('given an active source with a pending seek and a registered ready callback, when destroy() is called, then no listener of the source remains on the video or its sources', async () => {
+    const tracker = trackEventListeners();
+    const {source, video} = await activeSource();
+    const sourceElements = getSourceElements(video);
+    const pending = source.seek(10);
+    source.onContainerReady(vi.fn());
+
+    source.destroy();
+    await pending;
+
+    expect(tracker.activeOn(video)).toEqual([]);
+    for (const element of sourceElements) {
+      expect(tracker.activeOn(element)).toEqual([]);
+    }
+  });
+
+  test('given a destroyed source, when timeupdate, ended and playing are dispatched on the removed element, then no position, boundary or container-ready callback runs', async () => {
+    const {source, video} = await activeSource();
+    const onPosition = vi.fn();
+    const onBoundary = vi.fn();
+    const ready = vi.fn();
+    source.onPosition(onPosition);
+    source.onBoundaryReached(onBoundary);
+    source.onContainerReady(ready);
+
+    source.destroy();
+    video.currentTime = 9;
+    emitMediaEvent(video, 'timeupdate');
+    emitMediaEvent(video, 'ended');
+    emitMediaEvent(video, 'playing');
+
+    expect(onPosition).not.toHaveBeenCalled();
+    expect(onBoundary).not.toHaveBeenCalled();
+    expect(ready).not.toHaveBeenCalled();
+  });
+
+  test('given a registered ready callback, when destroy() is called, then the source drops the callback so a later container-ready notification runs nothing', async () => {
+    const {source} = await activeSource();
+    const ready = vi.fn();
+    source.onContainerReady(ready);
+
+    source.destroy();
+    // No public path reaches the notification after destroy(); call the
+    // private method to prove destroy() released the callback
+    (
+      source as unknown as {_notifyContainerReady(): void}
+    )._notifyContainerReady();
+
+    expect(ready).not.toHaveBeenCalled();
+  });
+
+  test('given an uninitialised source, when destroy() is called, then nothing throws and no media method runs', () => {
+    const source = new VideoPositionSource(config());
+
+    expect(() => source.destroy()).not.toThrow();
+    expect(mediaCallCount()).toBe(0);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Load timeout
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe('VideoPositionSource load timeout', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    mocks.resetMockPlayer();
-    mocks.resetHandlers();
-    const container = document.createElement('div');
-    container.id = 'video-container';
-    document.body.appendChild(container);
   });
 
   afterEach(() => {
-    document.getElementById('video-container')?.remove();
     vi.useRealTimers();
-    vi.clearAllMocks();
   });
 
-  test('given an initialised source that was destroyed, when seek(30) is awaited, then it resolves with position 0 without touching the disposed player', async () => {
-    const source = new VideoPositionSource({
-      selector: '#video-container',
-      sources: [{src: 'video.mp4', type: 'video/mp4'}],
-    });
-    const initPromise = source.init();
-    await vi.advanceTimersByTimeAsync(10);
-    mocks.triggerOneEvent('canplay');
-    await initPromise;
-    const player = mocks.getMockPlayer();
+  test('given the default limit, when neither canplay nor error arrives within 30000 ms, then init() rejects naming the sources and the limit, and no video element remains', async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    const state = trackSettlement(pending);
+    await vi.advanceTimersByTimeAsync(29_999);
+    expect(state.settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await expect(pending).rejects.toThrow(
+      'VideoPositionSource: failed to load video (video.mp4, video.webm): no source became playable within 30000 ms'
+    );
+    expect(document.querySelector('video')).toBeNull();
+  });
+
+  test('given loadTimeout 5000, when 5000 ms pass without canplay, then init() rejects naming 5000 ms', async () => {
+    const source = new VideoPositionSource(config({loadTimeout: 5000}));
+
+    const pending = source.init();
+    const state = trackSettlement(pending);
+    await vi.advanceTimersByTimeAsync(4999);
+    expect(state.settled).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+
+    await expect(pending).rejects.toThrow(
+      'no source became playable within 5000 ms'
+    );
+  });
+
+  test('given a pending init, when canplay arrives before the limit, then init() resolves and no timer is left', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
+    await vi.advanceTimersByTimeAsync(29_000);
+    makeReady(getVideoElement());
+
+    await expect(pending).resolves.toBeUndefined();
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(getVideoElement()).not.toBeNull();
+  });
+
+  test('given a pending init, when the last source fails before the limit, then init() rejects with that failure and no timer is left', async () => {
+    const source = new VideoPositionSource(config({sources: TWO}));
+
+    const pending = source.init();
+    emitMediaEvent(getSourceElements(getVideoElement())[1], 'error');
+
+    await expect(pending).rejects.toThrow(
+      'none of the sources could be played'
+    );
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test('given a pending init, when the source is destroyed, then no timer is left', async () => {
+    const source = new VideoPositionSource(config());
+
+    const pending = source.init();
     source.destroy();
-    player.currentTime.mockClear();
-    player.one.mockClear();
 
-    const result = await source.seek(30);
-
-    expect(result).toBe(0);
-    expect(player.currentTime).not.toHaveBeenCalled();
-    expect(player.one).not.toHaveBeenCalled();
+    await expect(pending).rejects.toThrow('destroyed before init completed');
+    expect(vi.getTimerCount()).toBe(0);
   });
+
+  test('given loadTimeout 0, when ten minutes pass without canplay, then init() is still pending and no timer was started', async () => {
+    const source = new VideoPositionSource(config({loadTimeout: 0}));
+
+    const state = trackSettlement(source.init());
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(600_000);
+
+    expect(state.settled).toBe(false);
+    source.destroy();
+  });
+
+  test('given an init that timed out, when init() is called again, then a fresh element loads with a new limit', async () => {
+    const source = new VideoPositionSource(config({loadTimeout: 1000}));
+    const first = source.init();
+    const firstState = trackSettlement(first);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(firstState.settled).toBe(true);
+    await expect(first).rejects.toThrow('within 1000 ms');
+
+    const second = source.init();
+    expect(document.querySelectorAll('video')).toHaveLength(1);
+    makeReady(getVideoElement());
+
+    await expect(second).resolves.toBeUndefined();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  test.each([-1, Number.NaN, Number.POSITIVE_INFINITY, '30000'])(
+    'given loadTimeout %s, when init() is called, then it rejects at once naming loadTimeout and creates no element',
+    async loadTimeout => {
+      const source = new VideoPositionSource(
+        config({loadTimeout: loadTimeout as number})
+      );
+
+      await expect(source.init()).rejects.toThrow(
+        "VideoPositionSource: 'loadTimeout' must be a finite number of milliseconds, 0 or more (0 disables the limit)"
+      );
+      expect(document.querySelector('video')).toBeNull();
+      expect(media.load).not.toHaveBeenCalled();
+    }
+  );
 });

@@ -7,8 +7,8 @@
  * throws `jQuery requires a window with a document`. This entry exports the
  * `ConfigurationFactory` and its editors and the configuration types, and
  * validates operation names against the generated metadata. It never imports
- * the operation or controller implementations, so it stays free of jquery,
- * lottie-web and video.js.
+ * the operation or controller implementations, so it stays free of jquery
+ * and lottie-web.
  *
  * The `...ByType` methods (for example `addStartOperationByType`) need the
  * operation implementations to map a function to its name, so they only work

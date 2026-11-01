@@ -26,7 +26,7 @@ const AREAS = [
     key: 'timeline-providers-adapters',
     files: 'everything in src/timelineproviders/ (position-sources, container-providers, playlist, types.ts) and src/adapters/',
     tests: 'src/test/unit/timelineproviders/, src/test/unit/adapters/',
-    focus: 'position source lifecycle (init/activate/suspend/deactivate/destroy), synchronous state transitions, idempotent seek, RAF loop drift and cancellation, video.js and hotkeys-js resource release, scroll mapping edge cases, adapter double-wiring or dangling listeners',
+    focus: 'position source lifecycle (init/activate/suspend/deactivate/destroy), synchronous state transitions, idempotent seek, RAF loop drift and cancellation, native video element (listeners, source children) and hotkeys-js resource release, scroll mapping edge cases, adapter double-wiring or dangling listeners',
   },
   {
     key: 'operations-a',
@@ -63,7 +63,7 @@ const AREAS = [
 const LENSES = [
   {
     key: 'lens-lifecycle-memory',
-    focus: 'Memory and lifecycle across the WHOLE codebase. Trace every place that registers a listener, timer, RAF, observer, jQuery handler, hotkeys binding, video.js player or lottie animation and confirm there is a matching release on detach/destroy/deactivate. Trace EngineFactory.createEngine -> destroy() end to end. Report every unmatched acquisition as a bug with the exact acquisition and the missing release site.',
+    focus: 'Memory and lifecycle across the WHOLE codebase. Trace every place that registers a listener, timer, RAF, observer, jQuery handler, hotkeys binding, native video element or lottie animation and confirm there is a matching release on detach/destroy/deactivate. Trace EngineFactory.createEngine -> destroy() end to end. Report every unmatched acquisition as a bug with the exact acquisition and the missing release site.',
     files: 'start from src/engine-factory.ts, src/eligius-engine.ts, src/controllers/base-controller.ts, src/timelineproviders/position-sources/base-position-source.ts, src/util/typed-event-emitter.ts, then follow every reference',
   },
   {

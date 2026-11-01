@@ -1,18 +1,18 @@
 <!--
 Sync Impact Report:
-Version: 1.2.0 → 1.3.0 (MINOR: Path aliases requirement added)
-Modified Principles: N/A
-Added Sections: XXI. Path Aliases for Imports (NON-NEGOTIABLE)
+Version: 1.3.0 → 1.4.0 (MINOR: video.js removed from the mandated peer dependencies; VideoPositionSource uses the native HTMLVideoElement)
+Modified Principles: II. Technology Stack
+Added Sections: N/A
 Removed Sections: N/A
 Templates Requiring Updates:
-  ✅ CLAUDE.md (Import Organization section - updated to mandate path aliases)
+  ✅ CLAUDE.md (Technology Stack)
 Follow-up TODOs: None
-Amendment Rationale: Mandates using TypeScript path aliases (@locale/, @adapters/, @eventbus/, @test/, @/, etc.) instead of relative imports for cross-module imports. Improves code readability and maintainability.
+Amendment Rationale: video.js 10 removed the player API that VideoPositionSource used. Eligius 4.0.0 drives a native HTMLVideoElement instead and no longer depends on video.js in any form.
 -->
 
 # Eligius Project Constitution
 
-**Version**: 1.3.0
+**Version**: 1.4.0
 **Purpose**: Define non-negotiable development principles, standards, and governance for Eligius - A JavaScript Story Telling Engine
 
 ---
@@ -66,7 +66,6 @@ The following technology choices are mandatory and MUST NOT be substituted witho
 **Peer Dependencies** (Consumer Provided):
 - **jQuery**: 3.7.1 (DOM manipulation)
 - **lottie-web**: 5.13.0 (animation support)
-- **video.js**: 8.23.4 (video timeline provider)
 
 **Core Dependencies**:
 - **hotkeys-js**: 3.13.15 (keyboard interaction)
@@ -295,7 +294,7 @@ When researching implementations, accuracy is critical:
 - TypeScript handbook for type system features
 - Vitest documentation for testing patterns
 - jQuery documentation for DOM manipulation patterns (peer dependency)
-- lottie-web and video.js documentation for integration patterns
+- lottie-web documentation for integration patterns
 
 **Research Requirements**:
 - Verify API signatures and patterns against official documentation
@@ -344,7 +343,7 @@ When researching implementations, accuracy is critical:
 - **NEVER** use React, Vue, Angular, or framework-specific patterns in core engine code
 - **NEVER** assume a specific build tool or bundler in library code
 - **NEVER** use CommonJS `require()` (ESM only)
-- **NEVER** mutate peer dependency objects (jQuery, lottie-web, video.js instances)
+- **NEVER** mutate peer dependency objects (jQuery, lottie-web instances)
 - **NEVER** bundle peer dependencies into distribution
 
 **Allowed Patterns**:
@@ -541,13 +540,13 @@ When researching implementations, accuracy is critical:
 
 **Research Requirements**:
 - ALWAYS use Context7 MCP server tools (`mcp__context7__resolve-library-id` and `mcp__context7__get-library-docs`) when researching library APIs, patterns, or integration approaches
-- BEFORE writing code that uses external libraries (jQuery, lottie-web, video.js, Vitest, TypeScript features), consult Context7 for current documentation
+- BEFORE writing code that uses external libraries (jQuery, lottie-web, Vitest, TypeScript features), consult Context7 for current documentation
 - NEVER rely solely on training data for library usage patterns - APIs change frequently
 - Context7 provides access to official, versioned documentation for accuracy
 
 **When to Use Context7**:
 - During Phase 0 (Research) of feature planning - for technology choices and patterns
-- When implementing operations that integrate with peer dependencies (jQuery, lottie-web, video.js)
+- When implementing operations that integrate with peer dependencies (jQuery, lottie-web)
 - When using testing framework features (Vitest API usage)
 - When exploring TypeScript language features or build tool configurations
 - When uncertain about current API signatures, method names, or best practices
@@ -625,7 +624,6 @@ import { createMockEventbus } from '../fixtures/eventbus-factory.ts';
 **Peer Dependencies** (Consumer Provided):
 - jquery: 3.7.1 (DOM manipulation)
 - lottie-web: 5.13.0 (animation provider)
-- video.js: 8.23.4 (video timeline provider)
 
 **Development**:
 - TypeScript: 5.9.3 (type safety)
@@ -757,4 +755,4 @@ Exceptions are **extremely rare** and require:
 
 ---
 
-**Version**: 1.3.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2025-12-13
+**Version**: 1.4.0 | **Ratified**: 2025-10-28 | **Last Amended**: 2026-11-01

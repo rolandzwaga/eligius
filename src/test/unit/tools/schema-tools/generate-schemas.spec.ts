@@ -238,6 +238,23 @@ describe.skipIf(!schemaExists)('generated JSON schema', () => {
       ].sort()
     );
   });
+
+  test('given the configuration schema, when reading IPositionSourceConfig and Partial<IPositionSourceConfig>, then both forbid options when systemName is VideoPositionSource', () => {
+    // test
+    const {definitions} = readJson(configurationSchemaPath);
+
+    // expect
+    for (const name of [
+      'IPositionSourceConfig',
+      'Partial<IPositionSourceConfig>',
+    ]) {
+      const definition = definitions[name];
+      expect(definition.if.properties.systemName.const).toBe(
+        'VideoPositionSource'
+      );
+      expect(definition.then.properties.options.not).toEqual({});
+    }
+  });
 });
 
 // ajv is a devDependency; a missing install fails this file instead of
@@ -349,6 +366,154 @@ describe.skipIf(!schemaExists)(
       // expect
       expect(validate.errors ?? []).toEqual([]);
       expect(valid).toBe(true);
+    });
+
+    // Compiled once; formats play no part in the position source rules
+    let compiledConfigurationSchema: any;
+    function validateProviderConfiguration(overrides: {
+      timelineProviderSettings?: Record<string, unknown>;
+      timelines?: unknown[];
+    }) {
+      if (!compiledConfigurationSchema) {
+        const ajv = new AjvClass({
+          strict: false,
+          allErrors: true,
+          validateFormats: false,
+        });
+        for (const file of fs.readdirSync(operationsDirectory)) {
+          ajv.addSchema(readJson(path.join(operationsDirectory, file)));
+        }
+        compiledConfigurationSchema = ajv.compile(
+          readJson(configurationSchemaPath)
+        );
+      }
+      const validate = compiledConfigurationSchema;
+      const valid = validate({
+        id: 'config-id',
+        engine: {systemName: 'EligiusEngine'},
+        timelineProviderSettings: {
+          animation: {positionSource: {systemName: 'RafPositionSource'}},
+        },
+        containerSelector: '#app',
+        cssFiles: [],
+        language: 'en-US',
+        layoutTemplate: '<div></div>',
+        availableLanguages: [],
+        initActions: [],
+        actions: [],
+        timelines: [],
+        ...overrides,
+      });
+      return {valid, errors: (validate.errors ?? []) as any[]};
+    }
+
+    const videoSource = {
+      systemName: 'VideoPositionSource',
+      selector: '#video',
+      sources: [{src: '/a.mp4', type: 'video/mp4'}],
+    };
+
+    test('given a VideoPositionSource with options in timelineProviderSettings, when validated against eligius-configuration.json, then it fails at the options property', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          mediaplayer: {positionSource: {...videoSource, options: {}}},
+        },
+      });
+
+      // expect
+      expect(valid).toBe(false);
+      expect(
+        errors.some(error =>
+          error.instancePath.endsWith('/positionSource/options')
+        )
+      ).toBe(true);
+    });
+
+    test('given a VideoPositionSource with selector, sources and poster, when validated, then it passes', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          mediaplayer: {positionSource: {...videoSource, poster: '/a.jpg'}},
+        },
+      });
+
+      // expect
+      expect(errors).toEqual([]);
+      expect(valid).toBe(true);
+    });
+
+    test('given a VideoPositionSource with loadTimeout 10000, when validated, then it passes', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          mediaplayer: {positionSource: {...videoSource, loadTimeout: 10000}},
+        },
+      });
+
+      // expect
+      expect(errors).toEqual([]);
+      expect(valid).toBe(true);
+    });
+
+    test('given a VideoPositionSource with loadTimeout as a string, when validated, then it fails at loadTimeout', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          mediaplayer: {
+            positionSource: {...videoSource, loadTimeout: '10000'},
+          },
+        },
+      });
+
+      // expect
+      expect(valid).toBe(false);
+      expect(
+        errors.some(error =>
+          error.instancePath.endsWith('/positionSource/loadTimeout')
+        )
+      ).toBe(true);
+    });
+
+    test('given a RafPositionSource with an options key, when validated, then it passes', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelineProviderSettings: {
+          animation: {
+            positionSource: {systemName: 'RafPositionSource', options: {}},
+          },
+        },
+      });
+
+      // expect
+      expect(errors).toEqual([]);
+      expect(valid).toBe(true);
+    });
+
+    test('given a timeline positionSource override naming VideoPositionSource with options, when validated, then it fails', () => {
+      // test
+      const {valid, errors} = validateProviderConfiguration({
+        timelines: [
+          {
+            id: 't1',
+            uri: 't1',
+            type: 'mediaplayer',
+            duration: 10,
+            loop: false,
+            selector: '#s',
+            timelineActions: [],
+            positionSource: {systemName: 'VideoPositionSource', options: {}},
+          },
+        ],
+      });
+
+      // expect
+      expect(valid).toBe(false);
+      expect(
+        errors.some(
+          error => error.instancePath === '/timelines/0/positionSource/options'
+        )
+      ).toBe(true);
     });
   }
 );

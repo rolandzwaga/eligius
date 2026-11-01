@@ -11,9 +11,6 @@ vi.mock('jquery', () => {
 vi.mock('lottie-web', () => {
   throw new Error('eligius/configuration-api must not import lottie-web');
 });
-vi.mock('video.js', () => {
-  throw new Error('eligius/configuration-api must not import video.js');
-});
 
 describe('eligius/configuration-api entry point', () => {
   test('given no DOM, when the entry is imported, then it exports the fluent API', () => {
