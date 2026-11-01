@@ -1,7 +1,7 @@
 <!-- Generated 2026-11-01 from workflow run wf_a2f5d1c2-6fd (.claude/workflows/aot-compiler-plan.js). Opus synthesizer; inputs in research.md, plans.md, critiques.md. -->
 # 007: AOT action compiler, roadmap
 
-Status: planned, codegen gated · Date: 2026-11-01 · Inputs: research dossier (execution model, data resolution, config-to-engine, tooling), benchmark, Plan A (minimal), Plan B (complete), and three adversarial critiques (semantics, value, maintainability).
+Status: closed at Phase 3 on 2026-11-01, codegen declined at gate G1 (see Phase 3 and G1 status lines and measurements.md section 9) · Date: 2026-11-01 · Inputs: research dossier (execution model, data resolution, config-to-engine, tooling), benchmark, Plan A (minimal), Plan B (complete), and three adversarial critiques (semantics, value, maintainability).
 
 ## 1. Summary
 
@@ -367,7 +367,7 @@ function* HighlightItems$start(c, d) {
    - the `syncSettled` flag;
    - the microtask count for native promises.
 
-   In Phase 1 it compares the old interpreter (a pinned copy under `src/test/differential/reference-interpreter/`, deleted after Phase 4) with the optimised interpreter. In Phase 4 it compares interpreted with compiled.
+   In Phase 1 it compares the old interpreter (a pinned copy under `src/test/differential/reference-interpreter/`; it was to be deleted after Phase 4, which is not built, so it stays as the regression guard for interpreter changes) with the optimised interpreter. In Phase 4 it compares interpreted with compiled.
 3. **Compiled project (Phase 4).** A vitest project `compiled` compiles every action-bearing fixture to real `.mjs` files in a gitignored `src/test/.compiled/` and imports them. It reruns `src/test/unit/action/**`, the engine and factory specs and `src/test/integration/**` with `compiledActions` set. `afterEach` asserts zero deopts unless a test opts in with `expectDeopt()`.
 4. **Fuzzer.** A seeded generator, with fast-check as an open decision. It produces well-formed op lists from the control-flow ops, recording ops, and chaos ops (return undefined or a new object, resolved or rejected promises, non-Error throws, random `this.newIndex`, nested config mutation), plus about 10% malformed lists and post-install array mutation. 2,000 cases run per CI run with fixed seeds plus one rotating logged seed.
 5. **Intrinsic property tests** against `applyOperation(realOp, ...)`, mandatory per intrinsic.
@@ -483,7 +483,7 @@ Re-run Phase 0's browser profile and bench on the Phase 1 interpreter. Build Pha
 
 If none holds, the feature ends here. Record the decision in measurements.md.
 
-**Status (2026-11-01): measured, see measurements.md section 9.** (a) not met with the amendment adopted: the tour's worst boundary has 0.3 ms of interpreter time against 41.8 ms of jQuery work. (b) met by the intrinsic form only: ceiling plus `when`/`setData`/`setOperationData` intrinsics is 5.8x to 12.9x faster than the interpreter on the loop scenarios (plain ceiling 1.5x to 1.7x). (c) open. Recommendation recorded: do not start Phase 4 until a real presentation shows interpreter time at a boundary or the owner chooses (c); an interpreter fast path for flat `properties` is the cheaper first step. Phase 4 has not been started.
+**Status (2026-11-01): measured, see measurements.md section 9.** (a) not met with the amendment adopted: the tour's worst boundary has 0.3 ms of interpreter time against 41.8 ms of jQuery work. (b) met by the intrinsic form only: ceiling plus `when`/`setData`/`setOperationData` intrinsics is 5.8x to 12.9x faster than the interpreter on the loop scenarios (plain ceiling 1.5x to 1.7x). (c) open. Recommendation recorded: do not start Phase 4 until a real presentation shows interpreter time at a boundary or the owner chooses (c); an interpreter fast path for flat `properties` is the cheaper first step. Phase 4 has not been started. **Decision (2026-11-01): the owner chose (c) = no. Spec 007 is closed at Phase 3; Phases 4 and 5 are not built.**
 
 ### Phase 4 (gated): guarded codegen with intrinsics · 2.5-3 weeks
 
