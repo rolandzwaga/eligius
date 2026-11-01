@@ -180,7 +180,7 @@
             ],
             "additionalProperties": false
           },
-          "description": "Media to load (video sources), each with its URL and MIME type. `VideoPositionSource` requires a non-empty list."
+          "description": "Media to load (video sources), each with its URL and MIME type, in order of preference. `VideoPositionSource` requires a non-empty list of browser-playable media files (video or audio, for example MP4, WebM or MP3)."
         },
         "poster": {
           "type": "string",
@@ -191,10 +191,28 @@
         "systemName"
       ],
       "additionalProperties": {
-        "description": "Additional configuration options passed to the position source constructor. Use this for custom position source implementations."
+        "description": "Additional configuration options passed to the position source constructor. Use this for custom position source implementations. `VideoPositionSource` rejects an `options` key (removed in 4.0.0)."
       },
-      "description": "Configuration for a position source.\n\nPosition sources drive timeline position. They are resolved dynamically via the resource importer using the `systemName` property.\n\nBuilt-in position sources:\n- `RafPositionSource`: RAF-based, drives timeline by elapsed time\n- `ScrollPositionSource`: Scroll-based, drives timeline by scroll position\n- `VideoPositionSource`: Video.js-based, drives timeline by video playback",
-      "example": "```typescript\n// RAF-based position source\nconst rafConfig: IPositionSourceConfig = {\n  systemName: 'RafPositionSource',\n  tickInterval: 100,\n};\n\n// Scroll-based position source\nconst scrollConfig: IPositionSourceConfig = {\n  systemName: 'ScrollPositionSource',\n  selector: '.scroll-container',\n};\n\n// Video-based position source\nconst videoConfig: IPositionSourceConfig = {\n  systemName: 'VideoPositionSource',\n  selector: '#video-player',\n  sources: [{src: '/intro.mp4', type: 'video/mp4'}],\n  poster: '/poster.jpg',\n};\n```"
+      "description": "Configuration for a position source.\n\nPosition sources drive timeline position. They are resolved dynamically via the resource importer using the `systemName` property.\n\nBuilt-in position sources:\n- `RafPositionSource`: RAF-based, drives timeline by elapsed time\n- `ScrollPositionSource`: Scroll-based, drives timeline by scroll position\n- `VideoPositionSource`: native HTML video element, drives timeline by media playback",
+      "example": "```typescript\n// RAF-based position source\nconst rafConfig: IPositionSourceConfig = {\n  systemName: 'RafPositionSource',\n  tickInterval: 100,\n};\n\n// Scroll-based position source\nconst scrollConfig: IPositionSourceConfig = {\n  systemName: 'ScrollPositionSource',\n  selector: '.scroll-container',\n};\n\n// Video-based position source\nconst videoConfig: IPositionSourceConfig = {\n  systemName: 'VideoPositionSource',\n  selector: '#video-player',\n  sources: [{src: '/intro.mp4', type: 'video/mp4'}],\n  poster: '/poster.jpg',\n};\n```",
+      "if": {
+        "properties": {
+          "systemName": {
+            "const": "VideoPositionSource"
+          }
+        },
+        "required": [
+          "systemName"
+        ]
+      },
+      "then": {
+        "properties": {
+          "options": {
+            "not": {},
+            "description": "Removed in 4.0.0. Put 'sources' and 'poster' directly in the position source settings."
+          }
+        }
+      }
     },
     "IContainerProviderConfig": {
       "type": "object",
@@ -630,7 +648,7 @@
         },
         "positionSource": {
           "$ref": "#/definitions/Partial%3CIPositionSourceConfig%3E",
-          "description": "Optional position source settings for this timeline only, merged over `timelineProviderSettings[type].positionSource`.\n\n- Leave out `systemName` (or repeat the type's) to change single   settings, for example only the `selector` of a scroll timeline. The   other settings of the type still apply.\n- Name a different `systemName` to give this timeline another kind of   source, for example a `ScrollPositionSource` chapter in a   configuration whose animation timelines use `RafPositionSource`. The   type's position source settings are then not used, and when every   timeline of a type does this, the type needs no   `timelineProviderSettings` entry.\n\nA source that renders its own container (`VideoPositionSource`) is shared by every timeline of the type with the same effective settings, so only an override that changes the video settings creates a second player. Other sources are created once per timeline, as without an override.",
+          "description": "Optional position source settings for this timeline only, merged over `timelineProviderSettings[type].positionSource`.\n\n- Leave out `systemName` (or repeat the type's) to change single   settings, for example only the `selector` of a scroll timeline. The   other settings of the type still apply.\n- Name a different `systemName` to give this timeline another kind of   source, for example a `ScrollPositionSource` chapter in a   configuration whose animation timelines use `RafPositionSource`. The   type's position source settings are then not used, and when every   timeline of a type does this, the type needs no   `timelineProviderSettings` entry.\n\nA source that renders its own container (`VideoPositionSource`) is shared by every timeline of the type with the same effective settings, so only an override that changes the video settings creates a second video element. Other sources are created once per timeline, as without an override.",
           "example": "```json\n{\"positionSource\": {\"systemName\": \"ScrollPositionSource\", \"selector\": \"#chapter-2\"}}\n```"
         },
         "containerProvider": {
@@ -749,7 +767,7 @@
             ],
             "additionalProperties": false
           },
-          "description": "Media to load (video sources), each with its URL and MIME type. `VideoPositionSource` requires a non-empty list."
+          "description": "Media to load (video sources), each with its URL and MIME type, in order of preference. `VideoPositionSource` requires a non-empty list of browser-playable media files (video or audio, for example MP4, WebM or MP3)."
         },
         "poster": {
           "type": "string",
@@ -757,7 +775,25 @@
         }
       },
       "additionalProperties": {
-        "description": "Additional configuration options passed to the position source constructor. Use this for custom position source implementations."
+        "description": "Additional configuration options passed to the position source constructor. Use this for custom position source implementations. `VideoPositionSource` rejects an `options` key (removed in 4.0.0)."
+      },
+      "if": {
+        "properties": {
+          "systemName": {
+            "const": "VideoPositionSource"
+          }
+        },
+        "required": [
+          "systemName"
+        ]
+      },
+      "then": {
+        "properties": {
+          "options": {
+            "not": {},
+            "description": "Removed in 4.0.0. Put 'sources' and 'poster' directly in the position source settings."
+          }
+        }
       }
     },
     "Partial<IContainerProviderConfig>": {

@@ -18,7 +18,7 @@ via the resource importer using the <code>systemName</code> property.</p>
 <ul>
 <li><code>RafPositionSource</code>: RAF-based, drives timeline by elapsed time</li>
 <li><code>ScrollPositionSource</code>: Scroll-based, drives timeline by scroll position</li>
-<li><code>VideoPositionSource</code>: Video.js-based, drives timeline by video playback</li>
+<li><code>VideoPositionSource</code>: native HTML video element, drives timeline by media playback</li>
 </ul>
 </div>
 <div class="tsd-comment tsd-typography">
@@ -34,10 +34,11 @@ via the resource importer using the <code>systemName</code> property.</p>
 <li class="tsd-index-signature">
 <div class="tsd-signature"><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">key</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]:</span> <span class="tsd-signature-type">unknown</span></div>
 <div class="tsd-comment tsd-typography"><p>Additional configuration options passed to the position source constructor.
-Use this for custom position source implementations.</p>
+Use this for custom position source implementations.
+<code>VideoPositionSource</code> rejects an <code>options</code> key (removed in 4.0.0).</p>
 </div></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/configuration/types.ts#L174">configuration/types.ts:174</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/configuration/types.ts#L174">configuration/types.ts:174</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -60,22 +61,24 @@ Use this for custom position source implementations.</p>
 <div class="tsd-comment tsd-typography"><p>Optional poster image URL (video sources).</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/configuration/types.ts#L209">configuration/types.ts:209</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/configuration/types.ts#L211">configuration/types.ts:211</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="selector"><code class="tsd-tag">Optional</code><span>selector</span><a href="#selector" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">selector</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>CSS selector for sources that need a DOM element (scroll, video).</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/configuration/types.ts#L186">configuration/types.ts:186</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/configuration/types.ts#L186">configuration/types.ts:186</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="sources"><code class="tsd-tag">Optional</code><span>sources</span><a href="#sources" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">sources</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-symbol">{</span> <span class="tsd-kind-property">src</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span> <span class="tsd-kind-property">type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol">[]</span></div>
-<div class="tsd-comment tsd-typography"><p>Media to load (video sources), each with its URL and MIME type.
-<code>VideoPositionSource</code> requires a non-empty list.</p>
+<div class="tsd-comment tsd-typography"><p>Media to load (video sources), each with its URL and MIME type, in order
+of preference. <code>VideoPositionSource</code> requires a non-empty list of
+browser-playable media files (video or audio, for example MP4, WebM or
+MP3).</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/configuration/types.ts#L204">configuration/types.ts:204</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/configuration/types.ts#L206">configuration/types.ts:206</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="systemname"><span>system<wbr/>Name</span><a href="#systemname" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">systemName</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -84,7 +87,7 @@ Resolved via the resource importer.</p>
 <p>Built-in options: 'RafPositionSource', 'ScrollPositionSource', 'VideoPositionSource'</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/configuration/types.ts#L181">configuration/types.ts:181</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/configuration/types.ts#L181">configuration/types.ts:181</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="tickinterval"><code class="tsd-tag">Optional</code><span>tick<wbr/>Interval</span><a href="#tickinterval" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">tickInterval</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
@@ -101,7 +104,7 @@ releases defaulted to 1000.</p>
 
 </div></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/configuration/types.ts#L198">configuration/types.ts:198</a></li></ul></aside></section></section></details></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/configuration/types.ts#L198">configuration/types.ts:198</a></li></ul></aside></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

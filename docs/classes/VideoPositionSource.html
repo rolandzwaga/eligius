@@ -11,13 +11,19 @@
 <li><a href="" aria-current="page">VideoPositionSource</a></li></ul>
 <h1>Class VideoPositionSource</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Video.js-based position source.</p>
-<p>Wraps a video.js player to provide position updates based on video playback.
-Implements <code>IPositionSource</code>, <code>ISeekable</code>, and <code>IContainerProvider</code>.</p>
-<p>video.js is an optional peer dependency. It is loaded with a dynamic
-<code>import()</code> during the first <code>init()</code>, so applications that never create a
-video timeline do not need it installed. <code>init()</code> rejects with an error
-naming the package when it cannot be loaded.</p>
+<div class="tsd-comment tsd-typography"><p>Position source driven by a native HTML <code>&lt;video&gt;</code> element.</p>
+<p><code>init()</code> creates <code>&lt;video id=&quot;video-…&quot; class=&quot;eligius-video&quot; preload=&quot;auto&quot; playsinline&gt;</code> with one <code>&lt;source&gt;</code> child per playable entry of <code>sources</code>,
+and appends it to the first element matching <code>selector</code>. The element has
+no controls and no styling: size it with CSS on <code>.eligius-video</code>. Host
+code can reach it as <code>container.querySelector('video.eligius-video')</code>.</p>
+<p>Only browser-playable media files are supported (video or audio); there
+is no HLS or DASH player. <code>init()</code> resolves on the first <code>canplay</code> and
+rejects when no source can be played, on a media error, when the
+container or the sources are missing, when an entry has no <code>src</code>, or when
+the removed <code>options</code> key is present. <code>getContainer()</code> returns the
+selector's element. Browser autoplay policies may reject <code>activate()</code>
+with a <code>NotAllowedError</code>.</p>
+<p>Implements <code>IPositionSource</code>, <code>ISeekable</code>, and <code>IContainerProvider</code>.</p>
 </div>
 <div class="tsd-comment tsd-typography">
 <div class="tsd-tag-example">
@@ -25,7 +31,7 @@ naming the package when it cannot be loaded.</p>
 </code><button type="button">Copy</button></pre>
 
 </div></div></section>
-<section class="tsd-panel tsd-hierarchy" data-refl="3997">
+<section class="tsd-panel tsd-hierarchy" data-refl="3996">
 <h4>Hierarchy (<a href="../hierarchy.html#VideoPositionSource">View Summary</a>)</h4>
 <ul class="tsd-hierarchy">
 <li class="tsd-hierarchy-item"><a href="BasePositionSource.html" class="tsd-signature-type tsd-kind-class">BasePositionSource</a>
@@ -37,7 +43,7 @@ naming the package when it cannot be loaded.</p>
 <li><a href="../interfaces/ISeekable.html" class="tsd-signature-type tsd-kind-interface">ISeekable</a></li>
 <li><a href="../interfaces/IContainerProvider.html" class="tsd-signature-type tsd-kind-interface">IContainerProvider</a></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L116">timelineproviders/position-sources/video-position-source.ts:116</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L130">timelineproviders/position-sources/video-position-source.ts:130</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -84,7 +90,7 @@ naming the package when it cannot be loaded.</p>
 <li class="">
 <div class="tsd-signature tsd-anchor-link" id="constructorvideopositionsource"><span class="tsd-signature-keyword">new</span> <span class="tsd-kind-constructor-signature">VideoPositionSource</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">config</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/VideoPositionSourceConfig.html" class="tsd-signature-type tsd-kind-interface">VideoPositionSourceConfig</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <a href="" class="tsd-signature-type tsd-kind-class">VideoPositionSource</a><a href="#constructorvideopositionsource" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
 <div class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Create a new video.js-based position source.</p>
+<div class="tsd-comment tsd-typography"><p>Create a new video position source.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -95,7 +101,7 @@ naming the package when it cannot be loaded.</p>
 <h4 class="tsd-returns-title">Returns <a href="" class="tsd-signature-type tsd-kind-class">VideoPositionSource</a></h4><aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#constructor">constructor</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L145">timelineproviders/position-sources/video-position-source.ts:145</a></li></ul></aside></div></li></ul></section></section></details>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L165">timelineproviders/position-sources/video-position-source.ts:165</a></li></ul></aside></div></li></ul></section></section></details>
 <details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Accessors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
 <h2 class="tsd-anchor-link" id="accessors-1">Accessors<a href="#accessors-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
 <section>
@@ -111,7 +117,7 @@ transport calls such as <code>seek()</code> on a destroyed source.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Inherited from BasePositionSource.isDestroyed</p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L278">timelineproviders/position-sources/base-position-source.ts:278</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L278">timelineproviders/position-sources/base-position-source.ts:278</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="loop"><span>loop</span><a href="#loop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -127,7 +133,7 @@ this property has no effect.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Inherited from BasePositionSource.loop</p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L87">timelineproviders/position-sources/base-position-source.ts:87</a></li></ul></aside></div></li>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L87">timelineproviders/position-sources/base-position-source.ts:87</a></li></ul></aside></div></li>
 <li>
 <div class="tsd-signature" id="looploop-1"><span class="tsd-signature-keyword">set</span> <span class="tsd-kind-set-signature">loop</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span></div>
 <div class="tsd-description">
@@ -144,7 +150,7 @@ this property has no effect.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from BasePositionSource.loop</p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L91">timelineproviders/position-sources/base-position-source.ts:91</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L91">timelineproviders/position-sources/base-position-source.ts:91</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="state"><span>state</span><a href="#state" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -156,7 +162,7 @@ this property has no effect.</p>
 <h4 class="tsd-returns-title">Returns <a href="../types/TSourceState.html" class="tsd-signature-type tsd-kind-type-alias">TSourceState</a></h4><aside class="tsd-sources">
 <p>Inherited from BasePositionSource.state</p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L83">timelineproviders/position-sources/base-position-source.ts:83</a></li></ul></aside></div></li></ul></section></section></details>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L83">timelineproviders/position-sources/base-position-source.ts:83</a></li></ul></aside></div></li></ul></section></section></details>
 <details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
 <h2 class="tsd-anchor-link" id="methods-1">Methods<a href="#methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
 <section>
@@ -180,7 +186,7 @@ superseded) asynchronous start fails</p>
 </div></div><aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#activate">activate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L140">timelineproviders/position-sources/base-position-source.ts:140</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L140">timelineproviders/position-sources/base-position-source.ts:140</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="deactivate"><span>deactivate</span><a href="#deactivate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -188,12 +194,12 @@ superseded) asynchronous start fails</p>
 <div class="tsd-signature tsd-anchor-link" id="deactivate-1"><span class="tsd-kind-call-signature">deactivate</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><a href="#deactivate-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
 <div class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Deactivate the source and reset position.</p>
-<p>Overrides base to also reset video currentTime.</p>
+<p>Overrides base to also reset the media's currentTime.</p>
 </div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#deactivate">deactivate</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L356">timelineproviders/position-sources/video-position-source.ts:356</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L347">timelineproviders/position-sources/video-position-source.ts:347</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="destroy"><span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -210,7 +216,7 @@ activation is superseded and will not call the activated callbacks.</p>
 <p>Implementation of <a href="../interfaces/IContainerProvider.html">IContainerProvider</a>.<a href="../interfaces/IContainerProvider.html#destroy">destroy</a></p>
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#destroy">destroy</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L111">timelineproviders/position-sources/base-position-source.ts:111</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L111">timelineproviders/position-sources/base-position-source.ts:111</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected">
 <h3 class="tsd-anchor-link" id="dodestroy"><code class="tsd-tag">Protected</code><span>do<wbr/>Destroy</span><a href="#dodestroy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -223,7 +229,7 @@ activation is superseded and will not call the activated callbacks.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#dodestroy">doDestroy</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L208">timelineproviders/position-sources/video-position-source.ts:208</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L186">timelineproviders/position-sources/video-position-source.ts:186</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected">
 <h3 class="tsd-anchor-link" id="doinit"><code class="tsd-tag">Protected</code><span>do<wbr/>Init</span><a href="#doinit" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -236,7 +242,7 @@ activation is superseded and will not call the activated callbacks.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#doinit">doInit</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L156">timelineproviders/position-sources/video-position-source.ts:156</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L176">timelineproviders/position-sources/video-position-source.ts:176</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="emitboundary"><code class="tsd-tag">Protected</code><span>emit<wbr/>Boundary</span><a href="#emitboundary" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -255,7 +261,7 @@ activation is superseded and will not call the activated callbacks.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#emitboundary">emitBoundary</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L307">timelineproviders/position-sources/base-position-source.ts:307</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L307">timelineproviders/position-sources/base-position-source.ts:307</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="getcontainer"><span>get<wbr/>Container</span><a href="#getcontainer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -268,20 +274,21 @@ activation is superseded and will not call the activated callbacks.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IContainerProvider.html">IContainerProvider</a>.<a href="../interfaces/IContainerProvider.html#getcontainer">getContainer</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L318">timelineproviders/position-sources/video-position-source.ts:318</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L306">timelineproviders/position-sources/video-position-source.ts:306</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="getduration"><span>get<wbr/>Duration</span><a href="#getduration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="">
 <div class="tsd-signature tsd-anchor-link" id="getduration-1"><span class="tsd-kind-call-signature">getDuration</span><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><a href="#getduration-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
 <div class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Get the video duration.</p>
+<div class="tsd-comment tsd-typography"><p>Get the media duration.</p>
 </div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>Duration in seconds from video.js player</p>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><p>Duration in seconds from the media: 0 until its metadata is
+loaded, <code>Infinity</code> for unbounded media</p>
 <aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#getduration">getDuration</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L347">timelineproviders/position-sources/video-position-source.ts:347</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L336">timelineproviders/position-sources/video-position-source.ts:336</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="getposition"><span>get<wbr/>Position</span><a href="#getposition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -294,7 +301,7 @@ activation is superseded and will not call the activated callbacks.</p>
 <aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#getposition">getPosition</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L213">timelineproviders/position-sources/base-position-source.ts:213</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L213">timelineproviders/position-sources/base-position-source.ts:213</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="init"><span>init</span><a href="#init" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -313,7 +320,7 @@ For example: loading media, binding event listeners, establishing connections.</
 <p>Implementation of <a href="../interfaces/IContainerProvider.html">IContainerProvider</a>.<a href="../interfaces/IContainerProvider.html#init">init</a></p>
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#init">init</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L99">timelineproviders/position-sources/base-position-source.ts:99</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L99">timelineproviders/position-sources/base-position-source.ts:99</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="onactivated"><span>on<wbr/>Activated</span><a href="#onactivated" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -332,7 +339,7 @@ For example: loading media, binding event listeners, establishing connections.</
 <aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#onactivated">onActivated</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L261">timelineproviders/position-sources/base-position-source.ts:261</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L261">timelineproviders/position-sources/base-position-source.ts:261</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="onboundaryreached"><span>on<wbr/>Boundary<wbr/>Reached</span><a href="#onboundaryreached" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -351,7 +358,7 @@ For example: loading media, binding event listeners, establishing connections.</
 <aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#onboundaryreached">onBoundaryReached</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L246">timelineproviders/position-sources/base-position-source.ts:246</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L246">timelineproviders/position-sources/base-position-source.ts:246</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="oncontainerready"><span>on<wbr/>Container<wbr/>Ready</span><a href="#oncontainerready" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -371,7 +378,7 @@ it is already ready, the callback is invoked immediately.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/IContainerProvider.html">IContainerProvider</a>.<a href="../interfaces/IContainerProvider.html#oncontainerready">onContainerReady</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L330">timelineproviders/position-sources/video-position-source.ts:330</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L318">timelineproviders/position-sources/video-position-source.ts:318</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="onposition"><span>on<wbr/>Position</span><a href="#onposition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -390,20 +397,28 @@ it is already ready, the callback is invoked immediately.</p>
 <aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#onposition">onPosition</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L231">timelineproviders/position-sources/base-position-source.ts:231</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L231">timelineproviders/position-sources/base-position-source.ts:231</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="seek"><span>seek</span><a href="#seek" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
 <li class="">
 <div class="tsd-signature tsd-anchor-link" id="seek-1"><span class="tsd-kind-call-signature">seek</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">position</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><a href="#seek-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></div>
 <div class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Seek to a specific position in the video.</p>
-<p>Resolves on 'seeked' with the position the player landed on. A seek
-that cannot complete also settles, with the player's current time: on a
-media 'error', when the media is reset ('emptied', for example by a new
-load), or when the source is destroyed. Callers awaiting the seek (such
-as the engine, which ignores position updates while seeking) are
-therefore never left waiting.</p>
+<div class="tsd-comment tsd-typography"><p>Seek to a specific position in the media.</p>
+<p>Resolves on 'seeked' with the position the media landed on. A seek
+that cannot complete also settles, with the media's current time: on a
+media 'error' (also at a <code>&lt;source&gt;</code>), when the media is reset
+('emptied', for example by a new load), or when the source is
+destroyed. Callers awaiting the seek (such as the engine, which ignores
+position updates while seeking) are therefore never left waiting.</p>
+<p>Seeks that the media would never complete settle at once:</p>
+<ul>
+<li>before <code>init()</code> or after <code>destroy()</code>: with <code>getPosition()</code>;</li>
+<li>after a fatal media error, or when nothing is seekable: with the
+media's current time;</li>
+<li>before the media metadata is loaded: with the requested position,
+which the element keeps as the position playback starts from.</li>
+</ul>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -415,7 +430,7 @@ therefore never left waiting.</p>
 <aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/ISeekable.html">ISeekable</a>.<a href="../interfaces/ISeekable.html#seek">seek</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L265">timelineproviders/position-sources/video-position-source.ts:265</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L235">timelineproviders/position-sources/video-position-source.ts:235</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="setposition"><code class="tsd-tag">Protected</code><span>set<wbr/>Position</span><a href="#setposition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected tsd-is-inherited">
@@ -436,7 +451,7 @@ tick), so one failing consumer cannot freeze the clock.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#setposition">setPosition</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L291">timelineproviders/position-sources/base-position-source.ts:291</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L291">timelineproviders/position-sources/base-position-source.ts:291</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected">
 <h3 class="tsd-anchor-link" id="startticking"><code class="tsd-tag">Protected</code><span>start<wbr/>Ticking</span><a href="#startticking" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -455,7 +470,7 @@ the activation before the promise settles, the outcome is ignored.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#startticking">startTicking</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L236">timelineproviders/position-sources/video-position-source.ts:236</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L199">timelineproviders/position-sources/video-position-source.ts:199</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected">
 <h3 class="tsd-anchor-link" id="stopticking"><code class="tsd-tag">Protected</code><span>stop<wbr/>Ticking</span><a href="#stopticking" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -469,7 +484,7 @@ Override to stop timers, pause listening, etc.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Overrides <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#stopticking">stopTicking</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/video-position-source.ts#L243">timelineproviders/position-sources/video-position-source.ts:243</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/video-position-source.ts#L207">timelineproviders/position-sources/video-position-source.ts:207</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited">
 <h3 class="tsd-anchor-link" id="suspend"><span>suspend</span><a href="#suspend" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited">
@@ -483,7 +498,7 @@ Position updates stop but position is preserved for later resumption.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from <a href="BasePositionSource.html">BasePositionSource</a>.<a href="BasePositionSource.html#suspend">suspend</a></p>
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9f344710abb5f335c6fa0d35a6e49c8a241eba8/src/timelineproviders/position-sources/base-position-source.ts#L182">timelineproviders/position-sources/base-position-source.ts:182</a></li></ul></aside></div></li></ul></section></section></details></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/timelineproviders/position-sources/base-position-source.ts#L182">timelineproviders/position-sources/base-position-source.ts:182</a></li></ul></aside></div></li></ul></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
