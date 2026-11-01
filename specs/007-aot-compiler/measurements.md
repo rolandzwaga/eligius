@@ -146,3 +146,33 @@ Attribution (`src/test/bench/action-pieces.bench.ts`, after):
 The loop bookkeeping is now the largest remaining interpreter cost. It comes from `delete` on scope fields (`newIndex`, `currentItem`, the loop fields) on every iteration, which changes the scope object's shape, and from the child scope's getter and setter for `currentIndex`. Removing the deletes is observable (`findDeclaringScope` uses `in`), so it is not a Phase 1 change.
 
 Reading against gate G1 after Phase 1: the ceiling over the interpreter is 1.5x on the loop scenarios (0.063 vs 0.095 ms, 0.508 vs 0.794 ms) and 1.2x without a loop. Criterion (b) is still not met.
+
+## 7. Phase 2 results: `createImporter`, `eligius/runtime`, `sideEffects`
+
+Scripts: `phase-2/measure.mjs` (installs the built package into a throwaway consumer directory, so `exports` and `sideEffects` apply as they do for a real consumer) and `phase-2/run-in-jsdom.mjs`. Results: `phase-2/sizes-no-sideeffects.result.json` and `phase-2/sizes-sideeffects.result.json`. The deck is the Phase 0 sample deck (15 operations); jQuery and lottie-web external, minified, gzip level 9. Bundlers: Vite 8 (rolldown), esbuild 0.28, webpack 5.112 (production, terser).
+
+### Sizes, min+gzip
+
+| Deck | rolldown, no `sideEffects` | rolldown, `false` | esbuild, no | esbuild, `false` | webpack, no | webpack, `false` |
+| --- | --- | --- | --- | --- | --- | --- |
+| JSON config + `EligiusResourceImporter` from `eligius` | 59.2 KB | 59.2 KB | 60.0 KB | 60.0 KB | 58.9 KB | 58.9 KB |
+| JSON config + `createImporter` from `eligius` | 47.7 KB | **28.1 KB** | 49.0 KB | 49.0 KB | 48.1 KB | **28.3 KB** |
+| JSON config + `createImporter` from `eligius/runtime` | **28.1 KB** | **28.1 KB** | **29.0 KB** | **29.0 KB** | **28.3 KB** | **28.3 KB** |
+
+Reading:
+
+- `createImporter` from the runtime entry is the floor every bundler reaches: 28 KB, 52 percent below the `EligiusResourceImporter` baseline. That is far below the 46.5 KB the Phase 0 hand-written importer reached, because that importer still loaded the main entry, whose `registerOperationTypes(operation_exports)` call and the two namespace objects of `EligiusResourceImporter` keep every operation alive once the operations sit in a shared chunk.
+- `"sideEffects": false` lets rolldown and webpack reach the same floor through the main entry: `dist/index.mjs` (the fluent API, the registration call, `EligiusResourceImporter`) is skipped when nothing in it is used, and the re-exports resolve straight into the shared chunk. esbuild does not do that re-export redirection, so the main entry stays at 49 KB there. The README therefore recommends `eligius/runtime`.
+- The declaration is safe for the fluent API: a deck that uses `ConfigurationFactory` and `addStartOperationByType(selectElement, ...)` through `eligius` still produces `['selectElement']` under all three bundlers (`checks` in `sizes-sideeffects.result.json`). The registration lives in `dist/index.mjs`, which is included whole as soon as `ConfigurationFactory` is used.
+- The Phase 0 baseline of 58.5 KB was measured with a Vite alias straight at `dist/index.mjs`; through `node_modules` it is 59.2 KB. The difference is the chunked layout of the new two-entry build (a 4.7 KB `runtime.mjs`, a 67 KB `index.mjs` and one shared chunk).
+
+### Build layout
+
+`index` and `runtime` are one tsdown build, so every module exists once: `dist/index.mjs` 67.5 KB, `dist/runtime.mjs` 4.7 KB (re-exports only), one shared chunk of 527 KB (unminified). `src/test/published/shared-singletons.spec.ts` (`npm run test:published`) asserts that every export of `eligius/runtime` is the very same object as the export of `eligius`, and that only the fluent API and `EligiusResourceImporter` are missing from the runtime entry. `npm run check:types` has a runtime consumer scenario for NodeNext, Bundler and Node10 resolution.
+
+### Exit criteria
+
+- Sample deck min+gzip measurably smaller than the Phase 0 baseline: 59.2 KB to 28.1 KB, in the CHANGELOG.
+- `eligius` and `eligius/runtime` share one globals store: tested.
+- `npm run build` and `npm run check:types` pass.
+- The fallback (lazy registration for `...ByType`) is not needed.

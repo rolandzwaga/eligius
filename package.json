@@ -17,6 +17,10 @@
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
     },
+    "./runtime": {
+      "types": "./dist/runtime.d.mts",
+      "default": "./dist/runtime.mjs"
+    },
     "./metadata": {
       "types": "./dist/metadata.d.mts",
       "default": "./dist/metadata.mjs"
@@ -29,6 +33,9 @@
   },
   "typesVersions": {
     "*": {
+      "runtime": [
+        "dist/runtime.d.mts"
+      ],
       "metadata": [
         "dist/metadata.d.mts"
       ],
@@ -37,6 +44,7 @@
       ]
     }
   },
+  "sideEffects": false,
   "files": [
     "dist",
     "jsonschema"
@@ -49,6 +57,7 @@
     "test": "vitest --config src/vitest.config.ts",
     "test:ci": "vitest run --config src/vitest.config.ts --reporter=verbose",
     "test:coverage": "vitest --config src/vitest.config.ts --coverage",
+    "test:published": "npm run build && vitest run --config src/vitest.published.config.ts",
     "bench": "npm run build && vitest bench --run --config src/vitest.config.ts",
     "generate-readmes": "tsx ./src/tools/doc-tools/generate-readmes",
     "generate-schema": "tsx ./src/tools/schema-tools/generate-schemas",

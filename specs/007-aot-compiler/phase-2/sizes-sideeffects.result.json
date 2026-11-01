@@ -1,0 +1,111 @@
+{
+  "rows": [
+    {
+      "bundler": "rolldown",
+      "deck": "resource-importer",
+      "sideEffects": "false",
+      "minBytes": 205167,
+      "gzipBytes": 59159,
+      "keepsHttpDelete": true,
+      "keepsLottie": true,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "rolldown",
+      "deck": "create-main",
+      "sideEffects": "false",
+      "minBytes": 92110,
+      "gzipBytes": 28058,
+      "keepsHttpDelete": false,
+      "keepsLottie": false,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "rolldown",
+      "deck": "create-runtime",
+      "sideEffects": "false",
+      "minBytes": 92110,
+      "gzipBytes": 28058,
+      "keepsHttpDelete": false,
+      "keepsLottie": false,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "esbuild",
+      "deck": "resource-importer",
+      "sideEffects": "false",
+      "minBytes": 205575,
+      "gzipBytes": 59956,
+      "keepsHttpDelete": true,
+      "keepsLottie": true,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "esbuild",
+      "deck": "create-main",
+      "sideEffects": "false",
+      "minBytes": 165819,
+      "gzipBytes": 48962,
+      "keepsHttpDelete": true,
+      "keepsLottie": false,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "esbuild",
+      "deck": "create-runtime",
+      "sideEffects": "false",
+      "minBytes": 93282,
+      "gzipBytes": 29005,
+      "keepsHttpDelete": false,
+      "keepsLottie": false,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "webpack",
+      "deck": "resource-importer",
+      "sideEffects": "false",
+      "minBytes": 207188,
+      "gzipBytes": 58890,
+      "keepsHttpDelete": true,
+      "keepsLottie": true,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "webpack",
+      "deck": "create-main",
+      "sideEffects": "false",
+      "minBytes": 93838,
+      "gzipBytes": 28336,
+      "keepsHttpDelete": false,
+      "keepsLottie": false,
+      "keepsRegisterOperationTypes": false
+    },
+    {
+      "bundler": "webpack",
+      "deck": "create-runtime",
+      "sideEffects": "false",
+      "minBytes": 93844,
+      "gzipBytes": 28335,
+      "keepsHttpDelete": false,
+      "keepsLottie": false,
+      "keepsRegisterOperationTypes": false
+    }
+  ],
+  "checks": [
+    {
+      "bundler": "rolldown",
+      "sideEffects": "false",
+      "byType": "[\"selectElement\"]"
+    },
+    {
+      "bundler": "esbuild",
+      "sideEffects": "false",
+      "byType": "[\"selectElement\"]"
+    },
+    {
+      "bundler": "webpack",
+      "sideEffects": "false",
+      "byType": "[\"selectElement\"]"
+    }
+  ]
+}

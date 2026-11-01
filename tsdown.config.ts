@@ -37,8 +37,8 @@ const base = {
   plugins: [aliasPlugin],
 };
 
-// Three INDEPENDENT builds (the `build` npm script `rimraf`s dist first, so neither
-// needs `clean`). They are intentionally separate so the metadata entry gets its
+// Three INDEPENDENT builds: index+runtime, metadata and configuration-api (the
+// `build` npm script `rimraf`s dist first, so none of them needs `clean`). They are intentionally separate so the metadata entry gets its
 // OWN bundle and can never share a rolldown chunk with the engine: a single
 // multi-entry build co-locates the metadata namespaces with the operation /
 // controller implementations (which import jquery@4), which would defeat the
@@ -83,7 +83,15 @@ declare namespace JQuery {
 }`;
 
 export default defineConfig([
-  {...base, entry: ['./src/index.ts'], banner: {dts: mainDtsBanner}},
+  // index and runtime are ONE build on purpose: the two entries then share
+  // every module through common chunks, so an application that imports both
+  // 'eligius' and 'eligius/runtime' still has one global data store, one JSON
+  // cache and one engine count (see src/test/published/shared-singletons.spec.ts).
+  {
+    ...base,
+    entry: ['./src/index.ts', './src/runtime.ts'],
+    banner: {dts: mainDtsBanner},
+  },
   {...base, entry: ['./src/metadata.ts'], banner: {dts: domFreeDtsBanner}},
   {
     ...base,

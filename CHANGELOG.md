@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+
+- `createImporter(resources)` builds a resource importer from explicit maps (`operations`, `controllers`, `providers`, `functions`, `templates`, `json`, and `engines`, which defaults to `{EligiusEngine}`), with the shape checks and "did you mean" hints of `EligiusResourceImporter` but without referencing the built-in operations and controllers. A bundler can then drop every operation and controller a presentation does not name.
+- `eligius/runtime` entry: everything `eligius` exports except the fluent configuration API and `EligiusResourceImporter`, both of which keep every operation alive. It is built together with the main entry, so the two share one copy of every module. Types: `IImporterResources`, `TEngineClass`, `TProviderClass`.
+- `package.json` declares `"sideEffects": false`. The `...ByType` methods of the fluent API still work with Vite 8, webpack 5 and esbuild (checked by `specs/007-aot-compiler/phase-2/measure.mjs`).
+- Measured on a 15-operation sample deck, minified and gzipped with jQuery external: `EligiusResourceImporter` 59.2 KB, `createImporter` from `eligius/runtime` 28.1 KB with Vite 8 (webpack 5: 58.9 KB to 28.3 KB; esbuild: 60.0 KB to 29.0 KB). See the README section "Smaller bundles".
+
 ### Performance
 
 - Property chains, `when` expressions and `setData` targets are parsed once and cached (`src/operation/helper/chain-cache.ts`, `expression-cache.ts`). Before, every execution split, lower-cased, bracket-expanded and safety-checked the chain text again. Error messages are unchanged. The caches are bounded and are cleared when the last engine is destroyed, like the global data store.
@@ -13,6 +20,7 @@
 
 - A differential test harness (`src/test/differential/`) runs 32 pinned interpreter quirks and 1000 fuzzed operation lists per run through both the interpreter and a pinned copy of the previous one, and requires identical data, traces, errors and globals. fast-check is a new devDependency.
 - `src/operation/helper/find-matching-operation-index.ts` is removed; it was not exported.
+- `npm run test:published` builds and then runs `src/test/published/`, which imports the built package through its own `exports` map and checks that `eligius` and `eligius/runtime` share every module. `npm run check:types` covers the runtime entry.
 
 ## 4.0.0
 

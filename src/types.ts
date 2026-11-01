@@ -508,6 +508,54 @@ export interface IEligiusResourceRegistrations {
 }
 
 /**
+ * A class the `EngineFactory` instantiates as the engine named by
+ * `configuration.engine.systemName`.
+ */
+export type TEngineClass = new (...args: any[]) => IEligiusEngine;
+
+/**
+ * A timeline provider class: a position source, a container provider or a
+ * playlist, named by `systemName` in `timelineProviderSettings` or a
+ * timeline's `positionSource` / `containerProvider` override.
+ */
+export type TProviderClass = new (
+  ...args: any[]
+) => IPositionSource | IContainerProvider | IPlaylist;
+
+/**
+ * The resources a `createImporter` importer provides, keyed by system name.
+ *
+ * The maps are the {@link IEligiusResourceRegistrations} maps without
+ * `override` (there are no built-in names to override), plus the engine and
+ * timeline provider classes that the default importer provides on its own.
+ * Every name has to be unique across all the maps.
+ *
+ * @example
+ * ```ts
+ * const importer = createImporter({
+ *   operations: {selectElement, addClass},
+ *   providers: {RafPositionSource, DomContainerProvider, SimplePlaylist},
+ *   controllers: {LabelController},
+ *   templates: {layout: '<div id="stage"></div>'},
+ * });
+ * ```
+ */
+export interface IImporterResources
+  extends Omit<IEligiusResourceRegistrations, 'override'> {
+  /**
+   * Engine classes, for `configuration.engine.systemName`. Defaults to
+   * `{EligiusEngine}`.
+   */
+  engines?: Readonly<Record<string, TEngineClass>>;
+  /**
+   * Position sources, container providers and playlists, for the
+   * `systemName` values in `timelineProviderSettings` and the per-timeline
+   * overrides.
+   */
+  providers?: Readonly<Record<string, TProviderClass>>;
+}
+
+/**
  * The kind of a registered resource.
  */
 export type TRegisteredResourceKind =

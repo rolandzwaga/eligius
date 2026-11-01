@@ -1,4 +1,4 @@
-import {defineConfig} from 'vitest/config';
+import {configDefaults, defineConfig} from 'vitest/config';
 
 export default defineConfig({
   resolve: {
@@ -40,6 +40,8 @@ export default defineConfig({
       ],
     },
     include: ['src/test/**/*.spec.ts'],
+    // src/test/published imports the built package; only `npm run test:published` runs it.
+    exclude: [...configDefaults.exclude, 'src/test/published/**'],
     // Only `npm run bench` runs these; they are never part of `npm test`.
     benchmark: {
       include: ['src/test/bench/**/*.bench.ts'],

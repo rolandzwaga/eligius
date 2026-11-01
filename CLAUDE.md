@@ -46,13 +46,14 @@ eligius/
     eventbus/               # Eventbus, listeners, interceptors
       events/               # One file per event interface
         metadata/           # GENERATED event metadata (gitignored except types.ts)
-    importer/               # EligiusResourceImporter
+    importer/               # EligiusResourceImporter, createImporter
     locale/                 # LocaleManager (rosetta), LocaleLoader
     operation/              # Atomic operations, one file each
       helper/               # Operation helper utilities
       metadata/             # GENERATED operation metadata (gitignored except types.ts)
     test/
       fixtures/             # action-factory, eventbus-factory, jquery-factory, video-element-factory
+      dist/                 # Specs against the built package (npm run test:published only)
       integration/
       unit/                 # Mirrors src/ layout
       setup.ts              # Global vitest setup (mocks lottie-web)
@@ -68,6 +69,7 @@ eligius/
     index.ts                # Public API entry (dist/index.mjs)
     metadata.ts             # Metadata-only entry (dist/metadata.mjs, no DOM deps)
     configuration-api.ts    # Fluent ConfigurationFactory entry (dist/configuration-api.mjs, no DOM deps)
+    runtime.ts              # Engine without the fluent API and EligiusResourceImporter (dist/runtime.mjs)
     types.ts                # Core types
     vitest.config.ts        # Vitest config (lives in src/, not root)
   build/                    # Importer template
@@ -75,7 +77,7 @@ eligius/
   docs/                     # Generated TypeDoc site
   jsonschema/               # Generated configuration schema
   specs/                    # Feature specs and TESTING-GUIDE.md
-  tsdown.config.ts          # Two independent builds: index and metadata
+  tsdown.config.ts          # Three independent builds: index+runtime (one build, shared chunks), metadata, configuration-api
 ```
 
 Generated files are gitignored and recreated by `npm run metadata` and `npm run generate-schema`. Never edit them by hand. See `.gitignore` for the exact list.
@@ -108,6 +110,7 @@ npm test -- --run           # run once
 npm test -- --watch         # watch mode
 npm run test:ci             # verbose, used in CI
 npm run test:coverage -- --run   # coverage report (there is no `npm run coverage`)
+npm run test:published           # build, then specs that import the built package (src/test/published/)
 
 # Code quality
 npm run typecheck           # tsc --noEmit
@@ -196,6 +199,7 @@ Never use `../../..` paths across modules.
 - ESM only. No `require()`.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
 - `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery and lottie-web imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
+- `src/runtime.ts` (`eligius/runtime`) exports everything `src/index.ts` does except the fluent API barrel and `EligiusResourceImporter`, so bundlers can drop unused operations. It is built in the SAME tsdown build as index (shared chunks, one copy of every singleton); `src/test/published/shared-singletons.spec.ts` checks that. `package.json` declares `"sideEffects": false`; the fluent `...ByType` registration survives because it lives in `dist/index.mjs`, which is only loaded when something from it is used (verified for Vite 8, webpack 5 and esbuild by `specs/007-aot-compiler/phase-2/measure.mjs`).
 - Published declarations are self-contained: the DOM-free entries type-check without jquery or lottie-web, and the main entry references `@types/jquery` (optional peer). Lottie types in the public API are local structural copies in `src/controllers/types.ts`. Consumers still need `"DOM"` in their TypeScript `lib`. `npm run check:types` guards this.
 
 ## Testing
@@ -397,7 +401,7 @@ const config = factory.getConfiguration();
 
 `next()` returns to the action creator; `end()` returns to the `ConfigurationFactory`. Unknown operation names throw unless declared through `new ConfigurationFactory(config, {customOperations: [...]})`.
 
-**Custom resources**: `new EligiusResourceImporter({operations, functions, controllers, templates, json, override})` registers host code for the engine (`customFunction`, `getImport`, `template:`, `json:`, controllers). Built-in names cannot be shadowed without `override: true`. See README "Extending Eligius".
+**Custom resources**: `new EligiusResourceImporter({operations, functions, controllers, templates, json, override})` registers host code for the engine (`customFunction`, `getImport`, `template:`, `json:`, controllers). Built-in names cannot be shadowed without `override: true`. `createImporter({engines, operations, controllers, providers, functions, templates, json})` builds an importer from explicit maps only (no built-ins, no `override`; `engines` defaults to `{EligiusEngine}`); the shape checks are shared in `src/importer/registration-shape.ts`. See README "Extending Eligius" and "Smaller bundles".
 
 ## Utilities (`src/util/`)
 

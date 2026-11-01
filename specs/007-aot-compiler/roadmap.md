@@ -430,6 +430,8 @@ function* HighlightItems$start(c, d) {
 
 ### Phase 2: tree-shakable runtime entry · 1-1.5 weeks
 
+**Status (2026-11-01): done on branch feat/aot-compiler-phase-0.** `createImporter`, `eligius/runtime` (same tsdown build as index, shared chunks), `"sideEffects": false`, `npm run test:published`, runtime scenario in `check:types`, README section "Smaller bundles". Sample deck 59.2 KB to 28.1 KB gzip with Vite 8 (webpack 5: 58.9 to 28.3; esbuild: 60.0 to 29.0 via the runtime entry). The fallback was not needed; the Eligian hand-off is open. See measurements.md section 7.
+
 **Deliverables**
 
 - `src/runtime.ts` as a second entry in the **same** tsdown build as index, so singletons are shared.

@@ -499,7 +499,48 @@ await engine.init();
 await engine.start();
 ```
 
-Custom operations have no generated metadata, so the JSON schema and the fluent API do not type or validate their operation data; only their names are checked. Custom position sources, container providers and playlists cannot be registered this way: pass your own `IResourceImporter` to the `EngineFactory` and delegate the other names to an `EligiusResourceImporter`.
+Custom operations have no generated metadata, so the JSON schema and the fluent API do not type or validate their operation data; only their names are checked. Custom position sources, container providers and playlists cannot be registered this way: build the importer with `createImporter` (next section), or pass your own `IResourceImporter` to the `EngineFactory` and delegate the other names to an `EligiusResourceImporter`.
+
+## Smaller bundles (`eligius/runtime` and `createImporter`)
+
+`EligiusResourceImporter` references every operation, controller and timeline provider, so a bundler has to keep them all. A presentation that plays a finished configuration can instead name only what it uses with `createImporter`, and import the engine from `eligius/runtime`:
+
+```typescript
+import {
+  addClass,
+  createImporter,
+  DomContainerProvider,
+  EngineFactory,
+  RafPositionSource,
+  selectElement,
+  SimplePlaylist,
+} from 'eligius/runtime';
+
+const importer = createImporter({
+  operations: {selectElement, addClass, trackEvent},
+  providers: {RafPositionSource, DomContainerProvider, SimplePlaylist},
+  functions: {formatPrice},
+  templates: {layout: '<div id="stage"></div>'},
+});
+
+const {engine} = new EngineFactory(importer, window).createEngine(configuration);
+await engine.init();
+await engine.start();
+```
+
+`createImporter` takes the same `operations`, `functions`, `controllers`, `templates` and `json` maps as the `EligiusResourceImporter` registrations, plus `providers` (position sources, container providers and playlists) and `engines` (defaults to `{EligiusEngine}`). There are no built-in names, so there is no `override`. A misspelled name in the configuration fails with a "did you mean" hint over the names you passed.
+
+`eligius/runtime` exports everything `eligius` exports except the fluent configuration API (`ConfigurationFactory` and the editors) and `EligiusResourceImporter`. Both entries come out of one build, so an application that imports from both shares one engine, one global data store and one JSON cache. Authoring tools that need the fluent API without a DOM use `eligius/configuration-api`.
+
+The package declares `"sideEffects": false`. For a 15-operation sample deck (jQuery external, minified, gzipped):
+
+| Importer and entry | Vite 8 (rolldown) | webpack 5 | esbuild |
+|---|---|---|---|
+| `EligiusResourceImporter` from `eligius` | 59.2 KB | 58.9 KB | 60.0 KB |
+| `createImporter` from `eligius` | 28.1 KB | 28.3 KB | 49.0 KB |
+| `createImporter` from `eligius/runtime` | 28.1 KB | 28.3 KB | 29.0 KB |
+
+esbuild keeps the operation registration of the main entry, so use `eligius/runtime` there. The remaining size is the engine core; see `specs/007-aot-compiler/measurements.md` for the breakdown.
 
 ## Metadata import (`eligius/metadata`)
 
