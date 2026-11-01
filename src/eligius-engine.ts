@@ -191,6 +191,15 @@ interface ITimelineChangeRequester {
 }
 
 /**
+ * A position source that binds keys and leaves the keys that a
+ * KeyboardController of its engine handles to that controller, like
+ * KeyboardStepSource.
+ */
+interface IEngineRootReceiver {
+  setEngineRoot(getRoot: () => Element | undefined): void;
+}
+
+/**
  * `actionId` of the error the engine emits when a timeline switch that a
  * position source requested fails.
  */
@@ -1015,6 +1024,18 @@ export class EligiusEngine implements IEligiusEngine {
       }
     });
     this._wireTimelineChangeRequests(source);
+    this._wireEngineRoot(source);
+  }
+
+  /**
+   * Sources that bind keys (KeyboardStepSource) get the engine root, so they
+   * leave a key to a KeyboardController of this engine that handles it.
+   */
+  private _wireEngineRoot(source: IPositionSource) {
+    const receiver = source as Partial<IEngineRootReceiver>;
+    if (typeof receiver.setEngineRoot === 'function') {
+      receiver.setEngineRoot(() => this._engineRoot?.[0]);
+    }
   }
 
   /**

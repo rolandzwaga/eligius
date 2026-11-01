@@ -10,7 +10,7 @@ This is a list of all the available operations with links to their respective do
 
 - [animate](https://rolandzwaga.github.io/eligius/variables/animate.html "This operation animates the specified selected element with the given [jQuery animation](https://api.jquery.com/animate/) properties, duration and easing. It resolves after the animation completes, or immediately when the selected element set is empty.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/animate.json))
 
-- [animateWithClass](https://rolandzwaga.github.io/eligius/variables/animateWithClass.html "This operation adds the specified class name to the specified selected element and assumes that this class triggers and animation on the selected element. It then waits for this animation to complete before it resolves.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/animate-with-class.json))
+- [animateWithClass](https://rolandzwaga.github.io/eligius/variables/animateWithClass.html "This operation adds the specified class name to the specified selected element and assumes that this class triggers an animation on the selected element. It then waits for this animation to complete before it resolves.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/animate-with-class.json))
 
 - [announceToScreenReader](https://rolandzwaga.github.io/eligius/variables/announceToScreenReader.html "Announces a message to screen readers using an ARIA live region.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/announce-to-screen-reader.json))
 
@@ -52,7 +52,7 @@ This is a list of all the available operations with links to their respective do
 
 - [forEach](https://rolandzwaga.github.io/eligius/variables/forEach.html "This operation iterates over the given collection.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/for-each.json))
 
-- [formatDate](https://rolandzwaga.github.io/eligius/variables/formatDate.html "Formats a date using Intl.DateTimeFormat or simple patterns.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/format-date.json))
+- [formatDate](https://rolandzwaga.github.io/eligius/variables/formatDate.html "Formats a date with a simple token pattern, in the local time zone.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/format-date.json))
 
 - [formatText](https://rolandzwaga.github.io/eligius/variables/formatText.html "Transforms text using format operations: uppercase, lowercase, capitalize, titlecase, or trim.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/format-text.json))
 
@@ -84,7 +84,7 @@ This is a list of all the available operations with links to their respective do
 
 - [httpPut](https://rolandzwaga.github.io/eligius/variables/httpPut.html "Performs an HTTP PUT request to the specified URL.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/http-put.json))
 
-- [invokeObjectMethod](https://rolandzwaga.github.io/eligius/variables/invokeObjectMethod.html "This operation invokes the specified method on the given object with the given optional arguments and assigns the result to the `methodResult` operationdata property.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/invoke-object-method.json))
+- [invokeObjectMethod](https://rolandzwaga.github.io/eligius/variables/invokeObjectMethod.html "This operation invokes the specified method on the given object with the given optional arguments and assigns the result to the `methodResult` operationdata property. When the method returns a promise, the operation waits for it and assigns the resolved value.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/invoke-object-method.json))
 
 - [isElementInViewport](https://rolandzwaga.github.io/eligius/variables/isElementInViewport.html "Checks if an element is currently visible within the viewport.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/is-element-in-viewport.json))
 
@@ -99,6 +99,8 @@ This is a list of all the available operations with links to their respective do
 - [math](https://rolandzwaga.github.io/eligius/variables/math.html "This operation performs the given math function with the specified arguments.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/math.json))
 
 - [otherwise](https://rolandzwaga.github.io/eligius/variables/otherwise.html "If the preceeding when operation evaluates to `true` subsequent operations will be skipped until an endWhen operation is encountered.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/otherwise.json))
+
+- [PARAMETER_TYPES](https://rolandzwaga.github.io/eligius/variables/PARAMETER_TYPES.html "Every parameter type the operation and controller metadata may use. The metadata generator fails on a type name that is not in this list.")
 
 - [removeClass](https://rolandzwaga.github.io/eligius/variables/removeClass.html "This operation removes the spcified class name from the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/remove-class.json))
 

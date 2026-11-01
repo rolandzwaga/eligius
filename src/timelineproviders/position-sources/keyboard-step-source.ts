@@ -1,5 +1,9 @@
 import {BasePositionSource} from '@timelineproviders/position-sources/base-position-source.ts';
 import type {ISeekable} from '@timelineproviders/types.ts';
+import {
+  isClaimedByController,
+  shortcutId,
+} from '@util/keyboard-input-registry.ts';
 import hotkeys from 'hotkeys-js';
 
 /**
@@ -89,6 +93,11 @@ const toMs = (seconds: number): number => Math.round(seconds * 1000);
  * one on suspend, deactivate and destroy. The source never changes the
  * global hotkeys-js scope.
  *
+ * A key that a KeyboardController of the owning engine handles is left to
+ * that controller: the press runs the controller's actions and does not step
+ * the timeline. The engine tells the source its root through
+ * {@link KeyboardStepSource.setEngineRoot}.
+ *
  * Supports:
  * - Left/Right arrows: step by `stepSize` (default 1s)
  * - Shift+Left/Right: large step by `largeStepSize` (default 10s)
@@ -131,6 +140,8 @@ export class KeyboardStepSource
   private _markers: number[];
   private readonly _targetElementConfig?: HTMLElement | string;
   private _targetElement?: HTMLElement;
+  /** Returns the root element of the owning engine, see setEngineRoot() */
+  private _getEngineRoot: (() => Element | undefined) | undefined;
   /** Handlers currently bound in hotkeys-js, for exact removal. */
   private _bindings: Array<{
     key: string;
@@ -258,6 +269,20 @@ export class KeyboardStepSource
   }
 
   /**
+   * Tells the source the root element of the engine that owns it, so a key
+   * press that a KeyboardController of that engine handles is left to the
+   * controller instead of stepping the timeline. EligiusEngine calls this
+   * for every source it wires; a source without an engine root handles
+   * every press of its keys.
+   *
+   * @param getRoot - Returns the engine root, or `undefined` before the
+   * engine is initialised
+   */
+  setEngineRoot(getRoot: () => Element | undefined): void {
+    this._getEngineRoot = getRoot;
+  }
+
+  /**
    * Register callback for marker jumps (chapter-navigation mode).
    *
    * @param callback - Called with marker index and position when jumping
@@ -328,8 +353,19 @@ export class KeyboardStepSource
     action: () => void,
     handles: () => boolean = () => true
   ): void {
+    const id = shortcutId(key);
     const method = (event: KeyboardEvent) => {
-      if (this.state !== 'active' || !handles()) {
+      if (
+        this.state !== 'active' ||
+        !handles() ||
+        // A KeyboardController of the owning engine bound the same key
+        isClaimedByController(
+          typeof document === 'undefined' ? undefined : document,
+          this._getEngineRoot?.(),
+          event,
+          id
+        )
+      ) {
         return;
       }
       event.preventDefault();

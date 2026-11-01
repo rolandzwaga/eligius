@@ -419,4 +419,51 @@ describe<DOMEventListenerControllerSuiteContext>('DOMEventListenerController', (
       .action as unknown as ReturnType<typeof createMockAction>;
     expect(action1.startOperationData).toEqual(expectedOperatonData);
   });
+
+  test<DOMEventListenerControllerSuiteContext>('given a keydown listener, when a key is pressed in the element, then the actions receive eventKey next to eventTarget', async context => {
+    const {eventbus} = context;
+    const input = $('<input/>').appendTo(document.body);
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: input,
+      eventName: 'keydown',
+      actions: ['a'],
+    });
+    controller.attach(eventbus);
+
+    input[0].dispatchEvent(
+      new KeyboardEvent('keydown', {key: 'Enter', bubbles: true})
+    );
+
+    const action = controller.actionInstanceInfos?.[0]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    await vi.waitFor(() => expect(action.start).toHaveBeenCalledTimes(1));
+    expect(action.startOperationData).toEqual({
+      eventTarget: input[0],
+      eventKey: 'Enter',
+    });
+    controller.detach(eventbus);
+    input.remove();
+  });
+
+  test<DOMEventListenerControllerSuiteContext>('given a click listener, when the element is clicked, then the actions receive no eventKey', async context => {
+    const {eventbus} = context;
+    const button = $('<button/>').appendTo(document.body);
+    const controller = new DOMEventListenerController();
+    controller.init({
+      selectedElement: button,
+      eventName: 'click',
+      actions: ['a'],
+    });
+    controller.attach(eventbus);
+
+    button[0].click();
+
+    const action = controller.actionInstanceInfos?.[0]
+      .action as unknown as ReturnType<typeof createMockAction>;
+    await vi.waitFor(() => expect(action.start).toHaveBeenCalledTimes(1));
+    expect(action.startOperationData).not.toHaveProperty('eventKey');
+    controller.detach(eventbus);
+    button.remove();
+  });
 });

@@ -1,5 +1,17 @@
 # Change Log
 
+## 3.1.0
+
+### Added
+
+- **`KeyboardController`** runs actions on a key press, for example `{"keys": "ArrowRight", "actions": ["NextChapter"]}` on the timeline container. `keys` uses hotkeys-js syntax (`'right'`, `'shift+right, space'`), and the `KeyboardEvent.key` names of the same keys work too (`'ArrowRight'`, `'Escape'`, `'PageDown'`). Unknown key names throw in `init`. The actions run in order like those of `DOMEventListenerController` (`end:` prefix, `actionOperationData`, a failure skips the rest and goes to `reportError`) and receive `eventTarget` and `eventKey`. With `scope: 'document'` (the default) it listens while the focus is inside the engine root or nothing has focus; with several engines one engine handles an unfocused press, chosen like the play toggle. With `scope: 'element'` it listens only while the focus is inside the selected element. Presses in `input`, `select`, `textarea` and contenteditable elements, and key repeats, do not run the actions.
+- **`DOMEventListenerController` passes `eventKey`** (`KeyboardEvent.key`) next to `eventTarget` for key events.
+- **`KeyboardStepSource.setEngineRoot()`**, which `EligiusEngine` calls for every source it wires, so the source knows which engine's KeyboardControllers it yields to.
+
+### Changed
+
+- **A `KeyboardController` takes a shared key over from the play toggle and from `KeyboardStepSource`.** When its keys include the engine's play toggle hotkey (space by default) or a key the engine's `KeyboardStepSource` binds (the arrow keys, `shift+left`/`shift+right`, `home`, `end`), a press the controller handles runs its actions and no longer also toggles playback or steps the timeline. Presses the controller ignores still do. A `KeyboardStepSource` used without an engine handles every press of its keys, as before.
+
 ## 3.0.1
 
 ### Fixed

@@ -332,7 +332,7 @@ interface IController<T extends TOperationData> {
 }
 ```
 
-Extend `BaseController`, which provides `addListener` and `attachMultiple` and removes all listeners in `detach`. Available controllers: `DOMEventListenerController`, `LabelController`, `LottieController`, `MutationObserverController`, `NavigationController`, `ProgressbarController`, `RoutingController`, `SubtitlesController`. Register new controllers in `src/controllers/index.ts` and run `npm run ctrls-metadata`.
+Extend `BaseController`, which provides `addListener` and `attachMultiple` and removes all listeners in `detach`. Available controllers: `DOMEventListenerController`, `KeyboardController` (document-level keys, wins over the play toggle and KeyboardStepSource on a shared key), `LabelController`, `LottieController`, `MutationObserverController`, `NavigationController`, `ProgressbarController`, `RoutingController`, `SubtitlesController`. Register new controllers in `src/controllers/index.ts` and run `npm run ctrls-metadata`.
 
 ### Eventbus
 

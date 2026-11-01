@@ -1,5 +1,10 @@
 export type {IDOMEventListenerControllerOperationData} from '@controllers/dom-event-listener-controller.ts';
 export {DOMEventListenerController} from '@controllers/dom-event-listener-controller.ts';
+export type {
+  IKeyboardControllerOperationData,
+  TKeyboardControllerScope,
+} from '@controllers/keyboard-controller.ts';
+export {KeyboardController} from '@controllers/keyboard-controller.ts';
 export type {ILabelControllerMetadata} from '@controllers/label-controller.ts';
 export {LabelController} from '@controllers/label-controller.ts';
 export type {ILottieControllerMetadata} from '@controllers/lottie-controller.ts';
