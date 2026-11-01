@@ -1,42 +1,55 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/find-in-array-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/find-in-array.json",
   "type": "object",
-  "title": "The findInArray schema",
-  "description": "Finds the first element in an array matching criteria.\n\nOperates on arrayData passed from previous operations.\nSupports two search modes:\n1. Property equality: `findProperty` and `findValue` to find by property match\n2. Custom predicate: `findPredicate` function for complex search logic\n\nReturns `undefined` for `foundItem` and `-1` for `foundIndex` if no match found.",
-  "required": ["systemName", "operationData"],
+  "title": "findInArray Operation",
+  "description": "Schema for the findInArray operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "findInArray"
+      "const": "findInArray",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
         "findProperty": {
-          "$id": "#/properties/operationData/findProperty",
-          "type": "array"
+          "type": "string"
         },
-        "findValue": {
-          "$id": "#/properties/operationData/findValue",
-          "type": ["object"]
-        },
+        "findValue": {},
         "findPredicate": {
-          "$id": "#/properties/operationData/findPredicate",
-          "type": "array"
+          "type": "object",
+          "properties": {
+            "namedArgs": {
+              "type": "object",
+              "properties": {
+                "item": {},
+                "index": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "item"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "foundItem": {},
+        "foundIndex": {
+          "type": "number"
         }
-      }
+      },
+      "additionalProperties": true
     }
-  }
+  },
+  "additionalProperties": false
 }

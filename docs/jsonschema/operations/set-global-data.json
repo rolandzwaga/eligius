@@ -1,34 +1,39 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/set-global-data-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/set-global-data.json",
   "type": "object",
-  "title": "The setGlobalData schema",
-  "description": "This operation copies the specified properties from the operationData to the global data.",
-  "required": ["systemName", "operationData"],
+  "title": "setGlobalData Operation",
+  "description": "Schema for the setGlobalData operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "setGlobalData"
+      "const": "setGlobalData",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["propertyNames"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "propertyNames": {
-          "$id": "#/properties/operationData/propertyNames",
-          "type": ["array"]
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "propertyNames"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

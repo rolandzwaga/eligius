@@ -1,38 +1,43 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/announce-to-screen-reader-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/announce-to-screen-reader.json",
   "type": "object",
-  "title": "The announceToScreenReader schema",
-  "description": "Announces a message to screen readers using an ARIA live region.",
-  "required": ["systemName", "operationData"],
+  "title": "announceToScreenReader Operation",
+  "description": "Schema for the announceToScreenReader operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "announceToScreenReader"
+      "const": "announceToScreenReader",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["message"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "message": {
-          "$id": "#/properties/operationData/message",
-          "type": ["string"]
+          "type": "string"
         },
         "priority": {
-          "$id": "#/properties/operationData/priority",
-          "type": "array"
+          "type": "string",
+          "enum": [
+            "polite",
+            "assertive"
+          ]
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "message"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

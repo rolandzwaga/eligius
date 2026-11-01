@@ -1,34 +1,39 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/remove-properties-from-operation-data-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/remove-properties-from-operation-data.json",
   "type": "object",
-  "title": "The removePropertiesFromOperationData schema",
-  "description": "This operation removes the given list of properties from the current operation data.\nIt will also remove the property `propertyNames` from the result.",
-  "required": ["systemName", "operationData"],
+  "title": "removePropertiesFromOperationData Operation",
+  "description": "Schema for the removePropertiesFromOperationData operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "removePropertiesFromOperationData"
+      "const": "removePropertiesFromOperationData",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["propertyNames"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "propertyNames": {
-          "$id": "#/properties/operationData/propertyNames",
-          "type": ["array"]
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "propertyNames"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

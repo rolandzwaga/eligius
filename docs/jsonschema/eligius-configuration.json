@@ -1,56 +1,82 @@
 {
-  "definitions": {
-    "label": {
-      "type": "object",
-      "title": "Label",
-      "description": "A localized label with language code",
-      "required": ["id", "languageCode", "label"],
-      "properties": {
-        "id": {
-          "type": "string",
-          "title": "Id",
-          "description": "Unique identifier for the label"
-        },
-        "languageCode": {
-          "type": "string",
-          "title": "Language Code",
-          "description": "IETF language tag (e.g., en-US, nl-NL)",
-          "examples": ["en-US", "nl-NL", "de-DE"]
-        },
-        "label": {
-          "type": "string",
-          "title": "Label",
-          "description": "The localized label text"
-        }
-      }
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the configuration (UUID format)"
     },
-    "languageLabel": {
-      "type": "object",
-      "title": "Language Label Collection",
-      "description": "A collection of labels for different languages",
-      "required": ["id", "labels"],
-      "properties": {
-        "id": {
-          "type": "string",
-          "title": "Id",
-          "description": "Unique identifier for the label collection"
-        },
-        "labels": {
-          "type": "array",
-          "title": "Labels",
-          "description": "Array of localized labels",
-          "items": {
-            "$ref": "#/definitions/label"
-          }
-        }
-      }
+    "engine": {
+      "$ref": "#/definitions/IEngineInfo",
+      "description": "Engine identification info"
+    },
+    "timelineProviderSettings": {
+      "$ref": "#/definitions/TTimelineProviderSettings",
+      "description": "Optional settings for timeline providers by type"
+    },
+    "containerSelector": {
+      "type": "string",
+      "description": "CSS selector for the main container element"
+    },
+    "cssFiles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of CSS file paths to load"
+    },
+    "language": {
+      "$ref": "#/definitions/TLanguageCode",
+      "description": "Default language code (IETF language tag)"
+    },
+    "layoutTemplate": {
+      "type": "string",
+      "description": "HTML template for the layout (inline HTML or template reference)"
+    },
+    "availableLanguages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ILabel"
+      },
+      "description": "List of available languages for the application"
+    },
+    "initActions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/IEndableActionConfiguration"
+      },
+      "description": "Actions to execute during engine initialization"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/IEndableActionConfiguration"
+      },
+      "description": "Reusable action templates"
+    },
+    "eventActions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/IEventActionConfiguration"
+      },
+      "description": "Optional actions triggered by events"
+    },
+    "timelines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ITimelineConfiguration"
+      },
+      "description": "Timeline configurations"
+    },
+    "timelineFlow": {
+      "$ref": "#/definitions/ITimelineFlow",
+      "description": "Optional timeline flow configuration for navigation between timelines"
+    },
+    "locales": {
+      "$ref": "#/definitions/ILocalesConfiguration",
+      "description": "Locale configuration for rosetta-based translations"
     }
   },
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json",
-  "type": "object",
-  "title": "Eligius Configuration Schema",
-  "description": "Configuration schema for the Eligius timeline engine",
   "required": [
     "id",
     "engine",
@@ -61,116 +87,774 @@
     "availableLanguages",
     "initActions",
     "actions",
-    "timelines",
-    "labels"
+    "timelines"
   ],
-  "properties": {
-    "id": {
-      "$id": "#/properties/id",
-      "type": "string",
-      "title": "Id",
-      "description": "Unique identifier for the configuration",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
-    },
-    "engine": {
-      "$ref": "engine-config.json",
-      "description": "Engine configuration"
-    },
-    "timelineProviderSettings": {
-      "$ref": "timeline-provider-settings.json",
-      "description": "Optional settings for timeline providers by type"
-    },
-    "containerSelector": {
-      "$id": "#/properties/containerSelector",
-      "type": "string",
-      "title": "Container Selector",
-      "description": "CSS selector for the main container element",
-      "examples": ["#eligius-container"]
-    },
-    "cssFiles": {
-      "$id": "#/properties/cssFiles",
-      "type": "array",
-      "title": "CSS Files",
-      "description": "Array of CSS file paths to load",
-      "items": {
-        "type": "string"
-      },
-      "examples": [["styles/main.css", "styles/theme.css"]]
-    },
-    "language": {
-      "$id": "#/properties/language",
-      "type": "string",
-      "title": "Language",
-      "description": "Default language code (IETF language tag)",
-      "examples": ["en-US", "nl-NL"]
-    },
-    "layoutTemplate": {
-      "$id": "#/properties/layoutTemplate",
-      "type": "string",
-      "title": "Layout Template",
-      "description": "HTML template for the layout, can be inline HTML or a template reference",
-      "examples": ["template:layoutTemplate", "<div class=\"container\"></div>"]
-    },
-    "availableLanguages": {
-      "$id": "#/properties/availableLanguages",
-      "type": "array",
-      "title": "Available Languages",
-      "description": "List of available languages for the application",
-      "items": {
-        "$ref": "#/definitions/label"
-      }
-    },
-    "initActions": {
-      "$id": "#/properties/initActions",
-      "type": "array",
-      "title": "Init Actions",
-      "description": "Actions to execute during engine initialization",
-      "items": {
-        "$ref": "endable-action.json"
-      }
-    },
-    "actions": {
-      "$id": "#/properties/actions",
-      "type": "array",
-      "title": "Actions",
-      "description": "Reusable action templates",
-      "items": {
-        "$ref": "endable-action-template.json"
-      }
-    },
-    "eventActions": {
-      "$id": "#/properties/eventActions",
-      "type": "array",
-      "title": "Event Actions",
-      "description": "Actions triggered by events",
-      "items": {
-        "$ref": "event-action.json"
-      }
-    },
-    "timelines": {
-      "$id": "#/properties/timelines",
-      "type": "array",
-      "title": "Timelines",
-      "description": "Timeline configurations",
-      "items": {
-        "$ref": "timeline.json"
-      }
-    },
-    "timelineFlow": {
-      "$id": "#/properties/timelineFlow",
+  "additionalProperties": false,
+  "description": "Root configuration for the Eligius timeline engine.\n\nThis is the main configuration object passed to `EngineFactory.createEngine()`. It defines all aspects of the engine: timelines, actions, language settings, and more.",
+  "example": "```typescript\nconst config: IEngineConfiguration = {\n  id: '123e4567-e89b-12d3-a456-426614174000',\n  engine: { systemName: 'EligiusEngine' },\n  containerSelector: '#eligius-container',\n  cssFiles: ['styles/main.css'],\n  language: 'en-US',\n  layoutTemplate: '<div class=\"container\"></div>',\n  availableLanguages: [{ id: 'en', languageCode: 'en-US', label: 'English' }],\n  initActions: [],\n  actions: [],\n  timelines: []\n};\n```",
+  "definitions": {
+    "IEngineInfo": {
       "type": "object",
-      "title": "Timeline Flow",
-      "description": "Optional timeline flow configuration for navigation between timelines"
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "description": "Name of the engine system to use"
+        }
+      },
+      "required": [
+        "systemName"
+      ],
+      "additionalProperties": false,
+      "description": "Engine identification information."
     },
-    "labels": {
-      "$id": "#/properties/labels",
-      "type": "array",
-      "title": "Labels",
-      "description": "Label collections for multi-language support",
-      "items": {
-        "$ref": "#/definitions/languageLabel"
+    "TTimelineProviderSettings": {
+      "$ref": "#/definitions/Partial%3CRecord%3CTimelineTypes%2CITimelineProviderSettings%3E%3E",
+      "description": "Provider settings indexed by timeline type. Allows different configurations for 'animation' vs 'mediaplayer' timelines. A single timeline can override them with its own `positionSource` and `containerProvider` (see  {@link  ITimelineConfiguration.positionSource } )."
+    },
+    "Partial<Record<TimelineTypes,ITimelineProviderSettings>>": {
+      "type": "object",
+      "properties": {
+        "animation": {
+          "$ref": "#/definitions/ITimelineProviderSettings"
+        },
+        "mediaplayer": {
+          "$ref": "#/definitions/ITimelineProviderSettings"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ITimelineProviderSettings": {
+      "type": "object",
+      "properties": {
+        "positionSource": {
+          "$ref": "#/definitions/IPositionSourceConfig",
+          "description": "Configuration for the position source"
+        },
+        "container": {
+          "$ref": "#/definitions/IContainerProviderConfig",
+          "description": "Optional container provider configuration"
+        },
+        "playlist": {
+          "$ref": "#/definitions/IPlaylistConfig",
+          "description": "Optional playlist configuration"
+        }
+      },
+      "required": [
+        "positionSource"
+      ],
+      "additionalProperties": false,
+      "description": "Settings for a timeline provider.\n\nTimeline providers are assembled from decomposed components:\n- Position source: drives timeline position (required)\n- Container provider: manages render container (optional)\n- Playlist: manages multi-item navigation (optional)\n\nAll components are resolved dynamically via the resource importer using the `systemName` property, allowing custom implementations.",
+      "example": "```typescript\nconst settings: ITimelineProviderSettings = {\n  positionSource: { systemName: 'RafPositionSource', tickInterval: 100 },\n  container: { systemName: 'DomContainerProvider', selector: '#render-area' },\n};\n```"
+    },
+    "IPositionSourceConfig": {
+      "type": "object",
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "description": "Name of the position source class to instantiate. Resolved via the resource importer.\n\nBuilt-in options: 'RafPositionSource', 'ScrollPositionSource', 'VideoPositionSource'"
+        },
+        "selector": {
+          "type": "string",
+          "description": "CSS selector for sources that need a DOM element (scroll, video)."
+        },
+        "tickInterval": {
+          "type": "number",
+          "description": "Interval between position updates in milliseconds (RAF sources).\n\nThe default of 100 ms matches the 0.1 second precision at which actions are keyed. A larger interval emits fewer position updates (less work per second), but actions then start and end up to one interval late. Earlier releases defaulted to 1000.",
+          "default": 100
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "src": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "src",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Media to load (video sources), each with its URL and MIME type. `VideoPositionSource` requires a non-empty list."
+        },
+        "poster": {
+          "type": "string",
+          "description": "Optional poster image URL (video sources)."
+        }
+      },
+      "required": [
+        "systemName"
+      ],
+      "additionalProperties": {
+        "description": "Additional configuration options passed to the position source constructor. Use this for custom position source implementations."
+      },
+      "description": "Configuration for a position source.\n\nPosition sources drive timeline position. They are resolved dynamically via the resource importer using the `systemName` property.\n\nBuilt-in position sources:\n- `RafPositionSource`: RAF-based, drives timeline by elapsed time\n- `ScrollPositionSource`: Scroll-based, drives timeline by scroll position\n- `VideoPositionSource`: Video.js-based, drives timeline by video playback",
+      "example": "```typescript\n// RAF-based position source\nconst rafConfig: IPositionSourceConfig = {\n  systemName: 'RafPositionSource',\n  tickInterval: 100,\n};\n\n// Scroll-based position source\nconst scrollConfig: IPositionSourceConfig = {\n  systemName: 'ScrollPositionSource',\n  selector: '.scroll-container',\n};\n\n// Video-based position source\nconst videoConfig: IPositionSourceConfig = {\n  systemName: 'VideoPositionSource',\n  selector: '#video-player',\n  sources: [{src: '/intro.mp4', type: 'video/mp4'}],\n  poster: '/poster.jpg',\n};\n```"
+    },
+    "IContainerProviderConfig": {
+      "type": "object",
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "description": "Name of the container provider class to instantiate. Resolved via the resource importer.\n\nBuilt-in options: 'DomContainerProvider'"
+        },
+        "selector": {
+          "type": "string",
+          "description": "CSS selector for the container element"
+        }
+      },
+      "required": [
+        "systemName",
+        "selector"
+      ],
+      "additionalProperties": {
+        "description": "Additional configuration options passed to the container provider constructor. Use this for custom container provider implementations."
+      },
+      "description": "Configuration for a container provider.\n\nContainer providers manage DOM elements where timeline content is rendered. They are resolved dynamically via the resource importer using `systemName`.\n\nBuilt-in container providers:\n- `DomContainerProvider`: Manages a DOM element by selector",
+      "example": "```typescript\nconst config: IContainerProviderConfig = {\n  systemName: 'DomContainerProvider',\n  selector: '#render-area',\n};\n```"
+    },
+    "IPlaylistConfig": {
+      "type": "object",
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "description": "Name of the playlist class to instantiate. Resolved via the resource importer.\n\nBuilt-in options: 'SimplePlaylist'"
+        },
+        "items": {
+          "type": "array",
+          "items": {},
+          "description": "The items in the playlist"
+        },
+        "identifierKey": {
+          "type": "string",
+          "description": "Property key used to identify items. Used when selecting items by identifier (e.g., 'uri', 'id', 'chapterId')."
+        }
+      },
+      "required": [
+        "systemName",
+        "items",
+        "identifierKey"
+      ],
+      "additionalProperties": {
+        "description": "Additional configuration options passed to the playlist constructor. Use this for custom playlist implementations."
+      },
+      "description": "Configuration for a playlist.\n\nPlaylists manage collections of items (e.g., video chapters) that can be selected and navigated. They are resolved dynamically via the resource importer using `systemName`.\n\nBuilt-in playlists:\n- `SimplePlaylist`: Basic playlist with array of items",
+      "example": "```typescript\nconst config: IPlaylistConfig = {\n  systemName: 'SimplePlaylist',\n  items: [{ uri: '/video1.mp4' }, { uri: '/video2.mp4' }],\n  identifierKey: 'uri',\n};\n```"
+    },
+    "TLanguageCode": {
+      "type": "string",
+      "description": "IETF language tag format (e.g., 'en-US', 'nl-NL')"
+    },
+    "ILabel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "languageCode": {
+          "$ref": "#/definitions/TLanguageCode"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "languageCode",
+        "label"
+      ],
+      "additionalProperties": false,
+      "description": "Represents a language option for the available languages list. Used for UI elements like language selection dropdowns."
+    },
+    "IEndableActionConfiguration": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the action"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the action"
+        },
+        "startOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IOperationConfiguration%3CTOperationData%3E"
+          },
+          "description": "Operations to execute when the action starts"
+        },
+        "endOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IOperationConfiguration%3CTOperationData%3E"
+          },
+          "description": "Operations to execute when the action ends"
+        }
+      },
+      "required": [
+        "endOperations",
+        "id",
+        "name",
+        "startOperations"
+      ],
+      "additionalProperties": false,
+      "description": "Configuration for an action that has both start and end operations.\n\nEndable actions execute startOperations when triggered and endOperations when completed or reversed."
+    },
+    "IOperationConfiguration<TOperationData>": {
+      "description": "An operation configuration. The systemName determines which operation type is used.",
+      "oneOf": [
+        {
+          "$ref": "operations/add-class.json"
+        },
+        {
+          "$ref": "operations/add-controller-to-element.json"
+        },
+        {
+          "$ref": "operations/add-globals-to-operation.json"
+        },
+        {
+          "$ref": "operations/animate-with-class.json"
+        },
+        {
+          "$ref": "operations/animate.json"
+        },
+        {
+          "$ref": "operations/announce-to-screen-reader.json"
+        },
+        {
+          "$ref": "operations/break-for-each.json"
+        },
+        {
+          "$ref": "operations/broadcast-event.json"
+        },
+        {
+          "$ref": "operations/calc.json"
+        },
+        {
+          "$ref": "operations/clear-element.json"
+        },
+        {
+          "$ref": "operations/clear-operation-data.json"
+        },
+        {
+          "$ref": "operations/clear-storage.json"
+        },
+        {
+          "$ref": "operations/compare-date.json"
+        },
+        {
+          "$ref": "operations/concatenate-strings.json"
+        },
+        {
+          "$ref": "operations/continue-for-each.json"
+        },
+        {
+          "$ref": "operations/create-element.json"
+        },
+        {
+          "$ref": "operations/custom-function.json"
+        },
+        {
+          "$ref": "operations/end-action.json"
+        },
+        {
+          "$ref": "operations/end-for-each.json"
+        },
+        {
+          "$ref": "operations/end-when.json"
+        },
+        {
+          "$ref": "operations/extend-controller.json"
+        },
+        {
+          "$ref": "operations/filter-array.json"
+        },
+        {
+          "$ref": "operations/find-in-array.json"
+        },
+        {
+          "$ref": "operations/for-each.json"
+        },
+        {
+          "$ref": "operations/format-date.json"
+        },
+        {
+          "$ref": "operations/format-text.json"
+        },
+        {
+          "$ref": "operations/get-attributes-from-element.json"
+        },
+        {
+          "$ref": "operations/get-controller-from-element.json"
+        },
+        {
+          "$ref": "operations/get-controller-instance.json"
+        },
+        {
+          "$ref": "operations/get-current-time.json"
+        },
+        {
+          "$ref": "operations/get-element-dimensions.json"
+        },
+        {
+          "$ref": "operations/get-focused-element.json"
+        },
+        {
+          "$ref": "operations/get-form-data.json"
+        },
+        {
+          "$ref": "operations/get-import.json"
+        },
+        {
+          "$ref": "operations/get-query-params.json"
+        },
+        {
+          "$ref": "operations/get-scroll-position.json"
+        },
+        {
+          "$ref": "operations/get-text-content.json"
+        },
+        {
+          "$ref": "operations/http-delete.json"
+        },
+        {
+          "$ref": "operations/http-post.json"
+        },
+        {
+          "$ref": "operations/http-put.json"
+        },
+        {
+          "$ref": "operations/invoke-object-method.json"
+        },
+        {
+          "$ref": "operations/is-element-in-viewport.json"
+        },
+        {
+          "$ref": "operations/load-from-storage.json"
+        },
+        {
+          "$ref": "operations/load-json.json"
+        },
+        {
+          "$ref": "operations/log.json"
+        },
+        {
+          "$ref": "operations/map-array.json"
+        },
+        {
+          "$ref": "operations/math.json"
+        },
+        {
+          "$ref": "operations/otherwise.json"
+        },
+        {
+          "$ref": "operations/remove-class.json"
+        },
+        {
+          "$ref": "operations/remove-controller-from-element.json"
+        },
+        {
+          "$ref": "operations/remove-element.json"
+        },
+        {
+          "$ref": "operations/remove-properties-from-operation-data.json"
+        },
+        {
+          "$ref": "operations/reparent-element.json"
+        },
+        {
+          "$ref": "operations/replace-string.json"
+        },
+        {
+          "$ref": "operations/replace-text.json"
+        },
+        {
+          "$ref": "operations/request-action.json"
+        },
+        {
+          "$ref": "operations/save-to-storage.json"
+        },
+        {
+          "$ref": "operations/scroll-to-element.json"
+        },
+        {
+          "$ref": "operations/scroll-to-position.json"
+        },
+        {
+          "$ref": "operations/select-element.json"
+        },
+        {
+          "$ref": "operations/set-data.json"
+        },
+        {
+          "$ref": "operations/set-element-attributes.json"
+        },
+        {
+          "$ref": "operations/set-element-content.json"
+        },
+        {
+          "$ref": "operations/set-focus.json"
+        },
+        {
+          "$ref": "operations/set-form-value.json"
+        },
+        {
+          "$ref": "operations/set-global-data.json"
+        },
+        {
+          "$ref": "operations/set-operation-data.json"
+        },
+        {
+          "$ref": "operations/set-style.json"
+        },
+        {
+          "$ref": "operations/set-variable.json"
+        },
+        {
+          "$ref": "operations/sort-array.json"
+        },
+        {
+          "$ref": "operations/split-string.json"
+        },
+        {
+          "$ref": "operations/start-action.json"
+        },
+        {
+          "$ref": "operations/substring-text.json"
+        },
+        {
+          "$ref": "operations/toggle-class.json"
+        },
+        {
+          "$ref": "operations/toggle-element.json"
+        },
+        {
+          "$ref": "operations/toggle-form-element.json"
+        },
+        {
+          "$ref": "operations/validate-form.json"
+        },
+        {
+          "$ref": "operations/wait.json"
+        },
+        {
+          "$ref": "operations/when.json"
+        }
+      ]
+    },
+    "TOperationData": {
+      "$ref": "#/definitions/Record%3Cstring%2Cany%3E"
+    },
+    "Record<string,any>": {
+      "type": "object"
+    },
+    "IEventActionConfiguration": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the action"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the action"
+        },
+        "startOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IOperationConfiguration%3CTOperationData%3E"
+          },
+          "description": "Operations to execute when the action starts"
+        },
+        "eventName": {
+          "type": "string",
+          "description": "Name of the event that triggers this action"
+        },
+        "eventTopic": {
+          "type": "string",
+          "description": "Optional event topic for filtering (defaults to global topic)"
+        }
+      },
+      "required": [
+        "eventName",
+        "id",
+        "name",
+        "startOperations"
+      ],
+      "additionalProperties": false,
+      "description": "Configuration for an event-triggered action.\n\nEvent actions execute in response to eventbus events."
+    },
+    "ITimelineConfiguration": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the timeline"
+        },
+        "uri": {
+          "type": "string",
+          "description": "URI for timeline identification and switching"
+        },
+        "type": {
+          "$ref": "#/definitions/TimelineTypes",
+          "description": "Timeline type: 'animation' or 'mediaplayer'. Selects the provider settings in `timelineProviderSettings`, which `positionSource` and `containerProvider` can override for this timeline."
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration in seconds"
+        },
+        "loop": {
+          "type": "boolean",
+          "description": "Whether the timeline should loop when complete"
+        },
+        "selector": {
+          "type": "string",
+          "description": "CSS selector for the timeline's target element"
+        },
+        "timelineActions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ITimelineActionConfiguration"
+          },
+          "description": "Actions to execute at specific timeline positions"
+        },
+        "container": {
+          "type": "string",
+          "description": "Optional container selector for the timeline. Defaults to the timeline selector if not specified. Used by position sources that don't have an intrinsic container."
+        },
+        "positionSource": {
+          "$ref": "#/definitions/Partial%3CIPositionSourceConfig%3E",
+          "description": "Optional position source settings for this timeline only, merged over `timelineProviderSettings[type].positionSource`.\n\n- Leave out `systemName` (or repeat the type's) to change single   settings, for example only the `selector` of a scroll timeline. The   other settings of the type still apply.\n- Name a different `systemName` to give this timeline another kind of   source, for example a `ScrollPositionSource` chapter in a   configuration whose animation timelines use `RafPositionSource`. The   type's position source settings are then not used, and when every   timeline of a type does this, the type needs no   `timelineProviderSettings` entry.\n\nA source that renders its own container (`VideoPositionSource`) is shared by every timeline of the type with the same effective settings, so only an override that changes the video settings creates a second player. Other sources are created once per timeline, as without an override.",
+          "example": "```json\n{\"positionSource\": {\"systemName\": \"ScrollPositionSource\", \"selector\": \"#chapter-2\"}}\n```"
+        },
+        "containerProvider": {
+          "$ref": "#/definitions/Partial%3CIContainerProviderConfig%3E",
+          "description": "Optional container provider settings for this timeline only, merged over `timelineProviderSettings[type].container` by the same rules as `positionSource`. Timelines with the same effective settings share one container provider."
+        }
+      },
+      "required": [
+        "id",
+        "uri",
+        "type",
+        "duration",
+        "loop",
+        "selector",
+        "timelineActions"
+      ],
+      "additionalProperties": false,
+      "description": "Configuration for a single timeline.\n\nA timeline represents a time-based sequence of actions that can be played, paused, and seeked. Multiple timelines can exist in a configuration.",
+      "example": "```typescript\nconst timeline: ITimelineConfiguration = {\n  id: 'main-timeline',\n  uri: 'timeline://main',\n  type: 'animation',\n  duration: 60,\n  loop: false,\n  selector: '#timeline-container',\n  timelineActions: []\n};\n```"
+    },
+    "TimelineTypes": {
+      "type": "string",
+      "enum": [
+        "animation",
+        "mediaplayer"
+      ],
+      "description": "Describes the different kinds of timeline providers."
+    },
+    "ITimelineActionConfiguration": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the action"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for the action"
+        },
+        "startOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IOperationConfiguration%3CTOperationData%3E"
+          },
+          "description": "Operations to execute when the action starts"
+        },
+        "endOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IOperationConfiguration%3CTOperationData%3E"
+          },
+          "description": "Operations to execute when the action ends"
+        },
+        "duration": {
+          "$ref": "#/definitions/IDuration",
+          "description": "Time range when this action is active (start/end in seconds)"
+        }
+      },
+      "required": [
+        "duration",
+        "endOperations",
+        "id",
+        "name",
+        "startOperations"
+      ],
+      "additionalProperties": false,
+      "description": "Configuration for a timeline-bound action with duration.\n\nTimeline actions execute at specific time ranges within a timeline."
+    },
+    "IDuration": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "number"
+        },
+        "end": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "start"
+      ],
+      "additionalProperties": false,
+      "description": "Describes a duration of time expressed in a start and an optional end range with a one second interval."
+    },
+    "Partial<IPositionSourceConfig>": {
+      "type": "object",
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "description": "Name of the position source class to instantiate. Resolved via the resource importer.\n\nBuilt-in options: 'RafPositionSource', 'ScrollPositionSource', 'VideoPositionSource'"
+        },
+        "selector": {
+          "type": "string",
+          "description": "CSS selector for sources that need a DOM element (scroll, video)."
+        },
+        "tickInterval": {
+          "type": "number",
+          "description": "Interval between position updates in milliseconds (RAF sources).\n\nThe default of 100 ms matches the 0.1 second precision at which actions are keyed. A larger interval emits fewer position updates (less work per second), but actions then start and end up to one interval late. Earlier releases defaulted to 1000.",
+          "default": 100
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "src": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "src",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Media to load (video sources), each with its URL and MIME type. `VideoPositionSource` requires a non-empty list."
+        },
+        "poster": {
+          "type": "string",
+          "description": "Optional poster image URL (video sources)."
+        }
+      },
+      "additionalProperties": {
+        "description": "Additional configuration options passed to the position source constructor. Use this for custom position source implementations."
       }
+    },
+    "Partial<IContainerProviderConfig>": {
+      "type": "object",
+      "properties": {
+        "systemName": {
+          "type": "string",
+          "description": "Name of the container provider class to instantiate. Resolved via the resource importer.\n\nBuilt-in options: 'DomContainerProvider'"
+        },
+        "selector": {
+          "type": "string",
+          "description": "CSS selector for the container element"
+        }
+      },
+      "additionalProperties": {
+        "description": "Additional configuration options passed to the container provider constructor. Use this for custom container provider implementations."
+      }
+    },
+    "ITimelineFlow": {
+      "$ref": "#/definitions/Record%3Cstring%2Cnever%3E",
+      "description": "Configuration for timeline flow navigation.\n\nDefines how timelines connect and transition between each other. Currently a placeholder type for future implementation."
+    },
+    "Record<string,never>": {
+      "type": "object",
+      "additionalProperties": {
+        "not": {}
+      }
+    },
+    "ILocalesConfiguration": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/TLocaleEntry"
+      },
+      "description": "Top-level configuration object for all locales. Keys are language codes, values are inline data or external references."
+    },
+    "TLocaleEntry": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/TLocaleData"
+        },
+        {
+          "$ref": "#/definitions/ILocaleReference"
+        }
+      ],
+      "description": "A single locale entry can be inline data or an external reference."
+    },
+    "TLocaleData": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "$comment": "(params: Record<string, unknown>) => string",
+            "type": "object",
+            "properties": {
+              "namedArgs": {
+                "type": "object",
+                "properties": {
+                  "params": {
+                    "$ref": "#/definitions/Record%3Cstring%2Cunknown%3E"
+                  }
+                },
+                "required": [
+                  "params"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          {
+            "$ref": "#/definitions/TLocaleData"
+          }
+        ]
+      },
+      "description": "Recursive interface for nested translation data. Compatible with rosetta's expected format. Uses interface to support recursive definition."
+    },
+    "Record<string,unknown>": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "ILocaleReference": {
+      "type": "object",
+      "properties": {
+        "$ref": {
+          "type": "string",
+          "description": "URL or relative path to JSON locale file"
+        }
+      },
+      "required": [
+        "$ref"
+      ],
+      "additionalProperties": false,
+      "description": "External locale file reference using JSON Reference syntax. The loader resolves these to TLocaleData at initialization."
     }
-  }
+  },
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json",
+  "title": "Eligius Configuration Schema"
 }

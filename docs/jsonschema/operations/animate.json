@@ -1,42 +1,49 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/animate-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/animate.json",
   "type": "object",
-  "title": "The animate schema",
-  "description": "This operation animates the specified selected element with the given [jQuery animation](https://api.jquery.com/animate/) properties, duration and easing.\nIt resolves after the animation completes.",
-  "required": ["systemName", "operationData"],
+  "title": "animate Operation",
+  "description": "Schema for the animate operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "animate"
+      "const": "animate",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["animationProperties", "animationDuration"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "animationEasing": {
-          "$id": "#/properties/operationData/animationEasing",
-          "type": ["boolean"]
+          "type": "string"
         },
         "animationProperties": {
-          "$id": "#/properties/operationData/animationProperties",
-          "type": ["object"]
+          "$ref": "#/definitions/Record%3Cstring%2Cunknown%3E"
         },
         "animationDuration": {
-          "$id": "#/properties/operationData/animationDuration",
-          "type": ["number"]
+          "type": "number"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "animationProperties",
+        "animationDuration"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Record<string,unknown>": {
+      "type": "object",
+      "additionalProperties": {}
     }
   }
 }

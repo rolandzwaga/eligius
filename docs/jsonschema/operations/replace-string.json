@@ -1,38 +1,51 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/replace-string-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/replace-string.json",
   "type": "object",
-  "title": "The replaceString schema",
-  "description": "Replaces occurrences of a pattern in a string (alias for replaceText for string context).",
-  "required": ["systemName", "operationData"],
+  "title": "replaceString Operation",
+  "description": "Schema for the replaceString operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "replaceString"
+      "const": "replaceString",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["pattern", "replacement"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "pattern": {
-          "$id": "#/properties/operationData/pattern",
-          "type": "array"
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "format": "regex"
+            }
+          ]
         },
         "replacement": {
-          "$id": "#/properties/operationData/replacement",
-          "type": ["string"]
+          "type": "string"
+        },
+        "result": {
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "pattern",
+        "replacement"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

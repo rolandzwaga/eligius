@@ -1,33 +1,44 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/get-query-params-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/get-query-params.json",
   "type": "object",
-  "title": "The getQueryParams schema",
-  "description": "This operation retrieves the current query parameters from the browser's address bar and places\nthem on the returned operation data.",
-  "required": ["systemName", "operationData"],
+  "title": "getQueryParams Operation",
+  "description": "Schema for the getQueryParams operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "getQueryParams"
+      "const": "getQueryParams",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
+        "queryParams": {
+          "$ref": "#/definitions/Record%3Cstring%2Cstring%3E",
+          "description": "The query params will be added as property/values to this object. So, the query string `?foo=bar&bar=foo` will result in: ```json {    foo: \"bar\",    bar: \"foo\" } ``` This object will be assigned to the `queryParams` property."
+        },
         "defaultValues": {
-          "$id": "#/properties/operationData/defaultValues",
-          "type": "array"
+          "$ref": "#/definitions/Record%3Cstring%2Cstring%3E",
+          "description": "The properties on this object will be assigned to the queryParams result when the given property name is not part of the query string."
         }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Record<string,string>": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
       }
     }
   }

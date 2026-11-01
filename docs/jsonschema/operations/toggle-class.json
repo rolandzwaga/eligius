@@ -1,35 +1,37 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/toggle-class-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/toggle-class.json",
   "type": "object",
-  "title": "The toggleClass schema",
-  "description": "This operation toggles the specfied class name on the given selected element.\n\nMeaning, if the specified class name exists on the given element it will be removed,\notherwise it will be added.",
-  "required": ["systemName", "operationData"],
+  "title": "toggleClass Operation",
+  "description": "Schema for the toggleClass operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "toggleClass"
+      "const": "toggleClass",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["className"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "className": {
-          "$id": "#/properties/operationData/className",
-          "type": ["string"],
-          "pattern": ".-?[_a-zA-Z]+[_a-zA-Z0-9-]*"
+          "type": "string",
+          "description": "The class that will be toggled"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "className"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

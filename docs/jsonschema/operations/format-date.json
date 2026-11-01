@@ -1,34 +1,39 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/format-date-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/format-date.json",
   "type": "object",
-  "title": "The formatDate schema",
-  "description": "Formats a date using Intl.DateTimeFormat or simple patterns.",
-  "required": ["systemName", "operationData"],
+  "title": "formatDate Operation",
+  "description": "Schema for the formatDate operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "formatDate"
+      "const": "formatDate",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["format"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "format": {
-          "$id": "#/properties/operationData/format",
-          "type": ["string"]
+          "type": "string"
+        },
+        "formattedDate": {
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "format"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

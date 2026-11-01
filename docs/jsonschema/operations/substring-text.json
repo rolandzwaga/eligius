@@ -1,38 +1,42 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/substring-text-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/substring-text.json",
   "type": "object",
-  "title": "The substringText schema",
-  "description": "Extracts a substring from text between start and end indices.",
-  "required": ["systemName", "operationData"],
+  "title": "substringText Operation",
+  "description": "Schema for the substringText operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "substringText"
+      "const": "substringText",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["start"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "start": {
-          "$id": "#/properties/operationData/start",
-          "type": ["number"]
+          "type": "number"
         },
         "end": {
-          "$id": "#/properties/operationData/end",
-          "type": "array"
+          "type": "number"
+        },
+        "substring": {
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "start"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

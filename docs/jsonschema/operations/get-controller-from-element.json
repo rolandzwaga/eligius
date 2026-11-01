@@ -1,48 +1,39 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/get-controller-from-element-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/get-controller-from-element.json",
   "type": "object",
-  "title": "The getControllerFromElement schema",
-  "description": "This operation retrieves the controller instance with the specified name that is assigned to the given selected element.",
-  "required": ["systemName", "operationData"],
+  "title": "getControllerFromElement Operation",
+  "description": "Schema for the getControllerFromElement operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "getControllerFromElement"
+      "const": "getControllerFromElement",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["controllerName"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "controllerName": {
-          "$id": "#/properties/operationData/controllerName",
-          "type": [
-            {
-              "type": "string",
-              "enum": [
-                "DOMEventListenerController",
-                "LabelController",
-                "LottieController",
-                "MutationObserverController",
-                "NavigationController",
-                "ProgressbarController",
-                "RoutingController",
-                "SubtitlesController"
-              ]
-            }
-          ]
+          "type": "string"
+        },
+        "controllerInstance": {
+          "type": "object"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "controllerName"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

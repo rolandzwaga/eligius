@@ -1,38 +1,44 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/load-json-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/load-json.json",
   "type": "object",
-  "title": "The loadJson schema",
-  "description": "This operation loads a JSON file from the specified url and assigns it to the json\nproperty on the current operation data.\n\nIf the cache property is set to true and a cached value already exists, this is assigned\ninstead of re-retrieving it from the url.",
-  "required": ["systemName", "operationData"],
+  "title": "loadJson Operation",
+  "description": "Schema for the loadJson operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "loadJson"
+      "const": "loadJson",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["url"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "url": {
-          "$id": "#/properties/operationData/url",
-          "type": ["string"]
+          "type": "string",
+          "description": "The URL where the JSON will be retrieved from"
         },
         "cache": {
-          "$id": "#/properties/operationData/cache",
-          "type": "array"
+          "type": "boolean",
+          "description": "If true, the results will be added to the cache and any subsequent call will use this cache"
+        },
+        "json": {
+          "description": "The JSON retrieved from the given URL"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "url"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

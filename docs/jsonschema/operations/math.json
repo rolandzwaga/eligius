@@ -1,38 +1,71 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/math-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/math.json",
   "type": "object",
-  "title": "The math schema",
-  "description": "This operation performs the given math function with the specified arguments.",
-  "required": ["systemName", "operationData"],
+  "title": "math Operation",
+  "description": "Schema for the math operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "math"
+      "const": "math",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["args", "functionName"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "args": {
-          "$id": "#/properties/operationData/args",
-          "type": ["array"]
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "$ref": "#/definitions/MathNonFunctionKeys"
+              }
+            ]
+          }
         },
         "functionName": {
-          "$id": "#/properties/operationData/functionName",
-          "type": ["string"]
+          "type": "string"
+        },
+        "mathResult": {
+          "type": "number"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "args",
+        "functionName"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "MathNonFunctionKeys": {
+      "type": "string",
+      "enum": [
+        "E",
+        "LN10",
+        "LN2",
+        "LOG2E",
+        "LOG10E",
+        "PI",
+        "SQRT1_2",
+        "SQRT2"
+      ]
     }
   }
 }

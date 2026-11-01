@@ -1,34 +1,42 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/set-element-attributes-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/set-element-attributes.json",
   "type": "object",
-  "title": "The setElementAttributes schema",
-  "description": "This operation sets the specified set of attributes on the given selected element.",
-  "required": ["systemName", "operationData"],
+  "title": "setElementAttributes Operation",
+  "description": "Schema for the setElementAttributes operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "setElementAttributes"
+      "const": "setElementAttributes",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["attributes"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "attributes": {
-          "$id": "#/properties/operationData/attributes",
-          "type": ["object"]
+          "$ref": "#/definitions/Record%3Cstring%2Cunknown%3E"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "attributes"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Record<string,unknown>": {
+      "type": "object",
+      "additionalProperties": {}
     }
   }
 }
