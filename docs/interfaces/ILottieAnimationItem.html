@@ -16,7 +16,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 </div></section>
 <div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">ILottieAnimationItem</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#animationid">animationID</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#assetspath">assetsPath</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#autoplay">autoplay</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#currentframe">currentFrame</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#currentrawframe">currentRawFrame</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#firstframe">firstFrame</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#framemult">frameMult</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#framerate">frameRate</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#isloaded">isLoaded</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#ispaused">isPaused</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#issubframeenabled">isSubframeEnabled</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#loop">loop</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#name">name</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#playcount">playCount</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#playdirection">playDirection</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#playspeed">playSpeed</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#renderer">renderer</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#segmentpos">segmentPos</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#segments">segments</a><span class="tsd-signature-symbol">:</span> <a href="../types/TLottieAnimationSegment.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationSegment</a> <span class="tsd-signature-symbol">|</span> <a href="../types/TLottieAnimationSegment.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationSegment</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#timecompleted">timeCompleted</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#totalframes">totalFrames</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#addeventlistener-1">addEventListener</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#addeventlistenert">T</a> <span class="tsd-signature-keyword">extends</span> <a href="../types/TLottieAnimationEventName.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventName</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <a class="tsd-signature-type tsd-kind-type-parameter" href="#addeventlistenert">T</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">:</span> <a href="../types/TLottieAnimationEventCallback.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventCallback</a><span class="tsd-signature-symbol">&lt;</span><a href="ILottieAnimationEvents.html" class="tsd-signature-type tsd-kind-interface">ILottieAnimationEvents</a><span class="tsd-signature-symbol">[</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#addeventlistenert">T</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">()</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#destroy-1">destroy</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#getduration-1">getDuration</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">inFrames</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#gotoandplay-1">goToAndPlay</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">isFrame</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#gotoandstop-1">goToAndStop</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">value</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">isFrame</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#hide-1">hide</a><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#includelayers-1">includeLayers</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">data</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#pause-1">pause</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#play-1">play</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#playsegments-1">playSegments</a><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">segments</span><span class="tsd-signature-symbol">:</span> <a href="../types/TLottieAnimationSegment.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationSegment</a> <span class="tsd-signature-symbol">|</span> <a href="../types/TLottieAnimationSegment.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationSegment</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">forceFlag</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#removeeventlistener-1">removeEventListener</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#removeeventlistenert">T</a> <span class="tsd-signature-keyword">extends</span> <a href="../types/TLottieAnimationEventName.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventName</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <a class="tsd-signature-type tsd-kind-type-parameter" href="#removeeventlistenert">T</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">callback</span><span class="tsd-signature-symbol">?:</span> <a href="../types/TLottieAnimationEventCallback.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventCallback</a><span class="tsd-signature-symbol">&lt;</span><a href="ILottieAnimationEvents.html" class="tsd-signature-type tsd-kind-interface">ILottieAnimationEvents</a><span class="tsd-signature-symbol">[</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#removeeventlistenert">T</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#resetsegments-1">resetSegments</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">forceFlag</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#resize-1">resize</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">width</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">height</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#setdirection-1">setDirection</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">direction</span><span class="tsd-signature-symbol">:</span> <a href="../types/TLottieAnimationDirection.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationDirection</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#setloop-1">setLoop</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">isLooping</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#setsegment-1">setSegment</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">init</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">,</span> <span class="tsd-kind-parameter">end</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#setspeed-1">setSpeed</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">speed</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#setsubframe-1">setSubframe</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">useSubFrames</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#show-1">show</a><span class="tsd-signature-symbol">()</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#stop-1">stop</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#togglepause-1">togglePause</a><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-call-signature" href="#triggerevent-1">triggerEvent</a><span class="tsd-signature-symbol">&lt;</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#triggereventt">T</a> <span class="tsd-signature-keyword">extends</span> <a href="../types/TLottieAnimationEventName.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventName</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><br/>        <span class="tsd-kind-parameter">name</span><span class="tsd-signature-symbol">:</span> <a class="tsd-signature-type tsd-kind-type-parameter" href="#triggereventt">T</a><span class="tsd-signature-symbol">,</span><br/>        <span class="tsd-kind-parameter">args</span><span class="tsd-signature-symbol">:</span> <a href="ILottieAnimationEvents.html" class="tsd-signature-type tsd-kind-interface">ILottieAnimationEvents</a><span class="tsd-signature-symbol">[</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#triggereventt">T</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">,</span><br/>    <span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L104">controllers/types.ts:104</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L104">controllers/types.ts:104</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -78,107 +78,107 @@ lottie-web's <code>AnimationItem</code>.</p>
 <h3 class="tsd-anchor-link" id="animationid"><span>animation<wbr/>ID</span><a href="#animationid" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">animationID</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L120">controllers/types.ts:120</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L120">controllers/types.ts:120</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="assetspath"><span>assets<wbr/>Path</span><a href="#assetspath" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">assetsPath</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L121">controllers/types.ts:121</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L121">controllers/types.ts:121</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="autoplay"><span>autoplay</span><a href="#autoplay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">autoplay</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L117">controllers/types.ts:117</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L117">controllers/types.ts:117</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="currentframe"><span>current<wbr/>Frame</span><a href="#currentframe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">currentFrame</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L107">controllers/types.ts:107</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L107">controllers/types.ts:107</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="currentrawframe"><span>current<wbr/>Raw<wbr/>Frame</span><a href="#currentrawframe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">currentRawFrame</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L108">controllers/types.ts:108</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L108">controllers/types.ts:108</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="firstframe"><span>first<wbr/>Frame</span><a href="#firstframe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">firstFrame</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L109">controllers/types.ts:109</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L109">controllers/types.ts:109</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="framemult"><span>frame<wbr/>Mult</span><a href="#framemult" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">frameMult</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L112">controllers/types.ts:112</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L112">controllers/types.ts:112</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="framerate"><span>frame<wbr/>Rate</span><a href="#framerate" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">frameRate</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L111">controllers/types.ts:111</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L111">controllers/types.ts:111</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="isloaded"><span>is<wbr/>Loaded</span><a href="#isloaded" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">isLoaded</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L106">controllers/types.ts:106</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L106">controllers/types.ts:106</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="ispaused"><span>is<wbr/>Paused</span><a href="#ispaused" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">isPaused</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L116">controllers/types.ts:116</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L116">controllers/types.ts:116</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="issubframeenabled"><span>is<wbr/>Subframe<wbr/>Enabled</span><a href="#issubframeenabled" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">isSubframeEnabled</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L124">controllers/types.ts:124</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L124">controllers/types.ts:124</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="loop"><span>loop</span><a href="#loop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">loop</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">boolean</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L118">controllers/types.ts:118</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L118">controllers/types.ts:118</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="name"><span>name</span><a href="#name" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L105">controllers/types.ts:105</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L105">controllers/types.ts:105</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="playcount"><span>play<wbr/>Count</span><a href="#playcount" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">playCount</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L115">controllers/types.ts:115</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L115">controllers/types.ts:115</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="playdirection"><span>play<wbr/>Direction</span><a href="#playdirection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">playDirection</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L114">controllers/types.ts:114</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L114">controllers/types.ts:114</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="playspeed"><span>play<wbr/>Speed</span><a href="#playspeed" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">playSpeed</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L113">controllers/types.ts:113</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L113">controllers/types.ts:113</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="renderer"><span>renderer</span><a href="#renderer" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">renderer</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L119">controllers/types.ts:119</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L119">controllers/types.ts:119</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="segmentpos"><span>segment<wbr/>Pos</span><a href="#segmentpos" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">segmentPos</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L123">controllers/types.ts:123</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L123">controllers/types.ts:123</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="segments"><span>segments</span><a href="#segments" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">segments</span><span class="tsd-signature-symbol">:</span> <a href="../types/TLottieAnimationSegment.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationSegment</a> <span class="tsd-signature-symbol">|</span> <a href="../types/TLottieAnimationSegment.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationSegment</a><span class="tsd-signature-symbol">[]</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L125">controllers/types.ts:125</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L125">controllers/types.ts:125</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="timecompleted"><span>time<wbr/>Completed</span><a href="#timecompleted" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">timeCompleted</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L122">controllers/types.ts:122</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L122">controllers/types.ts:122</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="totalframes"><span>total<wbr/>Frames</span><a href="#totalframes" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">totalFrames</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L110">controllers/types.ts:110</a></li></ul></aside></section></section></details>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L110">controllers/types.ts:110</a></li></ul></aside></section></section></details>
 <details class="tsd-panel-group tsd-member-group tsd-accordion" open><summary class="tsd-accordion-summary" data-key="section-Methods"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
 <h2 class="tsd-anchor-link" id="methods-1">Methods<a href="#methods-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h2></summary>
 <section>
@@ -199,7 +199,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">callback</span>: <a href="../types/TLottieAnimationEventCallback.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventCallback</a><span class="tsd-signature-symbol">&lt;</span><a href="ILottieAnimationEvents.html" class="tsd-signature-type tsd-kind-interface">ILottieAnimationEvents</a><span class="tsd-signature-symbol">[</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#addeventlistenert">T</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">()</span> <span class="tsd-signature-symbol">=&gt;</span> <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L152">controllers/types.ts:152</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L152">controllers/types.ts:152</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="destroy"><span>destroy</span><a href="#destroy" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -212,7 +212,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L129">controllers/types.ts:129</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L129">controllers/types.ts:129</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="getduration"><span>get<wbr/>Duration</span><a href="#getduration" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -225,7 +225,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">inFrames</span>: <span class="tsd-signature-type">boolean</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L147">controllers/types.ts:147</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L147">controllers/types.ts:147</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="gotoandplay"><span>go<wbr/>To<wbr/>And<wbr/>Play</span><a href="#gotoandplay" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -240,7 +240,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L132">controllers/types.ts:132</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L132">controllers/types.ts:132</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="gotoandstop"><span>go<wbr/>To<wbr/>And<wbr/>Stop</span><a href="#gotoandstop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -255,7 +255,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L131">controllers/types.ts:131</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L131">controllers/types.ts:131</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="hide"><span>hide</span><a href="#hide" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -264,7 +264,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <div class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L136">controllers/types.ts:136</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L136">controllers/types.ts:136</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="includelayers"><span>include<wbr/>Layers</span><a href="#includelayers" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -277,7 +277,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">data</span>: <span class="tsd-signature-type">any</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L133">controllers/types.ts:133</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L133">controllers/types.ts:133</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="pause"><span>pause</span><a href="#pause" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -290,7 +290,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L130">controllers/types.ts:130</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L130">controllers/types.ts:130</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="play"><span>play</span><a href="#play" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -303,7 +303,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L126">controllers/types.ts:126</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L126">controllers/types.ts:126</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="playsegments"><span>play<wbr/>Segments</span><a href="#playsegments" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -317,7 +317,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">forceFlag</span>: <span class="tsd-signature-type">boolean</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L142">controllers/types.ts:142</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L142">controllers/types.ts:142</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="removeeventlistener"><span>remove<wbr/>Event<wbr/>Listener</span><a href="#removeeventlistener" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -335,7 +335,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">callback</span>: <a href="../types/TLottieAnimationEventCallback.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationEventCallback</a><span class="tsd-signature-symbol">&lt;</span><a href="ILottieAnimationEvents.html" class="tsd-signature-type tsd-kind-interface">ILottieAnimationEvents</a><span class="tsd-signature-symbol">[</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#removeeventlistenert">T</a><span class="tsd-signature-symbol">]</span><span class="tsd-signature-symbol">&gt;</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L156">controllers/types.ts:156</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L156">controllers/types.ts:156</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="resetsegments"><span>reset<wbr/>Segments</span><a href="#resetsegments" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -348,7 +348,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">forceFlag</span>: <span class="tsd-signature-type">boolean</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L135">controllers/types.ts:135</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L135">controllers/types.ts:135</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="resize"><span>resize</span><a href="#resize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -362,7 +362,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">height</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L138">controllers/types.ts:138</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L138">controllers/types.ts:138</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="setdirection"><span>set<wbr/>Direction</span><a href="#setdirection" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -375,7 +375,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">direction</span>: <a href="../types/TLottieAnimationDirection.html" class="tsd-signature-type tsd-kind-type-alias">TLottieAnimationDirection</a></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L140">controllers/types.ts:140</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L140">controllers/types.ts:140</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="setloop"><span>set<wbr/>Loop</span><a href="#setloop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -388,7 +388,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">isLooping</span>: <span class="tsd-signature-type">boolean</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L141">controllers/types.ts:141</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L141">controllers/types.ts:141</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="setsegment"><span>set<wbr/>Segment</span><a href="#setsegment" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -402,7 +402,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">end</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L134">controllers/types.ts:134</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L134">controllers/types.ts:134</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="setspeed"><span>set<wbr/>Speed</span><a href="#setspeed" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -415,7 +415,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">speed</span>: <span class="tsd-signature-type">number</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L139">controllers/types.ts:139</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L139">controllers/types.ts:139</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="setsubframe"><span>set<wbr/>Subframe</span><a href="#setsubframe" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -428,7 +428,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">useSubFrames</span>: <span class="tsd-signature-type">boolean</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L146">controllers/types.ts:146</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L146">controllers/types.ts:146</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="show"><span>show</span><a href="#show" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -437,7 +437,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <div class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L137">controllers/types.ts:137</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L137">controllers/types.ts:137</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="stop"><span>stop</span><a href="#stop" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -450,7 +450,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L127">controllers/types.ts:127</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L127">controllers/types.ts:127</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="togglepause"><span>toggle<wbr/>Pause</span><a href="#togglepause" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -463,7 +463,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><code class="tsd-tag">Optional</code><span class="tsd-kind-parameter">name</span>: <span class="tsd-signature-type">string</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L128">controllers/types.ts:128</a></li></ul></aside></div></li></ul></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L128">controllers/types.ts:128</a></li></ul></aside></div></li></ul></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="triggerevent"><span>trigger<wbr/>Event</span><a href="#triggerevent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures">
@@ -481,7 +481,7 @@ lottie-web's <code>AnimationItem</code>.</p>
 <li><span><span class="tsd-kind-parameter">args</span>: <a href="ILottieAnimationEvents.html" class="tsd-signature-type tsd-kind-interface">ILottieAnimationEvents</a><span class="tsd-signature-symbol">[</span><a class="tsd-signature-type tsd-kind-type-parameter" href="#triggereventt">T</a><span class="tsd-signature-symbol">]</span></span></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/controllers/types.ts#L148">controllers/types.ts:148</a></li></ul></aside></div></li></ul></section></section></details></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/controllers/types.ts#L148">controllers/types.ts:148</a></li></ul></aside></div></li></ul></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">

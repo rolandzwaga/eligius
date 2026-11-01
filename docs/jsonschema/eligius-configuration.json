@@ -185,6 +185,11 @@
         "poster": {
           "type": "string",
           "description": "Optional poster image URL (video sources)."
+        },
+        "loadTimeout": {
+          "type": "number",
+          "description": "Milliseconds `VideoPositionSource` waits for a source to become playable before `init()` rejects. `0` disables the limit.",
+          "default": 30000
         }
       },
       "required": [
@@ -772,6 +777,11 @@
         "poster": {
           "type": "string",
           "description": "Optional poster image URL (video sources)."
+        },
+        "loadTimeout": {
+          "type": "number",
+          "description": "Milliseconds `VideoPositionSource` waits for a source to become playable before `init()` rejects. `0` disables the limit.",
+          "default": 30000
         }
       },
       "additionalProperties": {

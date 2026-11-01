@@ -16,7 +16,7 @@ leaves out the event arguments, which may carry configuration or user data.</p>
 </div></section>
 <div class="tsd-signature"><span class="tsd-signature-keyword">interface</span> <span class="tsd-kind-interface">IEventbusErrorContext</span> <span class="tsd-signature-symbol">{</span><br/>    <a class="tsd-kind-property" href="#eventname">eventName</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#eventtopic">eventTopic</a><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#reporter">reporter</a><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">;</span><br/>    <a class="tsd-kind-property" href="#source">source</a><span class="tsd-signature-symbol">:</span> <a href="../types/TEventbusErrorSource.html" class="tsd-signature-type tsd-kind-type-alias">TEventbusErrorSource</a><span class="tsd-signature-symbol">;</span><br/><span class="tsd-signature-symbol">}</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/eventbus/types.ts#L51">eventbus/types.ts:51</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/eventbus/types.ts#L51">eventbus/types.ts:51</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-accordion" open><summary class="tsd-accordion-summary tsd-index-summary"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><use href="../assets/icons.svg#icon-chevronDown"></use></svg>
@@ -39,21 +39,21 @@ leaves out the event arguments, which may carry configuration or user data.</p>
 named in the report, or an empty string.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/eventbus/types.ts#L56">eventbus/types.ts:56</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/eventbus/types.ts#L56">eventbus/types.ts:56</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="eventtopic"><span>event<wbr/>Topic</span><a href="#eventtopic" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">eventTopic</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span> <span class="tsd-signature-symbol">|</span> <span class="tsd-signature-type">undefined</span></div>
 <div class="tsd-comment tsd-typography"><p>The topic the event was broadcast for, if any.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/eventbus/types.ts#L58">eventbus/types.ts:58</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/eventbus/types.ts#L58">eventbus/types.ts:58</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="reporter"><code class="tsd-tag">Optional</code><span>reporter</span><a href="#reporter" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">reporter</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
 <div class="tsd-comment tsd-typography"><p>For a reported error: the component that reported it.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/eventbus/types.ts#L65">eventbus/types.ts:65</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/eventbus/types.ts#L65">eventbus/types.ts:65</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member">
 <h3 class="tsd-anchor-link" id="source"><span>source</span><a href="#source" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="../assets/icons.svg#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">source</span><span class="tsd-signature-symbol">:</span> <a href="../types/TEventbusErrorSource.html" class="tsd-signature-type tsd-kind-type-alias">TEventbusErrorSource</a></div>
@@ -61,7 +61,7 @@ named in the report, or an empty string.</p>
 <code>'reported'</code> for an error passed to <a href="IEventbus.html#reporterror" class="tsd-kind-method">IEventbus.reportError</a>.</p>
 </div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/30f2ac7993290b43c485d0db0b4d06887fb4c2b9/src/eventbus/types.ts#L63">eventbus/types.ts:63</a></li></ul></aside></section></section></details></div>
+<li>Defined in <a href="https://github.com/rolandzwaga/eligius/blob/b9fc801ded0106415ac63b5b09adc39dc8baf796/src/eventbus/types.ts#L63">eventbus/types.ts:63</a></li></ul></aside></section></section></details></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
