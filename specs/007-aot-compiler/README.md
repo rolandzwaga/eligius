@@ -3,6 +3,8 @@
 Research and planning output, 2026-11-01. Not yet a speckit spec.
 
 - [roadmap.md](roadmap.md): the decision and phased plan. Start here.
+- [measurements.md](measurements.md): Phase 0 results (benchmark, real-browser profile, bundle baseline, corpus scan) and how they read against gate G1.
+- [phase-0/](phase-0/): the scripts and raw results behind measurements.md.
 - [critiques.md](critiques.md): three adversarial reviews of the candidate plans.
 - [plans.md](plans.md): the two candidate plans (minimal vs complete).
 - [research.md](research.md): code dossier and the interpreter benchmark.
@@ -13,6 +15,8 @@ Verdict: Go with conditions. Build the interpreter fast paths, the bundle-size f
 
 Estimate: About 5-6 weeks for Phases 0-3 (measurement, interpreter fast paths, tree-shakable runtime entry, eligius/lint), for one developer with an AI assistant. If gate G1 passes, Phases 4-5 (guarded codegen, intrinsics, CLI) add about 3.5-4 weeks, for 9-10 weeks in total.
 
-First action: Port the dossier's temporary benchmark into src/test/bench/action-overhead.bench.ts and add an `npm run bench` script (vitest bench). Include the "direct-call ceiling" variant: hand-written structured if/for that calls the real operation functions with real pushed scopes. Run it and record the four numbers in specs/007-aot-compiler/measurements.md.
+Status: Phase 0 (measure) done on 2026-11-01 on branch feat/aot-compiler-phase-0. Next: Phase 1 (interpreter fast paths, quirks suite, differential harness).
+
+First action (done): Port the dossier's temporary benchmark into src/test/bench/action-overhead.bench.ts and add an `npm run bench` script (vitest bench). Include the "direct-call ceiling" variant: hand-written structured if/for that calls the real operation functions with real pushed scopes. Run it and record the four numbers in specs/007-aot-compiler/measurements.md.
 
 Rerun: Workflow `.claude/workflows/aot-compiler-plan.js` with args `{"date": "..."}`.

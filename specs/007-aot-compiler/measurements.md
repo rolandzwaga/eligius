@@ -1,0 +1,121 @@
+# Phase 0 measurements: action execution overhead
+
+Date: 2026-11-01. Branch `feat/aot-compiler-phase-0`. Eligius 4.0.0 built from this branch.
+Machine: Windows 11, Node 24.7.0, headless Chrome 156. All numbers are means from one clean run with nothing else running.
+
+Reproduce: `npm run bench` for section 1, the scripts in [phase-0/](phase-0/) for sections 2 to 4.
+
+## 1. Benchmark: interpreted vs direct-call ceiling vs hand-written
+
+`src/test/bench/action-overhead.bench.ts` (vitest bench, tinybench, jsdom, imports the built `dist/`). One action with up to 13 operations: `selectElement`, `addClass`, `setData`, a `when/otherwise/endWhen` block, a `forEach` whose body runs `setOperationData` (resolving `$scope.currentItem`) and `setData` (resolving `$operationdata.label`), and `removeClass`.
+
+- **interpreted**: the real `Action` class.
+- **direct-call ceiling**: hand-written `if`/`for` that calls the same operation functions with real scope objects. This is what generated code achieves without rewriting any operation.
+- **hand-written jQuery**: the same DOM and data work with no operations.
+
+| Scenario                             | interpreted | direct-call ceiling | hand-written | interp / ceiling | interp / hand |
+| ------------------------------------ | ----------- | ------------------- | ------------ | ---------------- | ------------- |
+| full: 13 ops, when, forEach over 20  | 0.218 ms    | 0.167 ms            | 0.016 ms     | 1.30x            | 13x           |
+| no forEach: 9 ops with when          | 0.024 ms    | 0.015 ms            | 0.011 ms     | 1.64x            | 2.2x          |
+| no when: 8 ops, forEach over 20      | 0.208 ms    | 0.171 ms            | 0.011 ms     | 1.21x            | 19x           |
+| large loop: 13 ops, forEach over 200 | 2.154 ms    | 1.272 ms            | 0.017 ms     | 1.69x            | 124x          |
+
+Derived:
+
+- One loop iteration (`setOperationData` + `setData` + loop bookkeeping) costs about 9.7 µs interpreted and about 7.6 µs in the ceiling. The two data operations themselves, with their property-chain parsing and deep copies, are most of the cost. Interpreter bookkeeping is about 2 µs per iteration.
+- A loop-free 9-operation action costs 24 µs interpreted. The ceiling saves 9 µs of that.
+- The ceiling never reaches 2x over the interpreter. Gate G1 criterion (b) asks for 2x; structural codegen alone does not deliver it. Only intrinsics that replace `when` parsing, property-chain resolution and the double deep copy can, and those same changes can be made inside the interpreter.
+
+One-time configuration resolution, 10 actions x 13 operations (130 operations):
+
+| Step                                                                        | mean     |
+| --------------------------------------------------------------------------- | -------- |
+| `structuredClone(config)` alone                                             | 0.244 ms |
+| `ConfigurationResolver.process` (includes the clone)                        | 1.292 ms |
+| direct `Action` construction from the config (what a generated module does) | 0.003 ms |
+
+The resolver costs about 1.05 ms for 130 operations, about 8 µs per operation, once at startup.
+
+Earlier numbers in [research.md](research.md) (583 µs vs 20 µs) came from a throwaway spec that imported `src/` through Vite's module runner, which wraps every export in a getter; they are not comparable. The bench imports `dist/` to avoid that, and `npm run bench` builds first.
+
+## 2. Real-browser profile
+
+`phase-0/profile-lib.js` wraps `Action.prototype._runOperations` and records wall time per start or end run. A boundary is a cluster of runs starting within 40 ms of each other. "sync" is the synchronous part of a run (everything up to the first awaited promise); nested `startAction` runs are inside their parent's sync time, so cluster sums overstate.
+
+### Eligian tour (real presentation, 67 actions, 7 timelines)
+
+Source: `examples/eligian-tour/tour.json` from https://github.com/rolandzwaga/eligian, driven by `switchTimeline` to every timeline and `seek` to every action start position.
+
+| Metric                      | Value                                                         |
+| --------------------------- | ------------------------------------------------------------- |
+| runs (start + end)          | 276                                                           |
+| boundaries                  | 39                                                            |
+| median boundary sync        | 4 ms                                                          |
+| worst boundary sync         | 63.5 ms (first boundary: hub render, cold)                    |
+| next worst boundaries       | 25.4, 24.9, 16.8, 10.2 ms                                     |
+| max runs per boundary       | 12                                                            |
+| max operations per boundary | 42                                                            |
+| worst single run            | `demo.start`, 3 operations, 60.9 ms; then 24.6, 23.6, 15.2 ms |
+
+`demo` is `selectElement > addClass > animate`. Its third operation starts a jQuery animation (`opacity`, 300 ms), which forces style and layout work. Every boundary above 10 ms contains `demo.start`. The boundaries without it, including ones with 11 runs and 38 operations, stay under about 4 ms.
+
+Interpreter share of the worst boundary: section 1 puts interpreter bookkeeping at roughly 1 µs per loop-free operation. 42 operations are about 0.05 ms of a 25 ms boundary, under 1 percent.
+
+### Sample deck (synthetic, 2 timeline actions, 15 operations, one forEach over 3)
+
+| Metric                                                  | Value                                |
+| ------------------------------------------------------- | ------------------------------------ |
+| runs                                                    | 80                                   |
+| median boundary sync                                    | 0.2 ms                               |
+| worst boundary sync                                     | 4 ms (first `ShowTitle.start`, cold) |
+| steady state `ShowTitle.start` (9 ops)                  | 0.4 ms                               |
+| steady state `RevealBullets.start` (6 ops, loop over 3) | 0.4 to 0.8 ms                        |
+
+## 3. Bundle baseline
+
+Vite 8 production build (esbuild minify, es2022) of a 15-operation sample deck; sizes are the JavaScript chunks only. `lottie-web` external in all builds.
+
+| Deck                                                          | jQuery external, min | min+gzip | jQuery bundled, min | min+gzip |
+| ------------------------------------------------------------- | -------------------- | -------- | ------------------- | -------- |
+| (i) fluent `ConfigurationFactory` + `EligiusResourceImporter` | 218.5 KB             | 61.7 KB  | 296.9 KB            | 88.7 KB  |
+| (i-b) JSON config + `EligiusResourceImporter`                 | 203.6 KB             | 58.5 KB  | 282.0 KB            | 85.5 KB  |
+| (ii) JSON config + hand-written importer naming 15 exports    | 160.1 KB             | 46.5 KB  | 238.5 KB            | 73.5 KB  |
+
+`dist/index.mjs` itself: 579 KB, 144 KB gzip, unminified.
+
+The hand-written importer saves 15 KB gzip (25 percent). Inspecting the unminified deck (ii) bundle shows that Vite 8 (rolldown) **does** drop the operations and controllers the deck never names: `httpDelete`, `validateForm`, `loadJson`, `LottieController`, `SubtitlesController`, `ScrollPositionSource` and the `registerOperationTypes` call are all absent. The call is dead because nothing in that deck reads the lookup it fills, so the bundler removes the mutation along with it. The roadmap's claim that the side-effect import in `src/configuration/api/index.ts` blocks tree-shaking holds only for decks that import `ConfigurationFactory` or `EligiusResourceImporter` (whose `import * as ops` keeps every operation on purpose).
+
+What remains in the 46.5 KB is the engine runtime itself, by unminified size: `EligiusEngine` 37.8 KB, `EngineFactory` 18.3 KB, `LocaleManager` 7.5 KB, `Eventbus` 6.9 KB, `LocaleLoader` 6.4 KB, `BasePositionSource` 6.4 KB, `Action` 5.6 KB, the adapters about 12 KB, and small namespace objects (`operation_exports` 2.9 KB, metadata 3.6 KB). Phase 2 therefore cannot promise much below 46 KB gzip without slimming the engine core; its realistic deliverable is a documented `createImporter` so that decks get the 25 percent without hand-writing an importer, plus a `sideEffects` declaration so other bundlers match rolldown.
+
+## 4. Corpus scan
+
+### Eligian tour configuration (`phase-0/config-scan.js`)
+
+| Question                                              | Answer                                                                                        |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| actions                                               | 67: 46 timeline, 20 reusable, 1 event                                                         |
+| operation phases (start or end lists)                 | 74; operations per phase median 8, p90 12, max 20                                             |
+| unbalanced `when`/`endWhen` or `forEach`/`endForEach` | 0                                                                                             |
+| `forEach` loops                                       | 1, over `$scope.variables.points`                                                             |
+| `$scope.newIndex` writes                              | 0                                                                                             |
+| `customFunction`                                      | 0                                                                                             |
+| property chains                                       | 1 `$operationdata`, 2 `$scope`, 0 `$globaldata`                                               |
+| composition                                           | 226 `requestAction` + 226 `startAction` (every timeline action delegates to reusable actions) |
+| timeline actions starting at the same position        | max 2                                                                                         |
+
+A real Eligian-produced presentation is composition-heavy and loop-free. The compiler's biggest structural win, lowering loops, has almost nothing to lower here; `startAction`/`requestAction` resolution is where a compiler would spend its effort.
+
+### Test corpus and README (`phase-0/corpus-scan.js`, regex-based and noisy)
+
+- 28 files in `src/test/` contain control-flow operations; all "unbalanced" hits are unit specs that exercise a single operation on purpose.
+- Literal loop collections are 0 to 5 items, with outliers of 21, 40, 51 and a 20000-item stress test.
+- `$scope.newIndex` is written only in `set-data.spec.ts`.
+- `customFunction` appears in its own spec, the custom-registrations integration spec, the resolver spec and 3 README examples.
+
+## 5. Reading against gate G1
+
+- (a) "more than 4 ms in action execution at a single boundary": the tour exceeds this, but the time is jQuery animation and layout inside operations, not `Action` or the operation helpers. As written, (a) would pass G1 for the wrong reason. Proposed amendment: count only time attributable to `Action` and the operation helpers.
+- (b) "direct-call ceiling at least 2x faster": not met, 1.2x to 1.7x. Reaching 2x requires intrinsics for `when`, property chains and `setOperationData`, which are exactly Phase 1's interpreter fast paths.
+- (c) owner wants compiled output for another reason: open.
+
+Phase 1 should re-run section 1 after the fast paths land and record the new ratios here.

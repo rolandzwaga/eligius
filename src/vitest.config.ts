@@ -40,6 +40,10 @@ export default defineConfig({
       ],
     },
     include: ['src/test/**/*.spec.ts'],
+    // Only `npm run bench` runs these; they are never part of `npm test`.
+    benchmark: {
+      include: ['src/test/bench/**/*.bench.ts'],
+    },
     reporters: process.env.GITHUB_ACTIONS
       ? ['dot', 'github-actions']
       : ['default'],
