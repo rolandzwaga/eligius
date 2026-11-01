@@ -483,6 +483,8 @@ Re-run Phase 0's browser profile and bench on the Phase 1 interpreter. Build Pha
 
 If none holds, the feature ends here. Record the decision in measurements.md.
 
+**Status (2026-11-01): measured, see measurements.md section 9.** (a) not met with the amendment adopted: the tour's worst boundary has 0.3 ms of interpreter time against 41.8 ms of jQuery work. (b) met by the intrinsic form only: ceiling plus `when`/`setData`/`setOperationData` intrinsics is 5.8x to 12.9x faster than the interpreter on the loop scenarios (plain ceiling 1.5x to 1.7x). (c) open. Recommendation recorded: do not start Phase 4 until a real presentation shows interpreter time at a boundary or the owner chooses (c); an interpreter fast path for flat `properties` is the cheaper first step. Phase 4 has not been started.
+
 ### Phase 4 (gated): guarded codegen with intrinsics · 2.5-3 weeks
 
 **Deliverables**

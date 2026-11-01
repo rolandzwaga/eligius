@@ -46,3 +46,7 @@ node corpus-scan.js ../../../src/test ../../../README.md
 ```
 
 `config-scan.js` walks a configuration's actions. `corpus-scan.js` is a regex scan over TypeScript and Markdown and is noisy by nature.
+
+## Gate G1 re-run (2026-11-01)
+
+The tour input came from the local Eligian checkout (`examples/eligian-tour/tour.json` at 86bb3c5) instead of GitHub; `eligian/`, `out/`, the copied `tour.*` and `sizes.json` are gitignored here. `profile-lib.js` now records `opMs` (inside the operation functions) and `interpMs` (inside `Action.executeOperation` but outside the operations) per run and per boundary, for the amended criterion (a). Results: `profile-tour.g1.result.json`, `profile-sample.g1.result.json`, `bench-g1.output.txt` (the bench with the new "ceiling + intrinsics" variant). Read them in [../measurements.md](../measurements.md) section 9.

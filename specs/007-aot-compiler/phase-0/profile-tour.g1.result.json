@@ -1,0 +1,199 @@
+{
+  "url": "http://127.0.0.1:4173/tour.html",
+  "profile": {
+    "label": "eligian-tour",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "runs": 281,
+    "boundaries": 75,
+    "worstSyncMs": 41.8,
+    "worstTotalMs": 466.2,
+    "medianSyncMs": 1.1,
+    "worstInterpMs": 0.3,
+    "medianInterpMs": 0,
+    "totalInterpMs": 4.3,
+    "totalOpMs": 412.1,
+    "maxRunsPerBoundary": 9,
+    "maxOpsPerBoundary": 40,
+    "slowestBoundaries": [
+      {
+        "runs": 4,
+        "ops": 13,
+        "syncMs": 41.8,
+        "totalMs": 349.4,
+        "opMs": 41.6,
+        "interpMs": 0.2,
+        "actions": [
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 4,
+        "ops": 13,
+        "syncMs": 27.8,
+        "totalMs": 340.9,
+        "opMs": 27.8,
+        "interpMs": 0,
+        "actions": [
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 2,
+        "ops": 8,
+        "syncMs": 16.1,
+        "totalMs": 332.7,
+        "opMs": 16.1,
+        "interpMs": 0,
+        "actions": ["revealBlock.start", "demo.start"]
+      },
+      {
+        "runs": 4,
+        "ops": 13,
+        "syncMs": 12,
+        "totalMs": 323.6,
+        "opMs": 12,
+        "interpMs": 0,
+        "actions": [
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 4,
+        "ops": 13,
+        "syncMs": 10.4,
+        "totalMs": 315.9,
+        "opMs": 10.3,
+        "interpMs": 0.1,
+        "actions": [
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      }
+    ],
+    "slowestBoundariesByInterp": [
+      {
+        "runs": 2,
+        "ops": 22,
+        "syncMs": 0.9,
+        "totalMs": 2.1,
+        "opMs": 1.5,
+        "interpMs": 0.3,
+        "actions": ["timeline-lifecycle.start", "showView.start"]
+      },
+      {
+        "runs": 4,
+        "ops": 13,
+        "syncMs": 41.8,
+        "totalMs": 349.4,
+        "opMs": 41.6,
+        "interpMs": 0.2,
+        "actions": [
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 3,
+        "ops": 19,
+        "syncMs": 1,
+        "totalMs": 447.3,
+        "opMs": 3.7,
+        "interpMs": 0.2,
+        "actions": [
+          "timeline-action-6-12.start",
+          "clearSpots.start",
+          "narrate.start"
+        ]
+      },
+      {
+        "runs": 3,
+        "ops": 21,
+        "syncMs": 0.7,
+        "totalMs": 447.4,
+        "opMs": 3.7,
+        "interpMs": 0.2,
+        "actions": [
+          "timeline-action-12-20.start",
+          "clearSpots.start",
+          "narrate.start"
+        ]
+      },
+      {
+        "runs": 3,
+        "ops": 21,
+        "syncMs": 0.8,
+        "totalMs": 435.8,
+        "opMs": 3.5,
+        "interpMs": 0.2,
+        "actions": [
+          "sequence-item-7-14.start",
+          "clearSpots.start",
+          "narrate.start"
+        ]
+      }
+    ],
+    "slowestRuns": [
+      {
+        "action": "revealBlock",
+        "phase": "start",
+        "ops": 4,
+        "syncMs": 34,
+        "totalMs": 34,
+        "opMs": 33.9,
+        "interpMs": 0.1
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 4,
+        "syncMs": 26.6,
+        "totalMs": 339.7,
+        "opMs": 26.6,
+        "interpMs": 0
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 4,
+        "syncMs": 13.9,
+        "totalMs": 330.5,
+        "opMs": 13.9,
+        "interpMs": 0
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 4,
+        "syncMs": 10.8,
+        "totalMs": 322.4,
+        "opMs": 10.8,
+        "interpMs": 0
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 4,
+        "syncMs": 8.8,
+        "totalMs": 314.3,
+        "opMs": 8.7,
+        "interpMs": 0.1
+      }
+    ]
+  },
+  "consoleTail": [],
+  "errors": [],
+  "note": "Gate G1 re-run on the Phase 3 interpreter (commit 4208bb0d), tour.json from the local eligian checkout at 86bb3c5 (2026-10-31); interpMs/opMs attribution added to profile-lib.js"
+}

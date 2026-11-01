@@ -258,6 +258,75 @@ function createDirectCallCeiling(
   };
 }
 
+/**
+ * Gate G1 criterion (b), second form: the direct-call ceiling plus
+ * intrinsics for the data operations. `when`, `setData` and
+ * `setOperationData` are replaced by the plain JavaScript a compiler could
+ * emit when it knows the chains at build time (`data.count > 2`,
+ * `data.last = data.label`, a spread with the loop item). The DOM
+ * operations stay the real functions. This is the most a Phase 4 compiler
+ * could achieve without rewriting the DOM operations.
+ */
+function createIntrinsicCeiling(
+  scenario: IScenario,
+  operations: IResolvedOperation[],
+  eventbus: IEventbus
+): () => TOperationData {
+  const items = createItems(scenario.loop);
+  const call = (
+    scope: IOperationScope,
+    index: number,
+    operation: TAnyOperation,
+    data: TOperationData,
+    configured: TOperationData
+  ): TOperationData => {
+    scope.currentIndex = index;
+    return operation.call(scope, Object.assign(data, configured));
+  };
+
+  return () => {
+    const root: IOperationScope = {currentIndex: -1, eventbus, operations};
+    let data: TOperationData = {};
+    data = call(root, 0, ops.selectElement, data, {selector: '.bench-target'});
+    data = call(root, 1, ops.addClass, data, {className: 'active'});
+    // setData intrinsic: the targets are known, write them directly
+    root.currentIndex = 2;
+    data.count = 3;
+    data.items = items.slice();
+    let next = 3;
+    if (scenario.when) {
+      const scope = createChildScope(root);
+      // when intrinsic: the expression is compiled to a comparison
+      if (data.count > 2) {
+        data = call(scope, 4, ops.removeClass, data, {className: 'hidden'});
+      } else {
+        data = call(scope, 6, ops.addClass, data, {className: 'hidden'});
+      }
+      next = 8;
+    }
+    if (scenario.loop > 0) {
+      const scope = createChildScope(root);
+      const collection = (data.items as unknown[]).slice();
+      scope.loopStartIndex = next;
+      scope.loopEndIndex = next + 3;
+      scope.loopLength = collection.length - 1;
+      for (let index = 0; index < collection.length; index++) {
+        scope.loopIndex = index;
+        scope.currentItem = collection[index];
+        // setOperationData intrinsic: a fresh bag with the resolved property
+        scope.currentIndex = next + 1;
+        data = {...data, label: scope.currentItem};
+        // setData intrinsic
+        scope.currentIndex = next + 2;
+        data.last = data.label;
+      }
+      next += 4;
+    }
+    data = call(root, next, ops.removeClass, data, {className: 'active'});
+    return data;
+  };
+}
+
 /** The same DOM work and data flow without operations. */
 function createHandwritten(
   scenario: IScenario,
@@ -298,12 +367,16 @@ describe('action execution overhead', () => {
       const operations = toResolvedOperations(buildOperations(scenario));
       const action = new ActionClass('bench', operations, eventbus);
       const ceiling = createDirectCallCeiling(scenario, operations, eventbus);
+      const intrinsics = createIntrinsicCeiling(scenario, operations, eventbus);
       const handwritten = createHandwritten(scenario, root);
 
       await bench.compare(
         bench('interpreted (Action)', () => action.start()),
         bench('direct-call ceiling', () => {
           ceiling();
+        }),
+        bench('ceiling + when/setData/setOperationData intrinsics', () => {
+          intrinsics();
         }),
         bench('hand-written jQuery', () => {
           handwritten();

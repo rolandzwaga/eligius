@@ -191,3 +191,49 @@ Date: 2026-11-01. Branch feat/aot-compiler-phase-0, on top of the Phase 2 commit
 `dist/lint.mjs` is 163 KB (41 KB gzip): the resolver, the action classes it constructs, the chain and expression helpers, and the generated operation and controller metadata. It is a build-time tool, so size was not a goal. The bundle contains no jquery or lottie-web import (checked with a grep after the build).
 
 The resolver structural warnings cover the fuzzer's root-scope-pop case from Phase 1 (`quirks.spec.ts`, "when / forEach / otherwise / endForEach / endWhen"): the scan reports the `otherwise` inside the `forEach`. Runtime behaviour is unchanged; the differential suite still passes.
+
+## 9. Gate G1: build codegen or stop
+
+Date: 2026-11-01, commit 4208bb0d (Phase 3 interpreter), same machine as sections 1 to 6, Node 24.7, headless Chrome 156. Raw outputs: `phase-0/bench-g1.output.txt`, `phase-0/profile-tour.g1.result.json`, `phase-0/profile-sample.g1.result.json`.
+
+### Bench (`npm run bench`, `action-overhead.bench.ts`)
+
+A fourth variant was added for criterion (b): **ceiling + intrinsics** keeps the real DOM operations and the direct-call structure, and replaces `when`, `setData` and `setOperationData` with the JavaScript a compiler could emit when it knows the chains at build time (`data.count > 2`, `data.last = data.label`, `{...data, label: scope.currentItem}`).
+
+| Scenario | interpreted | direct-call ceiling | ceiling + intrinsics | hand-written | interp / ceiling | interp / intrinsics |
+|---|---|---|---|---|---|---|
+| full: 13 ops, when, forEach over 20 | 0.102 ms | 0.062 ms | 0.018 ms | 0.008 ms | 1.6x | 5.8x |
+| no forEach: 9 ops with when | 0.014 ms | 0.011 ms | 0.010 ms | 0.008 ms | 1.2x | 1.4x |
+| no when: 8 ops, forEach over 20 | 0.094 ms | 0.063 ms | 0.015 ms | 0.008 ms | 1.5x | 6.3x |
+| large loop: 13 ops, forEach over 200 | 0.853 ms | 0.509 ms | 0.066 ms | 0.012 ms | 1.7x | 12.9x |
+
+The interpreter and the plain ceiling are where Phase 1 left them (a first run without the new variant gave 0.092 / 0.063 / 0.088 / 0.773 ms interpreted, 0.063 / 0.010 / 0.058 / 0.502 ms ceiling; Phase 3 did not touch the interpreter). The plain ceiling still never reaches 2x. The intrinsic ceiling does, by a wide margin, on every loop scenario: almost all of the per-iteration cost is `resolvePropertyValues` (deep copy of the configured `properties`, chain resolution) inside `setOperationData` and `setData`, plus the loop bookkeeping, and the intrinsics remove all three.
+
+### Browser profile (`phase-0/profile-cdp.mjs`, amended criterion a)
+
+`profile-lib.js` now splits every run into `opMs` (time inside the operation functions, including their jQuery calls) and `interpMs` (time inside `Action.executeOperation` outside the operation functions: scope handling, configured-data copies, dispatch). The tour input is the local Eligian checkout at 86bb3c5 (2026-10-31), which has more timelines and actions than the copy Phase 0 downloaded, so the run and boundary counts are not comparable with section 2; the attribution is new.
+
+| Metric | Eligian tour | Sample deck |
+|---|---|---|
+| runs (start + end) | 281 | 80 |
+| boundaries | 75 | 80 |
+| worst boundary sync | 41.8 ms (4 runs, 13 ops: `revealBlock` 34 ms, jQuery) | 2.4 ms (first `ShowTitle.start`, cold) |
+| median boundary sync | 1.1 ms | 0.1 ms |
+| **worst boundary interpreter time** | **0.3 ms** (2 runs, 22 ops) | **0.4 ms** (cold) |
+| median boundary interpreter time | 0.0 ms | 0.0 ms |
+| interpreter time, whole run | 4.3 ms | 2.9 ms |
+| operation time, whole run | 412.1 ms | 10.6 ms |
+
+In the tour the interpreter is 1 percent of the time spent in actions. Every boundary above 8 ms is `revealBlock.start` or `demo.start` (jQuery `animate` forcing style and layout); their interpreter share is 0.0 to 0.2 ms. The worst boundary by interpreter time is 0.3 ms, one tenth of the 4 ms threshold.
+
+### Decision
+
+| Criterion | Result |
+|---|---|
+| (a) more than 4 ms of Action or operation-helper time at a single boundary, or dropped frames attributable to them | **Not met.** 0.3 ms worst, 4.3 ms over the whole tour. (Unamended, the tour exceeds 4 ms at 10 boundaries, every millisecond of it inside jQuery animations; the amendment proposed in section 5 is adopted.) |
+| (b) ceiling, or ceiling plus `when`/`setOperationData` intrinsics, at least 2x faster than the interpreter on the loop scenarios | **Met by the intrinsic form only**: 5.8x, 6.3x and 12.9x. The plain ceiling is 1.5x to 1.7x. |
+| (c) the owner wants compiled output for another reason | Open, the owner's call. |
+
+The gate passes formally on (b). The evidence says the gain is real in the microbenchmark and invisible in the one real presentation we have: a 13x faster loop saves microseconds at boundaries that cost tens of milliseconds in jQuery. **Recommendation: do not start Phase 4 now.** Keep the gate open and re-run this section when a presentation with data-heavy loops (hundreds of `forEach` iterations at one boundary) exists, or when the owner chooses (c).
+
+Cheaper alternative worth measuring first, if loop cost matters: the intrinsic numbers show what skipping `resolvePropertyValues` is worth. An interpreter fast path could get part of it without a second execution path: at resolution time, mark configured `properties` whose values are all primitives or chain strings, and let `setOperationData` and `setData` resolve those by direct property reads instead of a deep copy plus a recursive walk. The loop bookkeeping (0.9 µs per iteration, `delete` on scope fields) stays, so the ceiling for that approach is roughly 2x to 3x on the loop scenarios, not 13x.
