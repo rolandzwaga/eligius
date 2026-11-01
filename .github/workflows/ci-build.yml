@@ -55,6 +55,11 @@ jobs:
       - name: Test
         run: npm run test:ci
 
+      # Specs that import the built package through its own exports map (one
+      # build for eligius and eligius/runtime). Needs the build above.
+      - name: Test published package
+        run: npx vitest run --config src/vitest.published.config.ts
+
       # dist/ and jsonschema/ are git-ignored build output, so the publish job
       # consumes them via this artifact rather than rebuilding.
       - name: Upload package artifact

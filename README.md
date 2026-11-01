@@ -499,7 +499,48 @@ await engine.init();
 await engine.start();
 ```
 
-Custom operations have no generated metadata, so the JSON schema and the fluent API do not type or validate their operation data; only their names are checked. Custom position sources, container providers and playlists cannot be registered this way: pass your own `IResourceImporter` to the `EngineFactory` and delegate the other names to an `EligiusResourceImporter`.
+Custom operations have no generated metadata, so the JSON schema and the fluent API do not type or validate their operation data; only their names are checked. Custom position sources, container providers and playlists cannot be registered this way: build the importer with `createImporter` (next section), or pass your own `IResourceImporter` to the `EngineFactory` and delegate the other names to an `EligiusResourceImporter`.
+
+## Smaller bundles (`eligius/runtime` and `createImporter`)
+
+`EligiusResourceImporter` references every operation, controller and timeline provider, so a bundler has to keep them all. A presentation that plays a finished configuration can instead name only what it uses with `createImporter`, and import the engine from `eligius/runtime`:
+
+```typescript
+import {
+  addClass,
+  createImporter,
+  DomContainerProvider,
+  EngineFactory,
+  RafPositionSource,
+  selectElement,
+  SimplePlaylist,
+} from 'eligius/runtime';
+
+const importer = createImporter({
+  operations: {selectElement, addClass, trackEvent},
+  providers: {RafPositionSource, DomContainerProvider, SimplePlaylist},
+  functions: {formatPrice},
+  templates: {layout: '<div id="stage"></div>'},
+});
+
+const {engine} = new EngineFactory(importer, window).createEngine(configuration);
+await engine.init();
+await engine.start();
+```
+
+`createImporter` takes the same `operations`, `functions`, `controllers`, `templates` and `json` maps as the `EligiusResourceImporter` registrations, plus `providers` (position sources, container providers and playlists) and `engines` (defaults to `{EligiusEngine}`). There are no built-in names, so there is no `override`. A misspelled name in the configuration fails with a "did you mean" hint over the names you passed.
+
+`eligius/runtime` exports everything `eligius` exports except the fluent configuration API (`ConfigurationFactory` and the editors) and `EligiusResourceImporter`. Both entries come out of one build, so an application that imports from both shares one engine, one global data store and one JSON cache. Authoring tools that need the fluent API without a DOM use `eligius/configuration-api`.
+
+The package declares `"sideEffects": false`. For a 15-operation sample deck (jQuery external, minified, gzipped):
+
+| Importer and entry | Vite 8 (rolldown) | webpack 5 | esbuild |
+|---|---|---|---|
+| `EligiusResourceImporter` from `eligius` | 59.2 KB | 58.9 KB | 60.0 KB |
+| `createImporter` from `eligius` | 28.1 KB | 28.3 KB | 49.0 KB |
+| `createImporter` from `eligius/runtime` | 28.1 KB | 28.3 KB | 29.0 KB |
+
+esbuild keeps the operation registration of the main entry, so use `eligius/runtime` there. The remaining size is the engine core; see `specs/007-aot-compiler/measurements.md` for the breakdown.
 
 ## Metadata import (`eligius/metadata`)
 
@@ -515,6 +556,44 @@ const { description, properties } = metadata.addClass();
 This entry is bundled separately and contains **only metadata** — it does not pull in the engine runtime (jQuery, lottie-web). As a result it can be imported from a plain Node process **without a DOM**, unlike the main `eligius` entry, which evaluates the browser runtime (jQuery) on import and therefore requires a `window`.
 
 Rule of thumb: use `eligius/metadata` for build-time and server-side tooling; use the main `eligius` entry to actually run the engine.
+
+## Linting configurations (`eligius/lint`)
+
+`lintConfiguration` checks a configuration at build time, in plain Node, without running it:
+
+```javascript
+import {lintConfiguration} from 'eligius/lint';
+
+const diagnostics = lintConfiguration(configuration, {
+  customOperations: ['trackEvent'],
+  templates: ['layout'],
+});
+for (const {severity, code, path, message} of diagnostics) {
+  console.log(`${severity} ${code} at ${path}: ${message}`);
+}
+// error E001 at timelines[0].timelineActions[0].startOperations[0].systemName: Unknown operation 'selectElemen' at ... Did you mean 'selectElement'?
+// error E101 at timelines[0].timelineActions[0].startOperations[3].systemName: endWhen at index 3 has no open when to close. ...
+// warning W110 at timelines[0].timelineActions[0].startOperations[1]: addClass: 'selectedElement' must be provided by an earlier operation ...
+```
+
+It runs the real `ConfigurationResolver` with stand-ins for the operations, controllers and timeline providers, so every error `createEngine` would throw is reported with the same message and JSON path (`E001`). It then checks every operation list:
+
+| Code | Reports |
+|---|---|
+| `E101` | `when`/`forEach` blocks that are not balanced or do not nest, `breakForEach` outside a loop |
+| `E111` / `W111` | a required property that neither the operation data nor an earlier operation provides |
+| `E120` | a value outside its allowed literals (for example a `calc` operator) |
+| `E130` / `E131` | a `when` expression that does not parse, an unknown operand |
+| `E140` / `E141` | a property chain with `__proto__`, `prototype` or `constructor`, a `__proto__` key in operation data |
+| `E160` / `W160` | an unrecognized `setData` target, a write to a scope field the engine uses |
+| `E310` | a `requestAction` name that no action has |
+| `W110` | a dependency (such as `selectedElement`) that no earlier operation provides |
+| `W150` | a property chain in a field the operation does not resolve, so it is passed on as text |
+| `W151` | an `$operationdata` read of a property that nothing provides |
+
+Errors are certain. Warnings are likely mistakes; the data-flow warnings are only reported for timeline actions and init actions, which start with empty operation data, and never after an operation whose effect on the data is not described (a custom operation, `customFunction`, `startAction`). The options name the custom operations, controllers, providers and functions the host registers, and optionally the templates and JSON values `template:` and `json:` placeholders may use.
+
+The engine reports the `E101` shapes as well: `ConfigurationResolver` warns about them on the console (or through its `onWarning` option) while still resolving the configuration. They become errors in the next major version.
 
 ## Source documentation
 

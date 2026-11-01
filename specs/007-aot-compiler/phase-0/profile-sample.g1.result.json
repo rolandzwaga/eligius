@@ -1,0 +1,162 @@
+{
+  "url": "http://127.0.0.1:4173/sample.html",
+  "profile": {
+    "label": "sample-deck",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "runs": 80,
+    "boundaries": 80,
+    "worstSyncMs": 2.4,
+    "worstTotalMs": 2.4,
+    "medianSyncMs": 0.1,
+    "worstInterpMs": 0.4,
+    "medianInterpMs": 0,
+    "totalInterpMs": 2.9,
+    "totalOpMs": 10.6,
+    "maxRunsPerBoundary": 1,
+    "maxOpsPerBoundary": 9,
+    "slowestBoundaries": [
+      {
+        "runs": 1,
+        "ops": 9,
+        "syncMs": 2.4,
+        "totalMs": 2.4,
+        "opMs": 1.9,
+        "interpMs": 0.4,
+        "actions": ["ShowTitle.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 1.3,
+        "totalMs": 1.2,
+        "opMs": 0.9,
+        "interpMs": 0.2,
+        "actions": ["RevealBullets.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 2,
+        "syncMs": 0.6,
+        "totalMs": 0.6,
+        "opMs": 0.6,
+        "interpMs": 0,
+        "actions": ["ShowTitle.end"]
+      },
+      {
+        "runs": 1,
+        "ops": 9,
+        "syncMs": 0.4,
+        "totalMs": 0.4,
+        "opMs": 0.3,
+        "interpMs": 0.1,
+        "actions": ["ShowTitle.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 0.3,
+        "totalMs": 0.3,
+        "opMs": 0.2,
+        "interpMs": 0.1,
+        "actions": ["RevealBullets.start"]
+      }
+    ],
+    "slowestBoundariesByInterp": [
+      {
+        "runs": 1,
+        "ops": 9,
+        "syncMs": 2.4,
+        "totalMs": 2.4,
+        "opMs": 1.9,
+        "interpMs": 0.4,
+        "actions": ["ShowTitle.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 1.3,
+        "totalMs": 1.2,
+        "opMs": 0.9,
+        "interpMs": 0.2,
+        "actions": ["RevealBullets.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 2,
+        "syncMs": 0.2,
+        "totalMs": 0.1,
+        "opMs": 0,
+        "interpMs": 0.2,
+        "actions": ["RevealBullets.end"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 0.1,
+        "totalMs": 0.1,
+        "opMs": 0,
+        "interpMs": 0.1,
+        "actions": ["RevealBullets.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 0.3,
+        "totalMs": 0.3,
+        "opMs": 0.2,
+        "interpMs": 0.1,
+        "actions": ["RevealBullets.start"]
+      }
+    ],
+    "slowestRuns": [
+      {
+        "action": "ShowTitle",
+        "phase": "start",
+        "ops": 9,
+        "syncMs": 2.4,
+        "totalMs": 2.4,
+        "opMs": 1.9,
+        "interpMs": 0.4
+      },
+      {
+        "action": "RevealBullets",
+        "phase": "start",
+        "ops": 6,
+        "syncMs": 1.3,
+        "totalMs": 1.2,
+        "opMs": 0.9,
+        "interpMs": 0.2
+      },
+      {
+        "action": "ShowTitle",
+        "phase": "end",
+        "ops": 2,
+        "syncMs": 0.6,
+        "totalMs": 0.6,
+        "opMs": 0.6,
+        "interpMs": 0
+      },
+      {
+        "action": "ShowTitle",
+        "phase": "start",
+        "ops": 9,
+        "syncMs": 0.4,
+        "totalMs": 0.4,
+        "opMs": 0.3,
+        "interpMs": 0.1
+      },
+      {
+        "action": "ShowTitle",
+        "phase": "start",
+        "ops": 9,
+        "syncMs": 0.3,
+        "totalMs": 0.3,
+        "opMs": 0.2,
+        "interpMs": 0.1
+      }
+    ]
+  },
+  "consoleTail": [],
+  "errors": [],
+  "note": "Gate G1 re-run on the Phase 3 interpreter (commit 4208bb0d), tour.json from the local eligian checkout at 86bb3c5 (2026-10-31); interpMs/opMs attribution added to profile-lib.js"
+}

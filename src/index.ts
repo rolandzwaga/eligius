@@ -14,7 +14,7 @@ export * from '@eventbus/events/metadata/types.ts';
 export * from '@eventbus/events/types.ts';
 export * from '@eventbus/index.ts';
 export * from '@eventbus/types.ts';
-export {EligiusResourceImporter} from '@importer/index.ts';
+export {createImporter, EligiusResourceImporter} from '@importer/index.ts';
 export {clearGlobals} from '@operation/helper/globals.ts';
 export * from '@operation/index.ts';
 export {clearJsonCache} from '@operation/load-json.ts';

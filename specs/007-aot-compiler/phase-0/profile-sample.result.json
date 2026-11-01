@@ -1,0 +1,90 @@
+{
+  "url": "http://127.0.0.1:4173/sample.html",
+  "profile": {
+    "label": "sample-deck",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "runs": 80,
+    "boundaries": 80,
+    "worstSyncMs": 4,
+    "worstTotalMs": 4,
+    "medianSyncMs": 0.2,
+    "maxRunsPerBoundary": 1,
+    "maxOpsPerBoundary": 9,
+    "slowestBoundaries": [
+      {
+        "runs": 1,
+        "ops": 9,
+        "syncMs": 4,
+        "totalMs": 4,
+        "actions": ["ShowTitle.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 0.8,
+        "totalMs": 0.8,
+        "actions": ["RevealBullets.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 2,
+        "syncMs": 0.4,
+        "totalMs": 0.4,
+        "actions": ["ShowTitle.end"]
+      },
+      {
+        "runs": 1,
+        "ops": 6,
+        "syncMs": 0.4,
+        "totalMs": 0.4,
+        "actions": ["RevealBullets.start"]
+      },
+      {
+        "runs": 1,
+        "ops": 9,
+        "syncMs": 0.4,
+        "totalMs": 0.4,
+        "actions": ["ShowTitle.start"]
+      }
+    ],
+    "slowestRuns": [
+      {
+        "action": "ShowTitle",
+        "phase": "start",
+        "ops": 9,
+        "syncMs": 4,
+        "totalMs": 4
+      },
+      {
+        "action": "RevealBullets",
+        "phase": "start",
+        "ops": 6,
+        "syncMs": 0.8,
+        "totalMs": 0.8
+      },
+      {
+        "action": "ShowTitle",
+        "phase": "end",
+        "ops": 2,
+        "syncMs": 0.4,
+        "totalMs": 0.4
+      },
+      {
+        "action": "ShowTitle",
+        "phase": "start",
+        "ops": 9,
+        "syncMs": 0.4,
+        "totalMs": 0.4
+      },
+      {
+        "action": "ShowTitle",
+        "phase": "start",
+        "ops": 9,
+        "syncMs": 0.4,
+        "totalMs": 0.4
+      }
+    ]
+  },
+  "consoleTail": [],
+  "errors": []
+}

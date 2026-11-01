@@ -1,11 +1,5 @@
 import {isPlainObject} from '@util/guards/is-plain-object.ts';
-import {isDefined} from 'ts-is-present';
 
-/**
- * Re-exported for existing imports; the implementation lives in
- * `@util/guards/is-plain-object.ts`. Objects from another realm (an iframe,
- * or the realm `fetch` parses JSON in) count as plain too.
- */
 export {isPlainObject};
 
 const copyFunction =
@@ -14,63 +8,106 @@ const copyFunction =
     : <T>(original: any) => JSON.parse(JSON.stringify(original)) as T;
 
 /**
- * Deep copies the given value.
+ * Deep-copies plain data: arrays and plain objects are copied recursively (cycles are preserved),
+ * Date, RegExp, Map, Set, Error, ArrayBuffer and typed arrays are cloned, and everything else
+ * (functions, jQuery objects, DOM nodes, class instances) is kept by reference.
  *
- * Arrays and plain objects are copied recursively (cycles are preserved). Date, RegExp,
- * Map, Set, Error, ArrayBuffer and typed array values are copied with `structuredClone`.
+ * An own `__proto__` key (as `JSON.parse` creates) stays an own data property of the copy.
  *
- * Everything else is kept by reference:
- * - functions, so function-valued operation data (such as `mapArray`'s `mapFunction` or
- *   `sortArray`'s `sortComparator`, supplied through the TypeScript fluent API) survives
- *   the copy;
- * - jQuery instances and DOM nodes;
- * - class instances (controllers, actions, the eventbus and other objects whose prototype
- *   is not `Object.prototype` or `null`). `structuredClone` would either throw on them or
- *   return a plain object without their methods.
+ * This runs for every execution of every operation with nested configured data, so it avoids
+ * work on the common shapes: the cycle map is only created once a nested object or array
+ * appears, and plain keys are assigned instead of defined.
  *
- * @param original The value to copy.
- * @returns The copy.
+ * @param original The value to copy
+ * @returns The copy, or the value itself when it is not copied
  */
 export function deepCopy<T>(original: T): T {
-  if (isDefined(original)) {
-    return copyValue(original, new WeakMap()) as T;
+  if (
+    original === null ||
+    typeof original !== 'object' ||
+    isReferenceOnly(original)
+  ) {
+    return original;
   }
-  return original;
+  return copyObject(original, {seen: null}) as T;
 }
 
-function copyValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
-  // Primitives and functions are returned as-is.
-  if (value === null || typeof value !== 'object') {
-    return value;
+interface ICopyContext {
+  /**
+   * Copies made so far, so that a cycle or a shared reference maps to one
+   * copy. Created on the first nested object, because most configured data
+   * is flat and never needs it.
+   */
+  seen: WeakMap<object, unknown> | null;
+}
+
+/**
+ * Copies a child value of `parentValue`, whose copy is `parentCopy`.
+ */
+function copyChild(
+  child: unknown,
+  parentValue: object,
+  parentCopy: unknown,
+  context: ICopyContext
+): unknown {
+  // Primitives, functions, jQuery objects, DOM nodes: as-is.
+  if (child === null || typeof child !== 'object' || isReferenceOnly(child)) {
+    return child;
   }
-  if (isReferenceOnly(value)) {
-    return value;
+  if (context.seen === null) {
+    context.seen = new WeakMap();
+    context.seen.set(parentValue, parentCopy);
   }
-  if (seen.has(value)) {
-    return seen.get(value);
+  return copyObject(child, context);
+}
+
+/**
+ * Copies an object that is not reference-only.
+ */
+function copyObject(value: object, context: ICopyContext): unknown {
+  const {seen} = context;
+  // Copies are always objects, so undefined means "not seen".
+  const prior = seen?.get(value);
+  if (prior !== undefined) {
+    return prior;
   }
 
   if (Array.isArray(value)) {
     const copy: unknown[] = new Array(value.length);
-    seen.set(value, copy);
+    if (seen !== null) {
+      seen.set(value, copy);
+    }
+    // forEach skips holes, so a sparse array stays sparse.
     value.forEach((item, index) => {
-      copy[index] = copyValue(item, seen);
+      copy[index] = copyChild(item, value, copy, context);
     });
     return copy;
   }
 
   if (isPlainObject(value)) {
     const copy: Record<string, unknown> = {};
-    seen.set(value, copy);
+    if (seen !== null) {
+      seen.set(value, copy);
+    }
     for (const key of Object.keys(value)) {
-      // defineProperty, so an own '__proto__' key (e.g. from JSON.parse) stays a
-      // data property instead of replacing the copy's prototype.
-      Object.defineProperty(copy, key, {
-        value: copyValue((value as Record<string, unknown>)[key], seen),
-        writable: true,
-        enumerable: true,
-        configurable: true,
-      });
+      const copied = copyChild(
+        (value as Record<string, unknown>)[key],
+        value,
+        copy,
+        context
+      );
+      if (key === '__proto__') {
+        // defineProperty, so an own '__proto__' key (e.g. from JSON.parse) stays
+        // a data property instead of replacing the copy's prototype.
+        Object.defineProperty(copy, key, {
+          value: copied,
+          writable: true,
+          enumerable: true,
+          configurable: true,
+        });
+      } else {
+        copy[key] = copied;
+      }
     }
     return copy;
   }
@@ -80,7 +117,9 @@ function copyValue(value: unknown, seen: WeakMap<object, unknown>): unknown {
   }
 
   const copy = copyFunction(value);
-  seen.set(value, copy);
+  if (seen !== null) {
+    seen.set(value, copy);
+  }
   return copy;
 }
 
@@ -91,9 +130,6 @@ function isReferenceOnly(value: object) {
   );
 }
 
-/**
- * Built-in value types that `structuredClone` copies faithfully.
- */
 function isStructuredCloneable(value: object) {
   // Tags instead of instanceof, so values from another realm are recognised.
   return (

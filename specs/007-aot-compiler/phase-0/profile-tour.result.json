@@ -1,0 +1,138 @@
+{
+  "url": "http://127.0.0.1:4173/tour.html",
+  "profile": {
+    "label": "eligian-tour",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "runs": 276,
+    "boundaries": 39,
+    "worstSyncMs": 63.5,
+    "worstTotalMs": 636,
+    "medianSyncMs": 4,
+    "maxRunsPerBoundary": 12,
+    "maxOpsPerBoundary": 42,
+    "slowestBoundaries": [
+      {
+        "runs": 11,
+        "ops": 38,
+        "syncMs": 63.5,
+        "totalMs": 606.1,
+        "actions": [
+          "timeline-action-0-3600.end",
+          "hideView.start",
+          "timeline-action-0-3600.start",
+          "showView.start",
+          "timeline-action-0-6.start",
+          "narrate.start",
+          "showView.start",
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 7,
+        "ops": 27,
+        "syncMs": 25.4,
+        "totalMs": 633.2,
+        "actions": [
+          "timeline-action-15-24.start",
+          "clearSpots.start",
+          "narrate.start",
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 7,
+        "ops": 27,
+        "syncMs": 24.9,
+        "totalMs": 633.1,
+        "actions": [
+          "timeline-action-32-40.start",
+          "clearSpots.start",
+          "narrate.start",
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 7,
+        "ops": 27,
+        "syncMs": 16.8,
+        "totalMs": 632.3,
+        "actions": [
+          "timeline-action-7-15.start",
+          "clearSpots.start",
+          "narrate.start",
+          "revealBlock.start",
+          "spotlight.start",
+          "callout.start",
+          "demo.start"
+        ]
+      },
+      {
+        "runs": 11,
+        "ops": 38,
+        "syncMs": 10.2,
+        "totalMs": 624.6,
+        "actions": [
+          "timeline-action-0-3600.end",
+          "hideView.start",
+          "hideView.start",
+          "timeline-action-0-3600.start",
+          "showView.start",
+          "timeline-action-0-7.start",
+          "narrate.start",
+          "showView.start",
+          "revealBlock.start",
+          "callout.start",
+          "demo.start"
+        ]
+      }
+    ],
+    "slowestRuns": [
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 3,
+        "syncMs": 60.9,
+        "totalMs": 300.9
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 3,
+        "syncMs": 24.6,
+        "totalMs": 316.1
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 3,
+        "syncMs": 23.6,
+        "totalMs": 315.7
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 3,
+        "syncMs": 15.2,
+        "totalMs": 315.1
+      },
+      {
+        "action": "demo",
+        "phase": "start",
+        "ops": 3,
+        "syncMs": 9.6,
+        "totalMs": 311.8
+      }
+    ]
+  },
+  "consoleTail": [],
+  "errors": []
+}

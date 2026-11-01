@@ -1,0 +1,44 @@
+
+ ✓ |bench| src/test/bench/action-overhead.bench.ts (5 tests) 24175ms
+   ✓ action execution overhead (4)
+     ✓ full action: 13 ops, when/otherwise, forEach over 20 5054ms
+       hand-written jQuery                                 125,574.90  0.0062  1.9297  0.0083  0.0088  0.0148  0.0162  
+0.0478  ±0.53%   120904   fastest
+       ceiling + when/setData/setOperationData intrinsics   59,716.05  0.0124  1.9976  0.0176  0.0182  0.0295  0.0339  
+0.0936  ±1.17%    56796
+       direct-call ceiling                                  16,724.34  0.0447  1.0878  0.0621  0.0656  0.1173  0.1316  
+0.3107  ±0.66%    16102
+       interpreted (Action)                                 10,079.39  0.0739  1.4250  0.1023  0.1063  0.1776  0.2046  
+0.8351  ±0.73%     9775   slowest
+     ✓ no forEach: 9 ops with when/otherwise 5208ms
+       hand-written jQuery                                 132,599.10  0.0057  1.1606  0.0079  0.0082  0.0164  0.0188  
+0.0472  ±0.40%   127158   fastest
+       ceiling + when/setData/setOperationData intrinsics  101,328.32  0.0076  3.7121  0.0104  0.0101  0.0243  0.0260  
+0.0686  ±1.19%    95993
+       direct-call ceiling                                  95,663.81  0.0081  1.6771  0.0114  0.0108  0.0292  0.0442  
+0.0976  ±1.04%    88013
+       interpreted (Action)                                 76,533.16  0.0097  1.7474  0.0142  0.0135  0.0370  0.0490  
+0.1242  ±0.99%    70398   slowest
+     ✓ no when: 8 ops with forEach over 20 5041ms
+       hand-written jQuery                                 132,782.07  0.0062  1.3675  0.0078  0.0078  0.0147  0.0202  
+0.0542  ±0.48%   127888   fastest
+       ceiling + when/setData/setOperationData intrinsics   69,676.23  0.0113  1.3632  0.0149  0.0157  0.0250  0.0295  
+0.0831  ±0.75%    66898
+       direct-call ceiling                                  16,431.22  0.0473  1.0098  0.0628  0.0641  0.1299  0.1592  
+0.2686  ±0.62%    15925
+       interpreted (Action)                                 11,040.76  0.0688  1.0668  0.0937  0.0970  0.1845  0.2317  
+0.5964  ±0.66%    10676   slowest
+     ✓ large loop: 13 ops, forEach over 200 4926ms
+       hand-written jQuery                                 87,553.67  0.0088  1.0582  0.0119  0.0122  0.0272  0.0287  
+0.0673  ±0.49%    83753   fastest
+       ceiling + when/setData/setOperationData intrinsics  15,610.26  0.0449  1.4248  0.0662  0.0692  0.1186  0.1376  
+0.2093  ±0.65%    15113
+       direct-call ceiling                                  1,993.44  0.4097  1.4015  0.5092  0.5446  0.7079  0.9629  
+1.1587  ±0.63%     1964
+       interpreted (Action)                                 1,201.25  0.6229  2.2740  0.8529  0.8841  1.6803  1.9137  
+2.1191  ±1.10%     1173   slowest
+   ✓ configuration resolution (one-time startup cost) (1)
+     ✓ resolver vs direct construction, 10 actions x 13 operations 3944ms
+
+
+[exited with code 0]

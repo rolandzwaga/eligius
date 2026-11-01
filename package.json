@@ -1,7 +1,7 @@
 {
   "name": "eligius",
   "author": "Roland Zwaga <rbzwaga@gmail.com>",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "license": "MIT",
   "homepage": "https://rolandzwaga.github.io/eligius/",
   "bugs": {
@@ -17,6 +17,10 @@
       "types": "./dist/index.d.mts",
       "default": "./dist/index.mjs"
     },
+    "./runtime": {
+      "types": "./dist/runtime.d.mts",
+      "default": "./dist/runtime.mjs"
+    },
     "./metadata": {
       "types": "./dist/metadata.d.mts",
       "default": "./dist/metadata.mjs"
@@ -25,18 +29,29 @@
       "types": "./dist/configuration-api.d.mts",
       "default": "./dist/configuration-api.mjs"
     },
+    "./lint": {
+      "types": "./dist/lint.d.mts",
+      "default": "./dist/lint.mjs"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
     "*": {
+      "runtime": [
+        "dist/runtime.d.mts"
+      ],
       "metadata": [
         "dist/metadata.d.mts"
       ],
       "configuration-api": [
         "dist/configuration-api.d.mts"
+      ],
+      "lint": [
+        "dist/lint.d.mts"
       ]
     }
   },
+  "sideEffects": false,
   "files": [
     "dist",
     "jsonschema"
@@ -49,6 +64,8 @@
     "test": "vitest --config src/vitest.config.ts",
     "test:ci": "vitest run --config src/vitest.config.ts --reporter=verbose",
     "test:coverage": "vitest --config src/vitest.config.ts --coverage",
+    "test:published": "npm run build && vitest run --config src/vitest.published.config.ts",
+    "bench": "npm run build && vitest bench --run --config src/vitest.config.ts",
     "generate-readmes": "tsx ./src/tools/doc-tools/generate-readmes",
     "generate-schema": "tsx ./src/tools/schema-tools/generate-schemas",
     "typedoc": "typedoc --options typedoc-metadata.json && typedoc --options typedoc.json",
@@ -75,6 +92,7 @@
     "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitest/coverage-istanbul": "5.0.5",
     "ajv": "8.20.0",
+    "fast-check": "4.10.2",
     "fs-extra": "11.4.1",
     "jquery": "4.0.0",
     "jsdom": "30.1.3",

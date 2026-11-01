@@ -6,7 +6,16 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!docs", "!.claude", "!.vscode", "!.mcp.json"]
+    "includes": [
+      "**",
+      "!!docs",
+      "!.claude",
+      "!.vscode",
+      "!.mcp.json",
+      "!**/*.md",
+      "!**/*.yml",
+      "!**/*.yaml"
+    ]
   },
   "formatter": {
     "enabled": true,

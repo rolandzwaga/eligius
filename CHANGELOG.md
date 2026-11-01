@@ -1,5 +1,29 @@
 # Change Log
 
+## 4.1.0
+
+### Added
+
+- `createImporter(resources)` builds a resource importer from explicit maps (`operations`, `controllers`, `providers`, `functions`, `templates`, `json`, and `engines`, which defaults to `{EligiusEngine}`), with the shape checks and "did you mean" hints of `EligiusResourceImporter` but without referencing the built-in operations and controllers. A bundler can then drop every operation and controller a presentation does not name.
+- `eligius/runtime` entry: everything `eligius` exports except the fluent configuration API and `EligiusResourceImporter`, both of which keep every operation alive. It is built together with the main entry, so the two share one copy of every module. Types: `IImporterResources`, `TEngineClass`, `TProviderClass`.
+- `package.json` declares `"sideEffects": false`. The `...ByType` methods of the fluent API still work with Vite 8, webpack 5 and esbuild (checked by `specs/007-aot-compiler/phase-2/measure.mjs`).
+- Measured on a 15-operation sample deck, minified and gzipped with jQuery external: `EligiusResourceImporter` 59.2 KB, `createImporter` from `eligius/runtime` 28.1 KB with Vite 8 (webpack 5: 58.9 KB to 28.3 KB; esbuild: 60.0 KB to 29.0 KB). See the README section "Smaller bundles".
+- `eligius/lint` entry: `lintConfiguration(configuration, options)` checks a configuration in plain Node, without a DOM and without running it. It runs the real `ConfigurationResolver` with stand-ins for the operations, controllers and providers, so every error `createEngine` would throw is reported with the same message and JSON path (`E001`), and then checks every operation list: control-flow blocks that do not nest (`E101`), missing required properties (`E111`/`W111`), literals outside their union (`E120`), `when` expressions that do not parse (`E130`/`E131`), forbidden property chain segments and `__proto__` keys (`E140`/`E141`), `setData` targets (`E160`/`W160`), unknown `requestAction` names (`E310`), dependencies and reads that nothing provides (`W110`, `W151`) and property chains in fields the operation does not resolve (`W150`). Options declare custom operations, controllers, providers, functions, templates and JSON names. See the README section "Linting configurations".
+- `ConfigurationResolver` reports control-flow blocks that are not well formed (an `endWhen` without a `when`, an `endWhen` that closes a `forEach`, an `otherwise` inside a `forEach`, a block that is never closed, `breakForEach` outside a loop) as warnings on the console, or through the new `onWarning` constructor option (`IConfigurationResolverOptions`, `IConfigurationWarning`), while still resolving the configuration. The interpreter runs them as before: such an action fails at runtime or runs with the wrong scope. **They become configuration errors in the next major version.** `findFlowControlProblems` (exported from `eligius/lint`) is the shared scan.
+
+### Performance
+
+- Property chains, `when` expressions and `setData` targets are parsed once and cached (`src/operation/helper/chain-cache.ts`, `expression-cache.ts`). Before, every execution split, lower-cased, bracket-expanded and safety-checked the chain text again. Error messages are unchanged. The caches are bounded and are cleared when the last engine is destroyed, like the global data store.
+- `deepCopy` assigns plain keys instead of defining them and creates its cycle map only when nested data appears, about 3x faster on typical configured operation data. The result is identical, including an own `__proto__` key staying a data property.
+- The block scans of `when`, `otherwise`, `forEach`, `breakForEach` and `continueForEach` share one allocation-free implementation (`src/operation/helper/flow-control-index.ts`).
+- Measured with `npm run bench`: a 13-operation action with a 20-item `forEach` runs in 0.095 ms instead of 0.194 ms (2.0x), the same action without the loop in 0.012 ms instead of 0.016 ms, and a 200-item loop in 0.79 ms instead of 1.58 ms. See specs/007-aot-compiler/measurements.md.
+
+### Internal
+
+- A differential test harness (`src/test/differential/`) runs 32 pinned interpreter quirks and 1000 fuzzed operation lists per run through both the interpreter and a pinned copy of the previous one, and requires identical data, traces, errors and globals. fast-check is a new devDependency.
+- `src/operation/helper/find-matching-operation-index.ts` is removed; it was not exported.
+- `npm run test:published` builds and then runs `src/test/published/`, which imports the built package through its own `exports` map and checks that `eligius` and `eligius/runtime` share every module. `npm run check:types` covers the runtime entry.
+
 ## 4.0.0
 
 `VideoPositionSource` plays media with the browser's own `<video>` element, and Eligius no longer depends on video.js in any form. video.js 10 removed the player API that 3.x used, so the integration could not be upgraded. Read the breaking changes and the migration steps before upgrading from 3.x.

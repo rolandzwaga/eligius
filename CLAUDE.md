@@ -46,13 +46,15 @@ eligius/
     eventbus/               # Eventbus, listeners, interceptors
       events/               # One file per event interface
         metadata/           # GENERATED event metadata (gitignored except types.ts)
-    importer/               # EligiusResourceImporter
+    importer/               # EligiusResourceImporter, createImporter
+    lint/                   # DOM-free configuration linter (eligius/lint), alias @lint/*
     locale/                 # LocaleManager (rosetta), LocaleLoader
     operation/              # Atomic operations, one file each
       helper/               # Operation helper utilities
       metadata/             # GENERATED operation metadata (gitignored except types.ts)
     test/
       fixtures/             # action-factory, eventbus-factory, jquery-factory, video-element-factory
+      dist/                 # Specs against the built package (npm run test:published only)
       integration/
       unit/                 # Mirrors src/ layout
       setup.ts              # Global vitest setup (mocks lottie-web)
@@ -68,6 +70,8 @@ eligius/
     index.ts                # Public API entry (dist/index.mjs)
     metadata.ts             # Metadata-only entry (dist/metadata.mjs, no DOM deps)
     configuration-api.ts    # Fluent ConfigurationFactory entry (dist/configuration-api.mjs, no DOM deps)
+    runtime.ts              # Engine without the fluent API and EligiusResourceImporter (dist/runtime.mjs)
+    lint.ts                 # Linter entry (dist/lint.mjs, no DOM deps)
     types.ts                # Core types
     vitest.config.ts        # Vitest config (lives in src/, not root)
   build/                    # Importer template
@@ -75,7 +79,7 @@ eligius/
   docs/                     # Generated TypeDoc site
   jsonschema/               # Generated configuration schema
   specs/                    # Feature specs and TESTING-GUIDE.md
-  tsdown.config.ts          # Two independent builds: index and metadata
+  tsdown.config.ts          # Four independent builds: index+runtime (one build, shared chunks), metadata, configuration-api, lint
 ```
 
 Generated files are gitignored and recreated by `npm run metadata` and `npm run generate-schema`. Never edit them by hand. See `.gitignore` for the exact list.
@@ -108,6 +112,7 @@ npm test -- --run           # run once
 npm test -- --watch         # watch mode
 npm run test:ci             # verbose, used in CI
 npm run test:coverage -- --run   # coverage report (there is no `npm run coverage`)
+npm run test:published           # build, then specs that import the built package (src/test/published/)
 
 # Code quality
 npm run typecheck           # tsc --noEmit
@@ -169,6 +174,7 @@ Defined in `tsconfig.json`, resolved by Vitest via `resolve.tsconfigPaths` and b
 | `@controllers/*` | `src/controllers/*` |
 | `@eventbus/*` | `src/eventbus/*` |
 | `@importer/*` | `src/importer/*` |
+| `@lint/*` | `src/lint/*` |
 | `@locale/*` | `src/locale/*` |
 | `@operation/*` | `src/operation/*` |
 | `@timelineproviders/*` | `src/timelineproviders/*` |
@@ -196,13 +202,15 @@ Never use `../../..` paths across modules.
 - ESM only. No `require()`.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
 - `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery and lottie-web imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
+- `src/runtime.ts` (`eligius/runtime`) exports everything `src/index.ts` does except the fluent API barrel and `EligiusResourceImporter`, so bundlers can drop unused operations. It is built in the SAME tsdown build as index (shared chunks, one copy of every singleton); `src/test/published/shared-singletons.spec.ts` checks that. `package.json` declares `"sideEffects": false`; the fluent `...ByType` registration survives because it lives in `dist/index.mjs`, which is only loaded when something from it is used (verified for Vite 8, webpack 5 and esbuild by `specs/007-aot-compiler/phase-2/measure.mjs`).
+- `src/lint.ts` (`eligius/lint`) is its own build, like `metadata`. It imports the real `ConfigurationResolver`, the action classes, the chain and expression helpers and the generated metadata, never an operation or controller implementation. **Every module reachable from `src/configuration/configuration-resolver.ts` must stay free of jquery and lottie-web**; `src/test/unit/lint/node-environment.spec.ts` and `src/test/published/lint-entry.spec.ts` mock both to throw.
 - Published declarations are self-contained: the DOM-free entries type-check without jquery or lottie-web, and the main entry references `@types/jquery` (optional peer). Lottie types in the public API are local structural copies in `src/controllers/types.ts`. Consumers still need `"DOM"` in their TypeScript `lib`. `npm run check:types` guards this.
 
 ## Testing
 
 **Read [specs/TESTING-GUIDE.md](specs/TESTING-GUIDE.md) before writing or changing tests.** It covers fixtures, mocking patterns, timer mocking, `vi.hoisted()`, and the vmThreads pool.
 
-- Tests live in `src/test/unit/` (mirroring `src/`) and `src/test/integration/`. Extension `.spec.ts`.
+- Tests live in `src/test/unit/` (mirroring `src/`), `src/test/integration/` and `src/test/differential/` (interpreter vs a pinned reference copy; see its README). Extension `.spec.ts`. Benchmarks live in `src/test/bench/` and run with `npm run bench` only.
 - Example: `src/operation/add-class.ts` is tested by `src/test/unit/operation/add-class.spec.ts`.
 - Environment is jsdom with `globals: true`. `pool: 'vmThreads'` gives each file its own VM context. Mock globals with `vi.stubGlobal`, never assign to `window` or `global`.
 - `clearMocks`, `restoreMocks`, `unstubEnvs`, `unstubGlobals` are all on, so mocks reset between tests automatically.
@@ -313,11 +321,12 @@ export const addClass: TOperation<
 6. Document with TypeDoc comments.
 
 ### Operation helpers (`src/operation/helper/`)
-- `getPropertyChainValue`, `resolvePropertyChain`, `resolveExternalPropertyChain`, `resolvePropertyValues`, `internalResolve`: property path resolution against operation data
+- `getPropertyChainValue`, `resolvePropertyChain`, `resolveExternalPropertyChain`, `resolvePropertyValues`, `internalResolve`: property path resolution against operation data. `chain-cache.ts` parses chain text once (`getParsedChain`, `parseSegments`, `walkChain`); `expression-cache.ts` caches parsed `when` expressions. Both caches are cleared when the last engine is destroyed.
+- `flow-control-index.ts` holds the block scans used by `when`, `otherwise`, `forEach` and the loop jumps; `flow-control-names.ts` holds the control-flow system names
 - `getElementData`, `modifyDimensions`, `attachControllerToElement`: DOM helpers
 - `mergeOperationData`, `removeProperties`, `deepCopy`: data helpers
 - `getGlobals`, `setGlobals`, `clearGlobals` (`globals.ts`) and `setGlobal`, `removeGlobal`: global variable store
-- `findMatchingOperationIndex`, `resolveEventArguments`
+- `resolveEventArguments`
 
 ### Controllers
 
@@ -369,6 +378,10 @@ Conventions: kebab-case names, category prefix (`timeline-`, `request-`, `langua
 - `ConfigurationResolver` turns an `IEngineConfiguration` into an `IResolvedEngineConfiguration` with operations and controllers resolved to functions and classes. Configuration is immutable after resolution.
 - Invalid configuration must fail fast with a message naming the JSON path.
 
+**Linting** (`src/lint/`, entry `eligius/lint`): `lintConfiguration(configuration, options)` deep-copies the configuration, runs the real resolver with a metadata-backed stub importer (`lint-importer.ts`) and reports its error as `E001` with the extracted JSON path, then runs the rules in `rules.ts` over every operation list (`operation-lists.ts`). Codes: E101 flow structure, E111/W111 required, E120 literal union, E130/E131 `when` expression, E140/E141 forbidden chain segment and `__proto__` key, E160/W160 `setData` target, E310 `requestAction` name, W110 dependency, W150 chain in a non-resolving field (table in `resolving-fields.ts`, kept in sync with the operation sources by `src/test/unit/lint/conformance.spec.ts`), W151 `$operationdata` read nothing provides. Data-flow rules only fire for lists that start with empty data (timeline and init actions) and stop after an undescribed operation. The seeded corpus (`seeded-corpus.spec.ts`) and the resolver parity suite (`resolver-parity.spec.ts`) are the exit criteria of spec 007 Phase 3.
+
+`ConfigurationResolver` reports the E101 shapes as warnings (`IConfigurationResolverOptions.onWarning`, console by default) through `findFlowControlProblems` in `src/operation/helper/flow-control-structure.ts`, shared with the linter. They become errors in the next major version.
+
 **Schema update process**: change the types in `src/configuration/types.ts`, run `npm run generate-schema`, verify existing configurations still validate, update docs. Breaking schema changes need a major version bump.
 
 **Fluent API** (`src/configuration/api/`): `ConfigurationFactory` with `ActionEditor`, `EndableActionEditor`, `TimelineActionEditor`, `OperationEditor`, `SubtitleEditor`, `TimelineProviderSettingsEditor`, and `ActionCreatorFactory`.
@@ -396,7 +409,7 @@ const config = factory.getConfiguration();
 
 `next()` returns to the action creator; `end()` returns to the `ConfigurationFactory`. Unknown operation names throw unless declared through `new ConfigurationFactory(config, {customOperations: [...]})`.
 
-**Custom resources**: `new EligiusResourceImporter({operations, functions, controllers, templates, json, override})` registers host code for the engine (`customFunction`, `getImport`, `template:`, `json:`, controllers). Built-in names cannot be shadowed without `override: true`. See README "Extending Eligius".
+**Custom resources**: `new EligiusResourceImporter({operations, functions, controllers, templates, json, override})` registers host code for the engine (`customFunction`, `getImport`, `template:`, `json:`, controllers). Built-in names cannot be shadowed without `override: true`. `createImporter({engines, operations, controllers, providers, functions, templates, json})` builds an importer from explicit maps only (no built-ins, no `override`; `engines` defaults to `{EligiusEngine}`); the shape checks are shared in `src/importer/registration-shape.ts`. See README "Extending Eligius" and "Smaller bundles".
 
 ## Utilities (`src/util/`)
 

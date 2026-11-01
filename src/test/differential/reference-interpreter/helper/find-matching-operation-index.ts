@@ -1,3 +1,6 @@
+// PINNED COPY of src/operation/helper/find-matching-operation-index.ts at commit d937f6be. Do not edit.
+// Reference interpreter for the differential harness of specs/007-aot-compiler
+// (Phase 1: old interpreter vs optimised interpreter). Delete after Phase 4.
 import type {IResolvedOperation} from '@configuration/types.ts';
 
 /**

@@ -1,0 +1,44 @@
+[
+  {
+    "entry": "deck-full",
+    "jquery": "external",
+    "chunks": 1,
+    "minBytes": 218452,
+    "gzipBytes": 61735
+  },
+  {
+    "entry": "deck-full",
+    "jquery": "bundled",
+    "chunks": 1,
+    "minBytes": 296859,
+    "gzipBytes": 88720
+  },
+  {
+    "entry": "deck-json-full",
+    "jquery": "external",
+    "chunks": 1,
+    "minBytes": 203584,
+    "gzipBytes": 58516
+  },
+  {
+    "entry": "deck-json-full",
+    "jquery": "bundled",
+    "chunks": 1,
+    "minBytes": 281988,
+    "gzipBytes": 85484
+  },
+  {
+    "entry": "deck-minimal",
+    "jquery": "external",
+    "chunks": 1,
+    "minBytes": 160099,
+    "gzipBytes": 46476
+  },
+  {
+    "entry": "deck-minimal",
+    "jquery": "bundled",
+    "chunks": 1,
+    "minBytes": 238499,
+    "gzipBytes": 73521
+  }
+]

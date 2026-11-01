@@ -1,9 +1,11 @@
+import {getCurrentOperationName} from '@operation/helper/assert-safe-property-chain.ts';
 import {
-  assertSafePropertyChain,
-  getCurrentOperationName,
-} from '@operation/helper/assert-safe-property-chain.ts';
+  assertParsedChainSafe,
+  externalPrefixOf,
+  getParsedChain,
+  walkChain,
+} from '@operation/helper/chain-cache.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
-import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
 import {getGlobals} from '@operation/helper/globals.ts';
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
 
@@ -19,6 +21,9 @@ import type {IOperationScope, TOperationData} from '@operation/types.ts';
  * functions and class instances stay references), the same as `getGlobals(name)`, so changing
  * the returned value in place never changes the shared global store. Write to the store with
  * `setGlobalData` or `setData` instead.
+ *
+ * The chain text is parsed once and cached (see `chain-cache.ts`); the value is read on every
+ * call.
  */
 export function resolveExternalPropertyChain(
   sourceObject: TOperationData,
@@ -36,28 +41,29 @@ export function resolveExternalPropertyChain(
     return null;
   }
 
-  if (isExternalProperty(propertyChainOrRegularObject)) {
-    const propNames = propertyChainOrRegularObject.split('.');
-    const prefix = propNames.shift()!.toLowerCase();
-    const operationName = getCurrentOperationName(operationScope);
-    assertSafePropertyChain(
-      propNames,
-      propertyChainOrRegularObject,
-      operationName
-    );
-    switch (prefix) {
-      case '$operationdata':
-        return getPropertyChainValue(propNames, sourceObject, operationName);
-      case '$globaldata':
-        return deepCopy(
-          getPropertyChainValue(propNames, getGlobals(), operationName)
-        );
-      case '$scope':
-        return getScopeChainValue(propNames, operationScope, operationName);
-    }
+  if (typeof propertyChainOrRegularObject !== 'string') {
+    return propertyChainOrRegularObject;
   }
 
-  return propertyChainOrRegularObject;
+  const parsed = getParsedChain(propertyChainOrRegularObject);
+  if (parsed === null) {
+    return propertyChainOrRegularObject;
+  }
+
+  const operationName = getCurrentOperationName(operationScope);
+  assertParsedChainSafe(parsed, operationName);
+  switch (parsed.prefix) {
+    case 'operationdata':
+      return walkChain(parsed, sourceObject, operationName);
+    case 'globaldata':
+      return deepCopy(walkChain(parsed, getGlobals(), operationName));
+    case 'scope':
+      return walkChain(
+        parsed,
+        findDeclaringScope(parsed.head, operationScope) ?? operationScope,
+        operationName
+      );
+  }
 }
 
 /**
@@ -73,32 +79,11 @@ export function resolveExternalPropertyChain(
  * ancestor) that declares the chain's head property, see
  * {@link findDeclaringScope}. `setVariable` and `setData` pick their write
  * target with the same rule, so reads and writes of `$scope.variables.*` always
- * meet the same store.
+ * meet on the same scope object.
  *
- * If no scope in the chain declares the head property, resolution falls back to
- * the original scope so the standard "cannot be resolved" error is produced.
- */
-function getScopeChainValue(
-  propertyChain: string[],
-  operationScope: IOperationScope,
-  operationName?: string
-) {
-  const scope =
-    findDeclaringScope(propertyChain[0], operationScope) ?? operationScope;
-  return getPropertyChainValue(propertyChain, scope, operationName);
-}
-
-/**
- * Returns the nearest scope, starting at `scope` and walking up through
- * `parent`, that declares the property `head`, or `undefined` when none does.
- *
- * `$scope` chains are read from this scope, and `setVariable` and `setData`
- * write `$scope` targets to it, so the child scopes created by `when` and
- * `forEach` read and update the variables of the enclosing action.
- *
- * @param head The first segment of a `$scope` chain, for example `variables`.
- * @param scope The scope the operation runs in.
- * @returns The declaring scope, or `undefined`.
+ * @param head The first segment of the chain as written, for example `variables`
+ * @param scope The scope the operation runs in
+ * @returns The nearest scope that has `head` as an own or inherited property, or undefined
  */
 export function findDeclaringScope(
   head: string,
@@ -115,11 +100,8 @@ export function findDeclaringScope(
 }
 
 /**
- * Returns the outermost scope of the given scope's parent chain (the scope the
- * action itself runs in).
- *
- * @param scope The scope the operation runs in.
- * @returns The root scope, which is `scope` itself when it has no parent.
+ * Returns the outermost scope of the given scope's parent chain: the
+ * action's root scope.
  */
 export function findRootScope(scope: IOperationScope): IOperationScope {
   let current = scope;
@@ -129,15 +111,14 @@ export function findRootScope(scope: IOperationScope): IOperationScope {
   return current;
 }
 
+/**
+ * Returns true when the value is a `$operationdata.`, `$globaldata.` or
+ * `$scope.` property chain. The prefix is matched without regard to case.
+ */
 export function isExternalProperty(
   value: ExternalProperty | Record<string, any>
 ): value is ExternalProperty {
-  return (
-    typeof value === 'string' &&
-    (value.toLocaleLowerCase().startsWith('$operationdata.') ||
-      value.toLocaleLowerCase().startsWith('$globaldata.') ||
-      value.toLocaleLowerCase().startsWith('$scope.'))
-  );
+  return typeof value === 'string' && externalPrefixOf(value) !== undefined;
 }
 
 export type ExternalProperty =

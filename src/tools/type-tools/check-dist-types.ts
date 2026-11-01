@@ -10,7 +10,9 @@
  * - `metadata` and `configuration-api` must work WITHOUT lottie-web, jquery and
  *   `@types/jquery`.
  * - The main entry must work with `@types/jquery` and WITHOUT lottie-web.
- * - All three entries together, with `@types/jquery`, must not conflict.
+ * - The runtime entry must work with `@types/jquery` and WITHOUT lottie-web, and
+ *   must not expose the fluent API or `EligiusResourceImporter`.
+ * - All entries together, with `@types/jquery`, must not conflict.
  *
  * Each scenario runs once with `moduleResolution: NodeNext` and once with
  * `moduleResolution: Bundler`. The consumers set `types: []`, so a global type
@@ -137,9 +139,64 @@ const withOptions: VideoPositionSourceConfig = {selector: '#video', sources: [],
 export {data, factory, selectedIsTyped, itemIsTyped, rendererIsTyped, renderer, video, withOptions};
 `;
 
+const runtimeConsumer = `
+import {
+  addClass,
+  createImporter,
+  DomContainerProvider,
+  EngineFactory,
+  LabelController,
+  RafPositionSource,
+  selectElement,
+  SimplePlaylist,
+} from 'eligius/runtime';
+import type {IImporterResources, IResourceImporter} from 'eligius/runtime';
+
+${IS_ANY}
+
+const resources: IImporterResources = {
+  operations: {selectElement, addClass},
+  controllers: {LabelController},
+  providers: {RafPositionSource, DomContainerProvider, SimplePlaylist},
+  templates: {layout: '<div></div>'},
+};
+const importer: IResourceImporter = createImporter(resources);
+const factory = new EngineFactory(importer, window);
+const names: string[] = importer.getOperationNames();
+
+// The runtime entry must not expose the fluent API or the default importer
+// @ts-expect-error ConfigurationFactory is only exported by 'eligius'
+import {ConfigurationFactory} from 'eligius/runtime';
+// @ts-expect-error EligiusResourceImporter is only exported by 'eligius'
+import {EligiusResourceImporter} from 'eligius/runtime';
+
+const selectedIsTyped: IsAny<Parameters<typeof addClass>[0]['selectedElement']> = false;
+
+export {factory, names, ConfigurationFactory, EligiusResourceImporter, selectedIsTyped};
+`;
+
+const lintConsumer = `
+import {lintConfiguration, findFlowControlProblems} from 'eligius/lint';
+import type {IEngineConfiguration, ILintDiagnostic, ILintOptions, TLintSeverity} from 'eligius/lint';
+
+declare const configuration: IEngineConfiguration;
+const options: ILintOptions = {customOperations: ['trackEvent'], templates: ['layout']};
+const diagnostics: ILintDiagnostic[] = lintConfiguration(configuration, options);
+const severity: TLintSeverity | undefined = diagnostics[0]?.severity;
+const problems = findFlowControlProblems(['when', 'endForEach']);
+const index: number = problems[0].index;
+
+// @ts-expect-error the linter does not expose the engine
+import {EngineFactory} from 'eligius/lint';
+
+export {diagnostics, severity, index, EngineFactory};
+`;
+
 const allEntriesConsumer = `
 import {LottieController} from 'eligius';
 import {ConfigurationFactory} from 'eligius/configuration-api';
+import {createImporter, clearGlobals as clearRuntimeGlobals} from 'eligius/runtime';
+import {clearGlobals} from 'eligius';
 import {ctrlmetadata, metadata, type IOperationMetadata} from 'eligius/metadata';
 
 type DataOf<M> = M extends IOperationMetadata<infer T> ? T : never;
@@ -151,7 +208,10 @@ const fromMetadata: DataOf<ReturnType<typeof metadata.addClass>> = {
   className: 'a',
 };
 
-export {LottieController, ConfigurationFactory, ctrlmetadata, fromMetadata};
+// Both entries expose the same functions
+const sameClear: typeof clearGlobals = clearRuntimeGlobals;
+
+export {LottieController, ConfigurationFactory, ctrlmetadata, fromMetadata, createImporter, sameClear};
 `;
 
 type TScenario = {
@@ -176,8 +236,20 @@ const scenarios: TScenario[] = [
     packages: [],
   },
   {
+    name: 'lint, no jquery, no lottie-web',
+    source: lintConsumer,
+    lib: ['ES2022', 'DOM'],
+    packages: [],
+  },
+  {
     name: 'main, @types/jquery, no lottie-web',
     source: mainConsumer,
+    lib: ['ES2022', 'DOM', 'DOM.Iterable'],
+    packages: ['@types/jquery'],
+  },
+  {
+    name: 'runtime, @types/jquery, no lottie-web',
+    source: runtimeConsumer,
     lib: ['ES2022', 'DOM', 'DOM.Iterable'],
     packages: ['@types/jquery'],
   },
@@ -252,9 +324,13 @@ function createFixture(
 }
 
 function main(): number {
-  const missing = ['index', 'metadata', 'configuration-api'].filter(
-    entry => !fs.existsSync(path.join(distDir, `${entry}.d.mts`))
-  );
+  const missing = [
+    'index',
+    'runtime',
+    'metadata',
+    'configuration-api',
+    'lint',
+  ].filter(entry => !fs.existsSync(path.join(distDir, `${entry}.d.mts`)));
   if (missing.length) {
     console.error(
       `Missing declarations for ${missing.join(', ')} in dist/. Run 'npm run build' first.`

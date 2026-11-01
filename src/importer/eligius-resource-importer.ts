@@ -10,6 +10,7 @@ import type {
   IResourceImporter,
   TRegisteredResourceKind,
 } from '../types.ts';
+import {checkShape, describeKind} from './registration-shape.ts';
 
 const operations: Record<string, TOperation<any>> = ops as any;
 const controllers: Record<string, any> = ctrls;
@@ -258,79 +259,4 @@ function describeBuiltIn(
     return 'engine';
   }
   return undefined;
-}
-
-/**
- * Returns why `value` cannot be registered as a `kind`, or `undefined` when
- * it can. Operations are checked the way the configuration resolver checks
- * them: a function that is not a class.
- */
-function checkShape(
-  kind: TRegisteredResourceKind,
-  value: unknown
-): string | undefined {
-  switch (kind) {
-    case 'operation':
-    case 'function':
-      if (typeof value !== 'function') {
-        return `must be a function, got ${describeKind(value)}.`;
-      }
-      if (isClass(value)) {
-        return kind === 'operation'
-          ? 'is a class, an operation must be a function. Register controllers under registrations.controllers.'
-          : 'is a class, a custom function must be a plain function.';
-      }
-      return undefined;
-    case 'controller':
-      if (typeof value !== 'function' || !isClass(value)) {
-        return `must be a controller class, got ${describeKind(value)}.`;
-      }
-      for (const method of ['init', 'attach', 'detach']) {
-        if (typeof value.prototype?.[method] !== 'function') {
-          return `must implement IController: it has no '${method}' method.`;
-        }
-      }
-      return undefined;
-    case 'template':
-      return typeof value === 'string'
-        ? undefined
-        : `must be a string, got ${describeKind(value)}.`;
-    case 'json':
-      switch (typeof value) {
-        case 'undefined':
-        case 'function':
-        case 'symbol':
-        case 'bigint':
-          return `must be JSON data, got ${describeKind(value)}.`;
-        default:
-          return undefined;
-      }
-  }
-}
-
-function isClass(value: unknown): boolean {
-  return (
-    typeof value === 'function' &&
-    /^class[\s{]/.test(Function.prototype.toString.call(value))
-  );
-}
-
-/**
- * Describes a value by its kind only, so registered data never ends up in a
- * message.
- */
-function describeKind(value: unknown): string {
-  if (value === null) {
-    return 'null';
-  }
-  if (Array.isArray(value)) {
-    return 'an array';
-  }
-  if (typeof value === 'function') {
-    return isClass(value) ? 'a class' : 'a function';
-  }
-  const type = typeof value;
-  return type === 'undefined'
-    ? 'undefined'
-    : `${/^[aeiou]/.test(type) ? 'an' : 'a'} ${type}`;
 }
