@@ -454,6 +454,8 @@ function* HighlightItems$start(c, d) {
 
 ### Phase 3: `eligius/lint` and resolver structural warnings · 1.5-2 weeks
 
+**Status (2026-11-01): done on branch feat/aot-compiler-phase-0.** `src/lint/**`, `src/lint.ts` (`eligius/lint`, its own tsdown build with the DOM-free declaration banner), `lintConfiguration` with the section 7 codes (E001 resolver, E101, E111/W111, E120, E130/E131, E140/E141, E160/W160, E310, W110, W150, W151), resolver warnings through `IConfigurationResolverOptions.onWarning` (console by default), `findFlowControlProblems` shared by the resolver and the linter. Exit criteria: 41 seeded cases (`src/test/unit/lint/seeded-corpus.spec.ts`), 36 invalid configurations with identical resolver messages (`resolver-parity.spec.ts`), a node-environment spec and a published-entry spec with jquery and lottie-web mocked to throw, and a `check:types` scenario. The `eligius-lint` bin was not built (optional, nothing asked for it). W150's table lives in `src/lint/resolving-fields.ts` with a conformance test over the operation sources. See measurements.md section 8.
+
 **Deliverables**
 
 - A DOM-free validator that runs the real ConfigurationResolver with a metadata-backed stub importer. It deep-copies the input first, because the resolver mutates it (configuration-resolver.ts:827-853).

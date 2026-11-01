@@ -8,6 +8,7 @@
       "@controllers/*": ["./src/controllers/*"],
       "@eventbus/*": ["./src/eventbus/*"],
       "@importer/*": ["./src/importer/*"],
+      "@lint/*": ["./src/lint/*"],
       "@locale/*": ["./src/locale/*"],
       "@operation/*": ["./src/operation/*"],
       "@timelineproviders/*": ["./src/timelineproviders/*"],

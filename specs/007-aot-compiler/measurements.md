@@ -176,3 +176,18 @@ Reading:
 - `eligius` and `eligius/runtime` share one globals store: tested.
 - `npm run build` and `npm run check:types` pass.
 - The fallback (lazy registration for `...ByType`) is not needed.
+
+## 8. Phase 3 results: `eligius/lint` and resolver structural warnings
+
+Date: 2026-11-01. Branch feat/aot-compiler-phase-0, on top of the Phase 2 commit.
+
+| Exit criterion (roadmap section 9, Phase 3) | Result |
+|---|---|
+| Seeded-error corpus of 40 configurations produces the expected codes and JSON paths | 41 of 41 (`src/test/unit/lint/seeded-corpus.spec.ts`): 20 resolver errors (E001), 5 E101, 3 E111/W111, 1 E120, 2 E130/E131, 3 E140, 1 E141, 1 E160, 1 E310, 1 W110, 1 W150, 1 W151, 1 W160 |
+| Resolver errors identical to the runtime's for 30 invalid configurations | 36 of 36 (`src/test/unit/lint/resolver-parity.spec.ts`): the E001 message equals the message `ConfigurationResolver` throws with `EligiusResourceImporter`, and the extracted path occurs in it |
+| Lint loads in plain Node with jquery and lottie-web mocked to throw | `src/test/unit/lint/node-environment.spec.ts` (source) and `src/test/published/lint-entry.spec.ts` (built `dist/lint.mjs`, `npm run test:published`) |
+| Published declarations | `npm run check:types` scenario "lint, no jquery, no lottie-web" under NodeNext, Bundler and Node10 |
+
+`dist/lint.mjs` is 163 KB (41 KB gzip): the resolver, the action classes it constructs, the chain and expression helpers, and the generated operation and controller metadata. It is a build-time tool, so size was not a goal. The bundle contains no jquery or lottie-web import (checked with a grep after the build).
+
+The resolver structural warnings cover the fuzzer's root-scope-pop case from Phase 1 (`quirks.spec.ts`, "when / forEach / otherwise / endForEach / endWhen"): the scan reports the `otherwise` inside the `forEach`. Runtime behaviour is unchanged; the differential suite still passes.

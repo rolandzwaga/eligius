@@ -21,6 +21,7 @@ import type {
 import type {ActionRegistryEventbusListener} from '@eventbus/index.ts';
 import type {IEventbus} from '@eventbus/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
+import {findFlowControlProblems} from '@operation/helper/flow-control-structure.ts';
 import {resolvePropertyChain} from '@operation/helper/resolve-property-chain.ts';
 import type {TOperationData} from '@operation/types.ts';
 import {findClosestNames, formatDidYouMean} from '@util/find-closest-names.ts';
@@ -31,9 +32,22 @@ import {isString} from '@util/guards/is-string.ts';
 import {isDefined} from 'ts-is-present';
 import type {
   IConfigurationResolver,
+  IConfigurationResolverOptions,
+  IConfigurationWarning,
   IDuration,
   ISimpleResourceImporter,
 } from '../types.ts';
+
+type TWarn = (warning: IConfigurationWarning) => void;
+
+/**
+ * The default warning handler: writes the warning to the console.
+ */
+function warnToConsole(warning: IConfigurationWarning): void {
+  console.warn(
+    `Eligius configuration warning at ${warning.path}: ${warning.message}`
+  );
+}
 
 /**
  * Takes an `IEngineConfiguration` instance and return an `IResolvedEngineConfiguration`.
@@ -63,12 +77,31 @@ import type {
  * or at a timeline's positionSource override (also when the override inherits VideoPositionSource from its
  * type). 4.0.0 removed the video.js player options.
  * @throws When a `template:`, `json:` or `config:` placeholder cannot be resolved.
+ *
+ * Control-flow blocks that are not well formed (an `endWhen` without a `when`,
+ * an `endWhen` that closes a `forEach`, a `when` that is never closed, a
+ * `breakForEach` outside a `forEach`) are reported as warnings through
+ * {@link IConfigurationResolverOptions.onWarning}, by default on the console.
+ * The interpreter runs them as before: an operation list with such a block
+ * fails at runtime, or runs with the wrong scope. They become errors in the
+ * next major version. `eligius/lint` reports the same shapes as errors.
  */
 export class ConfigurationResolver implements IConfigurationResolver {
+  private readonly _warn: TWarn;
+
+  /**
+   * @param importer - Resolves system names to operations, controllers and providers
+   * @param eventbus - The eventbus the resolved actions run on
+   * @param options - Optional. `onWarning` receives the configuration
+   * warnings instead of the console.
+   */
   constructor(
     private importer: ISimpleResourceImporter,
-    private eventbus: IEventbus
-  ) {}
+    private eventbus: IEventbus,
+    options: IConfigurationResolverOptions = {}
+  ) {
+    this._warn = options.onWarning ?? warnToConsole;
+  }
 
   process(
     configuration: IEngineConfiguration,
@@ -120,19 +153,22 @@ export class ConfigurationResolver implements IConfigurationResolver {
         configuration.actions,
         this.importer,
         this.eventbus,
-        'actions'
+        'actions',
+        this._warn
       ),
       initActions: resolveActions(
         configuration.initActions,
         this.importer,
         this.eventbus,
-        'initActions'
+        'initActions',
+        this._warn
       ),
       timelineFlow: deepCopy(configuration.timelineFlow),
       timelines: resolveTimelines(
         configuration.timelines,
         this.importer,
-        this.eventbus
+        this.eventbus,
+        this._warn
       ),
     };
 
@@ -145,7 +181,8 @@ export class ConfigurationResolver implements IConfigurationResolver {
         eventActions = resolveEventActions(
           configuration.eventActions,
           this.importer,
-          this.eventbus
+          this.eventbus,
+          this._warn
         );
       }
     }
@@ -473,12 +510,18 @@ function createActionsLookup(
 function resolveEventActions(
   eventActionConfigurations: IEventActionConfiguration[],
   importer: ISimpleResourceImporter,
-  eventbus: IEventbus
+  eventbus: IEventbus,
+  warn: TWarn
 ): IEventActionRegistration[] {
   const resolvedConfigs =
     eventActionConfigurations.map<IResolvedActionConfiguration>(
       (config, index) =>
-        resolveActionConfiguration(config, importer, `eventActions[${index}]`)
+        resolveActionConfiguration(
+          config,
+          importer,
+          `eventActions[${index}]`,
+          warn
+        )
     );
 
   return resolvedConfigs.map((config, index) => {
@@ -494,7 +537,8 @@ function resolveEventActions(
 function resolveTimelines(
   timelines: ITimelineConfiguration[],
   importer: ISimpleResourceImporter,
-  eventbus: IEventbus
+  eventbus: IEventbus,
+  warn: TWarn
 ) {
   assertArray(timelines, 'timelines');
   return timelines.map<IResolvedTimelineConfiguration>(
@@ -515,7 +559,8 @@ function resolveTimelines(
             importer,
             eventbus,
             actionConfig,
-            `${path}.timelineActions[${index}]`
+            `${path}.timelineActions[${index}]`,
+            warn
           )
         ),
       };
@@ -597,12 +642,22 @@ function isClass(value: (...args: any[]) => any): boolean {
 function resolveOperations(
   importer: ISimpleResourceImporter,
   operationConfigs: IOperationConfiguration<TOperationData>[],
-  path: string
+  path: string,
+  warn: TWarn
 ) {
   assertArray(operationConfigs, path);
-  return operationConfigs.map((operationConfig, index) =>
+  const resolved = operationConfigs.map((operationConfig, index) =>
     resolveOperation(importer, operationConfig, `${path}[${index}]`)
   );
+  for (const problem of findFlowControlProblems(
+    resolved.map(operation => operation.systemName)
+  )) {
+    warn({
+      path: `${path}[${problem.index}].systemName`,
+      message: `${problem.message} This will be a configuration error in the next major version.`,
+    });
+  }
+  return resolved;
 }
 
 function createUnknownOperationMessage(
@@ -641,7 +696,8 @@ function getImporterNames(
 function resolveActionConfiguration(
   config: IActionConfiguration,
   importer: ISimpleResourceImporter,
-  path: string
+  path: string,
+  warn: TWarn
 ): IResolvedActionConfiguration {
   return {
     id: config.id,
@@ -649,7 +705,8 @@ function resolveActionConfiguration(
     startOperations: resolveOperations(
       importer,
       config.startOperations,
-      `${path}.startOperations`
+      `${path}.startOperations`,
+      warn
     ),
   };
 }
@@ -657,16 +714,18 @@ function resolveActionConfiguration(
 function resolveEndableActionConfiguration(
   config: IEndableActionConfiguration,
   importer: ISimpleResourceImporter,
-  path: string
+  path: string,
+  warn: TWarn
 ): IResolvedEndableActionConfiguration {
-  const action = resolveActionConfiguration(config, importer, path);
+  const action = resolveActionConfiguration(config, importer, path, warn);
 
   return {
     ...action,
     endOperations: resolveOperations(
       importer,
       config.endOperations,
-      `${path}.endOperations`
+      `${path}.endOperations`,
+      warn
     ),
   };
 }
@@ -708,7 +767,8 @@ function resolveTimelineAction(
   importer: ISimpleResourceImporter,
   eventbus: IEventbus,
   actionConfiguration: ITimelineActionConfiguration,
-  path: string
+  path: string,
+  warn: TWarn
 ) {
   const duration = resolveDuration(
     actionConfiguration.duration,
@@ -717,7 +777,8 @@ function resolveTimelineAction(
   const resolvedConfig = resolveEndableActionConfiguration(
     actionConfiguration,
     importer,
-    path
+    path,
+    warn
   );
 
   const {id, name, endOperations, startOperations} = resolvedConfig;
@@ -736,7 +797,8 @@ function resolveActions(
   actionConfigurations: IEndableActionConfiguration[],
   importer: ISimpleResourceImporter,
   eventbus: IEventbus,
-  path: string
+  path: string,
+  warn: TWarn
 ) {
   assertArray(actionConfigurations, path);
   const resolvedConfigs =
@@ -745,7 +807,8 @@ function resolveActions(
         return resolveEndableActionConfiguration(
           config,
           importer,
-          `${path}[${index}]`
+          `${path}[${index}]`,
+          warn
         );
       }
     );

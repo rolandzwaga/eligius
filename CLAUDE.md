@@ -47,6 +47,7 @@ eligius/
       events/               # One file per event interface
         metadata/           # GENERATED event metadata (gitignored except types.ts)
     importer/               # EligiusResourceImporter, createImporter
+    lint/                   # DOM-free configuration linter (eligius/lint), alias @lint/*
     locale/                 # LocaleManager (rosetta), LocaleLoader
     operation/              # Atomic operations, one file each
       helper/               # Operation helper utilities
@@ -70,6 +71,7 @@ eligius/
     metadata.ts             # Metadata-only entry (dist/metadata.mjs, no DOM deps)
     configuration-api.ts    # Fluent ConfigurationFactory entry (dist/configuration-api.mjs, no DOM deps)
     runtime.ts              # Engine without the fluent API and EligiusResourceImporter (dist/runtime.mjs)
+    lint.ts                 # Linter entry (dist/lint.mjs, no DOM deps)
     types.ts                # Core types
     vitest.config.ts        # Vitest config (lives in src/, not root)
   build/                    # Importer template
@@ -77,7 +79,7 @@ eligius/
   docs/                     # Generated TypeDoc site
   jsonschema/               # Generated configuration schema
   specs/                    # Feature specs and TESTING-GUIDE.md
-  tsdown.config.ts          # Three independent builds: index+runtime (one build, shared chunks), metadata, configuration-api
+  tsdown.config.ts          # Four independent builds: index+runtime (one build, shared chunks), metadata, configuration-api, lint
 ```
 
 Generated files are gitignored and recreated by `npm run metadata` and `npm run generate-schema`. Never edit them by hand. See `.gitignore` for the exact list.
@@ -172,6 +174,7 @@ Defined in `tsconfig.json`, resolved by Vitest via `resolve.tsconfigPaths` and b
 | `@controllers/*` | `src/controllers/*` |
 | `@eventbus/*` | `src/eventbus/*` |
 | `@importer/*` | `src/importer/*` |
+| `@lint/*` | `src/lint/*` |
 | `@locale/*` | `src/locale/*` |
 | `@operation/*` | `src/operation/*` |
 | `@timelineproviders/*` | `src/timelineproviders/*` |
@@ -200,6 +203,7 @@ Never use `../../..` paths across modules.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
 - `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery and lottie-web imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
 - `src/runtime.ts` (`eligius/runtime`) exports everything `src/index.ts` does except the fluent API barrel and `EligiusResourceImporter`, so bundlers can drop unused operations. It is built in the SAME tsdown build as index (shared chunks, one copy of every singleton); `src/test/published/shared-singletons.spec.ts` checks that. `package.json` declares `"sideEffects": false`; the fluent `...ByType` registration survives because it lives in `dist/index.mjs`, which is only loaded when something from it is used (verified for Vite 8, webpack 5 and esbuild by `specs/007-aot-compiler/phase-2/measure.mjs`).
+- `src/lint.ts` (`eligius/lint`) is its own build, like `metadata`. It imports the real `ConfigurationResolver`, the action classes, the chain and expression helpers and the generated metadata, never an operation or controller implementation. **Every module reachable from `src/configuration/configuration-resolver.ts` must stay free of jquery and lottie-web**; `src/test/unit/lint/node-environment.spec.ts` and `src/test/published/lint-entry.spec.ts` mock both to throw.
 - Published declarations are self-contained: the DOM-free entries type-check without jquery or lottie-web, and the main entry references `@types/jquery` (optional peer). Lottie types in the public API are local structural copies in `src/controllers/types.ts`. Consumers still need `"DOM"` in their TypeScript `lib`. `npm run check:types` guards this.
 
 ## Testing
@@ -373,6 +377,10 @@ Conventions: kebab-case names, category prefix (`timeline-`, `request-`, `langua
 - JSON configurations are validated against `jsonschema/eligius-configuration.json`, generated from `src/configuration/types.ts` by `npm run generate-schema`. Published at https://rolandzwaga.github.io/eligius/jsonschema/eligius-configuration.json.
 - `ConfigurationResolver` turns an `IEngineConfiguration` into an `IResolvedEngineConfiguration` with operations and controllers resolved to functions and classes. Configuration is immutable after resolution.
 - Invalid configuration must fail fast with a message naming the JSON path.
+
+**Linting** (`src/lint/`, entry `eligius/lint`): `lintConfiguration(configuration, options)` deep-copies the configuration, runs the real resolver with a metadata-backed stub importer (`lint-importer.ts`) and reports its error as `E001` with the extracted JSON path, then runs the rules in `rules.ts` over every operation list (`operation-lists.ts`). Codes: E101 flow structure, E111/W111 required, E120 literal union, E130/E131 `when` expression, E140/E141 forbidden chain segment and `__proto__` key, E160/W160 `setData` target, E310 `requestAction` name, W110 dependency, W150 chain in a non-resolving field (table in `resolving-fields.ts`, kept in sync with the operation sources by `src/test/unit/lint/conformance.spec.ts`), W151 `$operationdata` read nothing provides. Data-flow rules only fire for lists that start with empty data (timeline and init actions) and stop after an undescribed operation. The seeded corpus (`seeded-corpus.spec.ts`) and the resolver parity suite (`resolver-parity.spec.ts`) are the exit criteria of spec 007 Phase 3.
+
+`ConfigurationResolver` reports the E101 shapes as warnings (`IConfigurationResolverOptions.onWarning`, console by default) through `findFlowControlProblems` in `src/operation/helper/flow-control-structure.ts`, shared with the linter. They become errors in the next major version.
 
 **Schema update process**: change the types in `src/configuration/types.ts`, run `npm run generate-schema`, verify existing configurations still validate, update docs. Breaking schema changes need a major version bump.
 

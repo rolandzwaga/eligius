@@ -29,6 +29,10 @@
       "types": "./dist/configuration-api.d.mts",
       "default": "./dist/configuration-api.mjs"
     },
+    "./lint": {
+      "types": "./dist/lint.d.mts",
+      "default": "./dist/lint.mjs"
+    },
     "./package.json": "./package.json"
   },
   "typesVersions": {
@@ -41,6 +45,9 @@
       ],
       "configuration-api": [
         "dist/configuration-api.d.mts"
+      ],
+      "lint": [
+        "dist/lint.d.mts"
       ]
     }
   },

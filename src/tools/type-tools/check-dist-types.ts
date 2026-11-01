@@ -175,6 +175,23 @@ const selectedIsTyped: IsAny<Parameters<typeof addClass>[0]['selectedElement']> 
 export {factory, names, ConfigurationFactory, EligiusResourceImporter, selectedIsTyped};
 `;
 
+const lintConsumer = `
+import {lintConfiguration, findFlowControlProblems} from 'eligius/lint';
+import type {IEngineConfiguration, ILintDiagnostic, ILintOptions, TLintSeverity} from 'eligius/lint';
+
+declare const configuration: IEngineConfiguration;
+const options: ILintOptions = {customOperations: ['trackEvent'], templates: ['layout']};
+const diagnostics: ILintDiagnostic[] = lintConfiguration(configuration, options);
+const severity: TLintSeverity | undefined = diagnostics[0]?.severity;
+const problems = findFlowControlProblems(['when', 'endForEach']);
+const index: number = problems[0].index;
+
+// @ts-expect-error the linter does not expose the engine
+import {EngineFactory} from 'eligius/lint';
+
+export {diagnostics, severity, index, EngineFactory};
+`;
+
 const allEntriesConsumer = `
 import {LottieController} from 'eligius';
 import {ConfigurationFactory} from 'eligius/configuration-api';
@@ -215,6 +232,12 @@ const scenarios: TScenario[] = [
   {
     name: 'configuration-api, no jquery, no lottie-web',
     source: configurationApiConsumer,
+    lib: ['ES2022', 'DOM'],
+    packages: [],
+  },
+  {
+    name: 'lint, no jquery, no lottie-web',
+    source: lintConsumer,
     lib: ['ES2022', 'DOM'],
     packages: [],
   },
@@ -301,9 +324,13 @@ function createFixture(
 }
 
 function main(): number {
-  const missing = ['index', 'runtime', 'metadata', 'configuration-api'].filter(
-    entry => !fs.existsSync(path.join(distDir, `${entry}.d.mts`))
-  );
+  const missing = [
+    'index',
+    'runtime',
+    'metadata',
+    'configuration-api',
+    'lint',
+  ].filter(entry => !fs.existsSync(path.join(distDir, `${entry}.d.mts`)));
   if (missing.length) {
     console.error(
       `Missing declarations for ${missing.join(', ')} in dist/. Run 'npm run build' first.`

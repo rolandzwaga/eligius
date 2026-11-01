@@ -13,8 +13,9 @@ const aliasPlugin = alias({
       replacement: `${srcDir}/configuration/$1`,
     },
     {find: /^@controllers\/(.*)/, replacement: `${srcDir}/controllers/$1`},
-    {find: /^@diagnostics\/(.*)/, replacement: `${srcDir}/diagnostics/$1`},
     {find: /^@eventbus\/(.*)/, replacement: `${srcDir}/eventbus/$1`},
+    {find: /^@importer\/(.*)/, replacement: `${srcDir}/importer/$1`},
+    {find: /^@lint\/(.*)/, replacement: `${srcDir}/lint/$1`},
     {find: /^@importer\/(.*)/, replacement: `${srcDir}/importer/$1`},
     {find: /^@operation\/(.*)/, replacement: `${srcDir}/operation/$1`},
     {
@@ -37,7 +38,7 @@ const base = {
   plugins: [aliasPlugin],
 };
 
-// Three INDEPENDENT builds: index+runtime, metadata and configuration-api (the
+// Four INDEPENDENT builds: index+runtime, metadata, configuration-api and lint (the
 // `build` npm script `rimraf`s dist first, so none of them needs `clean`). They are intentionally separate so the metadata entry gets its
 // OWN bundle and can never share a rolldown chunk with the engine: a single
 // multi-entry build co-locates the metadata namespaces with the operation /
@@ -47,6 +48,11 @@ const base = {
 // standalone bundle is free of jquery / lottie-web and imports cleanly
 // in a DOM-less Node context. The package.json `exports` map is maintained by
 // hand (no `exports: true`) so the builds don't fight over it.
+//
+// `lint` is a DOM-free entry for the configuration linter. It imports the real
+// ConfigurationResolver and the action classes, whose import graph must stay
+// free of jquery (src/test/unit/lint/node-environment.spec.ts guards that), and
+// the generated metadata, never the operation implementations.
 //
 // `configuration-api` is a DOM-free entry for the fluent ConfigurationFactory, for
 // build tools that run in Node. It is its own build for the same reason as
@@ -98,4 +104,5 @@ export default defineConfig([
     entry: ['./src/configuration-api.ts'],
     banner: {dts: domFreeDtsBanner},
   },
+  {...base, entry: ['./src/lint.ts'], banner: {dts: domFreeDtsBanner}},
 ]);

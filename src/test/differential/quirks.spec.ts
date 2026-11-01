@@ -531,7 +531,8 @@ describe('quirks: malformed and mutated operation lists', () => {
     }
     // Pinned: with `false`, endForEach pops the when scope and endWhen pops
     // the root scope, so the next operation fails. A structural warning for
-    // this shape is Phase 3 work; Phase 1 must not change it.
+    // this shape is reported by the resolver (onWarning) and by eligius/lint
+    // (E101) since Phase 3; the interpreter must not change.
     expect(outcomes).toEqual({
       true: {records: 2, after: 1, error: undefined},
       false: {

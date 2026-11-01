@@ -8,3 +8,5 @@ export const otherwiseSystemName = 'otherwise';
 export const endWhenSystemName = 'endWhen';
 export const forEachSystemName = 'forEach';
 export const endForEachSystemName = 'endForEach';
+export const breakForEachSystemName = 'breakForEach';
+export const continueForEachSystemName = 'continueForEach';

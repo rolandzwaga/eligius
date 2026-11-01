@@ -565,6 +565,28 @@ export type TRegisteredResourceKind =
   | 'template'
   | 'json';
 
+/**
+ * A configuration problem that does not stop the resolver, reported through
+ * {@link IConfigurationResolverOptions.onWarning}.
+ */
+export interface IConfigurationWarning {
+  /** JSON path of the offending value, for example `actions[0].startOperations[2].systemName` */
+  path: string;
+  /** What is wrong and what happens at runtime */
+  message: string;
+}
+
+/**
+ * Options for the `ConfigurationResolver` constructor.
+ */
+export interface IConfigurationResolverOptions {
+  /**
+   * Receives every configuration warning. Without it, warnings are written
+   * with `console.warn`.
+   */
+  onWarning?: (warning: IConfigurationWarning) => void;
+}
+
 export interface IConfigurationResolver {
   process(
     configuration: IEngineConfiguration,
