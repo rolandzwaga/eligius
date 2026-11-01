@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Eligius VideoPositionSource test bench</title>
+<!--
+  Manual test bench for the native-<video> VideoPositionSource (4.0.0).
+
+  1. npm run build            (the page loads dist/index.mjs)
+  2. npx httpster -p 3333     (from the repository root, so /dist and /node_modules resolve)
+  3. open http://localhost:3333/test-pages/video-source.html in Chrome, Firefox and Safari
+  4. click "Run all init checks" and compare the table with the expected column
+
+  The sample videos are loaded from test-videos.co.uk and MDN, so the browser needs internet access.
+-->
+<script type="importmap">
+{
+  "imports": {
+    "jquery": "/node_modules/jquery/dist-module/jquery.module.js",
+    "hotkeys-js": "/node_modules/hotkeys-js/dist/hotkeys-js.js",
+    "rosetta": "/node_modules/rosetta/dist/index.mjs",
+    "dlv": "/node_modules/dlv/dist/dlv.es.js",
+    "templite": "/node_modules/templite/dist/templite.mjs",
+    "uuid": "/node_modules/uuid/dist/index.js",
+    "ts-is-present": "data:text/javascript,export const isPresent=t=>t!==undefined&&t!==null;export const isDefined=t=>t!==undefined;export const isFilled=t=>t!==null;export const hasPresentKey=k=>o=>o[k]!==undefined&&o[k]!==null;export const hasValueAtKey=(k,v)=>o=>o[k]===v;"
+  }
+}
+</script>
+<style>
+  :root { font-family: system-ui, sans-serif; color: #1d1d1f; background: #f5f5f7; }
+  body { margin: 0; padding: 16px 24px 48px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 8px; }
+  .muted { color: #6e6e73; font-size: 13px; }
+  .grid { display: grid; grid-template-columns: minmax(320px, 640px) minmax(320px, 1fr); gap: 16px; margin-top: 16px; }
+  .card { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgb(0 0 0 / 0.08); }
+  .card + .card { margin-top: 16px; }
+  label { display: block; font-size: 14px; margin: 4px 0; }
+  .scenario { display: flex; gap: 8px; align-items: baseline; padding: 4px 0; }
+  .scenario small { color: #6e6e73; }
+  input[type="text"], input[type="number"] { font: inherit; padding: 4px 6px; border: 1px solid #c7c7cc; border-radius: 6px; }
+  input[type="text"] { width: 100%; box-sizing: border-box; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  button { font: inherit; font-size: 14px; padding: 6px 12px; border-radius: 6px; border: 1px solid #c7c7cc; background: #fff; cursor: pointer; }
+  button.primary { background: #0071e3; border-color: #0071e3; color: #fff; }
+  button:disabled { opacity: 0.45; cursor: default; }
+  #video-stage { background: #000; border-radius: 8px; overflow: hidden; aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; color: #8e8e93; }
+  #video-stage .eligius-video { width: 100%; height: 100%; display: block; }
+  #engine { margin-top: 10px; }
+  .markers { display: flex; gap: 8px; }
+  .marker { flex: 1; text-align: center; padding: 8px; border-radius: 6px; background: #e5e5ea; color: #6e6e73; font-size: 13px; transition: background 0.15s; }
+  .marker.active { background: #34c759; color: #fff; font-weight: 600; }
+  dl.state { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; margin: 0; font-size: 13px; }
+  dl.state dt { color: #6e6e73; }
+  dl.state dd { margin: 0; font-family: ui-monospace, monospace; word-break: break-all; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+  .pass { background: #d1f7dc; color: #0b6b2b; }
+  .fail { background: #ffd9d6; color: #a1150b; }
+  .pending { background: #fff1c2; color: #7a5a00; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e5e5ea; vertical-align: top; }
+  #log { font-family: ui-monospace, monospace; font-size: 12px; height: 260px; overflow: auto; background: #1d1d1f; color: #e5e5ea; border-radius: 6px; padding: 8px; white-space: pre-wrap; }
+  #log .err { color: #ff6961; }
+  #log .ok { color: #7ee787; }
+</style>
+</head>
+<body>
+<h1>Eligius VideoPositionSource test bench</h1>
+<div class="muted" id="ua"></div>
+
+<div class="grid">
+  <div>
+    <div class="card">
+      <div id="video-stage">no video yet: pick a scenario and click Init</div>
+      <!-- The engine root: timeline actions select elements in here -->
+      <div id="engine"></div>
+      <div class="buttons">
+        <button id="btn-init" class="primary">Init</button>
+        <button id="btn-start" disabled>Start</button>
+        <button id="btn-pause" disabled>Pause</button>
+        <button id="btn-stop" disabled>Stop</button>
+        <input id="seek-to" type="number" value="6" min="0" step="0.5" style="width: 70px">
+        <button id="btn-seek" disabled>Seek</button>
+        <button id="btn-destroy" disabled>Destroy</button>
+      </div>
+      <p class="muted">Space toggles playback (the engine's play toggle). The markers turn green while their timeline action is active: A from 2 s to 5 s, B from 5 s to 8 s.</p>
+    </div>
+
+    <div class="card">
+      <h2>Init checks <button id="btn-run-all" style="margin-left: 8px">Run all init checks</button></h2>
+      <p class="muted">Creates an engine for every scenario except "custom", waits for <code>engine.init()</code> to settle (15 s limit), then destroys it. A hang is the failure to watch for, especially in Safari.</p>
+      <table>
+        <thead><tr><th>Scenario</th><th>Expected</th><th>Got</th><th>Time</th><th>Detail</th></tr></thead>
+        <tbody id="results"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <h2>Scenario</h2>
+      <div id="scenarios"></div>
+      <div id="custom-fields" style="display: none; margin: 6px 0 0 24px">
+        <label>src <input id="custom-src" type="text" value="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm"></label>
+        <label>type <input id="custom-type" type="text" value="video/webm"></label>
+      </div>
+      <label style="margin-top: 10px"><input id="opt-loop" type="checkbox"> loop the timeline</label>
+      <label>poster <input id="opt-poster" type="text" placeholder="optional image URL"></label>
+    </div>
+
+    <div class="card">
+      <h2>State</h2>
+      <dl class="state">
+        <dt>init</dt><dd id="s-init">-</dd>
+        <dt>playState</dt><dd id="s-play">-</dd>
+        <dt>position</dt><dd id="s-pos">-</dd>
+        <dt>duration</dt><dd id="s-dur">-</dd>
+        <dt>video.currentSrc</dt><dd id="s-src">-</dd>
+        <dt>video.readyState</dt><dd id="s-ready">-</dd>
+        <dt>video.networkState</dt><dd id="s-net">-</dd>
+        <dt>video.error</dt><dd id="s-err">-</dd>
+      </dl>
+    </div>
+
+    <div class="card">
+      <h2>Log <button id="btn-clear" style="margin-left: 8px">Clear</button></h2>
+      <div id="log"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {EligiusResourceImporter, EngineFactory} from '/dist/index.mjs';
+
+const BBB_MP4 = 'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4';
+const BBB_WEBM = 'https://test-videos.co.uk/vids/bigbuckbunny/webm/vp9/360/Big_Buck_Bunny_360_10s_1MB.webm';
+const MISSING = new URL('/test-pages/does-not-exist.mp4', location.href).href;
+
+const SCENARIOS = [
+  {key: 'plays', label: 'Plays', note: 'MP4, WebM fallback (10 s Big Buck Bunny)', expect: 'resolve',
+    sources: () => [{src: BBB_MP4, type: 'video/mp4'}, {src: BBB_WEBM, type: 'video/webm'}]},
+  {key: 'fallback', label: 'Falls back', note: 'first source is a 404, second plays; currentSrc must be the MP4', expect: 'resolve',
+    sources: () => [{src: MISSING, type: 'video/mp4'}, {src: BBB_MP4, type: 'video/mp4'}]},
+  {key: 'all-fail', label: 'All sources fail', note: 'two 404s; init must reject, not hang', expect: 'reject',
+    sources: () => [{src: MISSING, type: 'video/mp4'}, {src: MISSING + '?second', type: 'video/webm'}]},
+  {key: 'no-type', label: 'No playable type', note: 'unknown MIME type; init must reject at once', expect: 'reject',
+    sources: () => [{src: BBB_MP4, type: 'video/x-eligius-unknown'}]},
+  {key: 'bad-host', label: 'Unreachable host', note: 'DNS failure; init must reject', expect: 'reject',
+    sources: () => [{src: 'https://eligius-test.invalid/video.mp4', type: 'video/mp4'}]},
+  {key: 'custom', label: 'Custom', note: 'your own src and type', expect: null,
+    sources: () => [{src: $('custom-src').value.trim(), type: $('custom-type').value.trim()}]},
+];
+
+const INIT_LIMIT_MS = 15000;
+const $ = id => document.getElementById(id);
+$('ua').textContent = navigator.userAgent;
+
+// ── Log ────────────────────────────────────────────────────────────────
+function log(message, kind = '') {
+  const line = document.createElement('div');
+  line.className = kind;
+  line.textContent = `${(performance.now() / 1000).toFixed(2).padStart(7)}  ${message}`;
+  $('log').append(line);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+$('btn-clear').onclick = () => { $('log').textContent = ''; };
+const describe = error => error instanceof Error
+  ? `${error.name}: ${error.message}${error.cause ? ` (cause: ${error.cause.message ?? error.cause})` : ''}`
+  : String(error);
+window.addEventListener('unhandledrejection', event => log(`unhandled rejection: ${describe(event.reason)}`, 'err'));
+
+// ── Scenario picker ────────────────────────────────────────────────────
+for (const [index, scenario] of SCENARIOS.entries()) {
+  const row = document.createElement('label');
+  row.className = 'scenario';
+  row.innerHTML = `<input type="radio" name="scenario" value="${scenario.key}" ${index === 0 ? 'checked' : ''}><span></span><small></small>`;
+  row.querySelector('span').textContent = scenario.label;
+  row.querySelector('small').textContent = scenario.note;
+  $('scenarios').append(row);
+}
+const selectedScenario = () => SCENARIOS.find(s => s.key === document.querySelector('input[name=scenario]:checked').value);
+document.addEventListener('change', event => {
+  if (event.target.name === 'scenario') {
+    $('custom-fields').style.display = selectedScenario().key === 'custom' ? 'block' : 'none';
+  }
+});
+
+// ── Configuration ──────────────────────────────────────────────────────
+let opId = 0;
+const op = (systemName, operationData) => ({id: `op-${++opId}`, systemName, operationData});
+const marker = (name, start, end) => ({
+  id: `marker-${name}`,
+  name: `Marker${name.toUpperCase()}`,
+  duration: {start, end},
+  startOperations: [op('selectElement', {selector: `#marker-${name}`}), op('addClass', {className: 'active'})],
+  endOperations: [op('selectElement', {selector: `#marker-${name}`}), op('removeClass', {className: 'active'})],
+});
+
+function createConfig(scenario) {
+  const poster = $('opt-poster').value.trim();
+  return {
+    id: `video-bench-${scenario.key}`,
+    engine: {systemName: 'EligiusEngine'},
+    containerSelector: '#engine',
+    layoutTemplate: '<div class="markers"><div id="marker-a" class="marker">A: 2 s to 5 s</div><div id="marker-b" class="marker">B: 5 s to 8 s</div></div>',
+    cssFiles: [],
+    language: 'en-US',
+    availableLanguages: [],
+    initActions: [],
+    actions: [],
+    timelineProviderSettings: {
+      mediaplayer: {
+        positionSource: {
+          systemName: 'VideoPositionSource',
+          selector: '#video-stage',
+          sources: scenario.sources(),
+          ...(poster ? {poster} : {}),
+        },
+      },
+    },
+    timelines: [{
+      id: 'video',
+      uri: 'video',
+      type: 'mediaplayer',
+      duration: 10,
+      loop: $('opt-loop').checked,
+      selector: '#video-stage',
+      timelineActions: [marker('a', 2, 5), marker('b', 5, 8)],
+    }],
+  };
+}
+
+// ── Engine lifecycle ───────────────────────────────────────────────────
+let current = null; // {factory, result, removers}
+
+function videoElement() {
+  return document.querySelector('#video-stage video.eligius-video');
+}
+
+async function createEngine(scenario, {quiet = false} = {}) {
+  await destroyEngine({quiet});
+  $('video-stage').textContent = '';
+  const factory = new EngineFactory(new EligiusResourceImporter(), window);
+  const result = factory.createEngine(createConfig(scenario));
+  const {engine, eventbus} = result;
+  const removers = [];
+  if (!quiet) {
+    for (const name of ['start', 'pause', 'stop', 'duration', 'seekStart', 'seekComplete', 'timelineComplete', 'timelineFirstFrame']) {
+      removers.push(engine.on(name, (...args) => log(`engine ${name}${args.length ? ' ' + JSON.stringify(args) : ''}`)));
+    }
+    removers.push(engine.on('error', error => log(`engine error: ${describe(error)}`, 'err')));
+    eventbus.on('engine-command-error', (command, error) => log(`engine-command-error ${command}: ${describe(error)}`, 'err'));
+  }
+  current = {factory, result, removers};
+  return current;
+}
+
+async function destroyEngine({quiet = false} = {}) {
+  if (!current) {
+    return;
+  }
+  const {factory, result, removers} = current;
+  current = null;
+  removers.forEach(remove => remove());
+  try {
+    await result.destroy();
+  } catch (error) {
+    log(`destroy failed: ${describe(error)}`, 'err');
+  }
+  factory.destroy();
+  if (!quiet) {
+    log('destroyed');
+  }
+}
+
+/** Waits for engine.init() for at most INIT_LIMIT_MS. */
+async function timedInit(engine) {
+  const started = performance.now();
+  let timer;
+  const outcome = await Promise.race([
+    engine.init().then(() => ({result: 'resolve'}), error => ({result: 'reject', error})),
+    new Promise(resolve => { timer = setTimeout(() => resolve({result: 'hang'}), INIT_LIMIT_MS); }),
+  ]);
+  clearTimeout(timer);
+  return {...outcome, ms: Math.round(performance.now() - started)};
+}
+
+function setButtons(state) {
+  const live = state === 'ready';
+  for (const id of ['btn-start', 'btn-pause', 'btn-stop', 'btn-seek']) {
+    $(id).disabled = !live;
+  }
+  $('btn-destroy').disabled = state === 'none';
+  $('btn-init').disabled = state === 'busy';
+  $('btn-run-all').disabled = state === 'busy';
+}
+
+$('btn-init').onclick = async () => {
+  const scenario = selectedScenario();
+  setButtons('busy');
+  log(`init "${scenario.label}": ${JSON.stringify(scenario.sources())}`);
+  const {result} = await createEngine(scenario);
+  $('s-init').innerHTML = '<span class="badge pending">pending</span>';
+  const outcome = await timedInit(result.engine);
+  showInitOutcome(scenario, outcome);
+  setButtons(outcome.result === 'resolve' ? 'ready' : 'failed');
+};
+
+function showInitOutcome(scenario, outcome) {
+  const ok = scenario.expect === null || scenario.expect === outcome.result;
+  const text = `${outcome.result} after ${outcome.ms} ms${outcome.error ? `: ${describe(outcome.error)}` : ''}`;
+  $('s-init').innerHTML = `<span class="badge ${ok ? 'pass' : 'fail'}">${ok ? 'as expected' : 'UNEXPECTED'}</span> `;
+  $('s-init').append(text);
+  log(`init ${text}`, outcome.result === 'resolve' ? 'ok' : 'err');
+}
+
+const command = (name, run) => async () => {
+  if (!current) {
+    return;
+  }
+  log(`> ${name}`);
+  try {
+    const value = await run(current.result.engine);
+    if (value !== undefined) {
+      log(`${name} resolved ${JSON.stringify(value)}`, 'ok');
+    }
+  } catch (error) {
+    log(`${name} failed: ${describe(error)}`, 'err');
+  }
+};
+$('btn-start').onclick = command('start', engine => engine.start());
+$('btn-pause').onclick = command('pause', engine => engine.pause());
+$('btn-stop').onclick = command('stop', engine => engine.stop());
+$('btn-seek').onclick = command('seek', engine => engine.seek(Number($('seek-to').value)));
+$('btn-destroy').onclick = async () => {
+  setButtons('busy');
+  await destroyEngine();
+  $('s-init').textContent = '-';
+  $('video-stage').textContent = 'destroyed';
+  setButtons('none');
+};
+
+// ── Run all init checks ────────────────────────────────────────────────
+$('btn-run-all').onclick = async () => {
+  setButtons('busy');
+  $('results').textContent = '';
+  for (const scenario of SCENARIOS.filter(s => s.expect)) {
+    const row = $('results').insertRow();
+    row.innerHTML = '<td></td><td></td><td><span class="badge pending">running</span></td><td></td><td></td>';
+    row.cells[0].textContent = scenario.label;
+    row.cells[1].textContent = scenario.expect;
+    const {result} = await createEngine(scenario, {quiet: true});
+    const outcome = await timedInit(result.engine);
+    const src = videoElement()?.currentSrc ?? '';
+    const ok = outcome.result === scenario.expect &&
+      (scenario.key !== 'fallback' || src === BBB_MP4);
+    row.cells[2].innerHTML = `<span class="badge ${ok ? 'pass' : 'fail'}">${outcome.result}${ok ? '' : ' ✗'}</span>`;
+    row.cells[3].textContent = `${outcome.ms} ms`;
+    row.cells[4].textContent = outcome.error ? describe(outcome.error) : src ? `currentSrc: ${src}` : '';
+    log(`check "${scenario.label}": ${outcome.result} after ${outcome.ms} ms`, ok ? 'ok' : 'err');
+    await destroyEngine({quiet: true});
+  }
+  $('video-stage').textContent = 'checks finished';
+  $('s-init').textContent = '-';
+  setButtons('none');
+};
+
+// ── State panel ────────────────────────────────────────────────────────
+const READY = ['HAVE_NOTHING', 'HAVE_METADATA', 'HAVE_CURRENT_DATA', 'HAVE_FUTURE_DATA', 'HAVE_ENOUGH_DATA'];
+const NETWORK = ['NETWORK_EMPTY', 'NETWORK_IDLE', 'NETWORK_LOADING', 'NETWORK_NO_SOURCE'];
+setInterval(() => {
+  const engine = current?.result.engine;
+  const video = videoElement();
+  $('s-play').textContent = engine?.playState ?? '-';
+  $('s-pos').textContent = engine ? engine.position.toFixed(2) : '-';
+  $('s-dur').textContent = engine?.duration === undefined ? '-' : String(engine.duration);
+  $('s-src').textContent = video ? video.currentSrc || '(none)' : '-';
+  $('s-ready').textContent = video ? `${video.readyState} ${READY[video.readyState]}` : '-';
+  $('s-net').textContent = video ? `${video.networkState} ${NETWORK[video.networkState]}` : '-';
+  $('s-err').textContent = video?.error ? `code ${video.error.code} ${video.error.message}` : '-';
+}, 200);
+
+setButtons('none');
+log('ready: pick a scenario and click Init, or run all init checks');
+</script>
+</body>
+</html>
