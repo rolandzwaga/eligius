@@ -1,6 +1,11 @@
-import {assertSafePropertyChain} from '@operation/helper/assert-safe-property-chain.ts';
-import {getPropertyChainValue} from '@operation/helper/get-property-chain-value.ts';
-import {getGlobals, type TGlobalCache} from '@operation/helper/globals.ts';
+import {
+  assertParsedChainSafe,
+  findForbiddenSegment,
+  type IParsedSegments,
+  parseSegments,
+  walkChain,
+} from '@operation/helper/chain-cache.ts';
+import {getGlobals} from '@operation/helper/globals.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
 import {
   findDeclaringScope,
@@ -58,48 +63,97 @@ export const setData: TOperation<
   return operationData;
 };
 
+/**
+ * A target key such as `$scope.variables.total`, parsed once. The target text
+ * comes from the configuration, so the parsed form is cached.
+ */
+interface IParsedTarget {
+  rootTarget: string;
+  /** The chain before the written property */
+  path: IParsedSegments;
+  /** The first segment of `path` as written, for {@link findDeclaringScope} */
+  head: string | undefined;
+  pathLength: number;
+  /** The property that is written */
+  property: string;
+  /** The target as printed in the "does not resolve to an object" message */
+  targetText: string;
+  /** A forbidden segment anywhere in the target, including the written property */
+  forbiddenSegment: string | undefined;
+}
+
+const MAX_CACHED_TARGETS = 2000;
+const parsedTargets = new Map<string, IParsedTarget>();
+
+function parseTarget(item: string): IParsedTarget {
+  const cached = parsedTargets.get(item);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const path = item.split('.');
+  const rootTarget = path.shift()?.toLowerCase().substring(1) ?? '';
+  if (!isDataTarget(rootTarget)) {
+    throw new Error(
+      `Unrecognized target: ${rootTarget}, known targets are: ${knownTargets.join(
+        ', '
+      )}`
+    );
+  }
+  // Guard every segment, including the property that is written, against
+  // prototype pollution before anything is resolved or assigned.
+  const forbiddenSegment = findForbiddenSegment(path);
+  const property = path.pop() ?? '';
+  const parsed: IParsedTarget = {
+    rootTarget,
+    path: parseSegments(path),
+    head: path[0],
+    pathLength: path.length,
+    property,
+    targetText: [`$${rootTarget}`, ...path].join('.'),
+    forbiddenSegment,
+  };
+  if (parsedTargets.size >= MAX_CACHED_TARGETS) {
+    parsedTargets.clear();
+  }
+  parsedTargets.set(item, parsed);
+  return parsed;
+}
+
 function resolveTargets(
   data: Record<TDataTarget, any>,
   operationData: Record<string, any>,
   scope: IOperationScope
 ) {
-  const propertyChains = Object.keys(data);
-
-  return propertyChains.forEach(item => {
-    const path = item.split('.');
-    const rootTarget = path.shift()?.toLowerCase().substring(1) ?? '';
-    if (!isDataTarget(rootTarget)) {
+  for (const item of Object.keys(data)) {
+    const target = parseTarget(item);
+    if (target.forbiddenSegment !== undefined) {
       throw new Error(
-        `Unrecognized target: ${rootTarget}, known targets are: ${knownTargets.join(
-          ', '
-        )}`
+        `setData: property chain '${item}' contains forbidden segment '${target.forbiddenSegment}'. Property chains may not contain __proto__, prototype or constructor.`
       );
     }
-    // Guard every segment, including the property that is written, against
-    // prototype pollution before anything is resolved or assigned.
-    assertSafePropertyChain(path, item, 'setData');
-    const property = path.pop() ?? '';
     const propertyValue = resolveExternalPropertyChain(
       operationData,
       scope,
       (data as any)[item]
     );
 
-    const targets: {
-      scope: IOperationScope;
-      operationdata: TOperationData;
-      globaldata: TGlobalCache;
-    } = {
+    let targetObject: TOperationData;
+    if (target.rootTarget === 'scope') {
       // An empty path (such as '$scope.newIndex') writes to the current scope.
-      scope:
-        path.length > 0 ? (findDeclaringScope(path[0], scope) ?? scope) : scope,
-      operationdata: operationData,
-      globaldata: getGlobals(),
-    };
+      targetObject =
+        target.pathLength > 0
+          ? (findDeclaringScope(target.head as string, scope) ?? scope)
+          : scope;
+    } else if (target.rootTarget === 'operationdata') {
+      targetObject = operationData;
+    } else {
+      targetObject = getGlobals();
+    }
 
-    const propertyTarget = getPropertyChainValue(
-      path,
-      (targets as any)[rootTarget],
+    assertParsedChainSafe(target.path, 'setData');
+    const propertyTarget = walkChain(
+      target.path,
+      targetObject,
       'setData'
     ) as Record<string, any>;
 
@@ -109,12 +163,12 @@ function resolveTargets(
         typeof propertyTarget !== 'function')
     ) {
       throw new Error(
-        `setData: cannot write '${item}': '${[`$${rootTarget}`, ...path].join('.')}' does not resolve to an object`
+        `setData: cannot write '${item}': '${target.targetText}' does not resolve to an object`
       );
     }
 
-    propertyTarget[property] = propertyValue;
-  });
+    propertyTarget[target.property] = propertyValue;
+  }
 }
 
 const knownTargets = ['scope', 'operationdata', 'globaldata'];

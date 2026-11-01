@@ -1,4 +1,8 @@
-import {findMatchingOperationIndex} from '@operation/helper/find-matching-operation-index.ts';
+import {findMatchingEndIndex} from '@operation/helper/flow-control-index.ts';
+import {
+  endWhenSystemName,
+  whenSystemName,
+} from '@operation/helper/flow-control-names.ts';
 import type {IOperationScope, TOperation} from '@operation/types.ts';
 
 /**
@@ -17,18 +21,11 @@ export const otherwise: TOperation<Record<string, unknown>> = function (
 };
 
 function findEndWhenIndex(scope: IOperationScope) {
-  const currentIndex = scope.currentIndex + 1;
-  const list = scope.operations.slice(currentIndex);
-
-  const endWhenIndex = list.findIndex(
-    findMatchingOperationIndex.bind({
-      counter: 0,
-      self: 'when',
-      matchingName: 'endWhen',
-    })
+  const endWhenIndex = findMatchingEndIndex(
+    scope.operations,
+    scope.currentIndex + 1,
+    whenSystemName,
+    endWhenSystemName
   );
-
-  return endWhenIndex > -1
-    ? endWhenIndex + currentIndex
-    : scope.operations.length;
+  return endWhenIndex > -1 ? endWhenIndex : scope.operations.length;
 }

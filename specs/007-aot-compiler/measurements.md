@@ -119,3 +119,30 @@ A real Eligian-produced presentation is composition-heavy and loop-free. The com
 - (c) owner wants compiled output for another reason: open.
 
 Phase 1 should re-run section 1 after the fast paths land and record the new ratios here.
+
+## 6. Phase 1 results: interpreter fast paths
+
+Measured on 2026-11-01 in one session, both builds within minutes of each other (the hand-written jQuery variant, which touches no Eligius code, stayed at 0.008 ms in both runs). Before is commit `8913c4f6`, after is the Phase 1 commit.
+
+| Scenario | before | after | speedup | ceiling before | ceiling after |
+|---|---|---|---|---|---|
+| full: 13 ops, when, forEach over 20 | 0.194 ms | 0.095 ms | 2.04x | 0.130 ms | 0.063 ms |
+| no forEach: 9 ops with when | 0.016 ms | 0.012 ms | 1.34x | 0.011 ms | 0.010 ms |
+| no when: 8 ops, forEach over 20 | 0.178 ms | 0.092 ms | 1.94x | 0.124 ms | 0.062 ms |
+| large loop: 13 ops, forEach over 200 | 1.576 ms | 0.794 ms | 1.99x | 1.128 ms | 0.508 ms |
+
+What changed: parsed property chains, `when` expressions and `setData` targets are cached; `deepCopy` assigns keys instead of defining them and creates its cycle map lazily; the block scans share one allocation-free implementation. The copy-on-write in `resolvePropertyValues` (decision 8) was not shipped: sharing the configured `properties` object with the result is observable by anything that holds an earlier bag, so equivalence could not be proven. The faster `deepCopy` recovers most of that gain exactly.
+
+Attribution (`src/test/bench/action-pieces.bench.ts`, after):
+
+| Piece | cost |
+|---|---|
+| dispatch of one operation with primitive configured data | 0.07 µs |
+| dispatch of one operation with nested configured data (includes `deepCopy`) | 0.27 µs (was 0.73 µs) |
+| one `forEach` iteration with two no-op operations (loop bookkeeping) | 0.9 µs |
+| `setOperationData` resolving `$scope.currentItem` | 0.7 µs (was 1.1 µs) |
+| `setData` resolving `$operationdata.label` | 0.6 µs |
+
+The loop bookkeeping is now the largest remaining interpreter cost. It comes from `delete` on scope fields (`newIndex`, `currentItem`, the loop fields) on every iteration, which changes the scope object's shape, and from the child scope's getter and setter for `currentIndex`. Removing the deletes is observable (`findDeclaringScope` uses `in`), so it is not a Phase 1 change.
+
+Reading against gate G1 after Phase 1: the ceiling over the interpreter is 1.5x on the loop scenarios (0.063 vs 0.095 ms, 0.508 vs 0.794 ms) and 1.2x without a loop. Criterion (b) is still not met.

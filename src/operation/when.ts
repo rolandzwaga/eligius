@@ -1,9 +1,14 @@
-import {
-  evaluateExpression,
-  parseExpression,
-} from '@operation/helper/parse-expression.ts';
+import {getParsedExpression} from '@operation/helper/expression-cache.ts';
+import {findNextFlowControlIndex} from '@operation/helper/flow-control-index.ts';
+import {evaluateExpression} from '@operation/helper/parse-expression.ts';
 import {removeProperties} from '@operation/helper/remove-operation-properties.ts';
-import type {IOperationScope, TOperation} from '@operation/types.ts';
+import type {TOperation} from '@operation/types.ts';
+
+export {
+  endWhenSystemName,
+  otherwiseSystemName,
+  whenSystemName,
+} from '@operation/helper/flow-control-names.ts';
 
 /**
  * A condition expression, see {@link when} for the grammar.
@@ -89,7 +94,9 @@ export const when: TOperation<
   IWhenOperationData,
   Omit<IWhenOperationData, 'expression'>
 > = function (operationData: IWhenOperationData) {
-  const condition = parseExpression(operationData.expression, 'when');
+  // The expression text comes from the configuration, so the parsed tree is
+  // cached and shared between executions.
+  const condition = getParsedExpression(operationData.expression, 'when');
   const evaluation = evaluateExpression(condition, operationData, this);
 
   removeProperties(operationData, 'expression');
@@ -97,35 +104,13 @@ export const when: TOperation<
   this.whenEvaluation = evaluation;
 
   if (!this.whenEvaluation) {
-    this.newIndex = findNextFlowControlIndex(this);
+    // The `otherwise` or `endWhen` that belongs to this `when`, skipping
+    // nested when/otherwise/endWhen blocks.
+    this.newIndex = findNextFlowControlIndex(
+      this.operations,
+      this.currentIndex + 1
+    );
   }
 
   return operationData;
 };
-
-/**
- * Finds the `otherwise` or `endWhen` that belongs to this `when`, skipping nested
- * when/otherwise/endWhen blocks (whether or not they have an `otherwise`).
- */
-function findNextFlowControlIndex(scope: IOperationScope) {
-  const {operations} = scope;
-  let depth = 0;
-  for (let i = scope.currentIndex + 1; i < operations.length; i++) {
-    const {systemName} = operations[i];
-    if (systemName === whenSystemName) {
-      depth++;
-    } else if (systemName === endWhenSystemName) {
-      if (depth === 0) {
-        return i;
-      }
-      depth--;
-    } else if (systemName === otherwiseSystemName && depth === 0) {
-      return i;
-    }
-  }
-  return operations.length;
-}
-
-export const whenSystemName = 'when';
-export const otherwiseSystemName = 'otherwise';
-export const endWhenSystemName = 'endWhen';

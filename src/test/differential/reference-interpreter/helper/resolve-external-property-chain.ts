@@ -2,13 +2,13 @@
 // Reference interpreter for the differential harness of specs/007-aot-compiler
 // (Phase 1: old interpreter vs optimised interpreter). Delete after Phase 4.
 
-import {deepCopy} from '@operation/helper/deep-copy.ts';
 import {getGlobals} from '@operation/helper/globals.ts';
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
 import {
   assertSafePropertyChain,
   getCurrentOperationName,
 } from './assert-safe-property-chain.ts';
+import {deepCopy} from './deep-copy.ts';
 import {getPropertyChainValue} from './get-property-chain-value.ts';
 
 /**

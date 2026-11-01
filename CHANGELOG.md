@@ -1,5 +1,19 @@
 # Change Log
 
+## Unreleased
+
+### Performance
+
+- Property chains, `when` expressions and `setData` targets are parsed once and cached (`src/operation/helper/chain-cache.ts`, `expression-cache.ts`). Before, every execution split, lower-cased, bracket-expanded and safety-checked the chain text again. Error messages are unchanged. The caches are bounded and are cleared when the last engine is destroyed, like the global data store.
+- `deepCopy` assigns plain keys instead of defining them and creates its cycle map only when nested data appears, about 3x faster on typical configured operation data. The result is identical, including an own `__proto__` key staying a data property.
+- The block scans of `when`, `otherwise`, `forEach`, `breakForEach` and `continueForEach` share one allocation-free implementation (`src/operation/helper/flow-control-index.ts`).
+- Measured with `npm run bench`: a 13-operation action with a 20-item `forEach` runs in 0.095 ms instead of 0.194 ms (2.0x), the same action without the loop in 0.012 ms instead of 0.016 ms, and a 200-item loop in 0.79 ms instead of 1.58 ms. See specs/007-aot-compiler/measurements.md.
+
+### Internal
+
+- A differential test harness (`src/test/differential/`) runs 32 pinned interpreter quirks and 1000 fuzzed operation lists per run through both the interpreter and a pinned copy of the previous one, and requires identical data, traces, errors and globals. fast-check is a new devDependency.
+- `src/operation/helper/find-matching-operation-index.ts` is removed; it was not exported.
+
 ## 4.0.0
 
 `VideoPositionSource` plays media with the browser's own `<video>` element, and Eligius no longer depends on video.js in any form. video.js 10 removed the player API that 3.x used, so the integration could not be upgraded. Read the breaking changes and the migration steps before upgrading from 3.x.

@@ -4,11 +4,11 @@
 import type {IAction} from '@action/types.ts';
 import type {IResolvedOperation} from '@configuration/types.ts';
 import type {IEventbus} from '@eventbus/types.ts';
-import {deepCopy} from '@operation/helper/deep-copy.ts';
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
 import {isPlainObject} from '@util/guards/is-plain-object.ts';
 import {isPromise} from '@util/guards/is-promise.ts';
 import {endForEachSystemName, forEachSystemName} from './for-each.ts';
+import {deepCopy} from './helper/deep-copy.ts';
 import {endWhenSystemName, whenSystemName} from './when.ts';
 
 export class Action implements IAction {

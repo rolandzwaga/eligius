@@ -27,6 +27,8 @@ import {
   RequestVideoUriInterceptor,
   type TEventbusRemover,
 } from '@eventbus/index.ts';
+import {clearChainCache} from '@operation/helper/chain-cache.ts';
+import {clearExpressionCache} from '@operation/helper/expression-cache.ts';
 import {clearGlobals} from '@operation/helper/globals.ts';
 import {clearJsonCache} from '@operation/load-json.ts';
 import type {
@@ -287,6 +289,8 @@ export class EngineFactory implements IEngineFactory {
       if (liveEngineCount === 0) {
         clearGlobals();
         clearJsonCache();
+        clearExpressionCache();
+        clearChainCache();
       }
     };
     let engineInputAdapter: EngineInputAdapter;

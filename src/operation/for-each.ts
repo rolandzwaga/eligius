@@ -1,6 +1,10 @@
 import type {breakForEach} from '@operation/break-for-each.ts';
 import type {continueForEach} from '@operation/continue-for-each.ts';
-import {findMatchingOperationIndex} from '@operation/helper/find-matching-operation-index.ts';
+import {findMatchingEndIndex} from '@operation/helper/flow-control-index.ts';
+import {
+  endForEachSystemName,
+  forEachSystemName,
+} from '@operation/helper/flow-control-names.ts';
 import {
   type ExternalProperty,
   resolveExternalPropertyChain,
@@ -112,21 +116,13 @@ function resolveCollection(
 }
 
 function findEndForEachIndex(scope: IOperationScope) {
-  const currentIndex = scope.currentIndex + 1;
-  const list = scope.operations.slice(currentIndex);
-
-  const index = list.findIndex(
-    findMatchingOperationIndex.bind({
-      counter: 0,
-      self: forEachSystemName,
-      matchingName: endForEachSystemName,
-    })
+  const index = findMatchingEndIndex(
+    scope.operations,
+    scope.currentIndex + 1,
+    forEachSystemName,
+    endForEachSystemName
   );
-  const endLoopIndex =
-    index > -1 ? index + currentIndex : scope.operations.length;
-
-  return endLoopIndex;
+  return index > -1 ? index : scope.operations.length;
 }
 
-export const forEachSystemName = 'forEach';
-export const endForEachSystemName = 'endForEach';
+export {endForEachSystemName, forEachSystemName};

@@ -202,7 +202,7 @@ Never use `../../..` paths across modules.
 
 **Read [specs/TESTING-GUIDE.md](specs/TESTING-GUIDE.md) before writing or changing tests.** It covers fixtures, mocking patterns, timer mocking, `vi.hoisted()`, and the vmThreads pool.
 
-- Tests live in `src/test/unit/` (mirroring `src/`) and `src/test/integration/`. Extension `.spec.ts`.
+- Tests live in `src/test/unit/` (mirroring `src/`), `src/test/integration/` and `src/test/differential/` (interpreter vs a pinned reference copy; see its README). Extension `.spec.ts`. Benchmarks live in `src/test/bench/` and run with `npm run bench` only.
 - Example: `src/operation/add-class.ts` is tested by `src/test/unit/operation/add-class.spec.ts`.
 - Environment is jsdom with `globals: true`. `pool: 'vmThreads'` gives each file its own VM context. Mock globals with `vi.stubGlobal`, never assign to `window` or `global`.
 - `clearMocks`, `restoreMocks`, `unstubEnvs`, `unstubGlobals` are all on, so mocks reset between tests automatically.
@@ -313,11 +313,12 @@ export const addClass: TOperation<
 6. Document with TypeDoc comments.
 
 ### Operation helpers (`src/operation/helper/`)
-- `getPropertyChainValue`, `resolvePropertyChain`, `resolveExternalPropertyChain`, `resolvePropertyValues`, `internalResolve`: property path resolution against operation data
+- `getPropertyChainValue`, `resolvePropertyChain`, `resolveExternalPropertyChain`, `resolvePropertyValues`, `internalResolve`: property path resolution against operation data. `chain-cache.ts` parses chain text once (`getParsedChain`, `parseSegments`, `walkChain`); `expression-cache.ts` caches parsed `when` expressions. Both caches are cleared when the last engine is destroyed.
+- `flow-control-index.ts` holds the block scans used by `when`, `otherwise`, `forEach` and the loop jumps; `flow-control-names.ts` holds the control-flow system names
 - `getElementData`, `modifyDimensions`, `attachControllerToElement`: DOM helpers
 - `mergeOperationData`, `removeProperties`, `deepCopy`: data helpers
 - `getGlobals`, `setGlobals`, `clearGlobals` (`globals.ts`) and `setGlobal`, `removeGlobal`: global variable store
-- `findMatchingOperationIndex`, `resolveEventArguments`
+- `resolveEventArguments`
 
 ### Controllers
 

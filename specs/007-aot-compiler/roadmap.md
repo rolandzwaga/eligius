@@ -410,6 +410,8 @@ function* HighlightItems$start(c, d) {
 
 ### Phase 1: interpreter fast paths, quirks suite, harness · 1.5 weeks
 
+**Status (2026-11-01): done on branch feat/aot-compiler-phase-0.** Quirks suite (32), differential harness (1000 fuzzed cases per run, fast-check), chain and expression caches, shared flow-control scans, faster deepCopy. Full action 2.04x faster; see measurements.md section 6. The reference interpreter is pinned at d937f6be.
+
 **Deliverables**
 
 - The quirks suite, written and green **before** any change.
@@ -545,6 +547,7 @@ If none holds, the feature ends here. Record the decision in measurements.md.
 6. **CLI bins:** none. Ship programmatic APIs only; Eligian or build plugins wrap them.
 7. **Jump guards in generated code:** universal guards after every operation. No pruning allowlist.
 8. **resolvePropertyValues copy-on-write:** ship only if the Phase 1 quirks suite proves full equivalence, including the forEach loop-aliasing case. Otherwise keep the double copy.
+   Outcome (Phase 1, 2026-11-01): not shipped. Sharing the configured `properties` object with the result is observable by anything that holds an earlier bag, for example a controller whose `init` received it by reference, so equivalence cannot be proven. `deepCopy` itself was made about 3x faster instead, which is exact.
 
 ## 12. Measurement plan (how to prove the benefit)
 

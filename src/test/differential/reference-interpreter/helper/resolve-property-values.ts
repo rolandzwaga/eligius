@@ -1,9 +1,10 @@
 // PINNED COPY of src/operation/helper/resolve-property-values.ts at commit d937f6be. Do not edit.
 // Reference interpreter for the differential harness of specs/007-aot-compiler
 // (Phase 1: old interpreter vs optimised interpreter). Delete after Phase 4.
-import {deepCopy} from '@operation/helper/deep-copy.ts';
+
 import type {IOperationScope, TOperationData} from '@operation/types.ts';
 import {isPlainObject} from '@util/guards/is-plain-object.ts';
+import {deepCopy} from './deep-copy.ts';
 import type {ExternalProperty} from './resolve-external-property-chain.ts';
 import {
   isExternalProperty,

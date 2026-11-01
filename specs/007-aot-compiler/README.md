@@ -15,7 +15,7 @@ Verdict: Go with conditions. Build the interpreter fast paths, the bundle-size f
 
 Estimate: About 5-6 weeks for Phases 0-3 (measurement, interpreter fast paths, tree-shakable runtime entry, eligius/lint), for one developer with an AI assistant. If gate G1 passes, Phases 4-5 (guarded codegen, intrinsics, CLI) add about 3.5-4 weeks, for 9-10 weeks in total.
 
-Status: Phase 0 (measure) done on 2026-11-01 on branch feat/aot-compiler-phase-0. Next: Phase 1 (interpreter fast paths, quirks suite, differential harness).
+Status: Phase 0 (measure) and Phase 1 (interpreter fast paths, quirks suite, differential harness) done on 2026-11-01 on branch feat/aot-compiler-phase-0. Next: Phase 2 (tree-shakable runtime entry, scoped down per measurements.md section 3).
 
 First action (done): Port the dossier's temporary benchmark into src/test/bench/action-overhead.bench.ts and add an `npm run bench` script (vitest bench). Include the "direct-call ceiling" variant: hand-written structured if/for that calls the real operation functions with real pushed scopes. Run it and record the four numbers in specs/007-aot-compiler/measurements.md.
 

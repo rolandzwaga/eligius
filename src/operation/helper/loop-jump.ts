@@ -1,6 +1,10 @@
 import {clearLoopCollection} from '@operation/for-each.ts';
+import {findMatchingEndIndex} from '@operation/helper/flow-control-index.ts';
+import {
+  endWhenSystemName,
+  whenSystemName,
+} from '@operation/helper/flow-control-names.ts';
 import type {IOperationScope} from '@operation/types.ts';
-import {endWhenSystemName, whenSystemName} from '@operation/when.ts';
 
 /**
  * The kind of loop jump requested by `breakForEach` or `continueForEach`.
@@ -120,18 +124,10 @@ function findLoopScope(scope: IOperationScope): IOperationScope | undefined {
  * operation is in, skipping nested when/endWhen pairs, or -1 if there is none.
  */
 function findEnclosingEndWhenIndex(scope: IOperationScope) {
-  const {operations} = scope;
-  let depth = 0;
-  for (let i = scope.currentIndex + 1; i < operations.length; i++) {
-    const {systemName} = operations[i];
-    if (systemName === whenSystemName) {
-      depth++;
-    } else if (systemName === endWhenSystemName) {
-      if (depth === 0) {
-        return i;
-      }
-      depth--;
-    }
-  }
-  return -1;
+  return findMatchingEndIndex(
+    scope.operations,
+    scope.currentIndex + 1,
+    whenSystemName,
+    endWhenSystemName
+  );
 }

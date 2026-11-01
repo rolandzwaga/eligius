@@ -53,7 +53,10 @@ const chain = fc.constantFrom(
   '$globaldata.g',
   '$globaldata.obj.n',
   '$operationdata.missing.deeper',
-  '$operationdata.a.__proto__'
+  '$operationdata.a.__proto__',
+  '$OperationData.a',
+  '$operationdata.items[1]+px',
+  '$operationdata.prototype[0]'
 );
 
 const operand = fc.oneof(
