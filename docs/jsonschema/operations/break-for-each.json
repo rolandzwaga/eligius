@@ -1,22 +1,27 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/break-for-each-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/break-for-each.json",
   "type": "object",
-  "title": "The breakForEach schema",
-  "description": "This operation should only be used within a loop, so between a {@link forEach} and {@link endForEach}\noperation. This operation immediately moves to the loop end index, effectively stopping the loop.",
-  "required": ["systemName"],
+  "title": "breakForEach Operation",
+  "description": "Schema for the breakForEach operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "breakForEach"
+      "const": "breakForEach",
+      "description": "The operation system name"
+    },
+    "operationData": {
+      "type": "object",
+      "description": "Operation-specific configuration data",
+      "additionalProperties": true
     }
-  }
+  },
+  "additionalProperties": false
 }

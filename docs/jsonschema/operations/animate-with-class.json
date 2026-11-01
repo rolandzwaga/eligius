@@ -1,39 +1,44 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/animate-with-class-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/animate-with-class.json",
   "type": "object",
-  "title": "The animateWithClass schema",
-  "description": "This operation adds the specified class name to the specified selected element and assumes that this\nclass triggers and animation on the selected element. It then waits for this animation to complete\nbefore it resolves.",
-  "required": ["systemName", "operationData"],
+  "title": "animateWithClass Operation",
+  "description": "Schema for the animateWithClass operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "animateWithClass"
+      "const": "animateWithClass",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["className"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "className": {
-          "$id": "#/properties/operationData/className",
-          "type": ["string"],
-          "pattern": ".-?[_a-zA-Z]+[_a-zA-Z0-9-]*"
+          "type": "string"
         },
         "removeClass": {
-          "$id": "#/properties/operationData/removeClass",
-          "type": "array"
+          "type": "boolean",
+          "description": "When true (the default), the class is removed again after the animation ends"
+        },
+        "includeDescendants": {
+          "type": "boolean",
+          "description": "When true, the operation resolves on the first `animationend` event from the selected element or any of its descendants. Use this for a class that only animates descendants. When false (the default), only animations on the selected elements themselves are awaited."
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "className"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

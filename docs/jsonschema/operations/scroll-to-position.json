@@ -1,42 +1,52 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/scroll-to-position-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/scroll-to-position.json",
   "type": "object",
-  "title": "The scrollToPosition schema",
-  "description": "Scrolls the viewport to a specific x,y coordinate position.\n\nUses the browser's `window.scrollTo` API with configurable behavior.",
-  "required": ["systemName", "operationData"],
+  "title": "scrollToPosition Operation",
+  "description": "Schema for the scrollToPosition operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "scrollToPosition"
+      "const": "scrollToPosition",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["x", "y"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "x": {
-          "$id": "#/properties/operationData/x",
-          "type": ["number"]
+          "type": "number"
         },
         "y": {
-          "$id": "#/properties/operationData/y",
-          "type": ["number"]
+          "type": "number"
         },
         "behavior": {
-          "$id": "#/properties/operationData/behavior",
-          "type": "array"
+          "$ref": "#/definitions/ScrollBehavior"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "x",
+        "y"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ScrollBehavior": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "smooth"
+      ]
     }
   }
 }

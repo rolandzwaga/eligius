@@ -256,6 +256,10 @@ export interface IEngineInputOptions {
    * The key is bound in the hotkeys-js `'all'` scope, so it keeps working
    * whatever scope a KeyboardStepSource or the host page sets. The
    * hotkeys-js global `filter` still applies.
+   *
+   * A `KeyboardController` of the engine that binds the same key takes it
+   * over: a press the controller handles runs its actions and does not
+   * toggle playback.
    */
   playToggle?: string | false;
   /**

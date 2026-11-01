@@ -1,41 +1,51 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/http-put-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/http-put.json",
   "type": "object",
-  "title": "The httpPut schema",
-  "description": "Performs an HTTP PUT request to the specified URL.",
-  "required": ["systemName", "operationData"],
+  "title": "httpPut Operation",
+  "description": "Schema for the httpPut operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "httpPut"
+      "const": "httpPut",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["url"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "url": {
-          "$id": "#/properties/operationData/url",
-          "type": ["string"]
+          "type": "string"
         },
-        "body": {
-          "$id": "#/properties/operationData/body",
-          "type": ["object"]
-        },
+        "body": {},
         "headers": {
-          "$id": "#/properties/operationData/headers",
-          "type": "array"
+          "$ref": "#/definitions/Record%3Cstring%2Cstring%3E"
+        },
+        "response": {},
+        "status": {
+          "type": "number"
         }
+      },
+      "additionalProperties": true,
+      "required": [
+        "url"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Record<string,string>": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
       }
     }
   }

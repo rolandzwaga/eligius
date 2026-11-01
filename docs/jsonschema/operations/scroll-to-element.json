@@ -1,42 +1,56 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/scroll-to-element-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/scroll-to-element.json",
   "type": "object",
-  "title": "The scrollToElement schema",
-  "description": "Scrolls the viewport to bring the selected element into view.\n\nUses the browser's `scrollIntoView` API with configurable behavior.",
-  "required": ["systemName", "operationData"],
+  "title": "scrollToElement Operation",
+  "description": "Schema for the scrollToElement operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "scrollToElement"
+      "const": "scrollToElement",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
         "behavior": {
-          "$id": "#/properties/operationData/behavior",
-          "type": "array"
+          "$ref": "#/definitions/ScrollBehavior"
         },
         "block": {
-          "$id": "#/properties/operationData/block",
-          "type": "array"
+          "$ref": "#/definitions/ScrollLogicalPosition"
         },
         "inline": {
-          "$id": "#/properties/operationData/inline",
-          "type": "array"
+          "$ref": "#/definitions/ScrollLogicalPosition"
         }
-      }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "ScrollBehavior": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "smooth"
+      ]
+    },
+    "ScrollLogicalPosition": {
+      "type": "string",
+      "enum": [
+        "start",
+        "center",
+        "end",
+        "nearest"
+      ]
     }
   }
 }

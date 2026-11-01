@@ -1,4 +1,13 @@
 import type {IEventbus, TEventbusRemover} from '@eventbus/types.ts';
+import {
+  handlesKeyPress,
+  type IKeyboardParticipant,
+  isClaimedByController,
+  joinKeyboardRegistry,
+  pressedShortcutId,
+  shortcutId,
+  splitShortcuts,
+} from '@util/keyboard-input-registry.ts';
 import hotkeys, {type HotkeysEvent} from 'hotkeys-js';
 import type {
   IEligiusEngine,
@@ -31,144 +40,6 @@ const interactiveSelector =
 const inputScopes: readonly TEngineInputScope[] = ['document', 'engineRoot'];
 
 /**
- * Splits a hotkeys-js key description into its comma separated shortcuts,
- * the way hotkeys-js does, lower cased so `'Space'` and `'space'` match.
- */
-function splitShortcuts(key: string): string[] {
-  const keys = key.replace(/\s/g, '').toLowerCase().split(',');
-  // An empty part after a trailing ',' means the comma key itself ('ctrl+,')
-  const last = keys.lastIndexOf('');
-  if (last >= 0) {
-    keys.splice(last, 1);
-    if (keys.length) {
-      keys[keys.length - 1] += ',';
-    }
-  }
-  return keys;
-}
-
-/**
- * One adapter whose play toggle handles key presses made while nothing has
- * focus (`scope: 'document'`).
- */
-interface IPlayToggleParticipant {
-  /** Lower cased shortcuts of the play toggle hotkey */
-  readonly shortcuts: readonly string[];
-  /** Whether the engine has an active timeline to toggle */
-  isReady(): boolean;
-  /** The engine root element, if it is resolved */
-  root(): Element | undefined;
-}
-
-interface IPlayToggleRegistry {
-  /** Live participants in connection order */
-  participants: Set<IPlayToggleParticipant>;
-  /** The participant whose engine root the user touched or focused last */
-  lastInteracted: IPlayToggleParticipant | undefined;
-  removeInteractionListeners: () => void;
-}
-
-/**
- * Participants per document. Every adapter binds its own hotkeys-js handler,
- * and hotkeys-js calls all handlers bound to a key, so the handlers of one
- * key press agree through this registry on the one engine that toggles when
- * nothing has focus.
- */
-const playToggleRegistries = new Map<Document, IPlayToggleRegistry>();
-
-function createPlayToggleRegistry(doc: Document): IPlayToggleRegistry {
-  const registry: IPlayToggleRegistry = {
-    participants: new Set(),
-    lastInteracted: undefined,
-    removeInteractionListeners: () => {},
-  };
-  const onInteraction = (event: Event) => {
-    const target = event.target as Node | null;
-    if (!target) {
-      return;
-    }
-    for (const candidate of registry.participants) {
-      if (candidate.root()?.contains(target)) {
-        registry.lastInteracted = candidate;
-        return;
-      }
-    }
-  };
-  const listenerOptions: AddEventListenerOptions = {
-    capture: true,
-    passive: true,
-  };
-  doc.addEventListener('pointerdown', onInteraction, listenerOptions);
-  doc.addEventListener('focusin', onInteraction, listenerOptions);
-  registry.removeInteractionListeners = () => {
-    doc.removeEventListener('pointerdown', onInteraction, listenerOptions);
-    doc.removeEventListener('focusin', onInteraction, listenerOptions);
-  };
-  return registry;
-}
-
-/**
- * Adds a participant to the registry of the document, creating the registry
- * and its interaction listeners for the first one.
- *
- * @returns A function that removes the participant again, and the registry
- * with its listeners after the last one
- */
-function joinPlayToggleRegistry(
-  doc: Document,
-  participant: IPlayToggleParticipant
-): () => void {
-  let registry = playToggleRegistries.get(doc);
-  if (!registry) {
-    registry = createPlayToggleRegistry(doc);
-    playToggleRegistries.set(doc, registry);
-  }
-  const joined = registry;
-  joined.participants.add(participant);
-
-  return () => {
-    joined.participants.delete(participant);
-    if (joined.lastInteracted === participant) {
-      joined.lastInteracted = undefined;
-    }
-    if (joined.participants.size === 0) {
-      joined.removeInteractionListeners();
-      if (playToggleRegistries.get(doc) === joined) {
-        playToggleRegistries.delete(doc);
-      }
-    }
-  };
-}
-
-/**
- * The participant that handles a press of `shortcut` made while nothing has
- * focus: among the engines that bind that shortcut and have an active
- * timeline, the one the user last clicked or focused inside, otherwise the
- * first connected one.
- */
-function electPlayToggleParticipant(
-  doc: Document,
-  shortcut: string
-): IPlayToggleParticipant | undefined {
-  const registry = playToggleRegistries.get(doc);
-  if (!registry) {
-    return undefined;
-  }
-  const candidates = [...registry.participants].filter(
-    participant =>
-      participant.shortcuts.includes(shortcut) && participant.isReady()
-  );
-  const {lastInteracted} = registry;
-  if (lastInteracted && candidates.includes(lastInteracted)) {
-    return lastInteracted;
-  }
-  return candidates[0];
-}
-
-/** Where the focus was when a key was pressed, seen from one engine. */
-type TFocusLocation = 'none' | 'interactive' | 'engineRoot' | 'elsewhere';
-
-/**
  * Handles external input sources (hotkeys, resize).
  *
  * This adapter:
@@ -181,7 +52,9 @@ type TFocusLocation = 'none' | 'interactive' | 'engineRoot' | 'elsewhere';
  *   When several engines on a page could handle an unfocused press, only
  *   one toggles: the engine the user last clicked or focused inside,
  *   otherwise the first connected one. With `scope: 'engineRoot'` it only
- *   handles presses while the focus is inside the engine root.
+ *   handles presses while the focus is inside the engine root. A press that
+ *   a KeyboardController of the same engine handles is left to that
+ *   controller.
  * - Handles window resize events with debouncing, unless `resize` is
  *   `false`.
  */
@@ -258,29 +131,26 @@ export class EngineInputAdapter implements IAdapter {
     if (key === false) {
       return;
     }
-    const shortcuts = splitShortcuts(key);
     const doc = this._document();
-    let participant: IPlayToggleParticipant | undefined;
-    if (this._scope === 'document' && doc) {
-      participant = {
-        shortcuts,
-        isReady: () => this._engine.duration !== undefined,
-        root: () => this._root(),
-      };
-      this._removers.push(joinPlayToggleRegistry(doc, participant));
+    const participant: IKeyboardParticipant = {
+      kind: 'playToggle',
+      shortcutIds: splitShortcuts(key).map(shortcutId),
+      unfocused: this._scope === 'document',
+      isReady: () => this._engine.duration !== undefined,
+      root: () => this._root(),
+      acceptsFocus: element =>
+        !element.closest(interactiveSelector) &&
+        (this._root()?.contains(element) ?? false),
+    };
+    if (doc) {
+      this._removers.push(joinKeyboardRegistry(doc, participant));
     }
 
     const handler = (
       keyboardEvent: KeyboardEvent,
       hotkeysEvent: HotkeysEvent
     ): void | boolean =>
-      this._handlePlayToggle(
-        keyboardEvent,
-        hotkeysEvent,
-        shortcuts,
-        doc,
-        participant
-      );
+      this._handlePlayToggle(keyboardEvent, hotkeysEvent, doc, participant);
     // Bind in the 'all' scope explicitly, and unbind from it explicitly:
     // without a scope hotkeys.unbind() uses the *current* scope, which a
     // KeyboardStepSource may have changed.
@@ -291,24 +161,17 @@ export class EngineInputAdapter implements IAdapter {
   private _handlePlayToggle(
     keyboardEvent: KeyboardEvent,
     hotkeysEvent: HotkeysEvent | undefined,
-    shortcuts: readonly string[],
     doc: Document | undefined,
-    participant: IPlayToggleParticipant | undefined
+    participant: IKeyboardParticipant
   ): void | boolean {
-    if (this._engine.duration === undefined) {
-      return;
-    }
-    const focus = this._focusLocation(keyboardEvent.target);
-    let handles = focus === 'engineRoot';
-    if (focus === 'none' && participant && doc) {
-      const shortcut =
-        typeof hotkeysEvent?.key === 'string'
-          ? hotkeysEvent.key.replace(/\s/g, '').toLowerCase()
-          : shortcuts[0];
-      handles = electPlayToggleParticipant(doc, shortcut) === participant;
-    }
-    if (!handles) {
-      // Leave the key to the page (scrolling, a focused button, another engine)
+    const id = pressedShortcutId(hotkeysEvent, participant.shortcutIds);
+    if (
+      !handlesKeyPress(doc, participant, keyboardEvent, id) ||
+      // A KeyboardController of this engine bound the same key
+      isClaimedByController(doc, this._root(), keyboardEvent, id)
+    ) {
+      // Leave the key to the page (scrolling, a focused button, another
+      // engine) or to the controller
       return;
     }
 
@@ -323,31 +186,6 @@ export class EngineInputAdapter implements IAdapter {
     }
 
     return false;
-  }
-
-  /**
-   * Where the focus is for a key press with this target: nowhere (the
-   * target is missing, the document or its body), on an interactive
-   * element, inside the engine root, or elsewhere on the page.
-   */
-  private _focusLocation(
-    target: EventTarget | null | undefined
-  ): TFocusLocation {
-    const element = target as Element | null | undefined;
-    if (!element || typeof element.closest !== 'function') {
-      return 'none';
-    }
-    const {ownerDocument} = element;
-    if (
-      element === ownerDocument?.body ||
-      element === ownerDocument?.documentElement
-    ) {
-      return 'none';
-    }
-    if (element.closest(interactiveSelector)) {
-      return 'interactive';
-    }
-    return this._root()?.contains(element) ? 'engineRoot' : 'elsewhere';
   }
 
   private _root(): Element | undefined {

@@ -1,42 +1,65 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/sort-array-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/sort-array.json",
   "type": "object",
-  "title": "The sortArray schema",
-  "description": "Sorts an array by property, natural order, or custom comparator function.\n\nOperates on arrayData passed from previous operations.\nSupports three sorting modes:\n1. Property sort: `sortProperty` and `sortOrder` to sort objects by property\n2. Natural sort: `sortOrder` alone for primitive arrays\n3. Custom comparator: `sortComparator` function for complex sorting logic",
-  "required": ["systemName", "operationData"],
+  "title": "sortArray Operation",
+  "description": "Schema for the sortArray operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "sortArray"
+      "const": "sortArray",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
         "sortProperty": {
-          "$id": "#/properties/operationData/sortProperty",
-          "type": "array"
+          "type": "string"
         },
         "sortOrder": {
-          "$id": "#/properties/operationData/sortOrder",
-          "type": "array"
+          "$ref": "#/definitions/SortOrder"
         },
         "sortComparator": {
-          "$id": "#/properties/operationData/sortComparator",
-          "type": "array"
+          "type": "object",
+          "properties": {
+            "namedArgs": {
+              "type": "object",
+              "properties": {
+                "a": {},
+                "b": {}
+              },
+              "required": [
+                "a",
+                "b"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "sortedArray": {
+          "type": "array",
+          "items": {}
         }
-      }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "SortOrder": {
+      "type": "string",
+      "enum": [
+        "asc",
+        "desc"
+      ]
     }
   }
 }

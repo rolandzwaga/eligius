@@ -532,7 +532,8 @@ export class ConfigurationFactory {
    *
    * @param name
    * @param eventName the event that starts the action. Without it the action can
-   * only be started by name (for example by a `DOMEventListenerController`).
+   * only be started by name (for example by a `DOMEventListenerController` or
+   * `KeyboardController`).
    * @param eventTopic optional topic of the event
    * @returns
    *

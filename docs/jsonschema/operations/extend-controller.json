@@ -1,34 +1,42 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/extend-controller-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/extend-controller.json",
   "type": "object",
-  "title": "The extendController schema",
-  "description": "Extends the current controller with given extension.",
-  "required": ["systemName", "operationData"],
+  "title": "extendController Operation",
+  "description": "This operation extends the specified controller instance with the specified extension.",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "extendController"
+      "const": "extendController",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["controllerExtension"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "controllerExtension": {
-          "$id": "#/properties/operationData/controllerExtension",
-          "type": ["object"]
+          "$ref": "#/definitions/Record%3CPropertyKey%2Cunknown%3E"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "controllerExtension"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Record<PropertyKey,unknown>": {
+      "type": "object",
+      "additionalProperties": {}
     }
   }
 }

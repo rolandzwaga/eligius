@@ -1,32 +1,72 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/validate-form-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/validate-form.json",
   "type": "object",
-  "title": "The validateForm schema",
-  "description": "Validates form fields against HTML5 validation and custom rules.\n\nUses HTML5 validation API (checkValidity()) for native validation, and supports\ncustom validation rules for: required, minLength, maxLength, pattern (regex), and email format.",
-  "required": ["systemName", "operationData"],
+  "title": "validateForm Operation",
+  "description": "Schema for the validateForm operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "validateForm"
+      "const": "validateForm",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
         "validationRules": {
-          "$id": "#/properties/operationData/validationRules",
-          "type": "array"
+          "$ref": "#/definitions/Record%3Cstring%2CIValidationRules%3E"
+        },
+        "validationErrors": {
+          "type": "object"
+        },
+        "isValid": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Record<string,IValidationRules>": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/IValidationRules"
+      }
+    },
+    "IValidationRules": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string",
+              "format": "regex"
+            }
+          ]
+        },
+        "email": {
+          "type": "boolean"
         }
       }
     }

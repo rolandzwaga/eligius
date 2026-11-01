@@ -1,38 +1,33 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/log-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/log.json",
   "type": "object",
-  "title": "The log schema",
-  "description": "This operation logs the specified value, or, when no logValue property has been assigned\nit will log the current operation data, global data and scope to the console",
-  "required": ["systemName", "operationData"],
+  "title": "log Operation",
+  "description": "Schema for the log operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "log"
+      "const": "log",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
-        "logValue": {
-          "$id": "#/properties/operationData/logValue",
-          "type": ["object", "string", "number", "boolean", "array"]
-        },
+        "logValue": {},
         "logName": {
-          "$id": "#/properties/operationData/logName",
-          "type": "array"
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": true
     }
-  }
+  },
+  "additionalProperties": false
 }

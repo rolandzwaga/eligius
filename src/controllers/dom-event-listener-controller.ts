@@ -1,13 +1,12 @@
-import type {IEndableAction} from '@action/types.ts';
+import {
+  type IControllerAction,
+  requestControllerActions,
+  runControllerActions,
+} from '@controllers/helper/controller-actions.ts';
 import type {IController} from '@controllers/types.ts';
 import type {IEventbus} from '@eventbus/types.ts';
 import {deepCopy} from '@operation/helper/deep-copy.ts';
 import type {TOperationData} from '@operation/types.ts';
-
-interface IActionInstanceInfo {
-  start: boolean;
-  action: IEndableAction;
-}
 
 export interface IDOMEventListenerControllerOperationData {
   /**
@@ -33,7 +32,9 @@ export interface IDOMEventListenerControllerOperationData {
  * By default the `start` operations of the specified actions are executed. To execute the `end` operations instead,
  * prefix the action name with `end:`.
  *
- * The actions run in order, each receiving the operation data the previous one returned. When an action fails, the
+ * The actions receive a copy of `actionOperationData` plus `eventTarget` (the event's target) and, for key events,
+ * `eventKey` (the `KeyboardEvent.key`). They run in order, each receiving the operation data the previous one
+ * returned. When an action fails, the
  * remaining actions are skipped and the failure is reported through the eventbus's `reportError` (an error naming
  * this controller, the action and the DOM event, with the original error as `cause`), or logged with
  * `console.error` when the eventbus has no `reportError`.
@@ -42,7 +43,7 @@ export class DOMEventListenerController
   implements IController<IDOMEventListenerControllerOperationData>
 {
   operationData?: IDOMEventListenerControllerOperationData;
-  actionInstanceInfos?: IActionInstanceInfo[];
+  actionInstanceInfos?: IControllerAction[];
   name = 'DOMEventListenerController';
   private _boundEventHandler: ((event: any) => void) | null = null;
   /** The eventbus passed to attach(), used to report failing actions */
@@ -72,45 +73,15 @@ export class DOMEventListenerController
 
     const {selectedElement, actions, eventName} = this.operationData;
     if (!this.actionInstanceInfos) {
-      const actionInstanceInfos = actions.map(
-        (actionName: string): IActionInstanceInfo => {
-          const [isStart, name] = this._isStartAction(actionName);
-          let actionInstance: IEndableAction | undefined;
-          try {
-            actionInstance = eventbus.request<IEndableAction>(
-              'request-action',
-              name
-            );
-          } catch (error) {
-            const reason =
-              error instanceof Error ? error.message : String(error);
-            throw new Error(
-              `${this.name}: unknown action "${name}" for DOM event "${eventName}". ${reason}`,
-              {cause: error}
-            );
-          }
-          if (!actionInstance) {
-            throw new Error(
-              `${this.name}: unknown action "${name}" for DOM event "${eventName}"`
-            );
-          }
-          return {start: isStart, action: actionInstance};
-        }
+      this.actionInstanceInfos = requestControllerActions(
+        eventbus,
+        actions,
+        this.name,
+        {kind: 'DOM event', name: eventName}
       );
-
-      this.actionInstanceInfos = actionInstanceInfos;
       this._eventbus = eventbus;
       this._boundEventHandler = this._eventHandler.bind(this);
       selectedElement.on(eventName, this._boundEventHandler);
-    }
-  }
-
-  private _isStartAction(actionName: string): [boolean, string] {
-    const prefix = actionName.substring(0, 'end:'.length);
-    if (prefix === 'end:') {
-      return [false, actionName.substring('end:'.length)];
-    } else {
-      return [true, actionName];
     }
   }
 
@@ -126,57 +97,17 @@ export class DOMEventListenerController
     if (event?.target) {
       actionOperationData.eventTarget = event.target;
     }
+    if (typeof event?.key === 'string') {
+      actionOperationData.eventKey = event.key;
+    }
 
-    // _executeActions never rejects, so the DOM handler leaves no floating
-    // rejection behind
-    void this._executeActions(
+    void runControllerActions(
       this.actionInstanceInfos,
       actionOperationData,
-      this.operationData.eventName
+      this.name,
+      {kind: 'DOM event', name: this.operationData.eventName},
+      this._eventbus
     );
-  }
-
-  /**
-   * Runs the actions one after another, merging each action's result into the
-   * operation data for the next. A failing action stops the chain, since later
-   * actions consume the earlier actions' output, and is reported with an error
-   * naming this controller, the action, the phase and the DOM event (see
-   * `_reportFailure`). The operation data is never logged.
-   */
-  private async _executeActions(
-    actions: IActionInstanceInfo[],
-    operationData: TOperationData,
-    eventName: string
-  ): Promise<void> {
-    for (const {start, action} of actions) {
-      try {
-        const resultOperationData = start
-          ? await action.start(operationData)
-          : await action.end(operationData);
-        Object.assign(operationData, resultOperationData);
-      } catch (error) {
-        this._reportFailure(
-          `${this.name}: action '${action.name}' (${start ? 'start' : 'end'}) failed for DOM event '${eventName}'`,
-          error
-        );
-        return;
-      }
-    }
-  }
-
-  /**
-   * Reports through the eventbus's `reportError` when it has one, so the
-   * application's `onHandlerError` sees it; otherwise logs it.
-   */
-  private _reportFailure(message: string, error: unknown) {
-    const eventbus = this._eventbus;
-    if (eventbus && typeof eventbus.reportError === 'function') {
-      eventbus.reportError(new Error(message, {cause: error}), {
-        source: this.name,
-      });
-      return;
-    }
-    console.error(message, error);
   }
 
   /**

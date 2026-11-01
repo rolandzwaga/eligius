@@ -1,151 +1,43 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/create-element-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/create-element.json",
   "type": "object",
-  "title": "The createElement schema",
-  "description": "This operation creates the DOM element described by the given elementName and attributes and assigns\nthe instance to the `template` property on the current operation data.",
-  "required": ["systemName", "operationData"],
+  "title": "createElement Operation",
+  "description": "Schema for the createElement operation (generated from ICreateElementOperationData)",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "createElement"
+      "const": "createElement",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["elementName"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "elementName": {
-          "$id": "#/properties/operationData/elementName",
-          "type": [
-            {
-              "type": "string",
-              "enum": [
-                "a",
-                "abbr",
-                "address",
-                "area",
-                "article",
-                "aside",
-                "audio",
-                "b",
-                "base",
-                "bdi",
-                "bdo",
-                "blockquote",
-                "body",
-                "br",
-                "button",
-                "canvas",
-                "caption",
-                "cite",
-                "code",
-                "col",
-                "colgroup",
-                "data",
-                "datalist",
-                "dd",
-                "del",
-                "details",
-                "dfn",
-                "dialog",
-                "div",
-                "dl",
-                "dt",
-                "em",
-                "embed",
-                "fieldset",
-                "figcaption",
-                "figure",
-                "footer",
-                "form",
-                "h1,",
-                "head",
-                "header",
-                "hr",
-                "html",
-                "i",
-                "iframe",
-                "img",
-                "input",
-                "ins",
-                "kbd",
-                "keygen",
-                "label",
-                "legend",
-                "li",
-                "link",
-                "main",
-                "map",
-                "mark",
-                "meta",
-                "meter",
-                "nav",
-                "noscript",
-                "object",
-                "ol",
-                "optgroup",
-                "option",
-                "output",
-                "p",
-                "param",
-                "pre",
-                "progress",
-                "q",
-                "rp",
-                "rt",
-                "ruby",
-                "s",
-                "samp",
-                "script",
-                "section",
-                "select",
-                "small",
-                "source",
-                "span",
-                "strong",
-                "style",
-                "sub",
-                "summary",
-                "sup",
-                "table",
-                "tbody",
-                "td",
-                "textarea",
-                "tfoot",
-                "th",
-                "thead",
-                "time",
-                "title",
-                "tr",
-                "track",
-                "u",
-                "ul",
-                "var",
-                "video",
-                "wbr"
-              ]
-            }
-          ]
+          "type": "string"
         },
-        "text": {
-          "$id": "#/properties/operationData/text",
-          "type": "array"
-        },
+        "text": {},
         "attributes": {
-          "$id": "#/properties/operationData/attributes",
-          "type": ["object"]
+          "type": "object"
+        },
+        "template": {
+          "type": "object"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "elementName"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }

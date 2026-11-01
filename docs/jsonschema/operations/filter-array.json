@@ -1,42 +1,55 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/filter-array-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/filter-array.json",
   "type": "object",
-  "title": "The filterArray schema",
-  "description": "Filters an array based on property equality or custom predicate function.\n\nOperates on arrayData passed from previous operations.\nSupports two filtering modes:\n1. Property equality: `filterProperty` and `filterValue` to filter by property match\n2. Custom predicate: `filterPredicate` function for complex filtering logic",
-  "required": ["systemName", "operationData"],
+  "title": "filterArray Operation",
+  "description": "Schema for the filterArray operation",
+  "required": [
+    "id",
+    "systemName"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "filterArray"
+      "const": "filterArray",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": [],
+      "description": "Operation-specific configuration data",
       "properties": {
         "filterProperty": {
-          "$id": "#/properties/operationData/filterProperty",
-          "type": "array"
+          "type": "string"
         },
-        "filterValue": {
-          "$id": "#/properties/operationData/filterValue",
-          "type": ["object"]
-        },
+        "filterValue": {},
         "filterPredicate": {
-          "$id": "#/properties/operationData/filterPredicate",
-          "type": "array"
+          "type": "object",
+          "properties": {
+            "namedArgs": {
+              "type": "object",
+              "properties": {
+                "item": {},
+                "index": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "item"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "filteredArray": {
+          "type": "array",
+          "items": {}
         }
-      }
+      },
+      "additionalProperties": true
     }
-  }
+  },
+  "additionalProperties": false
 }

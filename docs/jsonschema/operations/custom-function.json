@@ -1,34 +1,36 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://eligius.com/schema/custom-function-operation.json",
+  "$id": "https://rolandzwaga.github.io/eligius/jsonschema/operations/custom-function.json",
   "type": "object",
-  "title": "The customFunction schema",
-  "description": "This operation retrieves a custom function defined by the given system name\nand invokes it with the current operation data and eventbus.",
-  "required": ["systemName", "operationData"],
+  "title": "customFunction Operation",
+  "description": "Schema for the customFunction operation",
+  "required": [
+    "id",
+    "systemName",
+    "operationData"
+  ],
   "properties": {
     "id": {
-      "$id": "#/properties/id",
       "type": "string",
-      "title": "The Id Schema",
-      "examples": ["123e4567-e89b-12d3-a456-426614174000"],
-      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+      "description": "Unique identifier for the operation"
     },
     "systemName": {
-      "$id": "#/properties/systemName",
-      "const": "customFunction"
+      "const": "customFunction",
+      "description": "The operation system name"
     },
     "operationData": {
-      "$id": "#/properties/operationData",
       "type": "object",
-      "title": "The Operationdata Schema",
-      "required": ["systemName"],
+      "description": "Operation-specific configuration data",
       "properties": {
         "systemName": {
-          "$id": "#/properties/operationData/systemName",
-          "type": ["string"]
+          "type": "string"
         }
-      }
+      },
+      "additionalProperties": true,
+      "required": [
+        "systemName"
+      ]
     }
-  }
+  },
+  "additionalProperties": false
 }
