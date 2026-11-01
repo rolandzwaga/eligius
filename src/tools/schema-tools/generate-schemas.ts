@@ -29,6 +29,7 @@ import {
   isParameterTypeTag,
   parameterTypeTagToJsonSchemaType,
 } from './parameter-type-schema.ts';
+import {forbidVideoOptions} from './video-options-rule.ts';
 
 const schemaDirectory = path.join(process.cwd(), 'jsonschema');
 const operationsDirectory = path.join(schemaDirectory, 'operations');
@@ -485,6 +486,9 @@ function postProcessConfigSchema(schema: any): any {
         };
       }
     }
+
+    // VideoPositionSource no longer accepts 'options' (4.0.0)
+    forbidVideoOptions(processed.definitions);
   }
 
   return processed;

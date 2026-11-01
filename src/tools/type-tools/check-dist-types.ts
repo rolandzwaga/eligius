@@ -100,8 +100,13 @@ import {
   EligiusResourceImporter,
   EngineFactory,
   LottieController,
+  VideoPositionSource,
 } from 'eligius';
-import type {IAddClassOperationData, ILottieControllerMetadata} from 'eligius';
+import type {
+  IAddClassOperationData,
+  ILottieControllerMetadata,
+  VideoPositionSourceConfig,
+} from 'eligius';
 
 ${IS_ANY}
 
@@ -122,7 +127,14 @@ const renderer: ILottieControllerMetadata['renderer'] = {
   progressiveLoad: true,
 };
 
-export {data, factory, selectedIsTyped, itemIsTyped, rendererIsTyped, renderer};
+// VideoPositionSource type-checks without any media player library, and 'options'
+// is gone from its configuration (4.0.0)
+const videoConfig: VideoPositionSourceConfig = {selector: '#video', sources: [{src: '/a.mp4', type: 'video/mp4'}], poster: '/p.jpg'};
+const video = new VideoPositionSource(videoConfig);
+// @ts-expect-error 'options' was removed in 4.0.0
+const withOptions: VideoPositionSourceConfig = {selector: '#video', sources: [], options: {}};
+
+export {data, factory, selectedIsTyped, itemIsTyped, rendererIsTyped, renderer, video, withOptions};
 `;
 
 const allEntriesConsumer = `

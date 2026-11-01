@@ -27,7 +27,7 @@ const aliasPlugin = alias({
 }) as any;
 
 const base = {
-  external: ['lottie-web', 'jquery', 'video.js'],
+  external: ['lottie-web', 'jquery'],
   format: ['esm'] as const,
   platform: 'node' as const,
   sourcemap: true,
@@ -44,7 +44,7 @@ const base = {
 // controller implementations (which import jquery@4), which would defeat the
 // whole point of `eligius/metadata`. The metadata graph only `import { type … }`s
 // the operation-data interfaces (erased via verbatimModuleSyntax), so its
-// standalone bundle is free of jquery / lottie-web / video.js and imports cleanly
+// standalone bundle is free of jquery / lottie-web and imports cleanly
 // in a DOM-less Node context. The package.json `exports` map is maintained by
 // hand (no `exports: true`) so the builds don't fight over it.
 //

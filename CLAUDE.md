@@ -1,6 +1,6 @@
 # Eligius Development Guidelines
 
-Last re-aligned with the codebase: 2026-10-21
+Last re-aligned with the codebase: 2026-11-01
 
 Eligius is a configuration-driven timeline engine for the browser. A JSON configuration describes timelines, actions, and operations; the engine executes those actions at the right timeline positions against the DOM.
 
@@ -26,9 +26,8 @@ All versions live in [package.json](package.json). Do not hardcode version numbe
 **Peer dependencies** (consumer provided, externalized by the build):
 - jquery (DOM manipulation)
 - lottie-web (LottieController), optional, loaded with a dynamic `import()` on first use
-- video.js (VideoPositionSource), optional, loaded with a dynamic `import()` on first use
 
-Never import lottie-web or video.js statically outside type imports; that would make them required again.
+Never import lottie-web statically outside type imports; that would make it required again.
 
 **Node**: `engines.node` in `package.json` is the minimum. CI runs on the version pinned in `.github/workflows/ci-build.yml`.
 
@@ -53,7 +52,7 @@ eligius/
       helper/               # Operation helper utilities
       metadata/             # GENERATED operation metadata (gitignored except types.ts)
     test/
-      fixtures/             # action-factory, eventbus-factory, jquery-factory
+      fixtures/             # action-factory, eventbus-factory, jquery-factory, video-element-factory
       integration/
       unit/                 # Mirrors src/ layout
       setup.ts              # Global vitest setup (mocks lottie-web)
@@ -196,7 +195,7 @@ Never use `../../..` paths across modules.
 ### ESM
 - ESM only. No `require()`.
 - Public API is exported through `src/index.ts`. Internal helpers are not exported.
-- `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery, lottie-web, and video.js imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
+- `src/metadata.ts` and `src/configuration-api.ts` are separate entries that must stay free of jquery and lottie-web imports (they only import types and generated metadata). Both are independent builds in `tsdown.config.ts`; see the comment there. `src/test/unit/configuration/api/node-environment.spec.ts` guards the configuration API in a Node environment.
 - Published declarations are self-contained: the DOM-free entries type-check without jquery or lottie-web, and the main entry references `@types/jquery` (optional peer). Lottie types in the public API are local structural copies in `src/controllers/types.ts`. Consumers still need `"DOM"` in their TypeScript `lib`. `npm run check:types` guards this.
 
 ## Testing
@@ -208,7 +207,8 @@ Never use `../../..` paths across modules.
 - Environment is jsdom with `globals: true`. `pool: 'vmThreads'` gives each file its own VM context. Mock globals with `vi.stubGlobal`, never assign to `window` or `global`.
 - `clearMocks`, `restoreMocks`, `unstubEnvs`, `unstubGlobals` are all on, so mocks reset between tests automatically.
 - Mock peer dependencies. `src/test/setup.ts` already mocks `lottie-web` globally.
-- Use the fixtures in `src/test/fixtures/` (`action-factory`, `eventbus-factory`, `jquery-factory`) instead of hand-rolling mocks.
+- Use the fixtures in `src/test/fixtures/` (`action-factory`, `eventbus-factory`, `jquery-factory`, `video-element-factory`) instead of hand-rolling mocks.
+- Media elements: jsdom does not implement `play`/`pause`/`load` and never fires media events; use `src/test/fixtures/video-element-factory.ts` (prototype stubs, event helpers, listener tracker).
 - Prefer Given-When-Then test names: `test('given paused timeline, when start called, then playState is playing')`.
 - Coverage reports come from `npm run test:coverage -- --run`. Coverage excludes `src/tools`, `src/test`, generated `metadata/` dirs, `types.ts`, and `index.ts` files.
 
@@ -239,7 +239,7 @@ There is no monolithic timeline provider class. `EngineFactory` composes three p
 
 - **`IPositionSource`**: where time comes from. Lifecycle `init`, `activate`, `suspend`, `deactivate`, `destroy`; state is `'active' | 'suspended' | 'inactive'`; reports via `onPosition`, `onBoundaryReached`, `onActivated`. Sources that can seek implement `ISeekable` (check with `isSeekable()`).
   - `RafPositionSource` (requestAnimationFrame clock)
-  - `VideoPositionSource` (video.js)
+  - `VideoPositionSource` (native `<video>` element with `<source>` children; browser-playable media only, no HLS/DASH player; no `options` key since 4.0.0)
   - `ScrollPositionSource` (scroll position mapped to time)
   - `KeyboardStepSource` (hotkeys-js stepping; binds in the `'all'` scope and never changes the global scope; in `timeline-switch` mode the engine switches to the previous/next timeline)
   - `BasePositionSource` is the shared base class.
@@ -440,7 +440,7 @@ All public APIs carry TypeDoc comments with `@param`, `@returns`, `@throws`, and
 
 ## Research and Documentation Standards
 
-Use the Context7 MCP tools (`mcp__context7__resolve-library-id`, `mcp__context7__get-library-docs`) before writing code against external libraries (jQuery, lottie-web, video.js, Vitest, TypeScript, hotkeys-js, rosetta). Training data goes stale; Context7 serves versioned docs. Check the version in `package.json` first and ask Context7 for that version.
+Use the Context7 MCP tools (`mcp__context7__resolve-library-id`, `mcp__context7__get-library-docs`) before writing code against external libraries (jQuery, lottie-web, Vitest, TypeScript, hotkeys-js, rosetta). Training data goes stale; Context7 serves versioned docs. Check the version in `package.json` first and ask Context7 for that version.
 
 ## Feature Workflow
 

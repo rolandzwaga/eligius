@@ -1,7 +1,6 @@
 # Operations
 
 This is a list of all the available operations with links to their respective documentation
-
 - [addClass](https://rolandzwaga.github.io/eligius/variables/addClass.html "This operation adds the specified class name to the specified selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/add-class.json))
 
 - [addControllerToElement](https://rolandzwaga.github.io/eligius/variables/addControllerToElement.html "This operation adds the specified controller instance to the given selected element.") - ([schema](https://rolandzwaga.github.io/eligius/jsonschema/operations/add-controller-to-element.json))

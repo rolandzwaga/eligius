@@ -5,7 +5,7 @@
  * and their types. The metadata is pure data — each descriptor file imports the
  * operation's data interface as a `type` (erased at build), never the operation
  * implementation — so this entry is bundled into its own chunk that does NOT
- * import jquery / lottie-web / video.js.
+ * import jquery / lottie-web.
  *
  * Importing from the main `eligius` entry evaluates the full engine bundle,
  * which pulls in jquery@4 — and jquery@4 throws `jQuery requires a window with a

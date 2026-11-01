@@ -1,5 +1,57 @@
 # Change Log
 
+## 4.0.0
+
+`VideoPositionSource` plays media with the browser's own `<video>` element, and Eligius no longer depends on video.js in any form. video.js 10 removed the player API that 3.x used, so the integration could not be upgraded. Read the breaking changes and the migration steps before upgrading from 3.x.
+
+### Breaking Changes
+
+- **`VideoPositionSource` drives a native `<video>` element instead of a video.js player.**
+  - Was: `init()` loaded the optional `video.js` 8 peer dependency with a dynamic `import()` and created a video.js player. The `<video>` moved into a wrapper `div.video-js` (the video itself became `.vjs-tech`), with video.js UI components such as the poster image, loading spinner and big play button (hidden while controls are off), and default dimensions from video.js's injected `vjs-styles-defaults` style.
+  - Now: `init()` appends `<video id="video-…" class="eligius-video" preload="auto" playsinline>` with one `<source src type>` per entry of `sources` to the first element matching `selector`. There are no controls, no wrapper elements and no styles; size the element with CSS.
+- **`options` is removed from `VideoPositionSource`.** It passed video.js player options through.
+  - Was: `{"systemName": "VideoPositionSource", "selector": "#video", "options": {"sources": [...], "poster": "..."}}` was accepted, and `options.sources` counted as the required sources.
+  - Now: `ConfigurationResolver` throws `Invalid configuration at <path>.options: VideoPositionSource no longer accepts 'options' ...` for an `options` key on a `VideoPositionSource` in `timelineProviderSettings.<type>.positionSource` or in a timeline's `positionSource` override, including an override without `systemName` that inherits `VideoPositionSource` from its type. The JSON schema rejects it wherever `systemName` is `VideoPositionSource`. `VideoPositionSourceConfig` no longer has the property, and `init()` rejects when the source is constructed directly with `options`. Other position sources may still take an `options` key.
+- **No streaming player.** HLS (`.m3u8`) and DASH (`.mpd`) used to play through video.js's streaming engine. VideoPositionSource no longer ships one: HLS and DASH play only where the browser supports them natively, which is not portable. Stay on 3.x if you need them.
+
+#### Migrating from 3.x
+
+1. Remove video.js unless your application uses it elsewhere: `npm uninstall video.js`, and remove imports or `<link>` tags of `video.js/dist/video-js.css`. Bundles or loaders that import `video.js` only for Eligius can drop that import.
+2. Move `sources` and `poster` out of `options` into the position source settings and delete `options`, in `timelineProviderSettings` and in timeline `positionSource` overrides.
+
+   3.x:
+   ```json
+   {"systemName": "VideoPositionSource", "selector": "#video", "options": {"sources": [{"src": "/intro.mp4", "type": "video/mp4"}], "poster": "/intro.jpg"}}
+   ```
+   4.0.0:
+   ```json
+   {"systemName": "VideoPositionSource", "selector": "#video", "sources": [{"src": "/intro.mp4", "type": "video/mp4"}], "poster": "/intro.jpg"}
+   ```
+   The other video.js options have no replacement in the configuration; delete them. That includes `controls`, `muted`, `loop`, `playsinline`, `fluid`, `aspectRatio`, `techOrder`, `crossOrigin` and plugin options.
+3. Replace CSS that targets `.video-js`, `.vjs-tech` or `.vjs-*` with rules for `.eligius-video`, for example `#video .eligius-video {width: 100%; height: auto;}`. Eligius gives the element no size.
+4. Replace code that used the video.js player API (`videojs.getPlayer(...)`, `videojs.players`, player plugins, `player.*` calls) with the `HTMLVideoElement`: after the timeline's `init()`, `document.querySelector('#video video.eligius-video')`. There is no configuration for controls; host code can set `video.controls = true` on that element.
+5. Make sure every `type` is a real MIME type the browser recognises (`video/mp4`, `video/webm`, `audio/mpeg`, ...), and list sources in order of preference. A source whose `type` the browser reports it cannot play is left out without being fetched; the browser plays the first remaining source it supports and falls back to the next when one fails. Replace `.m3u8` and `.mpd` sources with progressive files, or stay on 3.x.
+6. Playback still starts unmuted, as with video.js, so a browser autoplay policy can still reject it with `NotAllowedError`; start playback from a user gesture as before.
+
+Configurations (and Eligian programs) that already use `selector`, `sources` and `poster` need no change. Audio sources (`audio/mpeg`, `audio/ogg`, ...) still play through `VideoPositionSource`; the `<video>` element shows no picture for them, and no poster unless one is set.
+
+### Removed
+
+- `video.js` from `peerDependencies`, `peerDependenciesMeta`, `devDependencies` and the build externals.
+- `VideoPositionSourceConfig.options`, and the `init()` error "VideoPositionSource requires the optional peer dependency 'video.js'".
+
+### Changed
+
+- **Source fallback.** In 3.x the first `error` of the player rejected `init()`, even when a later source might have played. In 4.0.0 the browser falls back to the next `<source>`, and `init()` rejects with `VideoPositionSource: failed to load video (<sources>): none of the sources could be played` only when no source is left, with the browser's message (or `MediaError code <n>`) on a media error, and at once with `... none of the sources has a type this browser can play` when no `type` is playable.
+- **Source entries are checked.** `init()` rejects an entry without a non-empty `src`, naming `sources[<i>].src`. An entry without `type` is passed to the browser without a `type` attribute, so the browser detects the format (video.js guessed the type from the file extension).
+- **`playsinline`.** The video element has `playsinline`, so iOS Safari plays inline instead of switching to fullscreen.
+- **Native looping is never used.** In 3.x a `loop` set on the source before `init()` turned on video.js's own looping, which emitted no `end`/`start` boundaries. In 4.0.0 the source always loops itself and emits both. The engine sets `loop` after `init()`, so engine users see no difference. A boundary listener that pauses or stops the source during the loop now prevents the replay.
+- **Init retries.** A failed `init()` removes the element, so the engine's retry starts with one fresh element. A second `init()` returns the first one's result instead of appending a second element, and `init()` after `destroy()` rejects.
+- `VideoPositionSource.getDuration()` returns 0 instead of `NaN` until the media metadata is loaded, then the media duration (`Infinity` for unbounded media).
+- `VideoPositionSource.seek()` settles at once with the media's current time when the media has a fatal error or nothing is seekable, instead of waiting for a `seeked` event that never comes. A seek before the media metadata has loaded resolves at once with the requested position, and playback starts there (video.js deferred it and resolved on a later `seeked`). Once the metadata has loaded, a seek waits for `seeked` as before.
+- `VideoPositionSource.destroy()` releases the media (pauses, removes the sources, aborts the download, removes the element) and drops registered container-ready callbacks.
+- A `VideoPositionSource` `selector` that matches several elements gets one video element, in the first match (3.x appended a `<video>` to every match and played the first).
+
 ## 3.1.0
 
 ### Added

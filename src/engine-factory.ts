@@ -672,9 +672,9 @@ export class EngineFactory implements IEngineFactory {
    * `IContainerProvider`, like VideoPositionSource) take their duration from
    * the media rather than from the timeline. They are shared by all timelines
    * of a type with the same effective settings, so switching timelines does
-   * not create a second player; a timeline whose override changes the video
-   * settings gets a player of its own. Overridden container providers are
-   * shared the same way.
+   * not create a second video element; a timeline whose override changes the
+   * video settings gets a video element of its own. Overridden container
+   * providers are shared the same way.
    *
    * @param configuration - The resolved engine configuration
    * @param providersByType - The providers created per timeline type

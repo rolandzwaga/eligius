@@ -59,6 +59,9 @@ import type {
  * names a `systemName` the importer does not provide, or leaves out a setting that the provider
  * requires (for example `selector` of `ScrollPositionSource`) once it is merged over the type's
  * settings.
+ * @throws When a VideoPositionSource has an 'options' key, at timelineProviderSettings.<type>.positionSource
+ * or at a timeline's positionSource override (also when the override inherits VideoPositionSource from its
+ * type). 4.0.0 removed the video.js player options.
  * @throws When a `template:`, `json:` or `config:` placeholder cannot be resolved.
  */
 export class ConfigurationResolver implements IConfigurationResolver {
@@ -220,6 +223,16 @@ function assertTimelineProviderSettings(
   importer: ISimpleResourceImporter
 ) {
   const settings = configuration.timelineProviderSettings ?? {};
+  // Every type, including types no timeline uses, so the mistake fails fast
+  for (const [type, typeSettings] of Object.entries(settings)) {
+    if (isObject(typeSettings) && isObject(typeSettings.positionSource)) {
+      assertNoVideoOptions(
+        typeSettings.positionSource,
+        typeSettings.positionSource.systemName,
+        `timelineProviderSettings.${type}.positionSource`
+      );
+    }
+  }
   configuration.timelines.forEach((timeline, index) => {
     const path = `timelines[${index}]`;
     const {type} = timeline;
@@ -240,6 +253,16 @@ function assertTimelineProviderSettings(
       'container provider',
       importer
     );
+
+    // Before the missing-settings checks, so an old override whose sources
+    // sit inside 'options' gets the real reason
+    if (isObject(timeline.positionSource)) {
+      assertNoVideoOptions(
+        timeline.positionSource,
+        effectivePositionSource(timeline, typeSettings)?.systemName,
+        `${path}.positionSource`
+      );
+    }
 
     if (!typeSettings && !isString(timeline.positionSource?.systemName)) {
       throw new Error(
@@ -292,6 +315,33 @@ const REQUIRED_PROVIDER_SETTINGS: Record<string, readonly string[]> = {
   VideoPositionSource: ['selector', 'sources'],
   DomContainerProvider: ['selector'],
 };
+
+/**
+ * VideoPositionSource took video.js player options under `options` until
+ * 4.0.0 removed video.js. Other position sources may still take an
+ * `options` key, so only the effective system name `VideoPositionSource` is
+ * checked.
+ *
+ * @param positionSource - The settings object as written in the configuration
+ * @param systemName - The effective system name (inherited for overrides without one)
+ * @param path - JSON path of `positionSource`
+ * @throws When a VideoPositionSource has an `options` key
+ */
+function assertNoVideoOptions(
+  positionSource: Record<PropertyKey, unknown>,
+  systemName: unknown,
+  path: string
+) {
+  if (
+    systemName !== 'VideoPositionSource' ||
+    !Object.hasOwn(positionSource, 'options')
+  ) {
+    return;
+  }
+  throw new Error(
+    `Invalid configuration at ${path}.options: VideoPositionSource no longer accepts 'options' (the video.js player options were removed in 4.0.0). Put 'sources' and 'poster' directly in ${path} and delete 'options'. See the 4.0.0 migration steps in CHANGELOG.md.`
+  );
+}
 
 /**
  * Checks the shape of a per-timeline provider override and that its
@@ -387,10 +437,7 @@ function hasRequiredSetting(
   key: string
 ): boolean {
   if (key === 'sources') {
-    // VideoPositionSource also takes its sources from options.sources
-    const options = settings.options;
-    const fromOptions = isObject(options) ? options.sources : undefined;
-    return isNonEmptyArray(settings.sources) || isNonEmptyArray(fromOptions);
+    return isNonEmptyArray(settings.sources);
   }
   const value = settings[key];
   return isString(value) ? value.length > 0 : isDefined(value);

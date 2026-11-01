@@ -75,8 +75,26 @@ These settings describe the providers that are available for the different kinds
 **Position Sources** (required) - drive timeline position:
 - `RafPositionSource` - RequestAnimationFrame-based, for animation timelines
 - `ScrollPositionSource` - Scroll-based, for scroll-driven timelines
-- `VideoPositionSource` - Video.js-based, for video timelines (requires the optional video.js peer dependency, loaded on first use)
+- `VideoPositionSource` - native HTML `<video>` element, for video and audio timelines (browser-playable media files such as MP4, WebM or MP3; no HLS/DASH player)
 - `KeyboardStepSource` - Keyboard-driven stepping through markers or fixed steps
+
+A media timeline names the container, the sources (in order of preference) and an optional poster:
+
+```json
+"mediaplayer": {
+  "positionSource": {
+    "systemName": "VideoPositionSource",
+    "selector": "#video",
+    "sources": [
+      {"src": "/intro.webm", "type": "video/webm"},
+      {"src": "/intro.mp4", "type": "video/mp4"}
+    ],
+    "poster": "/intro.jpg"
+  }
+}
+```
+
+The source appends a `<video class="eligius-video">` without controls to the container; size it with CSS. Since 4.0.0 there is no `options` key.
 
 **Container Providers** (optional) - manage DOM elements where content is rendered:
 - `DomContainerProvider` - Manages a DOM element by selector
@@ -273,7 +291,7 @@ Or name another class to give one timeline a different clock, for example a scro
 { "uri": "chapter-2", "type": "animation", "positionSource": { "systemName": "ScrollPositionSource", "selector": "#chapter-2" }, ... }
 ```
 
-An override that names a different `systemName` replaces the type settings instead of merging with them, so options meant for one class never reach another. A timeline that names its own `systemName` needs no `timelineProviderSettings` entry for its type. Video timelines share one player unless an override changes the video settings, for example `{"positionSource": {"sources": [{"src": "/chapter-2.mp4", "type": "video/mp4"}]}}`, which gives that timeline its own player. With the fluent API use `factory.setTimelinePositionSource('chapter-2', {...})` and `setTimelineContainerProvider`.
+An override that names a different `systemName` replaces the type settings instead of merging with them, so options meant for one class never reach another. A timeline that names its own `systemName` needs no `timelineProviderSettings` entry for its type. Video timelines share one video element unless an override changes the video settings, for example `{"positionSource": {"sources": [{"src": "/chapter-2.mp4", "type": "video/mp4"}]}}`, which gives that timeline its own video element. With the fluent API use `factory.setTimelinePositionSource('chapter-2', {...})` and `setTimelineContainerProvider`.
 
 ### event actions
 
@@ -494,7 +512,7 @@ const operationNames = Object.keys(metadata);      // 'addClass', 'selectElement
 const { description, properties } = metadata.addClass();
 ```
 
-This entry is bundled separately and contains **only metadata** — it does not pull in the engine runtime (jQuery, lottie-web, video.js). As a result it can be imported from a plain Node process **without a DOM**, unlike the main `eligius` entry, which evaluates the browser runtime (jQuery) on import and therefore requires a `window`.
+This entry is bundled separately and contains **only metadata** — it does not pull in the engine runtime (jQuery, lottie-web). As a result it can be imported from a plain Node process **without a DOM**, unlike the main `eligius` entry, which evaluates the browser runtime (jQuery) on import and therefore requires a `window`.
 
 Rule of thumb: use `eligius/metadata` for build-time and server-side tooling; use the main `eligius` entry to actually run the engine.
 
@@ -518,10 +536,9 @@ Peer dependencies:
 
 - `jquery` (required)
 - `lottie-web` (optional, only for `LottieController`, loaded on first use)
-- `video.js` (optional, only for `VideoPositionSource`, loaded on first use)
 - `@types/jquery` (optional, for TypeScript users of the main entry; also add `"DOM"` to your `lib`)
 
-Upgrading from 2.x? Version 3.0.0 has breaking changes; read the [changelog](CHANGELOG.md) first.
+Upgrading from 3.x? Version 4.0.0 replaces the video.js player with the native video element and removes the `options` key of `VideoPositionSource`; read the [changelog](CHANGELOG.md) first. Upgrading from 2.x? Read the 3.0.0 breaking changes too.
 
 ## development
 
