@@ -130,8 +130,28 @@ export interface IEngineActionError extends Error {
   readonly operationSystemName?: string;
   /** Index of the failing operation in its operation list, when known */
   readonly operationIndex?: number;
+  /**
+   * The operations between the failing action and the failing operation,
+   * outermost first, when known. Entry 0 is an operation of the failing
+   * action itself: for a failure inside a called action it is the
+   * `startAction` or `endAction` that called it. Each further entry is an
+   * operation of the action the previous entry started. The last entry is the
+   * failing operation, the same as `operationSystemName` and
+   * `operationIndex`. A direct failure has one entry.
+   */
+  readonly operationPath?: readonly IOperationPathEntry[];
   /** The original error */
   readonly cause: unknown;
+}
+
+/**
+ * One operation on {@link IEngineActionError.operationPath}.
+ */
+export interface IOperationPathEntry {
+  /** System name of the operation */
+  readonly systemName: string;
+  /** Its index in the operation list of its action */
+  readonly index: number;
 }
 
 export type KeysOfType<T, U> = {

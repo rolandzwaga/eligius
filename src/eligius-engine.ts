@@ -26,6 +26,7 @@ import type {
   IEligiusEngineOptions,
   IEngineActionError,
   IEngineEventSubscriptionOptions,
+  IOperationPathEntry,
   ITimelineProviderInfo,
   TActionPhase,
   TimelineTypes,
@@ -58,6 +59,7 @@ export class EngineActionError extends Error implements IEngineActionError {
   readonly phase: TActionPhase;
   readonly operationSystemName?: string;
   readonly operationIndex?: number;
+  readonly operationPath?: readonly IOperationPathEntry[];
   readonly cause: unknown;
 
   /**
@@ -70,15 +72,24 @@ export class EngineActionError extends Error implements IEngineActionError {
     phase: TActionPhase,
     cause: unknown
   ) {
-    const {operationSystemName, operationIndex} = readOperationContext(cause);
+    const {operationSystemName, operationIndex, operationPath} =
+      readOperationContext(cause);
     const operation =
       operationSystemName === undefined
         ? ''
         : ` at operation '${operationSystemName}'${
             operationIndex === undefined ? '' : ` (index ${operationIndex})`
           }`;
+    // For a failure inside a called action, name the calls that led there
+    const callers =
+      operationPath && operationPath.length > 1
+        ? `, reached through ${operationPath
+            .slice(0, -1)
+            .map(entry => `'${entry.systemName}' (index ${entry.index})`)
+            .join(' > ')}`
+        : '';
     super(
-      `Error in action ${phase} '${action.name}'${operation}: ${describeCause(cause)}`
+      `Error in action ${phase} '${action.name}'${operation}${callers}: ${describeCause(cause)}`
     );
     this.name = 'EngineActionError';
     this.actionName = action.name;
@@ -86,6 +97,7 @@ export class EngineActionError extends Error implements IEngineActionError {
     this.phase = phase;
     this.operationSystemName = operationSystemName;
     this.operationIndex = operationIndex;
+    this.operationPath = operationPath;
     this.cause = cause;
   }
 }
@@ -93,11 +105,12 @@ export class EngineActionError extends Error implements IEngineActionError {
 function readOperationContext(cause: unknown): {
   operationSystemName?: string;
   operationIndex?: number;
+  operationPath?: readonly IOperationPathEntry[];
 } {
-  if (typeof cause !== 'object' || cause === null) {
+  if (cause === null || typeof cause !== 'object') {
     return {};
   }
-  const {operationSystemName, operationIndex} = cause as Record<
+  const {operationSystemName, operationIndex, operationPath} = cause as Record<
     string,
     unknown
   >;
@@ -106,7 +119,35 @@ function readOperationContext(cause: unknown): {
       typeof operationSystemName === 'string' ? operationSystemName : undefined,
     operationIndex:
       typeof operationIndex === 'number' ? operationIndex : undefined,
+    operationPath: readOperationPath(operationPath),
   };
+}
+
+/**
+ * A frozen copy of a well-formed operation path, or undefined for anything
+ * else, so the engine error never shares or trusts the cause's array.
+ */
+function readOperationPath(
+  value: unknown
+): readonly IOperationPathEntry[] | undefined {
+  if (!Array.isArray(value) || value.length === 0) {
+    return undefined;
+  }
+  const entries: IOperationPathEntry[] = [];
+  for (const entry of value) {
+    if (
+      entry === null ||
+      typeof entry !== 'object' ||
+      typeof entry.systemName !== 'string' ||
+      typeof entry.index !== 'number'
+    ) {
+      return undefined;
+    }
+    entries.push(
+      Object.freeze({systemName: entry.systemName, index: entry.index})
+    );
+  }
+  return Object.freeze(entries);
 }
 
 function describeCause(cause: unknown): string {

@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.2.0
+
+### Added
+
+- `IEngineActionError.operationPath`: the operations between the failing action and the failing operation, outermost first. Entry 0 is an operation of the failing action itself (for a failure inside a called action, the `startAction` or `endAction` that called it), each further entry is an operation of the action the previous entry started, and the last entry is the failing operation, the same as `operationSystemName` and `operationIndex`. Before, a failure inside a called action reported only the innermost operation and its index, which is ambiguous when the caller has the same operation at the same index (most actions start with `selectElement`). The message of a nested failure now ends with `, reached through 'startAction' (index 2)` and the like. Every action frame the error passes through adds exactly one entry, also across awaited operations. New type `IOperationPathEntry`; `IOperationErrorContext.operationPath` carries the path on the raw error.
+
 ## 4.1.0
 
 ### Added
