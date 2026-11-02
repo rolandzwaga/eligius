@@ -239,7 +239,7 @@ await engine.switchTimeline('other-timeline', 0);
 await destroy();
 ```
 
-`IEligiusEngine` exposes read-only `position`, `duration`, `playState` (`'playing' | 'paused' | 'stopped'`), `currentTimelineUri`, `container`, and `engineRoot`. It is a `TypedEventEmitter<EngineEvents>` with events such as `start`, `pause`, `stop`, `time`, `duration`, `seekStart`, `seekComplete`, `timelineComplete`, and `error` (an `EngineActionError` naming the action, phase and failing operation, forwarded to the eventbus as `engine-error`). See `src/types.ts` for the full list.
+`IEligiusEngine` exposes read-only `position`, `duration`, `playState` (`'playing' | 'paused' | 'stopped'`), `currentTimelineUri`, `container`, and `engineRoot`. It is a `TypedEventEmitter<EngineEvents>` with events such as `start`, `pause`, `stop`, `time`, `duration`, `seekStart`, `seekComplete`, `timelineComplete`, and `error` (an `EngineActionError` naming the action, phase and failing operation, with `operationPath` (outermost first) through called actions, forwarded to the eventbus as `engine-error`). See `src/types.ts` for the full list.
 
 ### Timeline providers (decomposed architecture)
 

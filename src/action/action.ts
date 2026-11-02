@@ -247,19 +247,42 @@ export class Action implements IAction {
 }
 
 /**
+ * One operation on the path from the action the engine ran to the operation
+ * that failed, see {@link IOperationErrorContext.operationPath}.
+ */
+export interface IOperationPathEntry {
+  /** System name of the operation */
+  systemName: string;
+  /** Its index in the operation list of its action */
+  index: number;
+}
+
+/**
  * An error that carries the operation it came from.
  *
  * `EligiusEngine` reads these properties to name the failing operation in its
  * `error` event.
  */
 export interface IOperationErrorContext {
+  /** System name of the innermost failing operation */
   operationSystemName?: string;
+  /** Index of the innermost failing operation in its own action's list */
   operationIndex?: number;
+  /**
+   * The operations the error passed through, outermost first: every
+   * `startAction` or `endAction` that called into another action, and
+   * finally the failing operation itself (the same as `operationSystemName`
+   * and `operationIndex`). Each entry's index is in the operation list of
+   * the action the previous entry started.
+   */
+  operationPath?: IOperationPathEntry[];
 }
 
 /**
  * Adds the failing operation's system name and index to an error, unless an
- * inner action already did (the innermost operation is the most specific).
+ * inner action already did (the innermost operation is the most specific),
+ * and prepends the operation to the error's path, so that every action frame
+ * the error passes through adds exactly one entry, outermost first.
  * Non-Error values are wrapped in an Error that keeps their message.
  */
 function withOperationContext(
@@ -273,6 +296,10 @@ function withOperationContext(
     annotated.operationSystemName = operation.systemName;
     annotated.operationIndex = index;
   }
+  annotated.operationPath = [
+    {systemName: operation.systemName, index},
+    ...(annotated.operationPath ?? []),
+  ];
   return annotated;
 }
 

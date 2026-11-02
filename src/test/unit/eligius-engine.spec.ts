@@ -2274,6 +2274,69 @@ describe('EligiusEngine', () => {
         });
       });
 
+      test<EligiusEngineSuiteContext>('given an error that carries an operation path, when it is reported, then the engine error copies the path and names the calls that led to the operation', async context => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        const path = [
+          {systemName: 'startAction', index: 2},
+          {systemName: 'getControllerInstance', index: 0},
+        ];
+        const cause = Object.assign(new Error('no controller'), {
+          operationSystemName: 'getControllerInstance',
+          operationIndex: 0,
+          operationPath: path,
+        });
+        const source = createManualPositionSource();
+        const engine = createEngineWith(context, source, [
+          failingAction('Failing', 2, 5, 'start', cause),
+        ]);
+        const onError = vi.fn();
+        engine.on('error', onError);
+        await engine.init();
+        await engine.start();
+
+        source.report(3);
+        await flushAsync();
+
+        // The failing action's own frame ('record' at index 0 throws the
+        // cause) prepends its entry to the path the cause already carried
+        const [error] = onError.mock.calls[0];
+        expect(error.operationPath).toEqual([
+          {systemName: 'record', index: 0},
+          ...path,
+        ]);
+        expect(error.operationPath).not.toBe(path);
+        expect(Object.isFrozen(error.operationPath)).toBe(true);
+        expect(error).toMatchObject({
+          operationSystemName: 'getControllerInstance',
+          operationIndex: 0,
+        });
+        expect(error.message).toBe(
+          "Error in action start 'Failing' at operation 'getControllerInstance' (index 0), reached through 'record' (index 0) > 'startAction' (index 2): no controller"
+        );
+      });
+
+      test<EligiusEngineSuiteContext>('given an error whose operation path is malformed, when it is reported, then the engine error has no path', async context => {
+        vi.spyOn(console, 'error').mockImplementation(() => {});
+        const cause = Object.assign(new Error('bad'), {
+          operationSystemName: 'x',
+          operationIndex: 0,
+          operationPath: [{systemName: 'x'}],
+        });
+        const source = createManualPositionSource();
+        const engine = createEngineWith(context, source, [
+          failingAction('Failing', 2, 5, 'start', cause),
+        ]);
+        const onError = vi.fn();
+        engine.on('error', onError);
+        await engine.init();
+        await engine.start();
+
+        source.report(3);
+        await flushAsync();
+
+        expect(onError.mock.calls[0][0].operationPath).toBeUndefined();
+      });
+
       test<EligiusEngineSuiteContext>('given an error that carries operation context, when it is reported, then the engine error names the operation and its index', async context => {
         vi.spyOn(console, 'error').mockImplementation(() => {});
         const cause = Object.assign(new Error('no element'), {
